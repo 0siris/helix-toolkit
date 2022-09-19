@@ -647,6 +647,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     {
                         renderable.Invalidated += RenderableInvalidated;
                         renderable.Attach(EffectsManager);
+                        renderable.RenderHost = host;
                     }
                 }
             }
@@ -671,6 +672,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     foreach (var renderable in Renderables)
                     {                        
                         renderable.Detach();
+                        renderable.RenderHost = null;
                         renderable.Invalidated -= RenderableInvalidated;
                     }
                 }

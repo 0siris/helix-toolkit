@@ -80,11 +80,17 @@ namespace HelixToolkit.SharpDX.Core.Controls
         public void Attach(IRenderHost host)
         {
             Items.Attach(host.EffectsManager);
+            Items.RenderHost = host;
             Items.Invalidated += Items_Invalidated;
+
             ViewCube.Attach(host.EffectsManager);
+            ViewCube.RenderHost = host;
             ViewCube.Invalidated += Items_Invalidated;
+
             CoordinateSystem.Attach(host.EffectsManager);
+            CoordinateSystem.RenderHost = host;
             CoordinateSystem.Invalidated += Items_Invalidated;
+
             Items2D.Attach(host);
         }
 
@@ -99,11 +105,17 @@ namespace HelixToolkit.SharpDX.Core.Controls
         public void Detach()
         {
             Items.Invalidated -= Items_Invalidated;
+            Items.RenderHost = null;
             Items.Detach();
+
             ViewCube.Invalidated -= Items_Invalidated;
+            ViewCube.RenderHost = null;
             ViewCube.Detach();
+
             CoordinateSystem.Invalidated -= Items_Invalidated;
+            CoordinateSystem.RenderHost = null;
             CoordinateSystem.Detach();
+
             Items2D.Detach();
         }
         /// <summary>

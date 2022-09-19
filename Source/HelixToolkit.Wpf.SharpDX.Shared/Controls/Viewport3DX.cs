@@ -374,6 +374,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     partItemsControl?.Items.Remove(item);
                     if (item is Element3D element)
                     {
+                        element.SceneNode.RenderHost = null;
                         element.SceneNode.Detach();
                     }
                 }
@@ -386,6 +387,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     if (this.IsAttached && item is Element3D element)
                     {
                         element.SceneNode.Attach(EffectsManager);
+                        element.SceneNode.RenderHost = renderHostInternal;
                     }
                 }
             }
@@ -975,6 +977,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 foreach (var e in this.OwnedRenderables)
                 {
                     e.Attach(EffectsManager);
+                    e.RenderHost = host;
                     e.Invalidated += NodeInvalidated;
                 }
                 SharedModelContainerInternal?.Attach(host);
@@ -1002,6 +1005,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 foreach (var e in this.OwnedRenderables)
                 {
                     e.Invalidated -= NodeInvalidated;
+                    e.RenderHost = null;
                     e.Detach();
                 }
                 SharedModelContainerInternal?.Detach(this.renderHostInternal);

@@ -128,8 +128,8 @@ namespace HelixToolkit.UWP
                 }
 
                 var nodeIdxDict = new Dictionary<string, int>();
-                foreach (var node in SceneNodes.Where(x => x is Animations.IBoneMatricesNode)
-                    .Select(x => x as Animations.IBoneMatricesNode))
+                foreach (var node in SceneNodes
+                             .OfType<HxAnimations.IBoneMatricesNode>())
                 {
                     if (node.Bones != null)
                     {

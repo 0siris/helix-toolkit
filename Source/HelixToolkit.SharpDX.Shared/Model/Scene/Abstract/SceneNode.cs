@@ -1026,6 +1026,9 @@ namespace HelixToolkit.UWP
                     return postEffectNames.Count > 0;
                 }
             }
+
+            public virtual IRenderHost RenderHost { get; set; }
+
             /// <summary>
             /// Adds the post effect.
             /// </summary>

@@ -29,6 +29,15 @@ namespace HelixToolkit.UWP
                 Add, Remove, Clear
             }
 
+            public override IRenderHost RenderHost {
+                get => renderHost;
+                set {
+                    renderHost = value;
+                    foreach (var sceneNode in ItemsInternal) 
+                        sceneNode.RenderHost = renderHost;
+                }
+            }
+
             public sealed class OnChildNodeChangedArgs : EventArgs
             {
                 /// <summary>
@@ -68,6 +77,8 @@ namespace HelixToolkit.UWP
                 }
             }
             protected readonly Dictionary<Guid, SceneNode> itemHashSet = new Dictionary<Guid, SceneNode>();
+            private IRenderHost renderHost;
+
             /// <summary>
             /// Gets or sets the metadata.
             /// Metadata is used to store additional data to describe the scene node.
@@ -119,6 +130,7 @@ namespace HelixToolkit.UWP
                     if (IsAttached)
                     {
                         node.Attach(EffectsManager);
+                        node.RenderHost = RenderHost;
                         InvalidateSceneGraph();
                     }
                     ChildNodeAdded?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Add));
@@ -217,6 +229,7 @@ namespace HelixToolkit.UWP
                     }
                     ItemsInternal.Remove(node);
                     node.Parent = null;
+                    node.RenderHost = null;
                     ChildNodeRemoved?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Remove));
                     return true;
                 }

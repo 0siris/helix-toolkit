@@ -79,17 +79,17 @@ namespace HelixToolkit.SharpDX.Core.Controls
         /// <param name="host">The host.</param>
         public void Attach(IRenderHost host)
         {
-            Items.Attach(host.EffectsManager);
             Items.RenderHost = host;
             Items.Invalidated += Items_Invalidated;
+            Items.Attach(host.EffectsManager);
 
-            ViewCube.Attach(host.EffectsManager);
-            ViewCube.RenderHost = host;
             ViewCube.Invalidated += Items_Invalidated;
+            ViewCube.RenderHost = host;
+            ViewCube.Attach(host.EffectsManager);
 
-            CoordinateSystem.Attach(host.EffectsManager);
             CoordinateSystem.RenderHost = host;
             CoordinateSystem.Invalidated += Items_Invalidated;
+            CoordinateSystem.Attach(host.EffectsManager);
 
             Items2D.Attach(host);
         }

@@ -376,6 +376,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     {
                         element.SceneNode.RenderHost = null;
                         element.SceneNode.Detach();
+                        element.SceneNode.Invalidated -= NodeInvalidated;
                     }
                 }
             }
@@ -384,8 +385,8 @@ namespace HelixToolkit.Wpf.SharpDX
                 foreach (var item in e.NewItems)
                 {
                     partItemsControl?.Items.Add(item);
-                    if (this.IsAttached && item is Element3D element)
-                    {
+                    if (this.IsAttached && item is Element3D element) {
+                        element.SceneNode.Invalidated += NodeInvalidated;
                         element.SceneNode.Attach(EffectsManager);
                         element.SceneNode.RenderHost = renderHostInternal;
                     }

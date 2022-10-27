@@ -792,6 +792,8 @@ namespace HelixToolkit.UWP
             {
                 return deviceContext.ComputeShader.GetShaderResources(startSlot, num);
             }
+            
+
             /// <summary>
             /// Binds the unordered access view. Use <see cref="ComputeShader.Type"/>
             /// </summary>
@@ -809,6 +811,28 @@ namespace HelixToolkit.UWP
             }
 
             /// <summary>
+            ///     Binds the unordered access view. Use <see cref="ComputeShader.Type" />
+            /// </summary>
+            /// <param name="shaderType">The shaderType. Use <see cref="ComputeShader.Type" /></param>
+            /// <param name="slot">The slot.</param>
+            /// <param name="uav">The texture.</param>
+            /// <param name="uavInitialCount">
+            ///     An Append/Consume buffer offsets. A value of -1 indicates the current offset should be
+            ///     kept.   Any other values set the hidden counter for that Appendable/Consumable UAV. uAVInitialCount is only
+            ///     relevant for UAVs which have the <see cref="T:SharpDX.Direct3D11.UnorderedAccessViewBufferFlags" /> flag,
+            ///     otherwise the argument is ignored.
+            /// </param>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetUnorderedAccessView(ComputeShaderType shaderType, int slot, UnorderedAccessView uav, int uavInitialCount)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+                deviceContext.ComputeShader.SetUnorderedAccessView(slot, uav,uavInitialCount);
+            }
+
+            /// <summary>
             /// Binds the unordered access views. Use <see cref="ComputeShader.Type"/>
             /// </summary>
             /// <param name="shaderType">The shaderType. Use <see cref="ComputeShader.Type"/></param>
@@ -822,6 +846,25 @@ namespace HelixToolkit.UWP
                     return;
                 }
                 deviceContext.ComputeShader.SetUnorderedAccessViews(slot, UAVs);
+            }
+
+            /// <summary>
+            ///     Binds the unordered access views. Use <see cref="ComputeShader.Type" />
+            /// </summary>
+            /// <param name="shaderType">The shaderType. Use <see cref="ComputeShader.Type" /></param>
+            /// <param name="slot">The slot.</param>
+            /// <param name="UAVs">The texture.</param>
+            /// <param name="uavInitialCounts">
+            ///     An array of Append/Consume buffer offsets. A value of -1 indicates the current offset
+            ///     should be kept.   Any other values set the hidden counter for that Appendable/Consumable UAV.  pUAVInitialCounts is
+            ///     only relevant for UAVs which have the <see cref="T:SharpDX.Direct3D11.UnorderedAccessViewBufferFlags" /> flag,
+            ///     otherwise the argument is ignored.
+            /// </param>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetUnorderedAccessViews(ComputeShaderType shaderType, int slot, UnorderedAccessView[] UAVs, int[] uavInitialCounts)
+            {
+                if (slot < 0) return;
+                deviceContext.ComputeShader.SetUnorderedAccessViews(slot, UAVs, uavInitialCounts);
             }
             /// <summary>
             /// Gets the unordered access view. Use <see cref="ComputeShader.Type"/>

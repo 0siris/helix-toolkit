@@ -69,20 +69,29 @@ FXAA, Order Independant Transparent Rendering, Particle system, Tessellation.
 
 #### 4. [Wiki](https://github.com/helix-toolkit/helix-toolkit/wiki) and useful [External Resources](https://github.com/helix-toolkit/helix-toolkit/wiki/External-References) on Computer Graphics.
 
-## HelixToolkit Library Relationship
-- HelixToolkit
-  - .NET WPF
-    - HelixToolkit.WPF
-  - SharpDX DX11 Engine
-    - .NET WPF
-      - HelixToolkit.WPF.SharpDX
-    - UWP
-      - Helixtoolkit.UWP
-    - .NET CORE
-      - HelixToolkit.SharpDX.Core
-        - HelixToolkit.SharpDX.Core.Wpf
-        - HelixToolkit.WinUI
-    - HelixToolkit.Assimp
+## HelixToolkit Library Structure
+
+### WPF Internal 3D Engine (DirectX9)
+
+```mermaid
+graph TD
+    wpf[WPF Framework] --> hxWpf[HelixToolkit.Wpf]
+    wpf --> hxCoreWpf[HelixToolkit.Core.Wpf]
+```
+### HelixToolkit DirectX11 Engine
+
+```mermaid
+graph TD
+    hx[HelixToolkit] --> dx11[DirectX11 Engine]    
+    dx11 --> hxSharpDX[HelixToolkit.Wpf.SharpDX]
+    dx11 --> hxUWP[HelixToolkit.UWP]
+    dx11 --> hxCore[HelixToolkit.SharpDX.Core]
+    hxCore --> hxWinUI[HelixToolkit.SharpDX.Core.Wpf]
+    hxCore --> hxSharpDXCoreWpf[HelixToolkit.WinUI]
+    hxSharpDX --> hxAssimp[HelixToolkit.SharpDX.Assimp]
+    hxUWP --> hxAssimp
+    hxCore --> hxAssimp
+```
 
 ## Bug Report
 Please use the following template to report bugs.

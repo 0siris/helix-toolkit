@@ -374,9 +374,9 @@ namespace HelixToolkit.Wpf.SharpDX
                     partItemsControl?.Items.Remove(item);
                     if (item is Element3D element)
                     {
+                        element.SceneNode.Invalidated -= NodeInvalidated;
                         element.SceneNode.Detach();
                         element.SceneNode.RenderHost = null;
-                        element.SceneNode.Invalidated -= NodeInvalidated;
                     }
                 }
             }

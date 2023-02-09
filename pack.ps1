@@ -1,4 +1,5 @@
-$GitVersion_NuGetVersion = "2.22.2"
+#execute in developer shell of visual studio
+$GitVersion_NuGetVersion = "2.23.3"
 
 $pattern1 = '\[assembly: AssemblyVersion\("(.*)"\)\]'
 $pattern2 = '\[assembly: AssemblyFileVersion\("(.*)"\)\]'
@@ -28,4 +29,4 @@ msbuild Source\HelixToolkit.AppVeyor.sln /property:Platform="Any CPU" /property:
 #Create Nuget Packages
 Invoke-WebRequest -Uri "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -OutFile "nuget.exe"
 
-Get-ChildItem Source\*.nuspec | % {.\nuget.exe pack $_ -version $GitVersion_NuGetVersion -Symbols -SymbolPackageFormat snupkg}
+Get-ChildItem Source\*.nuspec | % {.\nuget.exe pack $_ -version $GitVersion_NuGetVersion -Symbols}

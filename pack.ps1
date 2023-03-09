@@ -1,5 +1,5 @@
 #execute in developer shell of visual studio
-$GitVersion_NuGetVersion = "2.23.3"
+$GitVersion_NuGetVersion = "2.23.4"
 
 $pattern1 = '\[assembly: AssemblyVersion\("(.*)"\)\]'
 $pattern2 = '\[assembly: AssemblyFileVersion\("(.*)"\)\]'

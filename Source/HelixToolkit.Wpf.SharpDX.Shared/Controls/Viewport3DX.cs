@@ -392,6 +392,10 @@ namespace HelixToolkit.Wpf.SharpDX
                     }
                 }
             }
+
+            //Fix for ORL-1571: We need to invalidate the graph here. Otherwise, detached elements will
+            //continue to be attempted to render. (cached in flatten scene and so on ...)
+            InvalidateSceneGraph();
         }
 
         /// <summary>

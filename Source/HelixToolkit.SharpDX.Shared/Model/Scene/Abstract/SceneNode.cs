@@ -136,7 +136,7 @@ namespace HelixToolkit.UWP
             protected bool NeedMatrixUpdate = true;
 
             private Matrix modelMatrix = Matrix.Identity;
-
+            
             /// <summary>
             /// Gets or sets the model matrix.
             /// </summary>
@@ -149,7 +149,12 @@ namespace HelixToolkit.UWP
                 {
                     if (SetAffectsRender(ref modelMatrix, value))
                     {
+                        if (IsModelMatrixLocked)
+                        {
+                            throw new InvalidOperationException("Model matrix is locked and can not be changed.");
+                        }
                         NeedMatrixUpdate = true;
+                        ModelTransformChanged?.Invoke(this, new TransformArgs(ModelMatrix));
                     }
                 }
                 get
@@ -158,6 +163,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
+            
             private SceneNode parent = NullSceneNode.NullNode;
             /// <summary>
             /// Gets or sets the parent.
@@ -384,6 +390,11 @@ namespace HelixToolkit.UWP
             /// Occurs when [on transform changed].
             /// </summary>
             public event EventHandler<TransformArgs> TransformChanged;
+
+            /// <summary>
+            /// Occurs when [on model transform changed].
+            /// </summary>
+            public event EventHandler<TransformArgs> ModelTransformChanged; 
 
             #endregion Handling Transforms
 
@@ -1183,6 +1194,46 @@ namespace HelixToolkit.UWP
                 InvalidateSceneGraph();
                 return true;
             }
+
+            #region ModeMatrixLock
+
+            public bool IsModelMatrixLocked => modelMatrixKey is { };
+
+            private LockKey? modelMatrixKey = null;
+
+            public LockKey LockModelMatrix()
+            {
+                if (IsModelMatrixLocked)
+                    throw new InvalidOperationException("Model matrix is already locked. Unlock first.");
+
+                modelMatrixKey = new LockKey(Guid.NewGuid());
+                return modelMatrixKey.Value;
+            }
+
+            public void UnlockModelMatrix(LockKey key)
+            {
+                //check if locked
+                if (modelMatrixKey is null)
+                    return;
+
+                if (modelMatrixKey.Value.Key != key.Key)
+                    throw new InvalidOperationException("Key is not correct.");
+
+                modelMatrixKey = null;
+            }
+
+            public struct LockKey
+            {
+                public LockKey(Guid key)
+                {
+                    Key = key;
+                }
+
+                public Guid Key { get; }
+            }
+
+            #endregion
+
         }
 
         public sealed class NullSceneNode : SceneNode

@@ -1,3 +1,16 @@
+
+
+function Check-Command($cmdname)
+{
+    return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
+}
+
+if(-not(Check-Command("msbuild"))){
+    Write-Error "This scripts needs to be run in DEV-Shell!"
+    return
+}
+
+
 #execute in developer shell of visual studio
 $GitVersion_NuGetVersion = "2.24.1"
 

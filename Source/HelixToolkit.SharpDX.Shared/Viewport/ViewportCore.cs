@@ -258,6 +258,10 @@ namespace HelixToolkit.UWP
         protected override void OnDispose(bool disposeManagedResources)
         {
             Detach();
+            if (disposeManagedResources)
+            {
+                Items.Dispose();
+            }
             base.OnDispose(disposeManagedResources);
         }
     }

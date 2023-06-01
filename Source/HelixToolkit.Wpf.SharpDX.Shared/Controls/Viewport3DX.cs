@@ -1929,6 +1929,12 @@ namespace HelixToolkit.Wpf.SharpDX
                         }
                         Camera = null;
                         EffectsManager = null;
+                        foreach (var item in Items)
+                        {
+                            item.Dispose();
+                        }
+                        viewCube?.Dispose();
+                        coordinateView?.Dispose();
                         Items.Clear();
                     }
                     // TODO: dispose managed state (managed objects).

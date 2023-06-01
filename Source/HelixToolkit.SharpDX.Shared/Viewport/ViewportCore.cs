@@ -87,19 +87,22 @@ namespace HelixToolkit.UWP
         /// <param name="host">The host.</param>
         public void Attach(IRenderHost host)
         {
-            Items.RenderHost = host;
-            Items.Invalidated += Items_Invalidated;
+            
             Items.Attach(host.EffectsManager);
+            Items.Invalidated += Items_Invalidated;
 
-            ViewCube.Invalidated += Items_Invalidated;
-            ViewCube.RenderHost = host;
             ViewCube.Attach(host.EffectsManager);
+            ViewCube.Invalidated += Items_Invalidated;
 
-            CoordinateSystem.RenderHost = host;
-            CoordinateSystem.Invalidated += Items_Invalidated;
+
             CoordinateSystem.Attach(host.EffectsManager);
+            CoordinateSystem.Invalidated += Items_Invalidated;
 
             Items2D.Attach(host);
+            
+            Items.RenderHost = host;
+            CoordinateSystem.RenderHost = host;
+            ViewCube.RenderHost = host;
         }
 
         private void Items_Invalidated(object sender, InvalidateTypes e)
@@ -113,18 +116,19 @@ namespace HelixToolkit.UWP
         public void Detach()
         {
             Items.Invalidated -= Items_Invalidated;
-            Items.RenderHost = null;
             Items.Detach();
 
             ViewCube.Invalidated -= Items_Invalidated;
-            ViewCube.RenderHost = null;
             ViewCube.Detach();
 
             CoordinateSystem.Invalidated -= Items_Invalidated;
-            CoordinateSystem.RenderHost = null;
             CoordinateSystem.Detach();
 
             Items2D.Detach();
+
+            Items.RenderHost = null;
+            ViewCube.RenderHost = null;
+            CoordinateSystem.RenderHost = null;
         }
         /// <summary>
         /// Invalidates the render.

@@ -385,7 +385,8 @@ namespace HelixToolkit.Wpf.SharpDX
                 foreach (var item in e.NewItems)
                 {
                     partItemsControl?.Items.Add(item);
-                    if (this.IsAttached && item is Element3D element) {
+                    if (this.IsAttached && item is Element3D element) 
+                    {
                         element.SceneNode.RenderHost = renderHostInternal;
                         element.SceneNode.Invalidated += NodeInvalidated;
                         element.SceneNode.Attach(EffectsManager);

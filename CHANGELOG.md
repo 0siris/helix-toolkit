@@ -1,7 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [2.24.0]
+## [2.25.0] Pre-Release
+
+### Added
+1. Add CombinedSelectionCommand. (WPF)
+1. Allow importer to load obj,off,ply,stl from application resources. (WPF)
+1. Add AngleProperty for BillboardTextVisual3D (WPF)
+1. Add Angle Property for TextVisual3D. (WPF)
+1. Added ability to create tiled image materials with controlled vertical and horizontal scale factor. (WPF)
+1. Support color inner rectangle of RectangleAdorner. (WPF)
+1. Add FillRectangleBrush property for RectangleSelectionCommand, CombinedSelectionCommand. (WPF)
+
+### Improvement
+1. Re-implmenet zoom extents algorithm.(WPF.SharpDX/UWP/WinUI)
+1. Get rid of the sync context in RenderHostBase. Get rid of unnecessary parallel frustum tests. Change SceneNode ItemsInternal from ObservableCollection to own implementation.(WPF.SharpDX/UWP/WinUI)
+1. Improve dual depth peeling implementation. (WPF.SharpDX/UWP/WinUI)
+   
+### Fixed
+1. Fixed NullRefrenceException in CuttingPlaneGroup.CuttingPlanes (WPF)
+1. Fixed null exception XamlExporter (WPF)
+1. Fix outline highlight not showing up while rending backface only. (WPF.SharpDX/UWP/WinUI)
+1. Fix particle system not able to render 2x2 particle texture. (WPF.SharpDX/UWP/WinUI)
+1. Fix rendering doesn't update after removing item from Viewport3DX.Items.(WPF.SharpDX/UWP/WinUI)
+1. Fix OIT mode switch not working in UWP demo.(WPF.SharpDX/UWP/WinUI)
+2. Fix WinUI crash. (WinUI)
+   
+## [2.24.0] 2023-05-09
 
 ### Added
 1. Adding IncreaseSwapchainFPS property for sharpdx wpf viewport for disable/enable FPS increasing feature. (WPF.SharpDX/UWP/WinUI)
@@ -24,7 +49,7 @@ All notable changes to this project will be documented in this file.
 1. Fix memory leak by disposing entire tree if top node is being disposed. (WPF.SharpDX/UWP/WinUI)
 1. Fix missing edge clicking, incorrect model updirection in ViewCubeVisual3d (WPF)
 
-## [2.23.0]
+## [2.23.0] 2022-11-28
 
 ### Added
 1. Add feature of enabling rotation/translation/scale control in every axis for TransformManipulator3D (WPF.SharpDX/UWP/WinUI)
@@ -42,25 +67,7 @@ All notable changes to this project will be documented in this file.
 1. Fix null reference exception in GeometryRenderCore.OnAttachBuffers(). (WPF.SharpDX/UWP/Core/WinUI)
 1. Fix shadow map light camera property update does not trigger re-rendering. (WPF.SharpDX/UWP/Core/WinUI)
 
-## [2.22.1]
-
-### Added
-1. Add feature of enabling rotation/translation/scale control in every axis for TransformManipulator3D (WPF.SharpDX/UWP/WinUI)
-1. Decouple `HelixToolkit.Wpf` and `HelixToolkit.Core.Wpf` packages from `HelixToolkit` core library. `HelixToolkit` package will no longer be a dependency for both `HelixToolkit.Wpf` and `HelixToolkit.Core.Wpf`. (WPF)
-
-### Improvement
-1. Automatic invert up direction for rotation mode = turntable (WPF.SharpDX/UWP/Core/WinUI)
-1. Improve swapchain framerate under SharpDX.WPF (WPF.SharpDX)
-1. Adds function to invalidate bone matrices/morph target weights manually (WPF.SharpDX/UWP/Core/WinUI)
-
-### Fixed
-1. Fix models are not rendered by adding them directly into viewport3DX.Items. (WPF.SharpDX)
-1. Correct y axis color typo (WPF.SharpDX/UWP/Core/WinUI)
-1. Fix potential null ref exception in HelixToolkit.WinUI. (WinUI)
-1. Fix null reference exception in GeometryRenderCore.OnAttachBuffers(). (WPF.SharpDX/UWP/Core/WinUI)
-1. Fix shadow map light camera property update does not trigger re-rendering. (WPF.SharpDX/UWP/Core/WinUI)
-
-## [2.22.0]
+## [2.22.0] 2022-08-29
 
 ### Improvement
 1. Change `SceneNode.Attach` to accept `IEffectsManager` instead of `IRenderHost`. This change will allow scene graph to be built and pre-attached in separate thread (all graphics resources are created during attaching). UI thread is still required to add generated sub graph back to the main graph which is associated with the Viewport. Example can be found [here](https://github.com/helix-toolkit/helix-toolkit/blob/15a36dd8a33c7d1fccd07a8dc5ca60523c86fdf2/Source/Examples/WPF.SharpDX/FileLoadDemo/MainViewModel.cs#L266). (WPF.SharpDX/UWP/Core/WinUI)

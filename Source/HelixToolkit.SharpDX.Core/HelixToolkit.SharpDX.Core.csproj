@@ -153,8 +153,6 @@
     <EmbeddedResource Include="Resources\psMeshOITDPFinal.cso" />
     <EmbeddedResource Include="Resources\psMeshOITDPFirst.cso" />
     <EmbeddedResource Include="Resources\psMeshPBROIT.cso" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\arial.fnt" />
     <EmbeddedResource Include="Resources\csParticleInsert.cso" />
     <EmbeddedResource Include="Resources\csParticleUpdate.cso" />
@@ -252,7 +250,7 @@
     <EmbeddedResource Include="Resources\vsVolume.cso" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.0" />
+    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>

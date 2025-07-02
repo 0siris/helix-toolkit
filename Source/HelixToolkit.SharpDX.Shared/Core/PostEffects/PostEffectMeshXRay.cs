@@ -81,14 +81,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public string EffectName
             {
-                set
-                {
-                    SetAffectsCanRenderFlag(ref effectName, value);
-                }
-                get
-                {
-                    return effectName;
-                }
+                set => SetAffectsCanRenderFlag(ref effectName, value);
+                get => effectName;
             }
 
             /// <summary>
@@ -99,14 +93,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public Color4 Color
             {
-                set
-                {
-                    SetAffectsRender(ref modelStruct.Color, value);
-                }
-                get
-                {
-                    return modelStruct.Color;
-                }
+                set => SetAffectsRender(ref modelStruct.Color, value);
+                get => modelStruct.Color;
             }
 
             /// <summary>
@@ -114,14 +102,8 @@ namespace HelixToolkit.UWP
             /// </summary>
             public float OutlineFadingFactor
             {
-                set
-                {
-                    SetAffectsRender(ref modelStruct.Param.M11, value);
-                }
-                get
-                {
-                    return modelStruct.Param.M11;
-                }
+                set => SetAffectsRender(ref modelStruct.Param.M11, value);
+                get => modelStruct.Param.M11;
             }
 
             private bool doublePass = false;
@@ -133,14 +115,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public bool EnableDoublePass
             {
-                set
-                {
-                    SetAffectsRender(ref doublePass, value);
-                }
-                get
-                {
-                    return doublePass;
-                }
+                set => SetAffectsRender(ref doublePass, value);
+                get => doublePass;
             }
             #endregion
             /// <summary>
@@ -153,10 +129,7 @@ namespace HelixToolkit.UWP
             }
 
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
-                return true;
-            }
+            protected override bool OnAttach(IRenderTechnique technique) => true;
 
             protected override void OnDetach()
             {

@@ -44,7 +44,7 @@ namespace HelixToolkit.Wpf.SharpDX
         public static readonly DependencyProperty EffectNameProperty =
             DependencyProperty.Register("EffectName", typeof(string), typeof(PostEffectMeshXRay), new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRay, (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as NodePostEffectXRay).EffectName = (string)e.NewValue;
+                ((NodePostEffectXRay) ((Element3DCore) d).SceneNode).EffectName = (string)e.NewValue;
             }));
 
         /// <summary>
@@ -55,14 +55,8 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </value>
         public string EffectName
         {
-            get
-            {
-                return (string)GetValue(EffectNameProperty);
-            }
-            set
-            {
-                SetValue(EffectNameProperty, value);
-            }
+            get => (string)GetValue(EffectNameProperty);
+            set => SetValue(EffectNameProperty, value);
         }
 
 
@@ -73,7 +67,7 @@ namespace HelixToolkit.Wpf.SharpDX
             new PropertyMetadata(Colors.Blue,
             (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as NodePostEffectXRay).Color = ((Color)e.NewValue).ToColor4();
+                ((NodePostEffectXRay) ((Element3DCore) d).SceneNode).Color = ((Color)e.NewValue).ToColor4();
             }));
 
         /// <summary>
@@ -84,14 +78,8 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </value>
         public Color OutlineColor
         {
-            set
-            {
-                SetValue(OutlineColorProperty, value);
-            }
-            get
-            {
-                return (Color)GetValue(OutlineColorProperty);
-            }
+            set => SetValue(OutlineColorProperty, value);
+            get => (Color)GetValue(OutlineColorProperty);
         }
 
         /// <summary>
@@ -100,7 +88,7 @@ namespace HelixToolkit.Wpf.SharpDX
         public static DependencyProperty OutlineFadingFactorProperty = DependencyProperty.Register("OutlineFadingFactor", typeof(double), typeof(PostEffectMeshXRay),
             new PropertyMetadata(1.5, (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as NodePostEffectXRay).OutlineFadingFactor = (float)(double)e.NewValue;
+                ((NodePostEffectXRay) ((Element3DCore) d).SceneNode).OutlineFadingFactor = (float)(double)e.NewValue;
             }));
 
         /// <summary>
@@ -111,14 +99,8 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </value>
         public double OutlineFadingFactor
         {
-            set
-            {
-                SetValue(OutlineFadingFactorProperty, value);
-            }
-            get
-            {
-                return (double)GetValue(OutlineFadingFactorProperty);
-            }
+            set => SetValue(OutlineFadingFactorProperty, value);
+            get => (double)GetValue(OutlineFadingFactorProperty);
         }
 
         /// <summary>
@@ -127,7 +109,7 @@ namespace HelixToolkit.Wpf.SharpDX
         public static readonly DependencyProperty EnableDoublePassProperty =
             DependencyProperty.Register("EnableDoublePass", typeof(bool), typeof(PostEffectMeshXRay), new PropertyMetadata(false, (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as NodePostEffectXRay).EnableDoublePass = (bool)e.NewValue;
+                ((NodePostEffectXRay) ((Element3DCore) d).SceneNode).EnableDoublePass = (bool)e.NewValue;
             }));
 
 
@@ -136,21 +118,12 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         public bool EnableDoublePass
         {
-            get
-            {
-                return (bool)GetValue(EnableDoublePassProperty);
-            }
-            set
-            {
-                SetValue(EnableDoublePassProperty, value);
-            }
+            get => (bool)GetValue(EnableDoublePassProperty);
+            set => SetValue(EnableDoublePassProperty, value);
         }
         #endregion
 
-        protected override SceneNode OnCreateSceneNode()
-        {
-            return new NodePostEffectXRay();
-        }
+        protected override SceneNode OnCreateSceneNode() => new NodePostEffectXRay();
 
         /// <summary>
         /// Assigns the default values to core.

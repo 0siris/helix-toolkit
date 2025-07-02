@@ -148,12 +148,13 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
+                    if (IsModelMatrixLocked)
+                    {
+                        throw new InvalidOperationException("Model matrix is locked and can not be changed.");
+                    }
+
                     if (SetAffectsRender(ref modelMatrix, value))
                     {
-                        if (IsModelMatrixLocked)
-                        {
-                            throw new InvalidOperationException("Model matrix is locked and can not be changed.");
-                        }
                         NeedMatrixUpdate = true;
                         ModelTransformChanged?.Invoke(this, new TransformArgs(ModelMatrix));
                     }

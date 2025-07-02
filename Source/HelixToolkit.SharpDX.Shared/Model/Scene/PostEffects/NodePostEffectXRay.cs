@@ -32,14 +32,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public string EffectName
             {
-                set
-                {
-                    (RenderCore as IPostEffectMeshXRay).EffectName = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectMeshXRay).EffectName;
-                }
+                set => ((IPostEffectMeshXRay) RenderCore).EffectName = value;
+                get => ((IPostEffectMeshXRay) RenderCore).EffectName;
             }
             /// <summary>
             /// Gets or sets the color.
@@ -49,14 +43,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public Color4 Color
             {
-                set
-                {
-                    (RenderCore as IPostEffectMeshXRay).Color = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectMeshXRay).Color;
-                }
+                set => ((IPostEffectMeshXRay) RenderCore).Color = value;
+                get => ((IPostEffectMeshXRay) RenderCore).Color;
             }
             /// <summary>
             /// Gets or sets the outline fading factor.
@@ -66,14 +54,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public float OutlineFadingFactor
             {
-                set
-                {
-                    (RenderCore as IPostEffectMeshXRay).OutlineFadingFactor = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectMeshXRay).OutlineFadingFactor;
-                }
+                set => ((IPostEffectMeshXRay) RenderCore).OutlineFadingFactor = value;
+                get => ((IPostEffectMeshXRay) RenderCore).OutlineFadingFactor;
             }
             /// <summary>
             /// Gets or sets a value indicating whether [enable double pass].
@@ -83,14 +65,8 @@ namespace HelixToolkit.UWP
             /// </value>
             public bool EnableDoublePass
             {
-                set
-                {
-                    (RenderCore as IPostEffectMeshXRay).EnableDoublePass = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectMeshXRay).EnableDoublePass;
-                }
+                set => ((IPostEffectMeshXRay) RenderCore).EnableDoublePass = value;
+                get => ((IPostEffectMeshXRay) RenderCore).EnableDoublePass;
             }
             #endregion
 
@@ -98,20 +74,14 @@ namespace HelixToolkit.UWP
             /// Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
-                return new PostEffectMeshXRayCore();
-            }
+            protected override RenderCore OnCreateRenderCore() 
+                => new PostEffectMeshXRayCore();
 
-            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
-                return false;
-            }
+            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) 
+                => false;
 
-            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
-            {
-                return false;
-            }
+            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits) 
+                => false;
         }
     }
 }

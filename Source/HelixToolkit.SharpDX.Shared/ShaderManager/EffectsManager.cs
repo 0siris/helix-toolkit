@@ -85,50 +85,26 @@ namespace HelixToolkit.UWP
         /// <summary>
         /// <see cref="IEffectsManager.RenderTechniques"/>
         /// </summary>
-        public IEnumerable<string> RenderTechniques
-        {
-            get
-            {
-                return techniqueDict.Keys;
-            }
-        }
+        public IEnumerable<string> RenderTechniques => techniqueDict.Keys;
 
         private IConstantBufferPool constantBufferPool;
         /// <summary>
         /// <see cref="IDevice3DResources.ConstantBufferPool"/>
         /// </summary>
-        public IConstantBufferPool ConstantBufferPool
-        {
-            get
-            {
-                return constantBufferPool;
-            }
-        }
+        public IConstantBufferPool ConstantBufferPool => constantBufferPool;
 
         private IShaderPoolManager shaderPoolManager;
         /// <summary>
         /// <see cref="IEffectsManager.ShaderManager"/>
         /// </summary>
-        public IShaderPoolManager ShaderManager
-        {
-            get
-            {
-                return shaderPoolManager;
-            }
-        }
+        public IShaderPoolManager ShaderManager => shaderPoolManager;
 
         private IStatePoolManager statePoolManager;
 
         /// <summary>
         /// <see cref="IDevice3DResources.StateManager"/> 
         /// </summary>
-        public IStatePoolManager StateManager
-        {
-            get
-            {
-                return statePoolManager;
-            }
-        }
+        public IStatePoolManager StateManager => statePoolManager;
 
         /// <summary>
         /// Gets the geometry buffer manager.
@@ -136,13 +112,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The geometry buffer manager.
         /// </value>
-        public IGeometryBufferManager GeometryBufferManager
-        {
-            get
-            {
-                return geometryBufferManager;
-            }
-        }
+        public IGeometryBufferManager GeometryBufferManager => geometryBufferManager;
 
         private IGeometryBufferManager geometryBufferManager;
 
@@ -152,22 +122,11 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The material texture manager.
         /// </value>
-        public ITextureResourceManager MaterialTextureManager
-        {
-            get
-            {
-                return materialTextureManager;
-            }
-        }
+        public ITextureResourceManager MaterialTextureManager => materialTextureManager;
+
         private ITextureResourceManager materialTextureManager;
 
-        public IMaterialVariablePool MaterialVariableManager
-        {
-            get
-            {
-                return materialVariableManager;
-            }
-        }
+        public IMaterialVariablePool MaterialVariableManager => materialVariableManager;
         private IMaterialVariablePool materialVariableManager;
 
         public IStructArrayPool StructArrayPool => structArrayPool;
@@ -536,9 +495,12 @@ namespace HelixToolkit.UWP
         }
 
         /// <summary>
-        /// 
+        /// Determines the best graphics adapter available on the system based on video memory, system memory, 
+        /// and other criteria, and outputs its index.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="bestAdapterIndex">
+        /// When this method returns, contains the index of the best adapter found, or -1 if no suitable adapter is found.
+        /// </param>
         private void GetBestAdapter(out int bestAdapterIndex)
         {
             using var f = new Factory1();
@@ -559,12 +521,25 @@ namespace HelixToolkit.UWP
                     outputs[i]?.Dispose();
                 }
 
-                logger.LogInformation($"Adapter {adapterIndex}: Description: {item.Description.Description}; " +
-                    $"VendorId: {item.Description.VendorId}; " +
-                    $"Video Mem: {item.Description.DedicatedVideoMemory.ToUInt64() / MByte} MB; " +
-                    $"System Mem: {item.Description.DedicatedSystemMemory.ToUInt64() / MByte} MB; " +
-                    $"Shared Mem: {item.Description.SharedSystemMemory.ToUInt64() / MByte} MB; " +
-                    $"Num Outputs: {outputsLength}");
+
+                logger.LogInformation(
+                        @"
+Description: {DescriptionDescription}; 
+Adapter {AdapterIndex}: 
+VendorId: {DescriptionVendorId};
+Video Mem: {ToUInt64} MB; 
+System Mem: {B} MB; 
+Shared Mem: {ToUInt65} MB; 
+Num Outputs: {OutputsLength}",
+                        adapterIndex,
+                        item.Description.Description,
+                        item.Description.VendorId,
+                        item.Description.DedicatedVideoMemory.ToUInt64() / MByte,
+                        item.Description.DedicatedSystemMemory.ToUInt64() / MByte,
+                        item.Description.SharedSystemMemory.ToUInt64() / MByte,
+                        outputsLength)
+                    ;
+
                 // not skip the render only WARP device
                 if (item.Description.VendorId != 0x1414 || item.Description.DeviceId != 0x8c)
                 {
@@ -652,13 +627,7 @@ namespace HelixToolkit.UWP
         /// </value>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        public IRenderTechnique this[string name]
-        {
-            get
-            {
-                return GetTechnique(name);
-            }
-        }
+        public IRenderTechnique this[string name] => GetTechnique(name);
 
         /// <summary>
         /// <see cref="DisposeObject.OnDispose(bool)"/>

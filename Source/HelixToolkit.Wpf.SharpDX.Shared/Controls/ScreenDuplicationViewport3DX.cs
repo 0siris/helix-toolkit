@@ -47,20 +47,14 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         public IEffectsManager EffectsManager
         {
-            get
-            {
-                return (IEffectsManager)GetValue(EffectsManagerProperty);
-            }
-            set
-            {
-                SetValue(EffectsManagerProperty, value);
-            }
+            get => (IEffectsManager)GetValue(EffectsManagerProperty);
+            set => SetValue(EffectsManagerProperty, value);
         }
         /// <summary>
         /// The Render Technique property
         /// </summary>
         public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register(
-            "RenderTechnique", typeof(IRenderTechnique), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(null,
+            nameof(RenderTechnique), typeof(IRenderTechnique), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(null,
                 (s, e) => ((ScreenDuplicationViewport3DX)s).RenderTechniquePropertyChanged()));
 
         /// <summary>
@@ -71,14 +65,8 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </value>
         public IRenderTechnique RenderTechnique
         {
-            get
-            {
-                return (IRenderTechnique)this.GetValue(RenderTechniqueProperty);
-            }
-            set
-            {
-                this.SetValue(RenderTechniqueProperty, value);
-            }
+            get => (IRenderTechnique)this.GetValue(RenderTechniqueProperty);
+            set => this.SetValue(RenderTechniqueProperty, value);
         }
 
         /// <summary>

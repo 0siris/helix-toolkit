@@ -125,6 +125,12 @@ namespace HelixToolkit.Wpf.SharpDX
             protected virtual void AssignDefaultValuesToSceneNode(SceneNode node)
             {
             }
+            
+            public string SceneNodeName {
+                get => SceneNode.Name;
+                set => SceneNode.Name = value;
+            }
+
             #endregion
             #region Events        
             /// <summary>

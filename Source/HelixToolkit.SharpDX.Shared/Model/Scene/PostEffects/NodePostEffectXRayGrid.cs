@@ -126,6 +126,21 @@ namespace HelixToolkit.UWP
                     return (RenderCore as IPostEffectMeshXRayGrid).XRayDrawingPassName;
                 }
             }
+
+            /// <summary>
+            /// Gets or sets whether the x-ray grid uses the scene depth buffer to remove visible parts.
+            /// </summary>
+            public bool UseDepthOcclusion
+            {
+                set
+                {
+                    (RenderCore as IPostEffectMeshXRayGrid).UseDepthOcclusion = value;
+                }
+                get
+                {
+                    return (RenderCore as IPostEffectMeshXRayGrid).UseDepthOcclusion;
+                }
+            }
             #endregion
 
             /// <summary>

@@ -47,6 +47,10 @@ namespace HelixToolkit.UWP
             {
                 set; get;
             }
+            bool UseDepthOcclusion
+            {
+                set; get;
+            }
         }
         /// <summary>
         /// 
@@ -162,6 +166,23 @@ namespace HelixToolkit.UWP
             {
                 set; get;
             } = DefaultPassNames.EffectMeshXRayGridP3;
+
+            private bool useDepthOcclusion = true;
+            /// <summary>
+            /// Uses the scene depth buffer to hide x-ray parts that are not occluded.
+            /// Disable this for overlays that must stay visible after OIT rendering.
+            /// </summary>
+            public bool UseDepthOcclusion
+            {
+                set
+                {
+                    SetAffectsRender(ref useDepthOcclusion, value);
+                }
+                get
+                {
+                    return useDepthOcclusion;
+                }
+            }
             #endregion
 
             /// <summary>
@@ -218,18 +239,21 @@ namespace HelixToolkit.UWP
                     }
                 }
                 //Second pass, remove not covered part from stencil buffer
-                for (var i = 0; i < currentCores.Count; ++i)
+                if (UseDepthOcclusion)
                 {
-                    var mesh = currentCores[i].Key;
-                    context.CustomPassName = DefaultPassNames.EffectMeshXRayGridP2;
-                    var pass = mesh.EffectTechnique[DefaultPassNames.EffectMeshXRayGridP2];
-                    if (pass.IsNULL)
+                    for (var i = 0; i < currentCores.Count; ++i)
                     {
-                        continue;
+                        var mesh = currentCores[i].Key;
+                        context.CustomPassName = DefaultPassNames.EffectMeshXRayGridP2;
+                        var pass = mesh.EffectTechnique[DefaultPassNames.EffectMeshXRayGridP2];
+                        if (pass.IsNULL)
+                        {
+                            continue;
+                        }
+                        pass.BindShader(deviceContext);
+                        pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
+                        mesh.RenderCustom(context, deviceContext);
                     }
-                    pass.BindShader(deviceContext);
-                    pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-                    mesh.RenderCustom(context, deviceContext);
                 }
 
                 OnUpdatePerModelStruct(context);

@@ -1,0 +1,260 @@
+@startuml Helix Toolkit Repository Structure
+title Helix Toolkit - 7 Solutions, Project Mappings & Defines
+
+skinparam backgroundColor #FFFFFF
+skinparam nodeBackgroundColor #E3F2FD
+skinparam nodeBorderColor #1565C0
+skinparam packageBackgroundColor #E8EAF6
+skinparam packageBorderColor #3F51B5
+skinparam arrowColor #1565C0
+skinparam arrowThickness 2
+
+skinparam noteBackgroundColor #FFF9C4
+skinparam noteBorderColor #F57F17
+skinparam noteFontSize 12
+
+legend right
+  .csproj : C# Project\n  Target: .NET 10 (WPF) | netstandard2.0 (Core) | net6.0-windows (WinUI)
+  .shproj : Shared Project (linked files)
+  [Demo] : Example/Demo Project
+  [Test] : Test Project
+end legend
+
+'' =====================================================================
+' Solution 1: HelixToolkit.Wpf.sln
+' =====================================================================
+package "HelixToolkit.Wpf.sln" as sln_wpf {
+    component [HelixToolkit.Wpf.csproj\n(netcoreapp3.1 / .NET 4.6.2)] as wpf_engine
+    component [HelixToolkit.Wpf.Input.csproj\n(.NET 4.6.2)] as wpf_input
+    component [HelixToolkit.Wpf.Tests.csproj\n(.NET 4.6.2)] as wpf_tests
+    component [WPF Demos\n(~25 Examples)] as wpf_demos
+}
+
+wpf_engine -down-> wpf_input
+wpf_engine -left-> wpf_tests
+wpf_engine -up-> wpf_demos
+
+note bottom of wpf_tests : Tests: TRACE
+note bottom of wpf_input : Defines: TRACE
+
+'' =====================================================================
+' Solution 2: HelixToolkit.Core.Wpf.sln
+' =====================================================================
+package "HelixToolkit.Core.Wpf.sln" as sln_corewpf {
+    component [HelixToolkit.Core.Wpf.csproj\n(netcoreapp3.1)] as corewpf
+    component [CoreWpfDemo.csproj\n(.NET Core 3.1)] as corewpf_demo
+}
+
+corewpf -down-> corewpf_demo
+
+note bottom of corewpf : Shared from Wpf/Shared
+
+'' =====================================================================
+' Solution 3: HelixToolkit.SharpDX.sln
+' =====================================================================
+package "HelixToolkit.SharpDX.sln" as sln_sharpdx {
+    component [HelixToolkit.SharpDX.Core.csproj\n(netstandard2.0)] as sharpdx_core
+    component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(netcoreapp3.1)] as sharpdx_core_wpf
+    component [HelixToolkit.Wpf.SharpDX.csproj\n(.NET 4.6.2)] as wpf_sharpdx
+    component [HelixToolkit.Wpf.SharpDX.Tests.csproj\n(.NET 4.6.2)] as wpf_sharpdx_tests
+    component [HelixToolkit.UWP.csproj\n(UWP 10.0.18362.0)] as uwp
+    component [HelixToolkit.WinUI.csproj\n(net6.0-windows)] as winui
+    component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp
+    component [HelixToolkit.Wpf.SharpDX.Assimp.csproj\n(.NET 4.6.2)] as wpf_sharpdx_assimp
+    component [SharpDX.Core Demos\n(~40 Examples)] as sharpdx_demos
+    component [WinUI Demos\n(~5 Examples)] as winui_demos
+    component [UWP Demos\n(~10 Examples)] as uwp_demos
+}
+
+sharpdx_core --> sharpdx_core_wpf
+sharpdx_core --> wpf_sharpdx
+sharpdx_core --> uwp
+sharpdx_core --> winui
+sharpdx_core --> sharpdx_core_assimp
+wpf_sharpdx --> wpf_sharpdx_tests
+wpf_sharpdx --> wpf_sharpdx_assimp
+wpf_sharpdx --> sharpdx_demos
+winui --> winui_demos
+uwp --> uwp_demos
+
+note bottom of sharpdx_core : Defines:\nNETFX_CORE | CORE | SHARPDX | DX11 | MSAA | DX11_1
+note bottom of sharpdx_core_wpf : Defines:\nDX11 | DX11_1 | MSAA | SHARPDX | COREWPF
+note bottom of wpf_sharpdx : Defines:\nDX11 | MSAA | SHARPDX
+note bottom of wpf_sharpdx_assimp : Defines:\nSHARPDX
+note bottom of winui : Defines:\nWINUI | DX11_1
+note bottom of uwp : Defines:\nNETFX_CORE | WINDOWS_UWP | SHARPDX | DX11 | MSAA | DX11_1
+note bottom of sharpdx_core_assimp : Defines:\nNETFX_CORE | CORE
+
+'' =====================================================================
+' Solution 4: HelixToolkit.SharpDX.Core.sln
+' =====================================================================
+package "HelixToolkit.SharpDX.Core.sln" as sln_sharpdx_core {
+    component [HelixToolkit.SharpDX.Core.csproj\n(netstandard2.0)] as sharpdx_core2
+    component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(netcoreapp3.1)] as sharpdx_core_wpf2
+    component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp2
+    component [HelixToolkit.SharpDX.Core.Tests.csproj\n(netstandard2.0)] as sharpdx_core_tests
+    component [HelixToolkit.csproj\n(netstandard2.0)] as core_lib
+    component [HelixToolkit.SharpDX.Assimp.Shared.shproj] as shared_assimp
+    component [SharpDX.Core Demos\n(some Examples)] as sharpdx_demos2
+}
+
+sharpdx_core2 --> sharpdx_core_wpf2
+sharpdx_core2 --> sharpdx_core_assimp2
+sharpdx_core2 --> sharpdx_core_tests
+sharpdx_core2 --> core_lib
+sharpdx_core2 --> sharpdx_demos2
+
+note right of core_lib : Core library\n(no non-default defines)
+
+'' =====================================================================
+' Solution 5: HelixToolkit.WinUI.sln
+' =====================================================================
+package "HelixToolkit.WinUI.sln" as sln_winui {
+    component [HelixToolkit.WinUI.csproj\n(net6.0-windows)] as winui2
+    component [HelixToolkit.SharpDX.Core.csproj\n(netstandard2.0)] as sharpdx_core3
+    component [HelixToolkit.csproj\n(netstandard2.0)] as core_lib2
+    component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp3
+    component [HelixToolkit.Native.ShaderBuilder.csproj] as shader_builder
+    component [ModelViewer.csproj\n(WinUI Demo)] as model_viewer
+}
+
+winui2 --> sharpdx_core3
+winui2 --> sharpdx_core_assimp3
+winui2 --> shader_builder
+winui2 --> model_viewer
+
+'' =====================================================================
+' Solution 6: HelixToolkit.Kinect.sln
+' =====================================================================
+package "HelixToolkit.Kinect.sln" as sln_kinect {
+    component [HelixToolkit.Wpf.csproj\n(.NET 4.6.2)] as wpf_engine2
+    component [HelixToolkit.csproj\n(netstandard2.0)] as core_lib3
+    component [DepthSensorDemo.csproj\n(WPF Kinect)] as depth_sensor
+}
+
+wpf_engine2 --> core_lib3
+wpf_engine2 --> depth_sensor
+
+'' =====================================================================
+' Solution 7: HelixToolkit.AppVeyor.sln
+' =====================================================================
+package "HelixToolkit.AppVeyor.sln" as sln_appveyor {
+    component [CI Build\n(All Major Projects)] as ci_all
+    note left of ci_all : Contains:\n- All WPF projects\n- All SharpDX projects\n- All UWP projects\n- All WinUI projects\n- All Examples\n- All Tests
+}
+
+'' =====================================================================
+' Shared Projects (cross-cutting)
+' =====================================================================
+package "Shared Project Files" as shared_proj {
+    component [HelixToolkit.Shared.shproj] as shared_core_proj
+    component [HelixToolkit.Wpf.Shared.shproj] as shared_wpf_proj
+    component [HelixToolkit.SharpDX.Shared.shproj] as shared_sharpdx_proj
+    component [HelixToolkit.SharpDX.SharedModel.shproj] as shared_models_proj
+    component [HelixToolkit.UWP.Shared.shproj] as shared_uwp_proj
+    component [HelixToolkit.SharpDX.Assimp.Shared.shproj] as shared_assimp_proj
+}
+
+'' =====================================================================
+' Cross-solution dependencies
+' =====================================================================
+
+' Core library dependencies on shared
+shared_core_proj -down-> core_lib
+shared_core_proj -down-> sharpdx_core
+shared_core_proj -down-> shared_sharpdx_proj
+
+' WPF Engine dependencies
+shared_core_proj -right-> wpf_engine
+shared_wpf_proj -right-> wpf_engine
+shared_core_proj -right-> wpf_engine2
+
+' CoreWpf references shared
+shared_core_proj -down-> corewpf
+shared_wpf_proj -down-> corewpf
+
+' UWP dependencies
+shared_uwp_proj -down-> uwp
+shared_core_proj -up-> uwp
+
+' WinUI dependencies
+shared_models_proj -down-> winui
+shared_core_proj -up-> winui
+shared_sharpdx_proj -up-> winui
+shared_assimp_proj -up-> sharpdx_core_assimp
+shared_models_proj -up-> sharpdx_core_assimp
+
+' UWP.Assimp dependencies (in SharpDX.sln)
+shared_uwp_proj -down-> uwp
+
+' =====================================================================
+' Notes - Target Framework Summary
+' =====================================================================
+
+note bottom of core_lib
+<b>HelixToolkit.csproj</b>
+Framework: netstandard2.0
+Defines: (none)
+Logger: Microsoft.Extensions.Logging
+end note
+
+note bottom of wpf_engine
+<b>HelixToolkit.Wpf.csproj</b>
+Framework: .NET 4.6.2 | netcoreapp3.1
+Renderer: DirectX9
+Defines: (none)
+Shared: HelixToolkit.Shared
+end note
+
+note bottom of sharpdx_core
+<b>HelixToolkit.SharpDX.Core.csproj</b>
+Framework: netstandard2.0
+Renderer: DirectX11
+Defines: NETFX_CORE, CORE, SHARPDX, DX11, MSAA, DX11_1
+end note
+
+note bottom of winui
+<b>HelixToolkit.WinUI.csproj</b>
+Framework: net6.0-windows10.0.19041
+Platform: WinUI 3
+Defines: WINUI, DX11_1
+end note
+
+note bottom of uwp
+<b>HelixToolkit.UWP.csproj</b>
+Framework: UAP 10.0.18362.0
+Platform: UWP
+Defines: NETFX_CORE, WINDOWS_UWP, SHARPDX, DX11, MSAA, DX11_1
+end note
+
+note bottom of sharpdx_core_wpf
+<b>HelixToolkit.SharpDX.Core.Wpf.csproj</b>
+Framework: netcoreapp3.1
+Platform: WPF + SharpDX
+Defines: DX11, DX11_1, MSAA, SHARPDX, COREWPF
+end note
+
+' =====================================================================
+' Defines Legend
+' =====================================================================
+note as define_legend
+  <b>Define Constants Legend</b> (non-default, excl. TRACE/DEBUG)
+
+  <b>Platform/SDK:</b>
+    NETFX_CORE     - .NET Native / UWP runtime
+    WINDOWS_UWP    - Universal Windows Platform
+    WINUI          - Windows UI Library
+    CORE           - SharpDX Core library
+
+  <b>Graphics:</b>
+    SHARPDX        - SharpDX DirectX binding
+    DX11           - DirectX 11
+    DX11_1         - DirectX 11.1
+    MSAA           - Multi-sample Anti-Aliasing
+
+  <b>Integration:</b>
+    COREWPF        - Core WPF binding
+    ASSIMP         - Assimp model loader (separate pkg)
+end note
+
+@enduml

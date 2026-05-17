@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11811.120 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelixToolkit.Wpf", "HelixToolkit.Wpf\HelixToolkit.Wpf.csproj", "{3F3B4548-A9DB-4874-86F7-E7C4FEC8A351}"
 EndProject
@@ -14,9 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelixToolkit", "HelixToolkit\HelixToolkit.csproj", "{7C0E987E-CC34-4B19-BA6B-B381AEABB530}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -66,5 +63,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F206EAE-E194-4696-A04D-4906D1122826}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 5
+		HelixToolkit.Wpf.Shared\HelixToolkit.Wpf.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

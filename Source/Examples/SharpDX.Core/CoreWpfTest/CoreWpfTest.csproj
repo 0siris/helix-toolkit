@@ -1,22 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWPF>true</UseWPF>
-      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj" />
-    <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj" />
-  </ItemGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
     <ItemGroup>
-        <Content Include="..\..\..\..\Images\EnvironmentMaps\Cubemap_Grandcanyon.dds">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj" />
+        <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj" />
     </ItemGroup>
+
     <ItemGroup>
-      <PackageReference Include="MvvmLightLibsStd10" Version="5.4.1.1" />
+        <Content Include="..\..\..\..\Images\EnvironmentMaps\Cubemap_Grandcanyon.dds"
+                 Link="Cubemap_Grandcanyon.dds"
+                 CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MvvmLightLibsStd10" Version="5.4.1.1" />
+    </ItemGroup>
+
 </Project>

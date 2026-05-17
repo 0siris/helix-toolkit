@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32708.82
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11811.120 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelixToolkit.Wpf.Tests", "HelixToolkit.Wpf.Tests\HelixToolkit.Wpf.Tests.csproj", "{F8082D12-91E7-403F-9294-9A7C2040B049}"
 EndProject
@@ -1598,18 +1598,18 @@ Global
 		HelixToolkit.SharpDX.SharedModel\HelixToolkit.SharpDX.SharedModel.projitems*{27e76a7e-a81f-46ee-9148-76e3a5206995}*SharedItemsImports = 5
 		HelixToolkit.Wpf.SharpDX.Shared\HelixToolkit.Wpf.SharpDX.Shared.projitems*{27e76a7e-a81f-46ee-9148-76e3a5206995}*SharedItemsImports = 5
 		HelixToolkit.Wpf.Shared\HelixToolkit.Wpf.Shared.projitems*{342788cd-c98c-4856-99f3-e38bceacb2b7}*SharedItemsImports = 13
-		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 4
-		HelixToolkit.SharpDX.SharedModel\HelixToolkit.SharpDX.SharedModel.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 4
-		HelixToolkit.SharpDX.Shared\HelixToolkit.SharpDX.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 4
-		HelixToolkit.Wpf.SharpDX.Shared\HelixToolkit.Wpf.SharpDX.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 4
-		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 4
-		HelixToolkit.Wpf.Shared\HelixToolkit.Wpf.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 4
+		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 5
+		HelixToolkit.SharpDX.SharedModel\HelixToolkit.SharpDX.SharedModel.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 5
+		HelixToolkit.SharpDX.Shared\HelixToolkit.SharpDX.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 5
+		HelixToolkit.Wpf.SharpDX.Shared\HelixToolkit.Wpf.SharpDX.Shared.projitems*{39740654-f5f1-4936-b4ea-9bc97d4cde37}*SharedItemsImports = 5
+		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 5
+		HelixToolkit.Wpf.Shared\HelixToolkit.Wpf.Shared.projitems*{3f3b4548-a9db-4874-86f7-e7c4fec8a351}*SharedItemsImports = 5
 		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{4ee18e80-7609-4fff-bd4b-f02728ec0688}*SharedItemsImports = 13
 		HelixToolkit.SharpDX.SharedModel\HelixToolkit.SharpDX.SharedModel.projitems*{546d47f6-72e9-44bd-8686-b36c61b6f88d}*SharedItemsImports = 5
 		HelixToolkit.UWP.Shared\HelixToolkit.UWP.Shared.projitems*{546d47f6-72e9-44bd-8686-b36c61b6f88d}*SharedItemsImports = 5
 		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{6f42ef68-a7e4-47cc-b7aa-2eb421902e75}*SharedItemsImports = 5
 		HelixToolkit.SharpDX.Shared\HelixToolkit.SharpDX.Shared.projitems*{6f42ef68-a7e4-47cc-b7aa-2eb421902e75}*SharedItemsImports = 5
-		HelixToolkit.SharpDX.Assimp.Shared\HelixToolkit.SharpDX.Assimp.Shared.projitems*{997f58f5-5892-4fd5-a724-55cb3c162235}*SharedItemsImports = 4
+		HelixToolkit.SharpDX.Assimp.Shared\HelixToolkit.SharpDX.Assimp.Shared.projitems*{997f58f5-5892-4fd5-a724-55cb3c162235}*SharedItemsImports = 5
 		HelixToolkit.UWP.Shared\HelixToolkit.UWP.Shared.projitems*{abd27897-4ee8-415b-9d8d-ffe7836f9b97}*SharedItemsImports = 13
 		HelixToolkit.Shared\HelixToolkit.Shared.projitems*{bb86b468-d836-49d9-ba7a-b6d1af56e429}*SharedItemsImports = 5
 		HelixToolkit.Wpf.Shared\HelixToolkit.Wpf.Shared.projitems*{bb86b468-d836-49d9-ba7a-b6d1af56e429}*SharedItemsImports = 5

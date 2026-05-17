@@ -15,17 +15,17 @@ Adds variety of functionalities/models on the top of internal .NET Core WPF 3D m
 [**HelixToolkit.SharpDX.WPF:**](/Source/HelixToolkit.Wpf.SharpDX) 
 Custom 3D Engine and XAML/MVVM compatible Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for high performance usage.
 
-[**HelixToolkit.UWP:**](/Source/HelixToolkit.UWP) 
-Custom 3D Engine and XAML/MVVM compatible Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for Universal Windows App.
-
-[**HelixToolkit.SharpDX.Core:**](/Source/HelixToolkit.SharpDX.Core) 
+[**HelixToolkit.SharpDX.Core:**](/Source/HelixToolkit.SharpDX.Core)
 Custom 3D Engine and Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for netstandard and .NET Core.
 
 [**HelixToolkit.SharpDX.Core.Wpf:**](/Source/HelixToolkit.SharpDX.Core.Wpf) 
 Wpf Wrapper Components based on `HelixToolkit.SharpDX.Core` for .NET Core Wpf.
 
-[**HelixToolkit.WinUI:**](/Source/HelixToolkit.WinUI) 
+[**HelixToolkit.WinUI:**](/Source/HelixToolkit.WinUI)
 Custom 3D Engine and XAML/MVVM compatible Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for WinUI.
+
+[**HelixToolkit.UWP:**](/Source/HelixToolkit.UWP)
+Legacy UWP code is kept in the repository, but active UWP support, CI builds and NuGet packaging have been discontinued. Use HelixToolkit.WinUI for current Windows app development.
 
 
 [**HelixToolkit.SharpDX.Assimp:**](/Source/HelixToolkit.Wpf.SharpDX.Assimp) 
@@ -62,7 +62,7 @@ Twitter             | https://twitter.com/hashtag/Helix3DToolkit
 #### 1. Right-handed Cartesian coordinate system and row major matrix by default
 HelixToolkit default is using right-handed Cartesian coordinate system, including Meshbuilder etc. To use left-handed Cartesian coordinate system (Camera.CreateLeftHandedSystem = true), user must manually correct the triangle winding order or IsFrontCounterClockwise in raster state description if using SharpDX. Matrices are row major by default.
 
-#### 2. Performance [Topics](https://github.com/helix-toolkit/helix-toolkit/wiki/Tips-on-performance-optimization-(WPF.SharpDX-and-UWP)) for WPF.SharpDX and UWP.
+#### 2. Performance [Topics](https://github.com/helix-toolkit/helix-toolkit/wiki/Tips-on-performance-optimization-(WPF.SharpDX-and-UWP)) for WPF.SharpDX. UWP content is retained as legacy reference only.
 
 #### 3. Following features are not supported currently on FeatureLevel 10 graphics card:
 FXAA, Order Independant Transparent Rendering, Particle system, Tessellation.
@@ -82,14 +82,12 @@ graph TD
 
 ```mermaid
 graph TD
-    hx[HelixToolkit] --> dx11[DirectX11 Engine]    
+    hx[HelixToolkit] --> dx11[DirectX11 Engine]
     dx11 --> hxSharpDX[HelixToolkit.Wpf.SharpDX]
-    dx11 --> hxUWP[HelixToolkit.UWP]
     dx11 --> hxCore[HelixToolkit.SharpDX.Core]
     hxCore --> hxWinUI[HelixToolkit.SharpDX.Core.Wpf]
     hxCore --> hxSharpDXCoreWpf[HelixToolkit.WinUI]
     hxSharpDX --> hxAssimp[HelixToolkit.SharpDX.Assimp]
-    hxUWP --> hxAssimp
     hxCore --> hxAssimp
 ```
 
@@ -110,7 +108,6 @@ Please use the following template to report bugs.
 - [Core.WPF](https://www.nuget.org/packages/HelixToolkit.Core.Wpf/2.25.0)
 - [WPF.Input](https://www.nuget.org/packages/HelixToolkit.Wpf.Input/2.25.0)
 - [WPF.SharpDX](https://www.nuget.org/packages/HelixToolkit.Wpf.SharpDX/2.25.0)
-- [UWP](https://www.nuget.org/packages/HelixToolkit.UWP/2.25.0)
 - [SharpDX.Core](https://www.nuget.org/packages/HelixToolkit.SharpDX.Core/2.25.0)
 - [SharpDX.Core.Wpf](https://www.nuget.org/packages/HelixToolkit.SharpDX.Core.Wpf/2.25.0)
 - [WinUI](https://www.nuget.org/packages/HelixToolkit.WinUI/2.25.0)

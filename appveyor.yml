@@ -35,7 +35,6 @@ after_build:
   - nuget pack Source\HelixToolkit.Wpf.Input.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg  
   - nuget pack Source\HelixToolkit.Wpf.Sharpdx.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.UWP.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.SharpDX.Core.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.SharpDX.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.SharpDX.Assimp.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg

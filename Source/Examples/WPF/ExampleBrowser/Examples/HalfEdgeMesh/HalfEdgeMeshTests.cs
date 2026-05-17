@@ -51,16 +51,16 @@ namespace HelixToolkit.Wpf.Tests
             Assert.AreEqual(4, mesh.Vertices.Count);
         }
 
-        [Test, ExpectedException]
+        [Test]
         public void AddFace_NonManifold_ShouldThrowException()
         {
             var vertices = new[] { new Point3D(0, 0, 0), new Point3D(1, 0, 0), new Point3D(1, 1, 0), new Point3D(0, 1, 0) };
             var mesh = new HalfEdgeMesh(vertices);
             mesh.AddFace(0, 1, 2);
-            mesh.AddFace(0, 1, 2);
+            Assert.Throws<InvalidOperationException>(() => mesh.AddFace(0, 1, 2));
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Legacy half-edge outgoing edge ordering assertion is currently disabled.")]
         public void VertexOutGoingEdges_QuadMeshVertex2_ShouldReturnTwoEdges()
         {
             var mesh = CreateTriangulatedQuadMesh();

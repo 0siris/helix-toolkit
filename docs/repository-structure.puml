@@ -1,5 +1,5 @@
 @startuml Helix Toolkit Repository Structure
-title Helix Toolkit - 7 Solutions, Project Mappings & Defines
+title Helix Toolkit - Active Solutions, Project Mappings & Defines
 
 skinparam backgroundColor #FFFFFF
 skinparam nodeBackgroundColor #E3F2FD
@@ -57,32 +57,27 @@ package "HelixToolkit.SharpDX.sln" as sln_sharpdx {
     component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(netcoreapp3.1)] as sharpdx_core_wpf
     component [HelixToolkit.Wpf.SharpDX.csproj\n(.NET 4.6.2)] as wpf_sharpdx
     component [HelixToolkit.Wpf.SharpDX.Tests.csproj\n(.NET 4.6.2)] as wpf_sharpdx_tests
-    component [HelixToolkit.UWP.csproj\n(UWP 10.0.18362.0)] as uwp
     component [HelixToolkit.WinUI.csproj\n(net6.0-windows)] as winui
     component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp
     component [HelixToolkit.Wpf.SharpDX.Assimp.csproj\n(.NET 4.6.2)] as wpf_sharpdx_assimp
     component [SharpDX.Core Demos\n(~40 Examples)] as sharpdx_demos
     component [WinUI Demos\n(~5 Examples)] as winui_demos
-    component [UWP Demos\n(~10 Examples)] as uwp_demos
 }
 
 sharpdx_core --> sharpdx_core_wpf
 sharpdx_core --> wpf_sharpdx
-sharpdx_core --> uwp
 sharpdx_core --> winui
 sharpdx_core --> sharpdx_core_assimp
 wpf_sharpdx --> wpf_sharpdx_tests
 wpf_sharpdx --> wpf_sharpdx_assimp
 wpf_sharpdx --> sharpdx_demos
 winui --> winui_demos
-uwp --> uwp_demos
 
 note bottom of sharpdx_core : Defines:\nNETFX_CORE | CORE | SHARPDX | DX11 | MSAA | DX11_1
 note bottom of sharpdx_core_wpf : Defines:\nDX11 | DX11_1 | MSAA | SHARPDX | COREWPF
 note bottom of wpf_sharpdx : Defines:\nDX11 | MSAA | SHARPDX
 note bottom of wpf_sharpdx_assimp : Defines:\nSHARPDX
 note bottom of winui : Defines:\nWINUI | DX11_1
-note bottom of uwp : Defines:\nNETFX_CORE | WINDOWS_UWP | SHARPDX | DX11 | MSAA | DX11_1
 note bottom of sharpdx_core_assimp : Defines:\nNETFX_CORE | CORE
 
 '' =====================================================================
@@ -140,7 +135,7 @@ wpf_engine2 --> depth_sensor
 ' =====================================================================
 package "HelixToolkit.AppVeyor.sln" as sln_appveyor {
     component [CI Build\n(All Major Projects)] as ci_all
-    note left of ci_all : Contains:\n- All WPF projects\n- All SharpDX projects\n- All UWP projects\n- All WinUI projects\n- All Examples\n- All Tests
+    note left of ci_all : Contains:\n- All WPF projects\n- All SharpDX projects\n- WinUI projects\n- Active Examples\n- Active Tests\n\nUWP projects are legacy and\nnot part of active CI builds.
 }
 
 '' =====================================================================
@@ -173,19 +168,12 @@ shared_core_proj -right-> wpf_engine2
 shared_core_proj -down-> corewpf
 shared_wpf_proj -down-> corewpf
 
-' UWP dependencies
-shared_uwp_proj -down-> uwp
-shared_core_proj -up-> uwp
-
 ' WinUI dependencies
 shared_models_proj -down-> winui
 shared_core_proj -up-> winui
 shared_sharpdx_proj -up-> winui
 shared_assimp_proj -up-> sharpdx_core_assimp
 shared_models_proj -up-> sharpdx_core_assimp
-
-' UWP.Assimp dependencies (in SharpDX.sln)
-shared_uwp_proj -down-> uwp
 
 ' =====================================================================
 ' Notes - Target Framework Summary
@@ -220,13 +208,6 @@ Platform: WinUI 3
 Defines: WINUI, DX11_1
 end note
 
-note bottom of uwp
-<b>HelixToolkit.UWP.csproj</b>
-Framework: UAP 10.0.18362.0
-Platform: UWP
-Defines: NETFX_CORE, WINDOWS_UWP, SHARPDX, DX11, MSAA, DX11_1
-end note
-
 note bottom of sharpdx_core_wpf
 <b>HelixToolkit.SharpDX.Core.Wpf.csproj</b>
 Framework: netcoreapp3.1
@@ -242,7 +223,7 @@ note as define_legend
 
   <b>Platform/SDK:</b>
     NETFX_CORE     - .NET Native / UWP runtime
-    WINDOWS_UWP    - Universal Windows Platform
+    WINDOWS_UWP    - Legacy Universal Windows Platform (not actively built)
     WINUI          - Windows UI Library
     CORE           - SharpDX Core library
 

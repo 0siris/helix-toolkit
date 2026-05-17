@@ -50,7 +50,7 @@
                 x:Name="lines"
                 Geometry="{Binding Lines}"
                 Transform="{Binding Model1Transform}"
-                Color="{x:Static sdxm:Color.Black}" />
+                Color="{x:Static Colors.Black}" />
             <hx:LineGeometryModel3D
                 x:Name="grid"
                 Geometry="{Binding Grid}"

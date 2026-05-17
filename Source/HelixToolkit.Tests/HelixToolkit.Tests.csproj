@@ -17,8 +17,4 @@
     <ProjectReference Include="..\HelixToolkit.Wpf\HelixToolkit.Wpf.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="Extensions\StringExtensionsTests.cs" />
-    <Compile Include="Properties\AssemblyDescription.cs" />
-  </ItemGroup>
 </Project>

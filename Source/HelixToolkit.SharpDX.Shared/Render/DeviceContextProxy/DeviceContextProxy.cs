@@ -1,11 +1,5 @@
-using SharpDX.Direct3D;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
+using Silk.NET.Core.Native;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -19,6 +13,7 @@ namespace HelixToolkit.UWP
 {
     namespace Render
     {
+        using Native;
         using Shaders;
         using Utilities;
 
@@ -28,8 +23,8 @@ namespace HelixToolkit.UWP
         public sealed partial class DeviceContextProxy : DisposeObject
         {
             public static bool AutoSkipRedundantStateSetting = false;
-            private DeviceContext deviceContext;
-            private readonly Device device;
+            private SilkD3DDeviceContext nativeDeviceContext;
+            private readonly SilkD3DDevice nativeDevice;
             private RasterizerStateProxy currRasterState = null;
             private DepthStencilStateProxy currDepthStencilState = null;
             private int currStencilRef;
@@ -62,58 +57,21 @@ namespace HelixToolkit.UWP
 
             #region Constructor
             /// <summary>
-            /// Initializes a new deferred context
+            /// Initializes a proxy for a native Silk.NET D3D11 context.
             /// </summary>
-            /// <param name="device">The device.</param>
-            public DeviceContextProxy(Device device)
+            /// <param name="context">The native context.</param>
+            /// <param name="device">The native device.</param>
+            internal DeviceContextProxy(SilkD3DDeviceContext context, SilkD3DDevice device)
             {
-                deviceContext = new DeviceContext(device);
-                this.device = device;
-                IsDeferred = true;
-            }
-
-            /// <summary>
-            /// Muse pass immediate context for this constructor
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="device">device</param>
-            public DeviceContextProxy(DeviceContext context, Device device)
-            {
-                deviceContext = context;
-                this.device = device;
-                IsDeferred = false;
+                nativeDeviceContext = context;
+                nativeDevice = device;
+                IsDeferred = context.IsDeferred;
             }
             #endregion Constructor
 
-            #region Cast
+            internal SilkD3DDeviceContext NativeContext => nativeDeviceContext;
 
-            /// <summary>
-            /// Performs an implicit conversion from <see cref="DeviceContextProxy"/> to <see cref="DeviceContext"/>.
-            /// </summary>
-            /// <param name="proxy">The proxy.</param>
-            /// <returns>
-            /// The result of the conversion.
-            /// </returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static explicit operator DeviceContext(DeviceContextProxy proxy)
-            {
-                return proxy.deviceContext;
-            }
-
-            /// <summary>
-            /// Performs an implicit conversion from <see cref="DeviceContextProxy"/> to <see cref="Device"/>.
-            /// </summary>
-            /// <param name="proxy">The proxy.</param>
-            /// <returns>
-            /// The result of the conversion.
-            /// </returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static implicit operator Device(DeviceContextProxy proxy)
-            {
-                return proxy.device;
-            }
-
-            #endregion Cast
+            internal SilkD3DDevice NativeDevice => nativeDevice;
 
             /// <summary>
             /// Resets this instance.
@@ -128,7 +86,7 @@ namespace HelixToolkit.UWP
                 currSampleMask = uint.MaxValue;
                 currStencilRef = 0;
                 currInputLayout = null;
-                PrimitiveTopology = PrimitiveTopology.Undefined;
+                PrimitiveTopology = D3DPrimitiveTopology.D3DPrimitiveTopologyUndefined;
                 CurrShaderPass = null;
                 for (var i = 0; i < ConstantBufferCheck.Length; ++i)
                 {
@@ -144,17 +102,12 @@ namespace HelixToolkit.UWP
             /// Restore all default settings.
             /// </summary>
             /// <remarks>
-            ///     This method resets any device context to the default settings. This sets all
-            ///     input/output resource slots, shaders, input layouts, predications, scissor rectangles,
-            ///     depth-stencil state, rasterizer state, blend state, sampler state, and viewports
-            ///     to null. The primitive topology is set to UNDEFINED.For a scenario where you
-            ///     would like to clear a list of commands recorded so far, call SharpDX.Direct3D11.DeviceContext.FinishCommandListInternal(SharpDX.Mathematics.Interop.RawBool,SharpDX.Direct3D11.CommandList@)
-            ///     and throw away the resulting SharpDX.Direct3D11.CommandList.
+            ///     This method resets any device context to the default settings.
             /// </remarks>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void ClearState()
             {
-                deviceContext.ClearState();
+                nativeDeviceContext.ClearState();
                 Reset();
             }
 
@@ -164,14 +117,13 @@ namespace HelixToolkit.UWP
             /// <param name="disposeManagedResources"></param>
             protected override void OnDispose(bool disposeManagedResources)
             {
-                if (deviceContext != null && !deviceContext.IsDisposed)
+                if (nativeDeviceContext != null && !nativeDeviceContext.IsDisposed)
                 {
-                    deviceContext.ClearState();
-                    deviceContext.OutputMerger.ResetTargets();
+                    nativeDeviceContext.ClearState();
                 }
                 if (IsDeferred)
                 {
-                    RemoveAndDispose(ref deviceContext);
+                    RemoveAndDispose(ref nativeDeviceContext);
                 }
                 base.OnDispose(disposeManagedResources);
             }

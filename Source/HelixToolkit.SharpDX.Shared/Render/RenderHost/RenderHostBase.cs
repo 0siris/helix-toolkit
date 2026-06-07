@@ -943,11 +943,7 @@ namespace HelixToolkit.UWP
                         logger.LogInformation("EffectsManager is not valid");
                         return;
                     }
-#if DX11_1
-                    immediateDeviceContext = new DeviceContextProxy(effectsManager.Device.ImmediateContext1, effectsManager.Device);
-#else
-                    immediateDeviceContext = new DeviceContextProxy(effectsManager.Device.ImmediateContext, effectsManager.Device);
-#endif
+                    immediateDeviceContext = new DeviceContextProxy(effectsManager.NativeDeviceResources.ImmediateContext, effectsManager.NativeDeviceResources.Device);
                     RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
                     CreateAndBindBuffers();
                     IsInitialized = true;

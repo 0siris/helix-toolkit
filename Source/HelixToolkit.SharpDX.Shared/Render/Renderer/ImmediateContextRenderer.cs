@@ -6,10 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define OLD
 using System;
 using System.Collections.Generic;
-using SharpDX.DXGI;
-#if DX11_1
-using Device = global::SharpDX.Direct3D11.Device1;
-#endif
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -52,11 +48,7 @@ namespace HelixToolkit.UWP
             /// <param name="deviceResource">The deviceResource.</param>
             public ImmediateContextRenderer(IDevice3DResources deviceResource)
             {
-#if DX11_1
-                immediateContext = new DeviceContextProxy(deviceResource.Device.ImmediateContext1, deviceResource.Device);
-#else
-                immediateContext = new DeviceContextProxy(deviceResource.Device.ImmediateContext, deviceResource.Device);
-#endif
+                immediateContext = new DeviceContextProxy(deviceResource.NativeDeviceResources.ImmediateContext, deviceResource.NativeDeviceResources.Device);
                 oitWeightedCore = new OrderIndependentTransparentRenderCore();
                 oitDepthPeelingCore = new OITDepthPeeling();
                 postFXAACore = new PostEffectFXAA();

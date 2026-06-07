@@ -135,6 +135,18 @@ Umgesetzt:
 - `SilkD3D11DeviceFactory.CreateDefault(...)` erzeugt ein D3D11-Gerät mit `Silk.NET.Direct3D11.D3D11.CreateDevice`, BGRA-Support und einer Feature-Level-Kette `11_1 -> 11_0 -> 10_1 -> 10_0`.
 - `IEffectsManager`/`IDevice3DResources` expose zusätzlich `NativeDeviceResources`.
 - `EffectsManager` erzeugt die Silk.NET-D3D11-Device-Resources parallel zum bestehenden SharpDX-Pfad und gibt sie im Dispose-Pfad wieder frei.
+- `SilkD3DDeviceContext` kapselt erste direkte `ID3D11DeviceContext`-Aufrufe:
+  - `ClearState`
+  - `Flush`
+  - `Draw`, `DrawAuto`, `DrawIndexed`, `DrawInstanced`, `DrawIndexedInstanced`
+  - `Dispatch`
+  - `IASetPrimitiveTopology`/`IAGetPrimitiveTopology`
+  - `RSSetViewports`
+  - `RSSetScissorRects`
+- `DeviceContextProxy` verwendet für diese Basisaufrufe den nativen `SilkD3DDeviceContext`.
+- `DeviceContextProxy_InputAssembler` ist auf einen minimalen nativen Kern reduziert: `PrimitiveTopology` wird über Silk.NET gesetzt/gelesen, `InputLayout` bleibt bis zum nativen InputLayout-Wrapper nur als Tracking-Punkt vorhanden.
+- `RenderHostBase` und `ImmediateContextRenderer` erzeugen ihren Immediate-`DeviceContextProxy` aus `EffectsManager.NativeDeviceResources`.
+- Indirect Draw/Dispatch und Deferred Command Lists sind im `DeviceContextProxy` bewusst als nicht unterstützt markiert, bis native Buffer- und CommandList-Wrapper existieren.
 
 Aktueller Validierungsstand:
 
@@ -148,7 +160,7 @@ Ergebnis: Keine SharpDX-PackageReferences im definierten WPF-Scope.
 dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
-Ergebnis nach dem `EffectsManager`-Hook: Restore ist erfolgreich, Build scheitert aktuell mit `1885` Compilefehlern.
+Zuletzt gemessen nach dem `DeviceContextProxy`-Basisschnitt: Restore ist erfolgreich, Build scheitert mit `1865` Compilefehlern. Nach der anschließenden Konsolidierung von `DeviceContextProxy_InputAssembler` wurde der Build nicht erneut ausgeführt, weil die zweite gefilterte Buildausführung vom Approval-System abgelehnt wurde.
 
 Zusätzliche Prüfung nach Einführung der Native-Schicht:
 
@@ -160,12 +172,22 @@ Ergebnis: Keine Treffer für die neuen Native-Dateien; die Fehlerkante bleibt be
 
 Eine zusätzliche Filterprüfung auf `NativeDeviceResources`, `IEffectsManager`, `EffectsManager` und `SilkD3D*` erzeugt ebenfalls keine Treffer. Die Fehlerkante liegt weiter in den noch nicht migrierten Shader-, Buffer-, RenderContext-, D2D/DWrite/WIC- und Utility-Schichten.
 
+Zusätzliche Prüfung der portierten Basisdateien:
+
+```powershell
+rg -n "using SharpDX|global::SharpDX|SharpDX\." Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_DrawCalls.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_InputAssembler.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_Viewport.cs
+```
+
+Ergebnis: Keine Backend-Treffer in den portierten Basisdateien. Treffer mit `HelixToolkit.SharpDX.Core` bleiben Legacy-Namespace-Kompatibilität und sind keine SharpDX-Backend-Nutzung.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
 - Die Ownership für `ID3D11Device` und `ID3D11DeviceContext` läuft über `Silk.NET.Core.Native.ComPtr<T>`.
-- `EffectsManager` hat eine erste native Resource-Grenze, verwendet für die bestehenden Pools und Shader aber weiterhin den alten SharpDX-Pfad.
-- Der nächste Umbau muss deshalb nicht mehr bei Device-Erzeugung beginnen, sondern bei der Nutzung des Device Contexts und der D3D11-Resource-Typen.
+- `EffectsManager` hat eine erste native Resource-Grenze.
+- Der Immediate-Renderpfad kann den neuen nativen Kontext erreichen.
+- Ein kleiner Teil des `DeviceContextProxy` läuft über Silk.NET; die übrigen Partial-Dateien hängen noch an alten SharpDX-Resource-Typen.
+- Der nächste Umbau muss deshalb bei nativen Resource-Wrappern für Views, Buffer, Shader und States ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -181,12 +203,14 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. `DeviceContextProxy` auf `SilkD3DDeviceContext` vorbereiten und die ersten Clear-/Draw-/Stage-Aufrufe über Silk.NET abbilden.
-2. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-3. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
-4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. Native Resource-Wrapper für D3D11-Views, Buffer, Textures, Shader und States einführen.
+2. `DeviceContextProxy_Targets`, `DeviceContextProxy_ResourceUpdate`, `DeviceContextProxy_ShaderResources` und `DeviceContextProxy_States` auf diese Wrapper umstellen.
+3. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+4. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+5. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
+6. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+7. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+8. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 

@@ -4,7 +4,9 @@ Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System;
+using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
+using Silk.NET.Maths;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 
@@ -105,6 +107,71 @@ namespace HelixToolkit.UWP
             public bool IsDeferred { get; }
 
             public bool IsDisposed { get; private set; }
+
+            public void ClearState()
+            {
+                nativeContext.ClearState();
+            }
+
+            public void Flush()
+            {
+                nativeContext.Flush();
+            }
+
+            public void Draw(uint vertexCount, uint startVertexLocation)
+            {
+                nativeContext.Draw(vertexCount, startVertexLocation);
+            }
+
+            public void DrawAuto()
+            {
+                nativeContext.DrawAuto();
+            }
+
+            public void DrawIndexed(uint indexCount, uint startIndexLocation, int baseVertexLocation)
+            {
+                nativeContext.DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
+            }
+
+            public void DrawIndexedInstanced(uint indexCountPerInstance, uint instanceCount, uint startIndexLocation, int baseVertexLocation, uint startInstanceLocation)
+            {
+                nativeContext.DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+            }
+
+            public void DrawInstanced(uint vertexCountPerInstance, uint instanceCount, uint startVertexLocation, uint startInstanceLocation)
+            {
+                nativeContext.DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+            }
+
+            public void Dispatch(uint threadGroupCountX, uint threadGroupCountY, uint threadGroupCountZ)
+            {
+                nativeContext.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+            }
+
+            public D3DPrimitiveTopology PrimitiveTopology
+            {
+                get
+                {
+                    nativeContext.IAGetPrimitiveTopology(out D3DPrimitiveTopology topology);
+                    return topology;
+                }
+                set
+                {
+                    nativeContext.IASetPrimitiveTopology(value);
+                }
+            }
+
+            public void SetViewport(float x, float y, float width, float height, float minZ, float maxZ)
+            {
+                var viewport = new Viewport(x, y, width, height, minZ, maxZ);
+                nativeContext.RSSetViewports(1, ref viewport);
+            }
+
+            public void SetScissorRectangle(int left, int top, int right, int bottom)
+            {
+                var rectangle = new Box2D<int>(left, top, right, bottom);
+                nativeContext.RSSetScissorRects(1, ref rectangle);
+            }
 
             public void Dispose()
             {

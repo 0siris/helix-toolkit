@@ -126,6 +126,15 @@ Umgesetzt:
 - Zentrale erste Math-Alias-Datei eingeführt:
   - `Source/HelixToolkit.SharpDX.Shared/SilkNetMathAliases.cs`
   - eingebunden über `Source/HelixToolkit.SharpDX.Shared/HelixToolkit.SharpDX.Shared.projitems`
+- Erste Native-/COM-Ownership-Schicht für Silk.NET angelegt:
+  - `Source/HelixToolkit.SharpDX.Shared/Native/D3DDeviceHandles.cs`
+  - `Source/HelixToolkit.SharpDX.Shared/Native/INativeDeviceResources.cs`
+  - `Source/HelixToolkit.SharpDX.Shared/Native/SilkD3DDeviceResources.cs`
+  - `Source/HelixToolkit.SharpDX.Shared/Native/SilkD3D11DeviceFactory.cs`
+- Die neuen D3D11-Wrapper halten echte `Silk.NET.Core.Native.ComPtr<T>`-Handles für `ID3D11Device` und `ID3D11DeviceContext`.
+- `SilkD3D11DeviceFactory.CreateDefault(...)` erzeugt ein D3D11-Gerät mit `Silk.NET.Direct3D11.D3D11.CreateDevice`, BGRA-Support und einer Feature-Level-Kette `11_1 -> 11_0 -> 10_1 -> 10_0`.
+- `IEffectsManager`/`IDevice3DResources` expose zusätzlich `NativeDeviceResources`.
+- `EffectsManager` erzeugt die Silk.NET-D3D11-Device-Resources parallel zum bestehenden SharpDX-Pfad und gibt sie im Dispose-Pfad wieder frei.
 
 Aktueller Validierungsstand:
 
@@ -136,10 +145,27 @@ rg -n 'PackageReference Include="SharpDX' Source\HelixToolkit.SharpDX.Core Sourc
 Ergebnis: Keine SharpDX-PackageReferences im definierten WPF-Scope.
 
 ```powershell
-dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
-Ergebnis: Restore ist erfolgreich, Build scheitert aktuell mit `1883` Compilefehlern.
+Ergebnis nach dem `EffectsManager`-Hook: Restore ist erfolgreich, Build scheitert aktuell mit `1885` Compilefehlern.
+
+Zusätzliche Prüfung nach Einführung der Native-Schicht:
+
+```powershell
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -clp:ErrorsOnly | Select-String -Pattern 'Native\\|SilkD3D|ComPtr.cs|D3DDeviceHandles|SilkD3D11DeviceFactory|SilkD3DDeviceResources|INativeDeviceResources'
+```
+
+Ergebnis: Keine Treffer für die neuen Native-Dateien; die Fehlerkante bleibt bei den bestehenden SharpDX-Referenzen.
+
+Eine zusätzliche Filterprüfung auf `NativeDeviceResources`, `IEffectsManager`, `EffectsManager` und `SilkD3D*` erzeugt ebenfalls keine Treffer. Die Fehlerkante liegt weiter in den noch nicht migrierten Shader-, Buffer-, RenderContext-, D2D/DWrite/WIC- und Utility-Schichten.
+
+Stand dieses Implementierungsschnitts:
+
+- Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
+- Die Ownership für `ID3D11Device` und `ID3D11DeviceContext` läuft über `Silk.NET.Core.Native.ComPtr<T>`.
+- `EffectsManager` hat eine erste native Resource-Grenze, verwendet für die bestehenden Pools und Shader aber weiterhin den alten SharpDX-Pfad.
+- Der nächste Umbau muss deshalb nicht mehr bei Device-Erzeugung beginnen, sondern bei der Nutzung des Device Contexts und der D3D11-Resource-Typen.
 
 Nächste offene Migrationskante:
 
@@ -155,11 +181,12 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-2. COM-/Pointer-Ownership-Schicht einführen, bevor Resource-Proxies voll portiert werden.
-3. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-4. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-5. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. `DeviceContextProxy` auf `SilkD3DDeviceContext` vorbereiten und die ersten Clear-/Draw-/Stage-Aufrufe über Silk.NET abbilden.
+2. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+3. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
+4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 

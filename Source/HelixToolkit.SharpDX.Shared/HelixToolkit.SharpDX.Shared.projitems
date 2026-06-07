@@ -10,6 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SilkNetMathAliases.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\D3DDeviceHandles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\INativeDeviceResources.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\SilkD3DDeviceResources.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\SilkD3D11DeviceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core2D\Abstract\RenderCore2D.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core2D\Abstract\RenderCore2DBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core2D\Abstract\ShapeRenderCore2DBase.cs" />

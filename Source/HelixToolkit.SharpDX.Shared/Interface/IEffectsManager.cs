@@ -24,6 +24,7 @@ namespace HelixToolkit.UWP
     using Shaders;
     using System;
     using Render;
+    using Native;
     /// <summary>
     /// 
     /// </summary>
@@ -103,6 +104,13 @@ namespace HelixToolkit.UWP
         /// 
         /// </summary>
         DriverType DriverType
+        {
+            get;
+        }
+        /// <summary>
+        /// Gets the native Silk.NET device resources used by the DirectX backend.
+        /// </summary>
+        INativeDeviceResources NativeDeviceResources
         {
             get;
         }

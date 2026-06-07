@@ -37,6 +37,7 @@ namespace HelixToolkit.UWP
     using System.Runtime.CompilerServices;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics;
+    using Native;
 
     public sealed class EffectsManagerConfiguration
     {
@@ -176,6 +177,15 @@ namespace HelixToolkit.UWP
         #region 3D Resoruces
 
         private global::SharpDX.Direct3D11.Device device;
+        private INativeDeviceResources nativeDeviceResources;
+
+        public INativeDeviceResources NativeDeviceResources
+        {
+            get
+            {
+                return nativeDeviceResources;
+            }
+        }
 
 #if DX11_1
         private global::SharpDX.Direct3D11.Device1 device1;
@@ -370,9 +380,23 @@ namespace HelixToolkit.UWP
             if (adapter != null)
             {
                 DriverType = EnableSoftwareRendering ? DriverType.Warp : DriverType.Hardware;
-                if (adapter.Description.VendorId == 0x1414 && adapter.Description.DeviceId == 0x8c)
+                var useWarpAdapter = adapter.Description.VendorId == 0x1414 && adapter.Description.DeviceId == 0x8c;
+                if (useWarpAdapter)
                 {
                     DriverType = DriverType.Warp;
+                }
+
+                RemoveAndDispose(ref nativeDeviceResources);
+                nativeDeviceResources = SilkD3D11DeviceFactory.CreateDefault(
+                    adapterIndex,
+                    DriverType == DriverType.Warp ? SilkDriverType.Warp : SilkDriverType.Hardware,
+#if DEBUGMEMORY
+                    true);
+#else
+                    false);
+#endif
+                if (useWarpAdapter)
+                {
                     device = EnableSoftwareRendering ?
                         new global::SharpDX.Direct3D11.Device(DriverType, DeviceCreationFlags.BgraSupport)
                         : new global::SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.BgraSupport);
@@ -702,6 +726,7 @@ namespace HelixToolkit.UWP
             RemoveAndDispose(ref structArrayPool);
             Initialized = false;
             global::SharpDX.Toolkit.Graphics.WICHelper.Dispose();
+            RemoveAndDispose(ref nativeDeviceResources);
 #if DX11_1
             RemoveAndDispose(ref device1);
 #endif

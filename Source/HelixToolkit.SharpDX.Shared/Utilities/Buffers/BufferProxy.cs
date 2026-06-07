@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SDX11 = SharpDX.Direct3D11;
-using SharpDX.Direct3D11;
 using System;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -25,7 +23,7 @@ namespace HelixToolkit.UWP
             /// <summary>
             /// Raw Buffer
             /// </summary>
-            SDX11.Buffer Buffer
+            Buffer Buffer
             {
                 get;
             }
@@ -68,7 +66,7 @@ namespace HelixToolkit.UWP
             /// <summary>
             /// 
             /// </summary>
-            protected SDX11.Buffer buffer;
+            protected Buffer buffer;
             /// <summary>
             /// <see cref="IBufferProxy.StructureSize"/> 
             /// </summary>
@@ -88,7 +86,7 @@ namespace HelixToolkit.UWP
             /// <summary>
             ///  <see cref="IBufferProxy.Buffer"/> 
             /// </summary>
-            public SDX11.Buffer Buffer
+            public Buffer Buffer
             {
                 get
                 {

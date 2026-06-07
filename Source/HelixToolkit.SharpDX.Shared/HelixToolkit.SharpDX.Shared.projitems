@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SilkNetMathAliases.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DDeviceHandles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\D3DResourceHandles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\D3DViewHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\INativeDeviceResources.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\SilkD3DDeviceResources.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\SilkD3D11DeviceFactory.cs" />

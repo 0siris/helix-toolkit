@@ -3,11 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using SDX11 = SharpDX.Direct3D11;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -424,7 +421,7 @@ namespace HelixToolkit.UWP
             /// <param name="count">The count.</param>
             /// <param name="minBufferCount">The minimum buffer count.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Initialize(Device device, int count, int minBufferCount = default(int))
+            public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default(int))
             {
                 RemoveAndDispose(ref buffer);
                 var buffdesc = new BufferDescription()
@@ -438,7 +435,7 @@ namespace HelixToolkit.UWP
                 };
                 Capacity = buffdesc.SizeInBytes;
                 CapacityUsed = 0;
-                buffer = new Buffer(device, buffdesc);
+                buffer = new Buffer(context, buffdesc);
                 OnBufferChanged(buffer);
             }
 
@@ -489,8 +486,6 @@ namespace HelixToolkit.UWP
             protected override void OnBufferChanged(Buffer newBuffer)
             {
                 RemoveAndDispose(ref srv);
-                srv = new ShaderResourceViewProxy(newBuffer.Device, newBuffer);
-                srv.CreateTextureView();
             }
 
             protected override void OnDispose(bool disposeManagedResources)

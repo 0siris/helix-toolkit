@@ -147,6 +147,50 @@ Umgesetzt:
 - `DeviceContextProxy_InputAssembler` ist auf einen minimalen nativen Kern reduziert: `PrimitiveTopology` wird über Silk.NET gesetzt/gelesen, `InputLayout` bleibt bis zum nativen InputLayout-Wrapper nur als Tracking-Punkt vorhanden.
 - `RenderHostBase` und `ImmediateContextRenderer` erzeugen ihren Immediate-`DeviceContextProxy` aus `EffectsManager.NativeDeviceResources`.
 - Indirect Draw/Dispatch und Deferred Command Lists sind im `DeviceContextProxy` bewusst als nicht unterstützt markiert, bis native Buffer- und CommandList-Wrapper existieren.
+- Erste native View-Handle-Schicht ergänzt:
+  - `Source/HelixToolkit.SharpDX.Shared/Native/D3DViewHandles.cs`
+  - `RenderTargetView`
+  - `DepthStencilView`
+  - `ShaderResourceView`
+  - `UnorderedAccessView`
+  - `DepthStencilClearFlags`
+- `SilkNetMathAliases.cs` um `Int4 = Silk.NET.Maths.Vector4D<int>` ergänzt.
+- `SilkD3DDeviceContext` kapselt jetzt zusätzlich Output-Merger- und Clear-Aufrufe:
+  - `OMSetRenderTargets`
+  - `OMGetRenderTargets`
+  - `OMSetRenderTargetsAndUnorderedAccessViews`
+  - `OMGetRenderTargetsAndUnorderedAccessViews`
+  - `ClearRenderTargetView`
+  - `ClearDepthStencilView`
+  - `ClearUnorderedAccessViewUint`
+  - `ClearUnorderedAccessViewFloat`
+- `DeviceContextProxy_Targets` ist von SharpDX-Usings gelöst und verwendet für RenderTargets, DepthStencil, UAVs und Clear-Aufrufe den nativen Silk.NET-Kontext.
+- Erste native Resource- und Buffer-Handle-Schicht ergänzt:
+  - `Source/HelixToolkit.SharpDX.Shared/Native/D3DResourceHandles.cs`
+  - `Resource`
+  - `Buffer`
+  - `BufferDescription`
+  - `DataBox`
+  - `DataStream`
+  - `ResourceRegion`
+  - `BindFlags`, `CpuAccessFlags`, `ResourceUsage`, `ResourceOptionFlags`, `MapMode`, `MapFlags`
+- `SilkNetMathAliases.cs` um `Format = Silk.NET.DXGI.Format` ergänzt.
+- `SilkD3DDevice` erstellt jetzt native D3D11-Buffer.
+- `SilkD3DDeviceContext` kapselt jetzt zusätzlich Resource- und Buffer-Aufrufe:
+  - `MapSubresource`
+  - `UnmapSubresource`
+  - `UpdateSubresource`
+  - `CopyResource`
+  - `CopySubresourceRegion`
+  - `ResolveSubresource`
+  - `CopyStructureCount`
+  - `GenerateMips`
+  - `SOSetTargets`
+- `DeviceContextProxy_ResourceUpdate` verwendet für `Resource`/`Buffer` jetzt den nativen Silk.NET-Kontext.
+- `DeviceContextProxy_Targets` unterstützt Stream-Output-Bindings jetzt über native `Buffer`-Wrapper.
+- `BufferProxy`, `ConstantBufferProxy` und `ElementsBufferProxy` verwenden im migrierten Pfad den nativen `Buffer`-Wrapper statt SharpDX-Buffer.
+- `ConstantBufferProxy` erzeugt seinen nativen Buffer lazy beim ersten Upload, weil alte Pool-Aufrufer noch keine native Device-Grenze übergeben.
+- `StructuredBufferProxy` erzeugt vorübergehend keine `ShaderResourceViewProxy` mehr; diese Kante wird mit der Shader-Resource-/View-Proxy-Migration geschlossen.
 
 Aktueller Validierungsstand:
 
@@ -160,7 +204,7 @@ Ergebnis: Keine SharpDX-PackageReferences im definierten WPF-Scope.
 dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
-Zuletzt gemessen nach dem `DeviceContextProxy`-Basisschnitt: Restore ist erfolgreich, Build scheitert mit `1865` Compilefehlern. Nach der anschließenden Konsolidierung von `DeviceContextProxy_InputAssembler` wurde der Build nicht erneut ausgeführt, weil die zweite gefilterte Buildausführung vom Approval-System abgelehnt wurde.
+Zuletzt gemessen nach dem Resource-/Buffer-Schnitt: Restore ist erfolgreich, Build scheitert mit `1574` Compilefehlern. Die Reduktion kommt durch die migrierten `DeviceContextProxy`-Teilbereiche und die ersten nativen Buffer-/Resource-Wrapper; die verbleibenden Fehler liegen weiterhin in noch nicht migrierten SharpDX-Namespace-, Shader-, Buffer-Model-, RenderContext-, D2D/DWrite/WIC- und Utility-Schichten.
 
 Zusätzliche Prüfung nach Einführung der Native-Schicht:
 
@@ -180,14 +224,32 @@ rg -n "using SharpDX|global::SharpDX|SharpDX\." Source\HelixToolkit.SharpDX.Shar
 
 Ergebnis: Keine Backend-Treffer in den portierten Basisdateien. Treffer mit `HelixToolkit.SharpDX.Core` bleiben Legacy-Namespace-Kompatibilität und sind keine SharpDX-Backend-Nutzung.
 
+Zusätzliche Prüfung der portierten Output-Merger-/View-Dateien:
+
+```powershell
+rg -n "using SharpDX|global::SharpDX|SharpDX\.Direct|SharpDX\.DXGI|SharpDX\.Mathematics|SharpDX\.Diagnostics" Source\HelixToolkit.SharpDX.Shared\Native\D3DViewHandles.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DDeviceHandles.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_Targets.cs Source\HelixToolkit.SharpDX.Shared\SilkNetMathAliases.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'D3DViewHandles|D3DDeviceHandles|DeviceContextProxy_Targets|SilkNetMathAliases|HelixToolkit.SharpDX.Shared.projitems'
+```
+
+Ergebnis: Keine SharpDX-Treffer in den bearbeiteten Dateien und keine Buildfehler, die auf diese Dateien gefiltert wurden.
+
+Zusätzliche Prüfung der portierten Resource-/Buffer-Dateien:
+
+```powershell
+rg -n "using SharpDX|global::SharpDX|SharpDX\.Direct|SharpDX\.DXGI|SharpDX\.Mathematics|SharpDX\.Diagnostics" Source\HelixToolkit.SharpDX.Shared\Native\D3DResourceHandles.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DDeviceHandles.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DViewHandles.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_ResourceUpdate.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_Targets.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\BufferProxy.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\ConstantBufferProxy.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\ElementsBufferProxy.cs Source\HelixToolkit.SharpDX.Shared\SilkNetMathAliases.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'Native\\D3DResourceHandles\.cs|Native\\D3DDeviceHandles\.cs|Native\\D3DViewHandles\.cs|DeviceContextProxy\\DeviceContextProxy_ResourceUpdate\.cs|DeviceContextProxy\\DeviceContextProxy_Targets\.cs|Utilities\\Buffers\\BufferProxy\.cs|Utilities\\Buffers\\ConstantBufferProxy\.cs|Utilities\\Buffers\\ElementsBufferProxy\.cs|SilkNetMathAliases\.cs|HelixToolkit\.SharpDX\.Shared\.projitems'
+```
+
+Ergebnis: Keine SharpDX-Treffer in den bearbeiteten Resource-/Buffer-Dateien und keine Buildfehler, die auf diese Dateien gefiltert wurden.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
 - Die Ownership für `ID3D11Device` und `ID3D11DeviceContext` läuft über `Silk.NET.Core.Native.ComPtr<T>`.
 - `EffectsManager` hat eine erste native Resource-Grenze.
 - Der Immediate-Renderpfad kann den neuen nativen Kontext erreichen.
-- Ein kleiner Teil des `DeviceContextProxy` läuft über Silk.NET; die übrigen Partial-Dateien hängen noch an alten SharpDX-Resource-Typen.
-- Der nächste Umbau muss deshalb bei nativen Resource-Wrappern für Views, Buffer, Shader und States ansetzen.
+- Draw-, InputAssembler-, Viewport-, Output-Merger-/Target- und ResourceUpdate-Teile des `DeviceContextProxy` laufen teilweise über Silk.NET.
+- Der nächste Umbau muss deshalb bei ShaderResourceView-/UnorderedAccessView-Proxies, Shader-Resource-Bindings, Texture-Wrappern und State-Wrappern ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -203,18 +265,28 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Native Resource-Wrapper für D3D11-Views, Buffer, Textures, Shader und States einführen.
-2. `DeviceContextProxy_Targets`, `DeviceContextProxy_ResourceUpdate`, `DeviceContextProxy_ShaderResources` und `DeviceContextProxy_States` auf diese Wrapper umstellen.
-3. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
-4. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-5. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
-6. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-7. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-8. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. `ShaderResourceViewProxy`, UAV-/SRV-Buffer-Views und `DeviceContextProxy_ShaderResources` auf native View-/Resource-Wrapper umstellen.
+2. Texture-Wrapper und Texture-Resource-Erzeugung migrieren, damit SRV/RTV/DSV nicht nur als Handle-Typen existieren.
+3. State-Wrapper und `DeviceContextProxy_States` migrieren.
+4. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+5. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+6. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
+7. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+8. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+9. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
 Ziel: Den aktuellen Zustand messbar sichern, bevor SharpDX entfernt wird.
+
+### Fortschritt
+
+Status: Teilweise erledigt.
+
+- Supported Scope und Nicht-Scope sind in diesem Dokument abgegrenzt.
+- SharpDX-PackageReferences und zentrale SharpDX-Code-Referenzen wurden für den aktuellen Migrationsschnitt geprüft.
+- Der aktuelle Buildstatus ist dokumentiert: Nach dem Resource-/Buffer-Schnitt scheitert `dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly` mit `1574` Fehlern.
+- Offene Inventararbeit: vollständige Testbaseline, detaillierte Zählung nach D3D9/D3D11/DXGI/D2D/DWrite/WIC/D3DCompiler und vollständige Liste aller Resource-Owner.
 
 ### Aufgaben
 
@@ -246,6 +318,14 @@ rg -n "PackageReference Include=\"SharpDX|using SharpDX|global::SharpDX" Source
 
 Ziel: Nur noch der WPF-Scope entscheidet über den Migrationserfolg.
 
+### Fortschritt
+
+Status: Dokumentiert, aber noch nicht vollständig in Build-/CI-Struktur umgesetzt.
+
+- WPF-Zielprojekte, WPF.Assimp und relevante Tests sind als supported Scope festgelegt.
+- UWP, WinUI und nicht-WPF SharpDX.Core-Beispiele sind als Nicht-Scope markiert.
+- Offene Arbeit: aktive Solutions, lokale Build-Gates und CI-Gates noch konsequent auf die definierte WPF-Zielmatrix reduzieren.
+
 ### Aufgaben
 
 - Aktive Lösungen und CI-Gates auf WPF-Zielprojekte reduzieren.
@@ -262,6 +342,16 @@ Ziel: Nur noch der WPF-Scope entscheidet über den Migrationserfolg.
 ## Phase 2: Dependencies und Defines umstellen
 
 Ziel: SharpDX als Paketquelle aus dem supported Scope entfernen und Silk.NET einziehen.
+
+### Fortschritt
+
+Status: Weitgehend erledigt.
+
+- SharpDX-PackageReferences sind im definierten WPF-Scope entfernt.
+- Silk.NET-PackageReferences sind mit Version `2.23.0` ergänzt.
+- Backend-Defines wurden in den Zielprojekten von `SHARPDX` auf `SILKNET` umgestellt.
+- Gate-Prüfung für SharpDX-PackageReferences im supported Scope liefert keine Treffer.
+- Offene Arbeit: Testprojekte noch vollständig von SharpDX.Diagnostics/ObjectTracker entkoppeln und restliche Compilefehler aus Code-Typreferenzen schrittweise abbauen.
 
 ### Aufgaben
 
@@ -280,6 +370,15 @@ Ziel: SharpDX als Paketquelle aus dem supported Scope entfernen und Silk.NET ein
 ## Phase 3: Math- und Public-Type-Migration
 
 Ziel: SharpDX-Math-Typen aus öffentlichen und internen Datenmodellen entfernen.
+
+### Fortschritt
+
+Status: Begonnen.
+
+- `Silk.NET.Maths` ist als primäres Math-Modell festgelegt.
+- Eine zentrale Alias-Datei `SilkNetMathAliases.cs` ist eingebunden und enthält erste Zieltypen, unter anderem `Int4 = Silk.NET.Maths.Vector4D<int>`.
+- `Format` ist als `Silk.NET.DXGI.Format` zentral verfügbar, damit DXGI-Typen nicht über SharpDX zurückkommen.
+- Offene Arbeit: qualifizierte SharpDX-Math-Referenzen, Bounds-/HitTest-Typen und Assimp-Konverter sind noch nicht systematisch migriert.
 
 ### Aufgaben
 
@@ -305,6 +404,15 @@ Ziel: SharpDX-Math-Typen aus öffentlichen und internen Datenmodellen entfernen.
 
 Ziel: SharpDX `ComObject`-Disposal durch explizite Silk.NET-COM-Ownership ersetzen.
 
+### Fortschritt
+
+Status: In Arbeit.
+
+- Erste native Ownership-Grenze ist vorhanden: `INativeDeviceResources`, `SilkD3DDeviceResources`, `SilkD3DDevice` und `SilkD3DDeviceContext`.
+- `ID3D11Device`, `ID3D11DeviceContext`, Views, Resource und Buffer werden in den neuen Pfaden über `Silk.NET.Core.Native.ComPtr<T>` gehalten.
+- Erste native Wrapper existieren für RenderTargetView, DepthStencilView, ShaderResourceView, UnorderedAccessView, Resource und Buffer.
+- Offene Arbeit: Ownership-Regeln noch vollständig dokumentieren und Texture-, Shader-, State-, DXGI-, D3D9- und D2D/DWrite/WIC-Objekte aus SharpDX-`ComObject`-Semantik lösen.
+
 ### Aufgaben
 
 - Zentrale Wrapper für native COM-Objekte einführen, z. B. `SilkComObject<T>` oder `ComPtr<T>`.
@@ -324,6 +432,23 @@ Ziel: SharpDX `ComObject`-Disposal durch explizite Silk.NET-COM-Ownership ersetz
 ## Phase 5: D3D11 Core-Rendering migrieren
 
 Ziel: Der WPF-Rendering-Core läuft auf Silk.NET.Direct3D11 und Silk.NET.DXGI.
+
+### Fortschritt
+
+Status: In Arbeit.
+
+- `SilkD3D11DeviceFactory.CreateDefault(...)` erzeugt ein D3D11-Gerät über Silk.NET.Direct3D11.
+- `EffectsManager` erstellt und hält parallel native Silk.NET-D3D11-Device-Resources.
+- `RenderHostBase` und `ImmediateContextRenderer` erreichen den nativen Immediate-Kontext.
+- `DeviceContextProxy` ist in diesen Bereichen teilweise auf Silk.NET umgestellt:
+  - Draw Calls
+  - Input Assembler für `PrimitiveTopology`
+  - Viewport und Scissor Rects
+  - Output-Merger RenderTargets/UAVs und Clear-Aufrufe
+  - ResourceUpdate für `Resource`/`Buffer`
+  - Stream-Output-Bindings über native Buffer
+- Buffer-Proxies sind teilweise migriert: `BufferProxy`, `ConstantBufferProxy` und `ElementsBufferProxy`.
+- Offene Arbeit: Shader resources, Texture-Erzeugung, Shader-/State-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, RenderBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -367,6 +492,13 @@ Ziel: Der WPF-Rendering-Core läuft auf Silk.NET.Direct3D11 und Silk.NET.DXGI.
 
 Ziel: Beide WPF-Renderpfade funktionieren ohne SharpDX.
 
+### Fortschritt
+
+Status: Noch offen.
+
+- D3DImage- und SwapChain-Pfade sind fachlich beschrieben.
+- Noch keine D3D9Ex-/DXGI-Interop-Portierung mit Silk.NET umgesetzt.
+
 ### D3DImage-Pfad
 
 Betroffene Kernbereiche:
@@ -383,7 +515,7 @@ Aufgaben:
 - Shared texture als D3D9 texture/surface öffnen.
 - `IDirect3DSurface9`-Pointer an `D3DImage.SetBackBuffer(...)` übergeben.
 - FrontBuffer-Changed und Software-Fallback-Verhalten erhalten.
-- `AddDirtyRect`/`Unlock`-Pfad unveraendert in WPF halten.
+- `AddDirtyRect`/`Unlock`-Pfad unverändert in WPF halten.
 
 ### SwapChain/HwndHost-Pfad
 
@@ -412,6 +544,13 @@ Aufgaben:
 
 Ziel: 2D Overlay, Text, Bitmap-/Texture-Loading und ScreenCapture laufen ohne SharpDX.
 
+### Fortschritt
+
+Status: Noch offen.
+
+- D2D/DWrite/WIC bleiben eine der dominanten Fehlergruppen im aktuellen Build.
+- Texture-Wrapper sind noch nicht portiert; nur Resource-/Buffer-Grundlagen sind vorhanden.
+
 ### Aufgaben
 
 - Direct2D device/factory/context über Silk.NET.Direct2D erstellen.
@@ -435,6 +574,13 @@ Ziel: 2D Overlay, Text, Bitmap-/Texture-Loading und ScreenCapture laufen ohne Sh
 ## Phase 8: Shader Reflection und Shader-Pipeline
 
 Ziel: Bestehende `.cso`-Shader weiterverwenden und Reflection-Daten ohne SharpDX laden.
+
+### Fortschritt
+
+Status: Noch offen.
+
+- Entscheidung für `D3DReflect` über `Silk.NET.Direct3D.Compilers` ist dokumentiert.
+- Shader creation, Reflection, InputLayout und Shader-Pools hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -460,6 +606,13 @@ Ziel: Bestehende `.cso`-Shader weiterverwenden und Reflection-Daten ohne SharpDX
 
 Ziel: Import/Export-Workflows bleiben im WPF-Scope erhalten.
 
+### Fortschritt
+
+Status: Noch offen.
+
+- WPF.Assimp ist im supported Scope enthalten und die SharpDX-PackageReferences sind entfernt.
+- Assimp-Math-Konverter, Material-/Texture-Mapping und Builds sind noch nicht migriert.
+
 ### Aufgaben
 
 - `HelixToolkit.SharpDX.Assimp.Shared` von SharpDX-Math-Typen entkoppeln.
@@ -477,6 +630,14 @@ Ziel: Import/Export-Workflows bleiben im WPF-Scope erhalten.
 ## Phase 10: Cleanup, Umbenennung nur intern und Final Gates
 
 Ziel: Supported Scope ist SharpDX-frei und WPF-funktional.
+
+### Fortschritt
+
+Status: Begonnen.
+
+- SharpDX-PackageReferences im definierten WPF-Scope sind entfernt.
+- Öffentliche Legacy-Namen bleiben bewusst erhalten.
+- Offene Arbeit: SharpDX-Code-Referenzen, Kommentare, README-/Package-Metadaten und finale Gates sind noch nicht abgeschlossen.
 
 ### Aufgaben
 
@@ -503,7 +664,7 @@ Erwartung:
 
 - Keine SharpDX-Treffer im supported Scope.
 - WPF Library und WPF Assimp bauen.
-- WPF Tests laufen oder GPU-/Umgebungsabhaengigkeiten sind explizit dokumentiert.
+- WPF Tests laufen oder GPU-/Umgebungsabhängigkeiten sind explizit dokumentiert.
 - Manuelle Smoke-Tests bestätigen beide WPF-Renderpfade.
 
 ## Testmatrix
@@ -527,7 +688,7 @@ Erwartung:
 | Risiko | Bewertung | Gegenmaßnahme |
 | --- | --- | --- |
 | D3DImage/D3D9Ex interop | Hoch | Früh in Phase 6 prototypisieren, nicht ans Ende schieben. |
-| COM lifetime mit Silk.NET | Hoch | Zentrale Wrapper und klare Ownership-Regeln vor Resource-Portierung einfuehren. |
+| COM lifetime mit Silk.NET | Hoch | Zentrale Wrapper und klare Ownership-Regeln vor Resource-Portierung einführen. |
 | Direct2D/DirectWrite/WIC-Abdeckung | Mittel | WPF Imaging APIs bevorzugen, native Interop nur wo nötig. |
 | Shader Reflection | Mittel | `D3DReflect` nutzen statt DXBC selbst zu parsen. |
 | Public API SharpDX-Typen | Hoch | Systematisch mit Tests und klarer Breaking-Change-Dokumentation migrieren. |

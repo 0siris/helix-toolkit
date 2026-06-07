@@ -7,8 +7,12 @@ using System;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using Silk.NET.Maths;
+using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
+using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
+using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
+using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -70,6 +74,32 @@ namespace HelixToolkit.UWP
             public SilkFeatureLevel FeatureLevel { get; }
 
             public bool IsDisposed { get; private set; }
+
+            public SilkD3D11BufferPtr CreateBuffer(BufferDescription description)
+            {
+                var bufferDesc = description.ToSilkDesc();
+                ID3D11Buffer* buffer = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateBuffer(ref bufferDesc, (SubresourceData*)null, ref buffer));
+                return new SilkD3D11BufferPtr(buffer);
+            }
+
+            public SilkD3D11BufferPtr CreateBuffer(BufferDescription description, IntPtr initialData)
+            {
+                if (initialData == IntPtr.Zero)
+                {
+                    return CreateBuffer(description);
+                }
+
+                var bufferDesc = description.ToSilkDesc();
+                var subresource = new SubresourceData
+                {
+                    PSysMem = initialData.ToPointer()
+                };
+
+                ID3D11Buffer* buffer = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateBuffer(ref bufferDesc, ref subresource, ref buffer));
+                return new SilkD3D11BufferPtr(buffer);
+            }
 
             public void Dispose()
             {
@@ -171,6 +201,340 @@ namespace HelixToolkit.UWP
             {
                 var rectangle = new Box2D<int>(left, top, right, bottom);
                 nativeContext.RSSetScissorRects(1, ref rectangle);
+            }
+
+            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags)
+            {
+                if (resource == null)
+                {
+                    return default;
+                }
+
+                MappedSubresource mapped = default;
+                SilkMarshal.ThrowHResult(nativeContext.Map(resource.Handle, (uint)subresource, mode.ToSilkMap(), flags.ToSilkMapFlags(), ref mapped));
+                return mapped.ToDataBox();
+            }
+
+            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags, out DataStream stream)
+            {
+                var dataBox = MapSubresource(resource, subresource, mode, flags);
+                stream = new DataStream(dataBox.DataPointer, 0, mode == MapMode.Read || mode == MapMode.ReadWrite, mode != MapMode.Read);
+                return dataBox;
+            }
+
+            public void UnmapSubresource(Resource resource, int subresource)
+            {
+                if (resource == null)
+                {
+                    return;
+                }
+
+                nativeContext.Unmap(resource.Handle, (uint)subresource);
+            }
+
+            public void UpdateSubresource(Resource resource, int subresource, ResourceRegion? region, IntPtr sourceData, int rowPitch, int depthPitch)
+            {
+                if (resource == null || sourceData == IntPtr.Zero)
+                {
+                    return;
+                }
+
+                if (region.HasValue)
+                {
+                    var box = region.Value.ToSilkBox();
+                    nativeContext.UpdateSubresource(resource.Handle, (uint)subresource, ref box, sourceData.ToPointer(), (uint)rowPitch, (uint)depthPitch);
+                }
+                else
+                {
+                    nativeContext.UpdateSubresource(resource.Handle, (uint)subresource, (Box*)null, sourceData.ToPointer(), (uint)rowPitch, (uint)depthPitch);
+                }
+            }
+
+            public void CopyResource(Resource source, Resource destination)
+            {
+                if (source == null || destination == null)
+                {
+                    return;
+                }
+
+                nativeContext.CopyResource(destination.Handle, source.Handle);
+            }
+
+            public void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion, Resource destination, int destinationSubResource, int dstX, int dstY, int dstZ)
+            {
+                if (source == null || destination == null)
+                {
+                    return;
+                }
+
+                if (sourceRegion.HasValue)
+                {
+                    var box = sourceRegion.Value.ToSilkBox();
+                    nativeContext.CopySubresourceRegion(
+                        destination.Handle,
+                        (uint)destinationSubResource,
+                        (uint)dstX,
+                        (uint)dstY,
+                        (uint)dstZ,
+                        source.Handle,
+                        (uint)sourceSubresource,
+                        ref box);
+                }
+                else
+                {
+                    nativeContext.CopySubresourceRegion(
+                        destination.Handle,
+                        (uint)destinationSubResource,
+                        (uint)dstX,
+                        (uint)dstY,
+                        (uint)dstZ,
+                        source.Handle,
+                        (uint)sourceSubresource,
+                        (Box*)null);
+                }
+            }
+
+            public void ResolveSubresource(Resource source, int sourceSubresource, Resource destination, int destinationSubresource, Format format)
+            {
+                if (source == null || destination == null)
+                {
+                    return;
+                }
+
+                nativeContext.ResolveSubresource(destination.Handle, (uint)destinationSubresource, source.Handle, (uint)sourceSubresource, format);
+            }
+
+            public void CopyStructureCount(Buffer destination, int destinationAlignedByteOffset, UnorderedAccessView source)
+            {
+                if (destination == null || source == null)
+                {
+                    return;
+                }
+
+                nativeContext.CopyStructureCount(destination.BufferHandle, (uint)destinationAlignedByteOffset, source.Handle);
+            }
+
+            public void GenerateMips(ShaderResourceView shaderResourceView)
+            {
+                if (shaderResourceView == null)
+                {
+                    return;
+                }
+
+                nativeContext.GenerateMips(shaderResourceView.Handle);
+            }
+
+            public void SetStreamOutputTarget(Buffer buffer, int offset)
+            {
+                var bufferPtr = buffer?.BufferHandle;
+                var offsetValue = (uint)offset;
+                nativeContext.SOSetTargets(1, &bufferPtr, &offsetValue);
+            }
+
+            public void SetStreamOutputTargets(Buffer[] buffers)
+            {
+                if (buffers == null || buffers.Length == 0)
+                {
+                    nativeContext.SOSetTargets(0, (ID3D11Buffer**)null, (uint*)null);
+                    return;
+                }
+
+                var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
+                var offsets = stackalloc uint[buffers.Length];
+                for (var i = 0; i < buffers.Length; i++)
+                {
+                    bufferPtrs[i] = buffers[i]?.BufferHandle;
+                    offsets[i] = 0;
+                }
+
+                nativeContext.SOSetTargets((uint)buffers.Length, bufferPtrs, offsets);
+            }
+
+            public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView renderTargetView)
+            {
+                var renderTargetViewPtr = renderTargetView?.Handle;
+                nativeContext.OMSetRenderTargets(1, &renderTargetViewPtr, depthStencilView?.Handle);
+            }
+
+            public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView[] renderTargetViews)
+            {
+                if (renderTargetViews == null || renderTargetViews.Length == 0)
+                {
+                    nativeContext.OMSetRenderTargets(0, (ID3D11RenderTargetView**)null, depthStencilView?.Handle);
+                    return;
+                }
+
+                var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[renderTargetViews.Length];
+                for (var i = 0; i < renderTargetViews.Length; i++)
+                {
+                    renderTargetViewPtrs[i] = renderTargetViews[i]?.Handle;
+                }
+
+                nativeContext.OMSetRenderTargets((uint)renderTargetViews.Length, renderTargetViewPtrs, depthStencilView?.Handle);
+            }
+
+            public void ClearRenderTargetView(RenderTargetView renderTargetView, Color4 color)
+            {
+                if (renderTargetView == null)
+                {
+                    return;
+                }
+
+                var clearColor = stackalloc float[4]
+                {
+                    color.X,
+                    color.Y,
+                    color.Z,
+                    color.W
+                };
+                nativeContext.ClearRenderTargetView(renderTargetView.Handle, clearColor);
+            }
+
+            public void ClearDepthStencilView(DepthStencilView depthStencilView, DepthStencilClearFlags clearFlags, float depth, byte stencil)
+            {
+                if (depthStencilView == null)
+                {
+                    return;
+                }
+
+                nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint)clearFlags, depth, stencil);
+            }
+
+            public void ClearRenderTargetBindings()
+            {
+                nativeContext.OMSetRenderTargets(0, (ID3D11RenderTargetView**)null, (ID3D11DepthStencilView*)null);
+            }
+
+            public void GetDepthStencilView(out DepthStencilView depthStencilView)
+            {
+                ID3D11DepthStencilView* depthStencilViewPtr = null;
+                nativeContext.OMGetRenderTargets(0, (ID3D11RenderTargetView**)null, &depthStencilViewPtr);
+                depthStencilView = depthStencilViewPtr == null ? null : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
+            }
+
+            public RenderTargetView[] GetRenderTargets(int numViews)
+            {
+                return GetRenderTargets(numViews, out _);
+            }
+
+            public RenderTargetView[] GetRenderTargets(int numViews, out DepthStencilView depthStencilView)
+            {
+                if (numViews <= 0)
+                {
+                    GetDepthStencilView(out depthStencilView);
+                    return Array.Empty<RenderTargetView>();
+                }
+
+                var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[numViews];
+                ID3D11DepthStencilView* depthStencilViewPtr = null;
+                nativeContext.OMGetRenderTargets((uint)numViews, renderTargetViewPtrs, &depthStencilViewPtr);
+
+                var renderTargetViews = new RenderTargetView[numViews];
+                for (var i = 0; i < numViews; i++)
+                {
+                    renderTargetViews[i] = renderTargetViewPtrs[i] == null ? null : new RenderTargetView(new SilkD3D11RenderTargetViewPtr(renderTargetViewPtrs[i]));
+                }
+
+                depthStencilView = depthStencilViewPtr == null ? null : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
+                return renderTargetViews;
+            }
+
+            public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Int4 values)
+            {
+                if (unorderedAccessView == null)
+                {
+                    return;
+                }
+
+                var clearValues = stackalloc uint[4]
+                {
+                    unchecked((uint)values.X),
+                    unchecked((uint)values.Y),
+                    unchecked((uint)values.Z),
+                    unchecked((uint)values.W)
+                };
+                nativeContext.ClearUnorderedAccessViewUint(unorderedAccessView.Handle, clearValues);
+            }
+
+            public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Vector4 values)
+            {
+                if (unorderedAccessView == null)
+                {
+                    return;
+                }
+
+                var clearValues = stackalloc float[4]
+                {
+                    values.X,
+                    values.Y,
+                    values.Z,
+                    values.W
+                };
+                nativeContext.ClearUnorderedAccessViewFloat(unorderedAccessView.Handle, clearValues);
+            }
+
+            public void SetOutputUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView)
+            {
+                var unorderedAccessViewPtr = unorderedAccessView?.Handle;
+                var initialCount = unchecked((uint)-1);
+                nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(
+                    uint.MaxValue,
+                    (ID3D11RenderTargetView**)null,
+                    (ID3D11DepthStencilView*)null,
+                    (uint)slot,
+                    1,
+                    &unorderedAccessViewPtr,
+                    &initialCount);
+            }
+
+            public void SetOutputUnorderedAccessViews(int startSlot, UnorderedAccessView[] unorderedAccessViews)
+            {
+                if (unorderedAccessViews == null || unorderedAccessViews.Length == 0)
+                {
+                    return;
+                }
+
+                var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
+                var initialCounts = stackalloc uint[unorderedAccessViews.Length];
+                for (var i = 0; i < unorderedAccessViews.Length; i++)
+                {
+                    unorderedAccessViewPtrs[i] = unorderedAccessViews[i]?.Handle;
+                    initialCounts[i] = unchecked((uint)-1);
+                }
+
+                nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(
+                    uint.MaxValue,
+                    (ID3D11RenderTargetView**)null,
+                    (ID3D11DepthStencilView*)null,
+                    (uint)startSlot,
+                    (uint)unorderedAccessViews.Length,
+                    unorderedAccessViewPtrs,
+                    initialCounts);
+            }
+
+            public UnorderedAccessView[] GetUnorderedAccessViews(int startSlot, int count)
+            {
+                if (count <= 0)
+                {
+                    return Array.Empty<UnorderedAccessView>();
+                }
+
+                var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[count];
+                nativeContext.OMGetRenderTargetsAndUnorderedAccessViews(
+                    0,
+                    (ID3D11RenderTargetView**)null,
+                    (ID3D11DepthStencilView**)null,
+                    (uint)startSlot,
+                    (uint)count,
+                    unorderedAccessViewPtrs);
+
+                var unorderedAccessViews = new UnorderedAccessView[count];
+                for (var i = 0; i < count; i++)
+                {
+                    unorderedAccessViews[i] = unorderedAccessViewPtrs[i] == null ? null : new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(unorderedAccessViewPtrs[i]));
+                }
+
+                return unorderedAccessViews;
             }
 
             public void Dispose()

@@ -3,11 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Runtime.CompilerServices;
-using SDX11 = SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Threading;
 #if !NETFX_CORE
@@ -124,15 +121,22 @@ namespace HelixToolkit.UWP
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.CreateBuffer(Device)"/>
+            /// <see cref="ConstantBufferProxy.CreateBuffer(object)"/>
             /// </summary>
             /// <param name="device"></param>
-            public void CreateBuffer(Device device)
+            public void CreateBuffer(object device)
             {
                 lock (lockObj)
                 {
                     RemoveAndDispose(ref buffer);
-                    buffer = new SDX11.Buffer(device, bufferDesc);                
+                }
+            }
+
+            private void EnsureBuffer(DeviceContextProxy context)
+            {
+                if (buffer == null)
+                {
+                    buffer = new Buffer(context, bufferDesc);
                 }
             }
 
@@ -147,6 +151,7 @@ namespace HelixToolkit.UWP
             {
                 lock (lockObj)
                 {
+                    EnsureBuffer(context);
                     if (bufferDesc.Usage == ResourceUsage.Dynamic)
                     {     
                         Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());            
@@ -187,6 +192,7 @@ namespace HelixToolkit.UWP
             {
                 lock (lockObj)
                 {
+                    EnsureBuffer(context);
                     if (bufferDesc.Usage == ResourceUsage.Dynamic)
                     {
                         Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= buffer.Description.SizeInBytes);
@@ -211,6 +217,7 @@ namespace HelixToolkit.UWP
             {
                 lock (lockObj)
                 {
+                    EnsureBuffer(context);
                     if (bufferDesc.Usage == ResourceUsage.Dynamic)
                     {
                         var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
@@ -230,6 +237,7 @@ namespace HelixToolkit.UWP
             public DataBox Map(DeviceContextProxy context)
             {
                 Monitor.Enter(lockObj);
+                EnsureBuffer(context);
                 return context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
             }
 
@@ -237,6 +245,7 @@ namespace HelixToolkit.UWP
             public DataStream MapToStream(DeviceContextProxy context)
             {
                 Monitor.Enter(lockObj);
+                EnsureBuffer(context);
                 context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None, out var stream);
                 return stream;
             }
@@ -253,7 +262,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             /// <param name="device"></param>
             /// <param name="structSize"></param>
-            public void ResizeBuffer(Device device, int structSize)
+            public void ResizeBuffer(object device, int structSize)
             {
                 if (structSize % 16 != 0)
                 {
@@ -263,7 +272,6 @@ namespace HelixToolkit.UWP
                 {
                     RemoveAndDispose(ref buffer);
                     bufferDesc.SizeInBytes = structSize;
-                    buffer = new SDX11.Buffer(device, bufferDesc);                
                 }
             }
 
@@ -273,13 +281,13 @@ namespace HelixToolkit.UWP
                 base.OnDispose(disposeManagedResources);
             }
             /// <summary>
-            /// Performs an implicit conversion from <see cref="ConstantBufferProxy"/> to <see cref="SDX11.Buffer"/>.
+            /// Performs an implicit conversion from <see cref="ConstantBufferProxy"/> to <see cref="Buffer"/>.
             /// </summary>
             /// <param name="proxy">The proxy.</param>
             /// <returns>
             /// The result of the conversion.
             /// </returns>
-            public static implicit operator SDX11.Buffer(ConstantBufferProxy proxy)
+            public static implicit operator Buffer(ConstantBufferProxy proxy)
             {
                 return proxy?.buffer;
             }

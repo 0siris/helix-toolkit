@@ -12,6 +12,7 @@ using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
 using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
+using SilkD3D11ShaderResourceViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ShaderResourceView>;
 using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
 
 #if !NETFX_CORE
@@ -99,6 +100,44 @@ namespace HelixToolkit.UWP
                 ID3D11Buffer* buffer = null;
                 SilkMarshal.ThrowHResult(nativeDevice.CreateBuffer(ref bufferDesc, ref subresource, ref buffer));
                 return new SilkD3D11BufferPtr(buffer);
+            }
+
+            public ShaderResourceView CreateShaderResourceView(Resource resource, ShaderResourceViewDescription? description = null)
+            {
+                if (resource == null)
+                {
+                    return null;
+                }
+
+                ID3D11ShaderResourceView* view = null;
+                if (description.HasValue)
+                {
+                    var viewDesc = description.Value.ToSilkDesc();
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle, ref viewDesc, ref view));
+                    return new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(view), description.Value);
+                }
+
+                SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle, (ShaderResourceViewDesc*)null, ref view));
+                return new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(view));
+            }
+
+            public UnorderedAccessView CreateUnorderedAccessView(Resource resource, UnorderedAccessViewDescription? description = null)
+            {
+                if (resource == null)
+                {
+                    return null;
+                }
+
+                ID3D11UnorderedAccessView* view = null;
+                if (description.HasValue)
+                {
+                    var viewDesc = description.Value.ToSilkDesc();
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle, ref viewDesc, ref view));
+                    return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view), description.Value);
+                }
+
+                SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle, (UnorderedAccessViewDesc*)null, ref view));
+                return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view));
             }
 
             public void Dispose()
@@ -322,6 +361,88 @@ namespace HelixToolkit.UWP
                 }
 
                 nativeContext.GenerateMips(shaderResourceView.Handle);
+            }
+
+            public void SetShaderResource(int shaderStage, int slot, ShaderResourceView shaderResourceView)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                var viewPtr = shaderResourceView?.Handle;
+                SetShaderResources(shaderStage, slot, 1, &viewPtr);
+            }
+
+            public void SetShaderResources(int shaderStage, int slot, ShaderResourceView[] shaderResourceViews)
+            {
+                if (slot < 0 || shaderResourceViews == null || shaderResourceViews.Length == 0)
+                {
+                    return;
+                }
+
+                var viewPtrs = stackalloc ID3D11ShaderResourceView*[shaderResourceViews.Length];
+                for (var i = 0; i < shaderResourceViews.Length; i++)
+                {
+                    viewPtrs[i] = shaderResourceViews[i]?.Handle;
+                }
+
+                SetShaderResources(shaderStage, slot, (uint)shaderResourceViews.Length, viewPtrs);
+            }
+
+            public void SetUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView, int initialCount = -1)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                var viewPtr = unorderedAccessView?.Handle;
+                var count = unchecked((uint)initialCount);
+                nativeContext.CSSetUnorderedAccessViews((uint)slot, 1, &viewPtr, &count);
+            }
+
+            public void SetUnorderedAccessViews(int slot, UnorderedAccessView[] unorderedAccessViews, int[] initialCounts = null)
+            {
+                if (slot < 0 || unorderedAccessViews == null || unorderedAccessViews.Length == 0)
+                {
+                    return;
+                }
+
+                var viewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
+                var counts = stackalloc uint[unorderedAccessViews.Length];
+                for (var i = 0; i < unorderedAccessViews.Length; i++)
+                {
+                    viewPtrs[i] = unorderedAccessViews[i]?.Handle;
+                    counts[i] = initialCounts == null || i >= initialCounts.Length ? unchecked((uint)-1) : unchecked((uint)initialCounts[i]);
+                }
+
+                nativeContext.CSSetUnorderedAccessViews((uint)slot, (uint)unorderedAccessViews.Length, viewPtrs, counts);
+            }
+
+            private void SetShaderResources(int shaderStage, int slot, uint count, ID3D11ShaderResourceView** shaderResourceViews)
+            {
+                switch (shaderStage)
+                {
+                    case Constants.VertexIdx:
+                        nativeContext.VSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                    case Constants.HullIdx:
+                        nativeContext.HSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                    case Constants.DomainIdx:
+                        nativeContext.DSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                    case Constants.GeometryIdx:
+                        nativeContext.GSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                    case Constants.PixelIdx:
+                        nativeContext.PSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                    case Constants.ComputeIdx:
+                        nativeContext.CSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                }
             }
 
             public void SetStreamOutputTarget(Buffer buffer, int offset)

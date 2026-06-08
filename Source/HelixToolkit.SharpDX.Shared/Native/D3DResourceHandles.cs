@@ -90,6 +90,61 @@ namespace HelixToolkit.UWP
         public int StructureByteStride;
     }
 
+    public struct SampleDescription
+    {
+        public int Count;
+        public int Quality;
+    }
+
+    public struct Texture1DDescription
+    {
+        public int Width;
+        public int MipLevels;
+        public int ArraySize;
+        public Format Format;
+        public BindFlags BindFlags;
+        public CpuAccessFlags CpuAccessFlags;
+        public ResourceOptionFlags OptionFlags;
+        public ResourceUsage Usage;
+    }
+
+    public struct Texture2DDescription
+    {
+        public int Width;
+        public int Height;
+        public int MipLevels;
+        public int ArraySize;
+        public Format Format;
+        public SampleDescription SampleDescription;
+        public BindFlags BindFlags;
+        public CpuAccessFlags CpuAccessFlags;
+        public ResourceOptionFlags OptionFlags;
+        public ResourceUsage Usage;
+    }
+
+    public struct Texture3DDescription
+    {
+        public int Width;
+        public int Height;
+        public int Depth;
+        public int MipLevels;
+        public Format Format;
+        public BindFlags BindFlags;
+        public CpuAccessFlags CpuAccessFlags;
+        public ResourceOptionFlags OptionFlags;
+        public ResourceUsage Usage;
+    }
+
+    public struct RenderTargetViewDescription
+    {
+        public Format Format;
+    }
+
+    public struct DepthStencilViewDescription
+    {
+        public Format Format;
+    }
+
     public struct DataBox
     {
         public DataBox(IntPtr dataPointer, int rowPitch, int slicePitch)

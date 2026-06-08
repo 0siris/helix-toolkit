@@ -486,6 +486,22 @@ namespace HelixToolkit.UWP
             protected override void OnBufferChanged(Buffer newBuffer)
             {
                 RemoveAndDispose(ref srv);
+                if (newBuffer == null || ElementCount <= 0)
+                {
+                    return;
+                }
+
+                var desc = new ShaderResourceViewDescription
+                {
+                    Format = Format.FormatUnknown,
+                    Dimension = ShaderResourceViewDimension.Buffer,
+                    Buffer = new ShaderResourceViewDescription.BufferResource
+                    {
+                        FirstElement = 0,
+                        ElementCount = ElementCount
+                    }
+                };
+                srv = new ShaderResourceViewProxy(newBuffer, newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
             }
 
             protected override void OnDispose(bool disposeManagedResources)

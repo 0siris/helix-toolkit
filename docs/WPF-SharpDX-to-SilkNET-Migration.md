@@ -190,7 +190,26 @@ Umgesetzt:
 - `DeviceContextProxy_Targets` unterstützt Stream-Output-Bindings jetzt über native `Buffer`-Wrapper.
 - `BufferProxy`, `ConstantBufferProxy` und `ElementsBufferProxy` verwenden im migrierten Pfad den nativen `Buffer`-Wrapper statt SharpDX-Buffer.
 - `ConstantBufferProxy` erzeugt seinen nativen Buffer lazy beim ersten Upload, weil alte Pool-Aufrufer noch keine native Device-Grenze übergeben.
-- `StructuredBufferProxy` erzeugt vorübergehend keine `ShaderResourceViewProxy` mehr; diese Kante wird mit der Shader-Resource-/View-Proxy-Migration geschlossen.
+- Native SRV-/UAV-Description-Typen ergänzt:
+  - `ShaderResourceViewDescription`
+  - `UnorderedAccessViewDescription`
+  - `ShaderResourceViewDimension`
+  - `UnorderedAccessViewDimension`
+  - `UnorderedAccessViewBufferFlags`
+- `SilkD3DDevice` erstellt jetzt native `ShaderResourceView`- und `UnorderedAccessView`-Wrapper.
+- `SilkD3DDeviceContext` kapselt jetzt Shader-Resource- und Compute-UAV-Bindings:
+  - `VSSetShaderResources`
+  - `HSSetShaderResources`
+  - `DSSetShaderResources`
+  - `GSSetShaderResources`
+  - `PSSetShaderResources`
+  - `CSSetShaderResources`
+  - `CSSetUnorderedAccessViews`
+- `DeviceContextProxy_ShaderResources` ist von SharpDX-Stage-APIs gelöst und bindet SRVs/UAVs über den nativen Silk.NET-Kontext.
+- `ShaderResourceViewProxy` ist auf einen nativen View-Container reduziert. Texture-Loading- und RenderTarget-/DepthStencil-Erzeugung bleiben Platzhalter bis zur Texture-Resource-Portierung.
+- `UAVBufferViewProxy` unterstützt native Buffer-SRV-/UAV-Erzeugung über `DeviceContextProxy`; alte Device-Constructoren bleiben vorübergehend als Übergang ohne native Erzeugung erhalten.
+- `StructuredBufferProxy` erzeugt bei Buffer-Wechsel wieder eine native `ShaderResourceViewProxy`.
+- `ParticleRenderCore` verwendet für UAV-Descriptions jetzt den zentralen `Format`-Alias statt `global::SharpDX.DXGI.Format`.
 
 Aktueller Validierungsstand:
 
@@ -204,7 +223,7 @@ Ergebnis: Keine SharpDX-PackageReferences im definierten WPF-Scope.
 dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
-Zuletzt gemessen nach dem Resource-/Buffer-Schnitt: Restore ist erfolgreich, Build scheitert mit `1574` Compilefehlern. Die Reduktion kommt durch die migrierten `DeviceContextProxy`-Teilbereiche und die ersten nativen Buffer-/Resource-Wrapper; die verbleibenden Fehler liegen weiterhin in noch nicht migrierten SharpDX-Namespace-, Shader-, Buffer-Model-, RenderContext-, D2D/DWrite/WIC- und Utility-Schichten.
+Zuletzt gemessen nach dem Shader-Resource-/UAV-Schnitt: Restore ist erfolgreich, Build scheitert mit `1474` Compilefehlern. Die Reduktion kommt durch die migrierten `DeviceContextProxy`-Teilbereiche, die ersten nativen Buffer-/Resource-Wrapper und die native SRV-/UAV-Bindung; die verbleibenden Fehler liegen weiterhin in noch nicht migrierten SharpDX-Namespace-, Shader-, Buffer-Model-, RenderContext-, D2D/DWrite/WIC- und Utility-Schichten.
 
 Zusätzliche Prüfung nach Einführung der Native-Schicht:
 
@@ -242,18 +261,28 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Keine SharpDX-Treffer in den bearbeiteten Resource-/Buffer-Dateien und keine Buildfehler, die auf diese Dateien gefiltert wurden.
 
+Zusätzliche Prüfung der portierten Shader-Resource-/UAV-Dateien:
+
+```powershell
+rg -n "using SharpDX|global::SharpDX|SharpDX\.Direct|SharpDX\.DXGI|SharpDX\.Mathematics|SharpDX\.Diagnostics" Source\HelixToolkit.SharpDX.Shared\Native\D3DViewHandles.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DDeviceHandles.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\ShaderResourceViewProxy.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\UAVBufferViewProxy.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\ElementsBufferProxy.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_ShaderResources.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'Native\\D3DViewHandles\.cs|Native\\D3DDeviceHandles\.cs|Utilities\\Buffers\\ShaderResourceViewProxy\.cs|Utilities\\Buffers\\UAVBufferViewProxy\.cs|Utilities\\Buffers\\ElementsBufferProxy\.cs|DeviceContextProxy\\DeviceContextProxy_ShaderResources\.cs|ParticleRenderCore\.cs'
+```
+
+Ergebnis: Keine SharpDX-Treffer in den portierten Shader-Resource-/UAV-Dateien und keine Buildfehler, die auf diese Dateien gefiltert wurden.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
 - Die Ownership für `ID3D11Device` und `ID3D11DeviceContext` läuft über `Silk.NET.Core.Native.ComPtr<T>`.
 - `EffectsManager` hat eine erste native Resource-Grenze.
 - Der Immediate-Renderpfad kann den neuen nativen Kontext erreichen.
-- Draw-, InputAssembler-, Viewport-, Output-Merger-/Target- und ResourceUpdate-Teile des `DeviceContextProxy` laufen teilweise über Silk.NET.
-- Der nächste Umbau muss deshalb bei ShaderResourceView-/UnorderedAccessView-Proxies, Shader-Resource-Bindings, Texture-Wrappern und State-Wrappern ansetzen.
+- Draw-, InputAssembler-, Viewport-, Output-Merger-/Target-, ResourceUpdate- und ShaderResource-/UAV-Teile des `DeviceContextProxy` laufen teilweise über Silk.NET.
+- Der nächste Umbau muss deshalb bei Texture-Wrappern, Texture-Resource-Erzeugung, State-Wrappern und Shader-/InputLayout-Wrappern ansetzen.
 
 Nächste offene Migrationskante:
 
-- Ca. `1808` SharpDX-Code-Referenzen verbleiben in Shared/WPF/Test-Code.
+- Ca. `900` konkrete SharpDX-Code-Referenzen über Namespaces oder qualifizierte Backend-Typen verbleiben in Shared/WPF/Test-Code.
+- Ca. `1894` reine Texttreffer auf `SharpDX` verbleiben inklusive öffentlicher Legacy-Namespace-Namen wie `HelixToolkit.Wpf.SharpDX`.
 - Die ersten Fehlergruppen sind native API-Typen und Namespaces:
   - `SharpDX.Direct3D11`
   - `SharpDX.DXGI`
@@ -265,15 +294,14 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. `ShaderResourceViewProxy`, UAV-/SRV-Buffer-Views und `DeviceContextProxy_ShaderResources` auf native View-/Resource-Wrapper umstellen.
-2. Texture-Wrapper und Texture-Resource-Erzeugung migrieren, damit SRV/RTV/DSV nicht nur als Handle-Typen existieren.
-3. State-Wrapper und `DeviceContextProxy_States` migrieren.
-4. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
-5. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-6. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
-7. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-8. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-9. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. Texture-Wrapper und Texture-Resource-Erzeugung migrieren, damit SRV/RTV/DSV nicht nur als Handle-Typen existieren.
+2. State-Wrapper und `DeviceContextProxy_States` migrieren.
+3. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+4. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+5. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
+6. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+7. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+8. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
@@ -285,7 +313,7 @@ Status: Teilweise erledigt.
 
 - Supported Scope und Nicht-Scope sind in diesem Dokument abgegrenzt.
 - SharpDX-PackageReferences und zentrale SharpDX-Code-Referenzen wurden für den aktuellen Migrationsschnitt geprüft.
-- Der aktuelle Buildstatus ist dokumentiert: Nach dem Resource-/Buffer-Schnitt scheitert `dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly` mit `1574` Fehlern.
+- Der aktuelle Buildstatus ist dokumentiert: Nach dem Shader-Resource-/UAV-Schnitt scheitert `dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly` mit `1474` Fehlern.
 - Offene Inventararbeit: vollständige Testbaseline, detaillierte Zählung nach D3D9/D3D11/DXGI/D2D/DWrite/WIC/D3DCompiler und vollständige Liste aller Resource-Owner.
 
 ### Aufgaben
@@ -448,7 +476,8 @@ Status: In Arbeit.
   - ResourceUpdate für `Resource`/`Buffer`
   - Stream-Output-Bindings über native Buffer
 - Buffer-Proxies sind teilweise migriert: `BufferProxy`, `ConstantBufferProxy` und `ElementsBufferProxy`.
-- Offene Arbeit: Shader resources, Texture-Erzeugung, Shader-/State-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, RenderBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- Shader-Resource-/UAV-Bindings sind teilweise migriert: native SRV-/UAV-Descriptions, native SRV-/UAV-Erzeugung, `DeviceContextProxy_ShaderResources`, `ShaderResourceViewProxy`, `UAVBufferViewProxy` und `StructuredBufferProxy`.
+- Offene Arbeit: Texture-Erzeugung, Shader-/State-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, RenderBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

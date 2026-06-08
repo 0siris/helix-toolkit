@@ -539,7 +539,7 @@ namespace HelixToolkit.UWP
             private UnorderedAccessViewDescription UAVBufferViewDesc = new UnorderedAccessViewDescription()
             {
                 Dimension = UnorderedAccessViewDimension.Buffer,
-                Format = global::SharpDX.DXGI.Format.Unknown,
+                Format = Format.FormatUnknown,
                 Buffer = new UnorderedAccessViewDescription.BufferResource { FirstElement = 0, Flags = UnorderedAccessViewBufferFlags.Append }
             };
 

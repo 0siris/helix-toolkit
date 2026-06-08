@@ -8,6 +8,9 @@ using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
 using SilkD3D11ResourcePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Resource>;
+using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture1D>;
+using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
+using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture3D>;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -138,11 +141,42 @@ namespace HelixToolkit.UWP
     public struct RenderTargetViewDescription
     {
         public Format Format;
+        public RenderTargetViewDimension Dimension;
+        public Texture2DResource Texture2D;
+        public Texture2DArrayResource Texture2DArray;
+
+        public struct Texture2DResource
+        {
+            public int MipSlice;
+        }
+
+        public struct Texture2DArrayResource
+        {
+            public int MipSlice;
+            public int FirstArraySlice;
+            public int ArraySize;
+        }
     }
 
     public struct DepthStencilViewDescription
     {
         public Format Format;
+        public DepthStencilViewDimension Dimension;
+        public DepthStencilViewFlags Flags;
+        public Texture2DResource Texture2D;
+        public Texture2DArrayResource Texture2DArray;
+
+        public struct Texture2DResource
+        {
+            public int MipSlice;
+        }
+
+        public struct Texture2DArrayResource
+        {
+            public int MipSlice;
+            public int FirstArraySlice;
+            public int ArraySize;
+        }
     }
 
     public struct DataBox
@@ -158,6 +192,22 @@ namespace HelixToolkit.UWP
         public int RowPitch;
         public int SlicePitch;
         public bool IsEmpty => DataPointer == IntPtr.Zero;
+    }
+
+    public struct Half4
+    {
+        public Half4(ushort x, ushort y, ushort z, ushort w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+
+        public ushort X;
+        public ushort Y;
+        public ushort Z;
+        public ushort W;
     }
 
     public struct ResourceRegion
@@ -317,6 +367,105 @@ namespace HelixToolkit.UWP
         }
     }
 
+    public unsafe sealed class Texture1D : Resource
+    {
+        private SilkD3D11Texture1DPtr nativeTexture;
+
+        internal Texture1D(SilkD3D11Texture1DPtr nativeTexture, Native.SilkD3DDevice device, Texture1DDescription description)
+        {
+            this.nativeTexture = nativeTexture;
+            Device = device;
+            Description = description;
+        }
+
+        internal ID3D11Texture1D* TextureHandle => nativeTexture.Handle;
+
+        public override IntPtr NativePointer => (IntPtr)nativeTexture.Handle;
+
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
+
+        internal Native.SilkD3DDevice Device { get; }
+
+        public Texture1DDescription Description { get; }
+
+        public override void Dispose()
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            nativeTexture.Dispose();
+            base.Dispose();
+        }
+    }
+
+    public unsafe sealed class Texture2D : Resource
+    {
+        private SilkD3D11Texture2DPtr nativeTexture;
+
+        internal Texture2D(SilkD3D11Texture2DPtr nativeTexture, Native.SilkD3DDevice device, Texture2DDescription description)
+        {
+            this.nativeTexture = nativeTexture;
+            Device = device;
+            Description = description;
+        }
+
+        internal ID3D11Texture2D* TextureHandle => nativeTexture.Handle;
+
+        public override IntPtr NativePointer => (IntPtr)nativeTexture.Handle;
+
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
+
+        internal Native.SilkD3DDevice Device { get; }
+
+        public Texture2DDescription Description { get; }
+
+        public override void Dispose()
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            nativeTexture.Dispose();
+            base.Dispose();
+        }
+    }
+
+    public unsafe sealed class Texture3D : Resource
+    {
+        private SilkD3D11Texture3DPtr nativeTexture;
+
+        internal Texture3D(SilkD3D11Texture3DPtr nativeTexture, Native.SilkD3DDevice device, Texture3DDescription description)
+        {
+            this.nativeTexture = nativeTexture;
+            Device = device;
+            Description = description;
+        }
+
+        internal ID3D11Texture3D* TextureHandle => nativeTexture.Handle;
+
+        public override IntPtr NativePointer => (IntPtr)nativeTexture.Handle;
+
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
+
+        internal Native.SilkD3DDevice Device { get; }
+
+        public Texture3DDescription Description { get; }
+
+        public override void Dispose()
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            nativeTexture.Dispose();
+            base.Dispose();
+        }
+    }
+
     namespace Native
     {
         internal static class D3DResourceConversions
@@ -331,6 +480,54 @@ namespace HelixToolkit.UWP
                     CPUAccessFlags = (uint)description.CpuAccessFlags,
                     MiscFlags = (uint)description.OptionFlags,
                     StructureByteStride = (uint)description.StructureByteStride
+                };
+            }
+
+            public static Texture1DDesc ToSilkDesc(this Texture1DDescription description)
+            {
+                return new Texture1DDesc
+                {
+                    Width = (uint)description.Width,
+                    MipLevels = (uint)description.MipLevels,
+                    ArraySize = (uint)description.ArraySize,
+                    Format = description.Format,
+                    Usage = (Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
+                };
+            }
+
+            public static Texture2DDesc ToSilkDesc(this Texture2DDescription description)
+            {
+                return new Texture2DDesc
+                {
+                    Width = (uint)description.Width,
+                    Height = (uint)description.Height,
+                    MipLevels = (uint)description.MipLevels,
+                    ArraySize = (uint)description.ArraySize,
+                    Format = description.Format,
+                    SampleDesc = new Silk.NET.DXGI.SampleDesc((uint)description.SampleDescription.Count, (uint)description.SampleDescription.Quality),
+                    Usage = (Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
+                };
+            }
+
+            public static Texture3DDesc ToSilkDesc(this Texture3DDescription description)
+            {
+                return new Texture3DDesc
+                {
+                    Width = (uint)description.Width,
+                    Height = (uint)description.Height,
+                    Depth = (uint)description.Depth,
+                    MipLevels = (uint)description.MipLevels,
+                    Format = description.Format,
+                    Usage = (Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
                 };
             }
 

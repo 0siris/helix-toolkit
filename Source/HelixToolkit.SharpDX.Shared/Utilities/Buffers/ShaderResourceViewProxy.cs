@@ -30,6 +30,7 @@ namespace HelixToolkit.UWP
             public static ShaderResourceViewProxy Empty { get; } = new ShaderResourceViewProxy();
 
             private readonly DeviceContextProxy context;
+            private readonly Native.SilkD3DDevice nativeDevice;
             private ShaderResourceView textureView;
             private DepthStencilView depthStencilView;
             private RenderTargetView renderTargetView;
@@ -52,6 +53,7 @@ namespace HelixToolkit.UWP
             public ShaderResourceViewProxy(DeviceContextProxy context)
             {
                 this.context = context;
+                nativeDevice = context?.NativeDevice;
             }
 
             public ShaderResourceViewProxy(DeviceContextProxy context, Resource resource)
@@ -75,25 +77,42 @@ namespace HelixToolkit.UWP
 
             public ShaderResourceViewProxy(object device)
             {
+                nativeDevice = ResolveNativeDevice(device);
             }
 
             public ShaderResourceViewProxy(object device, Resource resource)
+                : this(device)
             {
                 this.resource = resource;
             }
 
             public ShaderResourceViewProxy(object device, Texture1DDescription textureDesc)
+                : this(device)
             {
+                if (nativeDevice != null)
+                {
+                    resource = nativeDevice.CreateTexture1D(textureDesc);
+                }
                 TextureFormat = textureDesc.Format;
             }
 
             public ShaderResourceViewProxy(object device, Texture2DDescription textureDesc)
+                : this(device)
             {
+                if (nativeDevice != null)
+                {
+                    resource = nativeDevice.CreateTexture2D(textureDesc);
+                }
                 TextureFormat = textureDesc.Format;
             }
 
             public ShaderResourceViewProxy(object device, Texture3DDescription textureDesc)
+                : this(device)
             {
+                if (nativeDevice != null)
+                {
+                    resource = nativeDevice.CreateTexture3D(textureDesc);
+                }
                 TextureFormat = textureDesc.Format;
             }
 
@@ -133,21 +152,23 @@ namespace HelixToolkit.UWP
 
             public void CreateView(DepthStencilViewDescription desc)
             {
+                CreateDepthStencilView(ref desc);
             }
 
             public void CreateView(RenderTargetViewDescription desc)
             {
+                CreateRenderTargetView(ref desc);
             }
 
             public void CreateTextureView()
             {
-                if (context == null || resource == null)
+                if (nativeDevice == null || resource == null)
                 {
                     return;
                 }
 
                 RemoveAndDispose(ref textureView);
-                textureView = context.NativeDevice.CreateShaderResourceView(resource);
+                textureView = nativeDevice.CreateShaderResourceView(resource);
                 TextureFormat = textureView?.Description.Format ?? default;
             }
 
@@ -158,31 +179,69 @@ namespace HelixToolkit.UWP
 
             public void CreateTextureView(ref ShaderResourceViewDescription desc)
             {
-                if (context == null || resource == null)
+                if (nativeDevice == null || resource == null)
                 {
                     TextureFormat = desc.Format;
                     return;
                 }
 
                 RemoveAndDispose(ref textureView);
-                textureView = context.NativeDevice.CreateShaderResourceView(resource, desc);
+                textureView = nativeDevice.CreateShaderResourceView(resource, desc);
                 TextureFormat = desc.Format;
             }
 
             public void CreateRenderTargetView()
             {
+                if (nativeDevice == null || resource == null)
+                {
+                    return;
+                }
+
+                RemoveAndDispose(ref renderTargetView);
+                renderTargetView = nativeDevice.CreateRenderTargetView(resource);
+            }
+
+            public void CreateRenderTargetView(RenderTargetViewDescription desc)
+            {
+                CreateRenderTargetView(ref desc);
+            }
+
+            public void CreateRenderTargetView(ref RenderTargetViewDescription desc)
+            {
+                if (nativeDevice == null || resource == null)
+                {
+                    return;
+                }
+
+                RemoveAndDispose(ref renderTargetView);
+                renderTargetView = nativeDevice.CreateRenderTargetView(resource, desc);
             }
 
             public void CreateDepthStencilView()
             {
+                if (nativeDevice == null || resource == null)
+                {
+                    return;
+                }
+
+                RemoveAndDispose(ref depthStencilView);
+                depthStencilView = nativeDevice.CreateDepthStencilView(resource);
             }
 
             public void CreateDepthStencilView(DepthStencilViewDescription desc)
             {
+                CreateDepthStencilView(ref desc);
             }
 
             public void CreateDepthStencilView(ref DepthStencilViewDescription desc)
             {
+                if (nativeDevice == null || resource == null)
+                {
+                    return;
+                }
+
+                RemoveAndDispose(ref depthStencilView);
+                depthStencilView = nativeDevice.CreateDepthStencilView(resource, desc);
             }
 
             public void CreateView<T>(T[] array, Format format, bool createSRV = true, bool generateMipMaps = true)
@@ -306,6 +365,18 @@ namespace HelixToolkit.UWP
                 RemoveAndDispose(ref renderTargetView);
                 RemoveAndDispose(ref resource);
                 base.OnDispose(disposeManagedResources);
+            }
+
+            private static Native.SilkD3DDevice ResolveNativeDevice(object device)
+            {
+                return device switch
+                {
+                    DeviceContextProxy contextProxy => contextProxy.NativeDevice,
+                    Native.SilkD3DDevice silkDevice => silkDevice,
+                    Native.INativeDeviceResources nativeResources => nativeResources.Device,
+                    IDevice3DResources deviceResources => deviceResources.NativeDeviceResources?.Device,
+                    _ => null
+                };
             }
 
             public static implicit operator ShaderResourceView(ShaderResourceViewProxy proxy)

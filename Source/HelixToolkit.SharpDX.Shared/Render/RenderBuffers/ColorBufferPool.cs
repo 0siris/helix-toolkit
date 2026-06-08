@@ -1,8 +1,5 @@
-﻿using SharpDX.Direct3D11;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
-using Format = SharpDX.DXGI.Format;
-using System.Diagnostics;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -115,7 +112,7 @@ namespace HelixToolkit.UWP
                 ArraySize = 1,
                 MipLevels = 1,
                 OptionFlags = ResourceOptionFlags.None,
-                SampleDescription = new global::SharpDX.DXGI.SampleDescription(1, 0)
+                SampleDescription = new SampleDescription(1, 0)
             };
 
             #endregion Texture Resources
@@ -129,7 +126,7 @@ namespace HelixToolkit.UWP
             /// <param name="width">The width.</param>
             /// <param name="height">The height.</param>
             /// <param name="deviceRes">The device resource.</param>
-            public PingPongColorBuffers(global::SharpDX.DXGI.Format textureFormat, int width, int height, IDevice3DResources deviceRes)
+            public PingPongColorBuffers(Format textureFormat, int width, int height, IDevice3DResources deviceRes)
             {
                 texture2DDesc.Format = textureFormat;
                 deviceResources = deviceRes;
@@ -150,7 +147,7 @@ namespace HelixToolkit.UWP
                     }
                     for (var i = 0; i < NumPingPongBlurBuffer; ++i)
                     {
-                        textures[i] = new ShaderResourceViewProxy(deviceResources.Device, texture2DDesc);
+                        textures[i] = new ShaderResourceViewProxy(deviceResources, texture2DDesc);
                         textures[i].CreateRenderTargetView();
                         textures[i].CreateTextureView();
                     }
@@ -190,8 +187,8 @@ namespace HelixToolkit.UWP
             {
                 private readonly ConcurrentBag<ShaderResourceViewProxy> pool;
 
-                public PooledShaderResourceViewProxy(Device device, Texture2DDescription textureDesc, ConcurrentBag<ShaderResourceViewProxy> pool)
-                    : base(device, textureDesc)
+                public PooledShaderResourceViewProxy(IDevice3DResources deviceResources, Texture2DDescription textureDesc, ConcurrentBag<ShaderResourceViewProxy> pool)
+                    : base(deviceResources, textureDesc)
                 {
                     this.pool = pool;
                     AddBackToPool = (o) => { pool.Add(this); };
@@ -243,7 +240,7 @@ namespace HelixToolkit.UWP
 
                     if ((desc.BindFlags & BindFlags.RenderTarget) != 0)
                     {
-                        texture = new PooledShaderResourceViewProxy(deviceResourse.Device, desc, bag);
+                        texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
                         texture.CreateRenderTargetView();
                         if ((desc.BindFlags & BindFlags.ShaderResource) != 0)
                         {
@@ -257,7 +254,7 @@ namespace HelixToolkit.UWP
                         {
                             desc.BindFlags |= BindFlags.ShaderResource;
                         }
-                        texture = new PooledShaderResourceViewProxy(deviceResourse.Device, desc, bag);
+                        texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
                         texture.CreateView(new DepthStencilViewDescription() { Format = DepthStencilFormatHelper.ComputeDSVFormat(format),
                             Dimension = DepthStencilViewDimension.Texture2D });
                         if (canUseAsShaderResource)
@@ -265,7 +262,7 @@ namespace HelixToolkit.UWP
                             texture.CreateView(new ShaderResourceViewDescription()
                             {
                                 Format = DepthStencilFormatHelper.ComputeSRVFormat(format),
-                                Dimension = global::SharpDX.Direct3D.ShaderResourceViewDimension.Texture2D,
+                                Dimension = ShaderResourceViewDimension.Texture2D,
                                 Texture2D = new ShaderResourceViewDescription.Texture2DResource() { MipLevels = desc.MipLevels }
                             });
                         }

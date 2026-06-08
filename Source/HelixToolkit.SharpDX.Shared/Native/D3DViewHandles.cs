@@ -55,6 +55,38 @@ namespace HelixToolkit.UWP
         Texture3D = 8
     }
 
+    public enum RenderTargetViewDimension
+    {
+        Unknown = 0,
+        Buffer = 1,
+        Texture1D = 2,
+        Texture1DArray = 3,
+        Texture2D = 4,
+        Texture2DArray = 5,
+        Texture2DMultisampled = 6,
+        Texture2DMultisampledArray = 7,
+        Texture3D = 8
+    }
+
+    public enum DepthStencilViewDimension
+    {
+        Unknown = 0,
+        Texture1D = 1,
+        Texture1DArray = 2,
+        Texture2D = 3,
+        Texture2DArray = 4,
+        Texture2DMultisampled = 5,
+        Texture2DMultisampledArray = 6
+    }
+
+    [Flags]
+    public enum DepthStencilViewFlags
+    {
+        None = 0,
+        ReadOnlyDepth = 1,
+        ReadOnlyStencil = 2
+    }
+
     [Flags]
     public enum UnorderedAccessViewBufferFlags
     {
@@ -240,6 +272,57 @@ namespace HelixToolkit.UWP
     {
         internal static class D3DViewConversions
         {
+            public static Silk.NET.Direct3D11.RenderTargetViewDesc ToSilkDesc(this RenderTargetViewDescription description)
+            {
+                var desc = new Silk.NET.Direct3D11.RenderTargetViewDesc
+                {
+                    Format = description.Format,
+                    ViewDimension = description.Dimension.ToSilkRtvDimension()
+                };
+
+                switch (description.Dimension)
+                {
+                    case RenderTargetViewDimension.Texture2D:
+                    case RenderTargetViewDimension.Texture2DMultisampled:
+                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                        break;
+                    case RenderTargetViewDimension.Texture2DArray:
+                    case RenderTargetViewDimension.Texture2DMultisampledArray:
+                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
+                        desc.Anonymous.Texture2DArray.FirstArraySlice = unchecked((uint)description.Texture2DArray.FirstArraySlice);
+                        desc.Anonymous.Texture2DArray.ArraySize = unchecked((uint)description.Texture2DArray.ArraySize);
+                        break;
+                }
+
+                return desc;
+            }
+
+            public static Silk.NET.Direct3D11.DepthStencilViewDesc ToSilkDesc(this DepthStencilViewDescription description)
+            {
+                var desc = new Silk.NET.Direct3D11.DepthStencilViewDesc
+                {
+                    Format = description.Format,
+                    ViewDimension = description.Dimension.ToSilkDsvDimension(),
+                    Flags = (uint)description.Flags
+                };
+
+                switch (description.Dimension)
+                {
+                    case DepthStencilViewDimension.Texture2D:
+                    case DepthStencilViewDimension.Texture2DMultisampled:
+                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                        break;
+                    case DepthStencilViewDimension.Texture2DArray:
+                    case DepthStencilViewDimension.Texture2DMultisampledArray:
+                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
+                        desc.Anonymous.Texture2DArray.FirstArraySlice = unchecked((uint)description.Texture2DArray.FirstArraySlice);
+                        desc.Anonymous.Texture2DArray.ArraySize = unchecked((uint)description.Texture2DArray.ArraySize);
+                        break;
+                }
+
+                return desc;
+            }
+
             public static Silk.NET.Direct3D11.ShaderResourceViewDesc ToSilkDesc(this ShaderResourceViewDescription description)
             {
                 var desc = new Silk.NET.Direct3D11.ShaderResourceViewDesc
@@ -252,6 +335,16 @@ namespace HelixToolkit.UWP
                 {
                     desc.Anonymous.Buffer.Anonymous1.FirstElement = unchecked((uint)description.Buffer.FirstElement);
                     desc.Anonymous.Buffer.Anonymous2.NumElements = unchecked((uint)description.Buffer.ElementCount);
+                }
+                else if (description.Dimension == ShaderResourceViewDimension.Texture2D)
+                {
+                    desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint)description.Texture2D.MostDetailedMip);
+                    desc.Anonymous.Texture2D.MipLevels = unchecked((uint)description.Texture2D.MipLevels);
+                }
+                else if (description.Dimension == ShaderResourceViewDimension.TextureCube)
+                {
+                    desc.Anonymous.TextureCube.MostDetailedMip = unchecked((uint)description.TextureCube.MostDetailedMip);
+                    desc.Anonymous.TextureCube.MipLevels = unchecked((uint)description.TextureCube.MipLevels);
                 }
 
                 return desc;
@@ -291,6 +384,36 @@ namespace HelixToolkit.UWP
                     ShaderResourceViewDimension.TextureCubeArray => D3DSrvDimension.D3D11SrvDimensionTexturecubearray,
                     ShaderResourceViewDimension.BufferExtended => D3DSrvDimension.D3D11SrvDimensionBufferex,
                     _ => D3DSrvDimension.D3D11SrvDimensionUnknown
+                };
+            }
+
+            private static RtvDimension ToSilkRtvDimension(this RenderTargetViewDimension dimension)
+            {
+                return dimension switch
+                {
+                    RenderTargetViewDimension.Buffer => RtvDimension.Buffer,
+                    RenderTargetViewDimension.Texture1D => RtvDimension.Texture1D,
+                    RenderTargetViewDimension.Texture1DArray => RtvDimension.Texture1Darray,
+                    RenderTargetViewDimension.Texture2D => RtvDimension.Texture2D,
+                    RenderTargetViewDimension.Texture2DArray => RtvDimension.Texture2Darray,
+                    RenderTargetViewDimension.Texture2DMultisampled => RtvDimension.Texture2Dms,
+                    RenderTargetViewDimension.Texture2DMultisampledArray => RtvDimension.Texture2Dmsarray,
+                    RenderTargetViewDimension.Texture3D => RtvDimension.Texture3D,
+                    _ => RtvDimension.Unknown
+                };
+            }
+
+            private static DsvDimension ToSilkDsvDimension(this DepthStencilViewDimension dimension)
+            {
+                return dimension switch
+                {
+                    DepthStencilViewDimension.Texture1D => DsvDimension.Texture1D,
+                    DepthStencilViewDimension.Texture1DArray => DsvDimension.Texture1Darray,
+                    DepthStencilViewDimension.Texture2D => DsvDimension.Texture2D,
+                    DepthStencilViewDimension.Texture2DArray => DsvDimension.Texture2Darray,
+                    DepthStencilViewDimension.Texture2DMultisampled => DsvDimension.Texture2Dms,
+                    DepthStencilViewDimension.Texture2DMultisampledArray => DsvDimension.Texture2Dmsarray,
+                    _ => DsvDimension.Unknown
                 };
             }
 

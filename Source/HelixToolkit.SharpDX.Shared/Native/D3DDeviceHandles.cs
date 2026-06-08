@@ -13,6 +13,9 @@ using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D1
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
 using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
 using SilkD3D11ShaderResourceViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ShaderResourceView>;
+using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture1D>;
+using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
+using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture3D>;
 using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
 
 #if !NETFX_CORE
@@ -102,6 +105,68 @@ namespace HelixToolkit.UWP
                 return new SilkD3D11BufferPtr(buffer);
             }
 
+            public Texture1D CreateTexture1D(Texture1DDescription description, DataBox[] initialData = null)
+            {
+                var textureDesc = description.ToSilkDesc();
+                ID3D11Texture1D* texture = null;
+                CreateTexture(ref textureDesc, initialData, ref texture);
+                return new Texture1D(new SilkD3D11Texture1DPtr(texture), this, description);
+            }
+
+            public Texture2D CreateTexture2D(Texture2DDescription description, DataBox[] initialData = null)
+            {
+                var textureDesc = description.ToSilkDesc();
+                ID3D11Texture2D* texture = null;
+                CreateTexture(ref textureDesc, initialData, ref texture);
+                return new Texture2D(new SilkD3D11Texture2DPtr(texture), this, description);
+            }
+
+            public Texture3D CreateTexture3D(Texture3DDescription description, DataBox[] initialData = null)
+            {
+                var textureDesc = description.ToSilkDesc();
+                ID3D11Texture3D* texture = null;
+                CreateTexture(ref textureDesc, initialData, ref texture);
+                return new Texture3D(new SilkD3D11Texture3DPtr(texture), this, description);
+            }
+
+            public RenderTargetView CreateRenderTargetView(Resource resource, RenderTargetViewDescription? description = null)
+            {
+                if (resource == null)
+                {
+                    return null;
+                }
+
+                ID3D11RenderTargetView* view = null;
+                if (description.HasValue)
+                {
+                    var viewDesc = description.Value.ToSilkDesc();
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, ref viewDesc, ref view));
+                    return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view));
+                }
+
+                SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, (RenderTargetViewDesc*)null, ref view));
+                return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view));
+            }
+
+            public DepthStencilView CreateDepthStencilView(Resource resource, DepthStencilViewDescription? description = null)
+            {
+                if (resource == null)
+                {
+                    return null;
+                }
+
+                ID3D11DepthStencilView* view = null;
+                if (description.HasValue)
+                {
+                    var viewDesc = description.Value.ToSilkDesc();
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle, ref viewDesc, ref view));
+                    return new DepthStencilView(new SilkD3D11DepthStencilViewPtr(view));
+                }
+
+                SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle, (DepthStencilViewDesc*)null, ref view));
+                return new DepthStencilView(new SilkD3D11DepthStencilViewPtr(view));
+            }
+
             public ShaderResourceView CreateShaderResourceView(Resource resource, ShaderResourceViewDescription? description = null)
             {
                 if (resource == null)
@@ -138,6 +203,67 @@ namespace HelixToolkit.UWP
 
                 SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle, (UnorderedAccessViewDesc*)null, ref view));
                 return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view));
+            }
+
+            private void CreateTexture(ref Texture1DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture1D* texture)
+            {
+                if (initialData == null || initialData.Length == 0)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    return;
+                }
+
+                var subresources = ToSubresourceData(initialData);
+                fixed (SubresourceData* subresourcePtr = subresources)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, subresourcePtr, ref texture));
+                }
+            }
+
+            private void CreateTexture(ref Texture2DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture2D* texture)
+            {
+                if (initialData == null || initialData.Length == 0)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    return;
+                }
+
+                var subresources = ToSubresourceData(initialData);
+                fixed (SubresourceData* subresourcePtr = subresources)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, subresourcePtr, ref texture));
+                }
+            }
+
+            private void CreateTexture(ref Texture3DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture3D* texture)
+            {
+                if (initialData == null || initialData.Length == 0)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    return;
+                }
+
+                var subresources = ToSubresourceData(initialData);
+                fixed (SubresourceData* subresourcePtr = subresources)
+                {
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, subresourcePtr, ref texture));
+                }
+            }
+
+            private static SubresourceData[] ToSubresourceData(DataBox[] initialData)
+            {
+                var subresources = new SubresourceData[initialData.Length];
+                for (var i = 0; i < initialData.Length; i++)
+                {
+                    subresources[i] = new SubresourceData
+                    {
+                        PSysMem = initialData[i].DataPointer.ToPointer(),
+                        SysMemPitch = (uint)initialData[i].RowPitch,
+                        SysMemSlicePitch = (uint)initialData[i].SlicePitch
+                    };
+                }
+
+                return subresources;
             }
 
             public void Dispose()

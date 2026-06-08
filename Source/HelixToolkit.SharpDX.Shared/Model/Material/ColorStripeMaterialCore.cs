@@ -116,14 +116,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private global::SharpDX.Direct3D11.SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
+            private SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
             /// <summary>
             /// Gets or sets the DiffuseMapSampler.
             /// </summary>
             /// <value>
             /// DiffuseMapSampler
             /// </value>
-            public global::SharpDX.Direct3D11.SamplerStateDescription ColorStripeSampler
+            public SamplerStateDescription ColorStripeSampler
             {
                 set
                 {

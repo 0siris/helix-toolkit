@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -109,7 +107,7 @@ namespace HelixToolkit.UWP
                 AddressW = TextureAddressMode.Border,
                 Filter = Filter.ComparisonMinMagLinearMipPoint,
                 ComparisonFunction = Comparison.Less,
-                BorderColor = new global::SharpDX.Mathematics.Interop.RawColor4(1, 1, 1, 0),
+                BorderColor = new Color4(1, 1, 1, 0),
             };
             /// <summary>
             /// The cube sampler
@@ -165,7 +163,7 @@ namespace HelixToolkit.UWP
                 AddressW = TextureAddressMode.Border,
                 Filter = Filter.MinMagLinearMipPoint,
                 MaximumLod = float.MaxValue,
-                BorderColor = new global::SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0)
+                BorderColor = new Color4(0, 0, 0, 0)
             };
 
             public static readonly SamplerStateDescription SSAONoise = new SamplerStateDescription()
@@ -195,7 +193,7 @@ namespace HelixToolkit.UWP
                 AddressV = TextureAddressMode.Border,
                 AddressW = TextureAddressMode.Wrap,
                 Filter = Filter.MinMagMipPoint,
-                BorderColor = new global::SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0),
+                BorderColor = new Color4(0, 0, 0, 0),
                 MaximumLod = 0
             };
         }

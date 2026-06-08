@@ -86,7 +86,7 @@ namespace HelixToolkit.UWP
                 currSampleMask = uint.MaxValue;
                 currStencilRef = 0;
                 currInputLayout = null;
-                PrimitiveTopology = D3DPrimitiveTopology.D3DPrimitiveTopologyUndefined;
+                PrimitiveTopology = PrimitiveTopology.Undefined;
                 CurrShaderPass = null;
                 for (var i = 0; i < ConstantBufferCheck.Length; ++i)
                 {

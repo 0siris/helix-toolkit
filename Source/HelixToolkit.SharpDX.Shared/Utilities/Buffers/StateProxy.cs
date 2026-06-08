@@ -1,7 +1,4 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
 using System;
-using System.Threading;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -19,7 +16,7 @@ namespace HelixToolkit.UWP
         /// 
         /// </summary>
         /// <typeparam name="StateType">The type of the tate type.</typeparam>
-        public abstract class StateProxy<StateType> : DisposeObject where StateType : ComObject
+        public abstract class StateProxy<StateType> : DisposeObject where StateType : class, IDisposable
         {
             /// <summary>
             /// Gets the state.

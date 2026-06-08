@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -16,18 +14,19 @@ namespace HelixToolkit.UWP
 {
     namespace ShaderManager
     {
+        using Native;
         using Utilities;
         /// <summary>
         /// 
         /// </summary>
         public sealed class BlendStatePool : ReferenceCountedDictionaryPool<BlendStateDescription, BlendStateProxy, BlendStateDescription>
         {
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="BlendStatePool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public BlendStatePool(Device device) : base(true)
+            internal BlendStatePool(SilkD3DDevice device) : base(true)
             {
                 this.device = device;
             }
@@ -39,11 +38,11 @@ namespace HelixToolkit.UWP
 
             protected override BlendStateProxy OnCreate(ref BlendStateDescription key, ref BlendStateDescription description)
             {
-                if (device.FeatureLevel < global::SharpDX.Direct3D.FeatureLevel.Level_11_0 && description.IndependentBlendEnable)
+                if (device.FeatureLevel < SilkFeatureLevel.Level_11_0 && description.IndependentBlendEnable)
                 {
                     description.IndependentBlendEnable = false;
                 }
-                return new BlendStateProxy(new BlendState(device, description));
+                return new BlendStateProxy(device.CreateBlendState(description));
             }
         }
         /// <summary>
@@ -51,12 +50,12 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class DepthStencilStatePool : ReferenceCountedDictionaryPool<DepthStencilStateDescription, DepthStencilStateProxy, DepthStencilStateDescription>
         {
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="DepthStencilStatePool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public DepthStencilStatePool(Device device) : base(true)
+            internal DepthStencilStatePool(SilkD3DDevice device) : base(true)
             {
                 this.device = device;
             }
@@ -68,7 +67,7 @@ namespace HelixToolkit.UWP
 
             protected override DepthStencilStateProxy OnCreate(ref DepthStencilStateDescription key, ref DepthStencilStateDescription description)
             {
-                return new DepthStencilStateProxy(new DepthStencilState(device, description));
+                return new DepthStencilStateProxy(device.CreateDepthStencilState(description));
             }
         }
         /// <summary>
@@ -76,12 +75,12 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class RasterStatePool : ReferenceCountedDictionaryPool<RasterizerStateDescription, RasterizerStateProxy, RasterizerStateDescription>
         {
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="RasterStatePool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public RasterStatePool(Device device) : base(true)
+            internal RasterStatePool(SilkD3DDevice device) : base(true)
             {
                 this.device = device;
             }
@@ -93,7 +92,7 @@ namespace HelixToolkit.UWP
 
             protected override RasterizerStateProxy OnCreate(ref RasterizerStateDescription key, ref RasterizerStateDescription description)
             {
-                return new RasterizerStateProxy(new RasterizerState(device, description));
+                return new RasterizerStateProxy(device.CreateRasterizerState(description));
             }
         }
         /// <summary>
@@ -101,12 +100,12 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class SamplerStatePool : ReferenceCountedDictionaryPool<SamplerStateDescription, SamplerStateProxy, SamplerStateDescription>
         {
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="SamplerStatePool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public SamplerStatePool(Device device) : base(true)
+            internal SamplerStatePool(SilkD3DDevice device) : base(true)
             {
                 this.device = device;
             }
@@ -118,7 +117,7 @@ namespace HelixToolkit.UWP
 
             protected override SamplerStateProxy OnCreate(ref SamplerStateDescription key, ref SamplerStateDescription description)
             {
-                return new SamplerStateProxy(new SamplerState(device, description));
+                return new SamplerStateProxy(device.CreateSamplerState(description));
             }
         }
         /// <summary>
@@ -172,7 +171,7 @@ namespace HelixToolkit.UWP
             /// Initializes a new instance of the <see cref="StatePoolManager"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public StatePoolManager(Device device)
+            internal StatePoolManager(SilkD3DDevice device)
             {
                 BlendStatePool = new BlendStatePool(device);
                 RasterStatePool = new RasterStatePool(device);

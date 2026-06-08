@@ -38,11 +38,11 @@ namespace HelixToolkit.UWP
             {
                 get;
             }
-            public global::SharpDX.DXGI.Format Format
+            public Format Format
             {
                 get;
             }
-            public VolumeTextureParams(byte[] data, int width, int height, int depth, global::SharpDX.DXGI.Format format)
+            public VolumeTextureParams(byte[] data, int width, int height, int depth, Format format)
             {
                 VolumeTextures = data;
                 Width = width;
@@ -70,7 +70,7 @@ namespace HelixToolkit.UWP
             {
                 get;
             }
-            public global::SharpDX.DXGI.Format Format
+            public Format Format
             {
                 get;
             }
@@ -80,13 +80,13 @@ namespace HelixToolkit.UWP
                 Width = width;
                 Height = height;
                 Depth = depth;
-                Format = global::SharpDX.DXGI.Format.R16G16B16A16_Float;
+                Format = Format.FormatR16G16B16A16Float;
             }
         }
 
         public interface IVolumeTextureMaterial
         {
-            global::SharpDX.Direct3D11.SamplerStateDescription Sampler
+            SamplerStateDescription Sampler
             {
                 set; get;
             }
@@ -177,8 +177,8 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private global::SharpDX.Direct3D11.SamplerStateDescription sampler = DefaultSamplers.VolumeSampler;
-            public global::SharpDX.Direct3D11.SamplerStateDescription Sampler
+            private SamplerStateDescription sampler = DefaultSamplers.VolumeSampler;
+            public SamplerStateDescription Sampler
             {
                 set
                 {

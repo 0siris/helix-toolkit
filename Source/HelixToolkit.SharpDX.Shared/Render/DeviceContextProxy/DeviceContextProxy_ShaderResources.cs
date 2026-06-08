@@ -338,7 +338,19 @@ namespace HelixToolkit.UWP
                     return;
                 }
 
-                SamplerStateCheck[shaderStage * SamplerStateCount + slot] = sampler;
+                var index = shaderStage * SamplerStateCount + slot;
+                if (index >= SamplerStateCheck.Length)
+                {
+                    return;
+                }
+
+                if (AutoSkipRedundantStateSetting && SamplerStateCheck[index] == sampler)
+                {
+                    return;
+                }
+
+                NativeContext.SetSampler(shaderStage, slot, sampler?.State);
+                SamplerStateCheck[index] = sampler;
             }
 
             private void TrackSamplers(int shaderStage, int slot, SamplerStateProxy[] samplers)
@@ -349,10 +361,38 @@ namespace HelixToolkit.UWP
                 }
 
                 var start = shaderStage * SamplerStateCount + slot;
-                for (var i = 0; i < samplers.Length && start + i < SamplerStateCheck.Length; i++)
+                var count = Math.Min(samplers.Length, SamplerStateCheck.Length - start);
+                if (count <= 0)
                 {
+                    return;
+                }
+
+                if (AutoSkipRedundantStateSetting)
+                {
+                    var allSame = true;
+                    for (var i = 0; i < count; i++)
+                    {
+                        if (SamplerStateCheck[start + i] != samplers[i])
+                        {
+                            allSame = false;
+                            break;
+                        }
+                    }
+
+                    if (allSame)
+                    {
+                        return;
+                    }
+                }
+
+                var nativeSamplers = new SamplerState[count];
+                for (var i = 0; i < count; i++)
+                {
+                    nativeSamplers[i] = samplers[i]?.State;
                     SamplerStateCheck[start + i] = samplers[i];
                 }
+
+                NativeContext.SetSamplers(shaderStage, slot, nativeSamplers);
             }
         }
     }

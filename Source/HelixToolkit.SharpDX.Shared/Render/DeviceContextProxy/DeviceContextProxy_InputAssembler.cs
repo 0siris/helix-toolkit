@@ -17,15 +17,15 @@ namespace HelixToolkit.UWP
 
         public partial class DeviceContextProxy
         {
-            public D3DPrimitiveTopology PrimitiveTopology
+            public PrimitiveTopology PrimitiveTopology
             {
                 set
                 {
-                    nativeDeviceContext.PrimitiveTopology = value;
+                    nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology)value;
                 }
                 get
                 {
-                    return nativeDeviceContext.PrimitiveTopology;
+                    return (PrimitiveTopology)nativeDeviceContext.PrimitiveTopology;
                 }
             }
 

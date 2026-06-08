@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Runtime.CompilerServices;
-using SharpDX.Direct3D11;
 using global::SharpDX;
 
 #if !NETFX_CORE
@@ -106,10 +105,10 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The topology.
             /// </value>
-            public global::SharpDX.Direct3D.PrimitiveTopology Topology
+            public PrimitiveTopology Topology
             {
                 set; get;
-            } = global::SharpDX.Direct3D.PrimitiveTopology.Undefined;
+            } = PrimitiveTopology.Undefined;
 
             private readonly IEffectsManager effectsManager;
             /// <summary>

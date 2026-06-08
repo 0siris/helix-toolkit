@@ -279,6 +279,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Keine Buildfehler in `D3DResourceHandles.cs`, `D3DDeviceHandles.cs`, `D3DViewHandles.cs`, `ShaderResourceViewProxy.cs` oder `ColorBufferPool.cs`. `DX11RenderBufferBase.cs` meldet weiter die bekannte Legacy-`SharpDX.Direct3D11`-/D2D-Kante in der `HelixToolkit.SharpDX.Core`-Kompilation; die neu angeschlossenen Offscreen-Color-/Depth-Textures laufen aber ueber `IDevice3DResources.NativeDeviceResources`, `ShaderResourceViewDimension.Texture2D` ist in diesen Pfaden der eigene Enum-Wert.
 
+Zusätzliche Prüfung der portierten State-Wrapper-Kante:
+
+```powershell
+rg -n "SharpDX|global::SharpDX|ComObject|deviceContext\.OutputMerger|deviceContext\.Rasterizer" Source\HelixToolkit.SharpDX.Shared\Native\D3DStateHandles.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\StateProxy.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\StatePool.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_States.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_ShaderResources.cs Source\HelixToolkit.SharpDX.Shared\DefaultShaders\DefaultStates.cs Source\HelixToolkit.SharpDX.Shared\DefaultShaders\DefaultSamplers.cs Source\HelixToolkit.SharpDX.Shared\Interface\IPoolManagers.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'StateProxy.cs|StatePool.cs|DeviceContextProxy_States.cs|DeviceContextProxy_ShaderResources.cs|D3DStateHandles.cs|D3DDeviceHandles.cs|DefaultStates.cs|DefaultSamplers.cs|TechniqueDescription.cs|ColorStripeMaterialCore.cs|VolumeTextureMaterial.cs|GenericMaterialVariable.cs|ShaderPass.cs|DefaultEffectsManager.cs|DeviceContextProxy_InputAssembler.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Keine SharpDX-Backend-Treffer in der portierten State-Kante; nur Legacy-Namespace-Namen wie `HelixToolkit.Wpf.SharpDX` bleiben sichtbar. Der gefilterte Build meldet keine Fehler in den State-/Sampler-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1225` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite, nicht migrierten Direct3D11-Dateien, Shader-/InputLayout- und weiteren Utility-Flächen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -287,7 +297,8 @@ Stand dieses Implementierungsschnitts:
 - Der Immediate-Renderpfad kann den neuen nativen Kontext erreichen.
 - Draw-, InputAssembler-, Viewport-, Output-Merger-/Target-, ResourceUpdate- und ShaderResource-/UAV-Teile des `DeviceContextProxy` laufen teilweise über Silk.NET.
 - `Texture1D`, `Texture2D` und `Texture3D` sind als native Resource-Wrapper vorbereitet; `ShaderResourceViewProxy` erzeugt fuer native Device-Resource-Kontexte Texture2D-Resources sowie echte SRV/RTV/DSV-Views.
-- Der nächste Umbau muss deshalb bei State-Wrappern, SwapChain-/D3DImage-Interop oder Shader-/InputLayout-Wrappern ansetzen.
+- Blend-, DepthStencil-, Rasterizer- und Sampler-States sind als native Wrapper vorbereitet; `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings laufen in dieser Kante über Silk.NET.
+- Der nächste Umbau muss deshalb bei Shader-/InputLayout-Wrappern, `DeviceContextPool`/Deferred-Kontexten oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -304,14 +315,13 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Texture-Wrapper und Texture-Resource-Erzeugung migrieren, damit SRV/RTV/DSV nicht nur als Handle-Typen existieren.
-2. State-Wrapper und `DeviceContextProxy_States` migrieren.
-3. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+1. Shader-/InputLayout-Wrapper und `ShaderPass`/`Technique` weiter auf native Handles bringen.
+2. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+3. SwapChain-/D3DImage-Interop prototypisch anschließen.
 4. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-5. `IRenderTechnique`, `Technique` und Shader-Pools von SharpDX-`Device` auf die native Resource-Grenze umstellen.
-6. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-7. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-8. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+5. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+6. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+7. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
@@ -323,7 +333,7 @@ Status: Teilweise erledigt.
 
 - Supported Scope und Nicht-Scope sind in diesem Dokument abgegrenzt.
 - SharpDX-PackageReferences und zentrale SharpDX-Code-Referenzen wurden für den aktuellen Migrationsschnitt geprüft.
-- Der aktuelle Buildstatus ist dokumentiert: Nach dem Shader-Resource-/UAV-Schnitt scheitert `dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly` mit `1474` Fehlern.
+- Der aktuelle Buildstatus ist dokumentiert: Nach dem State-Wrapper-Schnitt scheitert `dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly` mit `1225` Fehlern.
 - Offene Inventararbeit: vollständige Testbaseline, detaillierte Zählung nach D3D9/D3D11/DXGI/D2D/DWrite/WIC/D3DCompiler und vollständige Liste aller Resource-Owner.
 
 ### Aufgaben
@@ -488,7 +498,8 @@ Status: In Arbeit.
 - Buffer-Proxies sind teilweise migriert: `BufferProxy`, `ConstantBufferProxy` und `ElementsBufferProxy`.
 - Shader-Resource-/UAV-Bindings sind teilweise migriert: native SRV-/UAV-Descriptions, native SRV-/UAV-Erzeugung, `DeviceContextProxy_ShaderResources`, `ShaderResourceViewProxy`, `UAVBufferViewProxy` und `StructuredBufferProxy`.
 - Texture-/View-Erzeugung ist fuer Offscreen-RenderBuffer teilweise migriert: native Texture1D/2D/3D-Wrapper, Texture2D-Erzeugung sowie native RTV/DSV/SRV-Erzeugung in `ShaderResourceViewProxy` und `ColorBufferPool`.
-- Offene Arbeit: Shader-/State-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- State-Erzeugung und State-Bindings sind teilweise migriert: native Blend-/DepthStencil-/Rasterizer-/Sampler-Wrapper, `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings.
+- Offene Arbeit: Shader-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

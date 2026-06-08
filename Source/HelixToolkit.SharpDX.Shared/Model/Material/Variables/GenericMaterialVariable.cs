@@ -155,7 +155,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public bool SetSampler(string name, global::SharpDX.Direct3D11.SamplerStateDescription sampler)
+            public bool SetSampler(string name, SamplerStateDescription sampler)
             {
                 if (resourceIdxDict.TryGetValue(name, out var idx))
                 {

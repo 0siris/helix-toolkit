@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using global::SharpDX;
-using global::SharpDX.Direct3D;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

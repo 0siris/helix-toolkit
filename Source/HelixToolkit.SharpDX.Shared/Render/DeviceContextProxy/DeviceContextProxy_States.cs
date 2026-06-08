@@ -1,10 +1,4 @@
-﻿using SharpDX;
 using System.Runtime.CompilerServices;
-
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -33,7 +27,7 @@ namespace HelixToolkit.UWP
                 {
                     return;
                 }
-                deviceContext.Rasterizer.State = rasterState;
+                NativeContext.SetRasterState(rasterState?.State);
                 currRasterState = rasterState;
             }
 
@@ -49,7 +43,7 @@ namespace HelixToolkit.UWP
                 {
                     return;
                 }
-                deviceContext.OutputMerger.SetDepthStencilState(depthStencilState, stencilRef);
+                NativeContext.SetDepthStencilState(depthStencilState?.State, stencilRef);
                 currDepthStencilState = depthStencilState;
                 currStencilRef = stencilRef;
             }
@@ -63,14 +57,15 @@ namespace HelixToolkit.UWP
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetBlendState(BlendStateProxy blendState, Color4? blendFactor = null, int sampleMask = -1)
             {
-                if (AutoSkipRedundantStateSetting && currBlendState == blendState && blendFactor == currBlendFactor && currSampleMask == sampleMask)
+                var mask = sampleMask == -1 ? uint.MaxValue : unchecked((uint)sampleMask);
+                if (AutoSkipRedundantStateSetting && currBlendState == blendState && blendFactor == currBlendFactor && currSampleMask == mask)
                 {
                     return;
                 }
-                deviceContext.OutputMerger.SetBlendState(blendState, blendFactor, sampleMask);
+                NativeContext.SetBlendState(blendState?.State, blendFactor, mask);
                 currBlendState = blendState;
                 currBlendFactor = blendFactor;
-                currSampleMask = sampleMask == -1 ? uint.MaxValue : (uint)sampleMask;
+                currSampleMask = mask;
             }
 
             /// <summary>
@@ -86,7 +81,7 @@ namespace HelixToolkit.UWP
                 {
                     return;
                 }
-                deviceContext.OutputMerger.SetBlendState(blendState, blendFactor, sampleMask);
+                NativeContext.SetBlendState(blendState?.State, blendFactor, sampleMask);
                 currBlendState = blendState;
                 currBlendFactor = blendFactor;
                 currSampleMask = sampleMask;

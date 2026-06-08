@@ -7,11 +7,15 @@ using System;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using Silk.NET.Maths;
+using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
 using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
+using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
+using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
 using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
+using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
 using SilkD3D11ShaderResourceViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ShaderResourceView>;
 using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture1D>;
 using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
@@ -127,6 +131,38 @@ namespace HelixToolkit.UWP
                 ID3D11Texture3D* texture = null;
                 CreateTexture(ref textureDesc, initialData, ref texture);
                 return new Texture3D(new SilkD3D11Texture3DPtr(texture), this, description);
+            }
+
+            public BlendState CreateBlendState(BlendStateDescription description)
+            {
+                var stateDesc = description.ToSilkDesc();
+                ID3D11BlendState* state = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateBlendState(ref stateDesc, ref state));
+                return new BlendState(new SilkD3D11BlendStatePtr(state), description);
+            }
+
+            public DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
+            {
+                var stateDesc = description.ToSilkDesc();
+                ID3D11DepthStencilState* state = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilState(ref stateDesc, ref state));
+                return new DepthStencilState(new SilkD3D11DepthStencilStatePtr(state), description);
+            }
+
+            public RasterizerState CreateRasterizerState(RasterizerStateDescription description)
+            {
+                var stateDesc = description.ToSilkDesc();
+                ID3D11RasterizerState* state = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateRasterizerState(ref stateDesc, ref state));
+                return new RasterizerState(new SilkD3D11RasterizerStatePtr(state), description);
+            }
+
+            public SamplerState CreateSamplerState(SamplerStateDescription description)
+            {
+                var stateDesc = description.ToSilkDesc();
+                ID3D11SamplerState* state = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateSamplerState(ref stateDesc, ref state));
+                return new SamplerState(new SilkD3D11SamplerStatePtr(state), description);
             }
 
             public RenderTargetView CreateRenderTargetView(Resource resource, RenderTargetViewDescription? description = null)
@@ -516,6 +552,33 @@ namespace HelixToolkit.UWP
                 SetShaderResources(shaderStage, slot, (uint)shaderResourceViews.Length, viewPtrs);
             }
 
+            public void SetSampler(int shaderStage, int slot, SamplerState samplerState)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                var statePtr = samplerState?.Handle;
+                SetSamplers(shaderStage, slot, 1, &statePtr);
+            }
+
+            public void SetSamplers(int shaderStage, int slot, SamplerState[] samplerStates)
+            {
+                if (slot < 0 || samplerStates == null || samplerStates.Length == 0)
+                {
+                    return;
+                }
+
+                var statePtrs = stackalloc ID3D11SamplerState*[samplerStates.Length];
+                for (var i = 0; i < samplerStates.Length; i++)
+                {
+                    statePtrs[i] = samplerStates[i]?.Handle;
+                }
+
+                SetSamplers(shaderStage, slot, (uint)samplerStates.Length, statePtrs);
+            }
+
             public void SetUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView, int initialCount = -1)
             {
                 if (slot < 0)
@@ -568,6 +631,61 @@ namespace HelixToolkit.UWP
                     case Constants.ComputeIdx:
                         nativeContext.CSSetShaderResources((uint)slot, count, shaderResourceViews);
                         break;
+                }
+            }
+
+            private void SetSamplers(int shaderStage, int slot, uint count, ID3D11SamplerState** samplerStates)
+            {
+                switch (shaderStage)
+                {
+                    case Constants.VertexIdx:
+                        nativeContext.VSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                    case Constants.HullIdx:
+                        nativeContext.HSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                    case Constants.DomainIdx:
+                        nativeContext.DSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                    case Constants.GeometryIdx:
+                        nativeContext.GSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                    case Constants.PixelIdx:
+                        nativeContext.PSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                    case Constants.ComputeIdx:
+                        nativeContext.CSSetSamplers((uint)slot, count, samplerStates);
+                        break;
+                }
+            }
+
+            public void SetRasterState(RasterizerState rasterizerState)
+            {
+                nativeContext.RSSetState(rasterizerState?.Handle);
+            }
+
+            public void SetDepthStencilState(DepthStencilState depthStencilState, int stencilRef)
+            {
+                nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint)stencilRef));
+            }
+
+            public void SetBlendState(BlendState blendState, Color4? blendFactor, uint sampleMask)
+            {
+                if (blendFactor.HasValue)
+                {
+                    var factor = blendFactor.Value;
+                    var factors = stackalloc float[4]
+                    {
+                        factor.X,
+                        factor.Y,
+                        factor.Z,
+                        factor.W
+                    };
+                    nativeContext.OMSetBlendState(blendState?.Handle, factors, sampleMask);
+                }
+                else
+                {
+                    nativeContext.OMSetBlendState(blendState?.Handle, (float*)null, sampleMask);
                 }
             }
 

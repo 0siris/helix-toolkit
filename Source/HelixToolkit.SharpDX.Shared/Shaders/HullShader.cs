@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 
 #if !NETFX_CORE
@@ -17,6 +16,7 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Render;
 
 
@@ -25,8 +25,9 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class HullShader : ShaderBase
         {
-            private global::SharpDX.Direct3D11.HullShader shader;
-            internal global::SharpDX.Direct3D11.HullShader Shader => shader;
+            private HullShaderHandle shader;
+            internal HullShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
             public static readonly HullShader NullHullShader = new HullShader("NULL");
             public static readonly HullShaderType Type;
             /// <summary>
@@ -35,11 +36,10 @@ namespace HelixToolkit.UWP
             /// <param name="device"></param>
             /// <param name="name"></param>
             /// <param name="byteCode"></param>
-            public HullShader(Device device, string name, byte[] byteCode)
+            internal HullShader(SilkD3DDevice device, string name, byte[] byteCode)
                 : base(name, ShaderStage.Hull)
             {
-                shader = new global::SharpDX.Direct3D11.HullShader(device, byteCode);
-                shader.DebugName = name;
+                shader = device.CreateHullShader(byteCode);
             }
 
             private HullShader(string name)

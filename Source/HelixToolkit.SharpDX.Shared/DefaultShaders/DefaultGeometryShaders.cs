@@ -138,12 +138,12 @@ namespace HelixToolkit.UWP
                 DefaultGSShaderByteCodes.GSMeshBoneSkinnedOut)
             {
                 IsGSStreamOut = true,
-                GSSOElement = new global::SharpDX.Direct3D11.StreamOutputElement[]
+                GSSOElement = new StreamOutputElement[]
                 {
-                    new global::SharpDX.Direct3D11.StreamOutputElement(0, "POSITION", 0, 0, 4, 0),
-                    new global::SharpDX.Direct3D11.StreamOutputElement(0, "NORMAL", 0, 0, 3, 0),
-                    new global::SharpDX.Direct3D11.StreamOutputElement(0, "TANGENT", 0, 0, 3, 0),
-                    new global::SharpDX.Direct3D11.StreamOutputElement(0, "BINORMAL", 0, 0, 3, 0),
+                    new StreamOutputElement(0, "POSITION", 0, 0, 4, 0),
+                    new StreamOutputElement(0, "NORMAL", 0, 0, 3, 0),
+                    new StreamOutputElement(0, "TANGENT", 0, 0, 3, 0),
+                    new StreamOutputElement(0, "BINORMAL", 0, 0, 3, 0),
                 },
                 GSSOStrides = new int[]
                 {

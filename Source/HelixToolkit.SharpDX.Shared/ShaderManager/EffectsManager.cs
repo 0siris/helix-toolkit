@@ -441,7 +441,7 @@ namespace HelixToolkit.UWP
             constantBufferPool = new ConstantBufferPool(Device);
 
             RemoveAndDispose(ref shaderPoolManager);
-            shaderPoolManager = new ShaderPoolManager(Device, constantBufferPool);
+            shaderPoolManager = new ShaderPoolManager(nativeDeviceResources.Device, constantBufferPool);
 
             RemoveAndDispose(ref statePoolManager);
             statePoolManager = new StatePoolManager(nativeDeviceResources.Device);

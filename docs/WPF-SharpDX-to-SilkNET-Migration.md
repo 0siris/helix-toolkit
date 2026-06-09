@@ -289,6 +289,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Keine SharpDX-Backend-Treffer in der portierten State-Kante; nur Legacy-Namespace-Namen wie `HelixToolkit.Wpf.SharpDX` bleiben sichtbar. Der gefilterte Build meldet keine Fehler in den State-/Sampler-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1225` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite, nicht migrierten Direct3D11-Dateien, Shader-/InputLayout- und weiteren Utility-Flächen.
 
+Zusätzliche Prüfung der portierten Shader-/InputLayout-Kante:
+
+```powershell
+rg -n "SharpDX\.Direct3D11|global::SharpDX\.Direct3D11|SharpDX\.D3DCompiler|global::SharpDX\.D3DCompiler|using SharpDX\.Direct3D|ComObject" Source\HelixToolkit.SharpDX.Shared\Native\D3DShaderHandles.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DDeviceHandles.cs Source\HelixToolkit.SharpDX.Shared\DefaultShaders\DefaultGeometryShaders.cs Source\HelixToolkit.SharpDX.Shared\Shaders\VertexShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\PixelShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\ComputeShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\DomainShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\HullShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\GeometryShader.cs Source\HelixToolkit.SharpDX.Shared\Shaders\ShaderBase.cs Source\HelixToolkit.SharpDX.Shared\Shaders\ShaderDescription.cs Source\HelixToolkit.SharpDX.Shared\Shaders\ShaderReflector.cs Source\HelixToolkit.SharpDX.Shared\Shaders\ConstantBufferDescription.cs Source\HelixToolkit.SharpDX.Shared\Shaders\InputLayoutDescription.cs Source\HelixToolkit.SharpDX.Shared\Shaders\InputLayoutProxy.cs Source\HelixToolkit.SharpDX.Shared\Shaders\MappingProxy.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\ShaderPool.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_ShaderResources.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_InputAssembler.cs Source\HelixToolkit.SharpDX.Shared\Interface\IShaderReflector.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'D3DShaderHandles.cs|D3DDeviceHandles.cs|VertexShader.cs|PixelShader.cs|ComputeShader.cs|DomainShader.cs|HullShader.cs|GeometryShader.cs|ShaderBase.cs|ShaderDescription.cs|ShaderReflector.cs|ConstantBufferDescription.cs|InputLayoutDescription.cs|InputLayoutProxy.cs|ShaderPool.cs|DeviceContextProxy_ShaderResources.cs|DeviceContextProxy_InputAssembler.cs|IShaderReflector.cs|DefaultGeometryShaders.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Native Shader-Wrapper, Shader-Erzeugung, InputLayout-Erzeugung, Shader-/ConstantBuffer-Bindings und `ShaderReflector` laufen in dieser Kante ohne SharpDX-D3D11-/D3DCompiler-Typen. `Technique` und `IRenderTechnique.Device` bleiben eine separate Public-API-/EffectsManager-Legacy-Kante. Der gefilterte Build meldet keine Fehler in den portierten Shader-/InputLayout-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1153` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite und weiteren noch nicht migrierten SharpDX-Flächen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -298,7 +308,8 @@ Stand dieses Implementierungsschnitts:
 - Draw-, InputAssembler-, Viewport-, Output-Merger-/Target-, ResourceUpdate- und ShaderResource-/UAV-Teile des `DeviceContextProxy` laufen teilweise über Silk.NET.
 - `Texture1D`, `Texture2D` und `Texture3D` sind als native Resource-Wrapper vorbereitet; `ShaderResourceViewProxy` erzeugt fuer native Device-Resource-Kontexte Texture2D-Resources sowie echte SRV/RTV/DSV-Views.
 - Blend-, DepthStencil-, Rasterizer- und Sampler-States sind als native Wrapper vorbereitet; `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings laufen in dieser Kante über Silk.NET.
-- Der nächste Umbau muss deshalb bei Shader-/InputLayout-Wrappern, `DeviceContextPool`/Deferred-Kontexten oder SwapChain-/D3DImage-Interop ansetzen.
+- Vertex-, Pixel-, Compute-, Domain-, Hull- und Geometry-Shader sowie InputLayouts sind als native Wrapper vorbereitet; `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` und Shader-/ConstantBuffer-Bindings laufen in dieser Kante ohne SharpDX-D3D11-/D3DCompiler-Typen.
+- Der nächste Umbau muss deshalb bei `DeviceContextPool`/Deferred-Kontexten, der `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -315,10 +326,10 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Shader-/InputLayout-Wrapper und `ShaderPass`/`Technique` weiter auf native Handles bringen.
-2. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+1. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
+2. Die `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante von SharpDX-Device-Typen lösen.
 3. SwapChain-/D3DImage-Interop prototypisch anschließen.
-4. D3D11/DXGI Typen in Shader-, Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+4. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
 5. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 6. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
 7. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
@@ -499,7 +510,8 @@ Status: In Arbeit.
 - Shader-Resource-/UAV-Bindings sind teilweise migriert: native SRV-/UAV-Descriptions, native SRV-/UAV-Erzeugung, `DeviceContextProxy_ShaderResources`, `ShaderResourceViewProxy`, `UAVBufferViewProxy` und `StructuredBufferProxy`.
 - Texture-/View-Erzeugung ist fuer Offscreen-RenderBuffer teilweise migriert: native Texture1D/2D/3D-Wrapper, Texture2D-Erzeugung sowie native RTV/DSV/SRV-Erzeugung in `ShaderResourceViewProxy` und `ColorBufferPool`.
 - State-Erzeugung und State-Bindings sind teilweise migriert: native Blend-/DepthStencil-/Rasterizer-/Sampler-Wrapper, `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings.
-- Offene Arbeit: Shader-Pools, InputLayouts, `DeviceContextPool`, Deferred-Kontexte, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- Shader-/InputLayout-Erzeugung ist teilweise migriert: native Shader- und InputLayout-Wrapper, `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` sowie Shader-/ConstantBuffer-Bindings.
+- Offene Arbeit: `DeviceContextPool`, Deferred-Kontexte, `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -628,15 +640,17 @@ Ziel: Bestehende `.cso`-Shader weiterverwenden und Reflection-Daten ohne SharpDX
 
 ### Fortschritt
 
-Status: Noch offen.
+Status: In Arbeit.
 
-- Entscheidung für `D3DReflect` über `Silk.NET.Direct3D.Compilers` ist dokumentiert.
-- Shader creation, Reflection, InputLayout und Shader-Pools hängen noch an SharpDX-Typen.
+- `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
+- Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
+- Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
+- Offene Arbeit: `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen und weiter entfernte Shader-/RenderContext-Aufrufer hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
 - Shader bytecode loading aus embedded resources beibehalten.
-- `ShaderReflector` auf `D3DReflect` über `Silk.NET.Direct3D.Compilers` umstellen.
+- `ShaderReflector` auf `D3DReflect` umstellen.
 - Reflection-Daten in bestehende Modelle übertragen:
   - Constant buffers.
   - Variables.

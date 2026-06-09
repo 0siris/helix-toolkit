@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using global::SharpDX.Direct3D11;
+using System;
+
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -14,26 +12,23 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
+
         public sealed class InputLayoutProxy : DisposeObject
         {
-            private InputLayout layout;
-            public InputLayout Layout => layout;
+            private Native.InputLayout layout;
 
-            public InputLayoutProxy(Device device, byte[] vertexShaderByteCode, InputElement[] elements)
+            internal Native.InputLayout Layout => layout;
+
+            internal InputLayoutProxy(SilkD3DDevice device, byte[] vertexShaderByteCode, InputElement[] elements)
             {
-                layout = new InputLayout(device, vertexShaderByteCode, elements);
+                layout = device.CreateInputLayout(vertexShaderByteCode, elements);
             }
-
 
             protected override void OnDispose(bool disposeManagedResources)
             {
                 RemoveAndDispose(ref layout);
                 base.OnDispose(disposeManagedResources);
-            }
-
-            public static explicit operator InputLayout(InputLayoutProxy proxy)
-            {
-                return proxy.layout;
             }
         }
     }

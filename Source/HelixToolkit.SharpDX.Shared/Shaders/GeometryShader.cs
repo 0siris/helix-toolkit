@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 
 #if !NETFX_CORE
@@ -17,14 +16,16 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Render;
         /// <summary>
         /// 
         /// </summary>
         public sealed class GeometryShader : ShaderBase
         {
-            private global::SharpDX.Direct3D11.GeometryShader shader;
-            internal global::SharpDX.Direct3D11.GeometryShader Shader => shader;
+            private GeometryShaderHandle shader;
+            internal GeometryShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
             public static readonly GeometryShader NullGeometryShader = new GeometryShader("NULL");
             public static readonly GeometryShaderType Type;
             /// <summary>
@@ -33,10 +34,9 @@ namespace HelixToolkit.UWP
             /// <param name="device">The device.</param>
             /// <param name="name">The name.</param>
             /// <param name="byteCode">The byte code.</param>
-            public GeometryShader(Device device, string name, byte[] byteCode) : base(name, ShaderStage.Geometry)
+            internal GeometryShader(SilkD3DDevice device, string name, byte[] byteCode) : base(name, ShaderStage.Geometry)
             {
-                shader = new global::SharpDX.Direct3D11.GeometryShader(device, byteCode);
-                shader.DebugName = name;
+                shader = device.CreateGeometryShader(byteCode);
             }
 
             /// <summary>
@@ -48,12 +48,11 @@ namespace HelixToolkit.UWP
             /// <param name="streamOutputElements">The stream output elements.</param>
             /// <param name="bufferStrides">The buffer strides.</param>
             /// <param name="rasterizedStream">The rasterized stream.</param>
-            public GeometryShader(Device device, string name, byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides,
-                int rasterizedStream = global::SharpDX.Direct3D11.GeometryShader.StreamOutputNoRasterizedStream)
+            internal GeometryShader(SilkD3DDevice device, string name, byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides,
+                int rasterizedStream = -1)
                 : base(name, ShaderStage.Geometry)
             {
-                shader = new global::SharpDX.Direct3D11.GeometryShader(device, byteCode, streamOutputElements, bufferStrides, rasterizedStream);
-                shader.DebugName = name;
+                shader = device.CreateGeometryShader(byteCode, streamOutputElements, bufferStrides, rasterizedStream);
             }
 
             private GeometryShader(string name)

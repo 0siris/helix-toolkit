@@ -1,11 +1,12 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
 using System;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -18,8 +19,10 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
-        public sealed class ShaderReflector : IShaderReflector
+        public sealed unsafe class ShaderReflector : IShaderReflector
         {
+            private static readonly Guid ShaderReflectionGuid = new Guid("8d536ca1-0cca-4956-a837-786963755584");
+
             public FeatureLevel FeatureLevel
             {
                 get; private set;
@@ -33,68 +36,273 @@ namespace HelixToolkit.UWP
 
             public Dictionary<string, SamplerMapping> SamplerMappings { get; } = new Dictionary<string, SamplerMapping>();
 
-            public ShaderReflector()
-            {
-
-            }
-
             public void Parse(byte[] byteCode, ShaderStage stage)
             {
                 ConstantBufferMappings.Clear();
                 TextureMappings.Clear();
                 UAVMappings.Clear();
                 SamplerMappings.Clear();
-                using (var reflection = new ShaderReflection(byteCode))
+
+                if (byteCode == null || byteCode.Length == 0)
                 {
-                    FeatureLevel = reflection.MinFeatureLevel;
-                    for (var i = 0; i < reflection.Description.BoundResources; ++i)
+                    FeatureLevel = FeatureLevel.Level_DEFAULT;
+                    return;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    void* reflectionPtr = null;
+                    Marshal.ThrowExceptionForHR(D3DReflect(byteCodePtr, (nuint)byteCode.Length, ref ShaderReflectionGuid, &reflectionPtr));
+                    var reflection = (ID3D11ShaderReflection*)reflectionPtr;
+                    try
                     {
-                        var res = reflection.GetResourceBindingDescription(i);
-                        switch (res.Type)
+                        ShaderDesc shaderDesc = default;
+                        Marshal.ThrowExceptionForHR(reflection->LpVtbl->GetDesc(reflection, &shaderDesc));
+                        FeatureLevel = GetFeatureLevel(shaderDesc.Version);
+
+                        for (var i = 0u; i < shaderDesc.BoundResources; ++i)
                         {
-                            case ShaderInputType.ConstantBuffer:
-                                var cb = reflection.GetConstantBuffer(res.Name);
-                                var cbDesc = new ConstantBufferDescription(cb) { Stage = stage, Slot = res.BindPoint };
-                                ConstantBufferMappings.Add(res.Name, cbDesc.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.Texture:
-                                var tDescT = new TextureDescription(res.Name, stage, TextureType.Texture);
-                                TextureMappings.Add(res.Name, tDescT.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.Structured:
-                                var tDescStr = new TextureDescription(res.Name, stage, TextureType.Structured);
-                                TextureMappings.Add(res.Name, tDescStr.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.TextureBuffer:
-                                var tDescTB = new TextureDescription(res.Name, stage, TextureType.TextureBuffer);
-                                TextureMappings.Add(res.Name, tDescTB.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.UnorderedAccessViewAppendStructured:
-                                var uDescAppend = new UAVDescription(res.Name, stage, UnorderedAccessViewType.AppendStructured);
-                                UAVMappings.Add(res.Name, uDescAppend.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.UnorderedAccessViewConsumeStructured:
-                                var uDescConsume = new UAVDescription(res.Name, stage, UnorderedAccessViewType.ConsumeStructured);
-                                UAVMappings.Add(res.Name, uDescConsume.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.UnorderedAccessViewRWByteAddress:
-                                var uDescByte = new UAVDescription(res.Name, stage, UnorderedAccessViewType.RWByteAddress);
-                                UAVMappings.Add(res.Name, uDescByte.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.UnorderedAccessViewRWStructuredWithCounter:
-                                var uDescStr = new UAVDescription(res.Name, stage, UnorderedAccessViewType.RWStructuredWithCounter);
-                                UAVMappings.Add(res.Name, uDescStr.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.UnorderedAccessViewRWTyped:
-                                var uDescTyped = new UAVDescription(res.Name, stage, UnorderedAccessViewType.RWTyped);
-                                UAVMappings.Add(res.Name, uDescTyped.CreateMapping(res.BindPoint));
-                                break;
-                            case ShaderInputType.Sampler:
-                                SamplerMappings.Add(res.Name, new SamplerMapping(res.BindPoint, res.Name, stage));
-                                break;
+                            ShaderInputBindDesc resourceDesc = default;
+                            Marshal.ThrowExceptionForHR(reflection->LpVtbl->GetResourceBindingDesc(reflection, i, &resourceDesc));
+                            var name = PtrToString(resourceDesc.Name);
+                            switch (resourceDesc.Type)
+                            {
+                                case ShaderInputType.ConstantBuffer:
+                                    var cb = reflection->LpVtbl->GetConstantBufferByName(reflection, resourceDesc.Name);
+                                    var cbDesc = CreateConstantBufferDescription(cb, stage, (int)resourceDesc.BindPoint);
+                                    ConstantBufferMappings.Add(name, cbDesc.CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.Texture:
+                                    TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.Texture).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.Structured:
+                                    TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.Structured).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.TextureBuffer:
+                                    TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.TextureBuffer).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewAppendStructured:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.AppendStructured).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewConsumeStructured:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.ConsumeStructured).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewRWByteAddress:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWByteAddress).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewRWStructuredWithCounter:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWStructuredWithCounter).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewRWTyped:
+                                case ShaderInputType.UnorderedAccessViewRWStructured:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWTyped).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.Sampler:
+                                    SamplerMappings.Add(name, new SamplerMapping((int)resourceDesc.BindPoint, name, stage));
+                                    break;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        if (reflection != null)
+                        {
+                            reflection->LpVtbl->Release(reflection);
                         }
                     }
                 }
+            }
+
+            private static ConstantBufferDescription CreateConstantBufferDescription(ID3D11ShaderReflectionConstantBuffer* buffer, ShaderStage stage, int slot)
+            {
+                ShaderBufferDesc desc = default;
+                Marshal.ThrowExceptionForHR(buffer->LpVtbl->GetDesc(buffer, &desc));
+
+                var variables = new List<ConstantBufferVariable>((int)desc.Variables);
+                for (var i = 0u; i < desc.Variables; i++)
+                {
+                    var variable = buffer->LpVtbl->GetVariableByIndex(buffer, i);
+                    ShaderVariableDesc variableDesc = default;
+                    Marshal.ThrowExceptionForHR(variable->LpVtbl->GetDesc(variable, &variableDesc));
+                    variables.Add(new ConstantBufferVariable
+                    {
+                        Name = PtrToString(variableDesc.Name),
+                        StartOffset = (int)variableDesc.StartOffset,
+                        Size = (int)variableDesc.Size
+                    });
+                }
+
+                return new ConstantBufferDescription(PtrToString(desc.Name), (int)desc.Size, variables)
+                {
+                    Stage = stage,
+                    Slot = slot
+                };
+            }
+
+            private static string PtrToString(byte* value)
+            {
+                return value == null ? string.Empty : Marshal.PtrToStringAnsi((IntPtr)value);
+            }
+
+            private static FeatureLevel GetFeatureLevel(uint shaderVersion)
+            {
+                var major = (shaderVersion >> 4) & 0xf;
+                var minor = shaderVersion & 0xf;
+                if (major >= 5)
+                {
+                    return FeatureLevel.Level_11_0;
+                }
+
+                if (major == 4 && minor >= 1)
+                {
+                    return FeatureLevel.Level_10_1;
+                }
+
+                if (major == 4)
+                {
+                    return FeatureLevel.Level_10_0;
+                }
+
+                return FeatureLevel.Level_9_1;
+            }
+
+            [DllImport("d3dcompiler_47.dll", ExactSpelling = true)]
+            private static extern int D3DReflect(void* pSrcData, nuint srcDataSize, ref Guid pInterface, void** ppReflector);
+
+            private enum ShaderInputType : uint
+            {
+                ConstantBuffer = 0,
+                TextureBuffer = 1,
+                Texture = 2,
+                Sampler = 3,
+                UnorderedAccessViewRWTyped = 4,
+                Structured = 5,
+                UnorderedAccessViewRWStructured = 6,
+                ByteAddress = 7,
+                UnorderedAccessViewRWByteAddress = 8,
+                UnorderedAccessViewAppendStructured = 9,
+                UnorderedAccessViewConsumeStructured = 10,
+                UnorderedAccessViewRWStructuredWithCounter = 11
+            }
+
+            private struct ID3D11ShaderReflection
+            {
+                public ID3D11ShaderReflectionVtbl* LpVtbl;
+            }
+
+            private struct ID3D11ShaderReflectionVtbl
+            {
+                public void* QueryInterface;
+                public void* AddRef;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint> Release;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, ShaderDesc*, int> GetDesc;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint, ID3D11ShaderReflectionConstantBuffer*> GetConstantBufferByIndex;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, byte*, ID3D11ShaderReflectionConstantBuffer*> GetConstantBufferByName;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint, ShaderInputBindDesc*, int> GetResourceBindingDesc;
+            }
+
+            private struct ID3D11ShaderReflectionConstantBuffer
+            {
+                public ID3D11ShaderReflectionConstantBufferVtbl* LpVtbl;
+            }
+
+            private struct ID3D11ShaderReflectionConstantBufferVtbl
+            {
+                public void* QueryInterface;
+                public void* AddRef;
+                public void* Release;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, ShaderBufferDesc*, int> GetDesc;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, uint, ID3D11ShaderReflectionVariable*> GetVariableByIndex;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, byte*, ID3D11ShaderReflectionVariable*> GetVariableByName;
+            }
+
+            private struct ID3D11ShaderReflectionVariable
+            {
+                public ID3D11ShaderReflectionVariableVtbl* LpVtbl;
+            }
+
+            private struct ID3D11ShaderReflectionVariableVtbl
+            {
+                public void* QueryInterface;
+                public void* AddRef;
+                public void* Release;
+                public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionVariable*, ShaderVariableDesc*, int> GetDesc;
+            }
+
+            private struct ShaderInputBindDesc
+            {
+                public byte* Name;
+                public ShaderInputType Type;
+                public uint BindPoint;
+                public uint BindCount;
+                public uint Flags;
+                public uint ReturnType;
+                public uint Dimension;
+                public uint NumSamples;
+            }
+
+            private struct ShaderBufferDesc
+            {
+                public byte* Name;
+                public uint Type;
+                public uint Variables;
+                public uint Size;
+                public uint Flags;
+            }
+
+            private struct ShaderVariableDesc
+            {
+                public byte* Name;
+                public uint StartOffset;
+                public uint Size;
+                public uint Flags;
+                public void* DefaultValue;
+                public uint StartTexture;
+                public uint TextureSize;
+                public uint StartSampler;
+                public uint SamplerSize;
+            }
+
+            private struct ShaderDesc
+            {
+                public uint Version;
+                public byte* Creator;
+                public uint Flags;
+                public uint ConstantBuffers;
+                public uint BoundResources;
+                public uint InputParameters;
+                public uint OutputParameters;
+                public uint InstructionCount;
+                public uint TempRegisterCount;
+                public uint TempArrayCount;
+                public uint DefCount;
+                public uint DclCount;
+                public uint TextureNormalInstructions;
+                public uint TextureLoadInstructions;
+                public uint TextureCompInstructions;
+                public uint TextureBiasInstructions;
+                public uint TextureGradientInstructions;
+                public uint FloatInstructionCount;
+                public uint IntInstructionCount;
+                public uint UintInstructionCount;
+                public uint StaticFlowControlCount;
+                public uint DynamicFlowControlCount;
+                public uint MacroInstructionCount;
+                public uint ArrayInstructionCount;
+                public uint CutInstructionCount;
+                public uint EmitInstructionCount;
+                public uint GSOutputTopology;
+                public uint GSMaxOutputVertexCount;
+                public uint InputPrimitive;
+                public uint PatchConstantParameters;
+                public uint GSInstanceCount;
+                public uint ControlPoints;
+                public uint HSOutputPrimitive;
+                public uint HSPartitioning;
+                public uint TessellatorDomain;
+                public uint BarrierInstructions;
+                public uint InterlockedInstructions;
+                public uint TextureStoreInstructions;
             }
         }
     }

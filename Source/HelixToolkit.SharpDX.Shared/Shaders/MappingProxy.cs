@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
-using global::SharpDX.Direct3D11;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else

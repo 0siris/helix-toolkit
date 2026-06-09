@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System;
@@ -18,6 +17,7 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Render;
         using Utilities;
         /// <summary>
@@ -25,8 +25,9 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class VertexShader : ShaderBase
         {
-            private global::SharpDX.Direct3D11.VertexShader shader = null;
-            internal global::SharpDX.Direct3D11.VertexShader Shader => shader;
+            private VertexShaderHandle shader = null;
+            internal VertexShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
             public static readonly VertexShader NullVertexShader = new VertexShader("NULL");
             public static readonly VertexShaderType Type;
             /// <summary>
@@ -35,11 +36,10 @@ namespace HelixToolkit.UWP
             /// <param name="device"></param>
             /// <param name="name"></param>
             /// <param name="byteCode"></param>
-            public VertexShader(Device device, string name, byte[] byteCode)
+            internal VertexShader(SilkD3DDevice device, string name, byte[] byteCode)
                 : base(name, ShaderStage.Vertex)
             {
-                shader = new global::SharpDX.Direct3D11.VertexShader(device, byteCode);
-                shader.DebugName = name;
+                shader = device.CreateVertexShader(byteCode);
             }
             /// <summary>
             /// Initializes a new instance of the <see cref="VertexShader"/> class.

@@ -41,7 +41,7 @@ namespace HelixToolkit.UWP
                     }
 
                     currInputLayout = value;
-                    throw new System.NotSupportedException("Input layouts require the native input layout wrapper migration.");
+                    nativeDeviceContext.SetInputLayout(value?.Layout);
                 }
                 get
                 {

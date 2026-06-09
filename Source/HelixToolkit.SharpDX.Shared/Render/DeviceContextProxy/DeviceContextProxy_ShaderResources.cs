@@ -31,31 +31,37 @@ namespace HelixToolkit.UWP
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(VertexShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.VertexIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(HullShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.HullIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(DomainShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.DomainIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(GeometryShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.GeometryIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(PixelShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.PixelIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShader(ComputeShader shader, bool bindConstantBuffer = true)
             {
+                SetShader(Constants.ComputeIdx, shader, bindConstantBuffer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -329,6 +335,42 @@ namespace HelixToolkit.UWP
             private void SetShaderResources(int shaderStage, int slot, ShaderResourceView[] textures)
             {
                 NativeContext.SetShaderResources(shaderStage, slot, textures);
+            }
+
+            private void SetShader(int shaderStage, ShaderBase shader, bool bindConstantBuffer)
+            {
+                NativeContext.SetShader(shaderStage, shader == null || shader.IsNULL ? null : shader.NativeShader);
+                if (!bindConstantBuffer || shader == null || shader.IsNULL)
+                {
+                    return;
+                }
+
+                foreach (var mapping in shader.ConstantBufferMapping.Mappings)
+                {
+                    TrackConstantBuffer(shaderStage, mapping.Key, mapping.Value);
+                }
+            }
+
+            private void TrackConstantBuffer(int shaderStage, int slot, ConstantBufferProxy buffer)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                var index = shaderStage * ConstantBufferCount + slot;
+                if (index >= ConstantBufferCheck.Length)
+                {
+                    return;
+                }
+
+                if (AutoSkipRedundantStateSetting && ConstantBufferCheck[index] == buffer)
+                {
+                    return;
+                }
+
+                NativeContext.SetConstantBuffer(shaderStage, slot, buffer);
+                ConstantBufferCheck[index] = buffer;
             }
 
             private void TrackSampler(int shaderStage, int slot, SamplerStateProxy sampler)

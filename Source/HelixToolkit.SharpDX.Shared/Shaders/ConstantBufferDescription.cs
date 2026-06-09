@@ -3,10 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX.Direct3D11;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
-using SharpDX.D3DCompiler;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -73,23 +71,25 @@ namespace HelixToolkit.UWP
 
             public List<ConstantBufferVariable> Variables { get; } = new List<ConstantBufferVariable>();
 
-            public ConstantBufferDescription(ConstantBuffer buffer)
-            {
-                Name = buffer.Description.Name;
-                StructSize = StrideSize = buffer.Description.Size;
-                Variables = new List<ConstantBufferVariable>();
-                for (var i = 0; i < buffer.Description.VariableCount; ++i)
-                {
-                    var variable = buffer.GetVariable(i);
-                    Variables.Add(new ConstantBufferVariable() { Name = variable.Description.Name, Size = variable.Description.Size, StartOffset = variable.Description.StartOffset });
-                }
-            }
-
             public ConstantBufferDescription(string name, int structSize, int strideSize = 0)
             {
                 Name = name;
                 StructSize = structSize;
                 StrideSize = strideSize;
+            }
+
+            public ConstantBufferDescription(string name, int structSize, IEnumerable<ConstantBufferVariable> variables, int strideSize = 0)
+                : this(name, structSize, strideSize)
+            {
+                if (variables == null)
+                {
+                    return;
+                }
+
+                foreach (var variable in variables)
+                {
+                    Variables.Add(variable);
+                }
             }
 
             public ConstantBufferProxy CreateBuffer()

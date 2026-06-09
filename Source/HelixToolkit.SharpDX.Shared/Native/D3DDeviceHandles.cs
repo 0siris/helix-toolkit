@@ -9,10 +9,16 @@ using Silk.NET.Direct3D11;
 using Silk.NET.Maths;
 using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
 using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
+using SilkD3D11ComputeShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ComputeShader>;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
+using SilkD3D11DomainShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DomainShader>;
+using SilkD3D11GeometryShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11GeometryShader>;
+using SilkD3D11HullShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11HullShader>;
+using SilkD3D11InputLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11InputLayout>;
+using SilkD3D11PixelShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11PixelShader>;
 using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
 using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
 using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
@@ -21,6 +27,7 @@ using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID
 using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
 using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture3D>;
 using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
+using SilkD3D11VertexShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11VertexShader>;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -163,6 +170,189 @@ namespace HelixToolkit.UWP
                 ID3D11SamplerState* state = null;
                 SilkMarshal.ThrowHResult(nativeDevice.CreateSamplerState(ref stateDesc, ref state));
                 return new SamplerState(new SilkD3D11SamplerStatePtr(state), description);
+            }
+
+            public VertexShaderHandle CreateVertexShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11VertexShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateVertexShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new VertexShaderHandle(new SilkD3D11VertexShaderPtr(shader));
+                }
+            }
+
+            public PixelShaderHandle CreatePixelShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11PixelShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreatePixelShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new PixelShaderHandle(new SilkD3D11PixelShaderPtr(shader));
+                }
+            }
+
+            public ComputeShaderHandle CreateComputeShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11ComputeShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateComputeShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new ComputeShaderHandle(new SilkD3D11ComputeShaderPtr(shader));
+                }
+            }
+
+            public DomainShaderHandle CreateDomainShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11DomainShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateDomainShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new DomainShaderHandle(new SilkD3D11DomainShaderPtr(shader));
+                }
+            }
+
+            public HullShaderHandle CreateHullShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11HullShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateHullShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new HullShaderHandle(new SilkD3D11HullShaderPtr(shader));
+                }
+            }
+
+            public GeometryShaderHandle CreateGeometryShader(byte[] byteCode)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                fixed (byte* byteCodePtr = byteCode)
+                {
+                    ID3D11GeometryShader* shader = null;
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
+                }
+            }
+
+            public GeometryShaderHandle CreateGeometryShader(byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides, int rasterizedStream)
+            {
+                if (byteCode == null || byteCode.Length == 0)
+                {
+                    return null;
+                }
+
+                if (streamOutputElements == null || streamOutputElements.Length == 0)
+                {
+                    return CreateGeometryShader(byteCode);
+                }
+
+                var semanticNamePtrs = new IntPtr[streamOutputElements.Length];
+                try
+                {
+                    var streamOutputDescs = stackalloc SODeclarationEntry[streamOutputElements.Length];
+                    for (var i = 0; i < streamOutputElements.Length; i++)
+                    {
+                        semanticNamePtrs[i] = SilkMarshal.StringToPtr(streamOutputElements[i].SemanticName ?? string.Empty);
+                        streamOutputDescs[i] = streamOutputElements[i].ToSilkDesc(semanticNamePtrs[i]);
+                    }
+
+                    var stridesLength = bufferStrides == null ? 0 : bufferStrides.Length;
+                    var strides = stackalloc uint[stridesLength];
+                    for (var i = 0; i < stridesLength; i++)
+                    {
+                        strides[i] = (uint)bufferStrides[i];
+                    }
+
+                    fixed (byte* byteCodePtr = byteCode)
+                    {
+                        ID3D11GeometryShader* shader = null;
+                        SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShaderWithStreamOutput(
+                            byteCodePtr,
+                            (nuint)byteCode.Length,
+                            streamOutputDescs,
+                            (uint)streamOutputElements.Length,
+                            stridesLength == 0 ? null : strides,
+                            (uint)stridesLength,
+                            unchecked((uint)rasterizedStream),
+                            (ID3D11ClassLinkage*)null,
+                            ref shader));
+                        return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
+                    }
+                }
+                finally
+                {
+                    for (var i = 0; i < semanticNamePtrs.Length; i++)
+                    {
+                        if (semanticNamePtrs[i] != IntPtr.Zero)
+                        {
+                            SilkMarshal.Free(semanticNamePtrs[i]);
+                        }
+                    }
+                }
+            }
+
+            public InputLayout CreateInputLayout(byte[] shaderByteCode, InputElement[] elements)
+            {
+                if (shaderByteCode == null || shaderByteCode.Length == 0 || elements == null || elements.Length == 0)
+                {
+                    return null;
+                }
+
+                var semanticNamePtrs = new IntPtr[elements.Length];
+                try
+                {
+                    var inputElements = stackalloc InputElementDesc[elements.Length];
+                    for (var i = 0; i < elements.Length; i++)
+                    {
+                        semanticNamePtrs[i] = SilkMarshal.StringToPtr(elements[i].SemanticName ?? string.Empty);
+                        inputElements[i] = elements[i].ToSilkDesc(semanticNamePtrs[i]);
+                    }
+
+                    fixed (byte* byteCodePtr = shaderByteCode)
+                    {
+                        ID3D11InputLayout* layout = null;
+                        SilkMarshal.ThrowHResult(nativeDevice.CreateInputLayout(inputElements, (uint)elements.Length, byteCodePtr, (nuint)shaderByteCode.Length, ref layout));
+                        return new InputLayout(new SilkD3D11InputLayoutPtr(layout));
+                    }
+                }
+                finally
+                {
+                    for (var i = 0; i < semanticNamePtrs.Length; i++)
+                    {
+                        if (semanticNamePtrs[i] != IntPtr.Zero)
+                        {
+                            SilkMarshal.Free(semanticNamePtrs[i]);
+                        }
+                    }
+                }
             }
 
             public RenderTargetView CreateRenderTargetView(Resource resource, RenderTargetViewDescription? description = null)
@@ -390,6 +580,72 @@ namespace HelixToolkit.UWP
                 {
                     nativeContext.IASetPrimitiveTopology(value);
                 }
+            }
+
+            public void SetInputLayout(InputLayout inputLayout)
+            {
+                nativeContext.IASetInputLayout(inputLayout?.Handle);
+            }
+
+            public void SetShader(IShaderHandle shader)
+            {
+                if (shader != null)
+                {
+                    SetShader(shader.StageIndex, shader);
+                }
+            }
+
+            public void SetShader(int shaderStage, IShaderHandle shader)
+            {
+                void* shaderHandle = shader == null ? null : shader.NativeHandle;
+                switch (shaderStage)
+                {
+                    case Constants.VertexIdx:
+                        nativeContext.VSSetShader((ID3D11VertexShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                    case Constants.HullIdx:
+                        nativeContext.HSSetShader((ID3D11HullShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                    case Constants.DomainIdx:
+                        nativeContext.DSSetShader((ID3D11DomainShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                    case Constants.GeometryIdx:
+                        nativeContext.GSSetShader((ID3D11GeometryShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                    case Constants.PixelIdx:
+                        nativeContext.PSSetShader((ID3D11PixelShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                    case Constants.ComputeIdx:
+                        nativeContext.CSSetShader((ID3D11ComputeShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        break;
+                }
+            }
+
+            public void SetConstantBuffer(int shaderStage, int slot, Buffer buffer)
+            {
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                var bufferPtr = buffer?.BufferHandle;
+                SetConstantBuffers(shaderStage, slot, 1, &bufferPtr);
+            }
+
+            public void SetConstantBuffers(int shaderStage, int slot, Buffer[] buffers)
+            {
+                if (slot < 0 || buffers == null || buffers.Length == 0)
+                {
+                    return;
+                }
+
+                var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
+                for (var i = 0; i < buffers.Length; i++)
+                {
+                    bufferPtrs[i] = buffers[i]?.BufferHandle;
+                }
+
+                SetConstantBuffers(shaderStage, slot, (uint)buffers.Length, bufferPtrs);
             }
 
             public void SetViewport(float x, float y, float width, float height, float minZ, float maxZ)
@@ -630,6 +886,31 @@ namespace HelixToolkit.UWP
                         break;
                     case Constants.ComputeIdx:
                         nativeContext.CSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        break;
+                }
+            }
+
+            private void SetConstantBuffers(int shaderStage, int slot, uint count, ID3D11Buffer** constantBuffers)
+            {
+                switch (shaderStage)
+                {
+                    case Constants.VertexIdx:
+                        nativeContext.VSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        break;
+                    case Constants.HullIdx:
+                        nativeContext.HSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        break;
+                    case Constants.DomainIdx:
+                        nativeContext.DSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        break;
+                    case Constants.GeometryIdx:
+                        nativeContext.GSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        break;
+                    case Constants.PixelIdx:
+                        nativeContext.PSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        break;
+                    case Constants.ComputeIdx:
+                        nativeContext.CSSetConstantBuffers((uint)slot, count, constantBuffers);
                         break;
                 }
             }

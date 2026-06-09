@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -18,6 +17,7 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Render;
         using Utilities;
         /// <summary>
@@ -25,8 +25,9 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class ComputeShader : ShaderBase
         {
-            private global::SharpDX.Direct3D11.ComputeShader shader;
-            internal global::SharpDX.Direct3D11.ComputeShader Shader => shader;
+            private ComputeShaderHandle shader;
+            internal ComputeShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
             public static readonly ComputeShader NullComputeShader = new ComputeShader("NULL");
             public static readonly ComputeShaderType Type;
             /// <summary>
@@ -35,11 +36,10 @@ namespace HelixToolkit.UWP
             /// <param name="device"></param>
             /// <param name="name"></param>
             /// <param name="byteCode"></param>
-            public ComputeShader(Device device, string name, byte[] byteCode)
+            internal ComputeShader(SilkD3DDevice device, string name, byte[] byteCode)
                 : base(name, ShaderStage.Compute)
             {
-                shader = new global::SharpDX.Direct3D11.ComputeShader(device, byteCode);
-                shader.DebugName = name;
+                shader = device.CreateComputeShader(byteCode);
             }
 
             private ComputeShader(string name)

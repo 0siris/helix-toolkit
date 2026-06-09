@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System;
 using System.Collections.Generic;
 using System.Text;
-using global::SharpDX.Direct3D11;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -18,6 +17,7 @@ namespace HelixToolkit.UWP
 {
     namespace ShaderManager
     {
+        using Native;
         using Shaders;
         using Utilities;
         /// <summary>
@@ -36,13 +36,13 @@ namespace HelixToolkit.UWP
                 private set; get;
             }
 
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="ShaderPool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
             /// <param name="cbPool">The cb pool.</param>
-            public ShaderPool(Device device, IConstantBufferPool cbPool)
+            internal ShaderPool(SilkD3DDevice device, IConstantBufferPool cbPool)
                 : base(false)
             {
                 ConstantBufferPool = cbPool;
@@ -65,12 +65,12 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class LayoutPool : ReferenceCountedDictionaryPool<byte[], InputLayoutProxy, InputLayoutDescription>
         {
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="LayoutPool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public LayoutPool(Device device)
+            internal LayoutPool(SilkD3DDevice device)
                 : base(false)
             {
                 this.device = device;
@@ -98,7 +98,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             /// <param name="device">The device.</param>
             /// <param name="cbPool">The cb pool.</param>
-            public ShaderPoolManager(Device device, IConstantBufferPool cbPool)
+            internal ShaderPoolManager(SilkD3DDevice device, IConstantBufferPool cbPool)
             {
                 shaderPools[Constants.VertexIdx] = new ShaderPool(device, cbPool);
                 shaderPools[Constants.DomainIdx] = new ShaderPool(device, cbPool);

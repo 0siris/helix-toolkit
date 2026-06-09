@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Linq;
 using System.Runtime.Serialization;
 using Microsoft.Extensions.Logging;
@@ -20,8 +18,9 @@ namespace HelixToolkit.UWP
     namespace Shaders
     {
         using HelixToolkit.Logger;
-        using ShaderManager;
         using Helper;
+        using Native;
+        using ShaderManager;
         /// <summary>
         /// 
         /// </summary>
@@ -268,7 +267,7 @@ namespace HelixToolkit.UWP
             /// <param name="device"></param>
             /// <param name="pool"></param>
             /// <returns></returns>
-            public ShaderBase CreateShader(Device device, IConstantBufferPool pool)
+            internal ShaderBase CreateShader(SilkD3DDevice device, IConstantBufferPool pool)
             {
                 if (ByteCode == null)
                 {
@@ -277,10 +276,11 @@ namespace HelixToolkit.UWP
                 ShaderReflector = ShaderReflector ?? new ShaderReflector();
                 ShaderReflector.Parse(ByteCode, ShaderType);
                 Level = ShaderReflector.FeatureLevel;
-                if (Level > device.FeatureLevel)
+                var deviceFeatureLevel = device.FeatureLevel.ToFeatureLevel();
+                if (Level > deviceFeatureLevel)
                 {
                     logger.LogWarning("Shader {0} requires FeatureLevel {1}. Current device only supports FeatureLevel {2} and below.",
-                        this.Name, Level, device.FeatureLevel);
+                        this.Name, Level, deviceFeatureLevel);
                     return null;
                 }
                 this.ConstantBufferMappings = ShaderReflector.ConstantBufferMappings.Values.ToArray();

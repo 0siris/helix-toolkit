@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 #if !NETFX_CORE
@@ -17,6 +16,7 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Render;
         using Utilities;
 
@@ -25,8 +25,9 @@ namespace HelixToolkit.UWP
         /// </summary>
         public sealed class DomainShader : ShaderBase
         {
-            private global::SharpDX.Direct3D11.DomainShader shader;
-            internal global::SharpDX.Direct3D11.DomainShader Shader => shader;
+            private DomainShaderHandle shader;
+            internal DomainShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
             public static readonly DomainShader NullDomainShader = new DomainShader("NULL");
             public static readonly DomainShaderType Type;
             /// <summary>
@@ -35,11 +36,10 @@ namespace HelixToolkit.UWP
             /// <param name="device"></param>
             /// <param name="name"></param>
             /// <param name="byteCode"></param>
-            public DomainShader(Device device, string name, byte[] byteCode)
+            internal DomainShader(SilkD3DDevice device, string name, byte[] byteCode)
                 : base(name, ShaderStage.Domain)
             {
-                shader = new global::SharpDX.Direct3D11.DomainShader(device, byteCode);
-                shader.DebugName = name;
+                shader = device.CreateDomainShader(byteCode);
             }
 
             private DomainShader(string name)

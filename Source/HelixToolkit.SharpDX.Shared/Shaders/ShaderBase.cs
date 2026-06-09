@@ -15,6 +15,7 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using Utilities;
 
         /// <summary>
@@ -38,6 +39,8 @@ namespace HelixToolkit.UWP
             /// 
             /// </summary>
             public MappingProxy<SamplerMapping> SamplerMapping { get; } = new MappingProxy<SamplerMapping>();
+
+            internal virtual IShaderHandle NativeShader => null;
 
             /// <summary>
             /// Gets the type of the shader.

@@ -3,13 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Linq;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -23,9 +18,8 @@ namespace HelixToolkit.UWP
     namespace Render
     {
         using Core;
-        using System;
-        using System.Threading.Tasks;
         using Model.Scene;
+        using Native;
         /// <summary>
         /// 
         /// </summary>
@@ -60,15 +54,22 @@ namespace HelixToolkit.UWP
                 if (scheduler.ScheduleAndRun(renderables, deferredContextPool, context, parameter,
                     testFrustum, commandList, out var counter))
                 {
-                    var param = parameter;
-
-                    foreach (var command in commandList.OrderBy(x => x.Key))
+                    try
                     {
-                        ImmediateContext.ExecuteCommandList(command.Value, true);
-                        command.Value.Dispose();
+                        foreach (var command in commandList.OrderBy(x => x.Key))
+                        {
+                            ImmediateContext.ExecuteCommandList(command.Value, true);
+                        }
+                        return counter;
                     }
-                    commandList.Clear();
-                    return counter;
+                    finally
+                    {
+                        foreach (var command in commandList)
+                        {
+                            command.Value.Dispose();
+                        }
+                        commandList.Clear();
+                    }
                 }
                 else
                 {
@@ -76,17 +77,12 @@ namespace HelixToolkit.UWP
                 }
             }
 
-
-            private void SetRenderTargets(DeviceContext context, ref RenderParameter parameter)
-            {
-                context.OutputMerger.SetTargets(parameter.DepthStencilView, parameter.RenderTargetView);
-                context.Rasterizer.SetViewport(parameter.ViewportRegion);
-                context.Rasterizer.SetScissorRectangle(parameter.ScissorRegion.Left, parameter.ScissorRegion.Top,
-                    parameter.ScissorRegion.Right, parameter.ScissorRegion.Bottom);
-            }
-
             protected override void OnDispose(bool disposeManagedResources)
             {
+                foreach (var command in commandList)
+                {
+                    command.Value.Dispose();
+                }
                 commandList.Clear();
                 deferredContextPool = null;
                 base.OnDispose(disposeManagedResources);

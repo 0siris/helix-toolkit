@@ -13,6 +13,8 @@ namespace HelixToolkit.UWP
 {
     namespace Render
     {
+        using Native;
+
         public partial class DeviceContextProxy
         {
             #region DrawCall
@@ -95,15 +97,15 @@ namespace HelixToolkit.UWP
             #region CommandList
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public object FinishCommandList(bool restoreState)
+            public CommandList FinishCommandList(bool restoreState)
             {
-                throw new NotSupportedException("Deferred command lists require the native command list migration.");
+                return nativeDeviceContext.FinishCommandList(restoreState);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ExecuteCommandList(object commandListRef, bool restoreContextState)
+            public void ExecuteCommandList(CommandList commandList, bool restoreContextState)
             {
-                throw new NotSupportedException("Deferred command lists require the native command list migration.");
+                nativeDeviceContext.ExecuteCommandList(commandList, restoreContextState);
             }
 
             #endregion CommandList

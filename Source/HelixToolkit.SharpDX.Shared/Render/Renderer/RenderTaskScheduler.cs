@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using global::SharpDX.Direct3D11;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System;
@@ -22,6 +21,7 @@ namespace HelixToolkit.UWP
     {
         using Core;
         using Model.Scene;
+        using Native;
 
 
         /// <summary>
@@ -179,6 +179,11 @@ namespace HelixToolkit.UWP
                     numRendered = totalCount;
                     if (exception != null)
                     {
+                        foreach (var command in outputCommands)
+                        {
+                            command.Value.Dispose();
+                        }
+                        outputCommands.Clear();
                         throw exception;
                     }
                     return true;

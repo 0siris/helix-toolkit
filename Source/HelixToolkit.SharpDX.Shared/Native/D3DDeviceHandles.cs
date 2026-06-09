@@ -4,11 +4,13 @@ Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System;
+using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using Silk.NET.Maths;
 using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
 using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
+using SilkD3D11CommandListPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11CommandList>;
 using SilkD3D11ComputeShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ComputeShader>;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
@@ -89,6 +91,13 @@ namespace HelixToolkit.UWP
             public SilkFeatureLevel FeatureLevel { get; }
 
             public bool IsDisposed { get; private set; }
+
+            public SilkD3DDeviceContext CreateDeferredContext()
+            {
+                ID3D11DeviceContext* context = null;
+                SilkMarshal.ThrowHResult(nativeDevice.CreateDeferredContext(0, ref context));
+                return new SilkD3DDeviceContext(new SilkD3D11ContextPtr(context), true);
+            }
 
             public SilkD3D11BufferPtr CreateBuffer(BufferDescription description)
             {
@@ -504,6 +513,38 @@ namespace HelixToolkit.UWP
             }
         }
 
+        public unsafe sealed class CommandList : IDisposable
+        {
+            private SilkD3D11CommandListPtr commandList;
+
+            internal CommandList(SilkD3D11CommandListPtr commandList)
+            {
+                if (commandList.Handle == null)
+                {
+                    throw new ArgumentNullException(nameof(commandList));
+                }
+
+                this.commandList = commandList;
+            }
+
+            public IntPtr NativePointer => (IntPtr)commandList.Handle;
+
+            internal ID3D11CommandList* Handle => commandList.Handle;
+
+            public bool IsDisposed { get; private set; }
+
+            public void Dispose()
+            {
+                if (IsDisposed)
+                {
+                    return;
+                }
+
+                commandList.Dispose();
+                IsDisposed = true;
+            }
+        }
+
         internal unsafe sealed class SilkD3DDeviceContext : IDisposable
         {
             private SilkD3D11ContextPtr nativeContext;
@@ -537,6 +578,36 @@ namespace HelixToolkit.UWP
             public void Flush()
             {
                 nativeContext.Flush();
+            }
+
+            public CommandList FinishCommandList(bool restoreState)
+            {
+                if (!IsDeferred)
+                {
+                    throw new InvalidOperationException("Command lists can only be finished on deferred device contexts.");
+                }
+
+                ID3D11CommandList* commandList = null;
+                SilkMarshal.ThrowHResult(nativeContext.FinishCommandList(new Bool32(restoreState), ref commandList));
+                return new CommandList(new SilkD3D11CommandListPtr(commandList));
+            }
+
+            public void ExecuteCommandList(CommandList commandList, bool restoreContextState)
+            {
+                if (IsDeferred)
+                {
+                    throw new InvalidOperationException("Command lists can only be executed on the immediate device context.");
+                }
+                if (commandList == null)
+                {
+                    throw new ArgumentNullException(nameof(commandList));
+                }
+                if (commandList.IsDisposed)
+                {
+                    throw new ObjectDisposedException(nameof(CommandList));
+                }
+
+                nativeContext.ExecuteCommandList(commandList.Handle, new Bool32(restoreContextState));
             }
 
             public void Draw(uint vertexCount, uint startVertexLocation)

@@ -5,11 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using SharpDX.Direct3D11;
 using System;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-#endif
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -22,6 +18,8 @@ namespace HelixToolkit.UWP
 {
     namespace Render
     {
+        using Native;
+
         /// <summary>
         /// 
         /// </summary>
@@ -49,14 +47,14 @@ namespace HelixToolkit.UWP
         {
             private readonly ConcurrentBag<DeviceContextProxy> contextPool = new ConcurrentBag<DeviceContextProxy>();
 
-            private readonly Device device;
+            private readonly SilkD3DDevice device;
             /// <summary>
             /// Initializes a new instance of the <see cref="DeviceContextPool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public DeviceContextPool(Device device)
+            internal DeviceContextPool(SilkD3DDevice device)
             {
-                this.device = device;
+                this.device = device ?? throw new ArgumentNullException(nameof(device));
             }
             /// <summary>
             /// Gets this instance from pool
@@ -73,7 +71,7 @@ namespace HelixToolkit.UWP
                 {
                     lock (this)
                     {
-                        return new DeviceContextProxy(device);
+                        return new DeviceContextProxy(device.CreateDeferredContext(), device);
                     }
                 }
             }

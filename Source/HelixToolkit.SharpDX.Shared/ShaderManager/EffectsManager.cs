@@ -456,7 +456,7 @@ namespace HelixToolkit.UWP
             materialVariableManager = new MaterialVariablePool(this);
 
             RemoveAndDispose(ref deviceContextPool);
-            deviceContextPool = new DeviceContextPool(Device);
+            deviceContextPool = new DeviceContextPool(nativeDeviceResources.Device);
 
             RemoveAndDispose(ref structArrayPool);
             structArrayPool = new StructArrayPool();

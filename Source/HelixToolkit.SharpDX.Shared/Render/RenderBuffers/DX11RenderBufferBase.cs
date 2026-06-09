@@ -306,7 +306,7 @@ namespace HelixToolkit.UWP
             public DX11RenderBufferProxyBase(IDeviceResources deviceResource, bool useDepthStencilBuffer = true)
             {
                 this.DeviceResources = deviceResource;
-                deviceContextPool = new DeviceContextPool(Device);
+                deviceContextPool = new DeviceContextPool(deviceResource.NativeDeviceResources.Device);
                 this.UseDepthStencilBuffer = useDepthStencilBuffer;
             }
 

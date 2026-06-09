@@ -146,7 +146,7 @@ Umgesetzt:
 - `DeviceContextProxy` verwendet für diese Basisaufrufe den nativen `SilkD3DDeviceContext`.
 - `DeviceContextProxy_InputAssembler` ist auf einen minimalen nativen Kern reduziert: `PrimitiveTopology` wird über Silk.NET gesetzt/gelesen, `InputLayout` bleibt bis zum nativen InputLayout-Wrapper nur als Tracking-Punkt vorhanden.
 - `RenderHostBase` und `ImmediateContextRenderer` erzeugen ihren Immediate-`DeviceContextProxy` aus `EffectsManager.NativeDeviceResources`.
-- Indirect Draw/Dispatch und Deferred Command Lists sind im `DeviceContextProxy` bewusst als nicht unterstützt markiert, bis native Buffer- und CommandList-Wrapper existieren.
+- Indirect Draw/Dispatch ist im `DeviceContextProxy` bewusst als nicht unterstützt markiert, bis native Argument-Buffer-Wrapper existieren. Deferred Command Lists laufen über native Silk.NET-Wrapper.
 - Erste native View-Handle-Schicht ergänzt:
   - `Source/HelixToolkit.SharpDX.Shared/Native/D3DViewHandles.cs`
   - `RenderTargetView`
@@ -299,6 +299,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Native Shader-Wrapper, Shader-Erzeugung, InputLayout-Erzeugung, Shader-/ConstantBuffer-Bindings und `ShaderReflector` laufen in dieser Kante ohne SharpDX-D3D11-/D3DCompiler-Typen. `Technique` und `IRenderTechnique.Device` bleiben eine separate Public-API-/EffectsManager-Legacy-Kante. Der gefilterte Build meldet keine Fehler in den portierten Shader-/InputLayout-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1153` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite und weiteren noch nicht migrierten SharpDX-Flächen.
 
+Zusätzliche Prüfung der portierten Deferred-Context-/CommandList-Kante:
+
+```powershell
+rg -n "SharpDX\.Direct3D11|global::SharpDX\.Direct3D11|using Device = SharpDX|FinishCommandList|ExecuteCommandList|CreateDeferredContext|CommandList" Source\HelixToolkit.SharpDX.Shared\Native\D3DDeviceHandles.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextPool.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_DrawCalls.cs Source\HelixToolkit.SharpDX.Shared\Render\Renderer\DeferredContextRenderer.cs Source\HelixToolkit.SharpDX.Shared\Render\Renderer\RenderTaskScheduler.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\EffectsManager.cs Source\HelixToolkit.SharpDX.Shared\Render\RenderBuffers\DX11RenderBufferBase.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'D3DDeviceHandles.cs|DeviceContextPool.cs|DeviceContextProxy_DrawCalls.cs|DeferredContextRenderer.cs|RenderTaskScheduler.cs|DX11RenderBufferBase.cs|EffectsManager.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -p:BuildProjectReferences=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'D3DDeviceHandles.cs|DeviceContextPool.cs|DeviceContextProxy_DrawCalls.cs|DeferredContextRenderer.cs|RenderTaskScheduler.cs|DX11RenderBufferBase.cs|EffectsManager.cs|Bool32|CommandList|CreateDeferredContext|ExecuteCommandList|FinishCommandList'
+```
+
+Ergebnis: `DeviceContextPool`, `DeferredContextRenderer` und `RenderTaskScheduler` sind von SharpDX-CommandList-/Deferred-Context-Typen gelöst. `DeviceContextProxy.FinishCommandList` und `ExecuteCommandList` werfen nicht mehr fuer die Deferred-Kante, sondern verwenden native `ID3D11CommandList`-Wrapper. Der normale gefilterte Build bleibt durch bekannte `SharpDX.Core`-Referenzfehler in `IEffectsManager`, `EffectsManager`, `DX11RenderBufferBase` und D2D/DWrite/WIC blockiert; der WPF-only Build ohne ProjectReferences meldet keine Fehler in den geänderten Deferred-Dateien und stoppt nur wegen der fehlenden vorgelagerten Core-Metadatendatei. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1144` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -309,7 +319,8 @@ Stand dieses Implementierungsschnitts:
 - `Texture1D`, `Texture2D` und `Texture3D` sind als native Resource-Wrapper vorbereitet; `ShaderResourceViewProxy` erzeugt fuer native Device-Resource-Kontexte Texture2D-Resources sowie echte SRV/RTV/DSV-Views.
 - Blend-, DepthStencil-, Rasterizer- und Sampler-States sind als native Wrapper vorbereitet; `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings laufen in dieser Kante über Silk.NET.
 - Vertex-, Pixel-, Compute-, Domain-, Hull- und Geometry-Shader sowie InputLayouts sind als native Wrapper vorbereitet; `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` und Shader-/ConstantBuffer-Bindings laufen in dieser Kante ohne SharpDX-D3D11-/D3DCompiler-Typen.
-- Der nächste Umbau muss deshalb bei `DeviceContextPool`/Deferred-Kontexten, der `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante oder SwapChain-/D3DImage-Interop ansetzen.
+- `DeviceContextPool` erzeugt native Deferred Contexts, und `DeferredContextRenderer`/`RenderTaskScheduler` verwenden native Command Lists.
+- Der nächste Umbau muss deshalb bei der `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -326,13 +337,12 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. `DeviceContextPool` und Deferred Command Lists mit nativen Kontexten neu aufsetzen oder im WPF-Scope vorübergehend deaktivieren.
-2. Die `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante von SharpDX-Device-Typen lösen.
-3. SwapChain-/D3DImage-Interop prototypisch anschließen.
-4. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
-5. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-6. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-7. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. Die `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante von SharpDX-Device-Typen lösen.
+2. SwapChain-/D3DImage-Interop prototypisch anschließen.
+3. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
@@ -511,7 +521,8 @@ Status: In Arbeit.
 - Texture-/View-Erzeugung ist fuer Offscreen-RenderBuffer teilweise migriert: native Texture1D/2D/3D-Wrapper, Texture2D-Erzeugung sowie native RTV/DSV/SRV-Erzeugung in `ShaderResourceViewProxy` und `ColorBufferPool`.
 - State-Erzeugung und State-Bindings sind teilweise migriert: native Blend-/DepthStencil-/Rasterizer-/Sampler-Wrapper, `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings.
 - Shader-/InputLayout-Erzeugung ist teilweise migriert: native Shader- und InputLayout-Wrapper, `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` sowie Shader-/ConstantBuffer-Bindings.
-- Offene Arbeit: `DeviceContextPool`, Deferred-Kontexte, `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- Deferred-Kontexte und Command Lists sind teilweise migriert: `DeviceContextPool`, `DeviceContextProxy.FinishCommandList`, `DeviceContextProxy.ExecuteCommandList`, `DeferredContextRenderer` und `RenderTaskScheduler` verwenden native Silk.NET-D3D11-Wrapper.
+- Offene Arbeit: `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

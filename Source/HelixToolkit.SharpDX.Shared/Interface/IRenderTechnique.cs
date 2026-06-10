@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -17,6 +16,7 @@ namespace HelixToolkit.UWP
     using ShaderManager;
     using System;
     using Shaders;
+    using Native;
     /// <summary>
     /// 
     /// </summary>
@@ -46,14 +46,7 @@ namespace HelixToolkit.UWP
         /// <summary>
         /// 
         /// </summary>
-#if DX11_1
-        Device1 Device { get; }
-#else
-        Device Device
-        {
-            get;
-        }
-#endif
+        SilkD3DDevice Device { get; }
         /// <summary>
         /// Input layout for all passes
         /// </summary>

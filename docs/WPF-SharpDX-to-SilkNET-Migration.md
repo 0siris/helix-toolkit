@@ -309,6 +309,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `DeviceContextPool`, `DeferredContextRenderer` und `RenderTaskScheduler` sind von SharpDX-CommandList-/Deferred-Context-Typen gelöst. `DeviceContextProxy.FinishCommandList` und `ExecuteCommandList` werfen nicht mehr fuer die Deferred-Kante, sondern verwenden native `ID3D11CommandList`-Wrapper. Der normale gefilterte Build bleibt durch bekannte `SharpDX.Core`-Referenzfehler in `IEffectsManager`, `EffectsManager`, `DX11RenderBufferBase` und D2D/DWrite/WIC blockiert; der WPF-only Build ohne ProjectReferences meldet keine Fehler in den geänderten Deferred-Dateien und stoppt nur wegen der fehlenden vorgelagerten Core-Metadatendatei. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1144` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite.
 
+Zusätzliche Prüfung der portierten Technique-Device-Kante:
+
+```powershell
+rg -n "SharpDX\.Direct3D11|using Device = SharpDX|Device1 Device|SharpDX.Direct3D11.Device" Source\HelixToolkit.SharpDX.Shared\Interface\IRenderTechnique.cs Source\HelixToolkit.SharpDX.Shared\Shaders\Technique.cs
+rg -n "new Technique\([^\n]*,\s*(Device|device|device1)" Source\HelixToolkit.SharpDX.Shared Source\HelixToolkit.Wpf.SharpDX -g "*.cs"
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'IRenderTechnique.cs|Technique.cs|EffectsManager.cs|INativeDeviceResources.cs|D3DDeviceHandles.cs|SilkD3DDeviceResources.cs|CS005|CS006|CS0122'
+```
+
+Ergebnis: `IRenderTechnique.Device` und `Technique.Device` liefern jetzt `Native.SilkD3DDevice`. `Technique` speichert keinen SharpDX-Device-Konstruktorparameter mehr, und `EffectsManager` erzeugt Techniques über die native Resource-Grenze. `INativeDeviceResources`, `SilkD3DDevice`, `SilkD3DDeviceContext`, `SilkDriverType` und `SilkFeatureLevel` sind für diese öffentliche Interface-Kante sichtbar; Raw-COM-Handles und interne Shader-/InputLayout-Erzeugung bleiben assembly-intern. Der gefilterte Build zeigt keine neue Technique-/Native-Accessibility-Kante; er bleibt an den bekannten `IEffectsManager`-/D2D-/DWrite-/WIC-/SharpDX-Core-Fehlern blockiert. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1137` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -320,7 +330,8 @@ Stand dieses Implementierungsschnitts:
 - Blend-, DepthStencil-, Rasterizer- und Sampler-States sind als native Wrapper vorbereitet; `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings laufen in dieser Kante über Silk.NET.
 - Vertex-, Pixel-, Compute-, Domain-, Hull- und Geometry-Shader sowie InputLayouts sind als native Wrapper vorbereitet; `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` und Shader-/ConstantBuffer-Bindings laufen in dieser Kante ohne SharpDX-D3D11-/D3DCompiler-Typen.
 - `DeviceContextPool` erzeugt native Deferred Contexts, und `DeferredContextRenderer`/`RenderTaskScheduler` verwenden native Command Lists.
-- Der nächste Umbau muss deshalb bei der `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante oder SwapChain-/D3DImage-Interop ansetzen.
+- `IRenderTechnique.Device`/`Technique.Device` sind von SharpDX-Device-Typen gelöst und zeigen auf `Native.SilkD3DDevice`.
+- Der nächste Umbau muss deshalb bei der `IEffectsManager.Device`-/`IRenderHost.Device`-Legacy-Kante oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -337,7 +348,7 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Die `IRenderTechnique.Device`-/EffectsManager-Legacy-Kante von SharpDX-Device-Typen lösen.
+1. Die `IEffectsManager.Device`-/`IRenderHost.Device`-Legacy-Kante von SharpDX-Device-Typen lösen.
 2. SwapChain-/D3DImage-Interop prototypisch anschließen.
 3. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
 4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
@@ -522,7 +533,8 @@ Status: In Arbeit.
 - State-Erzeugung und State-Bindings sind teilweise migriert: native Blend-/DepthStencil-/Rasterizer-/Sampler-Wrapper, `StatePoolManager`, `StateProxy`, `DeviceContextProxy_States` und Sampler-Bindings.
 - Shader-/InputLayout-Erzeugung ist teilweise migriert: native Shader- und InputLayout-Wrapper, `ShaderPoolManager`, `ShaderReflector`, `InputLayoutProxy` sowie Shader-/ConstantBuffer-Bindings.
 - Deferred-Kontexte und Command Lists sind teilweise migriert: `DeviceContextPool`, `DeviceContextProxy.FinishCommandList`, `DeviceContextProxy.ExecuteCommandList`, `DeferredContextRenderer` und `RenderTaskScheduler` verwenden native Silk.NET-D3D11-Wrapper.
-- Offene Arbeit: `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- Technique-Device-Kante ist teilweise migriert: `IRenderTechnique.Device` und `Technique.Device` liefern `Native.SilkD3DDevice`, `Technique` hat keinen SharpDX-Device-Konstruktorparameter mehr.
+- Offene Arbeit: `IEffectsManager.Device`/`IRenderHost.Device`, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -656,7 +668,7 @@ Status: In Arbeit.
 - `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
 - Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
 - Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
-- Offene Arbeit: `IRenderTechnique.Device`/EffectsManager-Legacy-Device-Typen und weiter entfernte Shader-/RenderContext-Aufrufer hängen noch an SharpDX-Typen.
+- Offene Arbeit: `IEffectsManager.Device`/`IRenderHost.Device`-Legacy-Typen und weiter entfernte Shader-/RenderContext-Aufrufer hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

@@ -487,7 +487,7 @@ namespace HelixToolkit.UWP
             techniqueDescriptions.Add(description.Name, description);
             techniqueDict.Add(description.Name, new Lazy<IRenderTechnique>(() =>
             {
-                return Initialized ? new Technique(description, Device, this) : null;
+                return Initialized ? new Technique(description, this) : null;
             }, true));
         }
 
@@ -501,7 +501,7 @@ namespace HelixToolkit.UWP
                 Initialize();
                 foreach (var tech in techniqueDescriptions.Values)
                 {
-                    techniqueDict.Add(tech.Name, new Lazy<IRenderTechnique>(() => { return Initialized ? new Technique(tech, Device, this) : null; }, true));
+                    techniqueDict.Add(tech.Name, new Lazy<IRenderTechnique>(() => { return Initialized ? new Technique(tech, this) : null; }, true));
                 }
                 Reinitialized?.Invoke(this, EventArgs.Empty);
             }
@@ -660,11 +660,7 @@ namespace HelixToolkit.UWP
             if (!techniqueDict.TryGetValue(name, out var t))
             {
                 logger.LogWarning("Technique {0} does not exist. Return a null technique.", name);
-#if DX11_1
-                return new Technique(new TechniqueDescription() { Name = name, IsNull = true }, device1, this);
-#else
-                return new Technique(new TechniqueDescription() { Name = name, IsNull = true }, device, this);
-#endif
+                return new Technique(new TechniqueDescription() { Name = name, IsNull = true }, this);
             }
             return t.Value;
         }

@@ -43,7 +43,7 @@ namespace HelixToolkit.UWP
 {
     namespace Native
     {
-        internal enum SilkDriverType
+        public enum SilkDriverType
         {
             Unknown = 0,
             Hardware,
@@ -52,7 +52,7 @@ namespace HelixToolkit.UWP
             Software
         }
 
-        internal enum SilkFeatureLevel
+        public enum SilkFeatureLevel
         {
             Unknown = 0,
             Level_9_1,
@@ -64,7 +64,7 @@ namespace HelixToolkit.UWP
             Level_11_1
         }
 
-        internal unsafe sealed class SilkD3DDevice : IDisposable
+        public unsafe sealed class SilkD3DDevice : IDisposable
         {
             private SilkD3D11DevicePtr nativeDevice;
 
@@ -82,9 +82,9 @@ namespace HelixToolkit.UWP
 
             public IntPtr NativePointer => (IntPtr)nativeDevice.Handle;
 
-            public ID3D11Device* Handle => nativeDevice.Handle;
+            internal ID3D11Device* Handle => nativeDevice.Handle;
 
-            public ref SilkD3D11DevicePtr NativeDevice => ref nativeDevice;
+            internal ref SilkD3D11DevicePtr NativeDevice => ref nativeDevice;
 
             public SilkDriverType DriverType { get; }
 
@@ -181,7 +181,7 @@ namespace HelixToolkit.UWP
                 return new SamplerState(new SilkD3D11SamplerStatePtr(state), description);
             }
 
-            public VertexShaderHandle CreateVertexShader(byte[] byteCode)
+            internal VertexShaderHandle CreateVertexShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -196,7 +196,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public PixelShaderHandle CreatePixelShader(byte[] byteCode)
+            internal PixelShaderHandle CreatePixelShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -211,7 +211,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public ComputeShaderHandle CreateComputeShader(byte[] byteCode)
+            internal ComputeShaderHandle CreateComputeShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -226,7 +226,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public DomainShaderHandle CreateDomainShader(byte[] byteCode)
+            internal DomainShaderHandle CreateDomainShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -241,7 +241,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public HullShaderHandle CreateHullShader(byte[] byteCode)
+            internal HullShaderHandle CreateHullShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -256,7 +256,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public GeometryShaderHandle CreateGeometryShader(byte[] byteCode)
+            internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -271,7 +271,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public GeometryShaderHandle CreateGeometryShader(byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides, int rasterizedStream)
+            internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides, int rasterizedStream)
             {
                 if (byteCode == null || byteCode.Length == 0)
                 {
@@ -328,7 +328,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public InputLayout CreateInputLayout(byte[] shaderByteCode, InputElement[] elements)
+            internal InputLayout CreateInputLayout(byte[] shaderByteCode, InputElement[] elements)
             {
                 if (shaderByteCode == null || shaderByteCode.Length == 0 || elements == null || elements.Length == 0)
                 {
@@ -545,7 +545,7 @@ namespace HelixToolkit.UWP
             }
         }
 
-        internal unsafe sealed class SilkD3DDeviceContext : IDisposable
+        public unsafe sealed class SilkD3DDeviceContext : IDisposable
         {
             private SilkD3D11ContextPtr nativeContext;
 
@@ -562,9 +562,9 @@ namespace HelixToolkit.UWP
 
             public IntPtr NativePointer => (IntPtr)nativeContext.Handle;
 
-            public ID3D11DeviceContext* Handle => nativeContext.Handle;
+            internal ID3D11DeviceContext* Handle => nativeContext.Handle;
 
-            public ref SilkD3D11ContextPtr NativeContext => ref nativeContext;
+            internal ref SilkD3D11ContextPtr NativeContext => ref nativeContext;
 
             public bool IsDeferred { get; }
 
@@ -653,12 +653,12 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public void SetInputLayout(InputLayout inputLayout)
+            internal void SetInputLayout(InputLayout inputLayout)
             {
                 nativeContext.IASetInputLayout(inputLayout?.Handle);
             }
 
-            public void SetShader(IShaderHandle shader)
+            internal void SetShader(IShaderHandle shader)
             {
                 if (shader != null)
                 {
@@ -666,7 +666,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public void SetShader(int shaderStage, IShaderHandle shader)
+            internal void SetShader(int shaderStage, IShaderHandle shader)
             {
                 void* shaderHandle = shader == null ? null : shader.NativeHandle;
                 switch (shaderStage)

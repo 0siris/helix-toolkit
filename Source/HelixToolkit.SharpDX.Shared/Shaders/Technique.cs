@@ -2,12 +2,8 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -21,10 +17,11 @@ namespace HelixToolkit.UWP
 {
     namespace Shaders
     {
+        using Native;
         using ShaderManager;
         public sealed class Technique : DisposeObject, IRenderTechnique
         {
-            public static IRenderTechnique NullTechnique { get; } = new Technique(new TechniqueDescription() { IsNull = true }, null, null);
+            public static IRenderTechnique NullTechnique { get; } = new Technique(new TechniqueDescription() { IsNull = true }, null);
             /// <summary>
             /// Gets the unique identifier.
             /// </summary>
@@ -65,11 +62,11 @@ namespace HelixToolkit.UWP
             /// <summary>
             /// <see cref="IRenderTechnique.Device"/>
             /// </summary>
-            public Device Device
+            public SilkD3DDevice Device
             {
                 get
                 {
-                    return EffectsManager.Device;
+                    return EffectsManager?.NativeDeviceResources?.Device;
                 }
             }
             /// <summary>
@@ -112,9 +109,8 @@ namespace HelixToolkit.UWP
             /// 
             /// </summary>
             /// <param name="description"></param>
-            /// <param name="device"></param>
             /// <param name="manager"></param>
-            public Technique(TechniqueDescription description, Device device, IEffectsManager manager)
+            public Technique(TechniqueDescription description, IEffectsManager manager)
             {
                 Description = description;
                 Name = description.Name;

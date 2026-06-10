@@ -17,7 +17,7 @@ namespace HelixToolkit.UWP
 {
     namespace Native
     {
-        internal interface INativeDeviceResources : IDisposable
+        public interface INativeDeviceResources : IDisposable
         {
             int AdapterIndex { get; }
 

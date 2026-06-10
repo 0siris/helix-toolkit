@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using SharpDX.Direct3D11;
 using SharpDX;
 using System;
 using System.Diagnostics;
@@ -12,10 +11,6 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -33,6 +28,7 @@ namespace HelixToolkit.UWP
         using Logger;
         using Core;
         using Model.Scene;
+        using Native;
 
         /// <summary>
         /// 
@@ -71,11 +67,11 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The device.
             /// </value>
-            public Device Device
+            public SilkD3DDevice Device
             {
                 get
                 {
-                    return EffectsManager.Device;
+                    return EffectsManager.NativeDeviceResources.Device;
                 }
             }
 
@@ -251,7 +247,7 @@ namespace HelixToolkit.UWP
                             effectsManager.DisposingResources += OnManagerDisposed;
                             effectsManager.InvalidateRender += EffectsManager_OnInvalidateRenderer;
                             effectsManager.Reinitialized += EffectsManager_DeviceCreated;
-                            FeatureLevel = effectsManager.Device.FeatureLevel;
+                            FeatureLevel = effectsManager.NativeDeviceResources.FeatureLevel.ToFeatureLevel();
                             if (IsInitialized)
                             {
                                 Restart(false);
@@ -609,7 +605,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The feature level.
             /// </value>
-            public global::SharpDX.Direct3D.FeatureLevel FeatureLevel { get; private set; } = global::SharpDX.Direct3D.FeatureLevel.Level_11_0;
+            public FeatureLevel FeatureLevel { get; private set; } = FeatureLevel.Level_11_0;
 
             public bool EnableParallelProcessing { set; get; } = true;
             #endregion
@@ -938,7 +934,7 @@ namespace HelixToolkit.UWP
                     ActualWidth = width * DpiScale;
                     ActualHeight = height * DpiScale;
                     isLoaded = true;
-                    if (EffectsManager == null || EffectsManager.Device == null || EffectsManager.Device.IsDisposed)
+                    if (EffectsManager == null || EffectsManager.NativeDeviceResources?.Device == null || EffectsManager.NativeDeviceResources.Device.IsDisposed)
                     {
                         logger.LogInformation("EffectsManager is not valid");
                         return;

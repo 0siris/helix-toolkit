@@ -158,7 +158,7 @@ namespace HelixToolkit.UWP
                 if (renderables.Count == 0)
                 { return 0; }
                 if (context.RenderHost.RenderConfiguration.OITRenderType != OITRenderType.None
-                    && context.RenderHost.FeatureLevel >= global::SharpDX.Direct3D.FeatureLevel.Level_11_0)
+                    && context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0)
                 {
                     switch (context.RenderHost.RenderConfiguration.OITRenderType)
                     {
@@ -341,7 +341,7 @@ namespace HelixToolkit.UWP
             /// <param name="parameter">The parameter.</param>
             public virtual void RenderToBackBuffer(RenderContext context, ref RenderParameter parameter)
             {
-                if (context.RenderHost.FeatureLevel >= global::SharpDX.Direct3D.FeatureLevel.Level_11_0
+                if (context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0
                     && context.RenderHost.RenderConfiguration.FXAALevel != FXAALevel.None)
                 {
                     postFXAACore.FXAALevel = context.RenderHost.RenderConfiguration.FXAALevel;
@@ -372,7 +372,7 @@ namespace HelixToolkit.UWP
 
             public void Attach(IRenderHost host)
             {
-                if (host.FeatureLevel >= global::SharpDX.Direct3D.FeatureLevel.Level_11_0)
+                if (host.FeatureLevel >= FeatureLevel.Level_11_0)
                 {
                     oitWeightedCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITQuad));
                     oitDepthPeelingCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITDepthPeeling));

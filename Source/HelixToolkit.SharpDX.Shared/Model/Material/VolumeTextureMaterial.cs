@@ -347,7 +347,7 @@ namespace HelixToolkit.UWP
             {
                 if (VolumeTexture.VolumeTextures != null)
                 {
-                    return ShaderResourceViewProxy.CreateViewFromPixelData(manager.Device, VolumeTexture.VolumeTextures,
+                    return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources, VolumeTexture.VolumeTextures,
                     VolumeTexture.Width, VolumeTexture.Height, VolumeTexture.Depth, VolumeTexture.Format, true, false);
                 }
                 else
@@ -396,7 +396,7 @@ namespace HelixToolkit.UWP
             {
                 if (VolumeTexture.VolumeTextures != null)
                 {
-                    return ShaderResourceViewProxy.CreateViewFromPixelData(manager.Device, VolumeTexture.VolumeTextures,
+                    return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources, VolumeTexture.VolumeTextures,
                     VolumeTexture.Width, VolumeTexture.Height, VolumeTexture.Depth, VolumeTexture.Format, true, false);
                 }
                 else

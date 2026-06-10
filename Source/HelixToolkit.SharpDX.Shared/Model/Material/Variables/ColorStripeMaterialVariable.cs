@@ -122,7 +122,7 @@ namespace HelixToolkit.UWP
             private void CreateTextureView(IList<Color4> colors, int which)
             {
                 RemoveAndDispose(ref textures[which]);
-                textures[which] = (colors == null || colors.Count == 0) ? null : new ShaderResourceViewProxy(deviceResources.Device);
+                textures[which] = (colors == null || colors.Count == 0) ? null : new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
                 textures[which]?.CreateViewFromColorArray(colors.ToArray());
                 if (textures[which] != null)
                 {

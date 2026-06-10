@@ -156,11 +156,8 @@ namespace HelixToolkit.UWP
                 {
                     if (RenderCore is BoneSkinRenderCore skCore)
                     {
-#if DX11_1
-                        var proxy = new Render.DeviceContextProxy(manager.Device.ImmediateContext1, manager.Device);
-#else
-                        var proxy = new Render.DeviceContextProxy(manager.Device.ImmediateContext, manager.Device);
-#endif
+                        var nativeResources = manager.NativeDeviceResources;
+                        var proxy = new Render.DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
                         var array = new Vector3[skGeometry.Positions.Count];
                         if (skCore.CopySkinnedToArray(proxy, array) > 0)
                         {
@@ -182,11 +179,8 @@ namespace HelixToolkit.UWP
                 {
                     if (RenderCore is BoneSkinRenderCore skCore)
                     {
-#if DX11_1
-                        var proxy = new Render.DeviceContextProxy(manager.Device.ImmediateContext1, manager.Device);
-#else
-                        var proxy = new Render.DeviceContextProxy(manager.Device.ImmediateContext, manager.Device);
-#endif
+                        var nativeResources = manager.NativeDeviceResources;
+                        var proxy = new Render.DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
                         return skCore.CopySkinnedToArray(proxy, array);
                     }
                 }

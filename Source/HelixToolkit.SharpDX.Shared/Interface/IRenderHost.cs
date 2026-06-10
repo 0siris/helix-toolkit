@@ -11,11 +11,6 @@
 using System;
 using System.Collections.Generic;
 using global::SharpDX;
-using global::SharpDX.Direct3D11;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -31,6 +26,7 @@ namespace HelixToolkit.UWP
     using Core2D;
     using HelixToolkit.Logger;
     using Model.Scene;
+    using Native;
     using Render;
     using Utilities;
     /// <summary>
@@ -64,7 +60,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The device.
         /// </value>
-        Device Device
+        SilkD3DDevice Device
         {
             get;
         }
@@ -172,7 +168,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The feature level.
         /// </value>
-        global::SharpDX.Direct3D.FeatureLevel FeatureLevel
+        FeatureLevel FeatureLevel
         {
             get;
         }

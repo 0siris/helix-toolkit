@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System;
@@ -59,8 +58,8 @@ namespace HelixToolkit.UWP
             {
                 CpuAccessFlags = CpuAccessFlags.None,
                 BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                Format = global::SharpDX.DXGI.Format.R16_Float,
-                SampleDescription = new global::SharpDX.DXGI.SampleDescription(1, 0),
+                Format = Format.FormatR16Float,
+                SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
                 OptionFlags = ResourceOptionFlags.None,
                 Usage = ResourceUsage.Default,
                 ArraySize = 1,
@@ -76,9 +75,9 @@ namespace HelixToolkit.UWP
             private readonly ConstantBufferComponent ssaoCB;
             private const int KernalSize = 32;
             private readonly Vector4[] kernels = new Vector4[KernalSize];
-            private const global::SharpDX.DXGI.Format DEPTHFORMAT = global::SharpDX.DXGI.Format.D32_Float;
-            private const global::SharpDX.DXGI.Format RENDERTARGETFORMAT = global::SharpDX.DXGI.Format.R16G16B16A16_Float;
-            private const global::SharpDX.DXGI.Format SSAOTARGETFORMAT = global::SharpDX.DXGI.Format.R16_Float;
+            private const Format DEPTHFORMAT = Format.FormatD32Float;
+            private const Format RENDERTARGETFORMAT = Format.FormatR16G16B16A16Float;
+            private const Format SSAOTARGETFORMAT = Format.FormatR16Float;
 
             private OffScreenTextureSize offScreenTextureSize = OffScreenTextureSize.Half;
 
@@ -249,7 +248,7 @@ namespace HelixToolkit.UWP
                     noise[i] = Vector3.Normalize(new Vector3(x, y, 0));
                 }
                 ssaoNoiseView = ShaderResourceViewProxy
-                    .CreateView(Device, noise, 4, 4, global::SharpDX.DXGI.Format.R32G32B32_Float, true, false);
+                    .CreateView(Device, noise, 4, 4, Format.FormatR32G32B32Float, true, false);
             }
         }
     }

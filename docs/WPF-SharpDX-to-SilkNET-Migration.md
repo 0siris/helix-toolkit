@@ -338,6 +338,15 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `RenderCore.Device` liefert jetzt `Native.SilkD3DDevice`. OIT-, ShadowMap-, SkyBox-/SkyDome- und DynamicCubeMap-Texture-Erzeugung laufen über den nativen `ShaderResourceViewProxy`-Device-Pfad. `DynamicCubeMapCore` verwendet den eigenen `ShaderResourceViewDimension.TextureCube`-Wert, erzeugt Cube-Face-RTVs/DSVs über `SilkD3DDevice.CreateRenderTargetView/CreateDepthStencilView` und führt Command Lists über den aktuellen `DeviceContextProxy` aus. `VolumeMaterialVariable` liest Texture3D-Abmessungen aus der nativen `Texture3DDescription`; der Raw-Pixel-Volume-Pfad erzeugt dafür eine native Texture3D plus SRV. Der gefilterte Build meldet keine Fehler in den portierten RenderCore-/CubeMap-/Volume-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1110` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite und anderen nicht migrierten SharpDX-Flächen.
 
+Zusätzliche Prüfung der portierten RenderContext-/Geometry-Offscreen-Kante:
+
+```powershell
+rg -n "using (global::)?SharpDX\.(Direct3D11|Direct3D);|GetOffScreen(RT|DS|Texture)\([^\r\n]*global::SharpDX\.DXGI\.Format|public ShaderResourceViewProxy GetOffScreen.*SharpDX\.DXGI" Source\HelixToolkit.SharpDX.Shared\Core\Abstract\GeometryRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\CrossSectionMeshRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\MeshRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\TopMostMeshRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\VolumeRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\Sprite2DRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\ScreenSpacedMeshRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\PostEffects\PostEffectBlurCore.cs Source\HelixToolkit.SharpDX.Shared\Core\PostEffects\PostEffectMeshOutlineBlurCore.cs Source\HelixToolkit.SharpDX.Shared\Core\SSAOCore.cs Source\HelixToolkit.SharpDX.Shared\Render\RenderContext.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `RenderContext.GetOffScreenTexture/GetOffScreenRT/GetOffScreenDS` nehmen jetzt den eigenen `Format`-Alias auf Silk.NET-DXGI-Formate. Die Geometry-/ScreenSpaced-/Volume-/Sprite-RenderCore-Imports haengen nicht mehr an `SharpDX.Direct3D11`/`SharpDX.Direct3D`, und die direkten Offscreen-Aufrufer in Volume, SSAO und Blur/Outline verwenden Silk.NET-Formatwerte. `Bool4`, `FrustumCameraParams` und `ViewportF` sind als kleine Shared-Datenstrukturen im Toolkit vorhanden; `DeviceContextProxy` besitzt native `SetViewport`-/`SetScissorRectangle`-Overloads fuer `ViewportF`. Der gefilterte Build meldet keine Fehler in den portierten RenderContext-/Geometry-/Offscreen-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1063` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -352,7 +361,8 @@ Stand dieses Implementierungsschnitts:
 - `IRenderTechnique.Device`/`Technique.Device` sind von SharpDX-Device-Typen gelöst und zeigen auf `Native.SilkD3DDevice`.
 - `IRenderHost.Device`, `DX11RenderHostBase.Device` und die einfachen RenderHost-/Material-Device-Aufrufer sind von SharpDX-D3D11-Device-Typen gelöst und verwenden `NativeDeviceResources`.
 - `RenderCore.Device` und einfache RenderCore-Texture-/CubeMap-/Volume-Texture-Pfade sind von SharpDX-D3D11-Device-Typen gelöst und verwenden native Texture/SRV/RTV/DSV-Wrapper.
-- Der nächste Umbau muss deshalb bei der verbliebenen `IEffectsManager.Device`-Legacy-Kante, weiteren Geometry-/RenderContext-D3D11-Usings, den D2D-Signaturen in RenderHost oder SwapChain-/D3DImage-Interop ansetzen.
+- `RenderContext` und die einfache Geometry-/Offscreen-RenderCore-Kante sind von SharpDX-D3D11-Imports und SharpDX-DXGI-Formatparametern gelöst.
+- Der nächste Umbau muss deshalb bei der verbliebenen `IEffectsManager.Device`-Legacy-Kante, den D2D-Signaturen in RenderHost/Core2D, weiteren Buffer-/DXGI-Typen oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -370,8 +380,8 @@ Nächste offene Migrationskante:
 Pragmatische Reihenfolge für die nächsten Commits:
 
 1. Die verbliebene `IEffectsManager.Device`-Legacy-Kante und weitere einfache Manager-Device-Aufrufer von SharpDX-Device-Typen lösen.
-2. Geometry-/RenderContext-D3D11-Usings oder RenderHost-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
-3. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
+2. RenderHost-/Core2D-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
+3. D3D11/DXGI Typen in Buffer-, RenderBuffer- und verbleibenden Utility-Schichten auf Silk.NET umstellen.
 4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
 6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.

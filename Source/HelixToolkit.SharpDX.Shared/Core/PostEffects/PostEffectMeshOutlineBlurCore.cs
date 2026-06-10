@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -247,10 +245,10 @@ namespace HelixToolkit.UWP
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                using (var depthStencilBuffer = context.GetOffScreenDS(TextureSize, global::SharpDX.DXGI.Format.D32_Float_S8X24_UInt,
+                using (var depthStencilBuffer = context.GetOffScreenDS(TextureSize, Format.FormatD32FloatS8X24Uint,
                     out var width, out var height))
                 {
-                    using (var renderTargetBuffer = context.GetOffScreenRT(TextureSize, global::SharpDX.DXGI.Format.R8G8B8A8_UNorm))
+                    using (var renderTargetBuffer = context.GetOffScreenRT(TextureSize, Format.FormatR8G8B8A8Unorm))
                     {
                         OnUpdatePerModelStruct(context);
                         var viewport = context.Viewport;

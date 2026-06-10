@@ -7,8 +7,6 @@
 //   Optimizations might be possible
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
@@ -505,7 +503,7 @@ namespace HelixToolkit.UWP
             globalTransform.IsPerspective = !BoundingFrustum.IsOrthographic;
             globalTransform.TimeStamp = (float)Stopwatch.GetTimestamp() / Stopwatch.Frequency;
             globalTransform.DpiScale = DpiScale;
-            Viewport = new Viewport(0, 0, (int)ActualWidth, (int)ActualHeight);
+            Viewport = new ViewportF(0, 0, (float)ActualWidth, (float)ActualHeight);
             ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;
         }
 
@@ -566,14 +564,14 @@ namespace HelixToolkit.UWP
             }
         }
         /// <summary>
-        /// Gets the off screen texture. Same as <see cref="GetOffScreenRT(OffScreenTextureSize, global::SharpDX.DXGI.Format)"/> or <see cref="GetOffScreenDS(OffScreenTextureSize, global::SharpDX.DXGI.Format)"/>
+        /// Gets the off screen texture. Same as <see cref="GetOffScreenRT(OffScreenTextureSize, Format)"/> or <see cref="GetOffScreenDS(OffScreenTextureSize, Format)"/>
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="size">The size.</param>
         /// <param name="format">The format.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShaderResourceViewProxy GetOffScreenTexture(OffScreenTextureType type, OffScreenTextureSize size, global::SharpDX.DXGI.Format format)
+        public ShaderResourceViewProxy GetOffScreenTexture(OffScreenTextureType type, OffScreenTextureSize size, Format format)
         {
             switch (type)
             {
@@ -592,7 +590,7 @@ namespace HelixToolkit.UWP
         /// <param name="format">The format.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShaderResourceViewProxy GetOffScreenRT(OffScreenTextureSize size, global::SharpDX.DXGI.Format format)
+        public ShaderResourceViewProxy GetOffScreenRT(OffScreenTextureSize size, Format format)
         {
             switch (size)
             {
@@ -616,7 +614,7 @@ namespace HelixToolkit.UWP
         /// <param name="height">The height.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShaderResourceViewProxy GetOffScreenRT(OffScreenTextureSize size, global::SharpDX.DXGI.Format format, out int width, out int height)
+        public ShaderResourceViewProxy GetOffScreenRT(OffScreenTextureSize size, Format format, out int width, out int height)
         {
             switch (size)
             {
@@ -644,7 +642,7 @@ namespace HelixToolkit.UWP
         /// <param name="format">The format.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShaderResourceViewProxy GetOffScreenDS(OffScreenTextureSize size, global::SharpDX.DXGI.Format format)
+        public ShaderResourceViewProxy GetOffScreenDS(OffScreenTextureSize size, Format format)
         {
             switch (size)
             {
@@ -667,7 +665,7 @@ namespace HelixToolkit.UWP
         /// <param name="height">The height.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShaderResourceViewProxy GetOffScreenDS(OffScreenTextureSize size, global::SharpDX.DXGI.Format format, out int width, out int height)
+        public ShaderResourceViewProxy GetOffScreenDS(OffScreenTextureSize size, Format format, out int width, out int height)
         {
             switch (size)
             {

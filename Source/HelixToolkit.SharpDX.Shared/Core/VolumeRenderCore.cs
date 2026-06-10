@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
 */
 using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -134,10 +132,10 @@ namespace HelixToolkit.UWP
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                using (var back = context.GetOffScreenRT(OffScreenTextureSize.Full, global::SharpDX.DXGI.Format.R16G16B16A16_Float))
+                using (var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float))
                 {
                     var slot = 0;
-                    using (var depth = context.GetOffScreenDS(OffScreenTextureSize.Full, global::SharpDX.DXGI.Format.D32_Float_S8X24_UInt))
+                    using (var depth = context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint))
                     {
                         deviceContext.ClearDepthStencilView(depth, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 1);
                         deviceContext.ClearRenderTargetView(back, new Color4(0, 0, 0, 0));

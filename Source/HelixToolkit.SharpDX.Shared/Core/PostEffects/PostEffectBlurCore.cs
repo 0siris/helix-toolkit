@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using global::SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Runtime.CompilerServices;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -73,7 +71,7 @@ namespace HelixToolkit.UWP
                 if ((depth & BlurDepth.One) != 0)
                 {
                     using (var target1 = context.GetOffScreenRT(OffScreenTextureSize.Half,
-                        global::SharpDX.DXGI.Format.R8G8B8A8_UNorm, out var width, out var height))
+                        Format.FormatR8G8B8A8Unorm, out var width, out var height))
                     {
                         modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
                         modelCB.Upload(deviceContext, ref modelStruct);
@@ -89,7 +87,7 @@ namespace HelixToolkit.UWP
                         if ((depth & BlurDepth.Two) != 0)
                         {
                             using (var target2 = context.GetOffScreenRT(OffScreenTextureSize.Quarter,
-                                global::SharpDX.DXGI.Format.R8G8B8A8_UNorm, out var width2, out var height2))
+                                Format.FormatR8G8B8A8Unorm, out var width2, out var height2))
                             {
                                 // Half to Quater Vertical
                                 modelStruct.ViewportScale = (int)OffScreenTextureSize.Quarter;

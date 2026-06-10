@@ -5,9 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 #define MSAASEPARATE
 using System;
 using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using SharpDX.Direct3D;
 using System.Runtime.InteropServices;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

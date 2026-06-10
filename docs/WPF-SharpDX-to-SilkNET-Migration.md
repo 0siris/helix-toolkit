@@ -329,6 +329,15 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `IRenderHost.Device` und `DX11RenderHostBase.Device` liefern jetzt `Native.SilkD3DDevice`; `IRenderHost.FeatureLevel`/`DX11RenderHostBase.FeatureLevel` verwenden den eigenen `FeatureLevel`-Typ. `ImmediateContextRenderer` vergleicht gegen `FeatureLevel.Level_11_0`. Die einfachen `manager.Device.ImmediateContext*`-Aufrufer in `BoneSkinMeshNode` nutzen `manager.NativeDeviceResources`, und die ColorStripe-/Volume-Texture-Pfade geben native Ressourcen an `ShaderResourceViewProxy` weiter. Der gefilterte Build zeigt in den Ziel-Dateien nur noch die bekannte Direct2D-Legacy-Kante in `IRenderHost`/`RenderHostBase`; keine neuen Fehler in `ImmediateContextRenderer.cs`, `BoneSkinMeshNode.cs`, `ColorStripeMaterialVariable.cs` oder `VolumeTextureMaterial.cs`. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1129` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite und weiteren nicht migrierten SharpDX-Flächen.
 
+Zusätzliche Prüfung der portierten RenderCore-Device-/CubeMap-/Volume-Kante:
+
+```powershell
+rg -n "SharpDX\.Direct3D11\.Device|using Device = SharpDX|global::SharpDX\.Direct3D\.ShaderResourceViewDimension\.TextureCube|EffectsManager\.Device|Resource\.Dimension|QueryInterface<Texture3D>|new RenderTargetView\(|new DepthStencilView\(" Source\HelixToolkit.SharpDX.Shared\Core\Abstract\RenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\DynamicCubeMapCore.cs Source\HelixToolkit.SharpDX.Shared\Model\Material\Variables\VolumeMaterialVariable.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\ShaderResourceViewProxy.cs Source\HelixToolkit.SharpDX.Shared\Native\D3DViewHandles.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `RenderCore.Device` liefert jetzt `Native.SilkD3DDevice`. OIT-, ShadowMap-, SkyBox-/SkyDome- und DynamicCubeMap-Texture-Erzeugung laufen über den nativen `ShaderResourceViewProxy`-Device-Pfad. `DynamicCubeMapCore` verwendet den eigenen `ShaderResourceViewDimension.TextureCube`-Wert, erzeugt Cube-Face-RTVs/DSVs über `SilkD3DDevice.CreateRenderTargetView/CreateDepthStencilView` und führt Command Lists über den aktuellen `DeviceContextProxy` aus. `VolumeMaterialVariable` liest Texture3D-Abmessungen aus der nativen `Texture3DDescription`; der Raw-Pixel-Volume-Pfad erzeugt dafür eine native Texture3D plus SRV. Der gefilterte Build meldet keine Fehler in den portierten RenderCore-/CubeMap-/Volume-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1110` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite und anderen nicht migrierten SharpDX-Flächen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -342,7 +351,8 @@ Stand dieses Implementierungsschnitts:
 - `DeviceContextPool` erzeugt native Deferred Contexts, und `DeferredContextRenderer`/`RenderTaskScheduler` verwenden native Command Lists.
 - `IRenderTechnique.Device`/`Technique.Device` sind von SharpDX-Device-Typen gelöst und zeigen auf `Native.SilkD3DDevice`.
 - `IRenderHost.Device`, `DX11RenderHostBase.Device` und die einfachen RenderHost-/Material-Device-Aufrufer sind von SharpDX-D3D11-Device-Typen gelöst und verwenden `NativeDeviceResources`.
-- Der nächste Umbau muss deshalb bei der verbliebenen `IEffectsManager.Device`-Legacy-Kante, den D2D-Signaturen in RenderHost oder SwapChain-/D3DImage-Interop ansetzen.
+- `RenderCore.Device` und einfache RenderCore-Texture-/CubeMap-/Volume-Texture-Pfade sind von SharpDX-D3D11-Device-Typen gelöst und verwenden native Texture/SRV/RTV/DSV-Wrapper.
+- Der nächste Umbau muss deshalb bei der verbliebenen `IEffectsManager.Device`-Legacy-Kante, weiteren Geometry-/RenderContext-D3D11-Usings, den D2D-Signaturen in RenderHost oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -359,8 +369,8 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Die verbliebene `IEffectsManager.Device`-Legacy-Kante und einfache Manager-Device-Aufrufer von SharpDX-Device-Typen lösen.
-2. RenderHost-D2D-Signaturen oder SwapChain-/D3DImage-Interop prototypisch anschließen.
+1. Die verbliebene `IEffectsManager.Device`-Legacy-Kante und weitere einfache Manager-Device-Aufrufer von SharpDX-Device-Typen lösen.
+2. Geometry-/RenderContext-D3D11-Usings oder RenderHost-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
 3. D3D11/DXGI Typen in Buffer-, RenderContext- und RenderBuffer-Schichten auf Silk.NET umstellen.
 4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
@@ -546,7 +556,8 @@ Status: In Arbeit.
 - Deferred-Kontexte und Command Lists sind teilweise migriert: `DeviceContextPool`, `DeviceContextProxy.FinishCommandList`, `DeviceContextProxy.ExecuteCommandList`, `DeferredContextRenderer` und `RenderTaskScheduler` verwenden native Silk.NET-D3D11-Wrapper.
 - Technique-Device-Kante ist teilweise migriert: `IRenderTechnique.Device` und `Technique.Device` liefern `Native.SilkD3DDevice`, `Technique` hat keinen SharpDX-Device-Konstruktorparameter mehr.
 - RenderHost-Device-Kante ist teilweise migriert: `IRenderHost.Device` und `DX11RenderHostBase.Device` liefern `Native.SilkD3DDevice`, `IRenderHost.FeatureLevel` verwendet den eigenen `FeatureLevel`-Typ, und einfache Material-/BoneSkin-Aufrufer verwenden `NativeDeviceResources`.
-- Offene Arbeit: `IEffectsManager.Device`, RenderHost-D2D-Signaturen, SwapChain-/D3DImage-BackBuffer und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- RenderCore-Device-Kante ist teilweise migriert: `RenderCore.Device` liefert `Native.SilkD3DDevice`; OIT-, ShadowMap-, SkyBox-/SkyDome-, DynamicCubeMap- und Volume-Texture-Pfade verwenden native Texture/SRV/RTV/DSV-Erzeugung, soweit sie keine DDS/WIC/Stream-Texture-Loader brauchen.
+- Offene Arbeit: `IEffectsManager.Device`, RenderHost-D2D-Signaturen, SwapChain-/D3DImage-BackBuffer, Geometry-/RenderContext-D3D11-Usings und viele Buffer-Modelle hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

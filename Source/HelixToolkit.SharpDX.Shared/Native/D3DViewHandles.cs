@@ -103,6 +103,7 @@ namespace HelixToolkit.UWP
         public BufferResource Buffer;
         public Texture1DResource Texture1D;
         public Texture2DResource Texture2D;
+        public Texture3DResource Texture3D;
         public TextureCubeResource TextureCube;
 
         public struct BufferResource
@@ -118,6 +119,12 @@ namespace HelixToolkit.UWP
         }
 
         public struct Texture2DResource
+        {
+            public int MostDetailedMip;
+            public int MipLevels;
+        }
+
+        public struct Texture3DResource
         {
             public int MostDetailedMip;
             public int MipLevels;
@@ -340,6 +347,11 @@ namespace HelixToolkit.UWP
                 {
                     desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint)description.Texture2D.MostDetailedMip);
                     desc.Anonymous.Texture2D.MipLevels = unchecked((uint)description.Texture2D.MipLevels);
+                }
+                else if (description.Dimension == ShaderResourceViewDimension.Texture3D)
+                {
+                    desc.Anonymous.Texture3D.MostDetailedMip = unchecked((uint)description.Texture3D.MostDetailedMip);
+                    desc.Anonymous.Texture3D.MipLevels = unchecked((uint)description.Texture3D.MipLevels);
                 }
                 else if (description.Dimension == ShaderResourceViewDimension.TextureCube)
                 {

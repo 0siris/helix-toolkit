@@ -5,9 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define TEST
 using System;
 using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.Direct3D;
-using SharpDX.DXGI;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -58,7 +55,6 @@ namespace HelixToolkit.UWP
                     return new Texture2DDescription()
                     {
                         Format = Format.R32_Typeless, //!!!! because of depth and shader resource
-                                                      //Format = global::SharpDX.DXGI.Format.B8G8R8A8_UNorm,
                         ArraySize = 1,
                         MipLevels = 1,
                         Width = Width,

@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 using SharpDX;
-using SharpDX.Direct3D11;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -72,15 +71,12 @@ namespace HelixToolkit.UWP
 
             private void UpdateStepSize()
             {
-                if (texture != null && texture.Resource.Dimension == ResourceDimension.Texture3D)
+                if (texture?.Resource is Texture3D texture3D)
                 {
-                    using (var res = texture.Resource.QueryInterface<Texture3D>())
-                    {
-                        var desc = res.Description;
-                        var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
-                        var steps = 1f / maxSize * (float)material.SampleDistance;
-                        WriteValue(VolumeParamsStruct.StepSize, steps);
-                    }
+                    var desc = texture3D.Description;
+                    var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
+                    var steps = 1f / maxSize * (float)material.SampleDistance;
+                    WriteValue(VolumeParamsStruct.StepSize, steps);
                 }
                 else
                 {
@@ -106,7 +102,7 @@ namespace HelixToolkit.UWP
                 RemoveAndDispose(ref transferMap);
                 if (material.TransferMap != null)
                 {
-                    transferMap = ShaderResourceViewProxy.CreateViewFromColorArray(EffectsManager.Device, material.TransferMap);
+                    transferMap = ShaderResourceViewProxy.CreateViewFromColorArray(EffectsManager.NativeDeviceResources, material.TransferMap);
                 }
                 WriteValue(VolumeParamsStruct.HasGradientMapX, material.TransferMap != null);
             }

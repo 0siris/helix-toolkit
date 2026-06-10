@@ -275,12 +275,76 @@ namespace HelixToolkit.UWP
             public void CreateView<T>(T[] pixels, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
                 where T : unmanaged
             {
-                TextureFormat = format;
+                unsafe
+                {
+                    fixed (T* pixelsPtr = pixels)
+                    {
+                        CreateView((IntPtr)pixelsPtr, width, height, depth, format, sizeof(T), createSRV, generateMipMaps);
+                    }
+                }
             }
 
             public unsafe void CreateView(IntPtr dataPtr, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
             {
+                CreateView(dataPtr, width, height, depth, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
+            }
+
+            private unsafe void CreateView(IntPtr dataPtr, int width, int height, int depth, Format format, int bytesPerPixel, bool createSRV, bool generateMipMaps)
+            {
                 TextureFormat = format;
+                if (nativeDevice == null || dataPtr == IntPtr.Zero || width <= 0 || height <= 0 || depth <= 0 || bytesPerPixel <= 0)
+                {
+                    return;
+                }
+
+                RemoveAndDispose(ref textureView);
+                RemoveAndDispose(ref resource);
+
+                var desc = new Texture3DDescription
+                {
+                    Width = width,
+                    Height = height,
+                    Depth = depth,
+                    MipLevels = 1,
+                    Format = format,
+                    BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    OptionFlags = ResourceOptionFlags.None,
+                    Usage = ResourceUsage.Immutable
+                };
+                var data = new[]
+                {
+                    new DataBox(dataPtr, width * bytesPerPixel, width * height * bytesPerPixel)
+                };
+                resource = nativeDevice.CreateTexture3D(desc, data);
+
+                if (createSRV)
+                {
+                    var srvDesc = new ShaderResourceViewDescription
+                    {
+                        Format = format,
+                        Dimension = ShaderResourceViewDimension.Texture3D,
+                        Texture3D = new ShaderResourceViewDescription.Texture3DResource
+                        {
+                            MostDetailedMip = 0,
+                            MipLevels = 1
+                        }
+                    };
+                    CreateTextureView(ref srvDesc);
+                }
+            }
+
+            private static int GetFormatSizeInBytes(Format format)
+            {
+                return format switch
+                {
+                    Format.R8_UNorm => 1,
+                    Format.R16_UNorm => 2,
+                    Format.R32_Float => 4,
+                    Format.FormatR16G16B16A16Float => 8,
+                    Format.FormatR32G32B32A32Float => 16,
+                    _ => 0
+                };
             }
 
             public void CreateViewFromColorArray(Color4[] array)

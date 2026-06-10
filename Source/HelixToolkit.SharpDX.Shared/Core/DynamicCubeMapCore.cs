@@ -5,8 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 //#define TEST
 using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -28,6 +26,7 @@ namespace HelixToolkit.UWP
         using Shaders;
         using Utilities;
         using Components;
+        using Native;
 
 
         /// <summary>
@@ -65,7 +64,6 @@ namespace HelixToolkit.UWP
                 ArraySize = 6
             };
 
-            private Viewport viewport;
             private int cubeTextureSlot;
             private int textureSamplerSlot;
             private ShaderResourceViewProxy cubeDSV;
@@ -343,7 +341,7 @@ namespace HelixToolkit.UWP
                 var srvDesc = new ShaderResourceViewDescription()
                 {
                     Format = textureDesc.Format,
-                    Dimension = global::SharpDX.Direct3D.ShaderResourceViewDimension.TextureCube,
+                    Dimension = ShaderResourceViewDimension.TextureCube,
                     TextureCube = new ShaderResourceViewDescription.TextureCubeResource() { MostDetailedMip = 0, MipLevels = -1 }
                 };
                 cubeMap.CreateView(srvDesc);
@@ -359,7 +357,7 @@ namespace HelixToolkit.UWP
                 {
                     RemoveAndDispose(ref cubeRTVs[i]);
                     rtsDesc.Texture2DArray.FirstArraySlice = i;
-                    cubeRTVs[i] = new RenderTargetView(Device, CubeMap.Resource, rtsDesc);
+                    cubeRTVs[i] = Device.CreateRenderTargetView(CubeMap.Resource, rtsDesc);
                 }
 
                 RemoveAndDispose(ref cubeDSV);
@@ -376,10 +374,9 @@ namespace HelixToolkit.UWP
                 {
                     RemoveAndDispose(ref cubeDSVs[i]);
                     dsvDesc.Texture2DArray.FirstArraySlice = i;
-                    cubeDSVs[i] = new DepthStencilView(Device, cubeDSV.Resource, dsvDesc);
+                    cubeDSVs[i] = Device.CreateDepthStencilView(cubeDSV.Resource, dsvDesc);
                 }
 
-                viewport = new Viewport(0, 0, FaceSize, FaceSize);
                 return true;
             }
 
@@ -437,7 +434,7 @@ namespace HelixToolkit.UWP
                         ctx.ClearRenderTargetView(cubeRTVs[index], context.RenderHost.ClearColor);
                         ctx.ClearDepthStencilView(cubeDSVs[index], DepthStencilClearFlags.Depth, 1, 0);
                         ctx.SetRenderTarget(cubeDSVs[index], cubeRTVs[index]);
-                        ctx.SetViewport(ref viewport);
+                        ctx.SetViewport(0, 0, FaceSize, FaceSize);
                         ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
                         var transforms = new GlobalTransformStruct();
                         transforms.Projection = cubeFaceCameras.Cameras[index].Projection;
@@ -486,7 +483,7 @@ namespace HelixToolkit.UWP
                 {
                     if (commands[i] != null)
                     {
-                        Device.ImmediateContext.ExecuteCommandList(commands[i], true);
+                        deviceContext.ExecuteCommandList(commands[i], true);
                         Disposer.RemoveAndDispose(ref commands[i]);
                     }
                 }

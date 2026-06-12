@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX.Direct3D;
-using global::SharpDX.Direct3D11;
-using global::SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -164,7 +161,7 @@ namespace HelixToolkit.UWP
             public void BindSkinnedVertexBufferToOutput(DeviceContextProxy context)
             {
                 context.SetVertexBuffers(0, skinnedOutputBindings);
-                context.SetIndexBuffer(null, Format.Unknown, 0);
+                context.SetIndexBuffer(null, Format.FormatUnknown, 0);
                 context.SetStreamOutputTarget(skinnedVertexBuffer.Buffer, skinnedVertexBuffer.Offset);
                 stagingBufferValid = false;
             }
@@ -203,11 +200,11 @@ namespace HelixToolkit.UWP
                 }
                 if (IndexBuffer != null)
                 {
-                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.R32_UInt, IndexBuffer.Offset);
+                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
                 }
                 else
                 {
-                    context.SetIndexBuffer(null, Format.Unknown, 0);
+                    context.SetIndexBuffer(null, Format.FormatUnknown, 0);
                 }
                 context.PrimitiveTopology = Topology;
                 return true;
@@ -273,7 +270,7 @@ namespace HelixToolkit.UWP
             /// <param name="context">The context.</param>
             /// <param name="array">The array.</param>
             /// <returns>Number of vertex has been copied.</returns>
-            public int CopySkinnedToArray(DeviceContextProxy context, global::SharpDX.Vector3[] array)
+            public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array)
             {
                 if (skinnedVertexBuffer.Buffer == null)
                 {
@@ -293,13 +290,13 @@ namespace HelixToolkit.UWP
                         stagingBufferValid = true;
                     }
                     var box = context.MapSubresource(skinnedVertexStagingBuffer.Buffer, MapMode.Read,
-                        global::SharpDX.Direct3D11.MapFlags.None);
+                        MapFlags.None);
                     unsafe
                     {
                         var p = (byte*)box.DataPointer;
                         for (var i = 0; i < size; ++i)
                         {
-                            array[i] = *(global::SharpDX.Vector3*)p;
+                            array[i] = *(Vector3*)p;
                             p += skinnedVertexStagingBuffer.StructureSize;
                         }
                     }

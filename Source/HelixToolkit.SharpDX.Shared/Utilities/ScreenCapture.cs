@@ -32,7 +32,7 @@ namespace HelixToolkit.UWP
             public static bool CaptureTexture(DeviceContext context, Texture2D source, out Texture2D stagingTexture)
             {
                 stagingTexture = null;
-                if (source == null)
+                if (context == null || source == null)
                 {
                     return false;
                 }
@@ -102,7 +102,8 @@ namespace HelixToolkit.UWP
             public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string fileName, Guid containerFormat)
             {
                 Texture2D staging;
-                if (!CaptureTexture(deviceResource.Device.ImmediateContext, source, out staging))
+                var legacyContext = GetLegacyImmediateContext(deviceResource);
+                if (!CaptureTexture(legacyContext, source, out staging))
                 {
                     return false;
                 }
@@ -133,7 +134,8 @@ namespace HelixToolkit.UWP
             public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source, System.IO.MemoryStream bitmapStream)
             {
                 Texture2D staging;
-                if (!CaptureTexture(deviceResource.Device.ImmediateContext, source, out staging))
+                var legacyContext = GetLegacyImmediateContext(deviceResource);
+                if (!CaptureTexture(legacyContext, source, out staging))
                 {
                     Disposer.RemoveAndDispose(ref staging);
                     return false;
@@ -239,7 +241,8 @@ namespace HelixToolkit.UWP
                                 break;
                         }
                         frame.SetPixelFormat(ref targetGuid);
-                        var databox = deviceResource.Device.ImmediateContext.MapSubresource(staging, 0, MapMode.Read, MapFlags.None);
+                        var legacyContext = GetLegacyImmediateContext(deviceResource);
+                        var databox = legacyContext.MapSubresource(staging, 0, MapMode.Read, MapFlags.None);
 
                         try
                         {
@@ -269,13 +272,18 @@ namespace HelixToolkit.UWP
                         }
                         finally
                         {
-                            deviceResource.Device.ImmediateContext.UnmapSubresource(staging, 0);
+                            legacyContext.UnmapSubresource(staging, 0);
                         }
                         frame.Commit();
                         encoder.Commit();
                         return true;
                     }
                 }
+            }
+
+            private static DeviceContext GetLegacyImmediateContext(IDeviceResources deviceResource)
+            {
+                return (deviceResource as EffectsManager)?.LegacyDevice?.ImmediateContext;
             }
         }
     }

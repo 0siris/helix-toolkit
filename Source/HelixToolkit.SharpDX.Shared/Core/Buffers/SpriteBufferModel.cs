@@ -1,6 +1,4 @@
-﻿using global::SharpDX.Direct3D;
-using global::SharpDX.Direct3D11;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -66,7 +64,7 @@ namespace HelixToolkit.UWP
                 if (UpdateBuffers(context, deviceResources))
                 {
                     context.SetVertexBuffers(0, new VertexBufferBinding(vertextBuffer.Buffer, vertextBuffer.StructureSize, vertextBuffer.Offset));
-                    context.SetIndexBuffer(IndexBuffer.Buffer, global::SharpDX.DXGI.Format.R32_UInt, IndexBuffer.Offset);
+                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
                     return true;
                 }
                 return false;

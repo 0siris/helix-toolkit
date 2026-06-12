@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX.Direct3D;
-using global::SharpDX.Direct3D11;
-using global::SharpDX.DXGI;
 using System;
 using System.Linq;
 using System.IO;

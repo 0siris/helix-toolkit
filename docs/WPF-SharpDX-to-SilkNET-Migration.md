@@ -347,6 +347,24 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `RenderContext.GetOffScreenTexture/GetOffScreenRT/GetOffScreenDS` nehmen jetzt den eigenen `Format`-Alias auf Silk.NET-DXGI-Formate. Die Geometry-/ScreenSpaced-/Volume-/Sprite-RenderCore-Imports haengen nicht mehr an `SharpDX.Direct3D11`/`SharpDX.Direct3D`, und die direkten Offscreen-Aufrufer in Volume, SSAO und Blur/Outline verwenden Silk.NET-Formatwerte. `Bool4`, `FrustumCameraParams` und `ViewportF` sind als kleine Shared-Datenstrukturen im Toolkit vorhanden; `DeviceContextProxy` besitzt native `SetViewport`-/`SetScissorRectangle`-Overloads fuer `ViewportF`. Der gefilterte Build meldet keine Fehler in den portierten RenderContext-/Geometry-/Offscreen-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1063` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite.
 
+Zusätzliche Prüfung der portierten `IEffectsManager.Device`-/3D-Device-Kante:
+
+```powershell
+rg -n "manager\.Device|EffectsManager\.Device|\.Device\.ImmediateContext|\.Device\.DeviceRemovedReason|IDevice3DResources\.Device|Device Device|using Device = SharpDX\.Direct3D11|using SharpDX\.Direct3D11" Source\HelixToolkit.SharpDX.Shared\Interface\IEffectsManager.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\EffectsManager.cs Source\HelixToolkit.SharpDX.Shared\Core\ScreenCloneRenderCore.cs Source\HelixToolkit.Wpf.SharpDX.Shared\Controls\DX11ImageSourceRenderHost.cs Source\HelixToolkit.SharpDX.Shared\Utilities\ScreenCapture.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `IDevice3DResources.Device` und `EffectsManager.Device` liefern jetzt `Native.SilkD3DDevice`. `EffectsManager` hält das SharpDX-D3D11-Device nur noch als explizite `LegacyDevice`-Übergangskante fuer noch nicht migrierte ScreenClone-/ScreenCapture-/D3DImage-Pfade; `ConstantBufferPool` und `TextureResourceManager` bleiben bis zu ihrer eigenen Buffer-/Texture-Kante auf diesem Legacy-Device. Der gefilterte Build meldet keine Fehler in `IEffectsManager.cs`, `EffectsManager.cs`, `ScreenCloneRenderCore.cs`, `DX11ImageSourceRenderHost.cs` oder `ScreenCapture.cs`. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1059` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite, Core-Buffer-Modellen und nicht migrierten SharpDX-Math-/DXGI-Flächen.
+
+Zusätzliche Prüfung der portierten BufferModel-/Batching-InputAssembler-Kante:
+
+```powershell
+rg -n "using (global::)?SharpDX\.(Direct3D11|Direct3D|DXGI);|global::SharpDX\.DXGI\.Format|SharpDX\.Direct3D11\.VertexBufferBinding|Format\.R32_UInt|Format\.Unknown|global::SharpDX\.Vector3" Source\HelixToolkit.SharpDX.Shared\Core\Buffers Source\HelixToolkit.SharpDX.Shared\Core\Batching Source\HelixToolkit.SharpDX.Shared\Interface\IGeometryBufferModel.cs Source\HelixToolkit.SharpDX.Shared\Render\DeviceContextProxy\DeviceContextProxy_InputAssembler.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `VertexBufferBinding` ist ein eigener nativer Binding-Typ, `SilkD3DDeviceContext`/`DeviceContextProxy_InputAssembler` binden Vertex- und Index-Buffer über Silk.NET `IASetVertexBuffers`/`IASetIndexBuffer`. Die zentralen Geometry-/Elements-/Mesh-/Line-/Point-/Billboard-/Sprite-/BoneSkin-BufferModels sowie die statischen Mesh-Batching-Pfade verwenden keine SharpDX-D3D11-/D3D-/DXGI-Imports mehr. `IGeometryBufferModel.CopySkinnedToArray` verwendet jetzt den zentralen `Vector3`-Alias statt `global::SharpDX.Vector3`. Der gefilterte Build meldet keine Fehler in den portierten Buffer-/Batching-/InputAssembler-/Interface-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1022` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite, ScreenClone/Interop, weiteren Direct3D11-Dateien und qualifizierten SharpDX-Math-/Utility-Typen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -362,7 +380,9 @@ Stand dieses Implementierungsschnitts:
 - `IRenderHost.Device`, `DX11RenderHostBase.Device` und die einfachen RenderHost-/Material-Device-Aufrufer sind von SharpDX-D3D11-Device-Typen gelöst und verwenden `NativeDeviceResources`.
 - `RenderCore.Device` und einfache RenderCore-Texture-/CubeMap-/Volume-Texture-Pfade sind von SharpDX-D3D11-Device-Typen gelöst und verwenden native Texture/SRV/RTV/DSV-Wrapper.
 - `RenderContext` und die einfache Geometry-/Offscreen-RenderCore-Kante sind von SharpDX-D3D11-Imports und SharpDX-DXGI-Formatparametern gelöst.
-- Der nächste Umbau muss deshalb bei der verbliebenen `IEffectsManager.Device`-Legacy-Kante, den D2D-Signaturen in RenderHost/Core2D, weiteren Buffer-/DXGI-Typen oder SwapChain-/D3DImage-Interop ansetzen.
+- `IEffectsManager.Device`/`IDevice3DResources.Device` sind von SharpDX-D3D11-Device-Typen gelöst; die verbleibenden SharpDX-D3D11-Device-Verwendungen sind explizite Legacy-Interop-/ResourceManager-Kanten.
+- Die zentrale BufferModel-/Batching-InputAssembler-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Typen gelöst; `DeviceContextProxy` besitzt native Vertex-/Index-Buffer-Bindings.
+- Der nächste Umbau muss deshalb bei den D2D-Signaturen in RenderHost/Core2D, verbleibenden Direct3D11-RenderCore-/Utility-Typen oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -379,9 +399,9 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Die verbliebene `IEffectsManager.Device`-Legacy-Kante und weitere einfache Manager-Device-Aufrufer von SharpDX-Device-Typen lösen.
-2. RenderHost-/Core2D-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
-3. D3D11/DXGI Typen in Buffer-, RenderBuffer- und verbleibenden Utility-Schichten auf Silk.NET umstellen.
+1. RenderHost-/Core2D-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
+2. Verbleibende D3D11/DXGI-Typen in RenderBuffer-, ScreenClone-, RenderCore- und Utility-Schichten auf Silk.NET umstellen.
+3. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
 4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
 6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
@@ -567,7 +587,8 @@ Status: In Arbeit.
 - Technique-Device-Kante ist teilweise migriert: `IRenderTechnique.Device` und `Technique.Device` liefern `Native.SilkD3DDevice`, `Technique` hat keinen SharpDX-Device-Konstruktorparameter mehr.
 - RenderHost-Device-Kante ist teilweise migriert: `IRenderHost.Device` und `DX11RenderHostBase.Device` liefern `Native.SilkD3DDevice`, `IRenderHost.FeatureLevel` verwendet den eigenen `FeatureLevel`-Typ, und einfache Material-/BoneSkin-Aufrufer verwenden `NativeDeviceResources`.
 - RenderCore-Device-Kante ist teilweise migriert: `RenderCore.Device` liefert `Native.SilkD3DDevice`; OIT-, ShadowMap-, SkyBox-/SkyDome-, DynamicCubeMap- und Volume-Texture-Pfade verwenden native Texture/SRV/RTV/DSV-Erzeugung, soweit sie keine DDS/WIC/Stream-Texture-Loader brauchen.
-- Offene Arbeit: `IEffectsManager.Device`, RenderHost-D2D-Signaturen, SwapChain-/D3DImage-BackBuffer, Geometry-/RenderContext-D3D11-Usings und viele Buffer-Modelle hängen noch an SharpDX-Typen.
+- BufferModel-/Batching-InputAssembler-Kante ist teilweise migriert: `VertexBufferBinding`, Vertex-/Index-Buffer-Bindings, zentrale Geometry-/Elements-/Mesh-/Line-/Point-/Billboard-/Sprite-/BoneSkin-BufferModels und statische Mesh-Batching-Pfade verwenden native Buffer-/Format-/Topology-Typen.
+- Offene Arbeit: RenderHost-D2D-Signaturen, SwapChain-/D3DImage-BackBuffer, explizite Legacy-Device-Interop-Kanten sowie verbleibende RenderBuffer-/ScreenClone-/Utility-Typen hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -701,7 +722,7 @@ Status: In Arbeit.
 - `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
 - Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
 - Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
-- Offene Arbeit: `IEffectsManager.Device`-Legacy-Typ, RenderHost-D2D-Signaturen und weiter entfernte Shader-/RenderContext-Aufrufer hängen noch an SharpDX-Typen.
+- Offene Arbeit: RenderHost-D2D-Signaturen, Legacy-Device-Interop-Kanten und weiter entfernte Buffer-/Utility-Aufrufer hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

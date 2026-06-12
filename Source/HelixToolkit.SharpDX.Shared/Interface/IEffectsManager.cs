@@ -3,12 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#endif
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -96,7 +91,7 @@ namespace HelixToolkit.UWP
         /// <summary>
         /// 
         /// </summary>
-        Device Device
+        SilkD3DDevice Device
         {
             get;
         }

@@ -12,12 +12,6 @@ using global::SharpDX.Direct3D;
 using global::SharpDX.Direct3D11;
 using global::SharpDX.DXGI;
 using System.Linq;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#else
-using Device = SharpDX.Direct3D11.Device;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -187,24 +181,18 @@ namespace HelixToolkit.UWP
             }
         }
 
-#if DX11_1
-        private global::SharpDX.Direct3D11.Device1 device1;
         /// <summary>
         /// 
         /// </summary>
-        public Device Device { get { return device1; } }
-#else
-        /// <summary>
-        /// 
-        /// </summary>
-        public Device Device
+        public SilkD3DDevice Device
         {
             get
             {
-                return device;
+                return nativeDeviceResources?.Device;
             }
         }
-#endif
+
+        internal global::SharpDX.Direct3D11.Device LegacyDevice => device;
         /// <summary>
         /// 
         /// </summary>
@@ -424,9 +412,6 @@ namespace HelixToolkit.UWP
                     }
                 }
 
-#if DX11_1
-                device1 = device.QueryInterface<global::SharpDX.Direct3D11.Device1>();
-#endif
             }
 #else
             device = new global::SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport, FeatureLevel.Level_10_1);
@@ -438,7 +423,7 @@ namespace HelixToolkit.UWP
             #region Initial Internal Pools
             logger.LogInformation("Initializing resource pools");
             RemoveAndDispose(ref constantBufferPool);
-            constantBufferPool = new ConstantBufferPool(Device);
+            constantBufferPool = new ConstantBufferPool(device);
 
             RemoveAndDispose(ref shaderPoolManager);
             shaderPoolManager = new ShaderPoolManager(nativeDeviceResources.Device, constantBufferPool);
@@ -450,7 +435,7 @@ namespace HelixToolkit.UWP
             geometryBufferManager = new GeometryBufferManager(this);
 
             RemoveAndDispose(ref materialTextureManager);
-            materialTextureManager = new TextureResourceManager(Device);
+            materialTextureManager = new TextureResourceManager(device);
 
             RemoveAndDispose(ref materialVariableManager);
             materialVariableManager = new MaterialVariablePool(this);
@@ -723,9 +708,6 @@ namespace HelixToolkit.UWP
             Initialized = false;
             global::SharpDX.Toolkit.Graphics.WICHelper.Dispose();
             RemoveAndDispose(ref nativeDeviceResources);
-#if DX11_1
-            RemoveAndDispose(ref device1);
-#endif
             RemoveAndDispose(ref device);
 #if DEBUGMEMORY
             ReportResources();

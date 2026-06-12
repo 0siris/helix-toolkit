@@ -216,7 +216,7 @@ namespace HelixToolkit.UWP
             {
                 RemoveAndDispose(ref duplicationResource);
                 RemoveAndDispose(ref frameProcessor);
-                duplicationResource = new DuplicationResource(manager.Device);
+                duplicationResource = new DuplicationResource((manager as EffectsManager)?.LegacyDevice);
                 frameProcessor = new FrameProcessing();
                 return true;
             }

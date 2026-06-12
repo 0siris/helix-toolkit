@@ -93,6 +93,20 @@ namespace HelixToolkit.UWP
         public int StructureByteStride;
     }
 
+    public struct VertexBufferBinding
+    {
+        public VertexBufferBinding(Buffer buffer, int stride, int offset)
+        {
+            Buffer = buffer;
+            Stride = stride;
+            Offset = offset;
+        }
+
+        public Buffer Buffer;
+        public int Stride;
+        public int Offset;
+    }
+
     public struct SampleDescription
     {
         public int Count;

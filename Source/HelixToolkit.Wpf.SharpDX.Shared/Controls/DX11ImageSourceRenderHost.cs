@@ -1,14 +1,7 @@
 using System;
-using global::SharpDX.Direct3D11;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#else
-using Device = SharpDX.Direct3D11.Device;
-#endif
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
@@ -139,7 +132,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     try
                     {
 
-                        if (EffectsManager.Device.DeviceRemovedReason == global::SharpDX.Result.Ok)
+                        if ((EffectsManager as EffectsManager)?.LegacyDevice?.DeviceRemovedReason == global::SharpDX.Result.Ok)
                         {
                             Restart(true);
                         }
@@ -157,7 +150,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 else
                 {
                     frontBufferChange = true;
-                    if (EffectsManager.Device.DeviceRemovedReason != global::SharpDX.Result.Ok)
+                    if ((EffectsManager as EffectsManager)?.LegacyDevice?.DeviceRemovedReason != global::SharpDX.Result.Ok)
                     {
                         hasBackBuffer = false;
                         EndD3D();

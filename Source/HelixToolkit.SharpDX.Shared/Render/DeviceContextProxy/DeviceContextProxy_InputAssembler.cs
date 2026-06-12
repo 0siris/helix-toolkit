@@ -48,6 +48,24 @@ namespace HelixToolkit.UWP
                     return currInputLayout;
                 }
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetIndexBuffer(Buffer buffer, Format format, int offset)
+            {
+                NativeContext.SetIndexBuffer(buffer, format, offset);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetVertexBuffers(int slot, VertexBufferBinding binding)
+            {
+                NativeContext.SetVertexBuffer(slot, binding);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetVertexBuffers(int startSlot, VertexBufferBinding[] bindings)
+            {
+                NativeContext.SetVertexBuffers(startSlot, bindings);
+            }
         }
     }
 }

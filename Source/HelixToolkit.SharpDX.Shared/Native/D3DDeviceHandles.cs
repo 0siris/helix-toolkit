@@ -658,6 +658,39 @@ namespace HelixToolkit.UWP
                 nativeContext.IASetInputLayout(inputLayout?.Handle);
             }
 
+            public void SetIndexBuffer(Buffer buffer, Format format, int offset)
+            {
+                nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint)offset);
+            }
+
+            public void SetVertexBuffer(int slot, VertexBufferBinding binding)
+            {
+                var bufferPtr = binding.Buffer?.BufferHandle;
+                var stride = (uint)binding.Stride;
+                var offset = (uint)binding.Offset;
+                nativeContext.IASetVertexBuffers((uint)slot, 1, &bufferPtr, &stride, &offset);
+            }
+
+            public void SetVertexBuffers(int startSlot, VertexBufferBinding[] bindings)
+            {
+                if (bindings == null || bindings.Length == 0)
+                {
+                    return;
+                }
+
+                var bufferPtrs = stackalloc ID3D11Buffer*[bindings.Length];
+                var strides = stackalloc uint[bindings.Length];
+                var offsets = stackalloc uint[bindings.Length];
+                for (var i = 0; i < bindings.Length; i++)
+                {
+                    bufferPtrs[i] = bindings[i].Buffer?.BufferHandle;
+                    strides[i] = (uint)bindings[i].Stride;
+                    offsets[i] = (uint)bindings[i].Offset;
+                }
+
+                nativeContext.IASetVertexBuffers((uint)startSlot, (uint)bindings.Length, bufferPtrs, strides, offsets);
+            }
+
             internal void SetShader(IShaderHandle shader)
             {
                 if (shader != null)

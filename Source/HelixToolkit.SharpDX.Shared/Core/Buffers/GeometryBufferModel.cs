@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX.Direct3D;
-using global::SharpDX.Direct3D11;
-using global::SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -336,11 +333,11 @@ namespace HelixToolkit.UWP
                 }
                 if (IndexBuffer != null)
                 {
-                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.R32_UInt, IndexBuffer.Offset);
+                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
                 }
                 else
                 {
-                    context.SetIndexBuffer(null, Format.Unknown, 0);
+                    context.SetIndexBuffer(null, Format.FormatUnknown, 0);
                 }
                 context.PrimitiveTopology = Topology;
                 return true;

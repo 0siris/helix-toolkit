@@ -1,8 +1,5 @@
 ﻿//#define OutputBuildTime
 using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -245,11 +242,11 @@ namespace HelixToolkit.UWP
                 }
                 if (IndexBuffer != null)
                 {
-                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.R32_UInt, IndexBuffer.Offset);
+                    context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
                 }
                 else
                 {
-                    context.SetIndexBuffer(null, Format.Unknown, 0);
+                    context.SetIndexBuffer(null, Format.FormatUnknown, 0);
                 }
                 context.PrimitiveTopology = Topology;
                 return true;

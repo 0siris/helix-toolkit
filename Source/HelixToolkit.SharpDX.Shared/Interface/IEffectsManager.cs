@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D;
 using System.Collections.Generic;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -31,7 +30,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The factory2 d.
         /// </value>
-        global::SharpDX.Direct2D1.Factory1 Factory2D
+        D2DFactory Factory2D
         {
             get;
         }
@@ -41,7 +40,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The device2d.
         /// </value>
-        global::SharpDX.Direct2D1.Device Device2D
+        D2DDevice Device2D
         {
             get;
         }
@@ -51,7 +50,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The device context2d.
         /// </value>
-        global::SharpDX.Direct2D1.DeviceContext DeviceContext2D
+        D2DDeviceContext DeviceContext2D
         {
             get;
         }
@@ -61,7 +60,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The wic img factory.
         /// </value>
-        global::SharpDX.WIC.ImagingFactory WICImgFactory
+        WICImagingFactory WICImgFactory
         {
             get;
         }
@@ -71,7 +70,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The direct write factory.
         /// </value>
-        global::SharpDX.DirectWrite.Factory DirectWriteFactory
+        DirectWriteFactory DirectWriteFactory
         {
             get;
         }

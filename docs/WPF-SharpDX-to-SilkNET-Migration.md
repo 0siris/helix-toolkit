@@ -365,6 +365,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `VertexBufferBinding` ist ein eigener nativer Binding-Typ, `SilkD3DDeviceContext`/`DeviceContextProxy_InputAssembler` binden Vertex- und Index-Buffer über Silk.NET `IASetVertexBuffers`/`IASetIndexBuffer`. Die zentralen Geometry-/Elements-/Mesh-/Line-/Point-/Billboard-/Sprite-/BoneSkin-BufferModels sowie die statischen Mesh-Batching-Pfade verwenden keine SharpDX-D3D11-/D3D-/DXGI-Imports mehr. `IGeometryBufferModel.CopySkinnedToArray` verwendet jetzt den zentralen `Vector3`-Alias statt `global::SharpDX.Vector3`. Der gefilterte Build meldet keine Fehler in den portierten Buffer-/Batching-/InputAssembler-/Interface-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1022` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in D2D/DWrite, ScreenClone/Interop, weiteren Direct3D11-Dateien und qualifizierten SharpDX-Math-/Utility-Typen.
 
+Zusätzliche Prüfung der portierten RenderHost-/Core2D-D2D-Resource-Grenze:
+
+```powershell
+rg -n "SharpDX\.Direct2D1|global::SharpDX\.Direct2D1|SharpDX\.DirectWrite|global::SharpDX\.DirectWrite|SharpDX\.WIC|global::SharpDX\.WIC" Source\HelixToolkit.SharpDX.Shared\Interface\IEffectsManager.cs Source\HelixToolkit.SharpDX.Shared\Interface\IRenderHost.cs Source\HelixToolkit.SharpDX.Shared\Render\RenderContext2D.cs Source\HelixToolkit.SharpDX.Shared\Core2D\Device2DProxy.cs Source\HelixToolkit.SharpDX.Shared\Utilities\Buffers\BitmapProxy.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\EffectsManager.cs Source\HelixToolkit.SharpDX.Shared\Render\RenderHost\RenderHostBase.cs Source\HelixToolkit.SharpDX.Shared\Render\RenderBuffers\DX11RenderBufferBase.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'D2DResourceHandles.cs|D3DResourceHandles.cs|D3DMathTypes.cs|IEffectsManager.cs|IRenderHost.cs|RenderContext2D.cs|Device2DProxy.cs|BitmapProxy.cs|EffectsManager.cs|RenderHostBase.cs|DX11RenderBufferBase.cs|EventArguments.cs'
+```
+
+Ergebnis: `IDevice2DResources`, `IRenderHost.Device2D`, `DX11RenderHostBase.Device2D`, `CreateRenderContext2D(...)`, `RenderContext2D`, `D2DTargetProxy` und `BitmapProxy` expose keine SharpDX-Direct2D-/DirectWrite-/WIC-Typen mehr. `D2DResourceHandles.cs` kapselt die minimalen eigenen Handles fuer `D2DFactory`, `D2DDevice`, `D2DDeviceContext`, `WICImagingFactory`, `DirectWriteFactory`, `D2DBitmap` und Bitmap-Properties; `Size2`, `Matrix3x2` und der eigene `DriverType` schliessen kleine oeffentliche Legacy-Typkanten. Die konkrete D2D-, DWrite- und WIC-Renderer-/Loader-Implementierung bleibt bewusst offen. Der gefilterte Build meldet keine Fehler in den portierten D2D-Grenzdateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `930` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in den noch nicht portierten konkreten Core2D-/DWrite-/WIC-Dateien, weiteren Direct3D11-/DXGI-Schichten, ScreenClone/Interop und qualifizierten SharpDX-Math-/Utility-Typen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -382,7 +392,8 @@ Stand dieses Implementierungsschnitts:
 - `RenderContext` und die einfache Geometry-/Offscreen-RenderCore-Kante sind von SharpDX-D3D11-Imports und SharpDX-DXGI-Formatparametern gelöst.
 - `IEffectsManager.Device`/`IDevice3DResources.Device` sind von SharpDX-D3D11-Device-Typen gelöst; die verbleibenden SharpDX-D3D11-Device-Verwendungen sind explizite Legacy-Interop-/ResourceManager-Kanten.
 - Die zentrale BufferModel-/Batching-InputAssembler-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Typen gelöst; `DeviceContextProxy` besitzt native Vertex-/Index-Buffer-Bindings.
-- Der nächste Umbau muss deshalb bei den D2D-Signaturen in RenderHost/Core2D, verbleibenden Direct3D11-RenderCore-/Utility-Typen oder SwapChain-/D3DImage-Interop ansetzen.
+- Die RenderHost-/Core2D-D2D-Resource-Grenze ist von SharpDX-Direct2D-/DirectWrite-/WIC-Signaturen gelöst; die konkrete 2D-Renderer-, Text-, WIC- und Bitmap-Loading-Implementierung bleibt eine eigene Portierungskante.
+- Der nächste Umbau muss deshalb bei den konkreten Core2D-/DWrite-/WIC-Implementierungen, verbleibenden Direct3D11-/DXGI-RenderCore-/Utility-Typen oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -399,10 +410,10 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. RenderHost-/Core2D-D2D-Signaturen als nächsten schmalen Compilefehler-Schnitt migrieren.
+1. Konkrete Core2D-/Scene2D-D2D-Renderer und DWrite-Texttypen gegen eigene Wrapper oder WPF/BCL-Alternativen abgrenzen.
 2. Verbleibende D3D11/DXGI-Typen in RenderBuffer-, ScreenClone-, RenderCore- und Utility-Schichten auf Silk.NET umstellen.
 3. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
-4. D2D/DWrite/WIC separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+4. WIC-/Bitmap-/Texture-Loading separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
 6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
@@ -588,7 +599,7 @@ Status: In Arbeit.
 - RenderHost-Device-Kante ist teilweise migriert: `IRenderHost.Device` und `DX11RenderHostBase.Device` liefern `Native.SilkD3DDevice`, `IRenderHost.FeatureLevel` verwendet den eigenen `FeatureLevel`-Typ, und einfache Material-/BoneSkin-Aufrufer verwenden `NativeDeviceResources`.
 - RenderCore-Device-Kante ist teilweise migriert: `RenderCore.Device` liefert `Native.SilkD3DDevice`; OIT-, ShadowMap-, SkyBox-/SkyDome-, DynamicCubeMap- und Volume-Texture-Pfade verwenden native Texture/SRV/RTV/DSV-Erzeugung, soweit sie keine DDS/WIC/Stream-Texture-Loader brauchen.
 - BufferModel-/Batching-InputAssembler-Kante ist teilweise migriert: `VertexBufferBinding`, Vertex-/Index-Buffer-Bindings, zentrale Geometry-/Elements-/Mesh-/Line-/Point-/Billboard-/Sprite-/BoneSkin-BufferModels und statische Mesh-Batching-Pfade verwenden native Buffer-/Format-/Topology-Typen.
-- Offene Arbeit: RenderHost-D2D-Signaturen, SwapChain-/D3DImage-BackBuffer, explizite Legacy-Device-Interop-Kanten sowie verbleibende RenderBuffer-/ScreenClone-/Utility-Typen hängen noch an SharpDX-Typen.
+- Offene Arbeit: konkrete Core2D-/DWrite-/WIC-Implementierungen, SwapChain-/D3DImage-BackBuffer, explizite Legacy-Device-Interop-Kanten sowie verbleibende RenderBuffer-/ScreenClone-/Utility-Typen hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 
@@ -722,7 +733,7 @@ Status: In Arbeit.
 - `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
 - Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
 - Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
-- Offene Arbeit: RenderHost-D2D-Signaturen, Legacy-Device-Interop-Kanten und weiter entfernte Buffer-/Utility-Aufrufer hängen noch an SharpDX-Typen.
+- Offene Arbeit: konkrete Core2D-/DWrite-/WIC-Implementierungen, Legacy-Device-Interop-Kanten und weiter entfernte Buffer-/Utility-Aufrufer hängen noch an SharpDX-Typen.
 
 ### Aufgaben
 

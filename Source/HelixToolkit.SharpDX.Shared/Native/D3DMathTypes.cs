@@ -78,4 +78,56 @@ namespace HelixToolkit.UWP
         public float MinDepth;
         public float MaxDepth;
     }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct Size2
+    {
+        public Size2(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+        public int Width;
+        public int Height;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct Matrix3x2
+    {
+        public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
+        {
+            M11 = m11;
+            M12 = m12;
+            M21 = m21;
+            M22 = m22;
+            M31 = m31;
+            M32 = m32;
+        }
+
+        public float M11;
+        public float M12;
+        public float M21;
+        public float M22;
+        public float M31;
+        public float M32;
+
+        public static Matrix3x2 Identity => new Matrix3x2(1, 0, 0, 1, 0, 0);
+
+        public static Matrix3x2 Translation(float x, float y)
+        {
+            return new Matrix3x2(1, 0, 0, 1, x, y);
+        }
+
+        public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)
+        {
+            return new Matrix3x2(
+                (left.M11 * right.M11) + (left.M12 * right.M21),
+                (left.M11 * right.M12) + (left.M12 * right.M22),
+                (left.M21 * right.M11) + (left.M22 * right.M21),
+                (left.M21 * right.M12) + (left.M22 * right.M22),
+                (left.M31 * right.M11) + (left.M32 * right.M21) + right.M31,
+                (left.M31 * right.M12) + (left.M32 * right.M22) + right.M32);
+        }
+    }
 }

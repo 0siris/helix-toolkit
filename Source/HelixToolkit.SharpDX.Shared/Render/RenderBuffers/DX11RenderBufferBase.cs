@@ -27,6 +27,7 @@ namespace HelixToolkit.UWP
     namespace Render
     {
         using Core2D;
+        using Native;
         using Utilities;
         /// <summary>
         /// 
@@ -245,7 +246,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The device2 d.
             /// </value>
-            public global::SharpDX.Direct2D1.Device Device2D
+            public D2DDevice Device2D
             {
                 get
                 {
@@ -258,7 +259,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The device context2 d.
             /// </value>
-            public global::SharpDX.Direct2D1.DeviceContext DeviceContext2D
+            public D2DDeviceContext DeviceContext2D
             {
                 get
                 {

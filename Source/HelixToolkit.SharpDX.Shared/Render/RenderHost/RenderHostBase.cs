@@ -95,7 +95,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The device2d.
             /// </value>
-            public global::SharpDX.Direct2D1.Device Device2D
+            public D2DDevice Device2D
             {
                 get
                 {
@@ -808,8 +808,7 @@ namespace HelixToolkit.UWP
                     {
                         var desc = ResultDescriptor.Find(ex.ResultCode);
                         if (desc == global::SharpDX.DXGI.ResultCode.DeviceRemoved || desc == global::SharpDX.DXGI.ResultCode.DeviceReset
-                            || desc == global::SharpDX.DXGI.ResultCode.DeviceHung || desc == global::SharpDX.Direct2D1.ResultCode.RecreateTarget
-                            || desc == global::SharpDX.DXGI.ResultCode.AccessLost)
+                            || desc == global::SharpDX.DXGI.ResultCode.DeviceHung || desc == global::SharpDX.DXGI.ResultCode.AccessLost)
                         {
                             logger.LogWarning("Device Lost, code = {0}", desc.Code);
                             RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
@@ -1060,7 +1059,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             /// <param name="context">The context.</param>
             /// <returns></returns>
-            protected virtual RenderContext2D CreateRenderContext2D(global::SharpDX.Direct2D1.DeviceContext context)
+            protected virtual RenderContext2D CreateRenderContext2D(D2DDeviceContext context)
             {
                 return new RenderContext2D(context, this);
             }

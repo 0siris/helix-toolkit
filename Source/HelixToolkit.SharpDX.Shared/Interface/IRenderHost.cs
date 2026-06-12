@@ -10,8 +10,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using global::SharpDX;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -80,7 +78,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The device2d.
         /// </value>
-        global::SharpDX.Direct2D1.Device Device2D
+        D2DDevice Device2D
         {
             get;
         }

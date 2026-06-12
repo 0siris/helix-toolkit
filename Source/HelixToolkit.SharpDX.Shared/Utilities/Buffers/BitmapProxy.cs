@@ -1,12 +1,10 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DXGI;
 using System;
+
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -19,6 +17,8 @@ namespace HelixToolkit.UWP
 {
     namespace Utilities
     {
+        using Native;
+
         /// <summary>
         /// 
         /// </summary>
@@ -37,7 +37,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The properties.
             /// </value>
-            public BitmapProperties1 Properties
+            public D2DBitmapProperties Properties
             {
                 private set; get;
             }
@@ -47,18 +47,18 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The context.
             /// </value>
-            public DeviceContext Context
+            public D2DDeviceContext Context
             {
                 private set; get;
             }
-            private Bitmap1 bitmap;
+            private D2DBitmap bitmap;
             /// <summary>
             /// Gets the bitmap.
             /// </summary>
             /// <value>
             /// The bitmap.
             /// </value>
-            public Bitmap1 Bitmap => bitmap;
+            public D2DBitmap Bitmap => bitmap;
             /// <summary>
             /// Gets the name.
             /// </summary>
@@ -86,27 +86,13 @@ namespace HelixToolkit.UWP
             /// <param name="context">The context.</param>
             /// <param name="size">The size.</param>
             /// <param name="properties">The properties.</param>
-            public BitmapProxy(string name, DeviceContext context, Size2 size, BitmapProperties1 properties)
+            /// <param name="nativeBitmap">Optional native bitmap object.</param>
+            public BitmapProxy(string name, D2DDeviceContext context, Size2 size, D2DBitmapProperties properties, object nativeBitmap = null)
             {
                 Properties = properties;
                 Context = context;
-                bitmap = new Bitmap1(context, size, properties);
+                bitmap = new D2DBitmap(size, nativeBitmap);
                 Size = size;
-                Name = name;
-            }
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BitmapProxy"/> class.
-            /// </summary>
-            /// <param name="name">The name.</param>
-            /// <param name="context">The context.</param>
-            /// <param name="surface">The surface.</param>
-            /// <param name="properties">The properties.</param>
-            public BitmapProxy(string name, DeviceContext context, Surface surface, BitmapProperties1 properties)
-            {
-                Properties = properties;
-                Context = context;
-                bitmap = new Bitmap1(context, surface, properties);
-                Size = new Size2((int)Bitmap.Size.Width, (int)Bitmap.Size.Height);
                 Name = name;
             }
 
@@ -120,13 +106,13 @@ namespace HelixToolkit.UWP
             /// <param name="options">The options.</param>
             /// <param name="colorContext">The color context.</param>
             /// <returns></returns>
-            public static BitmapProperties1 CreateDescription(float dpiX, float dpiY, Format format,
-                global::SharpDX.Direct2D1.AlphaMode alphaMode = global::SharpDX.Direct2D1.AlphaMode.Premultiplied,
-                BitmapOptions options = BitmapOptions.Target | BitmapOptions.CannotDraw, ColorContext colorContext = null)
+            public static D2DBitmapProperties CreateDescription(float dpiX, float dpiY, Format format,
+                D2DAlphaMode alphaMode = D2DAlphaMode.Premultiplied,
+                D2DBitmapOptions options = D2DBitmapOptions.Target | D2DBitmapOptions.CannotDraw, D2DColorContext colorContext = null)
             {
-                // Make sure that the texture to create is a render target
-                options |= BitmapOptions.Target;
-                var description = NewDescription(dpiX, dpiY, new PixelFormat(format, alphaMode), options, colorContext);
+                // Make sure that the texture to create is a render target.
+                options |= D2DBitmapOptions.Target;
+                var description = NewDescription(dpiX, dpiY, new D2DPixelFormat(format, alphaMode), options, colorContext);
                 return description;
             }
 
@@ -139,53 +125,46 @@ namespace HelixToolkit.UWP
             /// <param name="bitmapOptions">The bitmap options.</param>
             /// <param name="colorContext">The color context.</param>
             /// <returns></returns>
-            protected static BitmapProperties1 NewDescription(float dpiX, float dpiY, PixelFormat format,
-                BitmapOptions bitmapOptions, ColorContext colorContext)
+            protected static D2DBitmapProperties NewDescription(float dpiX, float dpiY, D2DPixelFormat format,
+                D2DBitmapOptions bitmapOptions, D2DColorContext colorContext)
             {
-                return new BitmapProperties1(format, dpiX, dpiY, bitmapOptions, colorContext);
+                return new D2DBitmapProperties(format, dpiX, dpiY, bitmapOptions, colorContext);
             }
 
             /// <summary>
-            /// Creates by surface
+            /// Creates by native surface.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="context">The context.</param>
             /// <param name="surface">The surface.</param>
             /// <returns></returns>
-            public static BitmapProxy Create(string name, DeviceContext context, Surface surface)
+            public static BitmapProxy Create(string name, D2DDeviceContext context, object surface)
             {
-                return new BitmapProxy(name, context, surface, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, surface.Description.Format));
+                return new BitmapProxy(name, context, default, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default), surface);
             }
 
             /// <summary>
-            /// Creates by size and format
+            /// Creates by size and format.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="context">The context.</param>
             /// <param name="size">The size.</param>
             /// <param name="format">The format.</param>
             /// <returns></returns>
-            public static BitmapProxy Create(string name, DeviceContext context, Size2 size, Format format)
+            public static BitmapProxy Create(string name, D2DDeviceContext context, Size2 size, Format format)
             {
-                return new BitmapProxy(name, context, size, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, format, global::SharpDX.Direct2D1.AlphaMode.Premultiplied, BitmapOptions.Target));
+                return new BitmapProxy(name, context, size, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, format, D2DAlphaMode.Premultiplied, D2DBitmapOptions.Target));
+            }
+
+            public static BitmapProxy CreateEmpty(string name, D2DDeviceContext context)
+            {
+                return new BitmapProxy(name, context, default, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default));
             }
 
             protected override void OnDispose(bool disposeManagedResources)
             {
                 RemoveAndDispose(ref bitmap);
                 base.OnDispose(disposeManagedResources);
-            }
-
-            /// <summary>
-            /// Performs an implicit conversion from <see cref="BitmapProxy"/> to <see cref="Bitmap1"/>.
-            /// </summary>
-            /// <param name="proxy">The proxy.</param>
-            /// <returns>
-            /// The result of the conversion.
-            /// </returns>
-            public static implicit operator Bitmap1(BitmapProxy proxy)
-            {
-                return proxy.Bitmap;
             }
         }
     }

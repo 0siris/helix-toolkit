@@ -1,7 +1,6 @@
-﻿using SharpDX.Direct2D1;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using global::SharpDX;
+
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -12,6 +11,7 @@ namespace HelixToolkit.UWP
 #endif
 #endif
 {
+    using Native;
     using Utilities;
 
     /// <summary>
@@ -58,7 +58,7 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The device context.
         /// </value>
-        public DeviceContext DeviceContext
+        public D2DDeviceContext DeviceContext
         {
             private set; get;
         }
@@ -118,7 +118,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="deviceContext">The device context.</param>
         /// <param name="host">The host.</param>
-        public RenderContext2D(DeviceContext deviceContext, IRenderHost host)
+        public RenderContext2D(D2DDeviceContext deviceContext, IRenderHost host)
         {
             DeviceContext = deviceContext;
             renderHost = host;
@@ -142,7 +142,7 @@ namespace HelixToolkit.UWP
             DeviceContext.BeginDraw();
             if (clear)
             {
-                DeviceContext.Clear(Color.Transparent);
+                DeviceContext.Clear(new Color4(0, 0, 0, 0));
             }
         }
         /// <summary>

@@ -8,7 +8,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using global::SharpDX.Direct3D;
 using global::SharpDX.Direct3D11;
 using global::SharpDX.DXGI;
 using System.Linq;
@@ -217,14 +216,14 @@ namespace HelixToolkit.UWP
         }
         #endregion
         #region 2D Resources
-        private global::SharpDX.Direct2D1.Device device2D;
+        private D2DDevice device2D;
         /// <summary>
         /// Gets the device2d.
         /// </summary>
         /// <value>
         /// The device2 d.
         /// </value>
-        public global::SharpDX.Direct2D1.Device Device2D
+        public D2DDevice Device2D
         {
             get
             {
@@ -233,14 +232,14 @@ namespace HelixToolkit.UWP
         }
 
 
-        private global::SharpDX.Direct2D1.DeviceContext deviceContext2D;
+        private D2DDeviceContext deviceContext2D;
         /// <summary>
         /// Gets or sets the device2 d context.
         /// </summary>
         /// <value>
         /// The device2 d context.
         /// </value>
-        public global::SharpDX.Direct2D1.DeviceContext DeviceContext2D
+        public D2DDeviceContext DeviceContext2D
         {
             get
             {
@@ -253,23 +252,23 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The factory2 d.
         /// </value>
-        public global::SharpDX.Direct2D1.Factory1 Factory2D
+        public D2DFactory Factory2D
         {
             get
             {
                 return factory2D;
             }
         }
-        private global::SharpDX.Direct2D1.Factory1 factory2D;
+        private D2DFactory factory2D;
 
-        private global::SharpDX.WIC.ImagingFactory wicImgFactory;
+        private WICImagingFactory wicImgFactory;
         /// <summary>
         /// Gets the wic img factory.
         /// </summary>
         /// <value>
         /// The wic img factory.
         /// </value>
-        public global::SharpDX.WIC.ImagingFactory WICImgFactory
+        public WICImagingFactory WICImgFactory
         {
             get
             {
@@ -277,14 +276,14 @@ namespace HelixToolkit.UWP
             }
         }
 
-        private global::SharpDX.DirectWrite.Factory directWriteFactory;
+        private DirectWriteFactory directWriteFactory;
         /// <summary>
         /// Gets the direct write factory.
         /// </summary>
         /// <value>
         /// The direct write factory.
         /// </value>
-        public global::SharpDX.DirectWrite.Factory DirectWriteFactory
+        public DirectWriteFactory DirectWriteFactory
         {
             get
             {
@@ -386,7 +385,7 @@ namespace HelixToolkit.UWP
                 if (useWarpAdapter)
                 {
                     device = EnableSoftwareRendering ?
-                        new global::SharpDX.Direct3D11.Device(DriverType, DeviceCreationFlags.BgraSupport)
+                        new global::SharpDX.Direct3D11.Device(ToLegacyDriverType(DriverType), DeviceCreationFlags.BgraSupport)
                         : new global::SharpDX.Direct3D11.Device(adapter, DeviceCreationFlags.BgraSupport);
                 }
                 else
@@ -394,9 +393,9 @@ namespace HelixToolkit.UWP
                     if (DriverType == DriverType.Warp)
                     {
 #if DEBUGMEMORY
-                        device = new global::SharpDX.Direct3D11.Device(DriverType, DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug);
+                        device = new global::SharpDX.Direct3D11.Device(ToLegacyDriverType(DriverType), DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug);
 #else
-                        device = new global::SharpDX.Direct3D11.Device(DriverType, DeviceCreationFlags.BgraSupport);
+                        device = new global::SharpDX.Direct3D11.Device(ToLegacyDriverType(DriverType), DeviceCreationFlags.BgraSupport);
 #endif                   
                     }
                     else
@@ -414,7 +413,7 @@ namespace HelixToolkit.UWP
 
             }
 #else
-            device = new global::SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport, FeatureLevel.Level_10_1);
+            device = new global::SharpDX.Direct3D11.Device(ToLegacyDriverType(DriverType.Hardware), DeviceCreationFlags.BgraSupport, global::SharpDX.Direct3D.FeatureLevel.Level_10_1);
 #endif
             RemoveAndDispose(ref adapter);
 
@@ -446,17 +445,26 @@ namespace HelixToolkit.UWP
             RemoveAndDispose(ref structArrayPool);
             structArrayPool = new StructArrayPool();
             #endregion
-            logger.LogInformation("Initializing Direct2D resources");
-            factory2D = new global::SharpDX.Direct2D1.Factory1(global::SharpDX.Direct2D1.FactoryType.MultiThreaded);
-            wicImgFactory = new global::SharpDX.WIC.ImagingFactory();
-            directWriteFactory = new global::SharpDX.DirectWrite.Factory(global::SharpDX.DirectWrite.FactoryType.Shared);
-            using (var dxgiDevice2 = device.QueryInterface<global::SharpDX.DXGI.Device>())
-            {
-                device2D = new global::SharpDX.Direct2D1.Device(factory2D, dxgiDevice2);
-                deviceContext2D = new global::SharpDX.Direct2D1.DeviceContext(device2D,
-                    global::SharpDX.Direct2D1.DeviceContextOptions.EnableMultithreadedOptimizations);
-            }
+            logger.LogInformation("Initializing Direct2D resource handles");
+            factory2D = new D2DFactory();
+            wicImgFactory = new WICImagingFactory();
+            directWriteFactory = new DirectWriteFactory();
+            device2D = new D2DDevice();
+            deviceContext2D = new D2DDeviceContext();
             Initialized = true;
+        }
+
+        private static global::SharpDX.Direct3D.DriverType ToLegacyDriverType(DriverType driverType)
+        {
+            return driverType switch
+            {
+                DriverType.Hardware => global::SharpDX.Direct3D.DriverType.Hardware,
+                DriverType.Reference => global::SharpDX.Direct3D.DriverType.Reference,
+                DriverType.Null => global::SharpDX.Direct3D.DriverType.Null,
+                DriverType.Software => global::SharpDX.Direct3D.DriverType.Software,
+                DriverType.Warp => global::SharpDX.Direct3D.DriverType.Warp,
+                _ => global::SharpDX.Direct3D.DriverType.Unknown
+            };
         }
 
         /// <summary>

@@ -2,10 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -45,9 +41,9 @@ namespace HelixToolkit.UWP
             /// Creates the specified sink.
             /// </summary>
             /// <param name="sink">The sink.</param>
-            public override void Create(D2D.GeometrySink sink)
+            public override void Create(GeometrySink sink)
             {
-                sink.AddBezier(new D2D.BezierSegment() { Point1 = P1, Point2 = P2, Point3 = P3 });
+                sink.AddBezier(new BezierSegmentData() { Point1 = P1, Point2 = P2, Point3 = P3 });
             }
         }
     }

@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -523,7 +521,7 @@ namespace HelixToolkit.UWP
                     {
                         context.DeviceContext.Transform = context.RelativeTransform * RelativeMatrix;
                         context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), LayoutClipBound,
-                            InterpolationMode.Linear, global::SharpDX.Direct2D1.CompositeMode.SourceOver);
+                            BitmapInterpolationMode.Linear, CompositeMode.SourceOver);
                     }
                 }
                 else if (context.HasTarget)
@@ -546,7 +544,7 @@ namespace HelixToolkit.UWP
                 {
                     context.DeviceContext.Transform = RelativeMatrix;
                     context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), new RectangleF(0, 0, RenderSize.X, RenderSize.Y),
-                        InterpolationMode.Linear, global::SharpDX.Direct2D1.CompositeMode.SourceOver);
+                        BitmapInterpolationMode.Linear, CompositeMode.SourceOver);
                 }
                 else
                 {

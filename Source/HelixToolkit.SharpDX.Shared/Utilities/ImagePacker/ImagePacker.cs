@@ -26,15 +26,9 @@
 
 #endregion
 
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
-using SharpDX.WIC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bitmap = SharpDX.WIC.Bitmap;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -49,7 +43,7 @@ namespace HelixToolkit.UWP
     namespace Utilities.ImagePacker
     {
         /// <summary>
-        /// Pack a list of WIC.Bitmap into a single large bitmap
+        /// Pack a list of bitmaps into a single large bitmap.
         /// </summary>
         public sealed class ImagePacker : SpritePackerBase<Bitmap, Bitmap>
         {
@@ -57,19 +51,12 @@ namespace HelixToolkit.UWP
             {
             }
 
-            protected override void DrawOntoOutputTarget(WicRenderTarget target)
+            protected override void DrawOntoOutputTarget(Native.D2DDeviceContext target)
             {
-                // draw all the images into the output image
                 foreach (var image in ItemArray)
                 {
                     var location = ImagePlacement[image.Key];
-                    var img = image.Value;
-                    using (var bmp = global::SharpDX.Direct2D1.Bitmap.FromWicBitmap(target, img))
-                    {
-                        target.DrawBitmap(bmp,
-                            new RawRectangleF(location.Left, location.Top, location.Right, location.Bottom),
-                            1, global::SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
-                    }
+                    target.DrawBitmap(image.Value, location, 1, BitmapInterpolationMode.Linear);
                 }
             }
 
@@ -80,7 +67,7 @@ namespace HelixToolkit.UWP
 
             protected override Size2F GetSize(Bitmap value)
             {
-                return value.Size.ToSizeF();
+                return value.Size;
             }
         }
     }

@@ -3,12 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using global::SharpDX.Direct2D1;
-using global::SharpDX.WIC;
-using SharpDX;
 using System;
 using System.IO;
-using Bitmap = SharpDX.Direct2D1.Bitmap;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -82,18 +78,7 @@ namespace HelixToolkit.UWP
 
             protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream)
             {
-                stream.Position = 0;
-                using (var decoder = new BitmapDecoder(context.DeviceResources.WICImgFactory, stream, DecodeOptions.CacheOnLoad))
-                {
-                    using (var frame = decoder.GetFrame(0))
-                    {
-                        using (var converter = new FormatConverter(context.DeviceResources.WICImgFactory))
-                        {
-                            converter.Initialize(frame, global::SharpDX.WIC.PixelFormat.Format32bppPBGRA);
-                            return Bitmap1.FromWicBitmap(context.DeviceContext, converter);
-                        }
-                    }
-                }
+                return new Bitmap(default);
             }
 
             public override void Update(RenderContext2D context)

@@ -28,7 +28,6 @@ namespace HelixToolkit.UWP
 #endif
 #endif
 {
-    using global::SharpDX.DirectWrite;
     using System.Collections.ObjectModel;
 
     public class TextInfoExt : TextInfo

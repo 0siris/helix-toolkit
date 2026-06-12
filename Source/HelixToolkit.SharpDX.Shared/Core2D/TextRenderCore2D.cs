@@ -2,10 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -36,8 +32,8 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.Brush foreground = null;
-            public D2D.Brush Foreground
+            private Brush foreground = null;
+            public Brush Foreground
             {
                 set
                 {
@@ -53,8 +49,8 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.Brush background = null;
-            public D2D.Brush Background
+            private Brush background = null;
+            public Brush Background
             {
                 set
                 {
@@ -134,7 +130,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public D2D.DrawTextOptions DrawingOptions { set; get; } = D2D.DrawTextOptions.None;
+            public DrawTextOptions DrawingOptions { set; get; } = DrawTextOptions.None;
 
             private TextAlignment textAlignment = TextAlignment.Leading;
             public TextAlignment TextAlignment
@@ -162,7 +158,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private Factory textFactory;
+            private Native.DirectWriteFactory textFactory;
             private TextFormat textFormat;
 
             public TextMetrics Metrices
@@ -215,7 +211,7 @@ namespace HelixToolkit.UWP
                 if (base.OnAttach(host))
                 {
                     textLayoutDirty = true;
-                    textFactory = new Factory(FactoryType.Isolated);
+                    textFactory = new Native.DirectWriteFactory();
                     textFormat = new TextFormat(textFactory, FontFamily, FontWeight, FontStyle, FontSize * host.DpiScale);
                     return true;
                 }

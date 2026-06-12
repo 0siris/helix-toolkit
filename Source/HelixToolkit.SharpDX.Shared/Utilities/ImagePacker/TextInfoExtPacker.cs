@@ -1,7 +1,4 @@
-﻿using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -68,7 +65,7 @@ namespace HelixToolkit.UWP
             {
             }
 
-            protected override void DrawOntoOutputTarget(WicRenderTarget target)
+            protected override void DrawOntoOutputTarget(Native.D2DDeviceContext target)
             {
                 foreach (var text in ItemArray)
                 {

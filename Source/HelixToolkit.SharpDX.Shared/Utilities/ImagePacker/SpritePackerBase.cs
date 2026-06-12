@@ -26,13 +26,9 @@
 
 #endregion
 
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.WIC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bitmap = SharpDX.WIC.Bitmap;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -236,22 +232,12 @@ namespace HelixToolkit.UWP
                 return true;
             }
 
-            private Bitmap CreateOutputImage(Action<WicRenderTarget> action)
+            private Bitmap CreateOutputImage(Action<Native.D2DDeviceContext> action)
             {
                 try
                 {
-                    var bitmap =
-                        new Bitmap(deviceRes2D.WICImgFactory, OutputWidth, OutputHeight,
-                        global::SharpDX.WIC.PixelFormat.Format32bppPBGRA,
-                            BitmapCreateCacheOption.CacheOnDemand);
-                    using (var target = new WicRenderTarget(deviceRes2D.Factory2D, bitmap,
-                        new RenderTargetProperties()
-                        {
-                            DpiX = 96,
-                            DpiY = 96,
-                            MinLevel = FeatureLevel.Level_DEFAULT,
-                            PixelFormat = new global::SharpDX.Direct2D1.PixelFormat(global::SharpDX.DXGI.Format.Unknown, AlphaMode.Unknown)
-                        }))
+                    var bitmap = new Bitmap(new Size2F(OutputWidth, OutputHeight));
+                    using (var target = new Native.D2DDeviceContext())
                     {
                         target.Transform = Matrix3x2.Identity;
                         target.BeginDraw();
@@ -281,7 +267,7 @@ namespace HelixToolkit.UWP
             /// Draws the onto output target.
             /// </summary>
             /// <param name="target">The target.</param>
-            protected abstract void DrawOntoOutputTarget(WicRenderTarget target);
+            protected abstract void DrawOntoOutputTarget(Native.D2DDeviceContext target);
 
             #region IDisposable Support
             private bool disposedValue = false; // To detect redundant calls

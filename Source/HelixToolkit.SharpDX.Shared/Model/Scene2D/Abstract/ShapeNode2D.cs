@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX.Direct2D1;
 using System;
 
 #if !NETFX_CORE
@@ -224,7 +223,7 @@ namespace HelixToolkit.UWP
                 base.Update(context);
                 if (strokeStyleChanged)
                 {
-                    shapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceContext.Factory,
+                    shapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
                         new StrokeStyleProperties()
                         {
                             DashCap = this.StrokeDashCap,

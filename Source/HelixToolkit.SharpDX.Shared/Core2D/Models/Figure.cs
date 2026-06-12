@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
 using System.Collections.Generic;
 
 #if !NETFX_CORE
@@ -88,25 +85,25 @@ namespace HelixToolkit.UWP
             /// Creates the specified sink.
             /// </summary>
             /// <param name="sink">The sink.</param>
-            public void Create(D2D.GeometrySink sink)
+            public void Create(GeometrySink sink)
             {
-                sink.BeginFigure(StartPoint, Filled ? D2D.FigureBegin.Filled : D2D.FigureBegin.Hollow);
+                sink.BeginFigure(StartPoint, Filled ? FigureBegin.Filled : FigureBegin.Hollow);
                 for (var i = 0; i < Segments.Count; ++i)
                 {
-                    var flag = D2D.PathSegment.None;
+                    var flag = PathSegment.None;
                     var segment = Segments[i];
                     if (!segment.IsStroked)
                     {
-                        flag |= D2D.PathSegment.ForceUnstroked;
+                        flag |= PathSegment.ForceUnstroked;
                     }
                     if (segment.IsSmoothJoined)
                     {
-                        flag |= D2D.PathSegment.ForceRoundLineJoin;
+                        flag |= PathSegment.ForceRoundLineJoin;
                     }
                     sink.SetSegmentFlags(flag);
                     segment.Segment.Create(sink);
                 }
-                sink.EndFigure(Closed ? D2D.FigureEnd.Closed : D2D.FigureEnd.Open);
+                sink.EndFigure(Closed ? FigureEnd.Closed : FigureEnd.Open);
             }
 
             /// <summary>

@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
-using SharpDX;
-using D2D = global::SharpDX.Direct2D1;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -45,11 +43,11 @@ namespace HelixToolkit.UWP
                     context.DeviceContext.Transform = Transform;
                     if (ShowDrawingBorder)
                     {
-                        using (var borderBrush = new D2D.SolidColorBrush(context.DeviceContext, Color.Blue))
+                        using (var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1)))
                         {
-                            using (var borderDotStyle = new D2D.StrokeStyle(context.DeviceContext.Factory, new D2D.StrokeStyleProperties() { DashStyle = D2D.DashStyle.DashDot }))
+                            using (var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory, new StrokeStyleProperties() { DashStyle = DashStyle.DashDot }))
                             {
-                                using (var borderLineStyle = new D2D.StrokeStyle(context.DeviceContext.Factory, new D2D.StrokeStyleProperties() { DashStyle = D2D.DashStyle.Solid }))
+                                using (var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory, new StrokeStyleProperties() { DashStyle = DashStyle.Solid }))
                                 {
                                     context.DeviceContext.DrawRectangle(LayoutBound, borderBrush, 1f, IsMouseOver ? borderLineStyle : borderDotStyle);
                                     context.DeviceContext.DrawRectangle(LayoutClippingBound, borderBrush, 0.5f, borderDotStyle);

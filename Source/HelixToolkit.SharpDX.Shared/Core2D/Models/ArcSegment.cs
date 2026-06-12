@@ -2,10 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -26,10 +22,10 @@ namespace HelixToolkit.UWP
             public readonly Vector2 Point;
             public readonly Size2F Size;
             public readonly float Rotation;
-            public readonly D2D.SweepDirection SweepDirection;
-            public readonly D2D.ArcSize ArcSize;
+            public readonly SweepDirection SweepDirection;
+            public readonly ArcSize ArcSize;
 
-            public ArcSegment(Vector2 point, Size2F size, float rotation, D2D.SweepDirection sweepDirection, D2D.ArcSize arcSize)
+            public ArcSegment(Vector2 point, Size2F size, float rotation, SweepDirection sweepDirection, ArcSize arcSize)
             {
                 Point = point;
                 Size = size;
@@ -38,9 +34,9 @@ namespace HelixToolkit.UWP
                 ArcSize = arcSize;
             }
 
-            public override void Create(D2D.GeometrySink sink)
+            public override void Create(GeometrySink sink)
             {
-                sink.AddArc(new D2D.ArcSegment() { ArcSize = ArcSize, Point = Point, RotationAngle = Rotation, Size = Size, SweepDirection = SweepDirection });
+                sink.AddArc(new ArcSegmentData() { ArcSize = ArcSize, Point = Point, RotationAngle = Rotation, Size = Size, SweepDirection = SweepDirection });
             }
         }
     }

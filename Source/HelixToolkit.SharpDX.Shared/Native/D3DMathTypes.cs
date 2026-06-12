@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
+using System;
 using System.Runtime.InteropServices;
 
 #if !NETFX_CORE
@@ -93,6 +94,114 @@ namespace HelixToolkit.UWP
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct Size2F
+    {
+        public Size2F(float width, float height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+        public float Width;
+        public float Height;
+
+        public static bool operator ==(Size2F left, Size2F right)
+        {
+            return left.Width == right.Width && left.Height == right.Height;
+        }
+
+        public static bool operator !=(Size2F left, Size2F right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Size2F other && this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Width, Height);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct Rectangle
+    {
+        public Rectangle(int left, int top, int width, int height)
+        {
+            Left = left;
+            Top = top;
+            Width = width;
+            Height = height;
+        }
+
+        public int Left;
+        public int Top;
+        public int Width;
+        public int Height;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct RectangleF
+    {
+        public RectangleF(float left, float top, float width, float height)
+        {
+            Left = left;
+            Top = top;
+            Width = width;
+            Height = height;
+        }
+
+        public float Left;
+        public float Top;
+        public float Width;
+        public float Height;
+
+        public float Right => Left + Width;
+
+        public float Bottom => Top + Height;
+
+        public Size2F Size => new Size2F(Width, Height);
+
+        public Vector2 TopLeft => new Vector2(Left, Top);
+
+        public Vector2 TopRight => new Vector2(Right, Top);
+
+        public Vector2 BottomRight => new Vector2(Right, Bottom);
+
+        public Vector2 BottomLeft => new Vector2(Left, Bottom);
+
+        public Vector2 Center => new Vector2(Left + (Width / 2), Top + (Height / 2));
+
+        public bool Contains(Vector2 point)
+        {
+            return point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
+        }
+
+        public static bool operator ==(RectangleF left, RectangleF right)
+        {
+            return left.Left == right.Left && left.Top == right.Top && left.Width == right.Width && left.Height == right.Height;
+        }
+
+        public static bool operator !=(RectangleF left, RectangleF right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is RectangleF other && this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Left, Top, Width, Height);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct Matrix3x2
     {
         public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
@@ -114,9 +223,16 @@ namespace HelixToolkit.UWP
 
         public static Matrix3x2 Identity => new Matrix3x2(1, 0, 0, 1, 0, 0);
 
+        public Vector2 TranslationVector => new Vector2(M31, M32);
+
         public static Matrix3x2 Translation(float x, float y)
         {
             return new Matrix3x2(1, 0, 0, 1, x, y);
+        }
+
+        public static Matrix3x2 Translation(Vector2 offset)
+        {
+            return Translation(offset.X, offset.Y);
         }
 
         public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)

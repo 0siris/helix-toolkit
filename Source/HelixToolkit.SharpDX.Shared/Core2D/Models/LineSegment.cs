@@ -2,10 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -29,7 +25,7 @@ namespace HelixToolkit.UWP
                 Point = point;
             }
 
-            public override void Create(D2D.GeometrySink sink)
+            public override void Create(GeometrySink sink)
             {
                 sink.AddLine(Point);
             }

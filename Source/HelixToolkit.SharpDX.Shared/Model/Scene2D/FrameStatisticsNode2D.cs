@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using global::SharpDX.Direct2D1;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -63,7 +61,7 @@ namespace HelixToolkit.UWP
                 return false;
             }
 
-            protected override bool OnHitTest(ref global::SharpDX.Vector2 mousePoint, out HitTest2DResult hitResult)
+            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
             {
                 hitResult = null;
                 return false;

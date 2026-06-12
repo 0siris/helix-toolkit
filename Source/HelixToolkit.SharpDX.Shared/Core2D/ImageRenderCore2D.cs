@@ -3,11 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using D2D = global::SharpDX.Direct2D1;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -23,14 +21,14 @@ namespace HelixToolkit.UWP
     {
         public class ImageRenderCore2D : RenderCore2DBase
         {
-            private D2D.Bitmap bitmap;
+            private Bitmap bitmap;
             /// <summary>
             /// Gets or sets the bitmap.
             /// </summary>
             /// <value>
             /// The bitmap.
             /// </value>
-            public D2D.Bitmap Bitmap
+            public Bitmap Bitmap
             {
                 set
                 {
@@ -83,14 +81,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.BitmapInterpolationMode interpolationMode = D2D.BitmapInterpolationMode.Linear;
+            private BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear;
             /// <summary>
             /// Gets or sets the interpolation mode.
             /// </summary>
             /// <value>
             /// The interpolation mode.
             /// </value>
-            public D2D.BitmapInterpolationMode InterpolationMode
+            public BitmapInterpolationMode InterpolationMode
             {
                 set
                 {

@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = global::SharpDX.Direct2D1;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -21,14 +19,14 @@ namespace HelixToolkit.UWP
         /// </summary>
         public abstract class ShapeRenderCore2DBase : RenderCore2DBase
         {
-            private D2D.Brush fillBrush = null;
+            private Brush fillBrush = null;
             /// <summary>
             /// Gets or sets the fill brush.
             /// </summary>
             /// <value>
             /// The fill brush.
             /// </value>
-            public D2D.Brush FillBrush
+            public Brush FillBrush
             {
                 set
                 {
@@ -44,14 +42,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.Brush strokeBrush = null;
+            private Brush strokeBrush = null;
             /// <summary>
             /// Gets or sets the stroke brush.
             /// </summary>
             /// <value>
             /// The stroke brush.
             /// </value>
-            public D2D.Brush StrokeBrush
+            public Brush StrokeBrush
             {
                 set
                 {
@@ -77,14 +75,14 @@ namespace HelixToolkit.UWP
                 set; get;
             } = 1.0f;
 
-            private D2D.StrokeStyle strokeStyle = null;
+            private StrokeStyle strokeStyle = null;
             /// <summary>
             /// Gets or sets the stroke style.
             /// </summary>
             /// <value>
             /// The stroke style.
             /// </value>
-            public D2D.StrokeStyle StrokeStyle
+            public StrokeStyle StrokeStyle
             {
                 set
                 {

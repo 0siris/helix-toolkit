@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
 using System.Collections.Generic;
 using System;
 
@@ -30,14 +27,14 @@ namespace HelixToolkit.UWP
 
             private bool isBorderGeometryChanged = false;
 
-            private D2D.Brush background;
+            private Brush background;
             /// <summary>
             /// Gets or sets the background.
             /// </summary>
             /// <value>
             /// The background.
             /// </value>
-            public D2D.Brush Background
+            public Brush Background
             {
                 set
                 {
@@ -53,14 +50,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.Brush strokeBrush;
+            private Brush strokeBrush;
             /// <summary>
             /// Gets or sets the stroke brush.
             /// </summary>
             /// <value>
             /// The stroke brush.
             /// </value>
-            public D2D.Brush StrokeBrush
+            public Brush StrokeBrush
             {
                 set
                 {
@@ -70,7 +67,7 @@ namespace HelixToolkit.UWP
                         RemoveAndDispose(ref old);
                         foreach (var core in borderRenderCore)
                         {
-                            core.StrokeBrush = value.QueryInterface<D2D.Brush>();
+                            core.StrokeBrush = value.QueryInterface<Brush>();
                         }
                     }
                 }
@@ -99,14 +96,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.StrokeStyle strokeStyle;
+            private StrokeStyle strokeStyle;
             /// <summary>
             /// Gets or sets the stroke style.
             /// </summary>
             /// <value>
             /// The stroke style.
             /// </value>
-            public D2D.StrokeStyle StrokeStyle
+            public StrokeStyle StrokeStyle
             {
                 set
                 {
@@ -116,7 +113,7 @@ namespace HelixToolkit.UWP
                         RemoveAndDispose(ref old);
                         foreach (var core in borderRenderCore)
                         {
-                            core.StrokeStyle = value.QueryInterface<D2D.StrokeStyle>();
+                            core.StrokeStyle = value.QueryInterface<StrokeStyle>();
                         }
                     }
                 }
@@ -189,7 +186,7 @@ namespace HelixToolkit.UWP
             /// <param name="context">The context.</param>
             protected override void OnRender(RenderContext2D context)
             {
-                var roundRect = new D2D.RoundedRectangle() { Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius };
+                var roundRect = new RoundedRectangle() { Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius };
                 if (Background != null)
                 {
                     context.DeviceContext.FillRoundedRectangle(roundRect, Background);
@@ -218,7 +215,7 @@ namespace HelixToolkit.UWP
                                 if (CornerRadius > 0)
                                 {
                                     figure.AddSegment(new ArcSegment(LayoutBound.TopLeft + new Vector2(CornerRadius, 0), new Size2F(CornerRadius, CornerRadius), 0,
-                                        D2D.SweepDirection.Clockwise, D2D.ArcSize.Small));
+                                        SweepDirection.Clockwise, ArcSize.Small));
                                 }
                                 figure.AddSegment(new LineSegment(topRight));
                                 figures.Add(figure);
@@ -236,7 +233,7 @@ namespace HelixToolkit.UWP
                                 if (CornerRadius > 0)
                                 {
                                     figure.AddSegment(new ArcSegment(LayoutBound.TopRight + new Vector2(0, CornerRadius), new Size2F(CornerRadius, CornerRadius), 0,
-                                        D2D.SweepDirection.Clockwise, D2D.ArcSize.Small));
+                                        SweepDirection.Clockwise, ArcSize.Small));
                                 }
                                 figure.AddSegment(new LineSegment(bottomRight));
                                 figures.Add(figure);
@@ -254,7 +251,7 @@ namespace HelixToolkit.UWP
                                 if (CornerRadius > 0)
                                 {
                                     figure.AddSegment(new ArcSegment(LayoutBound.BottomRight - new Vector2(CornerRadius, 0), new Size2F(CornerRadius, CornerRadius), 0,
-                                        D2D.SweepDirection.Clockwise, D2D.ArcSize.Small));
+                                        SweepDirection.Clockwise, ArcSize.Small));
                                 }
                                 figure.AddSegment(new LineSegment(bottomLeft));
                                 figures.Add(figure);
@@ -272,7 +269,7 @@ namespace HelixToolkit.UWP
                                 if (CornerRadius > 0)
                                 {
                                     figure.AddSegment(new ArcSegment(LayoutBound.BottomLeft - new Vector2(0, CornerRadius), new Size2F(CornerRadius, CornerRadius), 0,
-                                        D2D.SweepDirection.Clockwise, D2D.ArcSize.Small));
+                                        SweepDirection.Clockwise, ArcSize.Small));
                                 }
                                 figure.AddSegment(new LineSegment(topLeft));
                                 figures.Add(figure);

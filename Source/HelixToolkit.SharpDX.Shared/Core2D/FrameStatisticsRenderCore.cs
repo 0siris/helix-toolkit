@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX;
 using System;
 
 #if !NETFX_CORE
@@ -27,14 +24,14 @@ namespace HelixToolkit.UWP
         {
             private IRenderStatistics statistics;
 
-            private D2D.Brush foreground = null;
+            private Brush foreground = null;
             /// <summary>
             /// Gets or sets the foreground.
             /// </summary>
             /// <value>
             /// The foreground.
             /// </value>
-            public D2D.Brush Foreground
+            public Brush Foreground
             {
                 set
                 {
@@ -50,14 +47,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.Brush background = null;
+            private Brush background = null;
             /// <summary>
             /// Gets or sets the background.
             /// </summary>
             /// <value>
             /// The background.
             /// </value>
-            public D2D.Brush Background
+            public Brush Background
             {
                 set
                 {
@@ -74,7 +71,7 @@ namespace HelixToolkit.UWP
             }
 
             private TextLayout textLayout;
-            private Factory factory;
+            private Native.DirectWriteFactory factory;
             private TextFormat format;
             private RectangleF renderBound = new RectangleF(0, 0, 100, 0);
             private string previousStr = string.Empty;
@@ -85,7 +82,7 @@ namespace HelixToolkit.UWP
             /// <returns></returns>
             protected override bool OnAttach(IRenderHost target)
             {
-                factory = new Factory(FactoryType.Isolated);
+                factory = new Native.DirectWriteFactory();
                 format = new TextFormat(factory, "Arial", 12 * target.DpiScale);
                 previousStr = string.Empty;
                 this.statistics = target.RenderStatistics;
@@ -120,11 +117,11 @@ namespace HelixToolkit.UWP
             {
                 if (background == null)
                 {
-                    Background = new D2D.SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
+                    Background = new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
                 }
                 if (foreground == null)
                 {
-                    Foreground = new D2D.SolidColorBrush(context.DeviceContext, Color.Blue);
+                    Foreground = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
                 }
                 var str = statistics.GetDetailString();
                 if (str != previousStr || textLayout == null)

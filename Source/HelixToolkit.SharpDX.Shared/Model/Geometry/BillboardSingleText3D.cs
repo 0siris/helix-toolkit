@@ -5,18 +5,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 using SharpDX;
 using System.Collections.Generic;
 #if CORE
-using SharpDX.DirectWrite;
-using FontWeight = SharpDX.DirectWrite.FontWeight;
-using FontWeights = SharpDX.DirectWrite.FontWeight;
 using Thickness = HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness;
 #else
 #if NETFX_CORE
     using Windows.UI.Xaml;
     using Media = Windows.UI.Xaml.Media;
     using Windows.UI.Text;
+    using PlatformFontWeight = Windows.UI.Text.FontWeight;
+    using PlatformFontStyle = Windows.UI.Text.FontStyle;
 #else
 using System.Windows;
 using Media = System.Windows.Media;
+using PlatformFontWeight = System.Windows.FontWeight;
+using PlatformFontStyle = System.Windows.FontStyle;
 #endif
 #endif
 
@@ -164,14 +165,22 @@ namespace HelixToolkit.UWP
             }
         }
 
-        private FontWeight mFontWeight = FontWeights.Normal;
+#if CORE
+        private FontWeight mFontWeight = FontWeight.Normal;
+#else
+        private PlatformFontWeight mFontWeight = FontWeights.Normal;
+#endif
         /// <summary>
         /// Gets or sets the font weight.
         /// </summary>
         /// <value>
         /// The font weight.
         /// </value>
+#if CORE
         public FontWeight FontWeight
+#else
+        public PlatformFontWeight FontWeight
+#endif
         {
             set
             {
@@ -186,9 +195,13 @@ namespace HelixToolkit.UWP
             }
         }
 #if NETFX_CORE
+        private PlatformFontStyle mFontStyle = PlatformFontStyle.Normal;
+#else
+#if CORE
         private FontStyle mFontStyle = FontStyle.Normal;
 #else
-        private FontStyle mFontStyle = FontStyles.Normal;
+        private PlatformFontStyle mFontStyle = FontStyles.Normal;
+#endif
 #endif
         /// <summary>
         /// Gets or sets the font style.
@@ -196,7 +209,11 @@ namespace HelixToolkit.UWP
         /// <value>
         /// The font style.
         /// </value>
+#if CORE
         public FontStyle FontStyle
+#else
+        public PlatformFontStyle FontStyle
+#endif
         {
             set
             {
@@ -367,7 +384,7 @@ namespace HelixToolkit.UWP
                 Texture = TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, FontWeight, FontStyle,
                     new Vector4((float)Padding.Left, (float)Padding.Top, (float)Padding.Right, (float)Padding.Bottom), ref w, ref h, predefinedSize, deviceResources);
 #else
-                Texture = TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, FontWeight.ToDXFontWeight(), FontStyle.ToDXFontStyle(),
+                Texture = TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, ToRenderFontWeight(FontWeight), ToRenderFontStyle(FontStyle),
                     new Vector4((float)Padding.Left, (float)Padding.Top, (float)Padding.Right, (float)Padding.Bottom), ref w, ref h, predefinedSize, deviceResources);
 #endif
                 if (!predefinedSize)
@@ -388,6 +405,59 @@ namespace HelixToolkit.UWP
             }
             TextInfo?.UpdateTextInfo(Width, Height);
         }
+
+#if !CORE
+        private static FontWeight ToRenderFontWeight(PlatformFontWeight fontWeight)
+        {
+#if NETFX_CORE
+            var weight = fontWeight.Weight;
+#else
+            var weight = fontWeight.ToOpenTypeWeight();
+#endif
+            if (weight >= 900)
+            {
+                return FontWeight.Black;
+            }
+            if (weight >= 800)
+            {
+                return FontWeight.ExtraBold;
+            }
+            if (weight >= 700)
+            {
+                return FontWeight.Bold;
+            }
+            if (weight >= 600)
+            {
+                return FontWeight.SemiBold;
+            }
+            if (weight >= 500)
+            {
+                return FontWeight.Medium;
+            }
+            if (weight >= 400)
+            {
+                return FontWeight.Normal;
+            }
+            if (weight >= 300)
+            {
+                return FontWeight.Light;
+            }
+            if (weight >= 200)
+            {
+                return FontWeight.ExtraLight;
+            }
+            return FontWeight.Thin;
+        }
+
+        private static FontStyle ToRenderFontStyle(PlatformFontStyle fontStyle)
+        {
+#if NETFX_CORE
+            return fontStyle == PlatformFontStyle.Italic ? FontStyle.Italic : fontStyle == PlatformFontStyle.Oblique ? FontStyle.Oblique : FontStyle.Normal;
+#else
+            return fontStyle == FontStyles.Italic ? FontStyle.Italic : fontStyle == FontStyles.Oblique ? FontStyle.Oblique : FontStyle.Normal;
+#endif
+        }
+#endif
 
         private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info)
         {

@@ -3,10 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
-using SharpDX;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using D2D = global::SharpDX.Direct2D1;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -32,7 +30,7 @@ namespace HelixToolkit.UWP
             /// <summary>
             /// The geometry
             /// </summary>
-            protected D2D.PathGeometry1 geometry;
+            protected PathGeometry geometry;
 
             private List<Figure> figures = new List<Figure>();
             /// <summary>
@@ -56,14 +54,14 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private D2D.FillMode fillMode = D2D.FillMode.Alternate;
+            private D2DFillMode fillMode = D2DFillMode.Alternate;
             /// <summary>
             /// Gets or sets the fill mode.
             /// </summary>
             /// <value>
             /// The fill mode.
             /// </value>
-            public D2D.FillMode FillMode
+            public D2DFillMode FillMode
             {
                 set
                 {
@@ -102,7 +100,7 @@ namespace HelixToolkit.UWP
                     {
                         return;
                     }
-                    geometry = new D2D.PathGeometry1(context.DeviceResources.Factory2D);
+                    geometry = new PathGeometry(context.DeviceResources.Factory2D);
                     using (var sink = geometry.Open())
                     {
                         sink.SetFillMode(FillMode);

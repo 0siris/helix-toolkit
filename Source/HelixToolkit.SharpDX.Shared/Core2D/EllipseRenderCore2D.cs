@@ -2,8 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using D2D = global::SharpDX.Direct2D1;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -21,7 +19,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         public class EllipseRenderCore2D : ShapeRenderCore2DBase
         {
-            private D2D.Ellipse ellipse = new D2D.Ellipse();
+            private Ellipse ellipse = new Ellipse();
 
             /// <summary>
             /// Called when [render].

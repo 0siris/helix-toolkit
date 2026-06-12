@@ -2,14 +2,9 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
-using SharpDX.DirectWrite;
 using System.IO;
 using System;
 using System.Collections.Generic;
-using SharpDX.Direct2D1;
-using SharpDX.Mathematics.Interop;
-using SharpDX.WIC;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -32,6 +27,18 @@ namespace HelixToolkit.UWP
     public static class BitmapExtensions
     {
         static readonly ILogger logger = Logger.LogManager.Create(nameof(BitmapExtensions));
+
+        private static class ImageContainerFormats
+        {
+            public static readonly Guid Bmp = new Guid("0af1d87e-fcfe-4188-bdeb-a7906471cbe3");
+            public static readonly Guid Png = new Guid("1b7cfaf4-713f-473c-bbcd-6137425faeaf");
+            public static readonly Guid Ico = new Guid("a3a860c4-338f-4c17-919a-fba4b5628f21");
+            public static readonly Guid Jpeg = new Guid("19e4a5aa-5662-4fc5-a0c0-1758028e1057");
+            public static readonly Guid Wmp = new Guid("57a37caa-367a-4540-916b-f183c5093a4b");
+            public static readonly Guid Tiff = new Guid("163bcc30-e2e9-4f0b-961d-a3e9fdb788a3");
+            public static readonly Guid Gif = new Guid("1f8a5601-7d4d-4cbd-9c82-1bc8d4eeb9a5");
+        }
+
         public static MemoryStream ToBitmapStream(this string text, int fontSize, Color4 foreground,
             Color4 background, string fontFamily, FontWeight fontWeight, FontStyle fontStyle, Vector4 padding, ref float width, ref float height, bool predefinedSize,
             IDevice2DResources deviceResources)
@@ -79,51 +86,43 @@ namespace HelixToolkit.UWP
             switch (format)
             {
                 case Direct2DImageFormat.Bmp:
-                    return ContainerFormatGuids.Bmp;
+                    return ImageContainerFormats.Bmp;
                 case Direct2DImageFormat.Ico:
-                    return ContainerFormatGuids.Ico;
+                    return ImageContainerFormats.Ico;
                 case Direct2DImageFormat.Gif:
-                    return ContainerFormatGuids.Gif;
+                    return ImageContainerFormats.Gif;
                 case Direct2DImageFormat.Jpeg:
-                    return ContainerFormatGuids.Jpeg;
+                    return ImageContainerFormats.Jpeg;
                 case Direct2DImageFormat.Png:
-                    return ContainerFormatGuids.Png;
+                    return ImageContainerFormats.Png;
                 case Direct2DImageFormat.Tiff:
-                    return ContainerFormatGuids.Tiff;
+                    return ImageContainerFormats.Tiff;
                 case Direct2DImageFormat.Wmp:
-                    return ContainerFormatGuids.Wmp;
+                    return ImageContainerFormats.Wmp;
             }
             throw new NotSupportedException();
         }
 
-        public static global::SharpDX.WIC.Bitmap CreateBitmapStream(IDevice2DResources deviceResources, int width, int height, Direct2DImageFormat imageType, Action<RenderTarget> drawingAction)
+        public static Bitmap CreateBitmapStream(IDevice2DResources deviceResources, int width, int height, Direct2DImageFormat imageType, Action<Native.D2DDeviceContext> drawingAction)
         {
             if (width <= 0 || height <= 0)
             {
                 return null;
             }
 
-            var bitmap = new global::SharpDX.WIC.Bitmap(deviceResources.WICImgFactory, width, height, global::SharpDX.WIC.PixelFormat.Format32bppBGR,
-                BitmapCreateCacheOption.CacheOnDemand);
-            using (var target = new WicRenderTarget(deviceResources.Factory2D, bitmap,
-                new RenderTargetProperties()
-                {
-                    DpiX = 96,
-                    DpiY = 96,
-                    MinLevel = FeatureLevel.Level_DEFAULT,
-                    PixelFormat = new global::SharpDX.Direct2D1.PixelFormat(global::SharpDX.DXGI.Format.Unknown, AlphaMode.Unknown)
-                }))
+            var bitmap = new Bitmap(new Size2F(width, height));
+            using (var target = new Native.D2DDeviceContext())
             {
                 target.Transform = Matrix3x2.Identity;
                 target.BeginDraw();
-                drawingAction(target);
+                drawingAction?.Invoke(target);
                 target.EndDraw();
             }
             return bitmap;
         }
 
 
-        public static MemoryStream ToMemoryStream(this global::SharpDX.WIC.Bitmap bitmap,
+        public static MemoryStream ToMemoryStream(this Bitmap bitmap,
             IDevice2DResources deviceResources,
             Direct2DImageFormat imageType = Direct2DImageFormat.Bmp)
         {
@@ -132,24 +131,35 @@ namespace HelixToolkit.UWP
                 return null;
             }
 
-            var systemStream = new MemoryStream();
-
-            using (var stream = new WICStream(deviceResources.WICImgFactory, systemStream))
+            var width = Math.Max(1, bitmap.Width);
+            var height = Math.Max(1, bitmap.Height);
+            var stride = width * 4;
+            var pixelDataSize = stride * height;
+            var systemStream = new MemoryStream(54 + pixelDataSize);
+            using (var writer = new BinaryWriter(systemStream, System.Text.Encoding.UTF8, true))
             {
-                using (var encoder = new BitmapEncoder(deviceResources.WICImgFactory, imageType.ToWICImageFormat()))
-                {
-                    encoder.Initialize(stream);
-                    using (var frameEncoder = new BitmapFrameEncode(encoder))
-                    {
-                        frameEncoder.Initialize();
-                        frameEncoder.SetSize(bitmap.Size.Width, bitmap.Size.Height);
-                        frameEncoder.WriteSource(bitmap);
-                        frameEncoder.Commit();
-                        encoder.Commit();
-                        return systemStream;
-                    }
-                }
+                writer.Write((byte)'B');
+                writer.Write((byte)'M');
+                writer.Write(54 + pixelDataSize);
+                writer.Write((short)0);
+                writer.Write((short)0);
+                writer.Write(54);
+                writer.Write(40);
+                writer.Write(width);
+                writer.Write(-height);
+                writer.Write((short)1);
+                writer.Write((short)32);
+                writer.Write(0);
+                writer.Write(pixelDataSize);
+                writer.Write(96 * 39);
+                writer.Write(96 * 39);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(new byte[pixelDataSize]);
             }
+
+            systemStream.Position = 0;
+            return systemStream;
         }
 
         public static MemoryStream CreateSolidColorBitmapStream(IDevice2DResources deviceResources,
@@ -159,7 +169,7 @@ namespace HelixToolkit.UWP
             {
                 using (var brush = new SolidColorBrush(target, color, new BrushProperties() { Opacity = color.Alpha }))
                 {
-                    target.FillRectangle(new RawRectangleF(0, 0, width, height), brush);
+                    target.FillRectangle(new RectangleF(0, 0, width, height), brush);
                 }
             }))
             {
@@ -181,7 +191,7 @@ namespace HelixToolkit.UWP
                          EndPoint = endPoint
                      }, gradientCol))
                      {
-                         target.FillRectangle(new RawRectangleF(0, 0, width, height), brush);
+                         target.FillRectangle(new RectangleF(0, 0, width, height), brush);
                      }
                  }
              }))
@@ -207,7 +217,7 @@ namespace HelixToolkit.UWP
                         RadiusY = radiusY,
                     }, gradientCol))
                     {
-                        target.FillRectangle(new RawRectangleF(0, 0, width, height), brush);
+                        target.FillRectangle(new RectangleF(0, 0, width, height), brush);
                     }
                 }
             }))
@@ -224,7 +234,7 @@ namespace HelixToolkit.UWP
         {
             using (var bmp = CreateBitmapStream(deviceResources, faceSize * 6, faceSize, Direct2DImageFormat.Bmp, (target) =>
              {
-                 target.Clear(Color.Black);
+                 target.Clear(new Color4(0, 0, 0, 1));
                  var faceRect = new RectangleF(0, 0, faceSize, faceSize);
                  var faceColors = new Color4[] { frontFaceColor, backFaceColor, leftFaceColor, rightFaceColor, topFaceColor, bottomFaceColor };
                  var textColors = new Color4[] { frontTextColor, backTextColor, leftTextColor, rightTextColor, topTextColor, bottomTextColor };

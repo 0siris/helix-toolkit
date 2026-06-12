@@ -2,15 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
-using SharpDX.DirectWrite;
-using System.IO;
-using System;
 using System.Collections.Generic;
-using SharpDX.Direct2D1;
-using SharpDX.Mathematics.Interop;
-using SharpDX.WIC;
-using System.Linq;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

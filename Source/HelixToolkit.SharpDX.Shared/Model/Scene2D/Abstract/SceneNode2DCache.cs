@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using Microsoft.Extensions.Logging;
-using global::SharpDX.DXGI;
-using SharpDX;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -75,7 +73,7 @@ namespace HelixToolkit.UWP
                     }
 #endif
                     Disposer.RemoveAndDispose(ref bitmapCache);
-                    bitmapCache = BitmapProxy.Create("Cache", context.DeviceContext, size, Format.B8G8R8A8_UNorm);
+                    bitmapCache = BitmapProxy.Create("Cache", context.DeviceContext, size, default);
                     IsBitmapCacheValid = true;
                     IsVisualDirty = true;
                 }

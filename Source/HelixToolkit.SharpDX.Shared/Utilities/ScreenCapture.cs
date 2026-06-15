@@ -3,10 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using Microsoft.Extensions.Logging;
-using SharpDX.Direct3D11;
-using SharpDX.WIC;
 using System;
-using System.Diagnostics;
+using System.IO;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -22,6 +20,7 @@ namespace HelixToolkit.UWP
         public static class ScreenCapture
         {
             static readonly ILogger logger = Logger.LogManager.Create(nameof(ScreenCapture));
+
             /// <summary>
             /// Captures the texture.
             /// </summary>
@@ -29,27 +28,26 @@ namespace HelixToolkit.UWP
             /// <param name="source">The source.</param>
             /// <param name="stagingTexture">The staging texture.</param>
             /// <returns></returns>
-            public static bool CaptureTexture(DeviceContext context, Texture2D source, out Texture2D stagingTexture)
+            public static bool CaptureTexture(Render.DeviceContextProxy context, Texture2D source, out Texture2D stagingTexture)
             {
                 stagingTexture = null;
                 if (context == null || source == null)
                 {
                     return false;
                 }
+
                 var desc = source.Description;
                 if (source.Description.SampleDescription.Count > 1)
                 {
-
                     desc.SampleDescription.Count = 1;
                     desc.SampleDescription.Quality = 0;
-                    using (var texture = new Texture2D(context.Device, desc))
+                    using (var texture = context.NativeDevice.CreateTexture2D(desc))
                     {
                         for (var i = 0; i < desc.ArraySize; ++i)
                         {
                             for (var level = 0; level < desc.MipLevels; ++level)
                             {
-                                int mipSize;
-                                var index = texture.CalculateSubResourceIndex(level, i, out mipSize);
+                                var index = level + i * desc.MipLevels;
                                 context.ResolveSubresource(source, index, texture, index, desc.Format);
                             }
                         }
@@ -57,7 +55,7 @@ namespace HelixToolkit.UWP
                         desc.Usage = ResourceUsage.Staging;
                         desc.CpuAccessFlags = CpuAccessFlags.Read;
                         desc.OptionFlags &= ResourceOptionFlags.TextureCube;
-                        stagingTexture = new Texture2D(context.Device, desc);
+                        stagingTexture = context.NativeDevice.CreateTexture2D(desc);
                         context.CopyResource(texture, stagingTexture);
                     }
                 }
@@ -71,11 +69,12 @@ namespace HelixToolkit.UWP
                     desc.OptionFlags &= ResourceOptionFlags.TextureCube;
                     desc.CpuAccessFlags = CpuAccessFlags.Read;
                     desc.Usage = ResourceUsage.Staging;
-                    stagingTexture = new Texture2D(context.Device, desc);
+                    stagingTexture = context.NativeDevice.CreateTexture2D(desc);
                     context.CopyResource(source, stagingTexture);
                 }
                 return true;
             }
+
             /// <summary>
             /// Saves the wic texture to file.
             /// </summary>
@@ -101,26 +100,8 @@ namespace HelixToolkit.UWP
             /// <exception cref="System.NotSupportedException"></exception>
             public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string fileName, Guid containerFormat)
             {
-                Texture2D staging;
-                var legacyContext = GetLegacyImmediateContext(deviceResource);
-                if (!CaptureTexture(legacyContext, source, out staging))
-                {
-                    return false;
-                }
-                var desc = staging.Description;
-                var sRGB = false;
-                var pfGuid = GetPfGuid(desc.Format, ref sRGB);
-
-                if (pfGuid == Guid.Empty)
-                {
-                    staging.Dispose();
-                    throw new NotSupportedException($"Format: {desc.Format} does not support yet.");
-                }
-
-                using (var stream = new WICStream(deviceResource.WICImgFactory, fileName, global::SharpDX.IO.NativeFileAccess.Write))
-                {
-                    return CopyTextureToWICStream(deviceResource, staging, stream, pfGuid, containerFormat);
-                }
+                logger.LogDebug("WIC screen capture encoding is not implemented in the Silk.NET migration path yet.");
+                return false;
             }
 
             /// <summary>
@@ -131,159 +112,10 @@ namespace HelixToolkit.UWP
             /// <param name="bitmapStream">The bitmap stream.</param>
             /// <returns></returns>
             /// <exception cref="System.NotSupportedException"></exception>
-            public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source, System.IO.MemoryStream bitmapStream)
+            public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source, MemoryStream bitmapStream)
             {
-                Texture2D staging;
-                var legacyContext = GetLegacyImmediateContext(deviceResource);
-                if (!CaptureTexture(legacyContext, source, out staging))
-                {
-                    Disposer.RemoveAndDispose(ref staging);
-                    return false;
-                }
-                var desc = staging.Description;
-                var sRGB = false;
-                var pfGuid = GetPfGuid(desc.Format, ref sRGB);
-
-                if (pfGuid == Guid.Empty)
-                {
-                    Disposer.RemoveAndDispose(ref staging);
-                    throw new NotSupportedException($"Format: {desc.Format} does not support yet.");
-                }
-                var succ = false;
-                try
-                {
-                    using (var stream = new WICStream(deviceResource.WICImgFactory, bitmapStream))
-                    {
-                        succ = CopyTextureToWICStream(deviceResource, staging, stream, pfGuid, BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Bmp));
-                    }
-                }
-                finally
-                {
-                    Disposer.RemoveAndDispose(ref staging);
-                }
-                return succ;
-            }
-
-            private static Guid GetPfGuid(global::SharpDX.DXGI.Format format, ref bool sRGB)
-            {
-                var pfGuid = Guid.Empty;
-                sRGB = false;
-                switch (format)
-                {
-                    case global::SharpDX.DXGI.Format.R32G32B32A32_Float:
-                        pfGuid = PixelFormat.Format128bppRGBAFloat;
-                        break;
-                    case global::SharpDX.DXGI.Format.R16G16B16A16_Float:
-                        pfGuid = PixelFormat.Format64bppRGBAHalf;
-                        break;
-                    case global::SharpDX.DXGI.Format.R16G16B16A16_UNorm:
-                        pfGuid = PixelFormat.Format64bppRGBA;
-                        break;
-                    case global::SharpDX.DXGI.Format.R32_Float:
-                        pfGuid = PixelFormat.Format32bppGrayFloat;
-                        break;
-                    case global::SharpDX.DXGI.Format.R16_Float:
-                        pfGuid = PixelFormat.Format16bppGrayHalf;
-                        break;
-                    case global::SharpDX.DXGI.Format.R16_UNorm:
-                        pfGuid = PixelFormat.Format16bppGray;
-                        break;
-                    case global::SharpDX.DXGI.Format.R8G8B8A8_UNorm:
-                        pfGuid = PixelFormat.Format32bppRGBA;
-                        break;
-                    case global::SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb:
-                        pfGuid = PixelFormat.Format32bppRGBA;
-                        sRGB = true;
-                        break;
-                    case global::SharpDX.DXGI.Format.B8G8R8A8_UNorm:
-                        pfGuid = PixelFormat.Format32bppBGR;
-                        break;
-                    case global::SharpDX.DXGI.Format.B8G8R8A8_UNorm_SRgb:
-                        pfGuid = PixelFormat.Format32bppBGR;
-                        sRGB = true;
-                        break;
-                    default:
-                        break;
-                }
-                return pfGuid;
-            }
-
-            private static bool CopyTextureToWICStream(IDeviceResources deviceResource, Texture2D staging, WICStream stream, Guid pfGuid, Guid containerFormat)
-            {
-                using (var encoder = new BitmapEncoder(deviceResource.WICImgFactory, containerFormat))
-                {
-                    var desc = staging.Description;
-                    encoder.Initialize(stream);
-                    var targetGuid = Guid.Empty;
-                    using (var frame = new BitmapFrameEncode(encoder))
-                    {
-                        frame.Initialize();
-                        frame.SetSize(desc.Width, desc.Height);
-                        frame.SetResolution(72, 72);
-                        switch (desc.Format)
-                        {
-                            case global::SharpDX.DXGI.Format.R32G32B32A32_Float:
-                            case global::SharpDX.DXGI.Format.R16G16B16A16_Float:
-                                targetGuid = PixelFormat.Format96bppRGBFloat;
-                                break;
-                            case global::SharpDX.DXGI.Format.R16G16B16A16_UNorm:
-                                targetGuid = PixelFormat.Format48bppBGR;
-                                break;
-                            case global::SharpDX.DXGI.Format.R32_Float:
-                            case global::SharpDX.DXGI.Format.R16_Float:
-                            case global::SharpDX.DXGI.Format.R16_UNorm:
-                            case global::SharpDX.DXGI.Format.R8_UNorm:
-                            case global::SharpDX.DXGI.Format.A8_UNorm:
-                                targetGuid = PixelFormat.Format48bppBGR;
-                                break;
-                            default:
-                                targetGuid = PixelFormat.Format24bppBGR;
-                                break;
-                        }
-                        frame.SetPixelFormat(ref targetGuid);
-                        var legacyContext = GetLegacyImmediateContext(deviceResource);
-                        var databox = legacyContext.MapSubresource(staging, 0, MapMode.Read, MapFlags.None);
-
-                        try
-                        {
-                            if (targetGuid != pfGuid)
-                            {
-                                using (var bitmap = new Bitmap(deviceResource.WICImgFactory, desc.Width, desc.Height, pfGuid,
-                                    new global::SharpDX.DataRectangle(databox.DataPointer, databox.RowPitch)))
-                                {
-                                    using (var converter = new FormatConverter(deviceResource.WICImgFactory))
-                                    {
-                                        if (converter.CanConvert(pfGuid, targetGuid))
-                                        {
-                                            converter.Initialize(bitmap, targetGuid, BitmapDitherType.None, null, 0, BitmapPaletteType.MedianCut);
-                                            frame.WriteSource(converter);
-                                        }
-                                        else
-                                        {
-                                            logger.LogDebug("Cannot convert");
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                frame.WritePixels(desc.Height, new global::SharpDX.DataRectangle(databox.DataPointer, databox.RowPitch), databox.RowPitch * desc.Height);
-                            }
-                        }
-                        finally
-                        {
-                            legacyContext.UnmapSubresource(staging, 0);
-                        }
-                        frame.Commit();
-                        encoder.Commit();
-                        return true;
-                    }
-                }
-            }
-
-            private static DeviceContext GetLegacyImmediateContext(IDeviceResources deviceResource)
-            {
-                return (deviceResource as EffectsManager)?.LegacyDevice?.ImmediateContext;
+                logger.LogDebug("WIC screen capture encoding is not implemented in the Silk.NET migration path yet.");
+                return false;
             }
         }
     }

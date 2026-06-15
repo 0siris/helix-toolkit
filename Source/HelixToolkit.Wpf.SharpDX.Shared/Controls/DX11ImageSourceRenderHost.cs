@@ -132,7 +132,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     try
                     {
 
-                        if ((EffectsManager as EffectsManager)?.LegacyDevice?.DeviceRemovedReason == global::SharpDX.Result.Ok)
+                        if (surfaceD3D?.IsDeviceStateOk() == true)
                         {
                             Restart(true);
                         }
@@ -150,7 +150,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 else
                 {
                     frontBufferChange = true;
-                    if ((EffectsManager as EffectsManager)?.LegacyDevice?.DeviceRemovedReason != global::SharpDX.Result.Ok)
+                    if (surfaceD3D?.IsDeviceStateOk() != true)
                     {
                         hasBackBuffer = false;
                         EndD3D();

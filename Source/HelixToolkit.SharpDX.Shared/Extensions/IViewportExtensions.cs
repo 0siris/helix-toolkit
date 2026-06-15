@@ -419,7 +419,7 @@ namespace HelixToolkit.UWP
                 {
                     var memoryStream = new System.IO.MemoryStream();
                     Utilities.ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
-                        view.RenderHost.RenderBuffer.BackBuffer.Resource as global::SharpDX.Direct3D11.Texture2D, memoryStream);
+                        view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D, memoryStream);
                     memoryStream.Position = 0;
                     return memoryStream;
                 }

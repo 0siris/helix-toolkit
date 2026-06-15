@@ -5,7 +5,6 @@ Copyright (c) 2021 Helix Toolkit contributors
 using System;
 using System.IO;
 using SharpDX;
-using SharpDX.DXGI;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else

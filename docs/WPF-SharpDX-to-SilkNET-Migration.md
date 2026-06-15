@@ -395,6 +395,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `BitmapExtensions`, `AnimationExtensions`, `SpritePackerBase`, `ImagePacker`, `TextInfoExtPacker`, `BillboardSingleText3D` und `BillboardText3D` verwenden in dieser Kante keine SharpDX-Direct2D-/DirectWrite-/WIC-Typen mehr. `D2DResourceHandles.cs` enthält dafür minimale Gradient-/Brush-/Bitmap-Wrapper; `BitmapExtensions.ToMemoryStream(...)` erzeugt einen einfachen Managed-BMP-Placeholder-Stream, damit Billboard-Texture-Streams weiterhin eine deterministische Ausgabe haben. Echtes Text-/Gradient-Rendering, WIC-Encoding und Image-Decoding bleiben bewusst separate Arbeiten. Der gefilterte Build meldet keine Fehler in den portierten Bitmap-/Billboard-/ImagePacker-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `725` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in verbleibenden Direct3D11-/DXGI-Imports, ScreenCapture-/ScreenClone-/Interop-Code, TextureLoader/WICHelper und qualifizierten SharpDX-Math-/Utility-Typen.
 
+Zusätzliche Prüfung der portierten Material-/Scene-State-Signatur-Kante:
+
+```powershell
+rg -n "using SharpDX\.Direct3D11|using SharpDX\.DXGI|using global::SharpDX\.Direct3D11|global::SharpDX\.DXGI\.Format|global::SharpDX\.Direct2D1" Source\HelixToolkit.SharpDX.Shared\Model\Material Source\HelixToolkit.SharpDX.Shared\Model\Scene Source\HelixToolkit.SharpDX.Shared\Interface Source\HelixToolkit.SharpDX.Shared\Render\RenderHost\DefaultRenderHost.cs -g "*.cs"
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'DiffuseMaterialCore.cs|PhongMaterialCore.cs|PBRMaterialCore.cs|TextureModel.cs|VolumeTextureMaterial.cs|GeometryNode.cs|MeshNode.cs|LineNode.cs|BillboardNode.cs|IRenderer.cs|IRenderCoreParams.cs|DefaultRenderHost.cs|BatchedMeshNode.cs|PointNode.cs|ParticleStormNode.cs|ScreenQuadNode.cs|ViewBoxNode.cs|VolumeTextureNode.cs|ITextureModelRepository.cs|IMaterial.cs|PBRMaterialVariable.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Die einfachen MaterialCore-, SceneNode- und Interface-State-Signaturen verwenden in dieser Kante keine SharpDX-D3D11-/DXGI-Imports oder qualifizierten `global::SharpDX.DXGI.Format`-Werte mehr. `RenderParameter.RenderTargetView`, `RenderParameter.DepthStencilView`, `RenderParameter.CurrentTargetTexture` und `RenderParameter2D.RenderTarget` zeigen auf eigene View-/Resource-/Bitmap-Typen; `DefaultRenderHost.OnRender(...)` erzeugt das RenderTargetView-Array mit dem eigenen `RenderTargetView`. `VolumeTextureRawDataMaterialCore.LoadRAWFile(...)` verwendet den eigenen `Format`. Der gefilterte Build meldet keine Fehler in den portierten Material-/Scene-/Interface-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `697` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in nicht portierten RenderCore-/PostEffect-/ScreenClone-Dateien, RenderBuffer-/SwapChain-Interop, TextureLoader/WICHelper, SharpDX.Toolkit-Graphics und qualifizierten SharpDX-Math-/Utility-Typen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -415,7 +425,8 @@ Stand dieses Implementierungsschnitts:
 - Die RenderHost-/Core2D-D2D-Resource-Grenze ist von SharpDX-Direct2D-/DirectWrite-/WIC-Signaturen gelöst; die konkrete 2D-Renderer-, Text-, WIC- und Bitmap-Loading-Implementierung bleibt eine eigene Portierungskante.
 - Die konkrete Core2D-/Scene2D-D2D-Typfläche ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; echte Direct2D-Zeichnung und WIC-Decoding sind weiter Platzhalter bzw. separate Kanten.
 - Die Billboard-/BitmapExtensions-/ImagePacker-DWrite-/WIC-Kante ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; Managed-BMP-Streams sind vorerst Platzhalter für spätere echte Text-/Bitmap-Encoding-Implementierung.
-- Der nächste Umbau muss deshalb bei verbleibenden Direct3D11-/DXGI-RenderCore-/Utility-Typen, ScreenCapture-/ScreenClone-/TextureLoader-WIC oder SwapChain-/D3DImage-Interop ansetzen.
+- Die einfache Material-/Scene-State-Signatur-Kante ist von SharpDX-D3D11-/DXGI-Imports gelöst; Material- und SceneNode-Properties verwenden die eigenen State-/Format-/View-Typen.
+- Der nächste Umbau muss deshalb bei verbleibenden Direct3D11-/DXGI-RenderCore-/PostEffect-/RenderBuffer-Typen, ScreenCapture-/ScreenClone-/TextureLoader-WIC oder SwapChain-/D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -432,12 +443,13 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Verbleibende D3D11/DXGI-Typen in RenderBuffer-, ScreenClone-, RenderCore- und Utility-Schichten auf Silk.NET umstellen.
-2. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
-3. WIC-/Bitmap-/Texture-Loading separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-4. `SharpDX.Toolkit.Graphics.WICHelper` und `TextureLoader` von SharpDX-WIC-/DXGI-Typen lösen.
-5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. Verbleibende D3D11/DXGI-Typen in RenderCore-/PostEffect-Schichten auf eigene State-/View-/Resource-Typen umstellen.
+2. RenderBuffer-/SwapChain-Interop von den letzten SharpDX-D3D11-/DXGI-Signaturen lösen.
+3. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
+4. WIC-/Bitmap-/Texture-Loading separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+5. `SharpDX.Toolkit.Graphics.WICHelper` und `TextureLoader` von SharpDX-WIC-/DXGI-Typen lösen.
+6. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+7. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 

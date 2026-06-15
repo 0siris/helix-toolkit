@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System;
 #if !NETFX_CORE
@@ -63,10 +62,10 @@ namespace HelixToolkit.UWP
         /// <summary>
         /// 
         /// </summary>
-        public struct RenderParameter2D
-        {
-            public global::SharpDX.Direct2D1.Bitmap1 RenderTarget;
-        }
+    public struct RenderParameter2D
+    {
+            public Bitmap RenderTarget;
+    }
 
         /// <summary>
         /// 

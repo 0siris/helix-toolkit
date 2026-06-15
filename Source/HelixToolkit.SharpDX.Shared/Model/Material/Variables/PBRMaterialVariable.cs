@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Runtime.CompilerServices;
-using global::SharpDX.Direct3D11;
 using global::SharpDX;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

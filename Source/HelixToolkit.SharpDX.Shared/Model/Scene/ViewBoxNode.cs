@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using global::SharpDX.Direct3D11;
 using SharpDX;
 using System;
 using System.Collections.Generic;

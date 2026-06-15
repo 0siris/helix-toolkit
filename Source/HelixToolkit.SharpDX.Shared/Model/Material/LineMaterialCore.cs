@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
 using System.Runtime.Serialization;
-using SharpDX.Direct3D11;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

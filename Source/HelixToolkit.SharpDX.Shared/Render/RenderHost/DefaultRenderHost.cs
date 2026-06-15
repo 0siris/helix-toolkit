@@ -3,18 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#else
-using Device = SharpDX.Direct3D11.Device;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -315,7 +308,7 @@ namespace HelixToolkit.UWP
             {
                 var renderParameter = new RenderParameter()
                 {
-                    RenderTargetView = new global::SharpDX.Direct3D11.RenderTargetView[] { RenderTargetBufferView },
+                    RenderTargetView = new RenderTargetView[] { RenderTargetBufferView },
                     DepthStencilView = DepthStencilBufferView,
                     CurrentTargetTexture = RenderBuffer.ColorBuffer.Resource,
                     IsMSAATexture = RenderBuffer.ColorBufferSampleDesc.Count > 1,

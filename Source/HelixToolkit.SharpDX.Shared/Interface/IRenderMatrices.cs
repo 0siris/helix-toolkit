@@ -11,7 +11,6 @@
 using System;
 using System.Collections.Generic;
 using global::SharpDX;
-using global::SharpDX.Direct3D11;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

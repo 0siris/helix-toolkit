@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.IO;
 using global::SharpDX;
-using SharpDX.Direct3D11;
 using System.Linq;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

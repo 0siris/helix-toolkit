@@ -4,15 +4,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
-using SharpDX.Direct3D11;
 using System;
 using System.Runtime.CompilerServices;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
-#else
-using Device = SharpDX.Direct3D11.Device;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

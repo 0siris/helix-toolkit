@@ -1,10 +1,4 @@
-﻿using SharpDX;
-using SharpDX.DXGI;
-using System;
-using System.Threading;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

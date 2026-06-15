@@ -3,16 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
 using System;
-#if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContextProxy = SharpDX.Direct3D11.DeviceContext1;
-#else
-using Device = SharpDX.Direct3D11.Device;
-#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -227,13 +218,13 @@ namespace HelixToolkit.UWP
 #endif
             /// <summary>
             /// The vertical synchronize internal. Only valid under swapchain rendering mode. Default = 0
-            /// <para>0: disable; 1: Sync with frame; More detail: <see cref="SwapChain.Present(int, PresentFlags)"/></para>
+            /// <para>0: disable; 1: Sync with frame.</para>
             /// </summary>
             public int VSyncInterval = 0;
             /// <summary>
             /// The currently used Direct3D Device
             /// </summary>
-            public Device Device
+            public SilkD3DDevice Device
             {
                 get
                 {

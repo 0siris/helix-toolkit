@@ -499,7 +499,7 @@ namespace HelixToolkit.UWP
                 return new BufferDesc
                 {
                     ByteWidth = (uint)description.SizeInBytes,
-                    Usage = (Usage)description.Usage,
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
                     BindFlags = (uint)description.BindFlags,
                     CPUAccessFlags = (uint)description.CpuAccessFlags,
                     MiscFlags = (uint)description.OptionFlags,
@@ -515,7 +515,7 @@ namespace HelixToolkit.UWP
                     MipLevels = (uint)description.MipLevels,
                     ArraySize = (uint)description.ArraySize,
                     Format = description.Format,
-                    Usage = (Usage)description.Usage,
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
                     BindFlags = (uint)description.BindFlags,
                     CPUAccessFlags = (uint)description.CpuAccessFlags,
                     MiscFlags = (uint)description.OptionFlags
@@ -532,7 +532,7 @@ namespace HelixToolkit.UWP
                     ArraySize = (uint)description.ArraySize,
                     Format = description.Format,
                     SampleDesc = new Silk.NET.DXGI.SampleDesc((uint)description.SampleDescription.Count, (uint)description.SampleDescription.Quality),
-                    Usage = (Usage)description.Usage,
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
                     BindFlags = (uint)description.BindFlags,
                     CPUAccessFlags = (uint)description.CpuAccessFlags,
                     MiscFlags = (uint)description.OptionFlags
@@ -548,7 +548,7 @@ namespace HelixToolkit.UWP
                     Depth = (uint)description.Depth,
                     MipLevels = (uint)description.MipLevels,
                     Format = description.Format,
-                    Usage = (Usage)description.Usage,
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
                     BindFlags = (uint)description.BindFlags,
                     CPUAccessFlags = (uint)description.CpuAccessFlags,
                     MiscFlags = (uint)description.OptionFlags

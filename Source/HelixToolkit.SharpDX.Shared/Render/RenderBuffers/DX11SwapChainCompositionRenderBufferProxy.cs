@@ -3,11 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
-using Device = SharpDX.Direct3D11.Device;
-using System.Linq;
 using System;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -79,23 +74,34 @@ namespace HelixToolkit.UWP
                     swapChain.ResizeBuffers(swapChain.Description1.BufferCount, TargetWidth, TargetHeight, swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
                 }
 
-                var backBuffer = new ShaderResourceViewProxy(Device, Texture2D.FromSwapChain<Texture2D>(swapChain, 0));
+                var backBuffer = CreateBackBufferTexture(width, height);
                 d2dTarget = new D2DTargetProxy();
                 d2dTarget.Initialize(swapChain, DeviceContext2D);
                 return backBuffer;
             }
 
+            private ShaderResourceViewProxy CreateBackBufferTexture(int width, int height)
+            {
+                var desc = new Texture2DDescription
+                {
+                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                    Format = Format,
+                    Width = width,
+                    Height = height,
+                    MipLevels = 1,
+                    SampleDescription = new SampleDescription(1, 0),
+                    Usage = ResourceUsage.Default,
+                    OptionFlags = ResourceOptionFlags.Shared,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    ArraySize = 1
+                };
+                return new ShaderResourceViewProxy(DeviceResources, desc);
+            }
+
             private SwapChain2 CreateSwapChain()
             {
                 var desc = CreateSwapChainDescription();
-                using var dxgiDevice2 = Device.QueryInterface<global::SharpDX.DXGI.Device2>();
-                using var dxgiAdapter = dxgiDevice2.Adapter;
-                using var dxgiFactory2 = dxgiAdapter.GetParent<Factory2>();
-                // The CreateSwapChain method is used so we can descend
-                // from this class and implement a swapchain for a desktop
-                // or a Windows 8 AppStore app
-                using var swapChain1 = new global::SharpDX.DXGI.SwapChain1(dxgiFactory2, Device, ref desc);
-                return swapChain1.QueryInterface<global::SharpDX.DXGI.SwapChain2>();
+                return new SwapChain2(desc);
             }
 
             /// <summary>
@@ -143,15 +149,7 @@ namespace HelixToolkit.UWP
                 }
                 else
                 {
-                    var desc = ResultDescriptor.Find(res);
-                    if (desc == global::SharpDX.DXGI.ResultCode.DeviceRemoved || desc == global::SharpDX.DXGI.ResultCode.DeviceReset || desc == global::SharpDX.DXGI.ResultCode.DeviceHung)
-                    {
-                        RaiseOnDeviceLost();
-                    }
-                    else
-                    {
-                        swapChain.Present(VSyncInterval, PresentFlags.Restart, presentParams);
-                    }
+                    swapChain.Present(VSyncInterval, PresentFlags.Restart, presentParams);
                     return false;
                 }
             }

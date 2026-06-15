@@ -92,6 +92,13 @@ namespace HelixToolkit.UWP
 
             public bool IsDisposed { get; private set; }
 
+            public int CheckMultisampleQualityLevels(Format format, int sampleCount)
+            {
+                uint qualityLevels = 0;
+                SilkMarshal.ThrowHResult(nativeDevice.CheckMultisampleQualityLevels(format, (uint)sampleCount, ref qualityLevels));
+                return (int)qualityLevels;
+            }
+
             public SilkD3DDeviceContext CreateDeferredContext()
             {
                 ID3D11DeviceContext* context = null;

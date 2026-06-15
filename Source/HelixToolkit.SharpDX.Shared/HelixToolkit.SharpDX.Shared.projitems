@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DMathTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DShaderHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DStateHandles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\DXGISwapChainHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DDeviceHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DResourceHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DViewHandles.cs" />

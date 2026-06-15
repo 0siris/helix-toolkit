@@ -3,12 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using SharpDX;
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
-using Device = SharpDX.Direct3D11.Device;
-using System.Linq;
-using System;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -58,7 +52,7 @@ namespace HelixToolkit.UWP
                     ArraySize = 1
                 };
 
-                var backBuffer = new ShaderResourceViewProxy(Device, colordescNMS);
+                var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNMS);
                 d2dTarget = new D2DTargetProxy();
                 d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
                 return backBuffer;
@@ -70,7 +64,7 @@ namespace HelixToolkit.UWP
             /// <returns></returns>
             public override bool Present()
             {
-                Device.ImmediateContext.Flush();
+                DeviceResources.NativeDeviceResources.ImmediateContext.Flush();
                 return true;
             }
         }

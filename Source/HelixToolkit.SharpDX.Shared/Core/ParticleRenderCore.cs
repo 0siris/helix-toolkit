@@ -7,8 +7,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#endif
 using System;
 using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.Direct3D;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;

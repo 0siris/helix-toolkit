@@ -3,10 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Format = global::SharpDX.DXGI.Format;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else

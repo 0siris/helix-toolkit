@@ -405,6 +405,16 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Die einfachen MaterialCore-, SceneNode- und Interface-State-Signaturen verwenden in dieser Kante keine SharpDX-D3D11-/DXGI-Imports oder qualifizierten `global::SharpDX.DXGI.Format`-Werte mehr. `RenderParameter.RenderTargetView`, `RenderParameter.DepthStencilView`, `RenderParameter.CurrentTargetTexture` und `RenderParameter2D.RenderTarget` zeigen auf eigene View-/Resource-/Bitmap-Typen; `DefaultRenderHost.OnRender(...)` erzeugt das RenderTargetView-Array mit dem eigenen `RenderTargetView`. `VolumeTextureRawDataMaterialCore.LoadRAWFile(...)` verwendet den eigenen `Format`. Der gefilterte Build meldet keine Fehler in den portierten Material-/Scene-/Interface-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `697` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in nicht portierten RenderCore-/PostEffect-/ScreenClone-Dateien, RenderBuffer-/SwapChain-Interop, TextureLoader/WICHelper, SharpDX.Toolkit-Graphics und qualifizierten SharpDX-Math-/Utility-Typen.
 
+Zusätzliche Prüfung der RenderCore-/PostEffect-D3D11-/DXGI-Signatur-Kante:
+
+```powershell
+rg -n "SharpDX\.(Direct3D11|Direct3D|DXGI)|global::SharpDX\.(Direct3D11|Direct3D|DXGI)|using SharpDX\.(Direct3D11|Direct3D|DXGI)|using global::SharpDX\.(Direct3D11|Direct3D|DXGI)" Source\HelixToolkit.SharpDX.Shared\Core\DrawScreenQuadCore.cs Source\HelixToolkit.SharpDX.Shared\Core\ParticleRenderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\Lights\LightCoreBase.cs Source\HelixToolkit.SharpDX.Shared\Core\MorphTargetUploaderCore.cs Source\HelixToolkit.SharpDX.Shared\Core\PostEffects Source\HelixToolkit.SharpDX.Shared\ShaderManager\BufferPool.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\ConstantBufferPool.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\TextureResourceManager.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'DrawScreenQuadCore|ParticleRenderCore|LightCoreBase|MorphTargetUploaderCore|PostEffectFXAA|PostEffectBlurCore|PostEffectBoomCore|PostEffectMeshXRay|PostEffectMeshXRayGrid|BufferPool.cs|ConstantBufferPool.cs|TextureResourceManager.cs|D3DResourceHandles.cs|D3DViewHandles.cs|D3DStateHandles.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Die einfachen RenderCore- und PostEffect-Dateien `DrawScreenQuadCore`, `ParticleRenderCore`, `LightCoreBase`, `MorphTargetUploaderCore`, `PostEffectFXAA`, `PostEffectBlurCore`, `PostEffectBloomCore`, `PostEffectMeshXRayCore` und `PostEffectMeshXRayGridCore` verwenden in dieser Kante keine SharpDX-D3D11-/D3D-/DXGI-Imports mehr. `MorphTargetUploaderCore` erzeugt seine SRVs direkt ueber die native Buffer-Resource, und die kleinen ShaderManager-Pool-Signaturen sind von `SharpDX.Direct3D11.Device` gelöst, ohne `EffectsManager.LegacyDevice` selbst zu migrieren. Der gefilterte Build meldet keine Fehler in den portierten RenderCore-/PostEffect-/Pool-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `675` Compilefehlern gemessen; die ersten Fehlergruppen liegen weiterhin in ScreenClone-/ScreenCapture-/Interop-Code, RenderBuffer-/SwapChain-Interop, TextureLoader/WICHelper, SharpDX.Toolkit-Graphics und qualifizierten SharpDX-Math-/Utility-Typen.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -426,7 +436,8 @@ Stand dieses Implementierungsschnitts:
 - Die konkrete Core2D-/Scene2D-D2D-Typfläche ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; echte Direct2D-Zeichnung und WIC-Decoding sind weiter Platzhalter bzw. separate Kanten.
 - Die Billboard-/BitmapExtensions-/ImagePacker-DWrite-/WIC-Kante ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; Managed-BMP-Streams sind vorerst Platzhalter für spätere echte Text-/Bitmap-Encoding-Implementierung.
 - Die einfache Material-/Scene-State-Signatur-Kante ist von SharpDX-D3D11-/DXGI-Imports gelöst; Material- und SceneNode-Properties verwenden die eigenen State-/Format-/View-Typen.
-- Der nächste Umbau muss deshalb bei verbleibenden Direct3D11-/DXGI-RenderCore-/PostEffect-/RenderBuffer-Typen, ScreenCapture-/ScreenClone-/TextureLoader-WIC oder SwapChain-/D3DImage-Interop ansetzen.
+- Die einfache RenderCore-/PostEffect-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; die verbleibenden Treffer in diesem Umfeld liegen in bewusst ausgeklammerten ScreenClone-/RenderBuffer-/SwapChain-/EffectsManager-Interop-Pfaden.
+- Der nächste Umbau muss deshalb bei verbleibenden RenderBuffer-/SwapChain-Interop-Typen, ScreenCapture-/ScreenClone-/TextureLoader-WIC oder D3DImage-Interop ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -443,12 +454,11 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Verbleibende D3D11/DXGI-Typen in RenderCore-/PostEffect-Schichten auf eigene State-/View-/Resource-Typen umstellen.
-2. RenderBuffer-/SwapChain-Interop von den letzten SharpDX-D3D11-/DXGI-Signaturen lösen.
-3. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
+1. RenderBuffer-/SwapChain-Interop von den letzten SharpDX-D3D11-/DXGI-Signaturen lösen.
+2. ScreenCapture-/ScreenClone-/D3DImage-Interop von `EffectsManager.LegacyDevice` lösen.
+3. `SharpDX.Toolkit.Graphics`-Parsing- und Texturcontainer von SharpDX-D3D11-/DXGI-/IO-Typen lösen.
 4. WIC-/Bitmap-/Texture-Loading separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-5. `SharpDX.Toolkit.Graphics.WICHelper` und `TextureLoader` von SharpDX-WIC-/DXGI-Typen lösen.
-6. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
 7. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar

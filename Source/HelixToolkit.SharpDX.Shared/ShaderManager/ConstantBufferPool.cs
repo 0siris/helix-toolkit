@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX.Direct3D11;
 using System;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -42,7 +41,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The device.
             /// </value>
-            Device Device
+            object Device
             {
                 get;
             }
@@ -69,13 +68,13 @@ namespace HelixToolkit.UWP
         public sealed class ConstantBufferPool : ReferenceCountedDictionaryPool<string, ConstantBufferProxy, ConstantBufferDescription>, IConstantBufferPool
         {
             static readonly ILogger logger = LogManager.Create<ConstantBufferPool>();
-            private readonly Device device;
-            public Device Device => device;
+            private readonly object device;
+            public object Device => device;
             /// <summary>
             /// Initializes a new instance of the <see cref="ConstantBufferPool"/> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            public ConstantBufferPool(Device device)
+            public ConstantBufferPool(object device)
                 : base(false)
             {
                 this.device = device;

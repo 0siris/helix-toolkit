@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,12 +35,12 @@ namespace HelixToolkit.UWP
         }
         private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryMipMaps = new Dictionary<Guid, ShaderResourceViewProxy>();
         private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryNoMipMaps = new Dictionary<Guid, ShaderResourceViewProxy>();
-        private readonly Device device;
+        private readonly object device;
         /// <summary>
         /// Initializes a new instance of the <see cref="TextureResourceManager"/> class.
         /// </summary>
         /// <param name="device">The device.</param>
-        public TextureResourceManager(Device device)
+        public TextureResourceManager(object device)
         {
             this.device = device;
         }

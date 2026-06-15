@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 
 #if !NETFX_CORE
@@ -95,7 +94,7 @@ namespace HelixToolkit.UWP
                     MTDeltasB.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
                     RemoveAndDispose(ref mtDeltasSRV);
                     //Handle deltas srv
-                    mtDeltasSRV = new ShaderResourceViewProxy(MTDeltasB.Buffer.Device, MTDeltasB.Buffer);
+                    mtDeltasSRV = new ShaderResourceViewProxy(MTDeltasB.Buffer, MTDeltasB.Buffer.Device.CreateShaderResourceView(MTDeltasB.Buffer));
                     mtDeltasSRV.CreateTextureView();
 
                     //Setup offsets buffer
@@ -103,7 +102,7 @@ namespace HelixToolkit.UWP
                     MTOffsetsB.UploadDataToBuffer(deviceContext, morphTargetOffsets, c);
                     RemoveAndDispose(ref mtOffsetsSRV);
                     //Handle offsets srv
-                    mtOffsetsSRV = new ShaderResourceViewProxy(MTOffsetsB.Buffer.Device, MTOffsetsB.Buffer);
+                    mtOffsetsSRV = new ShaderResourceViewProxy(MTOffsetsB.Buffer, MTOffsetsB.Buffer.Device.CreateShaderResourceView(MTOffsetsB.Buffer));
                     mtOffsetsSRV.CreateTextureView();
 
 

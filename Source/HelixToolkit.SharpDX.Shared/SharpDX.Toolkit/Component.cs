@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SharpDX.Toolkit
@@ -12,14 +13,7 @@ namespace SharpDX.Toolkit
     /// </summary>
     public abstract class Component : ComponentBase, IDisposable
     {
-        /// <summary>
-        /// Gets or sets the disposables.
-        /// </summary>
-        /// <value>The disposables.</value>
-        protected DisposeCollector DisposeCollector
-        {
-            get; set;
-        }
+        private List<IDisposable> disposeCollector;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Component"/> class.
@@ -98,10 +92,14 @@ namespace SharpDX.Toolkit
         {
             if (disposeManagedResources)
             {
-                // Dispose all ComObjects
-                if (DisposeCollector != null)
-                    DisposeCollector.Dispose();
-                DisposeCollector = null;
+                if (disposeCollector != null)
+                {
+                    for (var i = disposeCollector.Count - 1; i >= 0; i--)
+                    {
+                        disposeCollector[i]?.Dispose();
+                    }
+                    disposeCollector = null;
+                }
             }
         }
 
@@ -113,9 +111,12 @@ namespace SharpDX.Toolkit
         {
             if (!ReferenceEquals(toDisposeArg, null))
             {
-                if (DisposeCollector == null)
-                    DisposeCollector = new DisposeCollector();
-                return DisposeCollector.Collect(toDisposeArg);
+                if (toDisposeArg is IDisposable disposable)
+                {
+                    disposeCollector ??= new List<IDisposable>();
+                    disposeCollector.Add(disposable);
+                }
+                return toDisposeArg;
             }
             return default(T);
         }
@@ -126,8 +127,17 @@ namespace SharpDX.Toolkit
         /// <param name="objectToDispose">Object to dispose.</param>
         protected internal void RemoveAndDispose<T>(ref T objectToDispose)
         {
-            if (!ReferenceEquals(objectToDispose, null) && DisposeCollector != null)
-                DisposeCollector.RemoveAndDispose(ref objectToDispose);
+            if (ReferenceEquals(objectToDispose, null))
+            {
+                return;
+            }
+
+            if (objectToDispose is IDisposable disposable)
+            {
+                disposeCollector?.Remove(disposable);
+                disposable.Dispose();
+            }
+            objectToDispose = default(T);
         }
 
         /// <summary>
@@ -137,8 +147,10 @@ namespace SharpDX.Toolkit
         /// <param name="toDisposeArg">To dispose.</param>
         protected internal void RemoveToDispose<T>(T toDisposeArg)
         {
-            if (!ReferenceEquals(toDisposeArg, null) && DisposeCollector != null)
-                DisposeCollector.Remove(toDisposeArg);
+            if (toDisposeArg is IDisposable disposable)
+            {
+                disposeCollector?.Remove(disposable);
+            }
         }
     }
 }

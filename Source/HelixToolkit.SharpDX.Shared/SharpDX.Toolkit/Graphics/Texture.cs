@@ -3,12 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
-using SharpDX.IO;
-using DeviceChild = SharpDX.Direct3D11.DeviceChild;
 
 namespace SharpDX.Toolkit.Graphics
 {
@@ -44,7 +39,7 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="device"></param>
         /// <param name="description"></param>
-        protected Texture(Direct3D11.Device device, TextureDescription description) : base(device)
+        protected Texture(NativeD3DDevice device, TextureDescription description) : base(device)
         {
             Description = description;
             IsBlockCompressed = FormatHelper.IsCompressed(description.Format);
@@ -53,7 +48,7 @@ namespace SharpDX.Toolkit.Graphics
         }
 
         /// <summary>	
-        /// <dd> <p>Texture width (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture1DSize"/> (16384). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture width in texels.
         /// </summary>	
         /// <remarks>
         /// This field is valid for all textures: <see cref="Texture1D"/>, <see cref="Texture2D"/>, <see cref="Texture3D"/> and <see cref="TextureCube"/>.
@@ -67,7 +62,7 @@ namespace SharpDX.Toolkit.Graphics
         }
 
         /// <summary>	
-        /// <dd> <p>Texture height (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture height in texels.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture2D"/>, <see cref="Texture3D"/> and <see cref="TextureCube"/>.
@@ -81,7 +76,7 @@ namespace SharpDX.Toolkit.Graphics
         }
 
         /// <summary>	
-        /// <dd> <p>Texture depth (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture depth in texels.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture3D"/>.
@@ -110,7 +105,7 @@ namespace SharpDX.Toolkit.Graphics
         /// 
         /// </summary>
         /// <param name="resource"></param>
-        protected override void Initialize(DeviceChild resource)
+        protected override void Initialize(NativeD3DResource resource)
         {
             // Be sure that we are storing only the main device (which contains the immediate context).
             base.Initialize(resource);
@@ -288,7 +283,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="graphicsDevice">The graphics device.</param>
         /// <param name="description">The description.</param>
         /// <returns>A Texture instance, either a RenderTarget or DepthStencilBuffer or Texture, depending on Binding flags.</returns>
-        public static Texture New(Direct3D11.Device graphicsDevice, TextureDescription description)
+        public static Texture New(NativeD3DDevice graphicsDevice, TextureDescription description)
         {
             if (graphicsDevice == null)
             {
@@ -329,7 +324,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <returns>A texture</returns>
-        public static Texture Load(Direct3D11.Device device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static Texture Load(NativeD3DDevice device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             stream.Position = 0;
             var image = Image.Load(stream);
@@ -369,9 +364,9 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <returns>A texture</returns>
-        public static Texture Load(Direct3D11.Device device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static Texture Load(NativeD3DDevice device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
-            using (var stream = new NativeFileStream(filePath, NativeFileMode.Open, NativeFileAccess.Read))
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 return Load(device, stream, flags, usage);
         }
 
@@ -569,7 +564,7 @@ namespace SharpDX.Toolkit.Graphics
                 MipIndex = mipIndex;
             }
 
-            public readonly DXGI.Format ViewFormat;
+            public readonly Format ViewFormat;
 
             public readonly ViewType ViewType;
 

@@ -2,22 +2,17 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// Abstract class front end to <see cref="SharpDX.Direct3D11.Texture3D"/>.
+    /// Abstract class front end to the native D3D Texture3D.
     /// </summary>
     public abstract class Texture3DBase : Texture
     {
         /// <summary>
         /// 
         /// </summary>
-        protected readonly new Direct3D11.Texture3D Resource;
+        protected readonly new NativeD3DTexture3D Resource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Texture3DBase" /> class.
@@ -27,10 +22,10 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        protected internal Texture3DBase(Direct3D11.Device device, Texture3DDescription description3D)
+        protected internal Texture3DBase(NativeD3DDevice device, NativeTexture3DDescription description3D)
             : base(device, description3D)
         {
-            Resource = new Direct3D11.Texture3D(device, description3D);
+            Resource = device.CreateTexture3D(description3D);
             Initialize(Resource);
         }
 
@@ -43,10 +38,10 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        protected internal Texture3DBase(Direct3D11.Device device, Texture3DDescription description3D, DataBox[] dataRectangles)
+        protected internal Texture3DBase(NativeD3DDevice device, NativeTexture3DDescription description3D, DataBox[] dataRectangles)
             : base(device, description3D)
         {
-            Resource = new Direct3D11.Texture3D(device, description3D, dataRectangles);
+            Resource = device.CreateTexture3D(description3D, dataRectangles);
             Initialize(Resource);
         }
 
@@ -58,7 +53,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        protected internal Texture3DBase(Direct3D11.Device device, Direct3D11.Texture3D texture)
+        protected internal Texture3DBase(NativeD3DDevice device, NativeD3DTexture3D texture)
             : base(device, texture.Description)
         {
             Resource = texture;
@@ -76,12 +71,12 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="mipCount"></param>
         /// <param name="usage"></param>
         /// <returns></returns>
-        protected static Texture3DDescription NewDescription(int width, int height, int depth, PixelFormat format, TextureFlags textureFlags, int mipCount, ResourceUsage usage)
+        protected static NativeTexture3DDescription NewDescription(int width, int height, int depth, PixelFormat format, TextureFlags textureFlags, int mipCount, ResourceUsage usage)
         {
             if ((textureFlags & TextureFlags.UnorderedAccess) != 0)
                 usage = ResourceUsage.Default;
 
-            var desc = new Texture3DDescription()
+            var desc = new NativeTexture3DDescription()
             {
                 Width = width,
                 Height = height,

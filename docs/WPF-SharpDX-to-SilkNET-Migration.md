@@ -435,6 +435,26 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `ScreenCloneRenderCore`, `ScreenCapture`, `DX11ImageSource`, `DX11ImageSourceRenderHost` und der Screenshot-Aufrufer in `IViewportExtensions` verwenden in dieser Kante keine SharpDX-D3D11-/DXGI-/WIC-Typen und keine `EffectsManager.LegacyDevice`-Abfrage mehr. `ScreenCloneRenderCore` bleibt als öffentliche `IScreenClone`-No-op-Grenze erhalten; echte Silk.NET-DXGI-Desktop-Duplication wird separat portiert. `ScreenCapture.CaptureTexture(...)` arbeitet auf `DeviceContextProxy` und nativen `Texture2D`-Wrappern; WIC-Datei-/Stream-Encoding liefert im migrierten Pfad vorerst kontrolliert `false`. `DX11ImageSource` hält native `Texture2D`-RenderTargets, setzt aber noch keine echte `IDirect3DSurface9`-BackBuffer-Bridge. Der gefilterte Build meldet keine Fehler in den portierten ScreenClone-/ScreenCapture-/D3DImage-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `617` Compilefehlern gemessen; die ersten Fehlergruppen liegen jetzt in `DefaultVertexShaders`, `ContextSharedResource`, `LightsBufferModel`, `EffectsManager`, `SharpDX.Toolkit.Graphics`, TextureLoader/WICHelper und qualifizierten SharpDX-Math-/Utility-Typen.
 
+Zusätzliche Prüfung der einfachen Shader-/ResourceManager-D3D11-/DXGI-Restkante:
+
+```powershell
+rg -n "SharpDX\.(Direct3D11|Direct3D|DXGI|Toolkit)|global::SharpDX\.(Direct3D11|Direct3D|DXGI|Toolkit)|using SharpDX|using global::SharpDX|LegacyDevice|Factory1|Adapter\b|DeviceCreationFlags|GetSupportedFeatureLevel|ToLegacyDriverType" Source\HelixToolkit.SharpDX.Shared\DefaultShaders\DefaultVertexShaders.cs Source\HelixToolkit.SharpDX.Shared\Model\ContextSharedResource.cs Source\HelixToolkit.SharpDX.Shared\Model\Lights\LightsBufferModel.cs Source\HelixToolkit.SharpDX.Shared\ShaderManager\EffectsManager.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'DefaultVertexShaders.cs|ContextSharedResource.cs|LightsBufferModel.cs|EffectsManager.cs|D3DShaderHandles.cs|ConstantBufferPool.cs|TextureResourceManager.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `DefaultVertexShaders`, `ContextSharedResource`, `LightsBufferModel` und die einfache `EffectsManager`-Device-/Pool-Erzeugung verwenden in dieser Kante keine SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen mehr. Die Default-InputLayouts verwenden die eigenen `InputElement`-/`InputClassification`-Wrapper; `LightsBufferModel` verwendet native `MapMode`/`MapFlags`; `EffectsManager` erzeugt nur noch `NativeDeviceResources` über `SilkD3D11DeviceFactory` und gibt `ConstantBufferPool`/`TextureResourceManager` das native `SilkD3DDevice`. Die echte DXGI-Adapterauswahl bleibt offen, weil `SilkD3D11DeviceFactory.CreateDefault(...)` aktuell noch keinen `IDXGIAdapter` übernimmt. Der gefilterte Build meldet keine Fehler in den portierten Shader-/ResourceManager-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `607` Compilefehlern gemessen; die ersten Fehlergruppen liegen jetzt in `SharpDX.Toolkit.Graphics`, TextureLoader/WICHelper, Shared-WPF-Geometrie-Imports im Core-Projekt und qualifizierten SharpDX-Math-/Utility-Typen.
+
+Zusätzliche Prüfung der `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante:
+
+```powershell
+rg -n "using SharpDX|using global::SharpDX|global::SharpDX\.(Direct3D11|Direct3D|DXGI|IO|Multimedia|WIC)|SharpDX\.(Direct3D11|Direct3D|DXGI|IO|Multimedia|WIC)|NativeFileStream|NativeFileMode|NativeFileAccess" Source\HelixToolkit.SharpDX.Shared\SharpDX.Toolkit Source\HelixToolkit.SharpDX.Shared\Utilities\TextureLoader.cs
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'SharpDX.Toolkit\\|SharpDX.Toolkit\\Graphics|TextureLoader.cs|DDS.cs|DDSHelper.cs|DepthFormat.cs|GraphicsResource.cs|Image.cs|ImageDescription.cs|PixelBuffer.cs|PixelFormat.cs|Texture.cs|Texture1D.cs|Texture1DBase.cs|Texture2D.cs|Texture2DBase.cs|Texture3D.cs|Texture3DBase.cs|TextureCube.cs|TextureDescription.cs|WICHelper.cs|Component.cs'
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Die Legacy-Toolkit-Texturcontainer `Texture`, `Texture1D`, `Texture2D`, `Texture3D`, `TextureCube`, `GraphicsResource`, `TextureDescription`, `PixelBuffer` und `Image` verwenden in dieser Kante keine SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen mehr. Die Wrapper erzeugen native Texture-Resources über `SilkD3DDevice`, `TextureLoader` akzeptiert native Devices und gibt native Resources/SRVs zurück. `DDSHelper` und `WICHelper` sind vorerst explizite `NotSupportedException`-Grenzen; echtes DDS-/WIC-Decoding und Encoding bleibt eine separate Loader-Kante. Der gefilterte Build meldet keine Fehler in den portierten Toolkit-/TextureLoader-Dateien. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `346` Compilefehlern gemessen; die ersten Fehlergruppen liegen jetzt in qualifizierten SharpDX-Math-Referenzen (`StLReader`, `LineBuilder`, `Interfaces`) und Shared-WPF-Geometrie-Imports im `HelixToolkit.SharpDX.Core`-Buildpfad.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -459,7 +479,9 @@ Stand dieses Implementierungsschnitts:
 - Die einfache RenderCore-/PostEffect-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; die verbleibenden Treffer in diesem Umfeld liegen in bewusst ausgeklammerten ScreenClone-/RenderBuffer-/SwapChain-/EffectsManager-Interop-Pfaden.
 - Die RenderBuffer-/SwapChain-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; Offscreen-BackBuffer-Textures werden nativ erzeugt, echte DXGI-SwapChain- und D3DImage-Surface-Interop bleiben noch Platzhalter bzw. separate Kanten.
 - Die ScreenClone-/ScreenCapture-/D3DImage-Interop-Signatur-Kante ist von SharpDX-D3D11-/DXGI-/WIC-Typen und `LegacyDevice`-Abfragen gelöst; echte Desktop-Duplication, WIC-Encoding und D3D9Ex-BackBuffer-Interop bleiben separate Implementierungskanten.
-- Der nächste Umbau muss deshalb bei `DefaultVertexShaders`/Shader-Inputs, `ContextSharedResource`/`LightsBufferModel`, `EffectsManager`-Legacy-Resten, `SharpDX.Toolkit.Graphics`, TextureLoader-WIC oder qualifizierten SharpDX-Math-Referenzen ansetzen.
+- Die einfache Shader-/ResourceManager-D3D11-/DXGI-Restkante ist von SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen gelöst; `EffectsManager` erzeugt keine SharpDX-D3D11-Device-Instanz mehr.
+- Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; DDS-/WIC-Load/Save-Backends bleiben vorerst kontrollierte Platzhalter.
+- Der nächste Umbau muss deshalb bei Shared-WPF-Geometrie-Imports im Core-Projekt, qualifizierten SharpDX-Math-Referenzen oder den echten TextureLoader-/WICHelper-Loader-Backends ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -476,12 +498,11 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. `DefaultVertexShaders`, `ContextSharedResource`, `LightsBufferModel` und einfache `EffectsManager`-Legacy-Reste von SharpDX-D3D11-/DXGI-Typen lösen.
-2. `SharpDX.Toolkit.Graphics`-Parsing- und Texturcontainer von SharpDX-D3D11-/DXGI-/IO-Typen lösen.
+1. Qualifizierte SharpDX-Math-Referenzen in `ImportExport`, `LineBuilder`, `Interfaces` und Octree-/Scene-Hilfstypen auf `Silk.NET.Maths` und Helix-Typen migrieren.
+2. Shared-WPF-Geometrie-Imports im Core-Projekt prüfen und aus dem `HelixToolkit.SharpDX.Core`-Buildpfad lösen.
 3. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 4. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
-5. Qualifizierte SharpDX-Math-Referenzen auf `Silk.NET.Maths` und Helix-Typen migrieren.
-6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+5. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
@@ -763,10 +784,10 @@ Ziel: 2D Overlay, Text, Bitmap-/Texture-Loading und ScreenCapture laufen ohne Sh
 
 ### Fortschritt
 
-Status: Noch offen.
+Status: In Arbeit.
 
 - D2D/DWrite/WIC bleiben eine der dominanten Fehlergruppen im aktuellen Build.
-- Texture-Wrapper sind noch nicht portiert; nur Resource-/Buffer-Grundlagen sind vorhanden.
+- Die Toolkit-Texture-Wrapper sind auf native D3D11-Resources umgestellt; echte DDS-/WIC-Decoding- und Encoding-Backends bleiben offen.
 
 ### Aufgaben
 
@@ -777,8 +798,8 @@ Status: Noch offen.
   - Native WIC nur dort kapseln, wo GPU-Texture-Upload oder ScreenCapture es verlangt.
 - `SharpDX.Toolkit.Graphics`-Layer bereinigen:
   - DDS-Parsing behalten.
-  - Texture-Wrapper auf Silk.NET resource creation umstellen.
-  - PixelBuffer/DataBox-Äquivalente sauber kapseln.
+  - Texture-Wrapper auf Silk.NET resource creation umstellen. (erledigt)
+  - PixelBuffer/DataBox-Äquivalente sauber kapseln. (teilweise erledigt)
 - ScreenCapture mit Silk.NET staging textures und WPF/Windows encoding validieren.
 
 ### Gate

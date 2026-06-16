@@ -2,23 +2,17 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// Abstract class front end to <see cref="SharpDX.Direct3D11.Texture2D"/>.
+    /// Abstract class front end to the native D3D Texture2D.
     /// </summary>
     public abstract class Texture2DBase : Texture
     {
         /// <summary>
         /// 
         /// </summary>
-        protected readonly new Direct3D11.Texture2D Resource;
-        private DXGI.Surface dxgiSurface;
+        protected readonly new NativeD3DTexture2D Resource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Texture2DBase" /> class.
@@ -28,10 +22,11 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        protected internal Texture2DBase(Direct3D11.Device device, Texture2DDescription description2D)
+        protected internal Texture2DBase(NativeD3DDevice device, NativeTexture2DDescription description2D)
             : base(device, description2D)
         {
-            Resource = new Direct3D11.Texture2D(device, description2D);
+            Resource = device.CreateTexture2D(description2D);
+            Initialize(Resource);
         }
 
         /// <summary>
@@ -43,10 +38,11 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        protected internal Texture2DBase(Direct3D11.Device device, Texture2DDescription description2D, DataBox[] dataBoxes)
+        protected internal Texture2DBase(NativeD3DDevice device, NativeTexture2DDescription description2D, DataBox[] dataBoxes)
             : base(device, description2D)
         {
-            Resource = new Direct3D11.Texture2D(device, description2D, dataBoxes);
+            Resource = device.CreateTexture2D(description2D, dataBoxes);
+            Initialize(Resource);
         }
 
         /// <summary>
@@ -57,29 +53,20 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        protected internal Texture2DBase(Direct3D11.Device device, Direct3D11.Texture2D texture)
+        protected internal Texture2DBase(NativeD3DDevice device, NativeD3DTexture2D texture)
             : base(device, texture.Description)
         {
             Resource = texture;
+            Initialize(Resource);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        protected virtual DXGI.Format GetDefaultViewFormat()
+        protected virtual Format GetDefaultViewFormat()
         {
             return this.Description.Format;
-        }
-
-        /// <summary>
-        /// <see cref="SharpDX.DXGI.Surface"/> casting operator.
-        /// </summary>
-        /// <param name="from">From the Texture1D.</param>
-        public static implicit operator SharpDX.DXGI.Surface(Texture2DBase from)
-        {
-            // Don't bother with multithreading here
-            return from == null ? null : from.dxgiSurface ?? (from.dxgiSurface = from.ToDispose(from.Resource.QueryInterface<DXGI.Surface>()));
         }
 
         /// <summary>
@@ -93,17 +80,17 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="arraySize"></param>
         /// <param name="usage"></param>
         /// <returns></returns>
-        protected static Texture2DDescription NewDescription(int width, int height, PixelFormat format, TextureFlags textureFlags, int mipCount, int arraySize, ResourceUsage usage)
+        protected static NativeTexture2DDescription NewDescription(int width, int height, PixelFormat format, TextureFlags textureFlags, int mipCount, int arraySize, ResourceUsage usage)
         {
             if ((textureFlags & TextureFlags.UnorderedAccess) != 0)
                 usage = ResourceUsage.Default;
 
-            var desc = new Texture2DDescription()
+            var desc = new NativeTexture2DDescription()
             {
                 Width = width,
                 Height = height,
                 ArraySize = arraySize,
-                SampleDescription = new DXGI.SampleDescription(1, 0),
+                SampleDescription = new SampleDescription() { Count = 1, Quality = 0 },
                 BindFlags = GetBindFlagsFromTextureFlags(textureFlags),
                 Format = format,
                 MipLevels = CalculateMipMapCount(mipCount, width, height),

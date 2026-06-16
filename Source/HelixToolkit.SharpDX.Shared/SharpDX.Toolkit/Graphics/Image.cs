@@ -6,11 +6,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using SharpDX.DXGI;
-using SharpDX.IO;
 
 namespace SharpDX.Toolkit.Graphics
 {
+    public readonly struct DataPointer
+    {
+        public DataPointer(IntPtr pointer, int size)
+        {
+            Pointer = pointer;
+            Size = size;
+        }
+
+        public IntPtr Pointer { get; }
+
+        public int Size { get; }
+    }
+
     /// <summary>
     /// Provides method to instantiate an image 1D/2D/3D supporting TextureArray and mipmaps on the CPU or to load/save an image from the disk.
     /// </summary>
@@ -461,31 +472,6 @@ namespace SharpDX.Toolkit.Graphics
         /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
         public static Image Load(Stream imageStream)
         {
-            // Use fast path using NativeFileStream
-            // TODO: THIS IS NOT OPTIMIZED IN THE CASE THE STREAM IS NOT AN IMAGE. FIND A WAY TO OPTIMIZE THIS CASE.
-            var nativeImageStream = imageStream as NativeFileStream;
-            if (nativeImageStream != null)
-            {
-                var imageBuffer = IntPtr.Zero;
-                Image image = null;
-                try
-                {
-                    var imageSize = (int)nativeImageStream.Length;
-                    imageBuffer = Utilities.AllocateMemory(imageSize);
-                    nativeImageStream.Read(imageBuffer, 0, imageSize);
-                    image = Load(imageBuffer, imageSize);
-                }
-                finally
-                {
-                    if (image == null)
-                    {
-                        Utilities.FreeMemory(imageBuffer);
-                    }
-                }
-                return image;
-            }
-
-            // Else Read the whole stream into memory.
             return Load(Utilities.ReadStream(imageStream));
         }
 
@@ -497,34 +483,10 @@ namespace SharpDX.Toolkit.Graphics
         /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
         public static Image Load(string fileName)
         {
-            NativeFileStream stream = null;
-            var memoryPtr = IntPtr.Zero;
-            int size;
-            try
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                stream = new NativeFileStream(fileName, NativeFileMode.Open, NativeFileAccess.Read);
-                size = (int)stream.Length;
-                memoryPtr = Utilities.AllocateMemory(size);
-                stream.Read(memoryPtr, 0, size);
+                return Load(stream);
             }
-            catch (Exception)
-            {
-                if (memoryPtr != IntPtr.Zero)
-                    Utilities.FreeMemory(memoryPtr);
-                throw;
-            }
-            finally
-            {
-                try
-                {
-                    if (stream != null)
-                        stream.Dispose();
-                }
-                catch { }
-            }
-
-            // If everything was fine, load the image from memory
-            return Load(memoryPtr, size, false);
         }
 
         /// <summary>
@@ -938,7 +900,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
         public void Save(string fileName, ImageFileType fileType)
         {
-            using (var imageStream = new NativeFileStream(fileName, NativeFileMode.Create, NativeFileAccess.Write))
+            using (var imageStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 Save(imageStream, fileType);
             }

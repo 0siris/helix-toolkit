@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
 using System.IO;
 
 #if !NETFX_CORE
@@ -28,9 +27,9 @@ namespace HelixToolkit.UWP
             /// <param name="device">The device.</param>
             /// <param name="fileName">The file name.</param>
             /// <returns></returns>
-            public static Resource FromFileAsResource(Device device, string fileName)
+            public static Resource FromFileAsResource(NativeD3DDevice device, string fileName)
             {
-                return global::SharpDX.Toolkit.Graphics.Texture.Load(device, fileName);
+                return global::SharpDX.Toolkit.Graphics.Texture.Load(device, fileName)?.Resource;
             }
 
             /// <summary>
@@ -40,7 +39,7 @@ namespace HelixToolkit.UWP
             /// <param name="fileName">The file name.</param>
             /// <param name="disableAutoGenMipMap"></param>
             /// <returns></returns>
-            public static ShaderResourceView FromFileAsShaderResourceView(Device device, string fileName, bool disableAutoGenMipMap = false)
+            public static ShaderResourceView FromFileAsShaderResourceView(NativeD3DDevice device, string fileName, bool disableAutoGenMipMap = false)
             {
                 using (var texture = global::SharpDX.Toolkit.Graphics.Texture.Load(device, fileName))
                 {
@@ -54,11 +53,11 @@ namespace HelixToolkit.UWP
                         {
                             using (textureMipmap)
                             {
-                                return new ShaderResourceView(device, textureMipmap);
+                                return device.CreateShaderResourceView(textureMipmap);
                             }
                         }
                     }
-                    return new ShaderResourceView(device, texture);
+                    return device.CreateShaderResourceView(texture.Resource);
                 }
             }
 
@@ -69,7 +68,7 @@ namespace HelixToolkit.UWP
             /// <param name="memory">The memory buffer.</param>
             /// <param name="disableAutoGenMipMap"></param>
             /// <returns></returns>
-            public static ShaderResourceView FromMemoryAsShaderResourceView(Device device, byte[] memory, bool disableAutoGenMipMap = false)
+            public static ShaderResourceView FromMemoryAsShaderResourceView(NativeD3DDevice device, byte[] memory, bool disableAutoGenMipMap = false)
             {
                 using (var memStream = new MemoryStream(memory))
                 {
@@ -84,7 +83,7 @@ namespace HelixToolkit.UWP
             /// <param name="memory">The memory stream.</param>
             /// <param name="disableAutoGenMipMap"></param>
             /// <returns></returns>
-            public static ShaderResourceView FromMemoryAsShaderResourceView(Device device, Stream memory, bool disableAutoGenMipMap = false)
+            public static ShaderResourceView FromMemoryAsShaderResourceView(NativeD3DDevice device, Stream memory, bool disableAutoGenMipMap = false)
             {
                 using (var texture = global::SharpDX.Toolkit.Graphics.Texture.Load(device, memory))
                 {
@@ -98,11 +97,11 @@ namespace HelixToolkit.UWP
                         {
                             using (textureMipmap)
                             {
-                                return new ShaderResourceView(device, textureMipmap);
+                                return device.CreateShaderResourceView(textureMipmap);
                             }
                         }
                     }
-                    return new ShaderResourceView(device, texture);
+                    return device.CreateShaderResourceView(texture.Resource);
                 }
             }
             /// <summary>
@@ -112,31 +111,26 @@ namespace HelixToolkit.UWP
             /// <param name="memory">The memory.</param>
             /// <param name="disableAutoGenMipMap">if set to <c>true</c> [disable automatic gen mip map].</param>
             /// <returns></returns>
-            public static Resource FromMemoryAsShaderResource(Device device, Stream memory, bool disableAutoGenMipMap = false)
+            public static Resource FromMemoryAsShaderResource(NativeD3DDevice device, Stream memory, bool disableAutoGenMipMap = false)
             {
-                using (var texture = global::SharpDX.Toolkit.Graphics.Texture.Load(device, memory))
+                var texture = global::SharpDX.Toolkit.Graphics.Texture.Load(device, memory);
+                if (texture == null)
                 {
-                    if (texture == null)
+                    return null;
+                }
+                if (!disableAutoGenMipMap && texture.Description.MipLevels == 1)// Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
+                {
+                    try
                     {
-                        return null;
+                        GenerateMipMaps(device, texture, out var textureMipmap);
+                        return textureMipmap;
                     }
-                    if (!disableAutoGenMipMap && texture.Description.MipLevels == 1)// Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
+                    catch (System.Exception ex)
                     {
-                        try
-                        {
-                            GenerateMipMaps(device, texture, out var textureMipmap);
-                            return textureMipmap;
-                        }
-                        catch (System.Exception ex)
-                        {
-                            throw new System.Exception(ex.Message);
-                        }
-                    }
-                    else
-                    {
-                        return texture.Resource.QueryInterface<Resource>();
+                        throw new System.Exception(ex.Message);
                     }
                 }
+                return texture.Resource;
             }
             /// <summary>
             /// Generates the mip maps.
@@ -146,133 +140,10 @@ namespace HelixToolkit.UWP
             /// <param name="textMip">Returns a new texture with mipmaps if succeeded. Otherwise returns the input texture</param>
             /// <returns>True succeed. False: Format not supported.</returns>
             /// <exception cref="InvalidDataException">Input texture is invalid.</exception>
-            public static bool GenerateMipMaps(Device device, global::SharpDX.Toolkit.Graphics.Texture texture, out Resource textMip)
+            public static bool GenerateMipMaps(NativeD3DDevice device, global::SharpDX.Toolkit.Graphics.Texture texture, out Resource textMip)
             {
-                textMip = null;
-                //Check texture format support: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476426(v=vs.85).aspx
-                switch (texture.Description.Format)
-                {
-                    case global::SharpDX.DXGI.Format.R8G8B8A8_UNorm:
-                    case global::SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb:
-                    case global::SharpDX.DXGI.Format.B5G6R5_UNorm:
-                    case global::SharpDX.DXGI.Format.B8G8R8A8_UNorm:
-                    case global::SharpDX.DXGI.Format.B8G8R8A8_UNorm_SRgb:
-                    case global::SharpDX.DXGI.Format.B8G8R8X8_UNorm:
-                    case global::SharpDX.DXGI.Format.B8G8R8X8_UNorm_SRgb:
-                    case global::SharpDX.DXGI.Format.R16G16B16A16_Float:
-                    case global::SharpDX.DXGI.Format.R16G16B16A16_UNorm:
-                    case global::SharpDX.DXGI.Format.R16G16_Float:
-                    case global::SharpDX.DXGI.Format.R16G16_UNorm:
-                    case global::SharpDX.DXGI.Format.R32_Float:
-                    case global::SharpDX.DXGI.Format.R32G32B32A32_Float:
-                    case global::SharpDX.DXGI.Format.B4G4R4A4_UNorm:
-                    case global::SharpDX.DXGI.Format.R32G32B32_Float:
-                    case global::SharpDX.DXGI.Format.R16G16B16A16_SNorm:
-                    case global::SharpDX.DXGI.Format.R32G32_Float:
-                    case global::SharpDX.DXGI.Format.R10G10B10A2_UNorm:
-                    case global::SharpDX.DXGI.Format.R11G11B10_Float:
-                    case global::SharpDX.DXGI.Format.R8G8B8A8_SNorm:
-                    case global::SharpDX.DXGI.Format.R16G16_SNorm:
-                    case global::SharpDX.DXGI.Format.R8G8_UNorm:
-                    case global::SharpDX.DXGI.Format.R8G8_SNorm:
-                    case global::SharpDX.DXGI.Format.R16_Float:
-                    case global::SharpDX.DXGI.Format.R16_UNorm:
-                    case global::SharpDX.DXGI.Format.R16_SNorm:
-                    case global::SharpDX.DXGI.Format.R8_UNorm:
-                    case global::SharpDX.DXGI.Format.R8_SNorm:
-                    case global::SharpDX.DXGI.Format.A8_UNorm:
-                    case global::SharpDX.DXGI.Format.B5G5R5A1_UNorm:
-                        break;
-                    default:
-                        textMip = texture.Resource.QueryInterface<Resource>();//Format not support, return the original texture.
-                        return false;
-                }
-                var sliceCount = 1;
-                var mipLevels = 0;
-                switch (texture.Description.Dimension)
-                {
-                    case global::SharpDX.Toolkit.Graphics.TextureDimension.Texture1D:
-                        var desc1D = new Texture1DDescription()
-                        {
-                            Width = texture.Description.Width,
-                            MipLevels = 0,
-                            ArraySize = 1,
-                            BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                            CpuAccessFlags = CpuAccessFlags.None,
-                            Usage = ResourceUsage.Default,
-                            OptionFlags = ResourceOptionFlags.GenerateMipMaps,
-                            Format = texture.Description.Format
-                        };
-                        textMip = new Texture1D(device, desc1D);
-                        mipLevels = (textMip as Texture1D).Description.MipLevels;
-                        break;
-                    case global::SharpDX.Toolkit.Graphics.TextureDimension.Texture2D:
-                        var desc2D = new Texture2DDescription()
-                        {
-                            Width = texture.Description.Width,
-                            Height = texture.Description.Height,
-                            MipLevels = 0,
-                            ArraySize = 1,
-                            BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                            CpuAccessFlags = CpuAccessFlags.None,
-                            Usage = ResourceUsage.Default,
-                            SampleDescription = texture.Description.SampleDescription,
-                            OptionFlags = ResourceOptionFlags.GenerateMipMaps,
-                            Format = texture.Description.Format
-                        };
-                        textMip = new Texture2D(device, desc2D);
-                        mipLevels = (textMip as Texture2D).Description.MipLevels;
-                        break;
-                    case global::SharpDX.Toolkit.Graphics.TextureDimension.Texture3D:
-                        var desc3D = new Texture3DDescription()
-                        {
-                            Width = texture.Description.Width,
-                            Height = texture.Description.Height,
-                            Depth = texture.Description.Depth,
-                            MipLevels = 0,
-                            BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                            CpuAccessFlags = CpuAccessFlags.None,
-                            Usage = ResourceUsage.Default,
-                            OptionFlags = ResourceOptionFlags.GenerateMipMaps,
-                            Format = texture.Description.Format
-                        };
-                        textMip = new Texture3D(device, desc3D);
-                        sliceCount = texture.Description.Depth;
-                        mipLevels = (textMip as Texture3D).Description.MipLevels;
-                        break;
-                    case global::SharpDX.Toolkit.Graphics.TextureDimension.TextureCube:
-                        var descCube = new Texture2DDescription()
-                        {
-                            Width = texture.Description.Width,
-                            Height = texture.Description.Height,
-                            ArraySize = texture.Description.ArraySize,
-                            MipLevels = 0,
-                            BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                            CpuAccessFlags = CpuAccessFlags.None,
-                            SampleDescription = new global::SharpDX.DXGI.SampleDescription(1, 0),
-                            Usage = ResourceUsage.Default,
-                            OptionFlags = ResourceOptionFlags.GenerateMipMaps | ResourceOptionFlags.TextureCube,
-                            Format = texture.Description.Format
-                        };
-                        textMip = new Texture2D(device, descCube);
-                        sliceCount = texture.Description.ArraySize;
-                        mipLevels = (textMip as Texture2D).Description.MipLevels;
-                        break;
-                    default:
-                        throw new InvalidDataException("Input texture is invalid.");
-                }
-
-                using (var shaderRes = new ShaderResourceView(device, textMip))
-                {
-                    for (var i = 0; i < sliceCount; ++i)
-                    {
-                        var idx = texture.GetSubResourceIndex(i, 0);
-                        var targetIdx = GetSubResourceIndex(i, mipLevels, 0);
-                        device.ImmediateContext.CopySubresourceRegion(texture, idx, null, textMip, targetIdx);
-                    }
-                    device.ImmediateContext.GenerateMips(shaderRes);
-                }
-                return true;
+                textMip = texture?.Resource;
+                return false;
             }
 
             public static int GetSubResourceIndex(int arraySlice, int mipLevels, int mipSlice)

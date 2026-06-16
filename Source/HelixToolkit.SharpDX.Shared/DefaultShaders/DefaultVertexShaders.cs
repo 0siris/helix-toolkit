@@ -2,9 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else

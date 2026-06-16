@@ -4,22 +4,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 using System.IO;
-using SharpDX.Direct3D11;
-using SharpDX.IO;
 
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// A Texture 3D front end to <see cref="SharpDX.Direct3D11.Texture3D"/>.
+    /// A Texture 3D front end to the native D3D texture.
     /// </summary>
     public class Texture3D : Texture3DBase
     {
-        internal Texture3D(Device device, Texture3DDescription description3D, params DataBox[] dataBox)
+        internal Texture3D(NativeD3DDevice device, NativeTexture3DDescription description3D, params DataBox[] dataBox)
             : base(device, description3D, dataBox)
         {
         }
 
-        internal Texture3D(Device device, Direct3D11.Texture3D texture) : base(device, texture)
+        internal Texture3D(NativeD3DDevice device, NativeD3DTexture3D texture) : base(device, texture)
         {
         }
 
@@ -48,7 +46,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, Texture3DDescription description)
+        public static Texture3D New(NativeD3DDevice device, NativeTexture3DDescription description)
         {
             return new Texture3D(device, description);
         }
@@ -64,7 +62,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, Direct3D11.Texture3D texture)
+        public static Texture3D New(NativeD3DDevice device, NativeD3DTexture3D texture)
         {
             return new Texture3D(device, texture);
         }
@@ -85,7 +83,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, int width, int height, int depth, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
+        public static Texture3D New(NativeD3DDevice device, int width, int height, int depth, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
         {
             return New(device, width, height, depth, false, format, flags, usage);
         }
@@ -107,7 +105,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, int width, int height, int depth, MipMapCount mipCount, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
+        public static Texture3D New(NativeD3DDevice device, int width, int height, int depth, MipMapCount mipCount, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
         {
             return new Texture3D(device, NewDescription(width, height, depth, format, flags, mipCount, usage));
         }
@@ -131,7 +129,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public unsafe static Texture3D New<T>(Device device, int width, int height, int depth, PixelFormat format, T[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable) where T : unmanaged
+        public unsafe static Texture3D New<T>(NativeD3DDevice device, int width, int height, int depth, PixelFormat format, T[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable) where T : unmanaged
         {
             Texture3D texture = null;
             Utilities.Pin(textureData, ptr =>
@@ -159,7 +157,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, int width, int height, int depth, MipMapCount mipCount, PixelFormat format, DataBox[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
+        public static Texture3D New(NativeD3DDevice device, int width, int height, int depth, MipMapCount mipCount, PixelFormat format, DataBox[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
         {
             // TODO Add check for number of texture data according to width/height/depth/mipCount.
             return new Texture3D(device, NewDescription(width, height, depth, format, flags, mipCount, usage), textureData);
@@ -176,7 +174,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476522</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture3D([In] const D3D11_TEXTURE3D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>	
-        public static Texture3D New(Device device, Image image, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static Texture3D New(NativeD3DDevice device, Image image, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             if (image == null)
                 throw new ArgumentNullException("image");
@@ -195,7 +193,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <exception cref="ArgumentException">If the texture is not of type 3D</exception>
         /// <returns>A texture</returns>
-        public static new Texture3D Load(Device device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static new Texture3D Load(NativeD3DDevice device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             var texture = Texture.Load(device, stream, flags, usage);
             if (!(texture is Texture3D))
@@ -212,9 +210,9 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <exception cref="ArgumentException">If the texture is not of type 3D</exception>
         /// <returns>A texture</returns>
-        public static new Texture3D Load(Device device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static new Texture3D Load(NativeD3DDevice device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
-            using (var stream = new NativeFileStream(filePath, NativeFileMode.Open, NativeFileAccess.Read))
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 return Load(device, stream, flags, usage);
         }
     }

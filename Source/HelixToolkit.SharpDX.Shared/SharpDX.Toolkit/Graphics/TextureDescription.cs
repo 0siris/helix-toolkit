@@ -5,9 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System;
 using System.Runtime.InteropServices;
 
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
@@ -27,7 +24,7 @@ namespace SharpDX.Toolkit.Graphics
         public TextureDimension Dimension;
 
         /// <summary>	
-        /// <dd> <p>Texture width (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture1DSize"/> (16384). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture width in texels.
         /// </summary>	
         /// <remarks>
         /// This field is valid for all textures: <see cref="Texture1D"/>, <see cref="Texture2D"/>, <see cref="Texture3D"/> and <see cref="TextureCube"/>.
@@ -38,7 +35,7 @@ namespace SharpDX.Toolkit.Graphics
         public int Width;
 
         /// <summary>	
-        /// <dd> <p>Texture height (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture height in texels.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture2D"/>, <see cref="Texture3D"/> and <see cref="TextureCube"/>.
@@ -49,7 +46,7 @@ namespace SharpDX.Toolkit.Graphics
         public int Height;
 
         /// <summary>	
-        /// <dd> <p>Texture depth (in texels). The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Texture depth in texels.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture3D"/>.
@@ -60,7 +57,7 @@ namespace SharpDX.Toolkit.Graphics
         public int Depth;
 
         /// <summary>	
-        /// <dd> <p>Number of textures in the array. The  range is from 1 to <see cref="SharpDX.Direct3D11.Resource.MaximumTexture1DArraySize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+        /// Number of textures in the array.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture1D"/>, <see cref="Texture2D"/> and <see cref="TextureCube"/>
@@ -74,7 +71,7 @@ namespace SharpDX.Toolkit.Graphics
         public int ArraySize;
 
         /// <summary>	
-        /// <dd> <p>The maximum number of mipmap levels in the texture. See the remarks in <strong><see cref="SharpDX.Direct3D11.ShaderResourceViewDescription.Texture1DResource"/></strong>. Use 1 for a multisampled texture; or 0 to generate a full set of subtextures.</p> </dd>	
+        /// Maximum number of mipmap levels in the texture.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>unsigned int MipLevels</unmanaged>	
@@ -82,15 +79,15 @@ namespace SharpDX.Toolkit.Graphics
         public int MipLevels;
 
         /// <summary>	
-        /// <dd> <p>Texture format (see <strong><see cref="SharpDX.DXGI.Format"/></strong>).</p> </dd>	
+        /// Texture format.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>DXGI_FORMAT Format</unmanaged>	
         /// <unmanaged-short>DXGI_FORMAT Format</unmanaged-short>	
-        public DXGI.Format Format;
+        public Format Format;
 
         /// <summary>	
-        /// <dd> <p>Structure that specifies multisampling parameters for the texture. See <strong><see cref="SharpDX.DXGI.SampleDescription"/></strong>.</p> </dd>	
+        /// Structure that specifies multisampling parameters for the texture.
         /// </summary>	
         /// <remarks>
         /// This field is only valid for <see cref="Texture2D"/>.
@@ -98,39 +95,39 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476253</msdn-id>	
         /// <unmanaged>DXGI_SAMPLE_DESC SampleDesc</unmanaged>	
         /// <unmanaged-short>DXGI_SAMPLE_DESC SampleDesc</unmanaged-short>	
-        public SharpDX.DXGI.SampleDescription SampleDescription;
+        public SampleDescription SampleDescription;
 
         /// <summary>	
-        /// <dd> <p>Value that identifies how the texture is to be read from and written to. The most common value is <see cref="SharpDX.Direct3D11.ResourceUsage.Default"/>; see <strong><see cref="SharpDX.Direct3D11.ResourceUsage"/></strong> for all possible values.</p> </dd>	
+        /// Value that identifies how the texture is to be read from and written to.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>D3D11_USAGE Usage</unmanaged>	
         /// <unmanaged-short>D3D11_USAGE Usage</unmanaged-short>	
-        public SharpDX.Direct3D11.ResourceUsage Usage;
+        public ResourceUsage Usage;
 
         /// <summary>	
-        /// <dd> <p>Flags (see <strong><see cref="SharpDX.Direct3D11.BindFlags"/></strong>) for binding to pipeline stages. The flags can be combined by a logical OR. For a 1D texture, the allowable values are: <see cref="SharpDX.Direct3D11.BindFlags.ShaderResource"/>, <see cref="SharpDX.Direct3D11.BindFlags.RenderTarget"/> and <see cref="SharpDX.Direct3D11.BindFlags.DepthStencil"/>.</p> </dd>	
+        /// Flags for binding to pipeline stages.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>D3D11_BIND_FLAG BindFlags</unmanaged>	
         /// <unmanaged-short>D3D11_BIND_FLAG BindFlags</unmanaged-short>	
-        public SharpDX.Direct3D11.BindFlags BindFlags;
+        public BindFlags BindFlags;
 
         /// <summary>	
-        /// <dd> <p>Flags (see <strong><see cref="SharpDX.Direct3D11.CpuAccessFlags"/></strong>) to specify the types of CPU access allowed. Use 0 if CPU access is not required. These flags can be combined with a logical OR.</p> </dd>	
+        /// Flags to specify the types of CPU access allowed.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>D3D11_CPU_ACCESS_FLAG CPUAccessFlags</unmanaged>	
         /// <unmanaged-short>D3D11_CPU_ACCESS_FLAG CPUAccessFlags</unmanaged-short>	
-        public SharpDX.Direct3D11.CpuAccessFlags CpuAccessFlags;
+        public CpuAccessFlags CpuAccessFlags;
 
         /// <summary>	
-        /// <dd> <p>Flags (see <strong><see cref="SharpDX.Direct3D11.ResourceOptionFlags"/></strong>) that identify other, less common resource options. Use 0 if none of these flags apply. These flags can be combined with a logical OR.</p> </dd>	
+        /// Flags that identify other, less common resource options.
         /// </summary>	
         /// <msdn-id>ff476252</msdn-id>	
         /// <unmanaged>D3D11_RESOURCE_MISC_FLAG MiscFlags</unmanaged>	
         /// <unmanaged-short>D3D11_RESOURCE_MISC_FLAG MiscFlags</unmanaged-short>	
-        public SharpDX.Direct3D11.ResourceOptionFlags OptionFlags;
+        public ResourceOptionFlags OptionFlags;
 
         /// <summary>
         /// Gets the staging description for this instance..
@@ -221,7 +218,7 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator TextureDescription(Texture1DDescription description)
+        public static implicit operator TextureDescription(NativeTexture1DDescription description)
         {
             return new TextureDescription()
             {
@@ -232,7 +229,7 @@ namespace SharpDX.Toolkit.Graphics
                 MipLevels = description.MipLevels,
                 ArraySize = description.ArraySize,
                 Format = description.Format,
-                SampleDescription = new SampleDescription(1, 0),
+                SampleDescription = new SampleDescription() { Count = 1, Quality = 0 },
                 Usage = description.Usage,
                 BindFlags = description.BindFlags,
                 CpuAccessFlags = description.CpuAccessFlags,
@@ -245,9 +242,9 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator Texture1DDescription(TextureDescription description)
+        public static implicit operator NativeTexture1DDescription(TextureDescription description)
         {
-            return new Texture1DDescription()
+            return new NativeTexture1DDescription()
             {
                 Width = description.Width,
                 MipLevels = description.MipLevels,
@@ -265,7 +262,7 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator TextureDescription(Texture2DDescription description)
+        public static implicit operator TextureDescription(NativeTexture2DDescription description)
         {
             var dimension = (description.ArraySize == 6 && (description.OptionFlags & ResourceOptionFlags.TextureCube) != 0)
                                 ? TextureDimension.TextureCube
@@ -293,9 +290,9 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator Texture2DDescription(TextureDescription description)
+        public static implicit operator NativeTexture2DDescription(TextureDescription description)
         {
-            return new Texture2DDescription()
+            return new NativeTexture2DDescription()
             {
                 Width = description.Width,
                 Height = description.Height,
@@ -315,7 +312,7 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator TextureDescription(Texture3DDescription description)
+        public static implicit operator TextureDescription(NativeTexture3DDescription description)
         {
             return new TextureDescription()
             {
@@ -326,7 +323,7 @@ namespace SharpDX.Toolkit.Graphics
                 ArraySize = 1,
                 MipLevels = description.MipLevels,
                 Format = description.Format,
-                SampleDescription = new SampleDescription(1, 0),
+                SampleDescription = new SampleDescription() { Count = 1, Quality = 0 },
                 Usage = description.Usage,
                 BindFlags = description.BindFlags,
                 CpuAccessFlags = description.CpuAccessFlags,
@@ -339,9 +336,9 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="description">The texture description.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator Texture3DDescription(TextureDescription description)
+        public static implicit operator NativeTexture3DDescription(TextureDescription description)
         {
-            return new Texture3DDescription()
+            return new NativeTexture3DDescription()
             {
                 Width = description.Width,
                 Height = description.Height,
@@ -372,7 +369,7 @@ namespace SharpDX.Toolkit.Graphics
                 ArraySize = description.ArraySize,
                 MipLevels = description.MipLevels,
                 Format = description.Format,
-                SampleDescription = new SampleDescription(1, 0),
+                SampleDescription = new SampleDescription() { Count = 1, Quality = 0 },
                 Usage = ResourceUsage.Default,
                 BindFlags = BindFlags.None,
                 CpuAccessFlags = CpuAccessFlags.None,

@@ -4,22 +4,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 using System.IO;
-using SharpDX.Direct3D11;
-using SharpDX.IO;
 
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// A TextureCube front end to <see cref="SharpDX.Direct3D11.Texture2D"/>.
+    /// A TextureCube front end to the native D3D Texture2D.
     /// </summary>
     public class TextureCube : Texture2DBase
     {
-        internal TextureCube(Device device, Texture2DDescription description2D, params DataBox[] dataBoxes) : base(device, description2D, dataBoxes)
+        internal TextureCube(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) : base(device, description2D, dataBoxes)
         {
             Initialize(Resource);
         }
 
-        internal TextureCube(Device device, Direct3D11.Texture2D texture) : base(device, texture)
+        internal TextureCube(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture)
         {
             Initialize(Resource);
         }
@@ -49,7 +47,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        public static TextureCube New(Device device, Texture2DDescription description)
+        public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description)
         {
             return new TextureCube(device, description);
         }
@@ -65,7 +63,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        public static TextureCube New(Device device, Direct3D11.Texture2D texture)
+        public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture)
         {
             return new TextureCube(device, texture);
         }
@@ -84,7 +82,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        public static TextureCube New(Device device, int size, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
+        public static TextureCube New(NativeD3DDevice device, int size, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
         {
             return New(device, size, false, format, flags, usage);
         }
@@ -104,7 +102,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>	
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>	
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>	
-        public static TextureCube New(Device device, int size, MipMapCount mipCount, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
+        public static TextureCube New(NativeD3DDevice device, int size, MipMapCount mipCount, PixelFormat format, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
         {
             return new TextureCube(device, NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, mipCount, usage));
         }
@@ -126,7 +124,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <remarks>
         /// The first dimension of mipMapTextures describes the number of array (TextureCube Array), the second is the texture data for a particular cube face.
         /// </remarks>
-        public unsafe static TextureCube New<T>(Device device, int size, PixelFormat format, T[][] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable) where T : unmanaged
+        public unsafe static TextureCube New<T>(NativeD3DDevice device, int size, PixelFormat format, T[][] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable) where T : unmanaged
         {
             if (textureData.Length != 6)
                 throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
@@ -164,7 +162,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <remarks>
         /// The first dimension of mipMapTextures describes the number of array (TextureCube Array), the second is the texture data for a particular cube face.
         /// </remarks>
-        public static TextureCube New(Device device, int size, PixelFormat format, DataBox[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static TextureCube New(NativeD3DDevice device, int size, PixelFormat format, DataBox[] textureData, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             if (textureData.Length != 6)
                 throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
@@ -183,7 +181,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <msdn-id>ff476521</msdn-id>
         /// <unmanaged>HRESULT ID3D11Device::CreateTexture2D([In] const D3D11_TEXTURE2D_DESC* pDesc,[In, Buffer, Optional] const D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)</unmanaged>
         /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-        public static TextureCube New(Device device, Image image, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static TextureCube New(NativeD3DDevice device, Image image, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             if (image == null)
                 throw new ArgumentNullException("image");
@@ -202,7 +200,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <exception cref="ArgumentException">If the texture is not of type Cube</exception>
         /// <returns>A texture</returns>
-        public static new TextureCube Load(Device device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static new TextureCube Load(NativeD3DDevice device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
             var texture = Texture.Load(device, stream, flags | TextureFlags.ShaderResource, usage);
             if (!(texture is TextureCube))
@@ -219,9 +217,9 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable"/> </param>
         /// <exception cref="ArgumentException">If the texture is not of type Cube</exception>
         /// <returns>A texture</returns>
-        public static new TextureCube Load(Device device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
+        public static new TextureCube Load(NativeD3DDevice device, string filePath, TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
         {
-            using (var stream = new NativeFileStream(filePath, NativeFileMode.Open, NativeFileAccess.Read))
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 return Load(device, stream, flags | TextureFlags.ShaderResource, usage);
         }
 
@@ -234,7 +232,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <param name="mipCount"></param>
         /// <param name="usage"></param>
         /// <returns></returns>
-        protected static Texture2DDescription NewTextureCubeDescription(int size, PixelFormat format, TextureFlags flags, int mipCount, ResourceUsage usage)
+        protected static NativeTexture2DDescription NewTextureCubeDescription(int size, PixelFormat format, TextureFlags flags, int mipCount, ResourceUsage usage)
         {
             var desc = NewDescription(size, size, format, flags, mipCount, 6, usage);
             desc.OptionFlags = ResourceOptionFlags.TextureCube;

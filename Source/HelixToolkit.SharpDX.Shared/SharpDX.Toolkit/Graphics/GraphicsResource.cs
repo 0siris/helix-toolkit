@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 
-using SharpDX.Direct3D11;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
@@ -16,7 +14,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <summary>
         /// Device used to create this instance.
         /// </summary>
-        public Device GraphicsDevice
+        public NativeD3DDevice GraphicsDevice
         {
             get; internal set;
         }
@@ -24,7 +22,7 @@ namespace SharpDX.Toolkit.Graphics
         /// <summary>
         /// The attached Direct3D11 resource to this instance.
         /// </summary>
-        internal DeviceChild Resource;
+        internal NativeD3DResource Resource;
 
         internal GraphicsResource()
         {
@@ -34,7 +32,7 @@ namespace SharpDX.Toolkit.Graphics
         /// 
         /// </summary>
         /// <param name="graphicsDevice"></param>
-        protected GraphicsResource(Device graphicsDevice) : this(graphicsDevice, null)
+        protected GraphicsResource(NativeD3DDevice graphicsDevice) : this(graphicsDevice, null)
         {
         }
 
@@ -43,7 +41,7 @@ namespace SharpDX.Toolkit.Graphics
         /// </summary>
         /// <param name="graphicsDevice"></param>
         /// <param name="name"></param>
-        protected GraphicsResource(Device graphicsDevice, string name) : base(name)
+        protected GraphicsResource(NativeD3DDevice graphicsDevice, string name) : base(name)
         {
             if (graphicsDevice == null)
                 throw new ArgumentNullException("graphicsDevice");
@@ -55,22 +53,18 @@ namespace SharpDX.Toolkit.Graphics
         /// Initializes the specified device local.
         /// </summary>
         /// <param name="resource">The resource.</param>
-        protected virtual void Initialize(DeviceChild resource)
+        protected virtual void Initialize(NativeD3DResource resource)
         {
             Resource = ToDispose(resource);
-            if (resource != null)
-            {
-                resource.Tag = this;
-            }
         }
 
         /// <summary>
-        /// Implicit casting operator to <see cref="Direct3D11.Resource"/>
+        /// Implicit casting operator to the native D3D resource.
         /// </summary>
         /// <param name="from">The GraphicsResource to convert from.</param>
-        public static implicit operator Resource(GraphicsResource from)
+        public static implicit operator NativeD3DResource(GraphicsResource from)
         {
-            return from == null ? null : (Resource)from.Resource;
+            return from == null ? null : from.Resource;
         }
 
         /// <summary>
@@ -107,11 +101,6 @@ namespace SharpDX.Toolkit.Graphics
         protected override void OnPropertyChanged(string propertyName)
         {
             base.OnPropertyChanged(propertyName);
-            if (propertyName == "Name")
-            {
-                if ((GraphicsDevice.CreationFlags & DeviceCreationFlags.Debug) != 0 && this.Resource != null)
-                    this.Resource.DebugName = Name;
-            }
         }
     }
 }

@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 
-using SharpDX.DXGI;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
@@ -17,7 +15,7 @@ namespace SharpDX.Toolkit.Graphics
 
         private int height;
 
-        private DXGI.Format format;
+        private Format format;
 
         private int rowStride;
 

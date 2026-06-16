@@ -5,17 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System;
 using System.Runtime.InteropServices;
 
-using SharpDX.DXGI;
-
 namespace SharpDX.Toolkit.Graphics
 {
     /// <summary>
-    /// PixelFormat is equivalent to <see cref="SharpDX.DXGI.Format"/>.
+    /// PixelFormat is equivalent to the native DXGI format.
     /// </summary>
     /// <remarks>
-    /// This structure is implicitly castable to and from <see cref="SharpDX.DXGI.Format"/>, you can use it inplace where <see cref="SharpDX.DXGI.Format"/> is required
+    /// This structure is implicitly castable to and from the native DXGI format, you can use it inplace where a DXGI format is required
     /// and vice-versa.
-    /// Usage is slightly different from <see cref="SharpDX.DXGI.Format"/>, as you have to select the type of the pixel format first
+    /// Usage is slightly different from a raw DXGI format, as you have to select the type of the pixel format first
     /// and then access the available pixel formats for this type. Example: PixelFormat.UNorm.R8.
     /// </remarks>
     /// <msdn-id>bb173059</msdn-id>	
@@ -25,7 +23,7 @@ namespace SharpDX.Toolkit.Graphics
     public struct PixelFormat : IEquatable<PixelFormat>
     {
         /// <summary>
-        /// Gets the value as a <see cref="SharpDX.DXGI.Format"/> enum.
+        /// Gets the value as a native DXGI format enum.
         /// </summary>
         public readonly Format Value;
 

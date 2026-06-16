@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
 using System.Runtime.InteropServices;
-using SharpDX.Direct3D11;
-using SharpDX.Multimedia;
 
 namespace SharpDX.Toolkit.Graphics
 {
@@ -53,27 +51,27 @@ namespace SharpDX.Toolkit.Graphics
             public uint BBitMask;
             public uint ABitMask;
 
-            public static readonly PixelFormat DXT1 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', 'T', '1'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DXT1 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', 'T', '1'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat DXT2 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', 'T', '2'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DXT2 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', 'T', '2'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat DXT3 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', 'T', '3'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DXT3 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', 'T', '3'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat DXT4 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', 'T', '4'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DXT4 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', 'T', '4'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat DXT5 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', 'T', '5'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DXT5 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', 'T', '5'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat BC4_UNorm = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('B', 'C', '4', 'U'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat BC4_UNorm = new PixelFormat(PixelFormatFlags.FourCC, FourCC('B', 'C', '4', 'U'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat BC4_SNorm = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('B', 'C', '4', 'S'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat BC4_SNorm = new PixelFormat(PixelFormatFlags.FourCC, FourCC('B', 'C', '4', 'S'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat BC5_UNorm = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('B', 'C', '5', 'U'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat BC5_UNorm = new PixelFormat(PixelFormatFlags.FourCC, FourCC('B', 'C', '5', 'U'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat BC5_SNorm = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('B', 'C', '5', 'S'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat BC5_SNorm = new PixelFormat(PixelFormatFlags.FourCC, FourCC('B', 'C', '5', 'S'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat R8G8_B8G8 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('R', 'G', 'B', 'G'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat R8G8_B8G8 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('R', 'G', 'B', 'G'), 0, 0, 0, 0, 0);
 
-            public static readonly PixelFormat G8R8_G8B8 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('G', 'R', 'G', 'B'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat G8R8_G8B8 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('G', 'R', 'G', 'B'), 0, 0, 0, 0, 0);
 
             public static readonly PixelFormat A8R8G8B8 = new PixelFormat(PixelFormatFlags.Rgba, 0, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
 
@@ -101,7 +99,7 @@ namespace SharpDX.Toolkit.Graphics
 
             public static readonly PixelFormat A8 = new PixelFormat(PixelFormatFlags.Alpha, 0, 8, 0x00, 0x00, 0x00, 0xff);
 
-            public static readonly PixelFormat DX10 = new PixelFormat(PixelFormatFlags.FourCC, new FourCC('D', 'X', '1', '0'), 0, 0, 0, 0, 0);
+            public static readonly PixelFormat DX10 = new PixelFormat(PixelFormatFlags.FourCC, FourCC('D', 'X', '1', '0'), 0, 0, 0, 0, 0);
         }
 
         /// <summary>
@@ -199,12 +197,26 @@ namespace SharpDX.Toolkit.Graphics
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct HeaderDXT10
         {
-            public DXGI.Format DXGIFormat;
+            public Format DXGIFormat;
             public ResourceDimension ResourceDimension;
             public ResourceOptionFlags MiscFlags; // see DDS_RESOURCE_MISC_FLAG
             public int ArraySize;
 
             private readonly uint Unused;
+        }
+
+        public enum ResourceDimension
+        {
+            Unknown = 0,
+            Buffer = 1,
+            Texture1D = 2,
+            Texture2D = 3,
+            Texture3D = 4
+        }
+
+        private static int FourCC(char c0, char c1, char c2, char c3)
+        {
+            return c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
         }
     }
 }

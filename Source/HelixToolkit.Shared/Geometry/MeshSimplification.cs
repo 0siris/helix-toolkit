@@ -8,7 +8,7 @@
 // http://opensource.org/licenses/MIT
 /////////////////////////////////////////////
 
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -26,16 +26,16 @@ namespace HelixToolkit.Wpf
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-#if SHARPDX
-    using Vector3D = global::SharpDX.Vector3;
-    using Point3D = global::SharpDX.Vector3;
-    using Point = global::SharpDX.Vector2;
+#if SHARPDX || SILKNET
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
+    using Point = Silk.NET.Maths.Vector2D<float>;
     using Int32Collection = IntCollection;
     using Vector3DCollection = Vector3Collection;
     using Point3DCollection = Vector3Collection;
     using PointCollection = Vector2Collection;
     using DoubleOrSingle = System.Single;
-    using Matrix3D = global::SharpDX.Matrix;
+    using Matrix3D = Silk.NET.Maths.Matrix4X4<float>;
     using HelixToolkit.Wpf;
 #else
     using System.Windows;

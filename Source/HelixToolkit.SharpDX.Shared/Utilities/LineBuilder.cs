@@ -7,10 +7,6 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 using System;
-using global::SharpDX;
-using Vector3D = global::SharpDX.Vector3;
-using Vector3 = global::SharpDX.Vector3;
-using Point3D = global::SharpDX.Vector3;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
 #else
@@ -42,7 +38,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="isClosed"></param>
         /// <param name="points"></param>
-        public void Add(bool isClosed, params Point3D[] points)
+        public void Add(bool isClosed, params Vector3[] points)
         {
             var i0 = positions.Count;
             foreach (var p in points)
@@ -67,12 +63,12 @@ namespace HelixToolkit.UWP
         /// <param name="xlength"></param>
         /// <param name="ylength"></param>
         /// <param name="zlength"></param>
-        public void AddBox(Point3D center, double xlength, double ylength, double zlength)
+        public void AddBox(Vector3 center, double xlength, double ylength, double zlength)
         {
             var i0 = positions.Count;
-            var dx = new Vector3D((float)xlength / 2f, 0, 0);
-            var dy = new Vector3D(0, (float)ylength / 2f, 0);
-            var dz = new Vector3D(0, 0, (float)zlength / 2f);
+            var dx = new Vector3((float)xlength / 2f, 0, 0);
+            var dy = new Vector3(0, (float)ylength / 2f, 0);
+            var dz = new Vector3(0, 0, (float)zlength / 2f);
             this.Add(true, center - dx - dy - dz, center + dx - dy - dz, center + dx + dy - dz, center - dx + dy - dz);
             this.Add(true, center - dx - dy + dz, center + dx - dy + dz, center + dx + dy + dz, center - dx + dy + dz);
             lineListIndices.AddRange(new[] { i0 + 0, i0 + 4, i0 + 1, i0 + 5, i0 + 2, i0 + 6, i0 + 3, i0 + 7 });
@@ -83,7 +79,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        public void AddLine(Point3D p1, Point3D p2)
+        public void AddLine(Vector3 p1, Vector3 p2)
         {
             var i0 = positions.Count;
             this.positions.Add(p1);
@@ -314,7 +310,7 @@ namespace HelixToolkit.UWP
         /// <returns></returns>
         public static LineGeometry3D GenerateBoundingBox(Vector3[] points)
         {
-            var bb = global::SharpDX.BoundingBox.FromPoints(points);
+            var bb = BoundingBoxExtensions.FromPoints(points);
             return GenerateBoundingBox(bb);
         }
 
@@ -323,7 +319,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="bb">The bounding-box</param>
         /// <returns></returns>
-        public static LineGeometry3D GenerateBoundingBox(global::SharpDX.BoundingBox bb)
+        public static LineGeometry3D GenerateBoundingBox(BoundingBox bb)
         {
             var cc = bb.GetCorners();
             var ll = new LineBuilder();

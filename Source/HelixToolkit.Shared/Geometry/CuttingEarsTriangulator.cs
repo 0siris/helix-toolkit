@@ -10,8 +10,8 @@
 namespace HelixToolkit.Wpf
 {
     using System.Collections.Generic;
-#if SHARPDX
-    using Point = global::SharpDX.Vector2;
+#if SHARPDX || SILKNET
+    using Point = Silk.NET.Maths.Vector2D<float>;
     using Int32Collection = System.Collections.Generic.List<int>;
 #else
     using System.Windows;

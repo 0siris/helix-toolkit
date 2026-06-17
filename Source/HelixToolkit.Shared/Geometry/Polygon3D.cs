@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -16,15 +16,15 @@ namespace HelixToolkit.Wpf.SharpDX
 namespace HelixToolkit.Wpf
 #endif
 {
-#if SHARPDX
+#if SHARPDX || SILKNET
     using System;
     using System.Collections.Generic;
 
-    using Matrix3D = global::SharpDX.Matrix;
-    using Point = global::SharpDX.Vector2;
-    using Point3D = global::SharpDX.Vector3;
-    using PointCollection = System.Collections.Generic.List<global::SharpDX.Vector2>;
-    using Vector3D = global::SharpDX.Vector3;
+    using Matrix3D = Silk.NET.Maths.Matrix4X4<float>;
+    using Point = Silk.NET.Maths.Vector2D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
+    using PointCollection = System.Collections.Generic.List<Silk.NET.Maths.Vector2D<float>>;
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
 #else
     using System;
     using System.Collections.Generic;
@@ -96,13 +96,13 @@ namespace HelixToolkit.Wpf
             // http://stackoverflow.com/questions/1023948/rotate-normal-vector-onto-axis-plane
             var up = this.GetNormal();
             up.Normalize();
-#if SHARPDX
+#if SHARPDX || SILKNET
             var right = Vector3D.Cross(
 #else
             var right = Vector3D.CrossProduct(
 #endif
                 up, Math.Abs(up.X) > Math.Abs(up.Z) ? new Vector3D(0, 0, 1) : new Vector3D(1, 0, 0));
-#if SHARPDX
+#if SHARPDX || SILKNET
             var backward = Vector3D.Cross(
 #else
             var backward = Vector3D.CrossProduct(
@@ -111,7 +111,7 @@ namespace HelixToolkit.Wpf
             var m = new Matrix3D(backward.X, right.X, up.X, 0, backward.Y, right.Y, up.Y, 0, backward.Z, right.Z, up.Z, 0, 0, 0, 0, 1);
 
             // make first point origin
-#if SHARPDX
+#if SHARPDX || SILKNET
             var offs = Vector3D.TransformCoordinate(Points[0], m);
             m.M41 = -offs.X;
             m.M42 = -offs.Y;
@@ -124,7 +124,7 @@ namespace HelixToolkit.Wpf
             var polygon = new Polygon { Points = new PointCollection(this.Points.Count) };
             foreach (var p in this.Points)
             {
-#if SHARPDX
+#if SHARPDX || SILKNET
                 var pp = Vector3D.TransformCoordinate(p, m);
 #else
                 var pp = m.Transform(p);
@@ -151,7 +151,7 @@ namespace HelixToolkit.Wpf
             var v1 = this.Points[1] - this.Points[0];
             for (var i = 2; i < this.Points.Count; i++)
             {
-#if SHARPDX
+#if SHARPDX || SILKNET
                 var n = Vector3D.Cross(v1, this.Points[i] - this.Points[0]);
 
                 if (n.LengthSquared() > 1e-10)
@@ -166,7 +166,7 @@ namespace HelixToolkit.Wpf
                 }
             }
 
-#if SHARPDX
+#if SHARPDX || SILKNET
             var result = Vector3D.Cross(v1, this.Points[2] - this.Points[0]);
 #else
             Vector3D result = Vector3D.CrossProduct(v1, this.Points[2] - this.Points[0]);
@@ -187,7 +187,7 @@ namespace HelixToolkit.Wpf
             var normal = new Vector3D();
             for (var i = 2; i < this.Points.Count; i++)
             {
-#if SHARPDX
+#if SHARPDX || SILKNET
                 var n = Vector3D.Cross(v1, this.Points[i] - this.Points[0]);
 #else
                 var n = Vector3D.CrossProduct(v1, this.Points[i] - this.Points[0]);
@@ -197,7 +197,7 @@ namespace HelixToolkit.Wpf
                 {
                     normal = n;
                 }
-#if SHARPDX
+#if SHARPDX || SILKNET
                 else if (Math.Abs(Vector3D.Dot(n, normal) - 1) > 1e-8)
 #else
                 else if (Math.Abs(Vector3D.DotProduct(n, normal) - 1) > 1e-8)

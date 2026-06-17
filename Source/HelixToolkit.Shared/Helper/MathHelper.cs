@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 #if SHARPDX
-using Vector2 = SharpDX.Vector2;
 using DoubleOrSingle = System.Single;
 #if NETFX_CORE
 #if CORE
@@ -14,7 +13,9 @@ namespace HelixToolkit.UWP
 namespace HelixToolkit.Wpf.SharpDX
 #endif
 #else
+#if !SILKNET
 using Vector2 = System.Windows.Vector;
+#endif
 using DoubleOrSingle = System.Double;
 namespace HelixToolkit.Wpf
 #endif

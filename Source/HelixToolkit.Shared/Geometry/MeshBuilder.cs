@@ -6,7 +6,7 @@
 //   Builds MeshGeometry3D objects.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -25,9 +25,8 @@ namespace HelixToolkit.Wpf
     using System.Diagnostics;
     using System.Threading;
 
-#if SHARPDX
+#if SHARPDX || SILKNET
     using System.Linq;
-    using global::SharpDX;
 #if NETFX_CORE
 #if CORE
     using HelixToolkit.SharpDX.Core;
@@ -41,9 +40,9 @@ namespace HelixToolkit.Wpf
 #if !NETFX_CORE
     using Rect3D = System.Windows.Media.Media3D.Rect3D;
 #endif
-    using Point = global::SharpDX.Vector2;
-    using Point3D = global::SharpDX.Vector3;
-    using Vector3D = global::SharpDX.Vector3;
+    using Point = Silk.NET.Maths.Vector2D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
     using Vector3DCollection = Vector3Collection;
     using Point3DCollection = Vector3Collection;
     using PointCollection = Vector2Collection;
@@ -755,7 +754,7 @@ namespace HelixToolkit.Wpf
         {
             Vector3DCollection t1, t2;
             ComputeTangents(meshGeometry.Positions, meshGeometry.Normals, meshGeometry.TextureCoordinates, meshGeometry.TriangleIndices, out t1, out t2);
-#if SHARPDX
+#if SHARPDX || SILKNET
             meshGeometry.Tangents = new Vector3DCollection(t1);
             meshGeometry.BiTangents = new Vector3DCollection(t2);
 #endif
@@ -4102,7 +4101,7 @@ namespace HelixToolkit.Wpf
             var index0 = this.positions.Count;
             this.positions.Add(newCornerPoint);
 
-#if SHARPDX
+#if SHARPDX || SILKNET
             var plane = new Plane(newCornerPoint, cornerNormal);
 #else
             var plane = new Plane3D(newCornerPoint, cornerNormal);
@@ -4570,7 +4569,7 @@ namespace HelixToolkit.Wpf
 
 
         #region Exporter Functions
-#if SHARPDX
+#if SHARPDX || SILKNET
         /// <summary>
         /// Generate a MeshGeometry3D from the generated Data.
         /// </summary>

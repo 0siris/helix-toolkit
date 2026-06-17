@@ -699,7 +699,7 @@ namespace HelixToolkit.UWP
         /// <param name="sphere"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        public virtual bool FindNearestPointBySphere(HitTestContext context, ref global::SharpDX.BoundingSphere sphere, ref List<HitTestResult> points)
+        public virtual bool FindNearestPointBySphere(HitTestContext context, ref BoundingSphere sphere, ref List<HitTestResult> points)
         {
             if (points == null)
             {
@@ -755,7 +755,7 @@ namespace HelixToolkit.UWP
             }
             var hitStack = stack;
 
-            var sphere = new global::SharpDX.BoundingSphere(point, float.MaxValue);
+            var sphere = new BoundingSphere(point, float.MaxValue);
             var isIntersect = false;
             var isHit = false;
             heuristicSearchFactor = Math.Min(1.0f, Math.Max(0.1f, heuristicSearchFactor));
@@ -804,7 +804,7 @@ namespace HelixToolkit.UWP
         /// <param name="points"></param>
         /// <param name="isIntersect"></param>
         /// <returns></returns>
-        public abstract bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere,
+        public abstract bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere,
             ref List<HitTestResult> points, ref bool isIntersect);
         /// <summary>
         /// <see cref="DynamicOctreeBase{T}.Add(T)"/>
@@ -1340,7 +1340,7 @@ namespace HelixToolkit.UWP
         /// <returns></returns>
         public bool FindNearestPointByPointAndSearchRadius(HitTestContext context, ref Vector3 point, float radius, ref List<HitTestResult> result)
         {
-            var sphere = new global::SharpDX.BoundingSphere(point, radius);
+            var sphere = new BoundingSphere(point, radius);
             return FindNearestPointBySphere(context, ref sphere, ref result);
         }
 
@@ -1714,7 +1714,7 @@ namespace HelixToolkit.UWP
         /// <param name="result"></param>
         /// <param name="isIntersect"></param>
         /// <returns></returns>
-        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere,
+        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere,
             ref List<HitTestResult> result, ref bool isIntersect)
         {
             var isHit = false;
@@ -2005,7 +2005,7 @@ namespace HelixToolkit.UWP
         /// <param name="result"></param>
         /// <param name="isIntersect"></param>
         /// <returns></returns>
-        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere,
+        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere,
             ref List<HitTestResult> result, ref bool isIntersect)
         {
             var isHit = false;
@@ -2261,7 +2261,7 @@ namespace HelixToolkit.UWP
         /// <param name="result"></param>
         /// <param name="isIntersect"></param>
         /// <returns></returns>
-        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere,
+        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere,
             ref List<HitTestResult> result, ref bool isIntersect)
         {
             var isHit = false;
@@ -2370,7 +2370,7 @@ namespace HelixToolkit.UWP
         /// <param name="points"></param>
         /// <param name="isIntersect"></param>
         /// <returns></returns>
-        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere,
+        public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere,
             ref List<HitTestResult> points, ref bool isIntersect)
         {
             return false;

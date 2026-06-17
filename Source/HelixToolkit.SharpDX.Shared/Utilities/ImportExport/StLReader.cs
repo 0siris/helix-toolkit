@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using SharpDX;
 
 #if !NETFX_CORE
 using System.Windows.Threading;
@@ -20,16 +19,16 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace HelixToolkit.Wpf.SharpDX
 #else
 #if CORE
-using Vector3D = SharpDX.Vector3;
+using Vector3D = Silk.NET.Maths.Vector3D<float>;
 namespace HelixToolkit.SharpDX.Core
 #else
-using Vector3D = SharpDX.Vector3;
+using Vector3D = Silk.NET.Maths.Vector3D<float>;
 namespace HelixToolkit.UWP
 #endif
 #endif
 {
     using Mesh3DGroup = System.Collections.Generic.List<Object3D>;
-    using Point3D = global::SharpDX.Vector3;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
 #if NETFX_CORE
     using FileFormatException = Exception;
 #endif

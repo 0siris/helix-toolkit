@@ -2,7 +2,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX;
 using System;
 using System.Collections.Generic;
 
@@ -28,11 +27,11 @@ namespace HelixToolkit.UWP
         /// <param name="start">The start.</param>
         /// <param name="count">The count.</param>
         /// <returns></returns>
-        public static global::SharpDX.BoundingSphere FromPoints(IList<Vector3> points, int start, int count)
+        public static BoundingSphere FromPoints(IList<Vector3> points, int start, int count)
         {
             if (points == null || start < 0 || start >= points.Count || count < 0 || (start + count) > points.Count)
             {
-                return new global::SharpDX.BoundingSphere();
+                return new BoundingSphere();
             }
 
             var upperEnd = start + count;
@@ -65,7 +64,7 @@ namespace HelixToolkit.UWP
             radius = (float)Math.Sqrt(radius);
 
             //Construct the sphere.
-            return new global::SharpDX.BoundingSphere(center, radius);
+            return new BoundingSphere(center, radius);
         }
 
         /// <summary>
@@ -73,11 +72,11 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="points">The points.</param>
         /// <returns></returns>
-        public static global::SharpDX.BoundingSphere FromPoints(IList<Vector3> points)
+        public static BoundingSphere FromPoints(IList<Vector3> points)
         {
             if (points == null)
             {
-                return new global::SharpDX.BoundingSphere();
+                return new BoundingSphere();
             }
 
             return FromPoints(points, 0, points.Count);
@@ -89,7 +88,7 @@ namespace HelixToolkit.UWP
         /// <param name="b">The b.</param>
         /// <param name="m">The m.</param>
         /// <returns></returns>
-        public static global::SharpDX.BoundingSphere TransformBoundingSphere(this global::SharpDX.BoundingSphere b, Matrix m)
+        public static BoundingSphere TransformBoundingSphere(this BoundingSphere b, Matrix m)
         {
             var center = b.Center;
             var edgeX = b.Center + Vector3.UnitX * b.Radius;
@@ -105,7 +104,7 @@ namespace HelixToolkit.UWP
                 (worldEdgeY - worldCenter).LengthSquared()),
                 (worldEdgeZ - worldCenter).LengthSquared()));
 
-            return new global::SharpDX.BoundingSphere(worldCenter.ToXYZ(), maxRadius);
+            return new BoundingSphere(worldCenter.ToXYZ(), maxRadius);
         }
     }
 }

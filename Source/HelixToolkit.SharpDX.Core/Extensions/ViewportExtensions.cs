@@ -23,7 +23,7 @@ namespace HelixToolkit.SharpDX.Core
             if(viewport.CameraCore is PerspectiveCameraCore pcamera)
             {
                 float fov = pcamera.FieldOfView;
-                float d = pcamera.LookDirection.Length();
+                float d = pcamera.LookDirection.Length;
                 float r = d * (float)Math.Tan(0.5f * fov / 180 * Math.PI);
 
                 fov *= 1f + (delta * 0.5f);
@@ -40,7 +40,7 @@ namespace HelixToolkit.SharpDX.Core
                 pcamera.FieldOfView = fov;
                 float d2 = r / (float)Math.Tan(0.5f * fov / 180 * Math.PI);
                 var newLookDirection = pcamera.LookDirection;
-                newLookDirection.Normalize();
+                newLookDirection = newLookDirection.Normalized();
                 newLookDirection *= (float)d2;
                 var target = pcamera.Position + pcamera.LookDirection;
                 pcamera.Position = target - newLookDirection;
@@ -68,7 +68,7 @@ namespace HelixToolkit.SharpDX.Core
             var bounds = viewport.FindBounds();
             var diagonal = bounds.Maximum - bounds.Minimum;
 
-            if (diagonal.LengthSquared() == 0)
+            if (diagonal.LengthSquared == 0)
             {
                 return;
             }

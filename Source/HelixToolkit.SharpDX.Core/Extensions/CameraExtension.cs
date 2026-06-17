@@ -86,8 +86,8 @@ namespace HelixToolkit.SharpDX.Core
         public static void ChangeDirection(this CameraCore camera, Vector3 newLookDir, Vector3 newUpDirection, float animationTime)
         {
             var target = camera.Position + camera.LookDirection;
-            var length = camera.LookDirection.Length();
-            LookAt(camera, target, Vector3.Normalize(newLookDir) * length, newUpDirection, animationTime);
+            var length = camera.LookDirection.Length;
+            LookAt(camera, target, newLookDir.Normalized() * length, newUpDirection, animationTime);
         }
 
         /// <summary>
@@ -140,12 +140,12 @@ namespace HelixToolkit.SharpDX.Core
                     var u = topLeftRay.Direction;
                     var v = topRightRay.Direction;
                     var w = centerRay.Direction;
-                    u.Normalize();
-                    v.Normalize();
-                    w.Normalize();
+                    u = u.Normalized();
+                    v = v.Normalized();
+                    w = w.Normalized();
                     if (camera is PerspectiveCameraCore perspectiveCamera)
                     {
-                        var distance = pcam.LookDirection.Length();
+                        var distance = pcam.LookDirection.Length;
 
                         // option 1: change distance
                         var newDistance = distance * zoomRectangle.Width / viewport.ViewportRectangle.Width;
@@ -158,7 +158,7 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         orthographicCamera.Width *= zoomRectangle.Width / viewport.ViewportRectangle.Width;
                         var oldTarget = pcam.Position + pcam.LookDirection;
-                        var distance = pcam.LookDirection.Length();
+                        var distance = pcam.LookDirection.Length;
 
                         if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget))
                         {
@@ -264,11 +264,11 @@ namespace HelixToolkit.SharpDX.Core
         /// The animation time.
         /// </param>
         public static void ZoomExtents(
-            this CameraCore camera, ViewportCore viewport, global::SharpDX.BoundingBox bounds, float animationTime = 0)
+            this CameraCore camera, ViewportCore viewport, BoundingBox bounds, float animationTime = 0)
         {
             var diagonal = bounds.Maximum - bounds.Minimum;
 
-            if (diagonal.LengthSquared().Equals(0))
+            if (diagonal.LengthSquared.Equals(0))
             {
                 return;
             }
@@ -315,7 +315,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 float dist = Math.Max(disth, distv);
                 var dir = camera.LookDirection;
-                dir.Normalize();
+                dir = dir.Normalized();
                 LookAt(camera, center, dir * dist, animationTime);
             }
             else if (camera is OrthographicCameraCore orth)

@@ -6,7 +6,7 @@
 //   A polygon triangulator for simple polygons with no holes. Expected runtime is O(n log n)
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -23,8 +23,8 @@ namespace HelixToolkit.Wpf
     using System;
     using System.Collections.Generic;
     using System.Linq;
-#if SHARPDX
-    using Point = global::SharpDX.Vector2;
+#if SHARPDX || SILKNET
+    using Point = Silk.NET.Maths.Vector2D<float>;
     using Int32Collection = System.Collections.Generic.List<int>;
     using DoubleOrSingle = System.Single;
 #else

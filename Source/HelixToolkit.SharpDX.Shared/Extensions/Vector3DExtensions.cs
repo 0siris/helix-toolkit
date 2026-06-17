@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
-using SharpDX;
 using System.Runtime.CompilerServices;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -43,18 +42,18 @@ namespace HelixToolkit.UWP
         /// <returns></returns>
         public static float AngleBetween(this Vector3 vector1, Vector3 vector2)
         {
-            vector1.Normalize();
-            vector2.Normalize();
+            vector1 = vector1.Normalized();
+            vector2 = vector2.Normalized();
             var ratio = Vector3.Dot(vector1, vector2);
             float theta;
 
             if (ratio < 0)
             {
-                theta = (float)(Math.PI - 2.0 * Math.Asin((-vector1 - vector2).Length() / 2.0));
+                theta = (float)(Math.PI - 2.0 * Math.Asin((-vector1 - vector2).Length / 2.0));
             }
             else
             {
-                theta = (float)(2.0 * Math.Asin((vector1 - vector2).Length() / 2.0));
+                theta = (float)(2.0 * Math.Asin((vector1 - vector2).Length / 2.0));
             }
             return theta;
         }
@@ -77,11 +76,13 @@ namespace HelixToolkit.UWP
             return new Color4((float)vector.X, (float)vector.Y, (float)vector.Z, w);
         }
 
+#if !SILKNET
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 ToColor4(this Color3 vector, float alpha = 1f)
         {
             return new Color4(vector.Red, vector.Green, vector.Blue, alpha);
         }
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 ToColor4(this Vector2 vector, float z = 1f, float w = 1f)
@@ -92,15 +93,16 @@ namespace HelixToolkit.UWP
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Normalized(this Vector3 vector)
         {
-            vector.Normalize();
-            return vector;
+            var length = vector.Length;
+            return length > 0 ? vector / length : vector;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Normalized(this Vector4 vector)
         {
-            vector.Normalize();
-            return vector;
+            var length = vector.Length;
+            return length > 0 ? vector / length : vector;
         }
+#if !SILKNET
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 Normalized(this Color4 vector)
         {
@@ -108,6 +110,7 @@ namespace HelixToolkit.UWP
             v.Normalize();
             return v.ToColor4();
         }
+#endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix Inverted(this Matrix m)
         {
@@ -127,9 +130,9 @@ namespace HelixToolkit.UWP
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 FindAnyPerpendicular(this Vector3 n)
         {
-            n.Normalize();
+            n = n.Normalized();
             var u = Vector3.Cross(new Vector3(0, 1, 0), n);
-            if (u.LengthSquared() < 1e-3)
+            if (u.LengthSquared < 1e-3)
             {
                 u = Vector3.Cross(new Vector3(1, 0, 0), n);
             }

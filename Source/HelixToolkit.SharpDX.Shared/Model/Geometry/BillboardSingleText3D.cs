@@ -194,11 +194,11 @@ namespace HelixToolkit.UWP
                 return mFontWeight;
             }
         }
-#if NETFX_CORE
-        private PlatformFontStyle mFontStyle = PlatformFontStyle.Normal;
-#else
 #if CORE
         private FontStyle mFontStyle = FontStyle.Normal;
+#else
+#if NETFX_CORE
+        private PlatformFontStyle mFontStyle = PlatformFontStyle.Normal;
 #else
         private PlatformFontStyle mFontStyle = FontStyles.Normal;
 #endif

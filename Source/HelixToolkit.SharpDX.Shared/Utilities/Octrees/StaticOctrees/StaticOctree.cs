@@ -904,7 +904,7 @@ namespace HelixToolkit.UWP
             /// <returns></returns>
             public bool FindNearestPointByPointAndSearchRadius(HitTestContext context, ref Vector3 point, float radius, ref List<HitTestResult> result)
             {
-                var sphere = new global::SharpDX.BoundingSphere(point, radius);
+                var sphere = new BoundingSphere(point, radius);
                 return FindNearestPointBySphere(context, ref sphere, ref result);
             }
             /// <summary>

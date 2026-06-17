@@ -12,7 +12,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using global::SharpDX;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -30,16 +29,16 @@ namespace HelixToolkit.UWP
 #if CORE
     using PhongMaterial = Model.PhongMaterialCore;
 #endif
-    using Color = global::SharpDX.Color4;
+    using ObjColor = Color4;
     using Int32Collection = System.Collections.Generic.List<int>;
     using Object3DGroup = System.Collections.Generic.List<Object3D>;
-    using Plane3D = global::SharpDX.Plane;
-    using Point = global::SharpDX.Vector2;
-    using Point3D = global::SharpDX.Vector3;
-    using Point3DCollection = System.Collections.Generic.List<global::SharpDX.Vector3>;
-    using PointCollection = System.Collections.Generic.List<global::SharpDX.Vector2>;
-    using Ray3D = global::SharpDX.Ray;
-    using Vector3D = global::SharpDX.Vector3;
+    using Plane3D = Plane;
+    using Point = Vector2;
+    using Point3D = Vector3;
+    using Point3DCollection = System.Collections.Generic.List<Vector3>;
+    using PointCollection = System.Collections.Generic.List<Vector2>;
+    using Ray3D = Ray;
+    using Vector3D = Vector3;
     using Model;
     using Core;
 
@@ -87,7 +86,7 @@ namespace HelixToolkit.UWP
             this.IsSmoothingDefault = true;
             this.SkipTransparencyValues = true;
 
-            this.DefaultColor = global::SharpDX.Color.Gold;
+            this.DefaultColor = new ObjColor(1f, 0.84313726f, 0f, 1f);
 
             this.Points = new List<Point3D>();
             this.Colors = new List<Color4>();
@@ -107,7 +106,7 @@ namespace HelixToolkit.UWP
         /// <remarks>
         /// The default value is Colors.Gold.
         /// </remarks>
-        public Color DefaultColor
+        public ObjColor DefaultColor
         {
             get; set;
         }
@@ -465,11 +464,11 @@ namespace HelixToolkit.UWP
         /// <returns>
         /// The parsed color.
         /// </returns>
-        private static Color ColorParse(string values)
+        private static ObjColor ColorParse(string values)
         {
             var fields = Split(values);
 #if NETFX_CORE
-            return new Color((float)fields[0], (float)fields[1], (float)fields[2], 1);
+            return new ObjColor((float)fields[0], (float)fields[1], (float)fields[2], 1);
 #else
             return System.Windows.Media.Color.FromRgb((byte)(fields[0] * 255), (byte)(fields[1] * 255), (byte)(fields[2] * 255)).ToColor4();
 #endif
@@ -898,10 +897,10 @@ namespace HelixToolkit.UWP
             return new PhongMaterialCore()
             {
                 Name = "DefaultVRML",
-                AmbientColor = new Color(0.2f, 0.2f, 0.2f, 1.0f),
-                DiffuseColor = new Color(0.8f, 0.8f, 0.8f, 1.0f),
-                SpecularColor = new Color(0.0f, 0.0f, 0.0f, 1.0f),
-                EmissiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f),
+                AmbientColor = new ObjColor(0.2f, 0.2f, 0.2f, 1.0f),
+                DiffuseColor = new ObjColor(0.8f, 0.8f, 0.8f, 1.0f),
+                SpecularColor = new ObjColor(0.0f, 0.0f, 0.0f, 1.0f),
+                EmissiveColor = new ObjColor(0.0f, 0.0f, 0.0f, 1.0f),
                 SpecularShininess = 25.6f,
             };
         }
@@ -1142,7 +1141,7 @@ namespace HelixToolkit.UWP
                 var meshBuilder = new MeshBuilder(true, true);
                 this.meshBuilders.Add(meshBuilder);
                 this.vertexColors.Add(new Color4Collection());
-                this.materials.Add(new PhongMaterialCore() { DiffuseColor = new Color(0, 1, 0, 1) });
+                this.materials.Add(new PhongMaterialCore() { DiffuseColor = new ObjColor(0, 1, 0, 1) });
             }
 
             /// <summary>
@@ -1195,7 +1194,7 @@ namespace HelixToolkit.UWP
             /// Gets or sets the ambient color.
             /// </summary>
             /// <value>The ambient.</value>
-            public Color Ambient
+            public ObjColor Ambient
             {
                 get; set;
             }
@@ -1222,7 +1221,7 @@ namespace HelixToolkit.UWP
             /// Gets or sets the diffuse color.
             /// </summary>
             /// <value>The diffuse.</value>
-            public Color Diffuse
+            public ObjColor Diffuse
             {
                 get; set;
             }
@@ -1261,7 +1260,7 @@ namespace HelixToolkit.UWP
             /// Gets or sets the specular color.
             /// </summary>
             /// <value>The specular color.</value>
-            public Color Specular
+            public ObjColor Specular
             {
                 get; set;
             }

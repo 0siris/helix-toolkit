@@ -6,7 +6,7 @@
 //   Provides helper methods for mesh geometries.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -24,10 +24,10 @@ namespace HelixToolkit.Wpf
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
-#if SHARPDX
-    using Vector3D = global::SharpDX.Vector3;
-    using Point3D = global::SharpDX.Vector3;
-    using Point = global::SharpDX.Vector2;
+#if SHARPDX || SILKNET
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
+    using Point = Silk.NET.Maths.Vector2D<float>;
     using Int32Collection = IntCollection;
     using Vector3DCollection = Vector3Collection;
     using Point3DCollection = Vector3Collection;
@@ -326,7 +326,7 @@ namespace HelixToolkit.Wpf
                 }
             }
 
-#if SHARPDX
+#if SHARPDX || SILKNET
             return new MeshGeometry3D { Positions = p, TriangleIndices = new IntCollection(ti), Normals = n, TextureCoordinates = tc };
 #else
             return new MeshGeometry3D { Positions = p, TriangleIndices = ti, Normals = n, TextureCoordinates = tc };
@@ -386,7 +386,7 @@ namespace HelixToolkit.Wpf
                 int j;
                 ti.Add(dict.TryGetValue(index, out j) ? newIndex[j] : newIndex[index]);
             }
-#if SHARPDX
+#if SHARPDX || SILKNET
             var result = new MeshGeometry3D { Positions = p, TriangleIndices = new IntCollection(ti), };
 #else
             var result = new MeshGeometry3D { Positions = p, TriangleIndices = ti };

@@ -21,7 +21,7 @@ namespace HelixToolkit.SharpDX.Core.Controls
         public override void Delta(Vector2 e)
         {
             base.Delta(e);
-            if (Camera.LookDirection.LengthSquared() < 1e-5f)
+            if (Camera.LookDirection.LengthSquared < 1e-5f)
             {
                 return;
             }

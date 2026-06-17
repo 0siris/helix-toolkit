@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System;
 using System.Runtime.CompilerServices;
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -15,12 +15,11 @@ namespace HelixToolkit.Wpf.SharpDX
 namespace HelixToolkit.Wpf
 #endif
 {
-#if SHARPDX
-    using global::SharpDX;
-    using Vector3D = global::SharpDX.Vector3;
-    using Point3D = global::SharpDX.Vector3;
+#if SHARPDX || SILKNET
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
     using DoubleOrSingle = System.Single;
-    using Vector = global::SharpDX.Vector2;
+    using Vector = Silk.NET.Maths.Vector2D<float>;
 #else
     using System.Windows;
     using System.Windows.Media;
@@ -41,7 +40,7 @@ namespace HelixToolkit.Wpf
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second)
         {
-#if SHARPDX
+#if SHARPDX || SILKNET
             return Vector3.Cross(first, second);
 #else
             return Vector3D.CrossProduct(first, second);
@@ -51,7 +50,7 @@ namespace HelixToolkit.Wpf
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D CrossProduct(Vector3D first, Vector3D second)
         {
-#if SHARPDX
+#if SHARPDX || SILKNET
             return Vector3.Cross(first, second);
 #else
             return Vector3D.CrossProduct(first, second);
@@ -144,7 +143,7 @@ namespace HelixToolkit.Wpf
         {
             return new Vector3D(vector.X, vector.Y, vector.Z);
         }
-#if SHARPDX
+#if SHARPDX || SILKNET
 #if !NETFX_CORE
         /// <summary>
         /// 

@@ -516,7 +516,7 @@ namespace HelixToolkit.UWP
         /// <returns></returns>
         public static T ReadStructure<T>(this BinaryReader br) where T : unmanaged
         {
-            return ByteArrayToStructure<T>(br.ReadBytes(global::SharpDX.Utilities.SizeOf<T>()));
+            return ByteArrayToStructure<T>(br.ReadBytes(System.Runtime.InteropServices.Marshal.SizeOf<T>()));
         }
 
         /// <summary>
@@ -531,7 +531,7 @@ namespace HelixToolkit.UWP
             var result = new T[count];
 
             for (var i = 0; i < count; i++)
-                result[i] = ByteArrayToStructure<T>(br.ReadBytes(global::SharpDX.Utilities.SizeOf<T>()));
+                result[i] = ByteArrayToStructure<T>(br.ReadBytes(System.Runtime.InteropServices.Marshal.SizeOf<T>()));
 
             return result;
         }

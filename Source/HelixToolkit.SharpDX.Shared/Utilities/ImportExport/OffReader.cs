@@ -21,9 +21,8 @@ namespace HelixToolkit.UWP
 #endif
 {
     using Object3DGroup = System.Collections.Generic.List<Object3D>;
-    using Point = global::SharpDX.Vector2;
-    using Point3D = global::SharpDX.Vector3;
-    using global::SharpDX;
+    using Point = Vector2;
+    using Point3D = Vector3;
     using Model;
 
     /// <summary>

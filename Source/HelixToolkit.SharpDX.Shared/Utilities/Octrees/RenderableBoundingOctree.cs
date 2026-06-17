@@ -279,7 +279,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref global::SharpDX.BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
+            public override bool FindNearestPointBySphereExcludeChild(HitTestContext context, ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
             {
                 throw new NotImplementedException();
             }

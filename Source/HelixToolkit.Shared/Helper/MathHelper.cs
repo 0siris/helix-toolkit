@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-#if SHARPDX
+#if SHARPDX || SILKNET
 using DoubleOrSingle = System.Single;
 #if NETFX_CORE
 #if CORE

@@ -18,6 +18,225 @@ namespace HelixToolkit.Wpf.SharpDX
         Intersects
     }
 
+    public struct Ray
+    {
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        public Ray(Vector3 position, Vector3 direction)
+        {
+            Position = position;
+            Direction = direction;
+        }
+
+        public Vector3 Origin
+        {
+            get => Position;
+            set => Position = value;
+        }
+
+        public Vector3 GetPoint(float distance)
+        {
+            return Position + Direction * distance;
+        }
+    }
+
+    public struct Plane
+    {
+        public Vector3 Normal;
+        public float D;
+
+        public Plane(Vector3 normal, float d)
+        {
+            Normal = normal;
+            D = d;
+        }
+
+        public Plane(Vector3 point, Vector3 normal)
+        {
+            Normal = Collision.Normalize(normal);
+            D = -Collision.Dot(Normal, point);
+        }
+
+        public bool Intersects(ref Ray ray, out float distance)
+        {
+            return Collision.RayIntersectsPlane(ref ray, ref this, out distance);
+        }
+
+        public PlaneIntersectionType Intersects(ref BoundingSphere sphere)
+        {
+            var distance = Collision.Dot(Normal, sphere.Center) + D;
+            if (distance > sphere.Radius)
+            {
+                return PlaneIntersectionType.Front;
+            }
+            if (distance < -sphere.Radius)
+            {
+                return PlaneIntersectionType.Back;
+            }
+            return PlaneIntersectionType.Intersecting;
+        }
+    }
+
+    public static class Collision
+    {
+        private const float Epsilon = 1e-6f;
+
+        public static float Dot(Vector3 left, Vector3 right)
+        {
+            return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
+        }
+
+        public static Vector3 Cross(Vector3 left, Vector3 right)
+        {
+            return new Vector3(
+                left.Y * right.Z - left.Z * right.Y,
+                left.Z * right.X - left.X * right.Z,
+                left.X * right.Y - left.Y * right.X);
+        }
+
+        public static Vector3 Normalize(Vector3 vector)
+        {
+            var length = vector.Length;
+            return length > 0 ? vector / length : vector;
+        }
+
+        public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point)
+        {
+            var distance = Dot(plane.Normal, point) + plane.D;
+            return distance > 0 ? PlaneIntersectionType.Front : distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance)
+        {
+            var denominator = Dot(plane.Normal, ray.Direction);
+            if (global::System.Math.Abs(denominator) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = -(Dot(plane.Normal, ray.Origin) + plane.D) / denominator;
+            return true;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsPlane(ref ray, ref plane, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)
+        {
+            var edge1 = vertex2 - vertex1;
+            var edge2 = vertex3 - vertex1;
+            var directionCrossEdge2 = Cross(ray.Direction, edge2);
+            var determinant = Dot(edge1, directionCrossEdge2);
+
+            if (global::System.Math.Abs(determinant) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var inverseDeterminant = 1.0f / determinant;
+            var distanceVector = ray.Origin - vertex1;
+            var triangleU = Dot(distanceVector, directionCrossEdge2) * inverseDeterminant;
+            if (triangleU < 0 || triangleU > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var distanceCrossEdge1 = Cross(distanceVector, edge1);
+            var triangleV = Dot(ray.Direction, distanceCrossEdge1) * inverseDeterminant;
+            if (triangleV < 0 || triangleU + triangleV > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = Dot(edge2, distanceCrossEdge1) * inverseDeterminant;
+            return distance >= 0;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 result)
+        {
+            var ab = vertex2 - vertex1;
+            var ac = vertex3 - vertex1;
+            var ap = point - vertex1;
+            var d1 = Dot(ab, ap);
+            var d2 = Dot(ac, ap);
+            if (d1 <= 0 && d2 <= 0)
+            {
+                result = vertex1;
+                return;
+            }
+
+            var bp = point - vertex2;
+            var d3 = Dot(ab, bp);
+            var d4 = Dot(ac, bp);
+            if (d3 >= 0 && d4 <= d3)
+            {
+                result = vertex2;
+                return;
+            }
+
+            var vc = d1 * d4 - d3 * d2;
+            if (vc <= 0 && d1 >= 0 && d3 <= 0)
+            {
+                result = vertex1 + ab * (d1 / (d1 - d3));
+                return;
+            }
+
+            var cp = point - vertex3;
+            var d5 = Dot(ab, cp);
+            var d6 = Dot(ac, cp);
+            if (d6 >= 0 && d5 <= d6)
+            {
+                result = vertex3;
+                return;
+            }
+
+            var vb = d5 * d2 - d1 * d6;
+            if (vb <= 0 && d2 >= 0 && d6 <= 0)
+            {
+                result = vertex1 + ac * (d2 / (d2 - d6));
+                return;
+            }
+
+            var va = d3 * d6 - d5 * d4;
+            if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
+            {
+                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+                return;
+            }
+
+            var denominator = 1.0f / (va + vb + vc);
+            result = vertex1 + ab * (vb * denominator) + ac * (vc * denominator);
+        }
+    }
+
     public struct Color
     {
         public byte R;
@@ -152,15 +371,15 @@ namespace HelixToolkit.Wpf.SharpDX
 
         public bool Intersects(ref Ray ray)
         {
-            var tmin = (Minimum.X - ray.Position.X) / ray.Direction.X;
-            var tmax = (Maximum.X - ray.Position.X) / ray.Direction.X;
+            var tmin = (Minimum.X - ray.Origin.X) / ray.Direction.X;
+            var tmax = (Maximum.X - ray.Origin.X) / ray.Direction.X;
             if (tmin > tmax)
             {
                 (tmin, tmax) = (tmax, tmin);
             }
 
-            var tymin = (Minimum.Y - ray.Position.Y) / ray.Direction.Y;
-            var tymax = (Maximum.Y - ray.Position.Y) / ray.Direction.Y;
+            var tymin = (Minimum.Y - ray.Origin.Y) / ray.Direction.Y;
+            var tymax = (Maximum.Y - ray.Origin.Y) / ray.Direction.Y;
             if (tymin > tymax)
             {
                 (tymin, tymax) = (tymax, tymin);
@@ -173,8 +392,8 @@ namespace HelixToolkit.Wpf.SharpDX
             tmin = global::System.Math.Max(tmin, tymin);
             tmax = global::System.Math.Min(tmax, tymax);
 
-            var tzmin = (Minimum.Z - ray.Position.Z) / ray.Direction.Z;
-            var tzmax = (Maximum.Z - ray.Position.Z) / ray.Direction.Z;
+            var tzmin = (Minimum.Z - ray.Origin.Z) / ray.Direction.Z;
+            var tzmax = (Maximum.Z - ray.Origin.Z) / ray.Direction.Z;
             if (tzmin > tzmax)
             {
                 (tzmin, tzmax) = (tzmax, tzmin);
@@ -241,6 +460,225 @@ namespace HelixToolkit.SharpDX.Core
         Intersects
     }
 
+    public struct Ray
+    {
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        public Ray(Vector3 position, Vector3 direction)
+        {
+            Position = position;
+            Direction = direction;
+        }
+
+        public Vector3 Origin
+        {
+            get => Position;
+            set => Position = value;
+        }
+
+        public Vector3 GetPoint(float distance)
+        {
+            return Position + Direction * distance;
+        }
+    }
+
+    public struct Plane
+    {
+        public Vector3 Normal;
+        public float D;
+
+        public Plane(Vector3 normal, float d)
+        {
+            Normal = normal;
+            D = d;
+        }
+
+        public Plane(Vector3 point, Vector3 normal)
+        {
+            Normal = Collision.Normalize(normal);
+            D = -Collision.Dot(Normal, point);
+        }
+
+        public bool Intersects(ref Ray ray, out float distance)
+        {
+            return Collision.RayIntersectsPlane(ref ray, ref this, out distance);
+        }
+
+        public PlaneIntersectionType Intersects(ref BoundingSphere sphere)
+        {
+            var distance = Collision.Dot(Normal, sphere.Center) + D;
+            if (distance > sphere.Radius)
+            {
+                return PlaneIntersectionType.Front;
+            }
+            if (distance < -sphere.Radius)
+            {
+                return PlaneIntersectionType.Back;
+            }
+            return PlaneIntersectionType.Intersecting;
+        }
+    }
+
+    public static class Collision
+    {
+        private const float Epsilon = 1e-6f;
+
+        public static float Dot(Vector3 left, Vector3 right)
+        {
+            return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
+        }
+
+        public static Vector3 Cross(Vector3 left, Vector3 right)
+        {
+            return new Vector3(
+                left.Y * right.Z - left.Z * right.Y,
+                left.Z * right.X - left.X * right.Z,
+                left.X * right.Y - left.Y * right.X);
+        }
+
+        public static Vector3 Normalize(Vector3 vector)
+        {
+            var length = vector.Length;
+            return length > 0 ? vector / length : vector;
+        }
+
+        public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point)
+        {
+            var distance = Dot(plane.Normal, point) + plane.D;
+            return distance > 0 ? PlaneIntersectionType.Front : distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance)
+        {
+            var denominator = Dot(plane.Normal, ray.Direction);
+            if (global::System.Math.Abs(denominator) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = -(Dot(plane.Normal, ray.Origin) + plane.D) / denominator;
+            return true;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsPlane(ref ray, ref plane, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)
+        {
+            var edge1 = vertex2 - vertex1;
+            var edge2 = vertex3 - vertex1;
+            var directionCrossEdge2 = Cross(ray.Direction, edge2);
+            var determinant = Dot(edge1, directionCrossEdge2);
+
+            if (global::System.Math.Abs(determinant) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var inverseDeterminant = 1.0f / determinant;
+            var distanceVector = ray.Origin - vertex1;
+            var triangleU = Dot(distanceVector, directionCrossEdge2) * inverseDeterminant;
+            if (triangleU < 0 || triangleU > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var distanceCrossEdge1 = Cross(distanceVector, edge1);
+            var triangleV = Dot(ray.Direction, distanceCrossEdge1) * inverseDeterminant;
+            if (triangleV < 0 || triangleU + triangleV > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = Dot(edge2, distanceCrossEdge1) * inverseDeterminant;
+            return distance >= 0;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 result)
+        {
+            var ab = vertex2 - vertex1;
+            var ac = vertex3 - vertex1;
+            var ap = point - vertex1;
+            var d1 = Dot(ab, ap);
+            var d2 = Dot(ac, ap);
+            if (d1 <= 0 && d2 <= 0)
+            {
+                result = vertex1;
+                return;
+            }
+
+            var bp = point - vertex2;
+            var d3 = Dot(ab, bp);
+            var d4 = Dot(ac, bp);
+            if (d3 >= 0 && d4 <= d3)
+            {
+                result = vertex2;
+                return;
+            }
+
+            var vc = d1 * d4 - d3 * d2;
+            if (vc <= 0 && d1 >= 0 && d3 <= 0)
+            {
+                result = vertex1 + ab * (d1 / (d1 - d3));
+                return;
+            }
+
+            var cp = point - vertex3;
+            var d5 = Dot(ab, cp);
+            var d6 = Dot(ac, cp);
+            if (d6 >= 0 && d5 <= d6)
+            {
+                result = vertex3;
+                return;
+            }
+
+            var vb = d5 * d2 - d1 * d6;
+            if (vb <= 0 && d2 >= 0 && d6 <= 0)
+            {
+                result = vertex1 + ac * (d2 / (d2 - d6));
+                return;
+            }
+
+            var va = d3 * d6 - d5 * d4;
+            if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
+            {
+                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+                return;
+            }
+
+            var denominator = 1.0f / (va + vb + vc);
+            result = vertex1 + ab * (vb * denominator) + ac * (vc * denominator);
+        }
+    }
+
     public struct Color
     {
         public byte R;
@@ -375,15 +813,15 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool Intersects(ref Ray ray)
         {
-            var tmin = (Minimum.X - ray.Position.X) / ray.Direction.X;
-            var tmax = (Maximum.X - ray.Position.X) / ray.Direction.X;
+            var tmin = (Minimum.X - ray.Origin.X) / ray.Direction.X;
+            var tmax = (Maximum.X - ray.Origin.X) / ray.Direction.X;
             if (tmin > tmax)
             {
                 (tmin, tmax) = (tmax, tmin);
             }
 
-            var tymin = (Minimum.Y - ray.Position.Y) / ray.Direction.Y;
-            var tymax = (Maximum.Y - ray.Position.Y) / ray.Direction.Y;
+            var tymin = (Minimum.Y - ray.Origin.Y) / ray.Direction.Y;
+            var tymax = (Maximum.Y - ray.Origin.Y) / ray.Direction.Y;
             if (tymin > tymax)
             {
                 (tymin, tymax) = (tymax, tymin);
@@ -396,8 +834,8 @@ namespace HelixToolkit.SharpDX.Core
             tmin = global::System.Math.Max(tmin, tymin);
             tmax = global::System.Math.Min(tmax, tymax);
 
-            var tzmin = (Minimum.Z - ray.Position.Z) / ray.Direction.Z;
-            var tzmax = (Maximum.Z - ray.Position.Z) / ray.Direction.Z;
+            var tzmin = (Minimum.Z - ray.Origin.Z) / ray.Direction.Z;
+            var tzmax = (Maximum.Z - ray.Origin.Z) / ray.Direction.Z;
             if (tzmin > tzmax)
             {
                 (tzmin, tzmax) = (tzmax, tzmin);
@@ -464,6 +902,225 @@ namespace HelixToolkit.UWP
         Intersects
     }
 
+    public struct Ray
+    {
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        public Ray(Vector3 position, Vector3 direction)
+        {
+            Position = position;
+            Direction = direction;
+        }
+
+        public Vector3 Origin
+        {
+            get => Position;
+            set => Position = value;
+        }
+
+        public Vector3 GetPoint(float distance)
+        {
+            return Position + Direction * distance;
+        }
+    }
+
+    public struct Plane
+    {
+        public Vector3 Normal;
+        public float D;
+
+        public Plane(Vector3 normal, float d)
+        {
+            Normal = normal;
+            D = d;
+        }
+
+        public Plane(Vector3 point, Vector3 normal)
+        {
+            Normal = Collision.Normalize(normal);
+            D = -Collision.Dot(Normal, point);
+        }
+
+        public bool Intersects(ref Ray ray, out float distance)
+        {
+            return Collision.RayIntersectsPlane(ref ray, ref this, out distance);
+        }
+
+        public PlaneIntersectionType Intersects(ref BoundingSphere sphere)
+        {
+            var distance = Collision.Dot(Normal, sphere.Center) + D;
+            if (distance > sphere.Radius)
+            {
+                return PlaneIntersectionType.Front;
+            }
+            if (distance < -sphere.Radius)
+            {
+                return PlaneIntersectionType.Back;
+            }
+            return PlaneIntersectionType.Intersecting;
+        }
+    }
+
+    public static class Collision
+    {
+        private const float Epsilon = 1e-6f;
+
+        public static float Dot(Vector3 left, Vector3 right)
+        {
+            return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
+        }
+
+        public static Vector3 Cross(Vector3 left, Vector3 right)
+        {
+            return new Vector3(
+                left.Y * right.Z - left.Z * right.Y,
+                left.Z * right.X - left.X * right.Z,
+                left.X * right.Y - left.Y * right.X);
+        }
+
+        public static Vector3 Normalize(Vector3 vector)
+        {
+            var length = vector.Length;
+            return length > 0 ? vector / length : vector;
+        }
+
+        public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point)
+        {
+            var distance = Dot(plane.Normal, point) + plane.D;
+            return distance > 0 ? PlaneIntersectionType.Front : distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance)
+        {
+            var denominator = Dot(plane.Normal, ray.Direction);
+            if (global::System.Math.Abs(denominator) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = -(Dot(plane.Normal, ray.Origin) + plane.D) / denominator;
+            return true;
+        }
+
+        public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsPlane(ref ray, ref plane, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)
+        {
+            var edge1 = vertex2 - vertex1;
+            var edge2 = vertex3 - vertex1;
+            var directionCrossEdge2 = Cross(ray.Direction, edge2);
+            var determinant = Dot(edge1, directionCrossEdge2);
+
+            if (global::System.Math.Abs(determinant) < Epsilon)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var inverseDeterminant = 1.0f / determinant;
+            var distanceVector = ray.Origin - vertex1;
+            var triangleU = Dot(distanceVector, directionCrossEdge2) * inverseDeterminant;
+            if (triangleU < 0 || triangleU > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            var distanceCrossEdge1 = Cross(distanceVector, edge1);
+            var triangleV = Dot(ray.Direction, distanceCrossEdge1) * inverseDeterminant;
+            if (triangleV < 0 || triangleU + triangleV > 1)
+            {
+                distance = 0;
+                return false;
+            }
+
+            distance = Dot(edge2, distanceCrossEdge1) * inverseDeterminant;
+            return distance >= 0;
+        }
+
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
+        {
+            float distance;
+            if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance))
+            {
+                point = ray.Origin + ray.Direction * distance;
+                return true;
+            }
+
+            point = default;
+            return false;
+        }
+
+        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 result)
+        {
+            var ab = vertex2 - vertex1;
+            var ac = vertex3 - vertex1;
+            var ap = point - vertex1;
+            var d1 = Dot(ab, ap);
+            var d2 = Dot(ac, ap);
+            if (d1 <= 0 && d2 <= 0)
+            {
+                result = vertex1;
+                return;
+            }
+
+            var bp = point - vertex2;
+            var d3 = Dot(ab, bp);
+            var d4 = Dot(ac, bp);
+            if (d3 >= 0 && d4 <= d3)
+            {
+                result = vertex2;
+                return;
+            }
+
+            var vc = d1 * d4 - d3 * d2;
+            if (vc <= 0 && d1 >= 0 && d3 <= 0)
+            {
+                result = vertex1 + ab * (d1 / (d1 - d3));
+                return;
+            }
+
+            var cp = point - vertex3;
+            var d5 = Dot(ab, cp);
+            var d6 = Dot(ac, cp);
+            if (d6 >= 0 && d5 <= d6)
+            {
+                result = vertex3;
+                return;
+            }
+
+            var vb = d5 * d2 - d1 * d6;
+            if (vb <= 0 && d2 >= 0 && d6 <= 0)
+            {
+                result = vertex1 + ac * (d2 / (d2 - d6));
+                return;
+            }
+
+            var va = d3 * d6 - d5 * d4;
+            if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
+            {
+                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+                return;
+            }
+
+            var denominator = 1.0f / (va + vb + vc);
+            result = vertex1 + ab * (vb * denominator) + ac * (vc * denominator);
+        }
+    }
+
     public struct Color
     {
         public byte R;
@@ -598,15 +1255,15 @@ namespace HelixToolkit.UWP
 
         public bool Intersects(ref Ray ray)
         {
-            var tmin = (Minimum.X - ray.Position.X) / ray.Direction.X;
-            var tmax = (Maximum.X - ray.Position.X) / ray.Direction.X;
+            var tmin = (Minimum.X - ray.Origin.X) / ray.Direction.X;
+            var tmax = (Maximum.X - ray.Origin.X) / ray.Direction.X;
             if (tmin > tmax)
             {
                 (tmin, tmax) = (tmax, tmin);
             }
 
-            var tymin = (Minimum.Y - ray.Position.Y) / ray.Direction.Y;
-            var tymax = (Maximum.Y - ray.Position.Y) / ray.Direction.Y;
+            var tymin = (Minimum.Y - ray.Origin.Y) / ray.Direction.Y;
+            var tymax = (Maximum.Y - ray.Origin.Y) / ray.Direction.Y;
             if (tymin > tymax)
             {
                 (tymin, tymax) = (tymax, tymin);
@@ -619,8 +1276,8 @@ namespace HelixToolkit.UWP
             tmin = global::System.Math.Max(tmin, tymin);
             tmax = global::System.Math.Min(tmax, tymax);
 
-            var tzmin = (Minimum.Z - ray.Position.Z) / ray.Direction.Z;
-            var tzmax = (Maximum.Z - ray.Position.Z) / ray.Direction.Z;
+            var tzmin = (Minimum.Z - ray.Origin.Z) / ray.Direction.Z;
+            var tzmax = (Maximum.Z - ray.Origin.Z) / ray.Direction.Z;
             if (tzmin > tzmax)
             {
                 (tzmin, tzmax) = (tzmax, tzmin);

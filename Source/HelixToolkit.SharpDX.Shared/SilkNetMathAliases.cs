@@ -7,16 +7,16 @@ global using Format = Silk.NET.DXGI.Format;
 global using Int3 = Silk.NET.Maths.Vector3D<int>;
 global using Int4 = Silk.NET.Maths.Vector4D<int>;
 global using Matrix = Silk.NET.Maths.Matrix4X4<float>;
-global using Plane = Silk.NET.Maths.Plane<float>;
 global using Point = Silk.NET.Maths.Vector2D<int>;
 global using PointerSize = System.IntPtr;
 global using Quaternion = Silk.NET.Maths.Quaternion<float>;
-global using Ray = Silk.NET.Maths.Ray3D<float>;
 global using Vector2 = Silk.NET.Maths.Vector2D<float>;
 global using Vector3 = Silk.NET.Maths.Vector3D<float>;
 global using Vector4 = Silk.NET.Maths.Vector4D<float>;
 #if !NETFX_CORE
 global using BoundingBox = HelixToolkit.Wpf.SharpDX.BoundingBox;
+global using Plane = HelixToolkit.Wpf.SharpDX.Plane;
+global using Ray = HelixToolkit.Wpf.SharpDX.Ray;
 global using NativeD3DDevice = HelixToolkit.Wpf.SharpDX.Native.SilkD3DDevice;
 global using NativeD3DResource = HelixToolkit.Wpf.SharpDX.Resource;
 global using NativeD3DTexture1D = HelixToolkit.Wpf.SharpDX.Texture1D;
@@ -34,6 +34,8 @@ global using SampleDescription = HelixToolkit.Wpf.SharpDX.SampleDescription;
 #else
 #if CORE
 global using BoundingBox = HelixToolkit.SharpDX.Core.BoundingBox;
+global using Plane = HelixToolkit.SharpDX.Core.Plane;
+global using Ray = HelixToolkit.SharpDX.Core.Ray;
 global using NativeD3DDevice = HelixToolkit.SharpDX.Core.Native.SilkD3DDevice;
 global using NativeD3DResource = HelixToolkit.SharpDX.Core.Resource;
 global using NativeD3DTexture1D = HelixToolkit.SharpDX.Core.Texture1D;
@@ -50,6 +52,8 @@ global using ResourceUsage = HelixToolkit.SharpDX.Core.ResourceUsage;
 global using SampleDescription = HelixToolkit.SharpDX.Core.SampleDescription;
 #else
 global using BoundingBox = HelixToolkit.UWP.BoundingBox;
+global using Plane = HelixToolkit.UWP.Plane;
+global using Ray = HelixToolkit.UWP.Ray;
 global using NativeD3DDevice = HelixToolkit.UWP.Native.SilkD3DDevice;
 global using NativeD3DResource = HelixToolkit.UWP.Resource;
 global using NativeD3DTexture1D = HelixToolkit.UWP.Texture1D;

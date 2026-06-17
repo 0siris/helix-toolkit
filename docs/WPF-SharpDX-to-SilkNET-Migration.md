@@ -462,7 +462,17 @@ rg -n "using SharpDX|using global::SharpDX|global::SharpDX\.(BoundingBox|Boundin
 dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
-Ergebnis: Die ersten qualifizierten Math-Blocker in `StLReader`, `ObjReader`, `OffReader`, `LineBuilder`, `Interfaces`, `CMOReader`, Octree-/Scene-Hilfstypen und `BoundingSphereExtensions` sind von lokalen SharpDX-Aliasen gelöst. Die Shared-Geometrie-Dateien verwenden im `SILKNET`-Pfad die SharpDX/Core-Branch-Struktur mit `Silk.NET.Maths`-Aliases statt WPF-Geometrietypen. `SilkNetLegacyTypes` ergänzt Übergangsformen für `Color`, `PlaneIntersectionType`, `ContainmentType`, `DoubleKeyDictionary` und eine SharpDX-förmige `BoundingBox`-Oberfläche (`Minimum`, `Maximum`, `Merge`, `FromSphere`, `Contains`, `Intersects`, `GetCorners`). Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `1004` Compilefehlern gemessen. Die Fehlerzahl ist nicht direkt mit `346` vergleichbar, weil der Compiler nach den gelösten Deklarationsblockern tiefer in Core-/Shared-Geometrie-Methoden kommt; die ersten Fehlergruppen liegen jetzt konsistent in `SharpDX.Toolkit.Graphics` (`FormatHelper`, `Utilities`, DXGI-`Format`-Enum-Namen), `Collision`/Ray-Intersection-Helfern und weiteren Silk-Math-API-Unterschieden wie `Normalize`, `LengthSquared`, `Vector2.Multiply` und `Vector3.Subtract`.
+Ergebnis: Die ersten qualifizierten Math-Blocker in `StLReader`, `ObjReader`, `OffReader`, `LineBuilder`, `Interfaces`, `CMOReader`, Octree-/Scene-Hilfstypen und `BoundingSphereExtensions` sind von lokalen SharpDX-Aliasen gelöst. Die Shared-Geometrie-Dateien verwenden im `SILKNET`-Pfad die SharpDX/Core-Branch-Struktur mit `Silk.NET.Maths`-Aliases statt WPF-Geometrietypen. `SilkNetLegacyTypes` ergänzt Übergangsformen für `Color`, `PlaneIntersectionType`, `ContainmentType`, `DoubleKeyDictionary`, `Ray`, `Plane`, `Collision` und eine SharpDX-förmige `BoundingBox`-Oberfläche (`Minimum`, `Maximum`, `Merge`, `FromSphere`, `Contains`, `Intersects`, `GetCorners`). Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `918` Compilefehlern gemessen. Die Fehlerzahl ist nicht direkt mit `346` vergleichbar, weil der Compiler nach den gelösten Deklarationsblockern tiefer in Core-/Shared-Geometrie-Methoden kommt; die ersten Fehlergruppen liegen jetzt konsistent in `SharpDX.Toolkit.Graphics` (`FormatHelper`, `Utilities`, DXGI-`Format`-Enum-Namen) und weiteren Silk-Math-API-Unterschieden wie `Normalize`, `LengthSquared`, `Vector2.Multiply`, `Vector3.Subtract`, `BoundingSphere.Merge` und `Vector3.Transform*`.
+
+Zusätzliche Prüfung der `SharpDX.Toolkit.Graphics`-Format-/Utilities-Kante:
+
+```powershell
+rg -n "FormatHelper\.|Utilities\.|Format\.[A-Za-z0-9_]+" Source\HelixToolkit.SharpDX.Shared\SharpDX.Toolkit\Graphics
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly 2>&1 | Select-String -Pattern 'SharpDX.Toolkit\\Graphics|ToolkitCompatibility.cs|PixelFormat.cs|Texture1DBase.cs|Texture2DBase.cs|Texture3DBase.cs|D3DResourceHandles.cs|D3DStateHandles.cs'
+```
+
+Ergebnis: `SharpDX.Toolkit.Graphics` besitzt jetzt eine `SILKNET`-Kompatibilitätsschicht für die alten SharpDX-DXGI-Formatnamen, `FormatHelper` und `Utilities`. `PixelFormat` konvertiert direkt zu/von `Silk.NET.DXGI.Format`, sodass die Toolkit-Texture-Container weiter native `Texture1D`/`Texture2D`/`Texture3D`-Descriptions befüllen können. Der Gesamtbuild bleibt rot und wurde nach diesem Schnitt mit `792` Compilefehlern gemessen. Der gefilterte Build zeigte danach noch einen Toolkit-Restfehler in `Texture.cs` (`Format` nach `int`), der durch eine explizite `Format`-Konvertierung behoben wurde; eine erneute Buildmessung war wegen Approval-/Usage-Limit in dieser Sitzung nicht möglich. Die verbleibenden gefilterten Fehler liegen jetzt in `Native\D3DResourceHandles.cs` und `Native\D3DStateHandles.cs`, wo fixed buffer/pointer-Zugriffe noch als `unsafe` markiert werden müssen. Die breite Restkante liegt weiterhin in Silk-Math-API-Unterschieden wie `Normalize`, `Dot`, `Cross`, `Transform*`, `Vector2.Multiply`, `Vector3.Min/Max` und Matrix-/Bounding-Frustum-Kompatibilität.
 
 Stand dieses Implementierungsschnitts:
 
@@ -490,8 +500,9 @@ Stand dieses Implementierungsschnitts:
 - Die ScreenClone-/ScreenCapture-/D3DImage-Interop-Signatur-Kante ist von SharpDX-D3D11-/DXGI-/WIC-Typen und `LegacyDevice`-Abfragen gelöst; echte Desktop-Duplication, WIC-Encoding und D3D9Ex-BackBuffer-Interop bleiben separate Implementierungskanten.
 - Die einfache Shader-/ResourceManager-D3D11-/DXGI-Restkante ist von SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen gelöst; `EffectsManager` erzeugt keine SharpDX-D3D11-Device-Instanz mehr.
 - Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; DDS-/WIC-Load/Save-Backends bleiben vorerst kontrollierte Platzhalter.
-- Die erste qualifizierte SharpDX-Math- und Shared-Geometrie-Kante ist gelöst; der Compiler erreicht jetzt die nächste breite Compatibility-Front in Toolkit-`Format`/`Utilities`, `Collision`/Ray-Intersection und generischen Silk-Math-Methodenunterschieden.
-- Der nächste Umbau muss deshalb bei einem systematischen `SilkNetMathCompatibility`-/`Collision`-Adapter oder bei `SharpDX.Toolkit.Graphics` `FormatHelper`/DXGI-Format-Namen ansetzen.
+- Die erste qualifizierte SharpDX-Math- und Shared-Geometrie-Kante ist gelöst; der Compiler erreicht jetzt die nächste breite Compatibility-Front in Toolkit-`Format`/`Utilities` und generischen Silk-Math-Methodenunterschieden.
+- Die `SharpDX.Toolkit.Graphics`-Format-/Utilities-Kante ist auf lokale SharpDX-kompatible `Format`-, `FormatHelper`- und `Utilities`-Typen gelegt; die direkte native Format-Konvertierung bleibt erhalten.
+- Der nächste Umbau muss deshalb bei den nativen fixed-buffer-/Pointer-Kontexten (`D3DResourceHandles`, `D3DStateHandles`) und danach bei den verbleibenden Silk-Math-Callsites (`Normalize`, `Dot`, `Cross`, `Transform*`, `BoundingSphere`) ansetzen.
 
 Nächste offene Migrationskante:
 
@@ -508,8 +519,8 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Zentrale Silk-Math-Kompatibilitätshelfer ergänzen: `Collision`, Plane/Ray-Intersection, `Vector2.Multiply`, `Vector3.Subtract`, Normalize-/LengthSquared-Callsites und ggf. `BoundingSphere`-Legacy-Oberfläche.
-2. `SharpDX.Toolkit.Graphics` `FormatHelper`, `Utilities` und DXGI-`Format`-Enum-Namen auf Silk.NET-DXGI oder eigene Format-Aliase abbilden.
+1. `Native\D3DResourceHandles.cs` und `Native\D3DStateHandles.cs` für fixed buffer/pointer-Zugriffe korrekt `unsafe` kapseln.
+2. Verbleibende Silk-Math-Callsites bereinigen: `Vector2.Multiply`, `Vector3.Subtract`, Normalize-/LengthSquared-Callsites, `Vector3.Transform*` und `BoundingSphere`-Legacy-Oberfläche.
 3. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
 4. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
 5. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.

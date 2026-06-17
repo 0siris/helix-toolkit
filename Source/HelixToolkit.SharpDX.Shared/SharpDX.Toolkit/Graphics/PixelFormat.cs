@@ -712,10 +712,28 @@ namespace SharpDX.Toolkit.Graphics
         }
 
         /// <summary>
+        /// Gets the native Silk.NET DXGI format.
+        /// </summary>
+        /// <param name="from"></param>
+        public static implicit operator Silk.NET.DXGI.Format(PixelFormat from)
+        {
+            return from.Value;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="from"></param>
         public static implicit operator PixelFormat(Format from)
+        {
+            return new PixelFormat(from);
+        }
+
+        /// <summary>
+        /// Creates a toolkit pixel format from a native Silk.NET DXGI format.
+        /// </summary>
+        /// <param name="from"></param>
+        public static implicit operator PixelFormat(Silk.NET.DXGI.Format from)
         {
             return new PixelFormat(from);
         }

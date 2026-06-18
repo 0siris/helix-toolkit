@@ -212,3 +212,7 @@ FakesAssemblies/
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.off
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.ply
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.stl
+
+
+.agents/
+skills-lock.json

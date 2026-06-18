@@ -138,9 +138,9 @@ namespace HelixToolkit.UWP
                     var diff = timeElapsed - currFrame.Time;
                     var length = nextFrame.Time - currFrame.Time;
                     var amount = diff / length;
-                    tempBones[currFrame.BoneIndex] = Matrix.Scaling(Vector3.Lerp(currFrame.Scale, nextFrame.Scale, amount)) *
-                                Matrix.RotationQuaternion(Quaternion.Slerp(currFrame.Rotation, nextFrame.Rotation, amount)) *
-                                Matrix.Translation(Vector3.Lerp(currFrame.Translation, nextFrame.Translation, amount));
+                    tempBones[currFrame.BoneIndex] = SilkMath.Scaling(SilkMath.Lerp(currFrame.Scale, nextFrame.Scale, amount)) *
+                                SilkMath.RotationQuaternion(Quaternion.Slerp(currFrame.Rotation, nextFrame.Rotation, amount)) *
+                                SilkMath.Translation(SilkMath.Lerp(currFrame.Translation, nextFrame.Translation, amount));
                 }
 
                 // Apply parent bone transforms

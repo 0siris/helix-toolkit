@@ -24,7 +24,7 @@ namespace HelixToolkit.UWP
             Vector3 point = corners[pointIndex];
             for (int i = 0; i < corners.Length; i++)
             {
-                if (i != pointIndex && Vector3.Dot(direction, corners[i] - point) > 0)
+                if (i != pointIndex && SilkMath.Dot(direction, corners[i] - point) > 0)
                     return false;
             }
 
@@ -38,15 +38,15 @@ namespace HelixToolkit.UWP
             Vector3 line1Direction = line1.Direction;
             Vector3 line2Direction = line2.Direction;
 
-            float a = Vector3.Dot(line1Direction, line1Direction);
-            float b = Vector3.Dot(line1Direction, line2Direction);
-            float e = Vector3.Dot(line2Direction, line2Direction);
+            float a = SilkMath.Dot(line1Direction, line1Direction);
+            float b = SilkMath.Dot(line1Direction, line2Direction);
+            float e = SilkMath.Dot(line2Direction, line2Direction);
 
             float d = a * e - b * b;
 
             Vector3 r = line1.Position - line2.Position;
-            float c = Vector3.Dot(line1Direction, r);
-            float f = Vector3.Dot(line2Direction, r);
+            float c = SilkMath.Dot(line1Direction, r);
+            float f = SilkMath.Dot(line2Direction, r);
 
             float s = (b * f - c * e) / d;
             float t = (a * f - c * b) / d;
@@ -65,10 +65,10 @@ namespace HelixToolkit.UWP
         /// <param name="upDir"></param>
         public static void ZoomExtents(this PerspectiveCameraCore camera, float aspectRatio, BoundingBox boundingBox, out Vector3 position, out Vector3 lookDir, out Vector3 upDir)
         {
-            var cameraDir = Vector3.Normalize(camera.LookDirection);
-            var cameraUp = Vector3.Normalize(camera.UpDirection);
-            var cameraRight = Vector3.Cross(cameraDir, cameraUp);
-            cameraUp = Vector3.Cross(cameraRight, cameraDir);
+            var cameraDir = SilkMath.Normalize(camera.LookDirection);
+            var cameraUp = SilkMath.Normalize(camera.UpDirection);
+            var cameraRight = SilkMath.Cross(cameraDir, cameraUp);
+            cameraUp = SilkMath.Cross(cameraRight, cameraDir);
 
             var corners = boundingBox.GetCorners();
 
@@ -107,12 +107,12 @@ namespace HelixToolkit.UWP
             plane2 = new Plane(corners[bottomMostPoint], bottomNormal);
             PlaneExtensions.PlaneIntersectsPlane(ref plane1, ref plane2, out var verticalIntersection);
             FindClosestPointsOnTwoLines(ref horizontalIntersection, ref verticalIntersection, out var closestPointLine1, out var closestPointLine2);
-            position = Vector3.Dot(closestPointLine1 - closestPointLine2, cameraDir) < 0 ? closestPointLine1 : closestPointLine2;
+            position = SilkMath.Dot(closestPointLine1 - closestPointLine2, cameraDir) < 0 ? closestPointLine1 : closestPointLine2;
             upDir = cameraUp;
-            var boundPlane = new Plane(boundingBox.Center, cameraDir);
+            var boundPlane = new Plane(boundingBox.Center(), cameraDir);
             var lookRay = new Ray(position, cameraDir);
             boundPlane.Intersects(ref lookRay, out float dist);
-            lookDir = dist < 1e-6 ? (boundingBox.Center - position) : cameraDir * dist;
+            lookDir = dist < 1e-6 ? (boundingBox.Center() - position) : cameraDir * dist;
         }
         /// <summary>
         /// Ref: https://github.com/yasirkula/UnityRuntimePreviewGenerator/blob/7a3b44b07949f712010b680b9f2c499e5aa2ebc1/Plugins/RuntimePreviewGenerator/RuntimePreviewGenerator.cs#L347
@@ -131,14 +131,14 @@ namespace HelixToolkit.UWP
             var view = camera.CreateViewMatrix();
             foreach (var p in corners)
             {
-                var local = Vector3.TransformCoordinate(p, view);
+                var local = SilkMath.TransformCoordinate(p, view);
                 minX = Math.Min(minX, local.X);
                 minY = Math.Min(minY, local.Y);
                 maxX = Math.Max(maxX, local.X);
                 maxY = Math.Max(maxY, local.Y);
             }
             width = aspectRatio > 1 ? Math.Max((maxX - minX), (maxY - minY) * aspectRatio) : Math.Max((maxX - minX) / aspectRatio, maxY - minY);
-            position = boundingBox.Center - camera.LookDirection.Normalized() * width;
+            position = boundingBox.Center() - camera.LookDirection.Normalized() * width;
             lookDir = camera.LookDirection.Normalized() * width;
             upDir = camera.UpDirection;
         }

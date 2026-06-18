@@ -128,8 +128,8 @@ namespace HelixToolkit.UWP
                       new[]
                       {
                           new ImmutableBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
-                          new ImmutableBufferProxy(Vector2.SizeInBytes, BindFlags.VertexBuffer),
-                          new ImmutableBufferProxy(Vector4.SizeInBytes, BindFlags.VertexBuffer)
+                          new ImmutableBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
+                          new ImmutableBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
                       } as IElementsBufferProxy[])
             {
             }
@@ -263,8 +263,8 @@ namespace HelixToolkit.UWP
                 : base(new[]
                       {
                           new DynamicBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
-                          new DynamicBufferProxy(Vector2.SizeInBytes, BindFlags.VertexBuffer),
-                          new DynamicBufferProxy(Vector4.SizeInBytes, BindFlags.VertexBuffer)
+                          new DynamicBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
+                          new DynamicBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
                       } as IElementsBufferProxy[], true)
             {
             }

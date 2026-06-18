@@ -338,9 +338,9 @@ namespace HelixToolkit.UWP
             {
                 return format switch
                 {
-                    Format.R8_UNorm => 1,
-                    Format.R16_UNorm => 2,
-                    Format.R32_Float => 4,
+                    Format.FormatR8Unorm => 1,
+                    Format.FormatR16Unorm => 2,
+                    Format.FormatR32Float => 4,
                     Format.FormatR16G16B16A16Float => 8,
                     Format.FormatR32G32B32A32Float => 16,
                     _ => 0

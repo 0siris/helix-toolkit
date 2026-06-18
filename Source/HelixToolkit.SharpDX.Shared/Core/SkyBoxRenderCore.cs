@@ -272,7 +272,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             private sealed class SkyBoxBufferModel : PointGeometryBufferModel<Vector3>
             {
-                public SkyBoxBufferModel() : base(Vector3.SizeInBytes)
+                public SkyBoxBufferModel() : base(SilkMath.Vector3SizeInBytes)
                 {
                     Topology = PrimitiveTopology.TriangleList;
                 }

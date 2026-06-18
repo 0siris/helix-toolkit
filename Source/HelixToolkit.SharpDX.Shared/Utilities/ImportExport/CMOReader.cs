@@ -249,12 +249,12 @@ namespace HelixToolkit.UWP
                     EmissiveColor = reader.ReadStructure<Color4>()
                 };
                 var uvTransform = reader.ReadStructure<Matrix>();
-                if (uvTransform == Matrix.Zero)
+                if (uvTransform == default)
                 {
                     uvTransform = Matrix.Identity;
                 }
                 uvTransform.Decompose(out var s, out var r, out var tra);
-                material.UVTransform = new UVTransform(r.Angle, new Vector2(s.X, s.Y), new Vector2(tra.X, tra.Y));
+                material.UVTransform = new UVTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(tra.X, tra.Y));
                 var pixelShaderName = reader.ReadCMO_wchar();//Not used
                 var textures = new List<string>();
                 for (var t = 0; t < MaxTextures; ++t)
@@ -388,7 +388,7 @@ namespace HelixToolkit.UWP
                 var normal = new Vector3Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.Normal));
                 var tex = new Vector2Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.UV));
                 var tangent = new Vector3Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.Tangent.ToVector3()));
-                var biTangent = new Vector3Collection(normal.Zip(tangent, (x, y) => { return Vector3.Cross(x, y); }));
+                var biTangent = new Vector3Collection(normal.Zip(tangent, (x, y) => { return SilkMath.Cross(x, y); }));
                 var indexCollection = new IntCollection(indices[(int)sub.IndexDataIndex].Select(x => (int)x));
                 var meshGeo = new MeshGeometry3D()
                 {

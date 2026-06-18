@@ -763,7 +763,7 @@ namespace HelixToolkit.UWP
                 if (!transformOnly)
                 {
                     originalBound = new BoundingBox(DomainBoundMin, DomainBoundMax);
-                    originalBoundsSphere = BoundingSphere.FromBox(originalBound);
+                    originalBoundsSphere = BoundingSphereExtensions.FromBox(originalBound);
                     BoundingBox newBound;
                     BoundingSphere newBoundSphere;
                     if (HasInstances)
@@ -775,7 +775,7 @@ namespace HelixToolkit.UWP
                             var b = OriginalBounds.Transform(instance);
                             BoundingBox.Merge(ref newBound, ref b, out newBound);
                             var bs = OriginalBoundsSphere.TransformBoundingSphere(instance);
-                            BoundingSphere.Merge(ref newBoundSphere, ref bs, out newBoundSphere);
+                            BoundingSphereExtensions.Merge(ref newBoundSphere, ref bs, out newBoundSphere);
                         }
                     }
                     else

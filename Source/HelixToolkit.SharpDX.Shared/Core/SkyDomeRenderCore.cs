@@ -207,7 +207,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             private sealed class SkyDomeBufferModel : MeshGeometryBufferModel<Vector3>
             {
-                public SkyDomeBufferModel() : base(Vector3.SizeInBytes)
+                public SkyDomeBufferModel() : base(SilkMath.Vector3SizeInBytes)
                 {
                     Topology = PrimitiveTopology.TriangleList;
                 }

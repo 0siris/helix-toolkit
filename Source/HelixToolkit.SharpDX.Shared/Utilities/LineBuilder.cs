@@ -186,17 +186,17 @@ namespace HelixToolkit.UWP
 
             lineListIndices.Add(currIndex);
             lineListIndices.Add(posStart);
-            var axis = Vector3.Cross(Vector3.UnitY, normal);
-            var transform = Matrix.Translation(position);
+            var axis = SilkMath.Cross(Vector3.UnitY, normal);
+            var transform = SilkMath.Translation(position);
             if (axis.LengthSquared() > 1e-6)
             {
                 axis.Normalize();
-                transform = Matrix.RotationAxis(axis, (float)Math.Acos(Vector3.Dot(Vector3.UnitY, normal))) * transform;
+                transform = SilkMath.RotationAxis(axis, (float)Math.Acos(SilkMath.Dot(Vector3.UnitY, normal))) * transform;
             }
 
             for (var i = posStart; i < positions.Count; ++i)
             {
-                positions[i] = Vector3.TransformCoordinate(positions[i], transform);
+                positions[i] = SilkMath.TransformCoordinate(positions[i], transform);
             }
         }
 
@@ -364,7 +364,7 @@ namespace HelixToolkit.UWP
         public static LineGeometry3D GenerateCircile(Plane plane, float radius, int segments)
         {
             var bd = new LineBuilder();
-            bd.AddCircle(plane.D + plane.Normal, plane.Normal, radius, segments);
+            bd.AddCircle(new Vector3(plane.D) + plane.Normal, plane.Normal, radius, segments);
             return bd.ToLineGeometry3D();
         }
 
@@ -458,11 +458,11 @@ namespace HelixToolkit.UWP
             var v = t1 - t0;
             var w = s0 - t0;
 
-            var a = Vector3.Dot(u, u); // always >= 0
-            var b = Vector3.Dot(u, v);
-            var c = Vector3.Dot(v, v); // always >= 0
-            var d = Vector3.Dot(u, w);
-            var e = Vector3.Dot(v, w);
+            var a = SilkMath.Dot(u, u); // always >= 0
+            var b = SilkMath.Dot(u, v);
+            var c = SilkMath.Dot(v, v); // always >= 0
+            var d = SilkMath.Dot(u, w);
+            var e = SilkMath.Dot(v, w);
             var D = a * c - b * b;     // always >= 0
             float sN, sD = D;            // sc = sN / sD, default sD = D >= 0
             float tN, tD = D;            // tc = tN / tD, default tD = D >= 0
@@ -549,7 +549,7 @@ namespace HelixToolkit.UWP
             tp = t0 + (tc * v);
             var tv = sp - tp;
 
-            return tv.Length(); // return the closest distance
+            return tv.Length; // return the closest distance
         }
     }
 }

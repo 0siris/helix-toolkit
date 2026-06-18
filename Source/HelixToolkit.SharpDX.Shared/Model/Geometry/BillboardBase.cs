@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -158,9 +158,9 @@ namespace HelixToolkit.UWP
             {
                 var vert = BillboardVertices[i];
                 var pos = vert.Position.ToVector3();
-                var c = Vector3.TransformCoordinate(pos, modelMatrix);
+                var c = SilkMath.TransformCoordinate(pos, modelMatrix);
                 var dir = c - context.RayWS.Position;
-                if (Vector3.Dot(dir, context.RayWS.Direction) < 0)
+                if (SilkMath.Dot(dir, context.RayWS.Direction) < 0)
                 {
                     continue;
                 }
@@ -168,7 +168,7 @@ namespace HelixToolkit.UWP
                 if (quad.IsPointInQuad2D(ref screenPoint))
                 {
                     var v = c - context.RayWS.Position;
-                    var dist = Vector3.Dot(context.RayWS.Direction, v);
+                    var dist = SilkMath.Dot(context.RayWS.Direction, v);
                     if (dist > result.Distance)
                     {
                         continue;
@@ -235,9 +235,9 @@ namespace HelixToolkit.UWP
             {
                 var vert = BillboardVertices[i];
                 var pos = vert.Position.ToVector3();
-                var c = Vector3.TransformCoordinate(pos, modelMatrix);
+                var c = SilkMath.TransformCoordinate(pos, modelMatrix);
                 var dir = c - rayWS.Position;
-                if (Vector3.Dot(dir, rayWS.Direction) < 0)
+                if (SilkMath.Dot(dir, rayWS.Direction) < 0)
                 {
                     continue;
                 }
@@ -245,7 +245,7 @@ namespace HelixToolkit.UWP
                 if (Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.TR, ref quad.BR, out Vector3 hitPoint)
                     || Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.BR, ref quad.BL, out hitPoint))
                 {
-                    var dist = (rayWS.Position - hitPoint).Length();
+                    var dist = (rayWS.Position - hitPoint).Length;
                     if (dist > result.Distance)
                     {
                         continue;
@@ -370,40 +370,40 @@ namespace HelixToolkit.UWP
             {
                 //var v1 = point - TL;
                 //var t1 = BL - TL;
-                //if(Vector2.Dot(v1, t1) < 0)
+                //if(SilkMath.Dot(v1, t1) < 0)
                 //{
                 //    return false;
                 //}
                 //var v2 = point - BL;
                 //var t2 = BR - BL;
-                //if (Vector2.Dot(v2, t2) < 0)
+                //if (SilkMath.Dot(v2, t2) < 0)
                 //{
                 //    return false;
                 //}
 
                 //var v3 = point - BR;
                 //var t3 = TR - BR;
-                //if (Vector2.Dot(v3, t3) < 0)
+                //if (SilkMath.Dot(v3, t3) < 0)
                 //{
                 //    return false;
                 //}
 
                 //var v4 = point - TR;
                 //var t4 = TL - TR;
-                //if (Vector2.Dot(v4, t4) < 0)
+                //if (SilkMath.Dot(v4, t4) < 0)
                 //{
                 //    return false;
                 //}
                 //return true;
-                return Vector2.Dot(point - TL, BL - TL) >= 0 && Vector2.Dot(point - BL, BR - BL) >= 0
-                    && Vector2.Dot(point - BR, TR - BR) >= 0 && Vector2.Dot(point - TR, TL - TR) >= 0;
+                return SilkMath.Dot(point - TL, BL - TL) >= 0 && SilkMath.Dot(point - BL, BR - BL) >= 0
+                    && SilkMath.Dot(point - BR, TR - BR) >= 0 && SilkMath.Dot(point - TR, TL - TR) >= 0;
             }
         }
 
         private static Quad GetHitTestQuad(ref Vector3 center, ref Vector2 TL, ref Vector2 TR, ref Vector2 BL, ref Vector2 BR,
             ref Matrix viewMatrix, ref Matrix viewMatrixInv)
         {
-            var vcenter = Vector3.TransformCoordinate(center, viewMatrix);
+            var vcenter = SilkMath.TransformCoordinate(center, viewMatrix);
             var vcX = vcenter.X;
             var vcY = vcenter.Y;
 
@@ -412,17 +412,17 @@ namespace HelixToolkit.UWP
             var tr = new Vector3(vcX + TR.X, vcY + TR.Y, vcenter.Z);
             var tl = new Vector3(vcX + TL.X, vcY + TL.Y, vcenter.Z);
 
-            bl = Vector3.TransformCoordinate(bl, viewMatrixInv);
-            br = Vector3.TransformCoordinate(br, viewMatrixInv);
-            tr = Vector3.TransformCoordinate(tr, viewMatrixInv);
-            tl = Vector3.TransformCoordinate(tl, viewMatrixInv);
+            bl = SilkMath.TransformCoordinate(bl, viewMatrixInv);
+            br = SilkMath.TransformCoordinate(br, viewMatrixInv);
+            tr = SilkMath.TransformCoordinate(tr, viewMatrixInv);
+            tl = SilkMath.TransformCoordinate(tl, viewMatrixInv);
             return new Quad(ref tl, ref tr, ref bl, ref br);
         }
 
         private static Quad2D GetScreenQuad(ref Vector3 center, ref Vector2 TL, ref Vector2 TR, ref Vector2 BL, ref Vector2 BR,
             ref Matrix screenViewProjection, float scale)
         {
-            var vcenter = Vector3.TransformCoordinate(center, screenViewProjection);
+            var vcenter = SilkMath.TransformCoordinate(center, screenViewProjection);
             var p = new Vector2(vcenter.X, vcenter.Y);
             var tl = p + new Vector2(TL.X, -TL.Y) * scale;
             var tr = p + new Vector2(TR.X, -TR.Y) * scale;

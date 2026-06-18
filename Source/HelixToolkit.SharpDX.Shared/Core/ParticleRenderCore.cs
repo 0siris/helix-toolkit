@@ -574,7 +574,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private Color4 blendFactor = Color4.White;
+            private Color4 blendFactor = Color.White;
             /// <summary>
             /// Gets or sets the blend factor used for blending.
             /// </summary>

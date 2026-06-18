@@ -69,7 +69,7 @@ namespace HelixToolkit.UWP
 
             protected override bool OnAttach(IRenderTechnique technique)
             {
-                boneSkinSB = new StructuredBufferProxy(Matrix.SizeInBytes, false);
+                boneSkinSB = new StructuredBufferProxy(SilkMath.MatrixSizeInBytes, false);
                 return true;
             }
 

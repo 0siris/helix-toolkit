@@ -27,6 +27,46 @@ namespace HelixToolkit.UWP
     {
         private static readonly Dictionary<string, object> Colors = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRed(this Color4 color)
+        {
+#if SILKNET
+            return color.X;
+#else
+            return color.Red;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetGreen(this Color4 color)
+        {
+#if SILKNET
+            return color.Y;
+#else
+            return color.Green;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetBlue(this Color4 color)
+        {
+#if SILKNET
+            return color.Z;
+#else
+            return color.Blue;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetAlpha(this Color4 color)
+        {
+#if SILKNET
+            return color.W;
+#else
+            return color.Alpha;
+#endif
+        }
+
         /// <summary>
         /// Initializes the <see cref="Color4Extensions"/> class.
         /// </summary>
@@ -217,9 +257,9 @@ namespace HelixToolkit.UWP
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float EncodeToFloat(this Color4 color)
         {
-            var ex = (uint)(color.Red * 255);
-            var ey = (uint)(color.Green * 255);
-            var ez = (uint)(color.Blue * 255);
+            var ex = (uint)(color.GetRed() * 255);
+            var ey = (uint)(color.GetGreen() * 255);
+            var ez = (uint)(color.GetBlue() * 255);
             var v = (ex << 16) | (ey << 8) | ez;
             return v;
         }
@@ -242,7 +282,7 @@ namespace HelixToolkit.UWP
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 ChangeIntensity(this Color4 c, float intensity)
         {
-            return new Color4(c.Red * intensity, c.Green * intensity, c.Blue * intensity, c.Alpha);
+            return new Color4(c.GetRed() * intensity, c.GetGreen() * intensity, c.GetBlue() * intensity, c.GetAlpha());
         }
     }
 }

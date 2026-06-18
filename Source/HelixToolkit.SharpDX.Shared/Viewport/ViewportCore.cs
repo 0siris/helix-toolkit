@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -235,7 +235,7 @@ namespace HelixToolkit.UWP
             {
                 ViewCube.RaiseMouseDownEvent(this, position, hits[0]);
                 var normal = hits[0].NormalAtHit;
-                if (Vector3.Cross(normal, ModelUpDirection).LengthSquared() < 1e-5)
+                if (SilkMath.Cross(normal, ModelUpDirection).LengthSquared() < 1e-5)
                 {
                     var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
                     ViewCubeClicked(hits[0].NormalAtHit, vecLeft);
@@ -252,7 +252,7 @@ namespace HelixToolkit.UWP
         private void ViewCubeClicked(Vector3 lookDirection, Vector3 upDirection)
         {
             var target = CameraCore.Position + CameraCore.LookDirection;
-            float distance = CameraCore.LookDirection.Length();
+            float distance = CameraCore.LookDirection.Length;
             lookDirection *= distance;
             var newPosition = target - lookDirection;
             CameraCore.AnimateTo(newPosition, lookDirection, upDirection, 500);

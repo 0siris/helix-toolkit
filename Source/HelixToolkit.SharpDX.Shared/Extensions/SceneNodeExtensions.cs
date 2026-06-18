@@ -77,7 +77,7 @@ namespace HelixToolkit.UWP
                         && geoNode.Geometry.Positions.Count > 0)
                     {
                         var c = geoNode.Geometry.Positions.GetCentroid();
-                        c = Vector3.Transform(c, geoNode.TotalModelMatrix).ToVector3();
+                        c = SilkMath.Transform(c, geoNode.TotalModelMatrix).ToVector3();
                         ++count;
                         if (result.HasValue)
                         {

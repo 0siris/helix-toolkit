@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -222,12 +222,12 @@ namespace HelixToolkit.UWP
                     Distance = double.MaxValue
                 };
                 var modelInvert = modelMatrix.Inverted();
-                if (modelInvert == Matrix.Zero)//Check if model matrix can be inverted.
+                if (modelInvert == default)//Check if model matrix can be inverted.
                 {
                     return false;
                 }
                 //transform ray into model coordinates
-                var rayModel = new Ray(Vector3.TransformCoordinate(context.RayWS.Position, modelInvert), Vector3.Normalize(Vector3.TransformNormal(context.RayWS.Direction, modelInvert)));
+                var rayModel = new Ray(SilkMath.TransformCoordinate(context.RayWS.Position, modelInvert), SilkMath.Normalize(SilkMath.TransformNormal(context.RayWS.Direction, modelInvert)));
 
                 var b = this.Bound;
 
@@ -271,16 +271,16 @@ namespace HelixToolkit.UWP
                                 result.IsValid = true;
                                 result.ModelHit = originalSource;
                                 // transform hit-info to world space now:
-                                var pointWorld = Vector3.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
+                                var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
                                 result.PointHit = pointWorld;
-                                result.Distance = (context.RayWS.Position - pointWorld).Length();
-                                var p0 = Vector3.TransformCoordinate(t.P0, modelMatrix);
-                                var p1 = Vector3.TransformCoordinate(t.P1, modelMatrix);
-                                var p2 = Vector3.TransformCoordinate(t.P2, modelMatrix);
-                                var n = Vector3.Cross(p1 - p0, p2 - p0);
+                                result.Distance = (context.RayWS.Position - pointWorld).Length;
+                                var p0 = SilkMath.TransformCoordinate(t.P0, modelMatrix);
+                                var p1 = SilkMath.TransformCoordinate(t.P1, modelMatrix);
+                                var p2 = SilkMath.TransformCoordinate(t.P2, modelMatrix);
+                                var n = SilkMath.Cross(p1 - p0, p2 - p0);
                                 n.Normalize();
                                 // transform hit-info to world space now:
-                                result.NormalAtHit = n;// Vector3.TransformNormal(n, m).ToVector3D();
+                                result.NormalAtHit = n;// SilkMath.TransformNormal(n, m).ToVector3D();
                                 result.TriangleIndices = new System.Tuple<int, int, int>(Indices[index], Indices[index + 1], Indices[index + 2]);
                                 result.Tag = index / 3;
                                 result.Geometry = this;

@@ -121,6 +121,12 @@ namespace HelixToolkit.UWP
     {
         public int Count;
         public int Quality;
+
+        public SampleDescription(int count, int quality)
+        {
+            Count = count;
+            Quality = quality;
+        }
     }
 
     public struct Texture1DDescription
@@ -220,18 +226,23 @@ namespace HelixToolkit.UWP
 
     public struct Half4
     {
-        public Half4(ushort x, ushort y, ushort z, ushort w)
+        public Half4(float x, float y, float z, float w)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            W = w;
+            X = (global::System.Half)x;
+            Y = (global::System.Half)y;
+            Z = (global::System.Half)z;
+            W = (global::System.Half)w;
         }
 
-        public ushort X;
-        public ushort Y;
-        public ushort Z;
-        public ushort W;
+        public global::System.Half X;
+        public global::System.Half Y;
+        public global::System.Half Z;
+        public global::System.Half W;
+
+        public static implicit operator Half4(Vector4 value)
+        {
+            return new Half4(value.X, value.Y, value.Z, value.W);
+        }
     }
 
     public struct ResourceRegion
@@ -565,7 +576,7 @@ namespace HelixToolkit.UWP
                 return (uint)flags;
             }
 
-            public static DataBox ToDataBox(this MappedSubresource mapped)
+            public static unsafe DataBox ToDataBox(this MappedSubresource mapped)
             {
                 return new DataBox((IntPtr)mapped.PData, (int)mapped.RowPitch, (int)mapped.DepthPitch);
             }

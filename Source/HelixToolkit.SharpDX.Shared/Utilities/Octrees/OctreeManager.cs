@@ -263,7 +263,8 @@ namespace HelixToolkit.UWP
                             var tree = mOctree;
                             UpdateOctree(null);
                             var geoNode = node as BoundableNodeOctree;
-                            if (geoNode.Bound.Contains(item.BoundsWithTransform) == ContainmentType.Contains)
+                            var itemBounds = item.BoundsWithTransform;
+                            if (geoNode.Bound.Contains(ref itemBounds) == ContainmentType.Contains)
                             {
                                 if (geoNode.PushExistingToChild(index))
                                 {

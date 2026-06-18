@@ -39,8 +39,8 @@ namespace HelixToolkit.UWP
             foreach (var p in points)
             {
                 var point = p;
-                Vector3.Min(ref min, ref point, out min);
-                Vector3.Max(ref max, ref point, out max);
+                SilkMath.Min(ref min, ref point, out min);
+                SilkMath.Max(ref max, ref point, out max);
             }
             var diff = max - min;
             if (diff.AnySmallerOrEqual(0.0001f)) // Avoid bound too small on one dimension.
@@ -62,8 +62,8 @@ namespace HelixToolkit.UWP
         public static BoundingBox Transform(this BoundingBox box, Matrix transform)
         {
             /////////////////Row 4/////////////////
-            var min = transform.TranslationVector;
-            var max = transform.TranslationVector;
+            var min = new Vector3(transform.M41, transform.M42, transform.M43);
+            var max = min;
             /////////////////Row 1/////////////////
             if (transform.M11 > 0f)
             {

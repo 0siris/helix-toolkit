@@ -119,7 +119,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            private Color4 color = global::SharpDX.Color.Red;
+            private Color4 color = new Color4(1, 0, 0, 1);
             /// <summary>
             /// Gets or sets the color of the border.
             /// </summary>
@@ -216,7 +216,7 @@ namespace HelixToolkit.UWP
             public PostEffectMeshOutlineBlurCore(bool useBlurCore = true) : base(RenderType.PostEffect)
             {
                 this.useBlurCore = useBlurCore;
-                Color = global::SharpDX.Color.Red;
+                Color = new Color4(1, 0, 0, 1);
                 modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
             }
 
@@ -259,7 +259,7 @@ namespace HelixToolkit.UWP
                                 #region Render objects onto offscreen texture
                                 var mesh = context.RenderHost.PerFrameNodesWithPostEffect[i];
                                 deviceContext.SetRenderTarget(depthStencilBuffer, renderTargetBuffer, true,
-                                    global::SharpDX.Color.Transparent, true, DepthStencilClearFlags.Stencil, 0, 0);
+                                    new Color4(0, 0, 0, 0), true, DepthStencilClearFlags.Stencil, 0, 0);
                                 deviceContext.SetViewport(ref viewport);
                                 deviceContext.SetScissorRectangle(ref viewport);
                                 if (mesh.TryGetPostEffect(EffectName, out var effect))
@@ -369,7 +369,7 @@ namespace HelixToolkit.UWP
 
                 #region Draw back with stencil test
                 deviceContext.SetRenderTarget(depthStencilBuffer, context.RenderHost.RenderBuffer.FullResPPBuffer.NextRTV,
-                    true, global::SharpDX.Color.Transparent, false);
+                    true, new Color4(0, 0, 0, 0), false);
                 screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, source);
                 screenQuadPass.BindShader(deviceContext);
                 screenQuadPass.BindStates(deviceContext, StateType.All);

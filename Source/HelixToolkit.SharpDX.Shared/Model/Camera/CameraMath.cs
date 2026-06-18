@@ -39,11 +39,11 @@ namespace HelixToolkit.UWP
                 // http://www.codeplex.com/3DTools/Thread/View.aspx?ThreadId=22310
                 var v1 = ProjectToTrackball(p1, viewportWidth, viewportHeight);
                 var v2 = ProjectToTrackball(p2, viewportWidth, viewportHeight);
-                var cUP = Vector3.Normalize(camera.UpDirection);
+                var cUP = SilkMath.Normalize(camera.UpDirection);
                 // transform the trackball coordinates to view space
-                var viewZ = Vector3.Normalize(camera.LookDirection * invertFactor);
-                var viewX = Vector3.Normalize(Vector3.Cross(cUP, viewZ)) * invertFactor;
-                var viewY = Vector3.Cross(viewX, viewZ);
+                var viewZ = SilkMath.Normalize(camera.LookDirection * invertFactor);
+                var viewX = SilkMath.Normalize(SilkMath.Cross(cUP, viewZ)) * invertFactor;
+                var viewY = SilkMath.Cross(viewX, viewZ);
                 var u1 = (viewZ * v1.Z) + (viewX * v1.X) + (viewY * v1.Y);
                 var u2 = (viewZ * v2.Z) + (viewX * v2.X) + (viewY * v2.Y);
 
@@ -55,7 +55,7 @@ namespace HelixToolkit.UWP
                 // var u2 = ct.Transform(v2);
 
                 // Find the rotation axis and angle
-                var axis = Vector3.Cross(u1, u2);
+                var axis = SilkMath.Cross(u1, u2);
                 if (axis.LengthSquared() < 1e-8)
                 {
                     newPosition = camera.Position;
@@ -67,16 +67,16 @@ namespace HelixToolkit.UWP
                 var angle = VectorExtensions.AngleBetween(u1, u2);
 
                 // Create the transform
-                var rotate = Matrix.RotationAxis(Vector3.Normalize(axis), -angle * sensitivity * 5);
+                var rotate = SilkMath.RotationAxis(SilkMath.Normalize(axis), -angle * sensitivity * 5);
 
                 // Find vectors relative to the rotate-around point
                 var relativeTarget = rotateAround - camera.Target;
                 var relativePosition = rotateAround - camera.Position;
 
                 // Rotate the relative vectors
-                var newRelativeTarget = Vector3.TransformCoordinate(relativeTarget, rotate);
-                var newRelativePosition = Vector3.TransformCoordinate(relativePosition, rotate);
-                newUpDirection = Vector3.TransformNormal(cUP, rotate);
+                var newRelativeTarget = SilkMath.TransformCoordinate(relativeTarget, rotate);
+                var newRelativePosition = SilkMath.TransformCoordinate(relativePosition, rotate);
+                newUpDirection = SilkMath.TransformNormal(cUP, rotate);
 
                 // Find new camera position
                 var newTarget = rotateAround - newRelativeTarget;
@@ -152,20 +152,20 @@ namespace HelixToolkit.UWP
 
                 d *= sensitivity;
 
-                var q1 = Quaternion.RotationAxis(rotationAxisX, d * invertFactor * delta.X / 180 * (float)Math.PI);
-                var q2 = Quaternion.RotationAxis(rotationAxisY, d * delta.Y / 180 * (float)Math.PI);
+                var q1 = SilkMath.QuaternionRotationAxis(rotationAxisX, d * invertFactor * delta.X / 180 * (float)Math.PI);
+                var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float)Math.PI);
                 var q = q1 * q2;
 
-                var m = Matrix.RotationQuaternion(q);
-                var newLookDir = Vector3.TransformNormal(Vector3.Normalize(camera.LookDirection), m);
-                newUpDirection = Vector3.TransformNormal(Vector3.Normalize(camera.UpDirection), m);
+                var m = SilkMath.RotationQuaternion(q);
+                var newLookDir = SilkMath.TransformNormal(SilkMath.Normalize(camera.LookDirection), m);
+                newUpDirection = SilkMath.TransformNormal(SilkMath.Normalize(camera.UpDirection), m);
 
-                var newRelativeTarget = Vector3.TransformCoordinate(relativeTarget, m);
-                var newRelativePosition = Vector3.TransformCoordinate(relativePosition, m);
+                var newRelativeTarget = SilkMath.TransformCoordinate(relativeTarget, m);
+                var newRelativePosition = SilkMath.TransformCoordinate(relativePosition, m);
 
-                var newRightVector = Vector3.Normalize(Vector3.Cross(newLookDir, newUpDirection));
-                var modUpDir = Vector3.Cross(newRightVector, newLookDir);
-                if ((newUpDirection - modUpDir).Length() > 1e-8)
+                var newRightVector = SilkMath.Normalize(SilkMath.Cross(newLookDir, newUpDirection));
+                var modUpDir = SilkMath.Cross(newRightVector, newLookDir);
+                if ((newUpDirection - modUpDir).Length > 1e-8)
                 {
                     newUpDirection = modUpDir;
                 }
@@ -198,10 +198,10 @@ namespace HelixToolkit.UWP
                 double fx = p1.X / viewportWidth;
                 double fy = p1.Y / viewportHeight;
 
-                var up = Vector3.Normalize(camera.UpDirection);
-                var dir = Vector3.Normalize(camera.LookDirection);
+                var up = SilkMath.Normalize(camera.UpDirection);
+                var dir = SilkMath.Normalize(camera.LookDirection);
 
-                var right = Vector3.Normalize(Vector3.Cross(dir, up));
+                var right = SilkMath.Normalize(SilkMath.Cross(dir, up));
 
                 rotationAxisX = up;
                 rotationAxisY = right;
@@ -243,10 +243,10 @@ namespace HelixToolkit.UWP
             {
                 var relativeTarget = rotateAround - camera.Target;
                 var relativePosition = rotateAround - camera.Position;
-                var cUp = Vector3.Normalize(camera.UpDirection);
+                var cUp = SilkMath.Normalize(camera.UpDirection);
                 var up = modelUpDirection;
-                var dir = Vector3.Normalize(camera.LookDirection);
-                var right = Vector3.Normalize(Vector3.Cross(dir, cUp));
+                var dir = SilkMath.Normalize(camera.LookDirection);
+                var right = SilkMath.Normalize(SilkMath.Cross(dir, cUp));
 
                 var d = -0.5f;
                 if (cameraMode != CameraMode.Inspect)
@@ -256,16 +256,16 @@ namespace HelixToolkit.UWP
 
                 d *= sensitivity;
 
-                var q1 = Quaternion.RotationAxis(up, d * invertFactor * delta.X / 180 * (float)Math.PI);
-                var q2 = Quaternion.RotationAxis(right, d * delta.Y / 180 * (float)Math.PI);
+                var q1 = SilkMath.QuaternionRotationAxis(up, d * invertFactor * delta.X / 180 * (float)Math.PI);
+                var q2 = SilkMath.QuaternionRotationAxis(right, d * delta.Y / 180 * (float)Math.PI);
                 var q = q1 * q2;
 
-                var m = Matrix.RotationQuaternion(q);
+                var m = SilkMath.RotationQuaternion(q);
 
-                newUpDirection = Vector3.TransformNormal(cUp, m);
+                newUpDirection = SilkMath.TransformNormal(cUp, m);
 
-                var newRelativeTarget = Vector3.TransformCoordinate(relativeTarget, m);
-                var newRelativePosition = Vector3.TransformCoordinate(relativePosition, m);
+                var newRelativeTarget = SilkMath.TransformCoordinate(relativeTarget, m);
+                var newRelativePosition = SilkMath.TransformCoordinate(relativePosition, m);
 
                 var newTarget = rotateAround - newRelativeTarget;
                 newPosition = rotateAround - newRelativePosition;

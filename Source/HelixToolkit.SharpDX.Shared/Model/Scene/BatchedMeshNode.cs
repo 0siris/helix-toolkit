@@ -679,7 +679,7 @@ namespace HelixToolkit.UWP
                     foreach (var geo in geometries)
                     {
                         b = BoundingBox.Merge(b, geo.Geometry.Bound.Transform(geo.ModelTransform));
-                        bs = BoundingSphere.Merge(bs, geo.Geometry.BoundingSphere.TransformBoundingSphere(geo.ModelTransform));
+                        bs = BoundingSphereExtensions.Merge(bs, geo.Geometry.BoundingSphere.TransformBoundingSphere(geo.ModelTransform));
                     }
                     originalBounds = b;
                     originalBoundsSphere = bs;

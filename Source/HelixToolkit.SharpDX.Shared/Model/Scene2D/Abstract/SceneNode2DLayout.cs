@@ -550,7 +550,7 @@ namespace HelixToolkit.UWP
 
                 var rectWidthHeight = new Vector2(rect.Width, rect.Height);
 
-                if ((!IsArrangeDirty && !ancestorDirty && previousArrange == rect) || rectWidthHeight.IsZero)
+                if ((!IsArrangeDirty && !ancestorDirty && previousArrange == rect) || rectWidthHeight.LengthSquared() == 0)
                     return;
                 previousArrange = rect;
                 var arrangeSize = rectWidthHeight;

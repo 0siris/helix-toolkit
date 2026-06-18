@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -133,14 +133,14 @@ namespace HelixToolkit.UWP
                         var v0 = Positions[idx1];
                         var v1 = Positions[idx2];
 
-                        var t0 = Vector3.TransformCoordinate(v0, modelMatrix);
-                        var t1 = Vector3.TransformCoordinate(v1, modelMatrix);
+                        var t0 = SilkMath.TransformCoordinate(v0, modelMatrix);
+                        var t1 = SilkMath.TransformCoordinate(v1, modelMatrix);
                         var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWS, t0, t1, out var sp, out var tp, out var sc, out var tc);
                         var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
-                        Vector3.TransformCoordinate(ref sp, ref svpm, out var sp3);
-                        Vector3.TransformCoordinate(ref tp, ref svpm, out var tp3);
+                        SilkMath.TransformCoordinate(ref sp, ref svpm, out var sp3);
+                        SilkMath.TransformCoordinate(ref tp, ref svpm, out var tp3);
                         var tv2 = new Vector2(tp3.X - sp3.X, tp3.Y - sp3.Y);
-                        var dist = tv2.Length() / context.RenderMatrices.DpiScale;
+                        var dist = tv2.Length / context.RenderMatrices.DpiScale;
                         if (returnMultiple)
                         {
                             lastDist = float.MaxValue;
@@ -150,7 +150,7 @@ namespace HelixToolkit.UWP
                             lastDist = dist;
                             result.PointHit = sp;
                             result.NormalAtHit = sp - tp; // not normalized to get length
-                            result.Distance = (rayWS.Position - sp).Length();
+                            result.Distance = (rayWS.Position - sp).Length;
                             result.RayToLineDistance = rayToLineDistance;
                             result.ModelHit = model;
                             result.IsValid = true;

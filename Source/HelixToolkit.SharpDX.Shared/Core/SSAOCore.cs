@@ -226,9 +226,9 @@ namespace HelixToolkit.UWP
                         var x = rnd.NextFloat(-1, 1);
                         var y = rnd.NextFloat(-1, 1);
                         var z = rnd.NextFloat(1e-3f, 1);
-                        var v = Vector3.Normalize(new Vector3(x, y, z));
-                        var angle = Vector3.Dot(v, Vector3.UnitZ);
-                        if (Vector3.Dot(v, Vector3.UnitZ) < thres)
+                        var v = SilkMath.Normalize(new Vector3(x, y, z));
+                        var angle = SilkMath.Dot(v, Vector3.UnitZ);
+                        if (SilkMath.Dot(v, Vector3.UnitZ) < thres)
                         {
                             continue;
                         }
@@ -245,7 +245,7 @@ namespace HelixToolkit.UWP
                 {
                     var x = rnd.NextFloat(-1, 1);
                     var y = rnd.NextFloat(-1, 1);
-                    noise[i] = Vector3.Normalize(new Vector3(x, y, 0));
+                    noise[i] = SilkMath.Normalize(new Vector3(x, y, 0));
                 }
                 ssaoNoiseView = ShaderResourceViewProxy
                     .CreateView(Device, noise, 4, 4, Format.FormatR32G32B32Float, true, false);

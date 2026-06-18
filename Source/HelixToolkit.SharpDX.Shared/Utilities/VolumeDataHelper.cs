@@ -49,7 +49,7 @@ namespace HelixToolkit.UWP
                             s2.Y = SampleVolume(data, width, height, depth, x, y + n, z);
                             s1.Z = SampleVolume(data, width, height, depth, x, y, z - n);
                             s2.Z = SampleVolume(data, width, height, depth, x, y, z + n);
-                            var v = Vector3.Normalize(s2 - s1);
+                            var v = SilkMath.Normalize(s2 - s1);
                             var sample = SampleVolume(data, width, height, depth, x, y, z);
                             gradients[index] = new Half4(v.X, v.Y, v.Z, sample);
                             if (float.IsNaN(gradients[index].X))

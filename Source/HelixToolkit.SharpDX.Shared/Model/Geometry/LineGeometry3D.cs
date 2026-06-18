@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -62,20 +62,20 @@ namespace HelixToolkit.UWP
                 var lineIndex = 0;
                 foreach (var line in Lines)
                 {
-                    var t0 = Vector3.TransformCoordinate(line.P0, modelMatrix);
-                    var t1 = Vector3.TransformCoordinate(line.P1, modelMatrix);
+                    var t0 = SilkMath.TransformCoordinate(line.P0, modelMatrix);
+                    var t1 = SilkMath.TransformCoordinate(line.P1, modelMatrix);
                     var rayToLineDistance = LineBuilder.GetRayToLineDistance(context.RayWS, t0, t1, out var sp, out var tp, out var sc, out var tc);
                     var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
-                    Vector3.TransformCoordinate(ref sp, ref svpm, out var sp3);
-                    Vector3.TransformCoordinate(ref tp, ref svpm, out var tp3);
+                    SilkMath.TransformCoordinate(ref sp, ref svpm, out var sp3);
+                    SilkMath.TransformCoordinate(ref tp, ref svpm, out var tp3);
                     var tv2 = new Vector2(tp3.X - sp3.X, tp3.Y - sp3.Y);
-                    var dist = tv2.Length() / context.RenderMatrices.DpiScale;
+                    var dist = tv2.Length / context.RenderMatrices.DpiScale;
                     if (dist < lastDist && dist <= hitTestThickness)
                     {
                         lastDist = dist;
                         result.PointHit = sp;
                         result.NormalAtHit = sp - tp; // not normalized to get length
-                        result.Distance = (context.RayWS.Position - sp).Length();
+                        result.Distance = (context.RayWS.Position - sp).Length;
                         result.RayToLineDistance = rayToLineDistance;
                         result.ModelHit = originalSource;
                         result.IsValid = true;

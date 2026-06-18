@@ -335,7 +335,7 @@ namespace HelixToolkit.SharpDX.Core.Controls
                     MouseDownNearestPoint3D = hits[0].PointHit;
                     if (hits[0].ModelHit is Model.Scene.SceneNode node)
                     {
-                        MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center;
+                        MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
                     }
                 }
             }

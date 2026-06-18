@@ -83,7 +83,7 @@ namespace HelixToolkit.UWP
             protected override bool OnAttach(IRenderHost target)
             {
                 factory = new Native.DirectWriteFactory();
-                format = new TextFormat(factory, "Arial", 12 * target.DpiScale);
+                format = new TextFormat(factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
                 previousStr = string.Empty;
                 this.statistics = target.RenderStatistics;
                 return base.OnAttach(target);

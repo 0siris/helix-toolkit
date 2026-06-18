@@ -383,7 +383,7 @@ namespace HelixToolkit.UWP
                 BoundingSphere = BoundingSphereExtensions.FromPoints(Positions);
             }
             if (Bound.Maximum.IsUndefined() || Bound.Minimum.IsUndefined() || BoundingSphere.Center.IsUndefined()
-                || float.IsInfinity(Bound.Center.X) || float.IsInfinity(Bound.Center.Y) || float.IsInfinity(Bound.Center.Z))
+                || float.IsInfinity(Bound.Center().X) || float.IsInfinity(Bound.Center().Y) || float.IsInfinity(Bound.Center().Z))
             {
                 throw new Exception("Position vertex contains invalid value(Example: Float.NaN, Float.Infinity).");
             }

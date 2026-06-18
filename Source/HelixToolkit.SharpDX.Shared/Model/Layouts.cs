@@ -678,7 +678,7 @@ namespace HelixToolkit.UWP
         public static implicit operator UVTransform(Matrix matrix)
         {
             matrix.Decompose(out var s, out var r, out var t);
-            return new UVTransform(r.Angle, new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
+            return new UVTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
         }
         public static readonly UVTransform Identity = new UVTransform(0, Vector2.One, Vector2.Zero);
 

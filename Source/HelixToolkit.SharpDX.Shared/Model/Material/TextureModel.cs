@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -657,7 +657,7 @@ namespace HelixToolkit.UWP
             IsCompressed = false;
             GenerateMipMaps = generateMipMaps;
             Dimension = 1;
-            PixelFormat = Format.R32G32B32A32_Float;
+            PixelFormat = Format.FormatR32G32B32A32Float;
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace HelixToolkit.UWP
             public int BoneIndex;// Used only for array based bones
             public Matrix ToTransformMatrix()
             {
-                return Matrix.Scaling(Scale) * Matrix.RotationQuaternion(Rotation) * Matrix.Translation(Translation);
+                return SilkMath.Scaling(Scale) * SilkMath.RotationQuaternion(Rotation) * SilkMath.Translation(Translation);
             }
         }
 

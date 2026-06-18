@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SilkNetMathAliases.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SilkNetMathCompatibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SilkNetLegacyTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D2DResourceHandles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Native\D3DMathTypes.cs" />

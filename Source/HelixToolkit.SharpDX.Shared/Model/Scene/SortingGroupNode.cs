@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -225,7 +225,7 @@ namespace HelixToolkit.UWP
                             distance += (cameraPos.Z - bound.Maximum.Z) * (cameraPos.Z - bound.Maximum.Z);
                         return distance;
                     case SortingMethod.BoundingSphereSurface:
-                        var distS = (node.BoundsSphereWithTransform.Center - cameraPos).Length() - node.BoundsSphereWithTransform.Radius;
+                        var distS = (node.BoundsSphereWithTransform.Center - cameraPos).Length - node.BoundsSphereWithTransform.Radius;
                         return Math.Max(distS, 0f);
                     default:
                         return 0;

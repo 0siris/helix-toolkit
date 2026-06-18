@@ -2628,10 +2628,8 @@ namespace HelixToolkit.Wpf
                     }
 
                     var j0 = j1 - 1;
-                    var u = Point3D.Subtract(
-                        this.positions[index0 + (i1 * columns) + j0], this.positions[index0 + (i0 * columns) + j0]);
-                    var v = Point3D.Subtract(
-                        this.positions[index0 + (i0 * columns) + j1], this.positions[index0 + (i0 * columns) + j0]);
+                    var u = this.positions[index0 + (i1 * columns) + j0] - this.positions[index0 + (i0 * columns) + j0];
+                    var v = this.positions[index0 + (i0 * columns) + j1] - this.positions[index0 + (i0 * columns) + j0];
                     var normal = SharedFunctions.CrossProduct(ref u, ref v);
                     normal.Normalize();
                     this.normals.Add(normal);

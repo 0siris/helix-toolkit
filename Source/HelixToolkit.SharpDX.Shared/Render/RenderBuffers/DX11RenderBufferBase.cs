@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -206,7 +206,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The format.
             /// </value>
-            public Format Format { set; get; } = Format.B8G8R8A8_UNorm;
+            public Format Format { set; get; } = Format.FormatB8G8R8A8Unorm;
 #if MSAA
             /// <summary>
             /// Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
@@ -306,7 +306,7 @@ namespace HelixToolkit.UWP
             {
                 if (HasMSAA)
                 {
-                    var depthFormat = Format.D32_Float_S8X24_UInt;
+                    var depthFormat = Format.FormatD32FloatS8X24Uint;
                     var depthdesc = new Texture2DDescription
                     {
                         BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource,
@@ -479,7 +479,7 @@ namespace HelixToolkit.UWP
                     do
                     {
                         var newSampleCount = sampleCount * 2;
-                        var newSampleQuality = Device.CheckMultisampleQualityLevels(Format.B8G8R8A8_UNorm, newSampleCount) - 1;
+                        var newSampleQuality = Device.CheckMultisampleQualityLevels(Format.FormatB8G8R8A8Unorm, newSampleCount) - 1;
 
                         if (newSampleQuality < 0)
                             break;
@@ -532,7 +532,7 @@ namespace HelixToolkit.UWP
                     var depthdesc = new Texture2DDescription
                     {
                         BindFlags = BindFlags.DepthStencil,
-                        Format = DepthStencilFormatHelper.ComputeTextureFormat(Format.D32_Float_S8X24_UInt, out var canUseAsShaderResource),
+                        Format = DepthStencilFormatHelper.ComputeTextureFormat(Format.FormatD32FloatS8X24Uint, out var canUseAsShaderResource),
                         Width = width,
                         Height = height,
                         MipLevels = 1,

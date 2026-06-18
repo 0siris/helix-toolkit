@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -162,17 +162,17 @@ namespace HelixToolkit.UWP
                                 result.IsValid = true;
                                 result.ModelHit = model;
                                 // transform hit-info to world space now:
-                                var pointWorld = Vector3.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
+                                var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
                                 result.PointHit = pointWorld;
-                                result.Distance = (rayWS.Position - pointWorld).Length();
+                                result.Distance = (rayWS.Position - pointWorld).Length;
 
-                                var p0 = Vector3.TransformCoordinate(Positions[t1], modelMatrix);
-                                var p1 = Vector3.TransformCoordinate(Positions[t2], modelMatrix);
-                                var p2 = Vector3.TransformCoordinate(Positions[t3], modelMatrix);
-                                var n = Vector3.Cross(p1 - p0, p2 - p0);
+                                var p0 = SilkMath.TransformCoordinate(Positions[t1], modelMatrix);
+                                var p1 = SilkMath.TransformCoordinate(Positions[t2], modelMatrix);
+                                var p2 = SilkMath.TransformCoordinate(Positions[t3], modelMatrix);
+                                var n = SilkMath.Cross(p1 - p0, p2 - p0);
                                 n.Normalize();
                                 // transform hit-info to world space now:
-                                result.NormalAtHit = n;// Vector3.TransformNormal(n, m).ToVector3D();
+                                result.NormalAtHit = n;// SilkMath.TransformNormal(n, m).ToVector3D();
                                 result.TriangleIndices = new Tuple<int, int, int>(t1, t2, t3);
                                 result.Tag = idx;
                                 result.Geometry = geometry;
@@ -240,10 +240,10 @@ namespace HelixToolkit.UWP
                             var v1 = Positions[t2];
                             var v2 = Positions[t3];
                             Collision.ClosestPointPointTriangle(ref sphere.Center, ref v0, ref v1, ref v2, out cloestPoint);
-                            var d = (cloestPoint - sphere.Center).Length();
+                            var d = (cloestPoint - sphere.Center).Length;
                             if (tempResult.Distance > d)
                             {
-                                var n = Vector3.Normalize(Vector3.Cross(v1 - v0, v2 - v0));
+                                var n = SilkMath.Normalize(SilkMath.Cross(v1 - v0, v2 - v0));
                                 tempResult.NormalAtHit = n;
                                 tempResult.Distance = d;
                                 tempResult.IsValid = true;

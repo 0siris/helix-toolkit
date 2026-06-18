@@ -488,7 +488,7 @@ namespace HelixToolkit.UWP
                 };
             }
 
-            public static SamplerDesc ToSilkDesc(this SamplerStateDescription description)
+            public static unsafe SamplerDesc ToSilkDesc(this SamplerStateDescription description)
             {
                 var desc = new SamplerDesc
                 {

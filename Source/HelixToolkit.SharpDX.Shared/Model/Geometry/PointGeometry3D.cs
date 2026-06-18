@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -67,15 +67,15 @@ namespace HelixToolkit.UWP
 
                 foreach (var point in Positions)
                 {
-                    var p0 = Vector3.TransformCoordinate(point, smvpm);
+                    var p0 = SilkMath.TransformCoordinate(point, smvpm);
                     var pv = p0 - clickPoint;
-                    var dist = pv.Length() / context.RenderMatrices.DpiScale;
+                    var dist = pv.Length / context.RenderMatrices.DpiScale;
                     if (dist < lastDist && dist <= maxDist)
                     {
                         lastDist = dist;
                         var lp0 = point;
-                        Vector3.TransformCoordinate(ref lp0, ref modelMatrix, out var pvv);
-                        result.Distance = (context.RayWS.Position - pvv).Length();
+                        SilkMath.TransformCoordinate(ref lp0, ref modelMatrix, out var pvv);
+                        result.Distance = (context.RayWS.Position - pvv).Length;
                         result.PointHit = pvv;
                         result.ModelHit = originalSource;
                         result.IsValid = true;

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -112,16 +112,19 @@ namespace HelixToolkit.UWP
                     var j = 0;
                     for (; j < singleBone.Positions.Count - 6; j += 3)
                     {
-                        positions.Add(Vector3.TransformCoordinate(singleBone.Positions[j], bones[bones[i].ParentIndex].BindPose));
-                        positions.Add(Vector3.TransformCoordinate(singleBone.Positions[j + 1], bones[bones[i].ParentIndex].BindPose));
-                        positions.Add(bones[i].BindPose.TranslationVector);
+                        positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j], bones[bones[i].ParentIndex].BindPose));
+                        positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j + 1], bones[bones[i].ParentIndex].BindPose));
+                        positions.Add(new Vector3(
+                            bones[i].BindPose.M41,
+                            bones[i].BindPose.M42,
+                            bones[i].BindPose.M43));
                         boneIds.Add(new BoneIds() { Bone1 = bones[i].ParentIndex, Weights = new Vector4(1, 0, 0, 0) });
                         boneIds.Add(new BoneIds() { Bone1 = bones[i].ParentIndex, Weights = new Vector4(1, 0, 0, 0) });
                         boneIds.Add(new BoneIds() { Bone1 = i, Weights = new Vector4(1, 0, 0, 0) });
                     }
                     for (; j < singleBone.Positions.Count; ++j)
                     {
-                        positions.Add(Vector3.TransformCoordinate(singleBone.Positions[j], bones[bones[i].ParentIndex].BindPose));
+                        positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j], bones[bones[i].ParentIndex].BindPose));
                         boneIds.Add(new BoneIds() { Bone1 = bones[i].ParentIndex, Weights = new Vector4(1, 0, 0, 0) });
                     }
                     offset += singleBone.Positions.Count;
@@ -135,7 +138,7 @@ namespace HelixToolkit.UWP
                 builder.AddSphere(Vector3.Zero, scale / 2, 12, 12);
                 for (var j = currPos; j < builder.Positions.Count; ++j)
                 {
-                    builder.Positions[j] = Vector3.TransformCoordinate(builder.Positions[j], bones[i].BindPose);
+                    builder.Positions[j] = SilkMath.TransformCoordinate(builder.Positions[j], bones[i].BindPose);
                     boneIds.Add(new BoneIds() { Bone1 = i, Weights = new Vector4(1, 0, 0, 0) });
                 }
             }
@@ -168,13 +171,13 @@ namespace HelixToolkit.UWP
                 Distance = double.MaxValue
             };
             var modelInvert = modelMatrix.Inverted();
-            if (modelInvert == Matrix.Zero)//Check if model matrix can be inverted.
+            if (modelInvert == default)//Check if model matrix can be inverted.
             {
                 return false;
             }
             var rayWS = context.RayWS;
             //transform ray into model coordinates
-            var rayModel = new Ray(Vector3.TransformCoordinate(rayWS.Position, modelInvert), Vector3.Normalize(Vector3.TransformNormal(rayWS.Direction, modelInvert)));
+            var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInvert), SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInvert)));
 
             var index = 0;
             var minDistance = float.MaxValue;
@@ -204,16 +207,16 @@ namespace HelixToolkit.UWP
                         minDistance = d;
                         result.IsValid = true;
                         result.ModelHit = originalSource;
-                        var pointWorld = Vector3.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
+                        var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
                         result.PointHit = pointWorld;
-                        result.Distance = (rayWS.Position - pointWorld).Length();
-                        var p0 = Vector3.TransformCoordinate(v0, modelMatrix);
-                        var p1 = Vector3.TransformCoordinate(v1, modelMatrix);
-                        var p2 = Vector3.TransformCoordinate(v2, modelMatrix);
-                        var n = Vector3.Cross(p1 - p0, p2 - p0);
+                        result.Distance = (rayWS.Position - pointWorld).Length;
+                        var p0 = SilkMath.TransformCoordinate(v0, modelMatrix);
+                        var p1 = SilkMath.TransformCoordinate(v1, modelMatrix);
+                        var p2 = SilkMath.TransformCoordinate(v2, modelMatrix);
+                        var n = SilkMath.Cross(p1 - p0, p2 - p0);
                         n.Normalize();
                         // transform hit-info to world space now:
-                        result.NormalAtHit = n;// Vector3.TransformNormal(n, m).ToVector3D();
+                        result.NormalAtHit = n;// SilkMath.TransformNormal(n, m).ToVector3D();
                         result.TriangleIndices = new System.Tuple<int, int, int>(Indices[index], Indices[index + 1], Indices[index + 2]);
                         result.Tag = index / 3;
                         result.Geometry = this;

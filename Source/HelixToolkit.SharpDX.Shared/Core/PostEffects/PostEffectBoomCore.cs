@@ -262,7 +262,7 @@ namespace HelixToolkit.UWP
             {
                 if (clear)
                 {
-                    context.ClearRenderTargetView(targetView, global::SharpDX.Color.Transparent);
+                    context.ClearRenderTargetView(targetView, Color.Transparent);
                 }
                 context.SetRenderTargets(dsv, new RenderTargetView[] { targetView });
                 context.SetViewport(0, 0, width, height);

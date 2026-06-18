@@ -157,10 +157,10 @@ namespace HelixToolkit.SharpDX.Core.Controls
                 Controller.StopSpin();
                 Controller.StopPanning();
             }
-            var z = Vector3.Normalize(Camera.LookDirection);
-            var x = Vector3.Cross(z, Vector3.Normalize(Camera.UpDirection));
-            var y = Vector3.Cross(x, z);
-            x = Vector3.Cross(z, y);
+            var z = SilkMath.Normalize(Camera.LookDirection);
+            var x = SilkMath.Cross(z, SilkMath.Normalize(Camera.UpDirection));
+            var y = SilkMath.Cross(x, z);
+            x = SilkMath.Cross(z, y);
 
             switch (CameraMode)
             {
@@ -249,8 +249,8 @@ namespace HelixToolkit.SharpDX.Core.Controls
             var newTarget = zoomAround - newRelativeTarget;
             var newPosition = zoomAround - newRelativePosition;
 
-            var newDistance = (newPosition - zoomAround).Length();
-            var oldDistance = (Camera.Position - zoomAround).Length();
+            var newDistance = (newPosition - zoomAround).Length;
+            var oldDistance = (Camera.Position - zoomAround).Length;
 
             if (newDistance > Controller.ZoomDistanceLimitFar && (oldDistance < Controller.ZoomDistanceLimitFar || newDistance > oldDistance))
             {

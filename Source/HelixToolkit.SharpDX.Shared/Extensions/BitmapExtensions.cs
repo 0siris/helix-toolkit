@@ -167,7 +167,7 @@ namespace HelixToolkit.UWP
         {
             using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, (target) =>
             {
-                using (var brush = new SolidColorBrush(target, color, new BrushProperties() { Opacity = color.Alpha }))
+                using (var brush = new SolidColorBrush(target, color, new BrushProperties() { Opacity = color.GetAlpha() }))
                 {
                     target.FillRectangle(new RectangleF(0, 0, width, height), brush);
                 }

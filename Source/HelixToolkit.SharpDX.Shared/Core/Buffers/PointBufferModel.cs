@@ -124,7 +124,7 @@ namespace HelixToolkit.UWP
                 var positions = geometry.Positions;
                 var vertexCount = geometry.Positions.Count;
                 var array = ThreadBufferManager<PointsVertex>.GetBuffer(vertexCount);
-                var colors = geometry.Colors != null ? geometry.Colors.GetEnumerator() : Enumerable.Repeat(Color4.White, vertexCount).GetEnumerator();
+                var colors = geometry.Colors != null ? geometry.Colors.GetEnumerator() : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
 
                 for (var i = 0; i < vertexCount; i++)
                 {

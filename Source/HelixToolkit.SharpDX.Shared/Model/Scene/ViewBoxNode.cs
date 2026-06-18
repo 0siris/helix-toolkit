@@ -135,22 +135,22 @@ namespace HelixToolkit.UWP
                 cornerInstances = new Matrix[cornerPoints.Length];
                 for (var i = 0; i < cornerPoints.Length; ++i)
                 {
-                    cornerInstances[i] = Matrix.Translation(cornerPoints[i] * size / 2 * 0.95f);
+                    cornerInstances[i] = SilkMath.Translation(cornerPoints[i] * size / 2 * 0.95f);
                 }
                 var count = xAligned.Length;
                 edgeInstances = new Matrix[count * 3];
 
                 for (var i = 0; i < count; ++i)
                 {
-                    edgeInstances[i] = Matrix.RotationZ((float)Math.PI / 2) * Matrix.Translation(xAligned[i] * halfSize * 0.95f);
+                    edgeInstances[i] = SilkMath.RotationZ((float)Math.PI / 2) * SilkMath.Translation(xAligned[i] * halfSize * 0.95f);
                 }
                 for (var i = count; i < count * 2; ++i)
                 {
-                    edgeInstances[i] = Matrix.Translation(yAligned[i % count] * halfSize * 0.95f);
+                    edgeInstances[i] = SilkMath.Translation(yAligned[i % count] * halfSize * 0.95f);
                 }
                 for (var i = count * 2; i < count * 3; ++i)
                 {
-                    edgeInstances[i] = Matrix.RotationX((float)Math.PI / 2) * Matrix.Translation(zAligned[i % count] * halfSize * 0.95f);
+                    edgeInstances[i] = SilkMath.RotationX((float)Math.PI / 2) * SilkMath.Translation(zAligned[i % count] * halfSize * 0.95f);
                 }
             }
 
@@ -228,7 +228,7 @@ namespace HelixToolkit.UWP
             protected void UpdateModel(Vector3 up)
             {
                 var left = new Vector3(up.Y, up.Z, up.X);
-                var front = Vector3.Cross(left, up);
+                var front = SilkMath.Cross(left, up);
                 if (!isRightHanded)
                 {
                     front *= -1;
@@ -324,7 +324,7 @@ namespace HelixToolkit.UWP
                     {
                         normal = -hit.NormalAtHit * inv;
                         //Fix the normal if returned normal is reversed
-                        if (Vector3.Dot(normal, context.RenderMatrices.CameraParams.LookAtDir) < 0)
+                        if (SilkMath.Dot(normal, context.RenderMatrices.CameraParams.LookAtDir) < 0)
                         {
                             normal *= -1;
                         }
@@ -334,12 +334,12 @@ namespace HelixToolkit.UWP
                         if (hit.ModelHit == EdgeModel && index < edgeInstances.Length)
                         {
                             var transform = edgeInstances[index];
-                            normal = -transform.TranslationVector;
+                            normal = -new Vector3(transform.M41, transform.M42, transform.M43);
                         }
                         else if (hit.ModelHit == CornerModel && index < cornerInstances.Length)
                         {
                             var transform = cornerInstances[index];
-                            normal = -transform.TranslationVector;
+                            normal = -new Vector3(transform.M41, transform.M42, transform.M43);
                         }
                         else
                         {

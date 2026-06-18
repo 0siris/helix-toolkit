@@ -355,11 +355,11 @@ namespace HelixToolkit.UWP
                 eye = -renderContext.Camera.LookDirection.Normalized() * CameraDistance;
                 if (IsRightHand)
                 {
-                    return Matrix.LookAtRH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+                    return SilkMath.LookAtRH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
                 }
                 else
                 {
-                    return Matrix.LookAtLH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+                    return SilkMath.LookAtLH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
                 }
             }
             /// <summary>
@@ -404,11 +404,11 @@ namespace HelixToolkit.UWP
             {
                 if (isPerspective)
                 {
-                    return isRightHand ? Matrix.PerspectiveFovRH(fov, w / h, near, far) : Matrix.PerspectiveFovLH(fov, w / h, near, far);
+                    return isRightHand ? SilkMath.PerspectiveFovRH(fov, w / h, near, far) : SilkMath.PerspectiveFovLH(fov, w / h, near, far);
                 }
                 else
                 {
-                    return isRightHand ? Matrix.OrthoRH(w, h, near, far) : Matrix.OrthoLH(w, h, near, far);
+                    return isRightHand ? SilkMath.OrthoRH(w, h, near, far) : SilkMath.OrthoLH(w, h, near, far);
                 }
             }
 
@@ -518,7 +518,7 @@ namespace HelixToolkit.UWP
                 var distance = Size / 2 / SizeScale;
                 var viewInv = globalTrans.View.PsudoInvert();
                 //Determine new camera position. So the size of the object keeps the same. Decouple it from global zooming
-                var pos = Vector3.Normalize(absolutePosition - globalTrans.EyePos);
+                var pos = SilkMath.Normalize(absolutePosition - globalTrans.EyePos);
                 var newPos = absolutePosition - pos * distance;
                 newPos -= absolutePosition; // Need to do additional translation, since translation is not in model matrix.
                 viewInv.M41 = newPos.X;
@@ -550,7 +550,7 @@ namespace HelixToolkit.UWP
                 GlobalTransform = globalTrans;
                 var svp = context.ScreenViewProjectionMatrix;
                 var pos = absolutePosition;
-                Vector3.TransformCoordinate(ref pos, ref svp, out var screenPoint);
+                var screenPoint = SilkMath.TransformCoordinate(pos, svp);
                 var offX = (screenPoint.X - viewportSize / 2);
                 var offY = (screenPoint.Y - viewportSize / 2);
                 var viewport = new ViewportF(offX, offY, viewportSize, viewportSize);

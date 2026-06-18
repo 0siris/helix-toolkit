@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -97,13 +97,13 @@ namespace HelixToolkit.Wpf
             var up = this.GetNormal();
             up.Normalize();
 #if SHARPDX || SILKNET
-            var right = Vector3D.Cross(
+            var right = SilkMath.Cross(
 #else
             var right = Vector3D.CrossProduct(
 #endif
                 up, Math.Abs(up.X) > Math.Abs(up.Z) ? new Vector3D(0, 0, 1) : new Vector3D(1, 0, 0));
 #if SHARPDX || SILKNET
-            var backward = Vector3D.Cross(
+            var backward = SilkMath.Cross(
 #else
             var backward = Vector3D.CrossProduct(
 #endif
@@ -112,7 +112,7 @@ namespace HelixToolkit.Wpf
 
             // make first point origin
 #if SHARPDX || SILKNET
-            var offs = Vector3D.TransformCoordinate(Points[0], m);
+            var offs = SilkMath.TransformCoordinate(Points[0], m);
             m.M41 = -offs.X;
             m.M42 = -offs.Y;
 #else
@@ -125,7 +125,7 @@ namespace HelixToolkit.Wpf
             foreach (var p in this.Points)
             {
 #if SHARPDX || SILKNET
-                var pp = Vector3D.TransformCoordinate(p, m);
+                var pp = SilkMath.TransformCoordinate(p, m);
 #else
                 var pp = m.Transform(p);
 #endif
@@ -152,9 +152,9 @@ namespace HelixToolkit.Wpf
             for (var i = 2; i < this.Points.Count; i++)
             {
 #if SHARPDX || SILKNET
-                var n = Vector3D.Cross(v1, this.Points[i] - this.Points[0]);
+                var n = SilkMath.Cross(v1, this.Points[i] - this.Points[0]);
 
-                if (n.LengthSquared() > 1e-10)
+                if (n.LengthSquared > 1e-10)
 #else
                 var n = Vector3D.CrossProduct(v1, this.Points[i] - this.Points[0]);
 
@@ -167,7 +167,7 @@ namespace HelixToolkit.Wpf
             }
 
 #if SHARPDX || SILKNET
-            var result = Vector3D.Cross(v1, this.Points[2] - this.Points[0]);
+            var result = SilkMath.Cross(v1, this.Points[2] - this.Points[0]);
 #else
             Vector3D result = Vector3D.CrossProduct(v1, this.Points[2] - this.Points[0]);
 #endif
@@ -188,7 +188,7 @@ namespace HelixToolkit.Wpf
             for (var i = 2; i < this.Points.Count; i++)
             {
 #if SHARPDX || SILKNET
-                var n = Vector3D.Cross(v1, this.Points[i] - this.Points[0]);
+                var n = SilkMath.Cross(v1, this.Points[i] - this.Points[0]);
 #else
                 var n = Vector3D.CrossProduct(v1, this.Points[i] - this.Points[0]);
 #endif
@@ -198,7 +198,7 @@ namespace HelixToolkit.Wpf
                     normal = n;
                 }
 #if SHARPDX || SILKNET
-                else if (Math.Abs(Vector3D.Dot(n, normal) - 1) > 1e-8)
+                else if (Math.Abs(SilkMath.Dot(n, normal) - 1) > 1e-8)
 #else
                 else if (Math.Abs(Vector3D.DotProduct(n, normal) - 1) > 1e-8)
 #endif

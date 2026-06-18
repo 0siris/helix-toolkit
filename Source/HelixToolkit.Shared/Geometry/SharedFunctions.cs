@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System;
 using System.Runtime.CompilerServices;
 #if SHARPDX || SILKNET
@@ -41,7 +41,7 @@ namespace HelixToolkit.Wpf
         public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second)
         {
 #if SHARPDX || SILKNET
-            return Vector3.Cross(first, second);
+            return SilkMath.Cross(first, second);
 #else
             return Vector3D.CrossProduct(first, second);
 #endif
@@ -51,7 +51,7 @@ namespace HelixToolkit.Wpf
         public static Vector3D CrossProduct(Vector3D first, Vector3D second)
         {
 #if SHARPDX || SILKNET
-            return Vector3.Cross(first, second);
+            return SilkMath.Cross(first, second);
 #else
             return Vector3D.CrossProduct(first, second);
 #endif
@@ -221,12 +221,12 @@ namespace HelixToolkit.Wpf
         {
             // https://graphics.stanford.edu/~mdfisher/Code/Engine/Plane.cpp.html
             var diff = la - lb;
-            var d = Vector3D.Dot(diff, plane.Normal);
+            var d = SilkMath.Dot(diff, plane.Normal);
             if (d == 0)
             {
                 return null;
             }
-            var u = (Vector3D.Dot(la, plane.Normal) + plane.D) / d;
+            var u = (SilkMath.Dot(la, plane.Normal) + plane.D) / d;
             return (la + u * (lb - la));
         }
 #endif

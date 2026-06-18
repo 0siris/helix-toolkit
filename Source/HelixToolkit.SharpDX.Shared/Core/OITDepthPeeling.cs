@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -62,7 +62,7 @@ namespace HelixToolkit.UWP
                     Usage = ResourceUsage.Default,
                     CpuAccessFlags = CpuAccessFlags.None,
                 };
-                tex2DDesc.Format = Format.R32G32_Float;
+                tex2DDesc.Format = Format.FormatR32G32Float;
                 minMaxZTarget0 = new ShaderResourceViewProxy(Device, tex2DDesc);
                 minMaxZTarget0.CreateRenderTargetView();
                 minMaxZTarget0.CreateTextureView();
@@ -71,7 +71,7 @@ namespace HelixToolkit.UWP
                 minMaxZTarget1.CreateTextureView();
                 minMaxZTargets[0] = minMaxZTarget0;
                 minMaxZTargets[1] = minMaxZTarget1;
-                tex2DDesc.Format = Format.B8G8R8A8_UNorm;
+                tex2DDesc.Format = Format.FormatB8G8R8A8Unorm;
                 frontBlendingTarget = new ShaderResourceViewProxy(Device, tex2DDesc);
                 frontBlendingTarget.CreateRenderTargetView();
                 frontBlendingTarget.CreateTextureView();
@@ -101,7 +101,7 @@ namespace HelixToolkit.UWP
                     if (ExternRenderParameter.IsMSAATexture)
                     {
 
-                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource, 0, backBlendingTarget.Resource, 0, Format.B8G8R8A8_UNorm);
+                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource, 0, backBlendingTarget.Resource, 0, Format.FormatB8G8R8A8Unorm);
                     }
                     else
                     {

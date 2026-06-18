@@ -134,7 +134,7 @@ namespace HelixToolkit.UWP
         public class MatrixInstanceBufferModel : ElementsBufferModel<Matrix>
         {
             public MatrixInstanceBufferModel()
-                : base(Matrix.SizeInBytes)
+                : base(SilkMath.MatrixSizeInBytes)
             {
             }
         }

@@ -348,7 +348,7 @@ namespace HelixToolkit.UWP
                 var bound = BoundingBox.FromSphere(sphere);
                 foreach (var info in TextInfo)
                 {
-                    sphere = BoundingSphere.Merge(sphere, info.BoundSphere);
+                    sphere = BoundingSphereExtensions.Merge(sphere, info.BoundSphere);
                     bound = BoundingBox.Merge(bound, BoundingBox.FromSphere(info.BoundSphere));
                 }
                 BoundingSphere = sphere;

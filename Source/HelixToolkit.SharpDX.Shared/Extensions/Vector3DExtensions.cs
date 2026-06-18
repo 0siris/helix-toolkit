@@ -44,7 +44,7 @@ namespace HelixToolkit.UWP
         {
             vector1 = vector1.Normalized();
             vector2 = vector2.Normalized();
-            var ratio = Vector3.Dot(vector1, vector2);
+            var ratio = SilkMath.Dot(vector1, vector2);
             float theta;
 
             if (ratio < 0)
@@ -131,10 +131,10 @@ namespace HelixToolkit.UWP
         public static Vector3 FindAnyPerpendicular(this Vector3 n)
         {
             n = n.Normalized();
-            var u = Vector3.Cross(new Vector3(0, 1, 0), n);
+            var u = SilkMath.Cross(new Vector3(0, 1, 0), n);
             if (u.LengthSquared < 1e-3)
             {
-                u = Vector3.Cross(new Vector3(1, 0, 0), n);
+                u = SilkMath.Cross(new Vector3(1, 0, 0), n);
             }
 
             return u.Normalized();
@@ -407,7 +407,7 @@ namespace HelixToolkit.UWP
             var normal = plane.Normal * (plane.D >= 0 ? 1 : -1);
             var v1 = new Vector4(normal, Math.Abs(plane.D));
             var v2 = new Vector4(point, 1);
-            var ret = Vector4.Dot(v1, v2);
+            var ret = SilkMath.Dot(v1, v2);
             return ret > 0 ? PlaneIntersectionType.Front : ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
         }
 
@@ -422,7 +422,7 @@ namespace HelixToolkit.UWP
         {
             var v1 = new Vector4((plane.Normal * (plane.D > 0 ? 1 : -1)), Math.Abs(plane.D));
             var v2 = new Vector4(point, 1);
-            var ret = Vector4.Dot(v1, v2);
+            var ret = SilkMath.Dot(v1, v2);
             return ret > 0 ? PlaneIntersectionType.Front : ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
         }
     }

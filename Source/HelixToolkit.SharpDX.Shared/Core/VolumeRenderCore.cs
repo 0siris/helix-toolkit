@@ -204,7 +204,7 @@ namespace HelixToolkit.UWP
             /// </summary>
             private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3>
             {
-                public VolumeCubeBufferModel() : base(Vector3.SizeInBytes)
+                public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes)
                 {
                     Topology = PrimitiveTopology.TriangleList;
                 }

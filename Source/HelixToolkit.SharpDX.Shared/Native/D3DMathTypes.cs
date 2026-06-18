@@ -141,6 +141,29 @@ namespace HelixToolkit.UWP
         public int Top;
         public int Width;
         public int Height;
+
+        public int X
+        {
+            get => Left;
+            set => Left = value;
+        }
+
+        public int Y
+        {
+            get => Top;
+            set => Top = value;
+        }
+
+        public int Right => Left + Width;
+
+        public int Bottom => Top + Height;
+
+        public bool IsEmpty => Width <= 0 || Height <= 0;
+
+        public bool Intersects(Rectangle other)
+        {
+            return Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -159,9 +182,17 @@ namespace HelixToolkit.UWP
         public float Width;
         public float Height;
 
-        public float Right => Left + Width;
+        public float Right
+        {
+            get => Left + Width;
+            set => Width = value - Left;
+        }
 
-        public float Bottom => Top + Height;
+        public float Bottom
+        {
+            get => Top + Height;
+            set => Height = value - Top;
+        }
 
         public Size2F Size => new Size2F(Width, Height);
 
@@ -233,6 +264,20 @@ namespace HelixToolkit.UWP
         public static Matrix3x2 Translation(Vector2 offset)
         {
             return Translation(offset.X, offset.Y);
+        }
+
+        public static Matrix3x2 Rotation(float angle)
+        {
+            var cosine = (float)Math.Cos(angle);
+            var sine = (float)Math.Sin(angle);
+            return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
+        }
+
+        public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point)
+        {
+            return new Vector2(
+                point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
+                point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
         }
 
         public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -312,7 +312,7 @@ namespace HelixToolkit.UWP
                 {
                     return false;
                 }
-                var center = box.Center;
+                var center = box.Center();
                 var dist = 0.0f;
                 var points = stackalloc Vector3[8];
                 points[0] = box.Minimum;
@@ -329,7 +329,7 @@ namespace HelixToolkit.UWP
 
                 for (var i = 0; i < 8; ++i)
                 {
-                    Vector3.Dot(ref plane.Normal, ref points[i], out var dot);
+                    SilkMath.Dot(ref plane.Normal, ref points[i], out var dot);
                     dot += plane.D;
                     if (dot > 0)
                     {
@@ -337,7 +337,7 @@ namespace HelixToolkit.UWP
                     }
                     var t = dot - plane.D;
                     var v = points[i] - (t * plane.Normal);
-                    var vDist = v.Length();
+                    var vDist = v.Length;
                     if (vDist > farestDist)
                     {
                         farthest = points[i];
@@ -375,7 +375,7 @@ namespace HelixToolkit.UWP
                         if (light.LightType == LightType.Directional)
                         {
                             var dlight = light.RenderCore as DirectionalLightCore;
-                            var dir = Vector3.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
+                            var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
                             if (AutoCoverCompleteScene)
                             {
                                 if (sceneChanged || e.Context.updateSceneGraphRequested || IsSceneDynamic)
@@ -399,7 +399,7 @@ namespace HelixToolkit.UWP
                         {
                             var splight = light.RenderCore as SpotLightCore;
                             persCamera.Position = (splight.Position + splight.ModelMatrix.Row4.ToVector3());
-                            var look = Vector3.TransformNormal(splight.Direction, splight.ModelMatrix);
+                            var look = SilkMath.TransformNormal(splight.Direction, splight.ModelMatrix);
                             persCamera.LookDirection = look;
                             persCamera.FarPlaneDistance = (float)splight.Range;
                             persCamera.FieldOfView = (float)splight.OuterAngle;

@@ -316,15 +316,15 @@ namespace HelixToolkit.UWP
                 if (autoSpacing)
                 {
                     //Disable auto spacing if view angle larger than 60 degree of plane normal
-                    var lookDir = Vector3.Normalize(context.Camera.LookDirection);
-                    var angle = Math.Acos(Math.Abs(Vector3.Dot(upDirection, lookDir)));
+                    var lookDir = SilkMath.Normalize(context.Camera.LookDirection);
+                    var angle = Math.Acos(Math.Abs(SilkMath.Dot(upDirection, lookDir)));
                     if (angle > Math.PI / 3)
                     {
                         return;
                     }
-                    var r = new Ray(context.Camera.Position, Vector3.Normalize(context.Camera.LookDirection));
+                    var r = new Ray(context.Camera.Position, SilkMath.Normalize(context.Camera.LookDirection));
                     var plane = new Plane(upDirection, modelStruct.PlaneD);
-                    if (r.Intersects(ref plane, out float l))
+                    if (plane.Intersects(ref r, out float l))
                     {
                         l /= autoSpacingChangeRate;
                         var n = 1;

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -32,7 +32,7 @@ namespace HelixToolkit.UWP
             private SampleDescription sampleDesc = new SampleDescription(1, 0);
             private Texture2DDescription colorDesc = new Texture2DDescription()
             {
-                Format = Format.R16G16B16A16_Float,
+                Format = Format.FormatR16G16B16A16Float,
                 OptionFlags = ResourceOptionFlags.None,
                 MipLevels = 1,
                 ArraySize = 1,
@@ -41,7 +41,7 @@ namespace HelixToolkit.UWP
             };
             private Texture2DDescription alphaDesc = new Texture2DDescription()
             {
-                Format = Format.A8_UNorm,
+                Format = Format.FormatA8Unorm,
                 OptionFlags = ResourceOptionFlags.None,
                 MipLevels = 1,
                 ArraySize = 1,

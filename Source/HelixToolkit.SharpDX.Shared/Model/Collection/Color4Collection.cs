@@ -75,7 +75,7 @@ namespace HelixToolkit.UWP
             for (var i = 0; i < this.Count; i++)
             {
                 //str.AppendFormat(provider, "{0:" + format + "}", this[i]);
-                str.AppendFormat(provider, "{0},{1},{2},{3}", this[i].Red, this[i].Green, this[i].Blue, this[i].Alpha);
+                str.AppendFormat(provider, "{0},{1},{2},{3}", this[i].GetRed(), this[i].GetGreen(), this[i].GetBlue(), this[i].GetAlpha());
                 if (i != this.Count - 1)
                 {
                     str.Append(" ");

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -42,7 +42,7 @@ namespace HelixToolkit.UWP
             // Create the cube map TextureCube (array of 6 textures)
             private Texture2DDescription textureDesc = new Texture2DDescription()
             {
-                Format = Format.R8G8B8A8_UNorm,
+                Format = Format.FormatR8G8B8A8Unorm,
                 ArraySize = 6, // 6-sides of the cube
                 BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget,
                 OptionFlags = ResourceOptionFlags.GenerateMipMaps | ResourceOptionFlags.TextureCube,
@@ -54,7 +54,7 @@ namespace HelixToolkit.UWP
 
             private Texture2DDescription dsvTextureDesc = new Texture2DDescription()
             {
-                Format = Format.D16_UNorm,
+                Format = Format.FormatD16Unorm,
                 BindFlags = BindFlags.DepthStencil,
                 Usage = ResourceUsage.Default,
                 SampleDescription = new SampleDescription(1, 0),
@@ -419,7 +419,7 @@ namespace HelixToolkit.UWP
                     return;
                 }
                 context.IsInvertCullMode = true;
-                var camLook = Vector3.Normalize(context.Camera.LookDirection);
+                var camLook = SilkMath.Normalize(context.Camera.LookDirection);
 
                 Exception exception = null;
 #if TEST
@@ -496,9 +496,9 @@ namespace HelixToolkit.UWP
                 for (var i = 0; i < 6; ++i)
                 {
                     targets[i] = center + lookVector[i];
-                    cubeFaceCameras.Cameras[i].View = (IsLeftHanded ? Matrix.LookAtLH(center, targets[i], upVectors[i]) : Matrix.LookAtRH(center, targets[i], upVectors[i])) * Matrix.Scaling(-1, 1, 1);
-                    cubeFaceCameras.Cameras[i].Projection = IsLeftHanded ? Matrix.PerspectiveFovLH((float)Math.PI * 0.5f, 1, NearField, FarField)
-                    : Matrix.PerspectiveFovRH((float)Math.PI * 0.5f, 1, NearField, FarField);
+                    cubeFaceCameras.Cameras[i].View = (IsLeftHanded ? SilkMath.LookAtLH(center, targets[i], upVectors[i]) : SilkMath.LookAtRH(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
+                    cubeFaceCameras.Cameras[i].Projection = IsLeftHanded ? SilkMath.PerspectiveFovLH((float)Math.PI * 0.5f, 1, NearField, FarField)
+                    : SilkMath.PerspectiveFovRH((float)Math.PI * 0.5f, 1, NearField, FarField);
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -143,9 +143,9 @@ namespace HelixToolkit.UWP
                     for (var i = octant.Start; i < octant.End; ++i)
                     {
                         var v0 = Positions[Objects[i]];
-                        var p0 = Vector3.TransformCoordinate(v0, smvpm);
+                        var p0 = SilkMath.TransformCoordinate(v0, smvpm);
                         var pv = p0 - clickPoint;
-                        var d = pv.Length() / context.RenderMatrices.DpiScale;
+                        var d = pv.Length / context.RenderMatrices.DpiScale;
                         if (returnMultiple)
                         {
                             dist = hitThickness;
@@ -155,9 +155,9 @@ namespace HelixToolkit.UWP
                             dist = d;
                             result.IsValid = true;
                             result.ModelHit = model;
-                            var px = Vector3.TransformCoordinate(v0, modelMatrix);
+                            var px = SilkMath.TransformCoordinate(v0, modelMatrix);
                             result.PointHit = px;
-                            result.Distance = (rayWS.Position - px).Length();
+                            result.Distance = (rayWS.Position - px).Length;
                             result.Tag = Objects[i];
                             result.Geometry = geometry;
                             isHit = true;
@@ -211,9 +211,9 @@ namespace HelixToolkit.UWP
                     for (var i = octant.Start; i < octant.End; ++i)
                     {
                         var p = Positions[Objects[i]];
-                        if (sphere.Contains(ref p) != ContainmentType.Disjoint)
+                        if (BoundingSphereExtensions.Contains(sphere, p) != ContainmentType.Disjoint)
                         {
-                            var d = (p - sphere.Center).Length();
+                            var d = (p - sphere.Center).Length;
                             if (resultTemp.Distance > d)
                             {
                                 resultTemp.Distance = d;

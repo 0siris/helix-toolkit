@@ -1,4 +1,4 @@
-﻿using SharpDX;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -59,7 +59,7 @@ namespace HelixToolkit.UWP
                     return false;
                 }
                 var isHit = false;
-                //var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => Vector3.TransformCoordinate(x, modelMatrix)).ToArray());
+                //var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
                 var bound = Bound;
                 var tempHits = new List<HitTestResult>();
                 var rayWS = context.RayWS;

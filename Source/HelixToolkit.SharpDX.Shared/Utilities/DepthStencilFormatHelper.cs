@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -19,15 +19,15 @@ namespace HelixToolkit.UWP
             {
                 switch (format)
                 {
-                    case Format.D32_Float:
-                    case Format.R32_Typeless:
-                        return Format.D32_Float;
-                    case Format.D24_UNorm_S8_UInt:
-                    case Format.R24G8_Typeless:
-                        return Format.D24_UNorm_S8_UInt;
-                    case Format.D32_Float_S8X24_UInt:
-                    case Format.R32G8X24_Typeless:
-                        return Format.D32_Float_S8X24_UInt;
+                    case Format.FormatD32Float:
+                    case Format.FormatR32Typeless:
+                        return Format.FormatD32Float;
+                    case Format.FormatD24UnormS8Uint:
+                    case Format.FormatR24G8Typeless:
+                        return Format.FormatD24UnormS8Uint;
+                    case Format.FormatD32FloatS8X24Uint:
+                    case Format.FormatR32G8X24Typeless:
+                        return Format.FormatD32FloatS8X24Uint;
                 }
                 throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for depth buffer", format));
             }
@@ -40,19 +40,19 @@ namespace HelixToolkit.UWP
                 // Determine TypeLess Format and ShaderResourceView Format
                 switch (format)
                 {
-                    case Format.D32_Float:
-                    case Format.R32_Typeless:
-                        viewFormat = Format.R32_Typeless;
+                    case Format.FormatD32Float:
+                    case Format.FormatR32Typeless:
+                        viewFormat = Format.FormatR32Typeless;
                         canUseAsShaderResource = true;
                         break;
-                    case Format.D24_UNorm_S8_UInt:
-                    case Format.R24G8_Typeless:
-                        viewFormat = Format.R24G8_Typeless;
+                    case Format.FormatD24UnormS8Uint:
+                    case Format.FormatR24G8Typeless:
+                        viewFormat = Format.FormatR24G8Typeless;
                         canUseAsShaderResource = true;
                         break;
-                    case Format.D32_Float_S8X24_UInt:
-                    case Format.R32G8X24_Typeless:
-                        viewFormat = Format.R32G8X24_Typeless;
+                    case Format.FormatD32FloatS8X24Uint:
+                    case Format.FormatR32G8X24Typeless:
+                        viewFormat = Format.FormatR32G8X24Typeless;
                         canUseAsShaderResource = true;
                         break;
                     default:
@@ -67,15 +67,15 @@ namespace HelixToolkit.UWP
             {
                 switch (format)
                 {
-                    case Format.D32_Float:
-                    case Format.R32_Typeless:
-                        return Format.R32_Float;
-                    case Format.D24_UNorm_S8_UInt:
-                    case Format.R24G8_Typeless:
-                        return Format.R24_UNorm_X8_Typeless;
-                    case Format.D32_Float_S8X24_UInt:
-                    case Format.R32G8X24_Typeless:
-                        return Format.R32_Float_X8X24_Typeless;
+                    case Format.FormatD32Float:
+                    case Format.FormatR32Typeless:
+                        return Format.FormatR32Float;
+                    case Format.FormatD24UnormS8Uint:
+                    case Format.FormatR24G8Typeless:
+                        return Format.FormatR24UnormX8Typeless;
+                    case Format.FormatD32FloatS8X24Uint:
+                    case Format.FormatR32G8X24Typeless:
+                        return Format.FormatR32FloatX8X24Typeless;
                 }
 
                 throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for creating shaderResourceView", format));

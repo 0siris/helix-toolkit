@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -695,12 +695,12 @@ namespace HelixToolkit.UWP
                 var isHit = false;
                 var modelHits = new List<HitTestResult>();
                 var modelInv = modelMatrix.Inverted();
-                if (modelInv == Matrix.Zero)
+                if (modelInv == default)
                 {
                     return false;
                 }//Cannot be inverted
                 var rayWS = context.RayWS;
-                var rayModel = new Ray(Vector3.TransformCoordinate(rayWS.Position, modelInv), Vector3.Normalize(Vector3.TransformNormal(rayWS.Direction, modelInv)));
+                var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInv), SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInv)));
 
                 var parent = -1;
                 var curr = -1;
@@ -984,8 +984,8 @@ namespace HelixToolkit.UWP
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected static bool BoxDisjointSphere(BoundingBox box, ref BoundingSphere sphere)
             {
-                Vector3.Clamp(ref sphere.Center, ref box.Minimum, ref box.Maximum, out var vector);
-                var distance = Vector3.DistanceSquared(sphere.Center, vector);
+                var vector = SilkMath.Clamp(sphere.Center, box.Minimum, box.Maximum);
+                var distance = SilkMath.DistanceSquared(sphere.Center, vector);
 
                 return distance > sphere.Radius * sphere.Radius;
             }

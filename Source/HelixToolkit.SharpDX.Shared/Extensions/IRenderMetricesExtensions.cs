@@ -47,7 +47,7 @@ namespace HelixToolkit.UWP
                 Y = -(2 * py / h - 1) / projMatrix.M22,
                 Z = 1 / projMatrix.M33
             };
-            Vector3.TransformCoordinate(ref v, ref viewInv, out var zf);
+            SilkMath.TransformCoordinate(ref v, ref viewInv, out var zf);
             Vector3 zn;
             if (renderMatrices.IsPerspective)
             {
@@ -56,7 +56,7 @@ namespace HelixToolkit.UWP
             else
             {
                 v.Z = 0;
-                Vector3.TransformCoordinate(ref v, ref viewInv, out zn);
+                SilkMath.TransformCoordinate(ref v, ref viewInv, out zn);
             }
             var r = zf - zn;
             r.Normalize();
@@ -68,7 +68,7 @@ namespace HelixToolkit.UWP
         {
             renderMatrices.Update();
             var matrix = renderMatrices.ScreenViewProjectionMatrix;
-            var pointTransformed = Vector3.TransformCoordinate(point, matrix);
+            var pointTransformed = SilkMath.TransformCoordinate(point, matrix);
             var pt = new Vector2(pointTransformed.X, pointTransformed.Y) / renderMatrices.DpiScale;
             return pt;
         }

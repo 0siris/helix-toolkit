@@ -162,7 +162,7 @@ namespace HelixToolkit.UWP
             /// The color of the blend.
             /// </value>
             [DataMember(Name = @"BlendFactor")]
-            public Color4 BlendFactor { set; get; } = Color4.White;
+            public Color4 BlendFactor { set; get; } = Color.White;
             /// <summary>
             /// Gets or sets the blend sample mask.
             /// </summary>

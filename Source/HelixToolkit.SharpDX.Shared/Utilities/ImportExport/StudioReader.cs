@@ -520,11 +520,11 @@ namespace HelixToolkit.UWP
 
                 var p1 = v2 - v1;
                 var p2 = v3 - v1;
-                var n = Vector3.Cross(p1, p2);
+                var n = SilkMath.Cross(p1, p2);
                 // angle
                 p1.Normalize();
                 p2.Normalize();
-                var a = (float)Math.Acos(Vector3.Dot(p1, p2));
+                var a = (float)Math.Acos(SilkMath.Dot(p1, p2));
                 n.Normalize();
                 normals[i1] += (a * n);
                 normals[i2] += (a * n);

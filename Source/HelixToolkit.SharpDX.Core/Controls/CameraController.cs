@@ -886,14 +886,14 @@ namespace HelixToolkit.SharpDX.Core.Controls
         /// </returns>
         private Vector3 FindPanVector(float dx, float dy)
         {
-            var axis1 = Vector3.Normalize(Vector3.Cross(this.CameraLookDirection, this.CameraUpDirection));
-            var axis2 = Vector3.Normalize(Vector3.Cross(axis1, this.CameraLookDirection));
+            var axis1 = SilkMath.Normalize(SilkMath.Cross(this.CameraLookDirection, this.CameraUpDirection));
+            var axis2 = SilkMath.Normalize(SilkMath.Cross(axis1, this.CameraLookDirection));
             axis1 *= (ActualCamera.CreateLeftHandSystem ? -1 : 1);
             float l = 0;
             if (ActualCamera is PerspectiveCameraCore)
             {
                 // this should be dependent on distance to target?
-                l = this.CameraLookDirection.Length();
+                l = this.CameraLookDirection.Length;
             }
             else if (ActualCamera is OrthographicCameraCore orth)
             {

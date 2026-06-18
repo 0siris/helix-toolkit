@@ -264,6 +264,11 @@ namespace HelixToolkit.Wpf.SharpDX
         public static readonly Color Green = new Color(0, 128, 0, 255);
         public static readonly Color Blue = new Color(0, 0, 255, 255);
         public static readonly Color Gold = new Color(255, 215, 0, 255);
+        public static readonly Color Gray = new Color(128, 128, 128, 255);
+        public static readonly Color DarkGray = new Color(169, 169, 169, 255);
+        public static readonly Color Yellow = new Color(255, 255, 0, 255);
+        public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color Zero = Transparent;
 
         private static byte ToByte(float value)
         {
@@ -282,17 +287,48 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return new Color4(R / 255f, G / 255f, B / 255f, A / 255f);
         }
+
+        public static implicit operator Color4(Color color)
+        {
+            return color.ToColor4();
+        }
+
+        public static explicit operator Color(Color4 color)
+        {
+            return new Color(color.X, color.Y, color.Z, color.W);
+        }
     }
 
     public struct BoundingBox
     {
         public Vector3 Minimum;
         public Vector3 Maximum;
+        public Vector3 Size => Maximum - Minimum;
 
         public BoundingBox(Vector3 minimum, Vector3 maximum)
         {
             Minimum = minimum;
             Maximum = maximum;
+        }
+
+        public static bool operator ==(BoundingBox left, BoundingBox right)
+        {
+            return left.Minimum == right.Minimum && left.Maximum == right.Maximum;
+        }
+
+        public static bool operator !=(BoundingBox left, BoundingBox right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BoundingBox other && this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return global::System.HashCode.Combine(Minimum, Maximum);
         }
 
         private static Vector3 Min(Vector3 left, Vector3 right)
@@ -706,6 +742,11 @@ namespace HelixToolkit.SharpDX.Core
         public static readonly Color Green = new Color(0, 128, 0, 255);
         public static readonly Color Blue = new Color(0, 0, 255, 255);
         public static readonly Color Gold = new Color(255, 215, 0, 255);
+        public static readonly Color Gray = new Color(128, 128, 128, 255);
+        public static readonly Color DarkGray = new Color(169, 169, 169, 255);
+        public static readonly Color Yellow = new Color(255, 255, 0, 255);
+        public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color Zero = Transparent;
 
         private static byte ToByte(float value)
         {
@@ -724,17 +765,48 @@ namespace HelixToolkit.SharpDX.Core
         {
             return new Color4(R / 255f, G / 255f, B / 255f, A / 255f);
         }
+
+        public static implicit operator Color4(Color color)
+        {
+            return color.ToColor4();
+        }
+
+        public static explicit operator Color(Color4 color)
+        {
+            return new Color(color.X, color.Y, color.Z, color.W);
+        }
     }
 
     public struct BoundingBox
     {
         public Vector3 Minimum;
         public Vector3 Maximum;
+        public Vector3 Size => Maximum - Minimum;
 
         public BoundingBox(Vector3 minimum, Vector3 maximum)
         {
             Minimum = minimum;
             Maximum = maximum;
+        }
+
+        public static bool operator ==(BoundingBox left, BoundingBox right)
+        {
+            return left.Minimum == right.Minimum && left.Maximum == right.Maximum;
+        }
+
+        public static bool operator !=(BoundingBox left, BoundingBox right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BoundingBox other && this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return global::System.HashCode.Combine(Minimum, Maximum);
         }
 
         private static Vector3 Min(Vector3 left, Vector3 right)
@@ -1148,6 +1220,11 @@ namespace HelixToolkit.UWP
         public static readonly Color Green = new Color(0, 128, 0, 255);
         public static readonly Color Blue = new Color(0, 0, 255, 255);
         public static readonly Color Gold = new Color(255, 215, 0, 255);
+        public static readonly Color Gray = new Color(128, 128, 128, 255);
+        public static readonly Color DarkGray = new Color(169, 169, 169, 255);
+        public static readonly Color Yellow = new Color(255, 255, 0, 255);
+        public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color Zero = Transparent;
 
         private static byte ToByte(float value)
         {
@@ -1166,17 +1243,48 @@ namespace HelixToolkit.UWP
         {
             return new Color4(R / 255f, G / 255f, B / 255f, A / 255f);
         }
+
+        public static implicit operator Color4(Color color)
+        {
+            return color.ToColor4();
+        }
+
+        public static explicit operator Color(Color4 color)
+        {
+            return new Color(color.X, color.Y, color.Z, color.W);
+        }
     }
 
     public struct BoundingBox
     {
         public Vector3 Minimum;
         public Vector3 Maximum;
+        public Vector3 Size => Maximum - Minimum;
 
         public BoundingBox(Vector3 minimum, Vector3 maximum)
         {
             Minimum = minimum;
             Maximum = maximum;
+        }
+
+        public static bool operator ==(BoundingBox left, BoundingBox right)
+        {
+            return left.Minimum == right.Minimum && left.Maximum == right.Maximum;
+        }
+
+        public static bool operator !=(BoundingBox left, BoundingBox right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BoundingBox other && this == other;
+        }
+
+        public override int GetHashCode()
+        {
+            return global::System.HashCode.Combine(Minimum, Maximum);
         }
 
         private static Vector3 Min(Vector3 left, Vector3 right)
@@ -1321,6 +1429,98 @@ namespace HelixToolkit.UWP
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+    }
+}
+
+#if !NETFX_CORE
+namespace HelixToolkit.Wpf.SharpDX
+#else
+#if CORE
+namespace HelixToolkit.SharpDX.Core
+#else
+namespace HelixToolkit.UWP
+#endif
+#endif
+{
+    public struct BoundingFrustum
+    {
+        private Plane left;
+        private Plane right;
+        private Plane top;
+        private Plane bottom;
+        private Plane near;
+        private Plane far;
+
+        public BoundingFrustum(Matrix matrix)
+        {
+            Matrix = matrix;
+            left = NormalizePlane(new Plane(
+                new Vector3(matrix.M14 + matrix.M11, matrix.M24 + matrix.M21, matrix.M34 + matrix.M31),
+                matrix.M44 + matrix.M41));
+            right = NormalizePlane(new Plane(
+                new Vector3(matrix.M14 - matrix.M11, matrix.M24 - matrix.M21, matrix.M34 - matrix.M31),
+                matrix.M44 - matrix.M41));
+            top = NormalizePlane(new Plane(
+                new Vector3(matrix.M14 - matrix.M12, matrix.M24 - matrix.M22, matrix.M34 - matrix.M32),
+                matrix.M44 - matrix.M42));
+            bottom = NormalizePlane(new Plane(
+                new Vector3(matrix.M14 + matrix.M12, matrix.M24 + matrix.M22, matrix.M34 + matrix.M32),
+                matrix.M44 + matrix.M42));
+            near = NormalizePlane(new Plane(
+                new Vector3(matrix.M13, matrix.M23, matrix.M33),
+                matrix.M43));
+            far = NormalizePlane(new Plane(
+                new Vector3(matrix.M14 - matrix.M13, matrix.M24 - matrix.M23, matrix.M34 - matrix.M33),
+                matrix.M44 - matrix.M43));
+        }
+
+        public Matrix Matrix { get; }
+
+        public Plane Left => left;
+
+        public Plane Right => right;
+
+        public Plane Top => top;
+
+        public Plane Bottom => bottom;
+
+        public Plane Near => near;
+
+        public Plane Far => far;
+
+        public bool IsOrthographic => global::System.Math.Abs(Matrix.M34) < 1e-6f;
+
+        public Plane GetPlane(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return left;
+                case 1:
+                    return right;
+                case 2:
+                    return top;
+                case 3:
+                    return bottom;
+                case 4:
+                    return near;
+                case 5:
+                    return far;
+                default:
+                    throw new global::System.ArgumentOutOfRangeException(nameof(index));
+            }
+        }
+
+        private static Plane NormalizePlane(Plane plane)
+        {
+            var length = plane.Normal.Length;
+            if (length > 0)
+            {
+                plane.Normal /= length;
+                plane.D /= length;
+            }
+            return plane;
         }
     }
 }

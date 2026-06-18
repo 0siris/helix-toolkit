@@ -198,9 +198,9 @@ namespace HelixToolkit.UWP
                 else
                 {
                     var l = accumTime / aniTime;
-                    var nextPos = Vector3.Lerp(oldPosition, targetPosition, l);
-                    var nextLook = Vector3.Lerp(oldLookDir, targetLookDirection, l);
-                    var nextUp = Vector3.Lerp(oldUpDir, targetUpDirection, l);
+                    var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
+                    var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
+                    var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);
                     Position = nextPos;
                     LookDirection = nextLook;
                     UpDirection = nextUp;
@@ -256,8 +256,8 @@ namespace HelixToolkit.UWP
 
             public override Matrix CreateViewMatrix()
             {
-                return CreateLeftHandSystem ? Matrix.LookAtLH(this.Position, this.Position + this.LookDirection, this.UpDirection)
-                    : Matrix.LookAtRH(this.Position, this.Position + this.LookDirection, this.UpDirection);
+                return CreateLeftHandSystem ? SilkMath.LookAtLH(this.Position, this.Position + this.LookDirection, this.UpDirection)
+                    : SilkMath.LookAtRH(this.Position, this.Position + this.LookDirection, this.UpDirection);
             }
 
             public override string ToString()
@@ -311,8 +311,8 @@ namespace HelixToolkit.UWP
             public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane)
             {
                 return this.CreateLeftHandSystem ?
-                    Matrix.OrthoLH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane))
-                    : Matrix.OrthoRH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane));
+                    SilkMath.OrthoLH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane))
+                    : SilkMath.OrthoRH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane));
             }
 
 
@@ -373,7 +373,7 @@ namespace HelixToolkit.UWP
                 var ratio = newWidth / Width;
                 var dir = LookDirection;
                 var target = Target;
-                var dist = dir.Length();
+                var dist = dir.Length;
                 var newDist = dist * ratio;
                 dir.Normalize();
                 var position = (target - dir * (float)newDist);
@@ -402,11 +402,11 @@ namespace HelixToolkit.UWP
                 Matrix projM;
                 if (this.CreateLeftHandSystem)
                 {
-                    projM = Matrix.PerspectiveFovLH((float)fov, aspectRatio, nearPlane, farPlane);
+                    projM = SilkMath.PerspectiveFovLH((float)fov, aspectRatio, nearPlane, farPlane);
                 }
                 else
                 {
-                    projM = Matrix.PerspectiveFovRH((float)fov, (float)aspectRatio, nearPlane, farPlane);
+                    projM = SilkMath.PerspectiveFovRH((float)fov, (float)aspectRatio, nearPlane, farPlane);
                 }
                 if (float.IsNaN(projM.M33) || float.IsNaN(projM.M43))
                 {

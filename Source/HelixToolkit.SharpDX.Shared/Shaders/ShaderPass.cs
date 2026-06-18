@@ -56,7 +56,7 @@ namespace HelixToolkit.UWP
             /// <value>
             /// The blend factor.
             /// </value>
-            public Color4 BlendFactor { private set; get; } = Color4.White;
+            public Color4 BlendFactor { private set; get; } = Color.White;
             /// <summary>
             /// Gets or sets the sample mask.
             /// </summary>

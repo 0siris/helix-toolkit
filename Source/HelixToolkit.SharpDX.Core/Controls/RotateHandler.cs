@@ -110,11 +110,11 @@ namespace HelixToolkit.SharpDX.Core.Controls
                 Controller.StopZooming();
                 Controller.StopPanning();
             }
-            p0 = Vector2.Multiply(p0, Controller.AllowRotateXY);
-            p1 = Vector2.Multiply(p1, Controller.AllowRotateXY);
+            p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
+            p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
             var newPos = Camera.Position;
             var newLook = Camera.LookDirection;
-            var newUp = Vector3.Normalize(Camera.UpDirection);
+            var newUp = SilkMath.Normalize(Camera.UpDirection);
             switch (this.Controller.CameraRotationMode)
             {
                 case CameraRotationMode.Trackball:
@@ -146,7 +146,7 @@ namespace HelixToolkit.SharpDX.Core.Controls
             this.rotationPoint = new Vector2(
                 this.Controller.Width / 2, this.Controller.Height / 2);
             this.rotationPoint3D = this.Camera.Target;
-            invertUpDir = Vector3.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
+            invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
 
             switch (this.CameraMode)
             {

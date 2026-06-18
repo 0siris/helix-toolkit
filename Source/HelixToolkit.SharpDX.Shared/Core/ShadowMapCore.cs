@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -54,7 +54,7 @@ namespace HelixToolkit.UWP
                 {
                     return new Texture2DDescription()
                     {
-                        Format = Format.R32_Typeless, //!!!! because of depth and shader resource
+                        Format = Format.FormatR32Typeless, //!!!! because of depth and shader resource
                         ArraySize = 1,
                         MipLevels = 1,
                         Width = Width,
@@ -76,7 +76,7 @@ namespace HelixToolkit.UWP
                 {
                     return new DepthStencilViewDescription()
                     {
-                        Format = Format.D32_Float,
+                        Format = Format.FormatD32Float,
                         Dimension = DepthStencilViewDimension.Texture2D,
                         Texture2D = new DepthStencilViewDescription.Texture2DResource()
                         {
@@ -94,7 +94,7 @@ namespace HelixToolkit.UWP
                 {
                     return new ShaderResourceViewDescription()
                     {
-                        Format = Format.R32_Float,
+                        Format = Format.FormatR32Float,
                         Dimension = ShaderResourceViewDimension.Texture2D,
                         Texture2D = new ShaderResourceViewDescription.Texture2DResource()
                         {

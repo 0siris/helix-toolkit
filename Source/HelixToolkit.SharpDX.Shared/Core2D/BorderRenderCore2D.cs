@@ -192,7 +192,7 @@ namespace HelixToolkit.UWP
                     context.DeviceContext.FillRoundedRectangle(roundRect, Background);
                 }
                 var thickness = BorderThickness * context.DpiScale;
-                if (!thickness.IsZero && StrokeBrush != null && StrokeStyle != null)
+                if (thickness.LengthSquared() > 0 && StrokeBrush != null && StrokeStyle != null)
                 {
                     if (thickness.X == thickness.Y && thickness.X == thickness.Z && thickness.X == thickness.W)
                     {

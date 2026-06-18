@@ -294,7 +294,7 @@ namespace HelixToolkit.UWP
                         foreach (var instance in Instances)
                         {
                             var bs = Geometry.BoundingSphere.TransformBoundingSphere(instance);
-                            BoundingSphere.Merge(ref boundSphere, ref bs, out boundSphere);
+                            BoundingSphereExtensions.Merge(ref boundSphere, ref bs, out boundSphere);
                         }
                         oldSphere = BoundsSphere;
                         BoundsSphere = boundSphere;

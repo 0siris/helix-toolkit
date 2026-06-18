@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -349,7 +349,7 @@ namespace HelixToolkit.UWP
 
             private bool CreateRelativeScreenModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSP)
             {
-                var p = context.HitPointSP * context.RenderMatrices.DpiScale; //Vector3.TransformCoordinate(context.RayWS.Position, context.RenderMatrices.ScreenViewProjectionMatrix);
+                var p = context.HitPointSP * context.RenderMatrices.DpiScale; //SilkMath.TransformCoordinate(context.RayWS.Position, context.RenderMatrices.ScreenViewProjectionMatrix);
                 var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
                 screenSpacedContext.IsPerspective = screenSpaceCore.IsPerspective;
                 var viewportSize = screenSpaceCore.Size * screenSpaceCore.SizeScale * context.RenderMatrices.DpiScale;
@@ -404,7 +404,7 @@ namespace HelixToolkit.UWP
                     var p = context.HitPointSP * context.RenderMatrices.DpiScale;
                     var viewportSize = screenSpaceCore.Size * screenSpaceCore.SizeScale * context.RenderMatrices.DpiScale;
 
-                    var abs = Vector3.TransformCoordinate(AbsolutePosition3D, context.RenderMatrices.ScreenViewProjectionMatrix);
+                    var abs = SilkMath.TransformCoordinate(AbsolutePosition3D, context.RenderMatrices.ScreenViewProjectionMatrix);
                     var offx = (float)(abs.X - viewportSize / 2);
                     var offy = (float)(abs.Y - viewportSize / 2);
 

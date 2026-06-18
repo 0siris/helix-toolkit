@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -275,7 +275,7 @@ namespace HelixToolkit.UWP
                     {
                         IsValid = true,
                         NormalAtHit = normal,
-                        Distance = (context.RayWS.Position - point).Length(),
+                        Distance = (context.RayWS.Position - point).Length,
                         PointHit = point,
                         ModelHit = WrapperSource
                     };

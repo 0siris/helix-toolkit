@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -620,12 +620,12 @@ namespace HelixToolkit.UWP
             var isHit = false;
             modelHits.Clear();
             var modelInv = modelMatrix.Inverted();
-            if (modelInv == Matrix.Zero)
+            if (modelInv == default)
             {
                 return false;
             }//Cannot be inverted
             var rayWS = context.RayWS;
-            var rayModel = new Ray(Vector3.TransformCoordinate(rayWS.Position, modelInv), Vector3.Normalize(Vector3.TransformNormal(rayWS.Direction, modelInv)));
+            var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInv), SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInv)));
             var treeArray = SelfArray;
             var i = -1;
             while (true)
@@ -1666,17 +1666,17 @@ namespace HelixToolkit.UWP
                             result.IsValid = true;
                             result.ModelHit = model;
                             // transform hit-info to world space now:
-                            var pointWorld = Vector3.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
+                            var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + (rayModel.Direction * d), modelMatrix);
                             result.PointHit = pointWorld;
-                            result.Distance = (rayWS.Position - pointWorld).Length();
+                            result.Distance = (rayWS.Position - pointWorld).Length;
 
-                            var p0 = Vector3.TransformCoordinate(v0, modelMatrix);
-                            var p1 = Vector3.TransformCoordinate(v1, modelMatrix);
-                            var p2 = Vector3.TransformCoordinate(v2, modelMatrix);
-                            var n = Vector3.Cross(p1 - p0, p2 - p0);
+                            var p0 = SilkMath.TransformCoordinate(v0, modelMatrix);
+                            var p1 = SilkMath.TransformCoordinate(v1, modelMatrix);
+                            var p2 = SilkMath.TransformCoordinate(v2, modelMatrix);
+                            var n = SilkMath.Cross(p1 - p0, p2 - p0);
                             n.Normalize();
                             // transform hit-info to world space now:
-                            result.NormalAtHit = n;// Vector3.TransformNormal(n, m).ToVector3D();
+                            result.NormalAtHit = n;// SilkMath.TransformNormal(n, m).ToVector3D();
                             result.TriangleIndices = new Tuple<int, int, int>(t1, t2, t3);
                             result.Tag = Objects[i].Key;
                             result.Geometry = geometry;
@@ -1730,7 +1730,7 @@ namespace HelixToolkit.UWP
                 tempResult.Distance = float.MaxValue;
                 for (var i = 0; i < Objects.Count; ++i)
                 {
-                    containment = Objects[i].Value.Contains(sphere);
+                    containment = Objects[i].Value.Contains(ref sphere);
                     if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects)
                     {
                         Vector3 cloestPoint;
@@ -1743,7 +1743,7 @@ namespace HelixToolkit.UWP
                         var v1 = Positions[t2];
                         var v2 = Positions[t3];
                         Collision.ClosestPointPointTriangle(ref sphere.Center, ref v0, ref v1, ref v2, out cloestPoint);
-                        var d = (cloestPoint - sphere.Center).Length();
+                        var d = (cloestPoint - sphere.Center).Length;
                         if (tempResult.Distance > d)
                         {
                             tempResult.Distance = d;
@@ -1942,26 +1942,26 @@ namespace HelixToolkit.UWP
                     var v0 = Positions[idx1];
                     var v1 = Positions[idx2];
 
-                    var t0 = Vector3.TransformCoordinate(v0, modelMatrix);
-                    var t1 = Vector3.TransformCoordinate(v1, modelMatrix);
+                    var t0 = SilkMath.TransformCoordinate(v0, modelMatrix);
+                    var t1 = SilkMath.TransformCoordinate(v1, modelMatrix);
                     Vector3 sp, tp;
                     float sc, tc;
                     var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWS, t0, t1, out sp, out tp, out sc, out tc);
                     var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
                     Vector4 sp4;
                     Vector4 tp4;
-                    Vector3.Transform(ref sp, ref svpm, out sp4);
-                    Vector3.Transform(ref tp, ref svpm, out tp4);
+                    SilkMath.Transform(ref sp, ref svpm, out sp4);
+                    SilkMath.Transform(ref tp, ref svpm, out tp4);
                     var sp3 = sp4.ToVector3();
                     var tp3 = tp4.ToVector3();
                     var tv2 = new Vector2(tp3.X - sp3.X, tp3.Y - sp3.Y);
-                    var dist = tv2.Length();
+                    var dist = tv2.Length;
                     if (dist < lastDist && dist <= hitThickness)
                     {
                         lastDist = dist;
                         result.PointHit = sp;
                         result.NormalAtHit = sp - tp; // not normalized to get length
-                        result.Distance = (rayWS.Position - sp).Length();
+                        result.Distance = (rayWS.Position - sp).Length;
                         result.RayToLineDistance = rayToLineDistance;
                         result.ModelHit = model;
                         result.IsValid = true;
@@ -2021,7 +2021,7 @@ namespace HelixToolkit.UWP
                 tempResult.Distance = float.MaxValue;
                 for (var i = 0; i < Objects.Count; ++i)
                 {
-                    containment = Objects[i].Value.Contains(sphere);
+                    containment = Objects[i].Value.Contains(ref sphere);
                     if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects)
                     {
                         Vector3 cloestPoint;
@@ -2143,12 +2143,12 @@ namespace HelixToolkit.UWP
             var v = r.Direction;
             var w = p - r.Position;
 
-            var c1 = Vector3.Dot(w, v);
-            var c2 = Vector3.Dot(v, v);
+            var c1 = SilkMath.Dot(w, v);
+            var c2 = SilkMath.Dot(v, v);
             var b = c1 / c2;
 
             var pb = r.Position + v * b;
-            return (p - pb).Length();
+            return (p - pb).Length;
         }
         /// <summary>
         /// Return nearest point it gets hit. And the distance from ray origin to the point it gets hit
@@ -2188,24 +2188,24 @@ namespace HelixToolkit.UWP
                 var clickPoint3 = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
                 var rayWS = context.RayWS;
                 var pos3 = rayWS.Position;
-                Vector3.TransformCoordinate(ref clickPoint3, ref svpm, out var clickPoint);
-                Vector3.TransformCoordinate(ref pos3, ref svpm, out pos3);
+                SilkMath.TransformCoordinate(ref clickPoint3, ref svpm, out var clickPoint);
+                SilkMath.TransformCoordinate(ref pos3, ref svpm, out pos3);
 
                 var dist = hitThickness;
                 for (var i = 0; i < Objects.Count; ++i)
                 {
                     var v0 = Positions[Objects[i]];
-                    var p0 = Vector3.TransformCoordinate(v0, smvpm);
+                    var p0 = SilkMath.TransformCoordinate(v0, smvpm);
                     var pv = p0 - clickPoint;
-                    var d = pv.Length();
+                    var d = pv.Length;
                     if (d < dist) // If d is NaN, the condition is false.
                     {
                         dist = d;
                         result.IsValid = true;
                         result.ModelHit = model;
-                        var px = Vector3.TransformCoordinate(v0, modelMatrix);
+                        var px = SilkMath.TransformCoordinate(v0, modelMatrix);
                         result.PointHit = px;
-                        result.Distance = (rayWS.Position - px).Length();
+                        result.Distance = (rayWS.Position - px).Length;
                         result.Tag = Objects[i];
                         result.Geometry = geometry;
                         isHit = true;
@@ -2278,10 +2278,10 @@ namespace HelixToolkit.UWP
                 for (var i = 0; i < Objects.Count; ++i)
                 {
                     var p = Positions[Objects[i]];
-                    containment = sphere.Contains(ref p);
+                    containment = BoundingSphereExtensions.Contains(sphere, p);
                     if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects)
                     {
-                        var d = (p - sphere.Center).Length();
+                        var d = (p - sphere.Center).Length;
                         if (resultTemp.Distance > d)
                         {
                             resultTemp.Distance = d;
@@ -2338,10 +2338,10 @@ namespace HelixToolkit.UWP
         {
             InstanceMatrix = instanceMatrix;
             var counter = 0;
-            var totalBound = geometryBound.Transform(instanceMatrix[0]);// BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => Vector3.TransformCoordinate(x, instanceMatrix[0])).ToArray());
+            var totalBound = geometryBound.Transform(instanceMatrix[0]);// BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, instanceMatrix[0])).ToArray());
             for (var i = 0; i < instanceMatrix.Count; ++i)
             {
-                var b = geometryBound.Transform(instanceMatrix[i]);// BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => Vector3.TransformCoordinate(x, m)).ToArray());
+                var b = geometryBound.Transform(instanceMatrix[i]);// BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, m)).ToArray());
                 Objects.Add(new KeyValuePair<int, BoundingBox>(counter, b));
                 BoundingBox.Merge(ref totalBound, ref b, out totalBound);
                 ++counter;
@@ -2396,14 +2396,14 @@ namespace HelixToolkit.UWP
                 return false;
             }
             var isHit = false;
-            var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => Vector3.TransformCoordinate(x, modelMatrix)).ToArray());
+            var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
             var rayWS = context.RayWS;
             if (rayWS.Intersects(ref bound))
             {
                 isIntersect = true;
                 for (var i = 0; i < this.Objects.Count; ++i)
                 {
-                    var b = Objects[i].Value.Transform(modelMatrix);// BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => Vector3.TransformCoordinate(x, modelMatrix)).ToArray());
+                    var b = Objects[i].Value.Transform(modelMatrix);// BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
                     if (b.Intersects(ref rayWS))
                     {
                         var result = new HitTestResult()

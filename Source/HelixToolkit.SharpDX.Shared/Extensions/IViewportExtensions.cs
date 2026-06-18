@@ -398,7 +398,7 @@ namespace HelixToolkit.UWP
                 {
                     if (r.HasBound && r.BoundsWithTransform.Maximum != maxVector)
                     {
-                        bounds = global::SharpDX.BoundingBox.Merge(bounds, r.BoundsWithTransform);
+                        bounds = BoundingBox.Merge(bounds, r.BoundsWithTransform);
                     }
                 }
             }

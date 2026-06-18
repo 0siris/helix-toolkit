@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -367,17 +367,17 @@ namespace HelixToolkit.UWP
                     {
                         reader.Read(buffer, 0, buffer.Length);
                     }
-                    var format = Format.Unknown;
+                    var format = Format.FormatUnknown;
                     switch (bytePerPixel)
                     {
                         case 1:
-                            format = Format.R8_UNorm;
+                            format = Format.FormatR8Unorm;
                             break;
                         case 2:
-                            format = Format.R16_UNorm;
+                            format = Format.FormatR16Unorm;
                             break;
                         case 4:
-                            format = Format.R32_Float;
+                            format = Format.FormatR32Float;
                             break;
                     }
                     return new VolumeTextureParams(buffer, width, height, depth, format);

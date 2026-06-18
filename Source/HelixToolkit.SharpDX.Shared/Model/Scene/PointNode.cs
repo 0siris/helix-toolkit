@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -48,12 +48,12 @@ namespace HelixToolkit.UWP
                 var v = r.Direction;
                 var w = p - r.Position;
 
-                var c1 = Vector3.Dot(w, v);
-                var c2 = Vector3.Dot(v, v);
+                var c1 = SilkMath.Dot(w, v);
+                var c2 = SilkMath.Dot(v, v);
                 var b = c1 / c2;
 
                 var pb = r.Position + v * b;
-                return (p - pb).Length();
+                return (p - pb).Length;
             }
 
             /// <summary>
@@ -129,7 +129,7 @@ namespace HelixToolkit.UWP
                 var center = BoundsSphereWithTransform.Center;
                 var centerSp = context.RenderMatrices.Project(center);
                 if (centerSp.X >= 0 && centerSp.Y >= 0
-                    && (centerSp - context.HitPointSP).Length() <= hitTestThickness)
+                    && (centerSp - context.HitPointSP).Length <= hitTestThickness)
                 {
                     return true;
                 }

@@ -71,7 +71,7 @@ namespace HelixToolkit.UWP
                     var reflect = material.ReflectiveColor.EncodeToFloat();
                     var ambient = material.EmissiveColor.EncodeToFloat();
                     var colorEncode = new Vector4(diffuse, emissive, specular, reflect);
-                    var colorEncode2 = new Vector4(ambient, material.SpecularShininess, material.DiffuseColor.Alpha, 0);
+                    var colorEncode2 = new Vector4(ambient, material.SpecularShininess, material.DiffuseColor.GetAlpha(), 0);
 
                     if (transform == Matrix.Identity)
                     {
@@ -105,10 +105,10 @@ namespace HelixToolkit.UWP
                             textures.MoveNext();
                             array[i] = new BatchedMeshVertex()
                             {
-                                Position = Vector3.Transform(positions.Current, transform),
-                                Normal = Vector3.TransformNormal(normals.Current, transform),
-                                Tangent = Vector3.TransformNormal(tangents.Current, transform),
-                                BiTangent = Vector3.TransformNormal(bitangents.Current, transform),
+                                Position = SilkMath.Transform(positions.Current, transform),
+                                Normal = SilkMath.TransformNormal(normals.Current, transform),
+                                Tangent = SilkMath.TransformNormal(tangents.Current, transform),
+                                BiTangent = SilkMath.TransformNormal(bitangents.Current, transform),
                                 TexCoord = textures.Current,
                                 Color = colorEncode,
                                 Color2 = colorEncode2

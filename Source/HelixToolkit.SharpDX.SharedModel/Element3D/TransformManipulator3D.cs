@@ -400,8 +400,8 @@ namespace HelixToolkit.Wpf.SharpDX
 
         public TransformManipulator3D()
         {
-            var rotationYMatrix = Matrix.RotationZ((float)Math.PI / 2);
-            var rotationZMatrix = Matrix.RotationY(-(float)Math.PI / 2);
+            var rotationYMatrix = SilkMath.RotationZ((float)Math.PI / 2);
+            var rotationZMatrix = SilkMath.RotationY(-(float)Math.PI / 2);
             ctrlGroup = new GroupModel3D();
             #region Translation Models
             translationX = new MeshGeometryModel3D() { Geometry = TranslationXGeometry, Material = DiffuseMaterials.Red, CullMode = CullMode.Back, PostEffects = "ManipulatorXRayGrid" };
@@ -521,7 +521,7 @@ namespace HelixToolkit.Wpf.SharpDX
 #if WINUI
                 GridColor = Microsoft.UI.Colors.Gray
 #else
-                GridColor = Media.Colors.Gray
+                GridColor = Color.Gray
 #endif       
             };
             (xrayEffect.SceneNode as NodePostEffectXRayGrid).XRayDrawingPassName = DefaultPassNames.EffectMeshDiffuseXRayGridP3;
@@ -705,13 +705,13 @@ namespace HelixToolkit.Wpf.SharpDX
                 switch (manipulationType)
                 {
                     case ManipulationType.RotationX:
-                        rotationMatrix *= Matrix.RotationX(theta);
+                        rotationMatrix *= SilkMath.RotationX(theta);
                         break;
                     case ManipulationType.RotationY:
-                        rotationMatrix *= Matrix.RotationY(theta);
+                        rotationMatrix *= SilkMath.RotationY(theta);
                         break;
                     case ManipulationType.RotationZ:
-                        rotationMatrix *= Matrix.RotationZ(theta);
+                        rotationMatrix *= SilkMath.RotationZ(theta);
                         break;
                 }
                 OnUpdateTargetMatrix();

@@ -6,6 +6,10 @@ using System.Windows.Markup;
 using SharpDX;
 using System.Linq;
 using Media = System.Windows.Media;
+using WpfFontStyle = System.Windows.FontStyle;
+using WpfFontWeight = System.Windows.FontWeight;
+using WpfFlowDirection = System.Windows.FlowDirection;
+using WpfTextAlignment = System.Windows.TextAlignment;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -106,13 +110,13 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             public static readonly DependencyProperty FontWeightProperty
-                = DependencyProperty.Register("FontWeight", typeof(FontWeight), typeof(TextModel2D),
+                = DependencyProperty.Register("FontWeight", typeof(WpfFontWeight), typeof(TextModel2D),
                     new PropertyMetadata(FontWeights.Normal, (d, e) =>
                     {
-                        ((d as Element2DCore).SceneNode as TextNode2D).FontWeight = ((FontWeight)e.NewValue).ToDXFontWeight();
+                        ((d as Element2DCore).SceneNode as TextNode2D).FontWeight = ((WpfFontWeight)e.NewValue).ToDXFontWeight();
                     }));
 
-            public FontWeight FontWeight
+            public WpfFontWeight FontWeight
             {
                 set
                 {
@@ -120,18 +124,18 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (FontWeight)GetValue(FontWeightProperty);
+                    return (WpfFontWeight)GetValue(FontWeightProperty);
                 }
             }
 
             public static readonly DependencyProperty FontStyleProperty
-                = DependencyProperty.Register("FontStyle", typeof(FontStyle), typeof(TextModel2D),
+                = DependencyProperty.Register("FontStyle", typeof(WpfFontStyle), typeof(TextModel2D),
                     new PropertyMetadata(FontStyles.Normal, (d, e) =>
                     {
-                        ((d as Element2DCore).SceneNode as TextNode2D).FontStyle = ((FontStyle)e.NewValue).ToDXFontStyle();
+                        ((d as Element2DCore).SceneNode as TextNode2D).FontStyle = ((WpfFontStyle)e.NewValue).ToDXFontStyle();
                     }));
 
-            public FontStyle FontStyle
+            public WpfFontStyle FontStyle
             {
                 set
                 {
@@ -139,7 +143,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (FontStyle)GetValue(FontStyleProperty);
+                    return (WpfFontStyle)GetValue(FontStyleProperty);
                 }
             }
 
@@ -150,11 +154,11 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <value>
             /// The text alignment.
             /// </value>
-            public TextAlignment TextAlignment
+            public WpfTextAlignment TextAlignment
             {
                 get
                 {
-                    return (TextAlignment)GetValue(TextAlignmentProperty);
+                    return (WpfTextAlignment)GetValue(TextAlignmentProperty);
                 }
                 set
                 {
@@ -166,9 +170,9 @@ namespace HelixToolkit.Wpf.SharpDX
             /// The text alignment property
             /// </summary>
             public static readonly DependencyProperty TextAlignmentProperty =
-                DependencyProperty.Register("TextAlignment", typeof(TextAlignment), typeof(TextModel2D), new PropertyMetadata(TextAlignment.Left, (d, e) =>
+                DependencyProperty.Register("TextAlignment", typeof(WpfTextAlignment), typeof(TextModel2D), new PropertyMetadata(WpfTextAlignment.Left, (d, e) =>
                 {
-                    ((d as Element2DCore).SceneNode as TextNode2D).TextAlignment = ((TextAlignment)e.NewValue).ToD2DTextAlignment();
+                    ((d as Element2DCore).SceneNode as TextNode2D).TextAlignment = ((WpfTextAlignment)e.NewValue).ToD2DTextAlignment();
                 }));
 
             /// <summary>
@@ -177,11 +181,11 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <value>
             /// The text alignment.
             /// </value>
-            public FlowDirection FlowDirection
+            public WpfFlowDirection FlowDirection
             {
                 get
                 {
-                    return (FlowDirection)GetValue(FlowDirectionProperty);
+                    return (WpfFlowDirection)GetValue(FlowDirectionProperty);
                 }
                 set
                 {
@@ -193,9 +197,9 @@ namespace HelixToolkit.Wpf.SharpDX
             /// The text alignment property
             /// </summary>
             public static readonly DependencyProperty FlowDirectionProperty =
-                DependencyProperty.Register("FlowDirection", typeof(FlowDirection), typeof(TextModel2D), new PropertyMetadata(FlowDirection.LeftToRight, (d, e) =>
+                DependencyProperty.Register("FlowDirection", typeof(WpfFlowDirection), typeof(TextModel2D), new PropertyMetadata(WpfFlowDirection.LeftToRight, (d, e) =>
                 {
-                    ((d as Element2DCore).SceneNode as TextNode2D).FlowDirection = ((FlowDirection)e.NewValue).ToD2DFlowDir();
+                    ((d as Element2DCore).SceneNode as TextNode2D).FlowDirection = ((WpfFlowDirection)e.NewValue).ToD2DFlowDir();
                 }));
 
 

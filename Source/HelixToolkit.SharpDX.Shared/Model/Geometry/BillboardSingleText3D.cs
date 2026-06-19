@@ -20,6 +20,15 @@ using PlatformFontWeight = System.Windows.FontWeight;
 using PlatformFontStyle = System.Windows.FontStyle;
 #endif
 #endif
+#if !NETFX_CORE
+using RenderFontStyle = HelixToolkit.Wpf.SharpDX.FontStyle;
+using RenderFontWeight = HelixToolkit.Wpf.SharpDX.FontWeight;
+#else
+#if !CORE
+using RenderFontStyle = HelixToolkit.UWP.FontStyle;
+using RenderFontWeight = HelixToolkit.UWP.FontWeight;
+#endif
+#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -407,7 +416,7 @@ namespace HelixToolkit.UWP
         }
 
 #if !CORE
-        private static FontWeight ToRenderFontWeight(PlatformFontWeight fontWeight)
+        private static RenderFontWeight ToRenderFontWeight(PlatformFontWeight fontWeight)
         {
 #if NETFX_CORE
             var weight = fontWeight.Weight;
@@ -416,45 +425,45 @@ namespace HelixToolkit.UWP
 #endif
             if (weight >= 900)
             {
-                return FontWeight.Black;
+                return RenderFontWeight.Black;
             }
             if (weight >= 800)
             {
-                return FontWeight.ExtraBold;
+                return RenderFontWeight.ExtraBold;
             }
             if (weight >= 700)
             {
-                return FontWeight.Bold;
+                return RenderFontWeight.Bold;
             }
             if (weight >= 600)
             {
-                return FontWeight.SemiBold;
+                return RenderFontWeight.SemiBold;
             }
             if (weight >= 500)
             {
-                return FontWeight.Medium;
+                return RenderFontWeight.Medium;
             }
             if (weight >= 400)
             {
-                return FontWeight.Normal;
+                return RenderFontWeight.Normal;
             }
             if (weight >= 300)
             {
-                return FontWeight.Light;
+                return RenderFontWeight.Light;
             }
             if (weight >= 200)
             {
-                return FontWeight.ExtraLight;
+                return RenderFontWeight.ExtraLight;
             }
-            return FontWeight.Thin;
+            return RenderFontWeight.Thin;
         }
 
-        private static FontStyle ToRenderFontStyle(PlatformFontStyle fontStyle)
+        private static RenderFontStyle ToRenderFontStyle(PlatformFontStyle fontStyle)
         {
 #if NETFX_CORE
-            return fontStyle == PlatformFontStyle.Italic ? FontStyle.Italic : fontStyle == PlatformFontStyle.Oblique ? FontStyle.Oblique : FontStyle.Normal;
+            return fontStyle == PlatformFontStyle.Italic ? RenderFontStyle.Italic : fontStyle == PlatformFontStyle.Oblique ? RenderFontStyle.Oblique : RenderFontStyle.Normal;
 #else
-            return fontStyle == FontStyles.Italic ? FontStyle.Italic : fontStyle == FontStyles.Oblique ? FontStyle.Oblique : FontStyle.Normal;
+            return fontStyle == FontStyles.Italic ? RenderFontStyle.Italic : fontStyle == FontStyles.Oblique ? RenderFontStyle.Oblique : RenderFontStyle.Normal;
 #endif
         }
 #endif

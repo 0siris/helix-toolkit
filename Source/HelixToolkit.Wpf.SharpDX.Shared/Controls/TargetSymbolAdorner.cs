@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TargetSymbolAdorner.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -54,8 +55,8 @@ namespace HelixToolkit.Wpf.SharpDX
         [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         protected override void OnRender(DrawingContext dc)
         {
-            var lightBrush = new SolidColorBrush(Colors.LightGray);
-            var darkBrush = new SolidColorBrush(Colors.Black);
+            var lightBrush = new WpfSolidColorBrush(Colors.LightGray);
+            var darkBrush = new WpfSolidColorBrush(Colors.Black);
             lightBrush.Opacity = 0.4;
             darkBrush.Opacity = 0.1;
 

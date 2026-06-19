@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -275,9 +275,9 @@ namespace HelixToolkit.Wpf.SharpDX
             else
             {
                 var l = (float)(accumTime / aniTime);
-                var nextPos = Vector3.Lerp(oldPosition, targetPosition, l);
-                var nextLook = Vector3.Lerp(oldLookDir, targetLookDirection, l);
-                var nextUp = Vector3.Lerp(oldUpDir, targetUpDirection, l);
+                var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
+                var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
+                var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);
 #if NETFX_CORE|| WINUI
                 Position = nextPos;
                 LookDirection = nextLook;

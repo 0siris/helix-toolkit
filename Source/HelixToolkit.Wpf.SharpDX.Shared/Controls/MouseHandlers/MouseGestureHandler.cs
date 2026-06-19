@@ -286,14 +286,10 @@ namespace HelixToolkit.Wpf.SharpDX
         public Vector3? UnProject(Point p, Vector3 position, Vector3 normal)
         {
             var ray = this.GetRay(p);
-            if (ray == null)
-            {
-                return null;
-            }
             var plane = new Plane(position, normal);
-            if (ray.Intersects(ref plane, out Vector3 point))
+            if (plane.Intersects(ref ray, out var distance))
             {
-                return point;
+                return ray.Position + ray.Direction * distance;
             }
             else
             {
@@ -463,11 +459,11 @@ namespace HelixToolkit.Wpf.SharpDX
                     MouseDownNearestPoint3D = hits[0].PointHit;
                     if (hits[0].ModelHit is Element3D ele)
                     {
-                        MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center;
+                        MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center();
                     }
                     else if (hits[0].ModelHit is SceneNode node)
                     {
-                        MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center;
+                        MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
                     }
                 }
             }

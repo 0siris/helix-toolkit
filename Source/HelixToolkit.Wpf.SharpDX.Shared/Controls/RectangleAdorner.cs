@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RectangleAdorner.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -10,6 +10,9 @@ using System;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using WpfDashStyle = System.Windows.Media.DashStyle;
+using WpfColor = System.Windows.Media.Color;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -60,8 +63,8 @@ namespace HelixToolkit.Wpf.SharpDX
         public RectangleAdorner(
             UIElement adornedElement,
             Rect rectangle,
-            Color color1,
-            Color color2,
+            WpfColor color1,
+            WpfColor color2,
             double thickness1 = 1.0,
             double thickness2 = 1.0,
             double crossHairSize = 10)
@@ -99,12 +102,12 @@ namespace HelixToolkit.Wpf.SharpDX
         public RectangleAdorner(
             UIElement adornedElement,
             Rect rectangle,
-            Color color1,
-            Color color2,
+            WpfColor color1,
+            WpfColor color2,
             double thickness1,
             double thickness2,
             double crossHairSize,
-            DashStyle dashStyle2)
+            WpfDashStyle dashStyle2)
             : base(adornedElement)
         {
             if (adornedElement == null)
@@ -130,8 +133,8 @@ namespace HelixToolkit.Wpf.SharpDX
             var m = ct.TransformToDevice;
             var dpiFactor = 1 / m.M11;
 
-            this.pen = new Pen(new SolidColorBrush(color1), thickness1 * dpiFactor);
-            this.pen2 = new Pen(new SolidColorBrush(color2), thickness2 * dpiFactor);
+            this.pen = new Pen(new WpfSolidColorBrush(color1), thickness1 * dpiFactor);
+            this.pen2 = new Pen(new WpfSolidColorBrush(color2), thickness2 * dpiFactor);
             this.pen2.DashStyle = dashStyle2;
             this.crossHairSize = crossHairSize;
         }

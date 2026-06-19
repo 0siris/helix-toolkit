@@ -1,5 +1,8 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Media;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfDashStyle = System.Windows.Media.DashStyle;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -58,13 +61,13 @@ namespace HelixToolkit.Wpf.SharpDX
 
             #region Stroke properties
             public static DependencyProperty BorderBrushProperty
-                = DependencyProperty.Register("BorderBrush", typeof(Brush), typeof(Border2D), new PropertyMetadata(new SolidColorBrush(Colors.Black),
+                = DependencyProperty.Register("BorderBrush", typeof(WpfBrush), typeof(Border2D), new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
                     (d, e) =>
                     {
                         (d as Border2D).strokeChanged = true;
                     }));
 
-            public Brush BorderBrush
+            public WpfBrush BorderBrush
             {
                 set
                 {
@@ -72,7 +75,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(BorderBrushProperty);
+                    return (WpfBrush)GetValue(BorderBrushProperty);
                 }
             }
 
@@ -134,13 +137,13 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             public static DependencyProperty StrokeDashStyleProperty
-                = DependencyProperty.Register("StrokeDashStyle", typeof(DashStyle), typeof(Border2D), new PropertyMetadata(DashStyles.Solid,
+                = DependencyProperty.Register("StrokeDashStyle", typeof(WpfDashStyle), typeof(Border2D), new PropertyMetadata(DashStyles.Solid,
                     (d, e) =>
                     {
-                        ((d as Element2DCore).SceneNode as BorderNode2D).StrokeDashStyle = ((DashStyle)e.NewValue).ToD2DDashStyle();
+                        ((d as Element2DCore).SceneNode as BorderNode2D).StrokeDashStyle = ((WpfDashStyle)e.NewValue).ToD2DDashStyle();
                     }));
 
-            public DashStyle StrokeDashStyle
+            public WpfDashStyle StrokeDashStyle
             {
                 set
                 {
@@ -148,7 +151,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (DashStyle)GetValue(StrokeDashStyleProperty);
+                    return (WpfDashStyle)GetValue(StrokeDashStyleProperty);
                 }
             }
 

@@ -67,7 +67,10 @@ namespace HelixToolkit.Wpf.SharpDX
                 if (DesignMode)
                 {
                     if (fontForDesignMode == null)
-                        fontForDesignMode = new Font("Calibri", 24, FontStyle.Regular);
+                        fontForDesignMode = new System.Drawing.Font(
+                            new System.Drawing.FontFamily("Calibri"),
+                            24,
+                            System.Drawing.FontStyle.Regular);
 
                     e.Graphics.Clear(System.Drawing.Color.WhiteSmoke);
                     var text = "SharpDX RenderControl";

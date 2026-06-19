@@ -52,7 +52,7 @@ namespace HelixToolkit.UWP
                             var v = SilkMath.Normalize(s2 - s1);
                             var sample = SampleVolume(data, width, height, depth, x, y, z);
                             gradients[index] = new Half4(v.X, v.Y, v.Z, sample);
-                            if (float.IsNaN(gradients[index].X))
+                            if (float.IsNaN((float)gradients[index].X))
                             {
                                 gradients[index] = new Half4(0, 0, 0, sample);
                             }
@@ -80,7 +80,7 @@ namespace HelixToolkit.UWP
                     {
                         for (var x = 0; x < width; x++)
                         {
-                            float w = data[index].W;
+                            float w = (float)data[index].W;
                             data[index++] = SampleNxNxN(data, width, height, depth, x, y, z, n).ToVector4(w);
                         }
                     }
@@ -152,7 +152,7 @@ namespace HelixToolkit.UWP
             private static Vector3 SampleGradients(Half4[] data, int width, int height, int depth, int x, int y, int z)
             {
                 var half = data[x + (y * width) + (z * width * height)];
-                return new Vector3(half.X, half.Y, half.Z);
+                return new Vector3((float)half.X, (float)half.Y, (float)half.Z);
             }
             /// <summary>
             /// Samples the volume.

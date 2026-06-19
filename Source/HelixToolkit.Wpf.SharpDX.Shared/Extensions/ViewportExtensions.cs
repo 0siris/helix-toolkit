@@ -322,9 +322,9 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             if (viewport.UnProject(p, out var ray))
             {
-                if (plane.Intersects(ref ray, out Vector3 point))
+                if (plane.Intersects(ref ray, out var distance))
                 {
-                    return point;
+                    return ray.Position + ray.Direction * distance;
                 }
             }
             return null;

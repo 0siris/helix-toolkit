@@ -1,6 +1,9 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfDashStyle = System.Windows.Media.DashStyle;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -18,13 +21,13 @@ namespace HelixToolkit.Wpf.SharpDX
         public abstract class ShapeModel2D : Element2D
         {
             public static DependencyProperty FillProperty
-                = DependencyProperty.Register("Fill", typeof(Brush), typeof(ShapeModel2D), new PropertyMetadata(new SolidColorBrush(Colors.Black),
+                = DependencyProperty.Register("Fill", typeof(WpfBrush), typeof(ShapeModel2D), new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
                     (d, e) =>
                     {
                         (d as ShapeModel2D).fillChanged = true;
                     }));
 
-            public Brush Fill
+            public WpfBrush Fill
             {
                 set
                 {
@@ -32,19 +35,19 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(FillProperty);
+                    return (WpfBrush)GetValue(FillProperty);
                 }
             }
 
             #region Stroke properties
             public static DependencyProperty StrokeProperty
-                = DependencyProperty.Register("Stroke", typeof(Brush), typeof(ShapeModel2D), new PropertyMetadata(new SolidColorBrush(Colors.Black),
+                = DependencyProperty.Register("Stroke", typeof(WpfBrush), typeof(ShapeModel2D), new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
                     (d, e) =>
                     {
                         (d as ShapeModel2D).strokeChanged = true;
                     }));
 
-            public Brush Stroke
+            public WpfBrush Stroke
             {
                 set
                 {
@@ -52,7 +55,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(StrokeProperty);
+                    return (WpfBrush)GetValue(StrokeProperty);
                 }
             }
 
@@ -210,11 +213,11 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
 
-            public DashStyle DashStyle
+            public WpfDashStyle WpfDashStyle
             {
                 get
                 {
-                    return (DashStyle)GetValue(DashStyleProperty);
+                    return (WpfDashStyle)GetValue(DashStyleProperty);
                 }
                 set
                 {
@@ -223,10 +226,10 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             public static readonly DependencyProperty DashStyleProperty =
-                DependencyProperty.Register("DashStyle", typeof(DashStyle), typeof(ShapeModel2D), new PropertyMetadata(DashStyles.Solid,
+                DependencyProperty.Register("WpfDashStyle", typeof(WpfDashStyle), typeof(ShapeModel2D), new PropertyMetadata(DashStyles.Solid,
                     (d, e) =>
                     {
-                        ((d as Element2DCore).SceneNode as ShapeNode2D).StrokeDashStyle = (e.NewValue as DashStyle).ToD2DDashStyle();
+                        ((d as Element2DCore).SceneNode as ShapeNode2D).StrokeDashStyle = (e.NewValue as WpfDashStyle).ToD2DDashStyle();
                     }));
 
 
@@ -268,7 +271,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 c.StrokeMiterLimit = (float)StrokeMiterLimit;
                 c.StrokeStartLineCap = StrokeStartLineCap.ToD2DCapStyle();
                 c.StrokeThickness = (float)StrokeThickness;
-                c.StrokeDashStyle = DashStyle.ToD2DDashStyle();
+                c.StrokeDashStyle = WpfDashStyle.ToD2DDashStyle();
             }
         }
     }

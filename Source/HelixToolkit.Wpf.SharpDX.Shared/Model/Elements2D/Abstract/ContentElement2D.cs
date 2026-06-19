@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -63,8 +65,8 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             public static readonly DependencyProperty BackgroundProperty
-                = DependencyProperty.Register("Background", typeof(Brush), typeof(ContentElement2D),
-                    new PropertyMetadata(new SolidColorBrush(Colors.Transparent),
+                = DependencyProperty.Register("Background", typeof(WpfBrush), typeof(ContentElement2D),
+                    new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent),
                     (d, e) =>
                     {
                         var m = d as ContentElement2D;
@@ -72,7 +74,7 @@ namespace HelixToolkit.Wpf.SharpDX
                         m.InvalidateRender();
                     }));
 
-            public Brush Background
+            public WpfBrush Background
             {
                 set
                 {
@@ -80,15 +82,15 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(BackgroundProperty);
+                    return (WpfBrush)GetValue(BackgroundProperty);
                 }
             }
 
             public static readonly DependencyProperty ForegroundProperty
-                = DependencyProperty.Register("Foreground", typeof(Brush), typeof(ContentElement2D),
-            new PropertyMetadata(new SolidColorBrush(Colors.Black)));
+                = DependencyProperty.Register("Foreground", typeof(WpfBrush), typeof(ContentElement2D),
+            new PropertyMetadata(new WpfSolidColorBrush(Colors.Black)));
 
-            public Brush Foreground
+            public WpfBrush Foreground
             {
                 set
                 {
@@ -96,7 +98,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(ForegroundProperty);
+                    return (WpfBrush)GetValue(ForegroundProperty);
                 }
             }
 

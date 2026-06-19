@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
 using global::SharpDX;
 #if DX11_1
 #else
@@ -306,9 +307,9 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             EndD3D();
 
-            if (exception is SharpDXException sdxException &&
-                (sdxException.Descriptor == global::SharpDX.DXGI.ResultCode.DeviceRemoved ||
-                 sdxException.Descriptor == global::SharpDX.DXGI.ResultCode.DeviceReset))
+            if (exception is COMException comException &&
+                (comException.HResult == unchecked((int)0x887A0005) ||
+                 comException.HResult == unchecked((int)0x887A0007)))
             {
                 // Try to recover from DeviceRemoved/DeviceReset
                 StartD3D();

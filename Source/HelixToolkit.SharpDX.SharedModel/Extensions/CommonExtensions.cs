@@ -34,7 +34,11 @@ namespace HelixToolkit.Wpf.SharpDX.Extensions
 {
     public static class CommonExtensions
     {
+#if NETFX_CORE || WINUI
         public static FontWeight ToDXFontWeight(this FontWeight fontWeight)
+#else
+        public static HelixToolkit.Wpf.SharpDX.FontWeight ToDXFontWeight(this System.Windows.FontWeight fontWeight)
+#endif
         {
 #if NETFX_CORE || WINUI
             var w = fontWeight.Weight;
@@ -48,7 +52,7 @@ namespace HelixToolkit.Wpf.SharpDX.Extensions
             }
             else if (w == FontWeights.ExtraBlack.Weight)
             {
-                return FontWeight.ExtraBlack;
+                return FontWeight.Black;
             }
             else if (w == FontWeights.ExtraBold.Weight)
             {
@@ -97,7 +101,7 @@ namespace HelixToolkit.Wpf.SharpDX.Extensions
             }
             else if (fontWeight == FontWeights.ExtraBlack)
             {
-                return FontWeight.ExtraBlack;
+                return FontWeight.Black;
             }
             else if (fontWeight == FontWeights.ExtraBold)
             {
@@ -154,7 +158,11 @@ namespace HelixToolkit.Wpf.SharpDX.Extensions
 #endif
         }
 
+#if NETFX_CORE || WINUI
         public static FontStyle ToDXFontStyle(this FontStyle style)
+#else
+        public static HelixToolkit.Wpf.SharpDX.FontStyle ToDXFontStyle(this System.Windows.FontStyle style)
+#endif
         {
 #if NETFX_CORE || WINUI
             if (style == FontStyle.Italic)
@@ -326,30 +334,38 @@ namespace HelixToolkit.Wpf.SharpDX.Extensions
 
 #endif
 
+#if NETFX_CORE || WINUI
         public static TextAlignment ToD2DTextAlignment(this TextAlignment alignment)
+#else
+        public static HelixToolkit.Wpf.SharpDX.TextAlignment ToD2DTextAlignment(this System.Windows.TextAlignment alignment)
+#endif
         {
             switch (alignment)
             {
-                case TextAlignment.Center:
+                case System.Windows.TextAlignment.Center:
                     return TextAlignment.Center;
-                case TextAlignment.Left:
+                case System.Windows.TextAlignment.Left:
                     return TextAlignment.Leading;
-                case TextAlignment.Right:
+                case System.Windows.TextAlignment.Right:
                     return TextAlignment.Trailing;
-                case TextAlignment.Justify:
+                case System.Windows.TextAlignment.Justify:
                     return TextAlignment.Justified;
                 default:
                     return TextAlignment.Leading;
             }
         }
 
+#if NETFX_CORE || WINUI
         public static FlowDirection ToD2DFlowDir(this FlowDirection direction)
+#else
+        public static HelixToolkit.Wpf.SharpDX.FlowDirection ToD2DFlowDir(this System.Windows.FlowDirection direction)
+#endif
         {
             switch (direction)
             {
-                case FlowDirection.LeftToRight:
+                case System.Windows.FlowDirection.LeftToRight:
                     return FlowDirection.LeftToRight;
-                case FlowDirection.RightToLeft:
+                case System.Windows.FlowDirection.RightToLeft:
                     return FlowDirection.RightToLeft;
                 default:
                     return FlowDirection.LeftToRight;

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Viewport3DX.Properties.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -10,6 +10,8 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfColor = System.Windows.Media.Color;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 using System.Windows.Media.Media3D;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -27,15 +29,15 @@ namespace HelixToolkit.Wpf.SharpDX
     public partial class Viewport3DX
     {
         /// <summary>
-        /// Background Color property.this.RenderHost
+        /// Background WpfColor property.this.RenderHost
         /// </summary>
         public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
-            "BackgroundColor", typeof(Color), typeof(Viewport3DX),
+            "BackgroundColor", typeof(WpfColor), typeof(Viewport3DX),
             new PropertyMetadata(Colors.White, (s, e) =>
             {
                 if (((Viewport3DX)s).renderHostInternal != null)
                 {
-                    ((Viewport3DX)s).renderHostInternal.ClearColor = ((Color)e.NewValue).ToColor4();
+                    ((Viewport3DX)s).renderHostInternal.ClearColor = ((WpfColor)e.NewValue).ToColor4();
                 }
             }));
 
@@ -205,7 +207,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         public static readonly DependencyProperty CoordinateSystemLabelForegroundProperty = DependencyProperty.Register(
                 "CoordinateSystemLabelForeground",
-                typeof(Color),
+                typeof(WpfColor),
                 typeof(Viewport3DX),
                 new PropertyMetadata(Colors.DarkGray));
 
@@ -238,19 +240,19 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The coordinate system color X property
         /// </summary>
         public static readonly DependencyProperty CoordinateSystemAxisXColorProperty = DependencyProperty.Register(
-                "CoordinateSystemAxisXColor", typeof(Color), typeof(Viewport3DX), new PropertyMetadata(Colors.Red));
+                "CoordinateSystemAxisXColor", typeof(WpfColor), typeof(Viewport3DX), new PropertyMetadata(Colors.Red));
 
         /// <summary>
-        /// The coordinate system Color Y property
+        /// The coordinate system WpfColor Y property
         /// </summary>
         public static readonly DependencyProperty CoordinateSystemAxisYColorProperty = DependencyProperty.Register(
-                "CoordinateSystemAxisYColor", typeof(Color), typeof(Viewport3DX), new PropertyMetadata(Colors.Green));
+                "CoordinateSystemAxisYColor", typeof(WpfColor), typeof(Viewport3DX), new PropertyMetadata(Colors.Green));
 
         /// <summary>
-        /// The coordinate system Color Z property
+        /// The coordinate system WpfColor Z property
         /// </summary>
         public static readonly DependencyProperty CoordinateSystemAxisZColorProperty = DependencyProperty.Register(
-                "CoordinateSystemAxisZColor", typeof(Color), typeof(Viewport3DX), new PropertyMetadata(Colors.Blue));
+                "CoordinateSystemAxisZColor", typeof(WpfColor), typeof(Viewport3DX), new PropertyMetadata(Colors.Blue));
 
         /// <summary>
         /// The coordinate system vertical position property. Relative to viewport center.
@@ -381,7 +383,7 @@ namespace HelixToolkit.Wpf.SharpDX
             "InfoBackground",
             typeof(Brush),
             typeof(Viewport3DX),
-            new PropertyMetadata(new SolidColorBrush(Color.FromArgb(0x80, 0x8f, 0x8f, 0x8f))));
+            new PropertyMetadata(new WpfSolidColorBrush(WpfColor.FromArgb(0x80, 0x8f, 0x8f, 0x8f))));
 
         /// <summary>
         /// The info foreground property.
@@ -1346,13 +1348,13 @@ namespace HelixToolkit.Wpf.SharpDX
             }));
 
         /// <summary>
-        /// Background Color
+        /// Background WpfColor
         /// </summary>
-        public Color BackgroundColor
+        public WpfColor BackgroundColor
         {
             get
             {
-                return (Color)this.GetValue(BackgroundColorProperty);
+                return (WpfColor)this.GetValue(BackgroundColorProperty);
             }
             set
             {
@@ -1508,11 +1510,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The color of the coordinate system label.
         /// </value>
-        public Color CoordinateSystemLabelForeground
+        public WpfColor CoordinateSystemLabelForeground
         {
             get
             {
-                return (Color)this.GetValue(CoordinateSystemLabelForegroundProperty);
+                return (WpfColor)this.GetValue(CoordinateSystemLabelForegroundProperty);
             }
 
             set
@@ -1583,11 +1585,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The coordinate system color X.
         /// </value>
-        public Color CoordinateSystemAxisXColor
+        public WpfColor CoordinateSystemAxisXColor
         {
             get
             {
-                return (Color)this.GetValue(CoordinateSystemAxisXColorProperty);
+                return (WpfColor)this.GetValue(CoordinateSystemAxisXColorProperty);
             }
 
             set
@@ -1602,11 +1604,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The coordinate system color T.
         /// </value>
-        public Color CoordinateSystemAxisYColor
+        public WpfColor CoordinateSystemAxisYColor
         {
             get
             {
-                return (Color)this.GetValue(CoordinateSystemAxisYColorProperty);
+                return (WpfColor)this.GetValue(CoordinateSystemAxisYColorProperty);
             }
 
             set
@@ -1621,11 +1623,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The coordinate system color Z.
         /// </value>
-        public Color CoordinateSystemAxisZColor
+        public WpfColor CoordinateSystemAxisZColor
         {
             get
             {
-                return (Color)this.GetValue(CoordinateSystemAxisZColorProperty);
+                return (WpfColor)this.GetValue(CoordinateSystemAxisZColorProperty);
             }
 
             set

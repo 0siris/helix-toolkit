@@ -268,7 +268,22 @@ namespace HelixToolkit.Wpf.SharpDX
         public static readonly Color DarkGray = new Color(169, 169, 169, 255);
         public static readonly Color Yellow = new Color(255, 255, 0, 255);
         public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color LightBlue = new Color(173, 216, 230, 255);
+        public static readonly Color SkyBlue = new Color(135, 206, 235, 255);
+        public static readonly Color LightGreen = new Color(144, 238, 144, 255);
+        public static readonly Color BlanchedAlmond = new Color(255, 235, 205, 255);
+        public static readonly Color Bisque = new Color(255, 228, 196, 255);
         public static readonly Color Zero = Transparent;
+
+        public static Color FromRgb(byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue);
+        }
+
+        public static Color FromArgb(byte alpha, byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue, alpha);
+        }
 
         private static byte ToByte(float value)
         {
@@ -746,7 +761,22 @@ namespace HelixToolkit.SharpDX.Core
         public static readonly Color DarkGray = new Color(169, 169, 169, 255);
         public static readonly Color Yellow = new Color(255, 255, 0, 255);
         public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color LightBlue = new Color(173, 216, 230, 255);
+        public static readonly Color SkyBlue = new Color(135, 206, 235, 255);
+        public static readonly Color LightGreen = new Color(144, 238, 144, 255);
+        public static readonly Color BlanchedAlmond = new Color(255, 235, 205, 255);
+        public static readonly Color Bisque = new Color(255, 228, 196, 255);
         public static readonly Color Zero = Transparent;
+
+        public static Color FromRgb(byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue);
+        }
+
+        public static Color FromArgb(byte alpha, byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue, alpha);
+        }
 
         private static byte ToByte(float value)
         {
@@ -1224,7 +1254,22 @@ namespace HelixToolkit.UWP
         public static readonly Color DarkGray = new Color(169, 169, 169, 255);
         public static readonly Color Yellow = new Color(255, 255, 0, 255);
         public static readonly Color Silver = new Color(192, 192, 192, 255);
+        public static readonly Color LightBlue = new Color(173, 216, 230, 255);
+        public static readonly Color SkyBlue = new Color(135, 206, 235, 255);
+        public static readonly Color LightGreen = new Color(144, 238, 144, 255);
+        public static readonly Color BlanchedAlmond = new Color(255, 235, 205, 255);
+        public static readonly Color Bisque = new Color(255, 228, 196, 255);
         public static readonly Color Zero = Transparent;
+
+        public static Color FromRgb(byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue);
+        }
+
+        public static Color FromArgb(byte alpha, byte red, byte green, byte blue)
+        {
+            return new Color(red, green, blue, alpha);
+        }
 
         private static byte ToByte(float value)
         {

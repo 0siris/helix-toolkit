@@ -1,9 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 #if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 #endif
@@ -18,11 +20,11 @@ namespace HelixToolkit.Wpf.SharpDX
         [ContentProperty("Children")]
         public class Panel2D : Element2D
         {
-            public Brush Background
+            public WpfBrush Background
             {
                 get
                 {
-                    return (Brush)GetValue(BackgroundProperty);
+                    return (WpfBrush)GetValue(BackgroundProperty);
                 }
                 set
                 {
@@ -31,7 +33,7 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             public static readonly DependencyProperty BackgroundProperty =
-                DependencyProperty.Register("Background", typeof(Brush), typeof(Panel2D), new PropertyMetadata(new SolidColorBrush(Colors.Transparent)));
+                DependencyProperty.Register("Background", typeof(WpfBrush), typeof(Panel2D), new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent)));
 
             public ObservableCollection<Element2D> Children
             {

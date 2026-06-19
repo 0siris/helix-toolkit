@@ -13,6 +13,9 @@ namespace HelixToolkit.Wpf.SharpDX
     using System;
     using System.Windows;
     using System.Windows.Media;
+    using WpfBrush = System.Windows.Media.Brush;
+    using WpfPathGeometry = System.Windows.Media.PathGeometry;
+    using WpfSweepDirection = System.Windows.Media.SweepDirection;
 
     /// <summary>
     /// Extension methods for DrawingContext.
@@ -32,17 +35,17 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <param name="radiusY">The radius Y.</param>
         public static void DrawArc(
             this DrawingContext dc,
-            Brush brush,
+            WpfBrush brush,
             Pen pen,
             Point start,
             Point end,
-            SweepDirection direction,
+            WpfSweepDirection direction,
             double radiusX,
             double radiusY)
         {
             // http://blogs.vertigo.com/personal/ralph/Blog/archive/2007/02/09/wpf-drawing-arcs.aspx
             // setup the geometry object
-            var geometry = new PathGeometry();
+            var geometry = new WpfPathGeometry();
             var figure = new PathFigure();
             geometry.Figures.Add(figure);
             figure.StartPoint = start;
@@ -86,12 +89,12 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </param>
         public static void DrawArc(
             this DrawingContext dc,
-            Brush brush,
+            WpfBrush brush,
             Pen pen,
             Point position,
             double startAngle,
             double endAngle,
-            SweepDirection direction,
+            WpfSweepDirection direction,
             double radiusX,
             double radiusY)
         {
@@ -131,7 +134,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </param>
         public static void DrawArc(
             this DrawingContext dc,
-            Brush brush,
+            WpfBrush brush,
             Pen pen,
             Point position,
             double startAngle,
@@ -139,7 +142,7 @@ namespace HelixToolkit.Wpf.SharpDX
             double radiusX,
             double radiusY)
         {
-            DrawArc(dc, brush, pen, position, startAngle, endAngle, SweepDirection.Counterclockwise, radiusX, radiusY);
+            DrawArc(dc, brush, pen, position, startAngle, endAngle, WpfSweepDirection.Counterclockwise, radiusX, radiusY);
         }
     }
 }

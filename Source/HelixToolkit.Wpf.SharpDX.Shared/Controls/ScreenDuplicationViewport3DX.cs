@@ -157,7 +157,7 @@ namespace HelixToolkit.Wpf.SharpDX
 
         public CameraCore CameraCore { get; } = new PerspectiveCameraCore();
 
-        public global::SharpDX.Matrix WorldMatrix { get; } = global::SharpDX.Matrix.Identity;
+        public Matrix WorldMatrix { get; } = Matrix.Identity;
 
         public IEnumerable<SceneNode> Renderables
         {
@@ -201,11 +201,11 @@ namespace HelixToolkit.Wpf.SharpDX
             }
         }
 
-        public global::SharpDX.Rectangle ViewportRectangle
+        public Rectangle ViewportRectangle
         {
             get
             {
-                return new global::SharpDX.Rectangle();
+                return new Rectangle();
             }
         }
 

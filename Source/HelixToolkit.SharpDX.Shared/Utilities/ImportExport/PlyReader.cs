@@ -93,9 +93,9 @@ namespace HelixToolkit.UWP
 
             if (TextureCoordinates.Count > 0)
             {
-                foreach (Point item in TextureCoordinates)
+                foreach (Vector2 item in TextureCoordinates)
                 {
-                    mesh.TextureCoordinates.Add(item);
+                    mesh.TextureCoordinates.Add(new Vector2(item.X, item.Y));
                 }
             }
             if (TextureCoordinates.Count == 0)

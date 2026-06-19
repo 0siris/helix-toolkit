@@ -1,9 +1,8 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using SharpDX;
-using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -587,10 +586,10 @@ namespace HelixToolkit.Wpf.SharpDX
             currentColor = material.DiffuseColor;
             material.DiffuseColor = Color.Yellow;
             currentViewport = e.Viewport;
-            var cameraNormal = Vector3.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
+            var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
             this.lastHitPosWS = e.HitTestResult.PointHit;
-            var up = Vector3.Cross(cameraNormal, direction);
-            normal = Vector3.Cross(up, direction);
+            var up = SilkMath.Cross(cameraNormal, direction);
+            normal = SilkMath.Cross(up, direction);
             if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit))
             {
                 currentHit = hit;
@@ -664,10 +663,10 @@ namespace HelixToolkit.Wpf.SharpDX
             currentColor = material.DiffuseColor;
             material.DiffuseColor = Color.Yellow;
             currentViewport = e.Viewport;
-            normal = Vector3.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
+            normal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
             this.lastHitPosWS = e.HitTestResult.PointHit;
-            //var up = Vector3.Cross(cameraNormal, direction);
-            //normal = Vector3.Cross(up, direction);
+            //var up = SilkMath.Cross(cameraNormal, direction);
+            //normal = SilkMath.Cross(up, direction);
             if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit))
             {
                 currentHit = hit;
@@ -684,9 +683,9 @@ namespace HelixToolkit.Wpf.SharpDX
             if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit))
             {
                 var position = this.translationVector + centerOffset;
-                var v = Vector3.Normalize(currentHit - position);
-                var u = Vector3.Normalize(hit - position);
-                var currentAxis = Vector3.Cross(u, v);
+                var v = SilkMath.Normalize(currentHit - position);
+                var u = SilkMath.Normalize(hit - position);
+                var currentAxis = SilkMath.Cross(u, v);
                 var axis = Vector3.UnitX;
                 currentHit = hit;
                 switch (manipulationType)
@@ -701,8 +700,8 @@ namespace HelixToolkit.Wpf.SharpDX
                         axis = Vector3.UnitZ;
                         break;
                 }
-                var sign = -Vector3.Dot(axis, currentAxis);
-                var theta = (float)(Math.Sign(sign) * Math.Asin(currentAxis.Length()));
+                var sign = -SilkMath.Dot(axis, currentAxis);
+                var theta = (float)(Math.Sign(sign) * Math.Asin(currentAxis.Length));
                 switch (manipulationType)
                 {
                     case ManipulationType.RotationX:
@@ -758,10 +757,10 @@ namespace HelixToolkit.Wpf.SharpDX
             currentColor = material.DiffuseColor;
             material.DiffuseColor = Color.Yellow;
             currentViewport = e.Viewport;
-            var cameraNormal = Vector3.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
+            var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
             this.lastHitPosWS = e.HitTestResult.PointHit;
-            var up = Vector3.Cross(cameraNormal, direction);
-            normal = Vector3.Cross(up, direction);
+            var up = SilkMath.Cross(cameraNormal, direction);
+            normal = SilkMath.Cross(up, direction);
             if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit))
             {
                 currentHit = hit;
@@ -796,12 +795,12 @@ namespace HelixToolkit.Wpf.SharpDX
                         scale = moveDir.Z;
                         break;
                 }
-                var axisX = Vector3.TransformNormal(Vector3.UnitX, rotationMatrix);
-                var axisY = Vector3.TransformNormal(Vector3.UnitY, rotationMatrix);
-                var axisZ = Vector3.TransformNormal(Vector3.UnitZ, rotationMatrix);
-                var dotX = Vector3.Dot(axisX, orgAxis);
-                var dotY = Vector3.Dot(axisY, orgAxis);
-                var dotZ = Vector3.Dot(axisZ, orgAxis);
+                var axisX = SilkMath.TransformNormal(Vector3.UnitX, rotationMatrix);
+                var axisY = SilkMath.TransformNormal(Vector3.UnitY, rotationMatrix);
+                var axisZ = SilkMath.TransformNormal(Vector3.UnitZ, rotationMatrix);
+                var dotX = SilkMath.Dot(axisX, orgAxis);
+                var dotY = SilkMath.Dot(axisY, orgAxis);
+                var dotZ = SilkMath.Dot(axisZ, orgAxis);
                 scaleMatrix.M11 += scale * Math.Abs(dotX);
                 scaleMatrix.M22 += scale * Math.Abs(dotY);
                 scaleMatrix.M33 += scale * Math.Abs(dotZ);
@@ -854,16 +853,16 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             var m = e.Transform;
             m.Decompose(out var scale, out var rotation, out var translation);
-            scaleMatrix = Matrix.Scaling(scale);
-            rotationMatrix = Matrix.RotationQuaternion(rotation);
+            scaleMatrix = SilkMath.Scaling(scale);
+            rotationMatrix = SilkMath.RotationQuaternion(rotation);
             if (centerOffset != Vector3.Zero)
             {
-                var org = Matrix.Translation(-centerOffset) * scaleMatrix * rotationMatrix * Matrix.Translation(centerOffset);
-                translationVector = translation - org.TranslationVector;
+                var org = SilkMath.Translation(-centerOffset) * scaleMatrix * rotationMatrix * SilkMath.Translation(centerOffset);
+                translationVector = translation - new Vector3(org.M41, org.M42, org.M43);
             }
             else
             {
-                translationVector = m.TranslationVector;
+                translationVector = new Vector3(m.M41, m.M42, m.M43);
             }
             OnUpdateSelfTransform();
             //OnUpdateTargetMatrix();
@@ -875,7 +874,7 @@ namespace HelixToolkit.Wpf.SharpDX
             {
                 return;
             }
-            targetMatrix = Matrix.Translation(-centerOffset) * scaleMatrix * rotationMatrix * Matrix.Translation(centerOffset) * Matrix.Translation(translationVector);
+            targetMatrix = SilkMath.Translation(-centerOffset) * scaleMatrix * rotationMatrix * SilkMath.Translation(centerOffset) * SilkMath.Translation(translationVector);
 #if !NETFX_CORE && !WINUI
             target.Transform = new Media3D.MatrixTransform3D(targetMatrix.ToMatrix3D());
 #else
@@ -885,7 +884,7 @@ namespace HelixToolkit.Wpf.SharpDX
 
         private void OnUpdateSelfTransform()
         {
-            var m = Matrix.Translation(centerOffset + translationVector);
+            var m = SilkMath.Translation(centerOffset + translationVector);
             m.M11 = m.M22 = m.M33 = (float)sizeScale;
 #if !NETFX_CORE && !WINUI
             ctrlGroup.Transform = new Media3D.MatrixTransform3D(m.ToMatrix3D());

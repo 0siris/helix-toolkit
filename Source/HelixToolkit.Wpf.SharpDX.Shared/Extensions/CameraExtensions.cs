@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CameraExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -13,10 +13,6 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
-using Matrix = global::SharpDX.Matrix;
-using Matrix3x3 = global::SharpDX.Matrix3x3;
-using Vector3 = global::SharpDX.Vector3;
-using BoundingBox = global::SharpDX.BoundingBox;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
@@ -559,7 +555,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The animation time.
         /// </param>
         public static void ZoomExtents(
-            this Camera camera, Viewport3DX viewport, global::SharpDX.BoundingBox bounds, double animationTime = 0)
+            this Camera camera, Viewport3DX viewport, BoundingBox bounds, double animationTime = 0)
         {
             var diagonal = bounds.Maximum - bounds.Minimum;
 
@@ -640,13 +636,13 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             if (viewport.UnProject(zoomRectangle.TopLeft.ToVector2(), out var topLeftRay)
                 && viewport.UnProject(zoomRectangle.TopRight.ToVector2(), out var topRightRay)
-                && viewport.UnProject(new global::SharpDX.Vector2(
+                && viewport.UnProject(new Vector2(
                         (float)(zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
                         (float)(zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f), out var centerRay))
             {
-                var u = Vector3.Normalize(topLeftRay.Direction);
-                var v = Vector3.Normalize(topRightRay.Direction);
-                var w = Vector3.Normalize(centerRay.Direction);
+                var u = SilkMath.Normalize(topLeftRay.Direction);
+                var v = SilkMath.Normalize(topRightRay.Direction);
+                var w = SilkMath.Normalize(centerRay.Direction);
                 if (camera is IPerspectiveCameraModel perspectiveCamera)
                 {
                     var distance = camera.LookDirection.Length;
@@ -668,7 +664,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 {
                     orthographicCamera.Width *= zoomRectangle.Width / viewport.ActualWidth;
                     var oldTarget = camera.CameraInternal.Position + camera.CameraInternal.LookDirection;
-                    var distance = camera.CameraInternal.LookDirection.Length();
+                    var distance = camera.CameraInternal.LookDirection.Length;
                     if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget))
                     {
                         LookAt(orthographicCamera, newTarget.ToPoint3D(), 200);
@@ -684,10 +680,10 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <param name="delta">The delta.</param>
         public static void MoveCameraPosition(this Camera camera, Vector3D delta)
         {
-            var z = Vector3.Normalize(camera.CameraInternal.LookDirection);
-            var x = Vector3.Cross(z, camera.CameraInternal.UpDirection);
-            var y = Vector3.Normalize(Vector3.Cross(x, z));
-            x = Vector3.Cross(z, y);
+            var z = SilkMath.Normalize(camera.CameraInternal.LookDirection);
+            var x = SilkMath.Cross(z, camera.CameraInternal.UpDirection);
+            var y = SilkMath.Normalize(SilkMath.Cross(x, z));
+            x = SilkMath.Cross(z, y);
 
             // delta *= this.ZoomSensitivity;
             camera.Position += ((x * (float)delta.X) + (y * (float)delta.Y) + (z * (float)delta.Z)).ToVector3D();

@@ -196,7 +196,7 @@ namespace HelixToolkit.SharpDX.Core.Controls
         /// </summary>
         public float ZoomSensitivity = 1.0f;
 
-        private static readonly Point PointZero = new Point(0, 0);
+        private static readonly Vector2 PointZero = Vector2.Zero;
 
         private static readonly Vector3 Vector3DZero = new Vector3();
 

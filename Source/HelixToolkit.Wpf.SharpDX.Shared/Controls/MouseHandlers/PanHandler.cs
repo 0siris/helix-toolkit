@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PanHandler.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -9,8 +9,6 @@
 
 using System.Windows;
 using System.Windows.Input;
-using Vector3 = global::SharpDX.Vector3;
-using Vector2 = global::SharpDX.Vector2;
 using System;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ViewportExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -16,12 +16,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using Matrix = global::SharpDX.Matrix;
-using Plane = global::SharpDX.Plane;
-using Ray = global::SharpDX.Ray;
-using Vector2 = global::SharpDX.Vector2;
-using Vector3 = global::SharpDX.Vector3;
-using global::SharpDX.Direct3D11;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UITranslateManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -126,9 +126,9 @@ namespace HelixToolkit.Wpf.SharpDX
             // move directon
             var directionWS = ToWorldVec(this.Direction);
             // up direction
-            var upWS = Vector3.Cross(normalWS, directionWS);
+            var upWS = SilkMath.Cross(normalWS, directionWS);
             // the direction plane
-            normalWS = Vector3.Cross(upWS, directionWS);
+            normalWS = SilkMath.Cross(upWS, directionWS);
             normalWS.Normalize();
             // find new hit on the camera-direction plane
             if (viewport.UnProjectOnPlane(args.Position.ToVector2(), lastHitPosWS, normalWS, out var newHit))
@@ -137,13 +137,13 @@ namespace HelixToolkit.Wpf.SharpDX
                 // a: vec to project on
                 //b(a) = (a.b)/(a.a)*a;
                 var b = newHit - lastHitPosWS;
-                var ab = Vector3.Dot(directionWS, b);
-                var aa = Vector3.Dot(directionWS, directionWS);
+                var ab = SilkMath.Dot(directionWS, b);
+                var aa = SilkMath.Dot(directionWS, directionWS);
                 var ba = (ab / aa) * directionWS;
                 newHit = lastHitPosWS + ba;
 
                 var delta = newHit - lastHitPosWS;
-                this.Value += Vector3.Dot(delta, directionWS);
+                this.Value += SilkMath.Dot(delta, directionWS);
                 var deltaTranslateTrafo = new TranslateTransform3D(delta.ToVector3D());
 
                 if (this.TargetTransform != null)

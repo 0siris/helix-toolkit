@@ -6,7 +6,6 @@ global using Format = Silk.NET.DXGI.Format;
 global using Int3 = Silk.NET.Maths.Vector3D<int>;
 global using Int4 = Silk.NET.Maths.Vector4D<int>;
 global using Matrix = Silk.NET.Maths.Matrix4X4<float>;
-global using Point = Silk.NET.Maths.Vector2D<int>;
 global using PointerSize = System.IntPtr;
 global using Quaternion = Silk.NET.Maths.Quaternion<float>;
 global using Vector2 = Silk.NET.Maths.Vector2D<float>;

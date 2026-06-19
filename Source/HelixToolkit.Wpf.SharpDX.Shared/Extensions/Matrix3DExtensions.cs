@@ -77,7 +77,7 @@ namespace HelixToolkit.Wpf.SharpDX
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix3D Translate3D(global::SharpDX.Vector3 v)
+        public static Matrix3D Translate3D(Vector3 v)
         {
             var m = Matrix3D.Identity;
             m.OffsetX = v.X;
@@ -514,9 +514,9 @@ namespace HelixToolkit.Wpf.SharpDX
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static global::SharpDX.Vector2 ToVector2(this System.Windows.Vector v)
+        public static Vector2 ToVector2(this System.Windows.Vector v)
         {
-            return new global::SharpDX.Vector2((float)v.X, (float)v.Y);
+            return new Vector2((float)v.X, (float)v.Y);
         }
     }
 }

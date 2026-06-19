@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DeferredRenderer.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -445,7 +445,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 this.deferredLightingVariables.vLightAtt.Set(light.Attenuation.ToVector4(100f));
 
                 double lightRadius = EstimateRadius(light.Attenuation);
-                Matrix lightModelMatrix = Matrix.Scaling((float)lightRadius) * Matrix.Translation(light.Position.ToVector3());
+                Matrix lightModelMatrix = SilkMath.Scaling((float)lightRadius) * SilkMath.Translation(light.Position.ToVector3());
 
                 this.deferredLightingVariables.mLightModel.SetMatrix(lightModelMatrix);
                 this.deferredLightingVariables.mLightView.SetMatrix(context.viewMatrix);
@@ -560,7 +560,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
             baseY.Normalize();
-            baseZ = Vector3.Cross(baseX, baseY);
+            baseZ = SilkMath.Cross(baseX, baseY);
         }
 
 #if SSAO

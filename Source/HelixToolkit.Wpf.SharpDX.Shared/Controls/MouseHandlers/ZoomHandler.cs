@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ZoomHandler.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -16,7 +16,6 @@ namespace HelixToolkit.Wpf.SharpDX
     using System.Diagnostics;
     using System.Windows;
     using System.Windows.Input;
-    using Vector3 = global::SharpDX.Vector3;
 
     /// <summary>
     /// Handles zooming.
@@ -185,10 +184,10 @@ namespace HelixToolkit.Wpf.SharpDX
                 Controller.StopPanning();
                 Controller.StopSpin();
             }
-            var z = Vector3.Normalize(this.Camera.CameraInternal.LookDirection);
-            var x = Vector3.Cross(this.Camera.CameraInternal.LookDirection, this.Camera.CameraInternal.UpDirection);
-            var y = Vector3.Normalize(Vector3.Cross(x, z));
-            x = Vector3.Cross(z, y);
+            var z = SilkMath.Normalize(this.Camera.CameraInternal.LookDirection);
+            var x = SilkMath.Cross(this.Camera.CameraInternal.LookDirection, this.Camera.CameraInternal.UpDirection);
+            var y = SilkMath.Normalize(SilkMath.Cross(x, z));
+            x = SilkMath.Cross(z, y);
 
             // delta *= this.ZoomSensitivity;
             switch (this.CameraMode)
@@ -268,7 +267,7 @@ namespace HelixToolkit.Wpf.SharpDX
             {
                 if (delta > 0) //If Zoom out from very close distance, increase the initial relativePosition
                 {
-                    relativePosition = Vector3.Normalize(relativePosition) / 10;
+                    relativePosition = SilkMath.Normalize(relativePosition) / 10;
                     zoomAround = relativePosition + this.Camera.CameraInternal.Position;
                     relativeTarget = zoomAround - target;
                 }
@@ -283,8 +282,8 @@ namespace HelixToolkit.Wpf.SharpDX
             var newTarget = zoomAround - newRelativeTarget;
             var newPosition = zoomAround - newRelativePosition;
 
-            var newDistance = (newPosition - zoomAround).Length();
-            var oldDistance = (this.Camera.CameraInternal.Position - zoomAround).Length();
+            var newDistance = (newPosition - zoomAround).Length;
+            var oldDistance = (this.Camera.CameraInternal.Position - zoomAround).Length;
 
             if (newDistance > this.Controller.ZoomDistanceLimitFar && (oldDistance < this.Controller.ZoomDistanceLimitFar || newDistance > oldDistance))
             {

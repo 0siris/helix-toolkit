@@ -8,6 +8,7 @@ using SharpDX;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +37,10 @@ namespace HelixToolkit.UWP
         public abstract class DX11RenderHostBase : DisposeObject, IRenderHost
         {
             private static readonly ILogger logger = LogManager.Create<DX11RenderHostBase>();
+            private const int DxgiErrorDeviceRemoved = unchecked((int)0x887A0005);
+            private const int DxgiErrorDeviceHung = unchecked((int)0x887A0006);
+            private const int DxgiErrorDeviceReset = unchecked((int)0x887A0007);
+            private const int DxgiErrorAccessLost = unchecked((int)0x887A0026);
             private const int MinWidth = 10;
             private const int MinHeight = 10;
             #region Properties        
@@ -804,13 +809,11 @@ namespace HelixToolkit.UWP
                         }
                         renderBuffer.Present();
                     }
-                    catch (SharpDXException ex)
+                    catch (COMException ex)
                     {
-                        var desc = ResultDescriptor.Find(ex.ResultCode);
-                        if (desc == global::SharpDX.DXGI.ResultCode.DeviceRemoved || desc == global::SharpDX.DXGI.ResultCode.DeviceReset
-                            || desc == global::SharpDX.DXGI.ResultCode.DeviceHung || desc == global::SharpDX.DXGI.ResultCode.AccessLost)
+                        if (IsDeviceLost(ex.HResult))
                         {
-                            logger.LogWarning("Device Lost, code = {0}", desc.Code);
+                            logger.LogWarning("Device Lost, code = {0}", ex.HResult);
                             RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
                         }
                         else
@@ -1137,7 +1140,7 @@ namespace HelixToolkit.UWP
 
             private void Resize(int width, int height, bool dpiChanged)
             {
-                if (MathUtil.NearEqual(ActualWidth, width * DpiScale) && MathUtil.NearEqual(ActualHeight, height * DpiScale))
+                if (Math.Abs(ActualWidth - width * DpiScale) < 1e-6f && Math.Abs(ActualHeight - height * DpiScale) < 1e-6f)
                 {
                     return;
                 }
@@ -1167,6 +1170,14 @@ namespace HelixToolkit.UWP
                         StartRendering();
                     }
                 }
+            }
+
+            private static bool IsDeviceLost(int hresult)
+            {
+                return hresult == DxgiErrorDeviceRemoved
+                    || hresult == DxgiErrorDeviceReset
+                    || hresult == DxgiErrorDeviceHung
+                    || hresult == DxgiErrorAccessLost;
             }
 
             /// <summary>

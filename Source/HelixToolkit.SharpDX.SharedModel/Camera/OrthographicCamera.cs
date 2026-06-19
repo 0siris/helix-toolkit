@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -136,7 +136,7 @@ namespace HelixToolkit.Wpf.SharpDX
             var dir = LookDirection;
             var target = Target;
 #endif
-            var dist = dir.Length();
+            var dist = dir.Length;
             var newDist = dist * ratio;
             dir.Normalize();
             var position = (target - dir * (float)newDist);

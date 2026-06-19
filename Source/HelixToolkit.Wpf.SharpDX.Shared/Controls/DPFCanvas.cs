@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DPFCanvas.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
@@ -14,12 +14,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using global::SharpDX;
-using global::SharpDX.Direct3D11;
 #if DX11_1
-    using Device = SharpDX.Direct3D11.Device1;
-    using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
 #else
-using Device = SharpDX.Direct3D11.Device;
 #endif
 #if COREWPF
 using HelixToolkit.SharpDX.Core;

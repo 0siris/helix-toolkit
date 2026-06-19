@@ -238,7 +238,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 foreach (var v in m.Positions)
                 {
                     vertexIndexMap.Add(index++, this.vertexIndex++);
-                    var p = Vector3.TransformCoordinate(v, t);
+                    var p = SilkMath.TransformCoordinate(v, t);
                     this.writer.WriteLine(
                         string.Format(
                             CultureInfo.InvariantCulture,
@@ -339,13 +339,13 @@ namespace HelixToolkit.Wpf.SharpDX
                     {
                         // Dissolve factor
                         this.mwriter.WriteLine(
-                            string.Format(CultureInfo.InvariantCulture, "d {0:F4}", pm.DiffuseColor.Alpha));
+                            string.Format(CultureInfo.InvariantCulture, "d {0:F4}", pm.DiffuseColor.W));
                     }
                     else
                     {
                         // Transparency
                         this.mwriter.WriteLine(
-                            string.Format(CultureInfo.InvariantCulture, "Tr {0:F4}", pm.DiffuseColor.Alpha));
+                            string.Format(CultureInfo.InvariantCulture, "Tr {0:F4}", pm.DiffuseColor.W));
                     }
                 }
                 else
@@ -437,9 +437,9 @@ namespace HelixToolkit.Wpf.SharpDX
             return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0:F4} {1:F4} {2:F4}",
-                color.Red,
-                color.Green,
-                color.Blue);
+                color.X,
+                color.Y,
+                color.Z);
         }
     }
 }

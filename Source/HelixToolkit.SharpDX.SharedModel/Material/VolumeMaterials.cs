@@ -1,10 +1,9 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.IO;
 using SharpDX;
-using SharpDX.Direct3D11;
 #if NETFX_CORE
 using  Windows.UI.Xaml;
 

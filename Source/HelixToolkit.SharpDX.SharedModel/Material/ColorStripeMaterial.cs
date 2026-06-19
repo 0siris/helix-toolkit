@@ -1,5 +1,4 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
+using SharpDX;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.ComponentModel;

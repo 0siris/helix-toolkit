@@ -499,7 +499,7 @@ namespace HelixToolkit.UWP
         /// </returns>
         private static IList<double> Split(string input)
         {
-            var fields = input.SplitOnWhitespace();
+            var fields = input.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             var result = new double[fields.Length];
             for (var i = 0; i < fields.Length; i++)
             {
@@ -620,7 +620,7 @@ namespace HelixToolkit.UWP
                 }
             }
 
-            var fields = values.SplitOnWhitespace();
+            var fields = values.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             var faceIndices = new List<int>();
             foreach (var field in fields)
             {
@@ -752,7 +752,7 @@ namespace HelixToolkit.UWP
 
                 if (faceIndices.Count < 3)
                 {
-                    throw new HelixToolkitException("Polygon must have at least 3 indices!");
+                    throw new InvalidOperationException("Polygon must have at least 3 indices!");
                 }
 
 

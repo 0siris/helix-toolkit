@@ -82,7 +82,7 @@ namespace HelixToolkit.Wpf.SharpDX
             OctreeVisual.Color = LineColor;
             HitVisual.Color = HitLineColor;
             OctreeVisual.Thickness = 0;
-            OctreeVisual.FillMode = global::SharpDX.Direct3D11.FillMode.Wireframe;
+            OctreeVisual.FillMode = FillMode.Wireframe;
             HitVisual.Thickness = 1.5;
             this.SceneNode.VisibleChanged += OctreeLineGeometryModel3D_OnVisibleChanged;
         }

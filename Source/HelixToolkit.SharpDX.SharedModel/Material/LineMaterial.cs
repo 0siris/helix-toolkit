@@ -1,9 +1,8 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using global::SharpDX;
-using SharpDX.Direct3D11;
 #if NETFX_CORE
 using  Windows.UI.Xaml;
 using Media = Windows.UI;

@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using SharpDX;
+using Point = Silk.NET.Maths.Vector2D<int>;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX

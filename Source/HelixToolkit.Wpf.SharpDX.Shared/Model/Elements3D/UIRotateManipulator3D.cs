@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UIRotateManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -174,8 +174,7 @@ namespace HelixToolkit.Wpf.SharpDX
 
             // --- get the plane for translation (camera normal is a good choice)                     
             var normal = this.cameraNormal;
-            var position = this.TotalModelMatrix.TranslationVector;
-            //var position = this.totalModelMatrix.TranslationVector;
+            var position = new Vector3(TotalModelMatrix.M41, TotalModelMatrix.M42, TotalModelMatrix.M43);
 
             // --- hit position 
             if (this.viewport.UnProjectOnPlane(args.Position.ToVector2(), lastHitPosWS, normal, out var newHitPos))
@@ -185,10 +184,10 @@ namespace HelixToolkit.Wpf.SharpDX
                 v.Normalize();
                 u.Normalize();
 
-                var currentAxis = Vector3.Cross(u, v);
+                var currentAxis = SilkMath.Cross(u, v);
                 var mainAxis = ToWorldVec(this.Axis);// this.Transform.Transform(this.Axis.ToVector3D()).ToVector3();
-                double sign = -Vector3.Dot(mainAxis, currentAxis);
-                var theta = Math.Sign(sign) * Math.Asin(currentAxis.Length()) / Math.PI * 180;
+                double sign = -SilkMath.Dot(mainAxis, currentAxis);
+                var theta = Math.Sign(sign) * Math.Asin(currentAxis.Length) / Math.PI * 180;
                 this.Value += theta;
 
                 var rotateTransform = new System.Windows.Media.Media3D.RotateTransform3D(new System.Windows.Media.Media3D.AxisAngleRotation3D(this.Axis.ToVector3D(), theta), Pivot.ToPoint3D());

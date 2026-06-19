@@ -809,7 +809,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 var viewport = d as Viewport3DX;
                 var allowX = viewport.cameraController.AllowRotateXY.X;
                 float allowY = (bool)e.NewValue ? 1 : 0;
-                viewport.CameraController.AllowRotateXY = new global::SharpDX.Vector2(allowX, allowY);
+                viewport.CameraController.AllowRotateXY = new Vector2(allowX, allowY);
             }));
 
         // Using a DependencyProperty as the backing store for AllowLeftRightRotation.  This enables animation, styling, binding, etc...
@@ -819,7 +819,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 var viewport = d as Viewport3DX;
                 float allowX = (bool)e.NewValue ? 1 : 0;
                 var allowY = viewport.cameraController.AllowRotateXY.Y;
-                viewport.CameraController.AllowRotateXY = new global::SharpDX.Vector2(allowX, allowY);
+                viewport.CameraController.AllowRotateXY = new Vector2(allowX, allowY);
             }));
 
 

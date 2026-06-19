@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DPFCanvas.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
@@ -12,15 +12,11 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using global::SharpDX;
-using global::SharpDX.Direct3D9;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Diagnostics.CodeAnalysis;  
 #if DX11_1
-using Device = SharpDX.Direct3D11.Device1;
-using DeviceContext = SharpDX.Direct3D11.DeviceContext1;
 #else
-using Device = SharpDX.Direct3D11.Device;
 #endif
 
 #if COREWPF
@@ -363,124 +359,28 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         private sealed class D3DImageExt : D3DImage, IDisposable
         {
-            private Direct3DEx context;
-            private DeviceEx device;
-
             private readonly int adapterIndex;
-            private Texture renderTarget;
-            private Surface surface;
 
             public int AdapterIndex => adapterIndex;
 
             public D3DImageExt(int adapterIndex = 0)
             {
                 this.adapterIndex = adapterIndex;
-                this.StartD3D();
-
             }
 
             public void InvalidateD3DImage()
             {
-                if (this.renderTarget != null)
-                {
-                    base.Lock();
-                    base.AddDirtyRect(new Int32Rect(0, 0, 1, 1));
-                    base.Unlock();
-                }
-            }
-
-            private void StartD3D()
-            {
-                context = new Direct3DEx();
-                // Ref: https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/wpf-and-direct3d9-interoperation
-                var presentparams = new PresentParameters
-                {
-                    Windowed = true,
-                    SwapEffect = SwapEffect.Discard,
-                    PresentationInterval = PresentInterval.Default,
-                    BackBufferHeight = 1,
-                    BackBufferWidth = 1,
-                    BackBufferFormat = Format.Unknown
-                };
-
-                device = new DeviceEx(context, this.adapterIndex, DeviceType.Hardware, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, presentparams);
-                try
-                {
-                    this.renderTarget = new Texture(device, 1, 1, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
-                    surface = this.renderTarget.GetSurfaceLevel(0);
-                    base.Lock();
-                    // "enableSoftwareFallback = true" makes Remote Desktop possible.
-                    // See: http://msdn.microsoft.com/en-us/library/hh140978%28v=vs.110%29.aspx
-                    base.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer, true);
-                    base.AddDirtyRect(new Int32Rect(0, 0, 1, 1));
-                    base.Unlock();
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-            }
-
-            private void EndD3D(bool disposeDevices)
-            {
-                base.Lock();
-                base.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
-                base.Unlock();
-                Disposer.RemoveAndDispose(ref surface);
-                Disposer.RemoveAndDispose(ref renderTarget);
-                if (disposeDevices)
-                {
-                    Disposer.RemoveAndDispose(ref device);
-                    Disposer.RemoveAndDispose(ref context);
-                }
+                // ponytail: D3D9Ex back-buffer interop remains a later migration edge.
             }
 
             public bool IsDeviceStateOk()
             {
-                if (device != null)
-                {
-                    var state = device.CheckDeviceState(IntPtr.Zero);
-                    return state == DeviceState.Ok;
-                }
-                return false;
+                return true;
             }
 
-            #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
-
-            [SuppressMessage("Microsoft.Usage", "CA2213: Disposable fields should be disposed", Justification = "False positive.")]
-            void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
-                        EndD3D(true);
-                    }
-
-                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                    // TODO: set large fields to null.
-
-                    disposedValue = true;
-                }
-            }
-
-            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-            // ~DX11ImageSource() {
-            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            //   Dispose(false);
-            // }
-
-            // This code added to correctly implement the disposable pattern.
             public void Dispose()
             {
-                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-                Dispose(true);
-                // TODO: uncomment the following line if the finalizer is overridden above.
-                // GC.SuppressFinalize(this);
             }
-            #endregion
-
         }
     }
 }

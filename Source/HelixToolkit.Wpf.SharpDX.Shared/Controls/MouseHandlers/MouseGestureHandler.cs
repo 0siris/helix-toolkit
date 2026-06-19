@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MouseGestureHandler.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -9,9 +9,6 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using Vector3 = global::SharpDX.Vector3;
-using Plane = global::SharpDX.Plane;
-using Ray = global::SharpDX.Ray;
 using System.Collections.Generic;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;

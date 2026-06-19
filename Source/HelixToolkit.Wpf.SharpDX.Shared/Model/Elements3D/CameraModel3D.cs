@@ -1,5 +1,4 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
+using SharpDX;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Media3D;

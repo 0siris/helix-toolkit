@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RotateHandler.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -9,10 +9,6 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-using Vector3 = global::SharpDX.Vector3;
-using Vector2 = global::SharpDX.Vector2;
-using Quaternion = global::SharpDX.Quaternion;
-using Matrix = global::SharpDX.Matrix;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
@@ -158,11 +154,11 @@ namespace HelixToolkit.Wpf.SharpDX
                 Controller.StopZooming();
                 Controller.StopPanning();
             }
-            p0 = Vector2.Multiply(p0, Controller.AllowRotateXY);
-            p1 = Vector2.Multiply(p1, Controller.AllowRotateXY);
+            p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
+            p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
             var newPos = Camera.CameraInternal.Position;
             var newLook = Camera.CameraInternal.LookDirection;
-            var newUp = Vector3.Normalize(Camera.CameraInternal.UpDirection);
+            var newUp = SilkMath.Normalize(Camera.CameraInternal.UpDirection);
             switch (this.Controller.CameraRotationMode)
             {
                 case CameraRotationMode.Trackball:
@@ -212,7 +208,7 @@ namespace HelixToolkit.Wpf.SharpDX
             this.rotationPoint = new Point(
                 this.Viewport.ActualWidth / 2, this.Viewport.ActualHeight / 2);
             this.rotationPoint3D = this.Camera.CameraInternal.Target;
-            invertUpDir = Vector3.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
+            invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
 
             switch (this.CameraMode)
             {

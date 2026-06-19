@@ -1,10 +1,8 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using SharpDX.Direct3D;
 using System.ComponentModel;
 using HelixToolkit.Logger;
 #if DX11_1
@@ -368,7 +366,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The device.
         /// </value>
-        public Device Device
+        public Native.SilkD3DDevice Device
         {
             get
             {
@@ -381,7 +379,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The device2d.
         /// </value>
-        public global::SharpDX.Direct2D1.Device Device2D
+        public Native.D2DDevice Device2D
         {
             get
             {

@@ -147,7 +147,7 @@ namespace HelixToolkit.UWP
             {
                 if (_codeType == null)
                 {
-                    texCoord = new Point();
+                    texCoord = new Vector2();
                     return Vector3.Zero;
                 }
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -7,7 +7,6 @@ using System.Linq;
 
 #if DX11_1
 #else
-using Device = SharpDX.Direct3D11.Device;
 #endif
 
 #if !NETFX_CORE

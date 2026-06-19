@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RenderUtil.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -8,8 +8,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System.IO;
 using global::SharpDX;
-using global::SharpDX.Direct3D11;
+#if DEFERRED
 using Direct3D11 = global::SharpDX.Direct3D11;
+#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -32,9 +33,7 @@ namespace HelixToolkit.Wpf.SharpDX
         } 
 #endif
 
-        /// <summary>
-        /// Create buffer
-        /// </summary>
+#if DEFERRED
         public static Direct3D11.Buffer CreateBuffer<T>(this Direct3D11.Device device, BindFlags flags, int sizeofT, T[] range, int length)
             where T : struct
         {
@@ -56,5 +55,6 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return CreateBuffer<T>(device, flags, sizeofT, range, range.Length);
         }
+#endif
     }
 }

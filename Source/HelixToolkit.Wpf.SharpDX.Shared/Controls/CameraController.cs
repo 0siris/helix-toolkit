@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CameraController.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -13,8 +13,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Collections.Generic;
 
-using Vector3 = global::SharpDX.Vector3;
-using Vector2 = global::SharpDX.Vector2;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -1238,14 +1236,14 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </returns>
         private Vector3 FindPanVector(float dx, float dy)
         {
-            var axis1 = Vector3.Normalize(Vector3.Cross(this.CameraLookDirection, this.CameraUpDirection));
-            var axis2 = Vector3.Normalize(Vector3.Cross(axis1, this.CameraLookDirection));
+            var axis1 = SilkMath.Normalize(SilkMath.Cross(this.CameraLookDirection, this.CameraUpDirection));
+            var axis2 = SilkMath.Normalize(SilkMath.Cross(axis1, this.CameraLookDirection));
             axis1 *= (ActualCamera.CreateLeftHandSystem ? -1 : 1);
             float l = 0;
             if (actualCamera is PerspectiveCamera)
             {
                 // this should be dependent on distance to target?
-                l = this.CameraLookDirection.Length();
+                l = this.CameraLookDirection.Length;
             }
             else if (actualCamera.CameraInternal is OrthographicCameraCore orth)
             {

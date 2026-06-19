@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UIManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -193,7 +193,7 @@ namespace HelixToolkit.Wpf.SharpDX
             //    var b = BoundingBox.FromPoints(this.Geometry.Positions.Select(x => x + this.Offset).ToArray());
             //    //var b = BoundingBox.FromPoints(this.Geometry.Positions);
             //    this.Bounds = b;
-            //    //this.BoundsDiameter = (b.Maximum - b.Minimum).Length();
+            //    //this.BoundsDiameter = (b.Maximum - b.Minimum).Length;
             //}
 
             //this.OnModelChanged();
@@ -302,7 +302,7 @@ namespace HelixToolkit.Wpf.SharpDX
         protected Vector3 ToWorldPos(Vector3 vec)
         {
             //var m = this.Transform.Value.ToMatrix();
-            return Vector3.TransformCoordinate(vec, this.TotalModelMatrix);
+            return SilkMath.TransformCoordinate(vec, this.TotalModelMatrix);
         }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace HelixToolkit.Wpf.SharpDX
         protected Vector3 ToWorldVec(Vector3 vec)
         {
             //var m = this.Transform.Value.ToMatrix();
-            return Vector3.TransformNormal(vec, this.TotalModelMatrix);
+            return SilkMath.TransformNormal(vec, this.TotalModelMatrix);
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace HelixToolkit.Wpf.SharpDX
         protected Vector3 ToModelPos(Vector3 vec)
         {
             //var m = this.Transform.Value.ToMatrix();
-            return Vector3.TransformCoordinate(vec, this.TotalModelMatrix.PsudoInvert());
+            return SilkMath.TransformCoordinate(vec, this.TotalModelMatrix.PsudoInvert());
         }
 
         /// <summary>
@@ -335,7 +335,9 @@ namespace HelixToolkit.Wpf.SharpDX
         protected Vector3 ToModelVec(Vector3 vec)
         {
             //var m = this.Transform.Value.ToMatrix();
-            return Vector3.TransformNormal(vec, Matrix.Invert(this.TotalModelMatrix.PsudoInvert()));
+            var matrix = TotalModelMatrix.PsudoInvert();
+            SilkMath.Invert(matrix, out matrix);
+            return SilkMath.TransformNormal(vec, matrix);
         }
     }
 }

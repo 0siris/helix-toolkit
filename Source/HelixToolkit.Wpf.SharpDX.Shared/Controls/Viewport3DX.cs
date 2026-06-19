@@ -20,7 +20,6 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using MouseButtons = System.Windows.Forms.MouseButtons;
 using System.Runtime.CompilerServices;
-using Vector3 = global::SharpDX.Vector3;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
@@ -247,11 +246,11 @@ namespace HelixToolkit.Wpf.SharpDX
             }
         }
 
-        public global::SharpDX.Rectangle ViewportRectangle
+        public Rectangle ViewportRectangle
         {
             get
             {
-                return new global::SharpDX.Rectangle(0, 0, (int)ActualWidth, (int)ActualHeight);
+                return new Rectangle(0, 0, (int)ActualWidth, (int)ActualHeight);
             }
         }
 
@@ -1773,7 +1772,7 @@ namespace HelixToolkit.Wpf.SharpDX
             {
                 viewCube.RaiseEvent(new MouseDown3DEventArgs(viewCube, this.currentHit, p, this, originalInputEventArgs));
                 var normal = hits[0].NormalAtHit;
-                if (Vector3.Cross(normal, ModelUpDirection.ToVector3()).LengthSquared() < 1e-5)
+                if (SilkMath.Cross(normal, ModelUpDirection.ToVector3()).LengthSquared() < 1e-5)
                 {
                     var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
                     ViewCubeClicked(hits[0].NormalAtHit.ToVector3D(), vecLeft.ToVector3D());

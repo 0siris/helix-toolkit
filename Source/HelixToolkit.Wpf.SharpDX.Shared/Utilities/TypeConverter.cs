@@ -302,7 +302,7 @@ namespace HelixToolkit.Wpf.SharpDX
                     }
                     else if (destinationType == typeof(string))
                     {
-                        var str = string.Format("{0},{1},{2},{3}", val.Red, val.Green, val.Blue, val.Alpha);
+                        var str = string.Format("{0},{1},{2},{3}", val.X, val.Y, val.Z, val.W);
                         return str;
                     }
                 }

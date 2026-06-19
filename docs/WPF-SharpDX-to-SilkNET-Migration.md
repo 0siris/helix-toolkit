@@ -522,6 +522,24 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: `RenderTargetView` hält die zugehörige Resource-Referenz, Shader-Reflection übergibt eine lokale GUID, `UnsafeHelper` verwendet explizit `System.Buffer.MemoryCopy`, und verschachtelte PostEffect-Matrixwerte werden ohne ungültige Property-`ref`-Argumente aktualisiert. Indirect Draw, Sampler-Restore und Primitive-Topology-State laufen über die nativen Wrapper. Der Gesamtbuild sinkt von `28` auf `14` Compilefehler. Offen sind nur noch Importer-Helfer (`SplitOnWhitespace`, PLY-Vector-Konvertierung, `HelixToolkitException`) und RenderHost-Exception-/DXGI-/`MathUtil`-Kompatibilität.
 
+Zusätzliche Prüfung der Importer-/RenderHost-Restkante:
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Importer verwenden `string.Split(..., StringSplitOptions.RemoveEmptyEntries)`, explizite PLY-Texturkoordinaten-Konvertierung und BCL-Exceptions. Der RenderHost behandelt Device-Lost-Zustände über `COMException.HResult` und die DXGI-HRESULT-Konstanten; Größenvergleiche verwenden `Math.Abs`. `HelixToolkit.SharpDX.Core` baut damit mit `0` Fehlern und `22` Warnungen. Der WPF-Gesamtbuild erreicht nun die nächste Projektkante und meldet `79` Fehler in WPF-/SharedModel-Code. Die Hauptgruppen sind verbliebene SharpDX-D3D11-/D3D9-/D2D-/DirectWrite-Imports, doppelte Math-Aliase und WPF-Schnittstellensignaturen.
+
+Zusätzliche Prüfung der ersten WPF-/SharedModel-Signaturkante:
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Redundante dateilokale SharpDX-Math-Aliase sind entfernt; WPF-`Point` kollidiert nicht mehr mit dem Rectangle-Packer-Typ. SharedModel-State-Typen verwenden die eigenen D3D-Wrapper, Viewport-Rechtecke und Matrix-Typen sind entqualifiziert, und die bestehende D2D-/DirectWrite-Kompatibilität wird direkt verwendet. Der nicht aktivierte `DEFERRED`-Buffer-Helfer ist entsprechend gekapselt; der D3D9Ex-`D3DImage`-Helfer bleibt ein kontrollierter Platzhalter. `HelixToolkit.SharpDX.Core` baut weiterhin mit `0` Fehlern und `22` Warnungen. Der WPF-Build erreicht nun `116` konkrete Callsite-Fehler statt der vorherigen Deklarationsblocker. Hauptgruppen sind WPF-Media-Namenskollisionen (`Brush`, `SolidColorBrush`, `DashStyle`, `Color`, `TextAlignment`), weitere WPF-Math-Callsites und fehlende Color-/Font-Kompatibilitätswerte.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -556,7 +574,9 @@ Stand dieses Implementierungsschnitts:
 - BoundingSphere-/Ray-Schnitt- und Merge-Operationen sowie die grundlegende BoundingBox-Wertoberfläche sind migriert.
 - Die statischen Vector-/Geometry-/Octree-Transform-Aufrufe sowie Matrix-Decomposition und Quaternion-Winkel sind migriert.
 - Die nativen Device-/View- und RenderCore-State-Signaturabweichungen sind geschlossen.
-- Der nächste Umbau muss die verbleibenden Importer- und RenderHost-Kompatibilitätsfehler schließen.
+- Die Importer- und RenderHost-Kompatibilitätsfehler sind geschlossen; `HelixToolkit.SharpDX.Core` baut fehlerfrei.
+- Die erste WPF-/SharedModel-Deklarations- und Signaturkante ist geschlossen.
+- Der nächste Umbau muss WPF-Media-Namenskollisionen und die verbleibenden WPF-Math-/Color-Callsites schließen.
 
 Nächste offene Migrationskante:
 
@@ -573,11 +593,12 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Legacy-Exception-, String-Parsing- und Importer-Helfer portieren.
-2. RenderHost-DXGI-Fehlerbehandlung und verbleibende Utility-Kompatibilität schließen.
-3. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-4. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
-5. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. WPF-Media-Typen in Controls/Elements2D explizit qualifizieren, damit lokale D2D-Kompatibilitätstypen sie nicht überschatten.
+2. Verbleibende WPF-/SharedModel-Math-Callsites sowie Color-/Font-Kompatibilitätswerte schließen.
+3. WPF-Control-Device-Lost-Behandlung auf `COMException.HResult` umstellen.
+4. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+5. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
+6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 

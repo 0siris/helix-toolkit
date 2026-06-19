@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Windows.Markup;
 using SharpDX;
 using System.Linq;
+using Media = System.Windows.Media;
 
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
@@ -46,14 +47,14 @@ namespace HelixToolkit.Wpf.SharpDX
 
 
             public static readonly DependencyProperty ForegroundProperty
-                = DependencyProperty.Register("Foreground", typeof(Brush), typeof(TextModel2D),
-                    new PropertyMetadata(new SolidColorBrush(Colors.Black), (d, e) =>
+                = DependencyProperty.Register("Foreground", typeof(Media.Brush), typeof(TextModel2D),
+                    new PropertyMetadata(new Media.SolidColorBrush(Colors.Black), (d, e) =>
                     {
                         var model = (d as TextModel2D);
                         model.foregroundChanged = true;
                     }));
 
-            public Brush Foreground
+            public Media.Brush Foreground
             {
                 set
                 {
@@ -61,19 +62,19 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(ForegroundProperty);
+                    return (Media.Brush)GetValue(ForegroundProperty);
                 }
             }
 
             public static readonly DependencyProperty BackgroundProperty
-                = DependencyProperty.Register("Background", typeof(Brush), typeof(TextModel2D),
+                = DependencyProperty.Register("Background", typeof(Media.Brush), typeof(TextModel2D),
                     new PropertyMetadata(null, (d, e) =>
                 {
                     var model = (d as TextModel2D);
                     model.backgroundChanged = true;
                 }));
 
-            public Brush Background
+            public Media.Brush Background
             {
                 set
                 {
@@ -81,7 +82,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
                 get
                 {
-                    return (Brush)GetValue(BackgroundProperty);
+                    return (Media.Brush)GetValue(BackgroundProperty);
                 }
             }
 

@@ -52,7 +52,8 @@ namespace HelixToolkit.UWP
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     void* reflectionPtr = null;
-                    Marshal.ThrowExceptionForHR(D3DReflect(byteCodePtr, (nuint)byteCode.Length, ref ShaderReflectionGuid, &reflectionPtr));
+                    var shaderReflectionGuid = ShaderReflectionGuid;
+                    Marshal.ThrowExceptionForHR(D3DReflect(byteCodePtr, (nuint)byteCode.Length, ref shaderReflectionGuid, &reflectionPtr));
                     var reflection = (ID3D11ShaderReflection*)reflectionPtr;
                     try
                     {

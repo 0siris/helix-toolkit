@@ -70,9 +70,9 @@ namespace HelixToolkit.UWP
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void DrawInstancedIndirect(IntPtr bufferForArgsRef, int alignedByteOffsetForArgs)
+            public void DrawInstancedIndirect(Buffer bufferForArgs, int alignedByteOffsetForArgs)
             {
-                throw new NotSupportedException("Indirect draw calls require the native buffer wrapper migration.");
+                NativeContext.DrawInstancedIndirect(bufferForArgs, (uint)alignedByteOffsetForArgs);
             }
 
             #endregion DrawCall

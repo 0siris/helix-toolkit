@@ -383,11 +383,11 @@ namespace HelixToolkit.UWP
                 {
                     var viewDesc = description.Value.ToSilkDesc();
                     SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, ref viewDesc, ref view));
-                    return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view));
+                    return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view), resource);
                 }
 
                 SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, (RenderTargetViewDesc*)null, ref view));
-                return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view));
+                return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view), resource);
             }
 
             public DepthStencilView CreateDepthStencilView(Resource resource, DepthStencilViewDescription? description = null)
@@ -555,6 +555,8 @@ namespace HelixToolkit.UWP
         public unsafe sealed class SilkD3DDeviceContext : IDisposable
         {
             private SilkD3D11ContextPtr nativeContext;
+            // ponytail: cache until Silk exposes the base ID3D11DeviceContext getter.
+            private D3DPrimitiveTopology primitiveTopology;
 
             public SilkD3DDeviceContext(SilkD3D11ContextPtr nativeContext, bool isDeferred)
             {
@@ -642,6 +644,11 @@ namespace HelixToolkit.UWP
                 nativeContext.DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
             }
 
+            public void DrawInstancedIndirect(Buffer buffer, uint alignedByteOffsetForArgs)
+            {
+                nativeContext.DrawInstancedIndirect(buffer.BufferHandle, alignedByteOffsetForArgs);
+            }
+
             public void Dispatch(uint threadGroupCountX, uint threadGroupCountY, uint threadGroupCountZ)
             {
                 nativeContext.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
@@ -651,12 +658,12 @@ namespace HelixToolkit.UWP
             {
                 get
                 {
-                    nativeContext.IAGetPrimitiveTopology(out D3DPrimitiveTopology topology);
-                    return topology;
+                    return primitiveTopology;
                 }
                 set
                 {
                     nativeContext.IASetPrimitiveTopology(value);
+                    primitiveTopology = value;
                 }
             }
 

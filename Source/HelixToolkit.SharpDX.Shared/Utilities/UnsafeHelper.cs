@@ -50,7 +50,7 @@ namespace HelixToolkit.UWP
                 }
                 unsafe
                 {
-                    Buffer.MemoryCopy((void*)src, (void*)dst, sizeInBytes, sizeInBytes);
+                    System.Buffer.MemoryCopy((void*)src, (void*)dst, sizeInBytes, sizeInBytes);
                 }
             }
             /// <summary>

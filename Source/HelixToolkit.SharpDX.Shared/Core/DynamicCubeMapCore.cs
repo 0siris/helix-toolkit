@@ -504,7 +504,7 @@ namespace HelixToolkit.UWP
 
             #region IReflector
 
-            private SamplerState[] currSampler;
+            private SamplerStateProxy[] currSampler;
             private ShaderResourceView[] currRes;
 
             /// <summary>

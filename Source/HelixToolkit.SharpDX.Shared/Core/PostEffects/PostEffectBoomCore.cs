@@ -122,7 +122,11 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
-                    SetAffectsRender(ref modelStruct.Param.M11, value);
+                    var current = modelStruct.Param.M11;
+                    if (SetAffectsRender(ref current, value))
+                    {
+                        modelStruct.Param.M11 = current;
+                    }
                 }
                 get
                 {
@@ -134,7 +138,11 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
-                    SetAffectsRender(ref modelStruct.Param.M12, value);
+                    var current = modelStruct.Param.M12;
+                    if (SetAffectsRender(ref current, value))
+                    {
+                        modelStruct.Param.M12 = current;
+                    }
                 }
                 get
                 {
@@ -146,7 +154,11 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
-                    SetAffectsRender(ref modelStruct.Param.M13, value);
+                    var current = modelStruct.Param.M13;
+                    if (SetAffectsRender(ref current, value))
+                    {
+                        modelStruct.Param.M13 = current;
+                    }
                 }
                 get
                 {
@@ -158,7 +170,11 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
-                    SetAffectsRender(ref modelStruct.Param.M14, value);
+                    var current = modelStruct.Param.M14;
+                    if (SetAffectsRender(ref current, value))
+                    {
+                        modelStruct.Param.M14 = current;
+                    }
                 }
                 get
                 {

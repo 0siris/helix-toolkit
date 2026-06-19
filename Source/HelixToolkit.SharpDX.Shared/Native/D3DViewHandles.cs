@@ -155,12 +155,15 @@ namespace HelixToolkit.UWP
     {
         private SilkD3D11RenderTargetViewPtr nativeView;
 
-        internal RenderTargetView(SilkD3D11RenderTargetViewPtr nativeView)
+        internal RenderTargetView(SilkD3D11RenderTargetViewPtr nativeView, Resource resource = null)
         {
             this.nativeView = nativeView;
+            Resource = resource;
         }
 
         public IntPtr NativePointer => (IntPtr)nativeView.Handle;
+
+        public Resource Resource { get; }
 
         internal ID3D11RenderTargetView* Handle => nativeView.Handle;
 

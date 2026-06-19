@@ -514,6 +514,14 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: Geometry-, Billboard-, Scene-, Viewport-, Shared-Geometry- und Octree-Pfade verwenden für `TransformCoordinate`, `TransformNormal`, `Transform`, `Dot`, `Cross`, `Normalize`, `Clamp` und `DistanceSquared` die zentrale `SilkMath`-Schicht. Silk-Vektorlängen werden über die `Length`-Property gelesen. Matrix-Decomposition und Quaternion-Winkel sind zentral über `System.Numerics` adaptiert. `Half4` verwendet echte 16-Bit-Float-Komponenten und unterstützt die bisherige Float-/Vector4-Zuweisung. Der Gesamtbuild sinkt von `154` auf `28` Compilefehler. Die verbleibenden Gruppen liegen in nativen Device-/View-Details, RenderCore-State-Signaturen, Importer-Helfern und RenderHost-Exception-/DXGI-Kompatibilität.
 
+Zusätzliche Prüfung der nativen Device-/View-/RenderCore-Restkante:
+
+```powershell
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `RenderTargetView` hält die zugehörige Resource-Referenz, Shader-Reflection übergibt eine lokale GUID, `UnsafeHelper` verwendet explizit `System.Buffer.MemoryCopy`, und verschachtelte PostEffect-Matrixwerte werden ohne ungültige Property-`ref`-Argumente aktualisiert. Indirect Draw, Sampler-Restore und Primitive-Topology-State laufen über die nativen Wrapper. Der Gesamtbuild sinkt von `28` auf `14` Compilefehler. Offen sind nur noch Importer-Helfer (`SplitOnWhitespace`, PLY-Vector-Konvertierung, `HelixToolkitException`) und RenderHost-Exception-/DXGI-/`MathUtil`-Kompatibilität.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -547,7 +555,8 @@ Stand dieses Implementierungsschnitts:
 - `BoundingFrustum`, Color/Color4, Matrix-Fabriken, DXGI-Formatnamen und die grundlegende 2D-Math-Oberfläche sind migriert.
 - BoundingSphere-/Ray-Schnitt- und Merge-Operationen sowie die grundlegende BoundingBox-Wertoberfläche sind migriert.
 - Die statischen Vector-/Geometry-/Octree-Transform-Aufrufe sowie Matrix-Decomposition und Quaternion-Winkel sind migriert.
-- Der nächste Umbau muss die nativen Device-/View- und RenderCore-State-Signaturabweichungen schließen.
+- Die nativen Device-/View- und RenderCore-State-Signaturabweichungen sind geschlossen.
+- Der nächste Umbau muss die verbleibenden Importer- und RenderHost-Kompatibilitätsfehler schließen.
 
 Nächste offene Migrationskante:
 
@@ -564,12 +573,11 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Native View-/DeviceContext-Details sowie RenderCore-State-Typabweichungen bereinigen.
-2. Legacy-Exception-, String-Parsing- und Importer-Helfer portieren.
-3. RenderHost-DXGI-Fehlerbehandlung und verbleibende Utility-Kompatibilität schließen.
-4. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
-5. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
-6. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+1. Legacy-Exception-, String-Parsing- und Importer-Helfer portieren.
+2. RenderHost-DXGI-Fehlerbehandlung und verbleibende Utility-Kompatibilität schließen.
+3. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+4. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
+5. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 

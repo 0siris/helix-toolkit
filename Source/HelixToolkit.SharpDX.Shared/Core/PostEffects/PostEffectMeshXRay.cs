@@ -114,7 +114,11 @@ namespace HelixToolkit.UWP
             {
                 set
                 {
-                    SetAffectsRender(ref modelStruct.Param.M11, value);
+                    var current = modelStruct.Param.M11;
+                    if (SetAffectsRender(ref current, value))
+                    {
+                        modelStruct.Param.M11 = current;
+                    }
                 }
                 get
                 {

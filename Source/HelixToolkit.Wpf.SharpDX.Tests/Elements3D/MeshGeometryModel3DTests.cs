@@ -4,13 +4,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+extern alias WpfAssembly;
+
 using System;
 using System.Collections.Generic;
 using HelixToolkit.Wpf.SharpDX.Tests.Controls;
 using NUnit.Framework;
 using System.IO;
 using System.Threading;
-using SharpDX;
+using WpfRay = WpfAssembly::HelixToolkit.Wpf.SharpDX.Ray;
 
 namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
 {
@@ -53,7 +55,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
         public void HitTestShouldReturnOnePointOnFrontOfCubeWithNoCuttingPlanes()
         {
             var viewport = new Viewport3DX();
-            var ray = new Ray(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
+            var ray = new WpfRay(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
             var hits = new List<HitTestResult>();
             var geometryModel3D = GetGeometryModel3D();
             geometryModel3D.HitTest(new HitTestContext(viewport.RenderContext, ref ray), ref hits);

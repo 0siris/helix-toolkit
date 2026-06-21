@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using NUnit.Framework;
-using SharpDX;
 
 namespace HelixToolkit.Wpf.SharpDX.Tests.Utilities
 {

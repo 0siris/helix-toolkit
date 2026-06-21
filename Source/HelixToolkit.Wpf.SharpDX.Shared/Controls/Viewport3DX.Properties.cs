@@ -10,6 +10,7 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 using System.Windows.Media.Media3D;
@@ -381,7 +382,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         public static readonly DependencyProperty InfoBackgroundProperty = DependencyProperty.Register(
             "InfoBackground",
-            typeof(Brush),
+            typeof(WpfBrush),
             typeof(Viewport3DX),
             new PropertyMetadata(new WpfSolidColorBrush(WpfColor.FromArgb(0x80, 0x8f, 0x8f, 0x8f))));
 
@@ -389,7 +390,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The info foreground property.
         /// </summary>
         public static readonly DependencyProperty InfoForegroundProperty = DependencyProperty.Register(
-            "InfoForeground", typeof(Brush), typeof(Viewport3DX), new PropertyMetadata(Brushes.Blue));
+            "InfoForeground", typeof(WpfBrush), typeof(Viewport3DX), new PropertyMetadata(Brushes.Blue));
 
         /// <summary>
         /// The message text property.
@@ -756,13 +757,13 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The text brush property.
         /// </summary>
         public static readonly DependencyProperty TextBrushProperty = DependencyProperty.Register(
-            "TextBrush", typeof(Brush), typeof(Viewport3DX), new PropertyMetadata(Brushes.Black));
+            "TextBrush", typeof(WpfBrush), typeof(Viewport3DX), new PropertyMetadata(Brushes.Black));
 
         /// <summary>
         /// The title background property.
         /// </summary>
         public static readonly DependencyProperty TitleBackgroundProperty = DependencyProperty.Register(
-                "TitleBackground", typeof(Brush), typeof(Viewport3DX), new PropertyMetadata(null));
+                "TitleBackground", typeof(WpfBrush), typeof(Viewport3DX), new PropertyMetadata(null));
 
         /// <summary>
         /// The title font family property.
@@ -1904,11 +1905,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The info background.
         /// </value>
-        public Brush InfoBackground
+        public WpfBrush InfoBackground
         {
             get
             {
-                return (Brush)this.GetValue(InfoBackgroundProperty);
+                return (WpfBrush)this.GetValue(InfoBackgroundProperty);
             }
 
             set
@@ -1923,11 +1924,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The foreground brush.
         /// </value>
-        public Brush InfoForeground
+        public WpfBrush InfoForeground
         {
             get
             {
-                return (Brush)this.GetValue(InfoForegroundProperty);
+                return (WpfBrush)this.GetValue(InfoForegroundProperty);
             }
 
             set
@@ -2564,11 +2565,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The text brush.
         /// </value>
-        public Brush TextBrush
+        public WpfBrush TextBrush
         {
             get
             {
-                return (Brush)this.GetValue(TextBrushProperty);
+                return (WpfBrush)this.GetValue(TextBrushProperty);
             }
 
             set
@@ -2602,11 +2603,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The title background.
         /// </value>
-        public Brush TitleBackground
+        public WpfBrush TitleBackground
         {
             get
             {
-                return (Brush)this.GetValue(TitleBackgroundProperty);
+                return (WpfBrush)this.GetValue(TitleBackgroundProperty);
             }
 
             set

@@ -209,9 +209,6 @@ namespace HelixToolkit.UWP
 
             private struct ID3D11ShaderReflectionConstantBufferVtbl
             {
-                public void* QueryInterface;
-                public void* AddRef;
-                public void* Release;
                 public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, ShaderBufferDesc*, int> GetDesc;
                 public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, uint, ID3D11ShaderReflectionVariable*> GetVariableByIndex;
                 public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, byte*, ID3D11ShaderReflectionVariable*> GetVariableByName;
@@ -224,9 +221,6 @@ namespace HelixToolkit.UWP
 
             private struct ID3D11ShaderReflectionVariableVtbl
             {
-                public void* QueryInterface;
-                public void* AddRef;
-                public void* Release;
                 public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionVariable*, ShaderVariableDesc*, int> GetDesc;
             }
 

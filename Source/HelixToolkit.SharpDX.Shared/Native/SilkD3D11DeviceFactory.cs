@@ -27,6 +27,8 @@ namespace HelixToolkit.UWP
         internal static unsafe class SilkD3D11DeviceFactory
         {
             private const uint D3D11SdkVersion = 7;
+            // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
+            private static readonly D3D11 D3D11Api = D3D11.GetApi((INativeWindowSource)null, false);
 
             private static readonly D3DFeatureLevel[] DefaultFeatureLevels =
             {
@@ -41,7 +43,6 @@ namespace HelixToolkit.UWP
                 SilkDriverType driverType = SilkDriverType.Hardware,
                 bool enableDebugLayer = false)
             {
-                using var d3d11 = D3D11.GetApi((INativeWindowSource)null, false);
                 var flags = CreateDeviceFlag.CreateDeviceBgraSupport;
 
                 if (enableDebugLayer)
@@ -55,7 +56,7 @@ namespace HelixToolkit.UWP
 
                 fixed (D3DFeatureLevel* featureLevels = DefaultFeatureLevels)
                 {
-                    var result = d3d11.CreateDevice(
+                    var result = D3D11Api.CreateDevice(
                         (IDXGIAdapter*)null,
                         ToSilkDriverType(driverType),
                         IntPtr.Zero,

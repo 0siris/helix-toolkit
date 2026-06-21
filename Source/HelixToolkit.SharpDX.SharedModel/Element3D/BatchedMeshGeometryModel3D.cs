@@ -7,14 +7,14 @@ using System.Linq;
 
 #if NETFX_CORE
 using  Windows.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Windows.UI.Colors;
+using PlatformColor = Windows.UI.Color;
+using PlatformColors = Windows.UI.Colors;
 
 namespace HelixToolkit.UWP
 #elif WINUI 
 using Microsoft.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Microsoft.UI.Colors;
+using PlatformColor = Windows.UI.Color;
+using PlatformColors = Microsoft.UI.Colors;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
@@ -22,8 +22,8 @@ using HelixToolkit.SharpDX.Core.Model;
 namespace HelixToolkit.WinUI
 #else
 using System.Windows;
-using Colors = System.Windows.Media.Colors;
-using Color = System.Windows.Media.Color;
+using PlatformColors = System.Windows.Media.Colors;
+using PlatformColor = System.Windows.Media.Color;
 #if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
@@ -213,9 +213,9 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The wireframe color property
         /// </summary>
         public static readonly DependencyProperty WireframeColorProperty =
-            DependencyProperty.Register("WireframeColor", typeof(Color), typeof(BatchedMeshGeometryModel3D), new PropertyMetadata(Colors.SkyBlue, (d, e) =>
+            DependencyProperty.Register("WireframeColor", typeof(PlatformColor), typeof(BatchedMeshGeometryModel3D), new PropertyMetadata(PlatformColors.SkyBlue, (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as BatchedMeshNode).WireframeColor = ((Color)e.NewValue).ToColor4();
+                ((d as Element3DCore).SceneNode as BatchedMeshNode).WireframeColor = ((PlatformColor)e.NewValue).ToColor4();
             }));
 
         /// <summary>
@@ -448,11 +448,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The color of the wireframe.
         /// </value>
-        public Color WireframeColor
+        public PlatformColor WireframeColor
         {
             get
             {
-                return (Color)GetValue(WireframeColorProperty);
+                return (PlatformColor)GetValue(WireframeColorProperty);
             }
             set
             {

@@ -4,13 +4,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+extern alias WpfAssembly;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using NUnit.Framework;
-using SharpDX;
+using WpfRay = WpfAssembly::HelixToolkit.Wpf.SharpDX.Ray;
 
 namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
 {
@@ -33,7 +35,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
         [Test]
         public void HitTestShouldReturnOnePointOnFrontOfCubeWithNoCuttingPlanes()
         {
-            var ray = new Ray(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
+            var ray = new WpfRay(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
             var hits = new List<HitTestResult>();
             var geometryModel3D = GetGeometryModel3D();
             var hitContext = new HitTestContext(viewport.RenderContext, ref ray);
@@ -43,12 +45,11 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
         }
 
         [TestCaseSource(nameof(GetPlanes))]
-        public void HitTestShouldReturnOnePointOnBackOfCubeWithCuttingPlaneInXZero(Action<CrossSectionMeshGeometryModel3D, Plane> setupPlane)
+        public void HitTestShouldReturnOnePointOnBackOfCubeWithCuttingPlaneInXZero(Action<CrossSectionMeshGeometryModel3D> setupPlane)
         {
-            var plane = new Plane(new Vector3(0f),new Vector3(-1,0,0));
             var geometryModel3D = GetGeometryModel3D();
-            setupPlane(geometryModel3D, plane);
-            var ray = new Ray(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
+            setupPlane(geometryModel3D);
+            var ray = new WpfRay(new Vector3(2f, 0f, 0f), new Vector3(-1, 0, 0));
             var hits = new List<HitTestResult>();
             var hitContext = new HitTestContext(viewport.RenderContext, ref ray);
             geometryModel3D.HitTest(hitContext, ref hits);
@@ -75,13 +76,16 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Elements3D
                 var planeProperty = planes[i];
                 var enableProperty = enables[i];
 
-                void Action(CrossSectionMeshGeometryModel3D model, Plane plane)
+                void Action(CrossSectionMeshGeometryModel3D model)
                 {
+                    var plane = Activator.CreateInstance(
+                        planeProperty.PropertyType,
+                        new object[] { new Vector3(0f), new Vector3(-1, 0, 0) });
                     planeProperty.SetValue(model, plane);
                     enableProperty.SetValue(model, true);
                 }
 
-                yield return new object[]{(Action<CrossSectionMeshGeometryModel3D, Plane>) Action};
+                yield return new object[] { (Action<CrossSectionMeshGeometryModel3D>)Action };
             }
 
         }

@@ -243,9 +243,9 @@ namespace HelixToolkit.Wpf.SharpDX
                         string.Format(
                             CultureInfo.InvariantCulture,
                             "v {0} {1} {2}",
-                            p.X,
-                            this.SwitchYZ ? p.Z : p.Y,
-                            this.SwitchYZ ? -p.Y : p.Z));
+                            NormalizeZero(p.X),
+                            NormalizeZero(this.SwitchYZ ? p.Z : p.Y),
+                            NormalizeZero(this.SwitchYZ ? -p.Y : p.Z)));
                 }
 
                 this.writer.WriteLine(string.Format("# {0} vertices", index));
@@ -441,5 +441,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 color.Y,
                 color.Z);
         }
+
+        private static float NormalizeZero(float value) => value == 0 ? 0 : value;
     }
 }

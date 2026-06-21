@@ -549,6 +549,43 @@ dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --n
 
 Ergebnis: WPF-Media-Typen sind in Controls und Elements2D eindeutig von den lokalen D2D-Kompatibilitätstypen getrennt. Verbleibende WPF-/SharedModel-Math-Aufrufe verwenden `SilkMath`; Color-/Font-/FlowDirection-Konvertierungen, Ray-/Plane-Schnittpunkte und Control-Device-Lost-Behandlung sind angepasst. Der D3D9Ex-`D3DImage`-Helfer bleibt bewusst ein Platzhalter. `HelixToolkit.SharpDX.Core` baut mit `0` Fehlern und `22` Warnungen; `HelixToolkit.Wpf.SharpDX` baut erstmals mit `0` Fehlern und `3608` Warnungen.
 
+Zusätzliche Prüfung der WPF-Imaging-/Texture-Upload-Kante:
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: `WICHelper` dekodiert im WPF-Pfad Standard-Bildformate über `BitmapDecoder` nach BGRA32. `ShaderResourceViewProxy.CreateView(Stream/TextureModel)` lädt diese Daten in eine native immutable `Texture2D` und erzeugt optional eine SRV. Der DDS-Loader reicht Nicht-DDS-Daten korrekt an den nächsten Loader weiter. Ein Decoder-Test für Abmessungen, Format und Pixelinhalt eines im Test erzeugten BMP ist ergänzt. Core baut mit `0` Fehlern und `22` Warnungen, WPF mit `0` Fehlern und `3616` Warnungen.
+
+Zusätzliche Prüfung der DDS-Loader-Kante:
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~ImageLoadingTests
+```
+
+Ergebnis: DDS-Header, Mips, Arrays, Cubemaps und Volume-Textures werden wieder geladen. Unterstützt sind die im Repository verwendeten DXT1-5-/BC4-/BC5-, DX10-, BGRA-/RGBA32-, L8- und 24-Bit-BGR-Formate. Der synthetische DXT1-Test validiert Format, Abmessungen und Payload. Core und WPF bauen fehlerfrei; der gefilterte Test läuft grün.
+
+Zusätzliche Prüfung der Shader-Reflection-/Device-Lifetime-Kante:
+
+```powershell
+dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false
+```
+
+Ergebnis: Die VTables von `ID3D11ShaderReflectionConstantBuffer` und `ID3D11ShaderReflectionVariable` entsprechen wieder der nativen ABI ohne fälschliche `IUnknown`-Slots. Die Silk-D3D11-API bleibt pro Prozess geladen, damit erzeugte Device-vtables nicht auf entladenen Bibliothekscode zeigen. Der vorherige `0xC0000005`-Crash ist geschlossen; alle `12` Core-Tests laufen grün. Core baut mit `0` Fehlern und `16` Warnungen, WPF mit `0` Fehlern und `3654` Warnungen.
+
+Zusätzliche Prüfung der WPF-Testkante:
+
+```powershell
+dotnet build Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-build --no-restore -m:1
+```
+
+Ergebnis: Das WPF-Testprojekt verwendet wieder `Microsoft.NET.Test.Sdk`, testlokale Silk-Math-Aliase und einen Assembly-Alias für doppelt eingebettete WPF/Core-Typen. Alte ObjectTracker-Abhängigkeit, OBJ-Testpfade, WPF-Brush-/Color-DependencyProperty-Typen und negative Null im OBJ-Export sind korrigiert. Der Build läuft mit `0` Fehlern; alle `37` WPF-Tests laufen grün.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -574,7 +611,7 @@ Stand dieses Implementierungsschnitts:
 - Die RenderBuffer-/SwapChain-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; Offscreen-BackBuffer-Textures werden nativ erzeugt, echte DXGI-SwapChain- und D3DImage-Surface-Interop bleiben noch Platzhalter bzw. separate Kanten.
 - Die ScreenClone-/ScreenCapture-/D3DImage-Interop-Signatur-Kante ist von SharpDX-D3D11-/DXGI-/WIC-Typen und `LegacyDevice`-Abfragen gelöst; echte Desktop-Duplication, WIC-Encoding und D3D9Ex-BackBuffer-Interop bleiben separate Implementierungskanten.
 - Die einfache Shader-/ResourceManager-D3D11-/DXGI-Restkante ist von SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen gelöst; `EffectsManager` erzeugt keine SharpDX-D3D11-Device-Instanz mehr.
-- Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; DDS-/WIC-Load/Save-Backends bleiben vorerst kontrollierte Platzhalter.
+- Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; WPF-Standardbilder werden per `BitmapDecoder` nach BGRA32 dekodiert und als native Texture2D/SRV hochgeladen. Die im Repository verwendeten DDS-Formate werden geladen; WIC-/DDS-Encoding und exotische Legacy-DDS-Formate bleiben offen.
 - Die erste qualifizierte SharpDX-Math- und Shared-Geometrie-Kante ist gelöst; der Compiler erreicht jetzt die nächste breite Compatibility-Front in Toolkit-`Format`/`Utilities` und generischen Silk-Math-Methodenunterschieden.
 - Die `SharpDX.Toolkit.Graphics`-Format-/Utilities-Kante ist auf lokale SharpDX-kompatible `Format`-, `FormatHelper`- und `Utilities`-Typen gelegt; die direkte native Format-Konvertierung bleibt erhalten.
 - Die nativen fixed-buffer-/Pointer-Kontexte in `D3DResourceHandles` und `D3DStateHandles` sind korrekt als `unsafe` gekapselt.
@@ -604,9 +641,9 @@ Nächste offene Migrationskante:
 Pragmatische Reihenfolge für die nächsten Commits:
 
 1. Warnungen nach Migration, Nullable und veralteten APIs gruppieren und regressionsrelevante Warnungen zuerst schließen.
-2. TextureLoader-/WICHelper-WIC-Pfade separat portieren oder, wo möglich, durch WPF/BCL-Imaging ersetzen.
+2. WPF-Image-/ScreenCapture-Encoding ergänzen.
 3. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
-4. Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
+4. Verbleibende WPF-Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 5. WPF-/Core-Smoke-Tests für Device-Erzeugung, Offscreen-Texture-Views und RenderHost-Lifecycle ergänzen.
 
 ## Phase 0: Baseline und Inventar
@@ -685,7 +722,7 @@ Status: Weitgehend erledigt.
 - Silk.NET-PackageReferences sind mit Version `2.23.0` ergänzt.
 - Backend-Defines wurden in den Zielprojekten von `SHARPDX` auf `SILKNET` umgestellt.
 - Gate-Prüfung für SharpDX-PackageReferences im supported Scope liefert keine Treffer.
-- Offene Arbeit: Testprojekte noch vollständig von SharpDX.Diagnostics/ObjectTracker entkoppeln und restliche Compilefehler aus Code-Typreferenzen schrittweise abbauen.
+- Core- und WPF-Testprojekte sind von SharpDX.Diagnostics/ObjectTracker entkoppelt und laufen grün.
 
 ### Aufgaben
 
@@ -891,15 +928,16 @@ Ziel: 2D Overlay, Text, Bitmap-/Texture-Loading und ScreenCapture laufen ohne Sh
 
 Status: In Arbeit.
 
-- D2D/DWrite/WIC bleiben eine der dominanten Fehlergruppen im aktuellen Build.
-- Die Toolkit-Texture-Wrapper sind auf native D3D11-Resources umgestellt; echte DDS-/WIC-Decoding- und Encoding-Backends bleiben offen.
+- D2D/DWrite bleiben zentrale Runtime-Platzhalter.
+- Die Toolkit-Texture-Wrapper sind auf native D3D11-Resources umgestellt; WPF-Standardbilder und die im Repository verwendeten DDS-Formate werden als native Texture2D/SRV geladen.
+- WIC-/DDS-Encoding, exotische Legacy-DDS-Formate und ScreenCapture-Encoding bleiben offen.
 
 ### Aufgaben
 
 - Direct2D device/factory/context über Silk.NET.Direct2D erstellen.
 - DirectWrite-Zugriffe ersetzen oder über passende Windows/Silk.NET-Interop-Schicht kapseln.
 - WIC-Helper ersetzen:
-  - Für WPF bevorzugt WPF Imaging APIs nutzen, wenn keine native WIC-Semantik nötig ist.
+  - Für WPF bevorzugt WPF Imaging APIs nutzen, wenn keine native WIC-Semantik nötig ist. (Loading erledigt)
   - Native WIC nur dort kapseln, wo GPU-Texture-Upload oder ScreenCapture es verlangt.
 - `SharpDX.Toolkit.Graphics`-Layer bereinigen:
   - DDS-Parsing behalten.

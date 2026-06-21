@@ -16,7 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf.SharpDX.Model;
 using NUnit.Framework;
-using SharpDX;
 
 namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
 {
@@ -40,7 +39,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void LoadModelWithoutNormals()
         {
-            var objects = _objReader.Read(@"Models\obj\cornell_box.obj");
+            var objects = _objReader.Read(@"Models\obj\cornell_box\cornell_box.obj");
             
             Assert.IsNotNull(objects);
             Assert.AreEqual(9, objects.Count);
@@ -56,7 +55,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseFaceWithRelativeIndices() 
         {
-            var model = _objReader.Read(@"Models\obj\face_relative_vertices.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\face_relative_vertices.obj");
 
             Assert.AreEqual(1, model.Count);
             var geometry = (MeshGeometry3D)model[0].Geometry;
@@ -66,7 +65,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseFaceWithAbsoluteNormals() 
         {
-            var model = _objReader.Read(@"Models\obj\simple_triangle_with_normals.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\simple_triangle_with_normals.obj");
 
             Assert.AreEqual(1, model.Count);
             var geometry = (MeshGeometry3D)model[0].Geometry;
@@ -76,7 +75,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseFaceWithRelativeNormals() 
         {
-            var model = _objReader.Read(@"Models\obj\face_relative_vertex_normals.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\face_relative_vertex_normals.obj");
 
             Assert.AreEqual(1, model.Count);
             var geometry = (MeshGeometry3D)model[0].Geometry;
@@ -86,7 +85,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseFaceWithAbsoluteTextureCoords() 
         {
-            var model = _objReader.Read(@"Models\obj\simple_triangle_with_texture.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\simple_triangle_with_texture.obj");
 
             Assert.AreEqual(1, model.Count);
             var geometry = (MeshGeometry3D)model[0].Geometry;
@@ -96,7 +95,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseFaceWithRelativeTextureCoords() 
         {
-            var model = _objReader.Read(@"Models\obj\face_relative_texture_vertices.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\face_relative_texture_vertices.obj");
 
             Assert.AreEqual(1, model.Count);
             var geometry = (MeshGeometry3D)model[0].Geometry;
@@ -106,7 +105,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseSimpleTriangle() 
         {
-            var model = _objReader.Read(@"Models\obj\simple_triangle.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\simple_triangle.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });
@@ -115,7 +114,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseLineContinuations() 
         {
-            var model = _objReader.Read(@"Models\obj\line_continuation_single.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\line_continuation_single.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });
@@ -124,7 +123,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseLineContinuationsWithMultipleBreaks() 
         {
-            var model = _objReader.Read(@"Models\obj\line_continuation_multiple_breaks.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\line_continuation_multiple_breaks.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });
@@ -133,7 +132,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseLineContinuationsWithEmptyContinuations() 
         {
-            var model = _objReader.Read(@"Models\obj\line_continuation_empty_continuation.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\line_continuation_empty_continuation.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });
@@ -142,7 +141,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseLineContinuationsWithEmptyLineInMiddle() 
         {
-            var model = _objReader.Read(@"Models\obj\line_continuation_empty_line.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\line_continuation_empty_line.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });
@@ -151,7 +150,7 @@ namespace HelixToolkit.Wpf.SharpDX.Tests.Importers
         [Test]
         public void CanParseLineContinuationsInComments() 
         {
-            var model = _objReader.Read(@"Models\obj\line_continuation_comment.obj");
+            var model = _objReader.Read(@"Models\obj\obj_format_tests\line_continuation_comment.obj");
 
             Assert.AreEqual(1, model.Count);
             model[0].Geometry.Positions.AssertContains(new[] { -1d, 0d, 1d }, new[] { 1d, 0d, 1d }, new[] { -1d, 0d, -1d });

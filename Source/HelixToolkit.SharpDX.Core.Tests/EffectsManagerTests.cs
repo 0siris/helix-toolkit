@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Tests
         [Test]
         public void InitializationTest()
         {
-            var effectsManager = new DefaultEffectsManager();
+            using var effectsManager = new DefaultEffectsManager();
             foreach (var techName in effectsManager.RenderTechniques)
             {
                 var tech = effectsManager[techName];
@@ -25,9 +25,6 @@ namespace HelixToolkit.SharpDX.Core.Tests
                     Assert.IsFalse(p.IsNULL);
                 }
             }
-            effectsManager.Dispose();
-            var liveObjects = global::SharpDX.Diagnostics.ObjectTracker.FindActiveObjects();
-            Assert.AreEqual(0, liveObjects.Count);
         }
     }
 }

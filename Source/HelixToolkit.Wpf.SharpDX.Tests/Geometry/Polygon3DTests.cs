@@ -7,8 +7,6 @@
 namespace HelixToolkit.Wpf.SharpDX.Tests.Geometry
 {
     using System.Collections.Generic;
-    using global::SharpDX;
-
     using NUnit.Framework;
 
     [TestFixture]

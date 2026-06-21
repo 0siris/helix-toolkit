@@ -12,7 +12,7 @@ using System.Threading;
 using HelixToolkit.SharpDX.Core.Controls;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using NUnit.Framework;
-using SharpDX;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace HelixToolkit.SharpDX.Core.Tests
 {

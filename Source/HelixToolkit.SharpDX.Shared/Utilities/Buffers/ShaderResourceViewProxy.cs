@@ -5,6 +5,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System;
 using System.IO;
+using SharpDX.Toolkit.Graphics;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -139,10 +140,80 @@ namespace HelixToolkit.UWP
 
             public void CreateView(TextureModel texture, bool createSRV = true, bool enableAutoGenMipMap = true)
             {
+                if (texture == null)
+                {
+                    return;
+                }
+
+                var info = texture.Load();
+                var succeeded = false;
+                try
+                {
+                    if (info.DataType == TextureDataType.Stream && info.IsCompressed)
+                    {
+                        CreateView(info.Texture, createSRV, enableAutoGenMipMap);
+                        succeeded = resource != null;
+                    }
+                }
+                finally
+                {
+                    texture.Complete(info, succeeded);
+                }
             }
 
             public void CreateView(Stream texture, bool createSRV = true, bool enableAutoGenMipMap = true)
             {
+                if (nativeDevice == null || texture == null)
+                {
+                    return;
+                }
+
+                var originalPosition = texture.CanSeek ? texture.Position : 0;
+                try
+                {
+                    if (texture.CanSeek)
+                    {
+                        texture.Position = 0;
+                    }
+
+                    using (var image = Image.Load(texture))
+                    {
+                        if (image == null || image.Description.Dimension != TextureDimension.Texture2D)
+                        {
+                            return;
+                        }
+
+                        RemoveAndDispose(ref textureView);
+                        RemoveAndDispose(ref resource);
+
+                        var description = new Texture2DDescription
+                        {
+                            Width = image.Description.Width,
+                            Height = image.Description.Height,
+                            MipLevels = image.Description.MipLevels,
+                            ArraySize = image.Description.ArraySize,
+                            Format = image.Description.Format,
+                            SampleDescription = new SampleDescription(1, 0),
+                            BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                            CpuAccessFlags = CpuAccessFlags.None,
+                            OptionFlags = ResourceOptionFlags.None,
+                            Usage = ResourceUsage.Immutable
+                        };
+                        resource = nativeDevice.CreateTexture2D(description, image.ToDataBox());
+                        TextureFormat = description.Format;
+                        if (createSRV)
+                        {
+                            CreateTextureView();
+                        }
+                    }
+                }
+                finally
+                {
+                    if (texture.CanSeek)
+                    {
+                        texture.Position = originalPosition;
+                    }
+                }
             }
 
             public void CreateView(ShaderResourceViewDescription desc)

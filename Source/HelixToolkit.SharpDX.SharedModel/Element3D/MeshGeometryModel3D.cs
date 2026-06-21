@@ -2,23 +2,22 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX;
 #if NETFX_CORE
 using  Windows.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Windows.UI.Colors;
+using PlatformColor = Windows.UI.Color;
+using PlatformColors = Windows.UI.Colors;
 
 namespace HelixToolkit.UWP
 #elif WINUI 
 using Microsoft.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Microsoft.UI.Colors;
+using PlatformColor = Windows.UI.Color;
+using PlatformColors = Microsoft.UI.Colors;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 namespace HelixToolkit.WinUI
 #else
 using System.Windows;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
+using PlatformColor = System.Windows.Media.Color;
+using PlatformColors = System.Windows.Media.Colors;
 #if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
 #endif
@@ -64,9 +63,9 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The wireframe color property
         /// </summary>
         public static readonly DependencyProperty WireframeColorProperty =
-            DependencyProperty.Register("WireframeColor", typeof(Color), typeof(MeshGeometryModel3D), new PropertyMetadata(Colors.SkyBlue, (d, e) =>
+            DependencyProperty.Register("WireframeColor", typeof(PlatformColor), typeof(MeshGeometryModel3D), new PropertyMetadata(PlatformColors.SkyBlue, (d, e) =>
             {
-                ((d as Element3DCore).SceneNode as MeshNode).WireframeColor = ((Color)e.NewValue).ToColor4();
+                ((d as Element3DCore).SceneNode as MeshNode).WireframeColor = ((PlatformColor)e.NewValue).ToColor4();
             }));
 
         /// <summary>
@@ -93,11 +92,11 @@ namespace HelixToolkit.Wpf.SharpDX
         /// <value>
         /// The color of the wireframe.
         /// </value>
-        public Color WireframeColor
+        public PlatformColor WireframeColor
         {
             get
             {
-                return (Color)GetValue(WireframeColorProperty);
+                return (PlatformColor)GetValue(WireframeColorProperty);
             }
             set
             {

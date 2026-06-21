@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj" Aliases="WpfAssimpAssembly" />
     <ProjectReference Include="..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" Aliases="global,WpfAssembly" />
     <ProjectReference Include="..\HelixToolkit\HelixToolkit.csproj" />
   </ItemGroup>

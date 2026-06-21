@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using Assimp;
 using Assimp.Unmanaged;
-using SharpDX.Direct3D11;
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -57,9 +56,9 @@ namespace HelixToolkit.UWP
                 assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_AMBIENT_BASE, phong.AmbientColor.ToAssimpColor4D()));
                 assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.SHININESS_BASE, phong.SpecularShininess));
                 
-                if(phong.DiffuseColor.Alpha < 1f)
+                if(phong.DiffuseColor.W < 1f)
                 {
-                    assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.OPACITY_BASE, phong.DiffuseColor.Alpha));
+                    assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.OPACITY_BASE, phong.DiffuseColor.W));
                 }
                 if (phong.DiffuseMap != null && !string.IsNullOrEmpty(phong.DiffuseMapFilePath))
                 {
@@ -118,9 +117,9 @@ namespace HelixToolkit.UWP
                     assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS, true));
                     assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR, pbr.ReflectanceFactor));
                 }
-                if(pbr.AlbedoColor.Alpha < 1)
+                if(pbr.AlbedoColor.W < 1)
                 {
-                    assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.OPACITY, pbr.AlbedoColor.Alpha));
+                    assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.OPACITY, pbr.AlbedoColor.W));
                 }
                 if(pbr.AlbedoMap != null && !string.IsNullOrEmpty(pbr.AlbedoMapFilePath))
                 {

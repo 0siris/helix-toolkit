@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using Assimp;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -163,7 +161,11 @@ namespace HelixToolkit.UWP
                 var hMesh = new MeshGeometry3D { Positions = hVertices, Indices = builder.TriangleIndices };
                 if (mesh.HasNormals && mesh.Normals.Count == hMesh.Positions.Count)
                 {
-                    hMesh.Normals = new Vector3Collection(mesh.Normals.Select(x => Vector3.Normalize(x.ToSharpDXVector3())));
+                    hMesh.Normals = new Vector3Collection(mesh.Normals.Select(x =>
+                    {
+                        var normal = x.ToSharpDXVector3();
+                        return normal.Length > 0 ? normal / normal.Length : normal;
+                    }));
                 }
                 else
                 {

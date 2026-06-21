@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using Assimp;
 using Assimp.Configs;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.IO;

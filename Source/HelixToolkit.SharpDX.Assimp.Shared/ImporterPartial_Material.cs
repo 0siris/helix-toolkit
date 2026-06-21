@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using Assimp;
 using Assimp.Unmanaged;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -42,19 +40,19 @@ namespace HelixToolkit.UWP
             {
                 var phong = new PhongMaterialCore
                 {
-                    AmbientColor = (material.HasColorAmbient && !configuration.IgnoreAmbientColor) ? material.ColorAmbient.ToSharpDXColor4() : Color.Black,
-                    DiffuseColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : Color.White,
-                    SpecularColor = material.HasColorSpecular ? material.ColorSpecular.ToSharpDXColor4() : Color.Black,
-                    EmissiveColor = (material.HasColorEmissive && !configuration.IgnoreEmissiveColor) ? material.ColorEmissive.ToSharpDXColor4() : Color.Black,
+                    AmbientColor = (material.HasColorAmbient && !configuration.IgnoreAmbientColor) ? material.ColorAmbient.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
+                    DiffuseColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : new Color4(1, 1, 1, 1),
+                    SpecularColor = material.HasColorSpecular ? material.ColorSpecular.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
+                    EmissiveColor = (material.HasColorEmissive && !configuration.IgnoreEmissiveColor) ? material.ColorEmissive.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
                     ReflectiveColor = material.HasColorReflective
                         ? material.ColorReflective.ToSharpDXColor4()
-                        : Color.Black,
+                        : new Color4(0, 0, 0, 1),
                     SpecularShininess = material.Shininess
                 };
                 if (material.HasOpacity)
                 {
                     var c = phong.DiffuseColor;
-                    c.Alpha = material.Opacity;
+                    c.W = material.Opacity;
                     phong.DiffuseColor = c;
                 }
 
@@ -120,10 +118,10 @@ namespace HelixToolkit.UWP
             {
                 var pbr = new PBRMaterialCore
                 {
-                    AlbedoColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : Color.Black,
+                    AlbedoColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
                     EmissiveColor = material.HasColorEmissive && !Configuration.IgnoreEmissiveColor
                         ? material.ColorEmissive.ToSharpDXColor4()
-                        : Color.Black,
+                        : new Color4(0, 0, 0, 1),
                 };
                 if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR))
                 {
@@ -172,7 +170,7 @@ namespace HelixToolkit.UWP
                 if (material.HasOpacity)
                 {
                     var c = pbr.AlbedoColor;
-                    c.Alpha = material.Opacity;
+                    c.W = material.Opacity;
                     pbr.AlbedoColor = c;
                 }
 
@@ -309,7 +307,7 @@ namespace HelixToolkit.UWP
                             if (material.HasOpacity)
                             {
                                 var c = diffuse.DiffuseColor;
-                                c.Alpha = material.Opacity;
+                                c.W = material.Opacity;
                                 diffuse.DiffuseColor = c;
                             }
 
@@ -342,7 +340,7 @@ namespace HelixToolkit.UWP
                                     break;
                                 default:
                                     logger.LogWarning("Shading Mode is not supported: {0}", material.ShadingMode);
-                                    core = new DiffuseMaterialCore() { DiffuseColor = Color.Red, EnableUnLit = true };
+                                    core = new DiffuseMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1), EnableUnLit = true };
                                     break;
                             }
                             break;

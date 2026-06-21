@@ -4,8 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using Assimp;
 using Assimp.Configs;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -128,7 +126,7 @@ namespace HelixToolkit.UWP
             /// <summary>
             /// The skeleton material
             /// </summary>
-            public MaterialCore SkeletonMaterial = new Model.DiffuseMaterialCore() { DiffuseColor = Color.Red };
+            public MaterialCore SkeletonMaterial = new Model.DiffuseMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1) };
             /// <summary>
             /// The skeleton effects such as xray effects
             /// </summary>

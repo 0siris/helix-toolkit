@@ -58,7 +58,7 @@ namespace HelixToolkit.UWP
                     }
                     if(rotCount == 0)
                     {
-                        channel.RotationKeys.Add(new QuaternionKey(0, new Quaternion()));
+                        channel.RotationKeys.Add(new QuaternionKey(0, new global::Assimp.Quaternion()));
                     }
                     if(scaleCount == 0)
                     {

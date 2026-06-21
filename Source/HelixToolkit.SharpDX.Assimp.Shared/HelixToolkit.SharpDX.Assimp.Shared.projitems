@@ -24,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ImporterPartial_Mesh.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ImporterPartial_Material.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SilkNetMathAliases.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)HelixToolkit.SharpDX.Shared.licenseheader" />

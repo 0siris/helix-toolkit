@@ -586,6 +586,16 @@ dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests
 
 Ergebnis: Das WPF-Testprojekt verwendet wieder `Microsoft.NET.Test.Sdk`, testlokale Silk-Math-Aliase und einen Assembly-Alias für doppelt eingebettete WPF/Core-Typen. Alte ObjectTracker-Abhängigkeit, OBJ-Testpfade, WPF-Brush-/Color-DependencyProperty-Typen und negative Null im OBJ-Export sind korrigiert. Der Build läuft mit `0` Fehlern; alle `37` WPF-Tests laufen grün.
 
+Zusätzliche Prüfung der Assimp-WPF-Math-/Build-Kante:
+
+```powershell
+dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~AssimpExtensionsTests
+```
+
+Ergebnis: Die Assimp-Konverter verwenden lokale `Silk.NET.Maths`-Aliase für Matrix, Vektoren, Quaternion und Farbe. Material-Opacity nutzt die Silk-`W`-Komponente; Cull-/Fill-/TextureAddress-Modi kommen aus den nativen Helix-D3D11-Typen. `HelixToolkit.Wpf.SharpDX.Assimp` und `HelixToolkit.SharpDX.Core.Assimp` bauen mit `0` Fehlern. Ein Konvertertest deckt Matrix-Transpose und Alpha-Erhalt ab; die vollständigen Tests laufen mit `38/38` WPF- und `12/12` Core-Tests grün.
+
 Stand dieses Implementierungsschnitts:
 
 - Die Silk.NET-Device-Erzeugung ist als interner Parallelpfad vorhanden.
@@ -991,10 +1001,12 @@ Ziel: Import/Export-Workflows bleiben im WPF-Scope erhalten.
 
 ### Fortschritt
 
-Status: Noch offen.
+Status: In Arbeit.
 
 - WPF.Assimp ist im supported Scope enthalten und die SharpDX-PackageReferences sind entfernt.
-- Assimp-Math-Konverter, Material-/Texture-Mapping und Builds sind noch nicht migriert.
+- Assimp-Math-Konverter, Materialfarben und D3D11-State-Typen verwenden Silk.NET-/Helix-Typen.
+- `HelixToolkit.Wpf.SharpDX.Assimp` baut fehlerfrei.
+- Native Import-/Export-Smoke-Tests mit Material und Texture sowie das `FileLoadDemo`-Gate bleiben offen.
 
 ### Aufgaben
 

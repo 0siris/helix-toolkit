@@ -78,37 +78,21 @@ namespace HelixToolkit.UWP
                 else
                 {
                     RemoveAndDispose(ref d2dTarget);
-                    RemoveAndDispose(ref backBuffer);                   
-                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount, TargetWidth, TargetHeight, swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
+                    RemoveAndDispose(ref backBuffer);
+                    DeviceResources.NativeDeviceResources.ImmediateContext.ClearState();
+                    DeviceResources.NativeDeviceResources.ImmediateContext.Flush();
+                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount, width, height, swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
                 }
-                backBuffer = CreateBackBufferTexture(width, height);
+                backBuffer = new ShaderResourceViewProxy(DeviceResources, swapChain.GetBackBuffer());
                 d2dTarget = new D2DTargetProxy();
                 d2dTarget.Initialize(swapChain, DeviceContext2D);
                 return backBuffer;
             }
 
-            private ShaderResourceViewProxy CreateBackBufferTexture(int width, int height)
-            {
-                var desc = new Texture2DDescription
-                {
-                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                    Format = Format,
-                    Width = width,
-                    Height = height,
-                    MipLevels = 1,
-                    SampleDescription = new SampleDescription(1, 0),
-                    Usage = ResourceUsage.Default,
-                    OptionFlags = ResourceOptionFlags.Shared,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    ArraySize = 1
-                };
-                return new ShaderResourceViewProxy(DeviceResources, desc);
-            }
-
             private SwapChain1 CreateSwapChain(System.IntPtr surfacePointer)
             {
                 var desc = CreateSwapChainDescription();
-                return new SwapChain1(desc, surfacePointer);
+                return new SwapChain1(desc, surfacePointer, DeviceResources.NativeDeviceResources.Device);
             }
 
             /// <summary>
@@ -147,16 +131,7 @@ namespace HelixToolkit.UWP
             /// <returns></returns>
             public override bool Present()
             {
-                var res = swapChain.Present(VSyncInterval, PresentFlags.None, presentParams);
-                if (res.Success)
-                {
-                    return true;
-                }
-                else
-                {
-                    swapChain.Present(VSyncInterval, PresentFlags.Restart, presentParams);
-                    return false;
-                }
+                return swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
             }
             /// <summary>
             /// Must release swapchain at last after all its created resources have been released.

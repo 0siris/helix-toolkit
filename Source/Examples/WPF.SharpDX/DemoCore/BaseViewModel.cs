@@ -128,7 +128,7 @@ namespace DemoCore
                 }
                 else
                 {
-                    throw new HelixToolkitException("Camera Model Error.");
+                    throw new InvalidOperationException("Camera Model Error.");
                 }
             };
 

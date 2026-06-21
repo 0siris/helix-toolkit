@@ -618,8 +618,8 @@ Stand dieses Implementierungsschnitts:
 - Die Billboard-/BitmapExtensions-/ImagePacker-DWrite-/WIC-Kante ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; Managed-BMP-Streams sind vorerst Platzhalter für spätere echte Text-/Bitmap-Encoding-Implementierung.
 - Die einfache Material-/Scene-State-Signatur-Kante ist von SharpDX-D3D11-/DXGI-Imports gelöst; Material- und SceneNode-Properties verwenden die eigenen State-/Format-/View-Typen.
 - Die einfache RenderCore-/PostEffect-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; die verbleibenden Treffer in diesem Umfeld liegen in bewusst ausgeklammerten ScreenClone-/RenderBuffer-/SwapChain-/EffectsManager-Interop-Pfaden.
-- Die RenderBuffer-/SwapChain-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; Offscreen-BackBuffer-Textures werden nativ erzeugt, echte DXGI-SwapChain- und D3DImage-Surface-Interop bleiben noch Platzhalter bzw. separate Kanten.
-- Die ScreenClone-/ScreenCapture-/D3DImage-Interop-Signatur-Kante ist von SharpDX-D3D11-/DXGI-/WIC-Typen und `LegacyDevice`-Abfragen gelöst; echte Desktop-Duplication, WIC-Encoding und D3D9Ex-BackBuffer-Interop bleiben separate Implementierungskanten.
+- Die RenderBuffer-/SwapChain-D3D11-/DXGI-Kante verwendet eine echte Silk.NET-DXGI-Flip-Model-SwapChain mit nativem Backbuffer, Present und ResizeBuffers.
+- Der D3DImage-Pfad öffnet shared D3D11-Textures über Silk.NET.Direct3D9 als `IDirect3DSurface9`; Desktop-Duplication und WIC-Encoding bleiben separate Implementierungskanten.
 - Die einfache Shader-/ResourceManager-D3D11-/DXGI-Restkante ist von SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen gelöst; `EffectsManager` erzeugt keine SharpDX-D3D11-Device-Instanz mehr.
 - Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; WPF-Standardbilder werden per `BitmapDecoder` nach BGRA32 dekodiert und als native Texture2D/SRV hochgeladen. Die im Repository verwendeten DDS-Formate werden geladen; WIC-/DDS-Encoding und exotische Legacy-DDS-Formate bleiben offen.
 - Die erste qualifizierte SharpDX-Math- und Shared-Geometrie-Kante ist gelöst; der Compiler erreicht jetzt die nächste breite Compatibility-Front in Toolkit-`Format`/`Utilities` und generischen Silk-Math-Methodenunterschieden.
@@ -652,7 +652,7 @@ Pragmatische Reihenfolge für die nächsten Commits:
 
 1. Warnungen nach Migration, Nullable und veralteten APIs gruppieren und regressionsrelevante Warnungen zuerst schließen.
 2. WPF-Image-/ScreenCapture-Encoding ergänzen.
-3. Echte Silk.NET-DXGI-SwapChain-Factory/Adapter-Ownership, Desktop-Duplication und D3DImage-BackBuffer-Interop ergänzen.
+3. DXGI-Adapterauswahl, Desktop-Duplication und manuelle WPF-Interop-Lifecycle-Smokes ergänzen.
 4. Verbleibende WPF-Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 5. WPF-/Core-Smoke-Tests für Device-Erzeugung, Offscreen-Texture-Views und RenderHost-Lifecycle ergänzen.
 
@@ -787,7 +787,7 @@ Ziel: SharpDX `ComObject`-Disposal durch explizite Silk.NET-COM-Ownership ersetz
 
 ### Fortschritt
 
-Status: In Arbeit.
+Status: Implementierung abgeschlossen.
 
 - Erste native Ownership-Grenze ist vorhanden: `INativeDeviceResources`, `SilkD3DDeviceResources`, `SilkD3DDevice` und `SilkD3DDeviceContext`.
 - `ID3D11Device`, `ID3D11DeviceContext`, Views, Resource und Buffer werden in den neuen Pfaden über `Silk.NET.Core.Native.ComPtr<T>` gehalten.
@@ -884,10 +884,17 @@ Ziel: Beide WPF-Renderpfade funktionieren ohne SharpDX.
 
 ### Fortschritt
 
-Status: Noch offen.
+Status: In Arbeit.
 
-- D3DImage- und SwapChain-Pfade sind fachlich beschrieben.
-- Noch keine D3D9Ex-/DXGI-Interop-Portierung mit Silk.NET umgesetzt.
+- Der HwndHost-Pfad erstellt eine echte Flip-Model-SwapChain über `Silk.NET.DXGI`.
+- `DX11SwapChainRenderBufferProxy` verwendet den nativen SwapChain-Backbuffer und unterstützt `Present` sowie `ResizeBuffers`.
+- COM-Rückgabezeiger werden beim Übergang in `ComPtr` explizit übernommen, damit Backbuffer und RTV vor `ResizeBuffers` vollständig freigegeben werden.
+- Ein STA-Integrationstest validiert Create, Present, Resize und erneutes Present mit einem echten HWND.
+- Der D3DImage-Pfad erstellt ein D3D9Ex-Device über `Silk.NET.Direct3D9`, öffnet den D3D11-Shared-Handle als D3D9-Texture und setzt deren Surface mit Software-Fallback als WPF-Backbuffer.
+- `DPFSurfaceSwapChain.D3DImageExt` verwendet wieder eine native 1x1-D3D9Ex-Surface als WPF-Composition-Taktgeber.
+- Ein STA-Integrationstest validiert Shared-Texture-Öffnung, Pixelmaße, Device-State und Invalidation.
+- Negative Present-HRESULTs erreichen als `COMException` den bestehenden RenderHost-Recovery-Pfad; DeviceRemoved, DeviceHung, DeviceReset und AccessLost werden behandelt.
+- `SwapChainRenderingDemo` baut und besteht einen fünfsekündigen Startup-Smoke-Test.
 
 ### D3DImage-Pfad
 
@@ -900,12 +907,12 @@ Betroffene Kernbereiche:
 
 Aufgaben:
 
-- D3D9Ex-Device mit `Silk.NET.Direct3D9` erstellen.
-- D3D11 shared texture handle über Silk.NET.DXGI abfragen.
-- Shared texture als D3D9 texture/surface öffnen.
-- `IDirect3DSurface9`-Pointer an `D3DImage.SetBackBuffer(...)` übergeben.
-- FrontBuffer-Changed und Software-Fallback-Verhalten erhalten.
-- `AddDirtyRect`/`Unlock`-Pfad unverändert in WPF halten.
+- D3D9Ex-Device mit `Silk.NET.Direct3D9` erstellen. (erledigt)
+- D3D11 shared texture handle über Silk.NET.DXGI abfragen. (erledigt)
+- Shared texture als D3D9 texture/surface öffnen. (erledigt)
+- `IDirect3DSurface9`-Pointer an `D3DImage.SetBackBuffer(...)` übergeben. (erledigt)
+- FrontBuffer-Changed und Software-Fallback-Verhalten erhalten. (erledigt, manueller FrontBuffer-Smoke offen)
+- `AddDirtyRect`/`Unlock`-Pfad unverändert in WPF halten. (erledigt)
 
 ### SwapChain/HwndHost-Pfad
 
@@ -918,10 +925,23 @@ Betroffene Kernbereiche:
 
 Aufgaben:
 
-- SwapChain über Silk.NET.DXGI Factory erstellen.
-- ResizeBuffers, Present und DeviceRemoved handling migrieren.
-- `EnableSwapChainRendering=true` beibehalten.
-- DPI scaling und parent window lifetime erhalten.
+- SwapChain über Silk.NET.DXGI Factory erstellen. (erledigt)
+- Nativen SwapChain-Backbuffer als RTV verwenden. (erledigt)
+- ResizeBuffers und Present migrieren. (erledigt)
+- DeviceRemoved handling vervollständigen. (erledigt)
+- `EnableSwapChainRendering=true` beibehalten und im Beispielpfad validieren. (erledigt)
+- DPI scaling, unload/reload und parent window lifetime manuell validieren.
+
+### Validierung
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-build --no-restore -m:1
+dotnet build Source\Examples\WPF.SharpDX\SwapChainRenderingDemo\SwapChainRenderingDemo.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Core und WPF bauen mit `0` Fehlern. Alle `40` WPF-Tests laufen grün. `SwapChainRenderBufferTests` erstellt eine native SwapChain an einem echten HWND und validiert Backbuffer, Present sowie drei Resize-/Present-Zyklen. `DX11ImageSourceTests` öffnet eine native shared D3D11-Texture über D3D9Ex und validiert drei Attach-/Invalidate-/Detach-Zyklen. `SwapChainRenderingDemo` baut mit `0` Fehlern und bleibt im fünfsekündigen Startup-Smoke stabil. `SimpleDemo` ist weiterhin durch seine separate SharpDX-zu-Silk-Math-Beispielmigration blockiert. Manuelle DPI-, FrontBuffer-, unload/reload- und window-close-Tests bleiben als Hardware-/WPF-Akzeptanzmatrix offen, nicht als Phase-6-Implementierung.
 
 ### Gate
 
@@ -1095,7 +1115,7 @@ Erwartung:
 - [ ] Supported Scope baut ohne SharpDX-PackageReferences.
 - [ ] Supported Scope enthält keine SharpDX-Code-Referenzen.
 - [ ] Beide WPF-Renderpfade funktionieren.
-- [ ] `D3DImage` erhält seine `IDirect3DSurface9` über Silk.NET.Direct3D9.
+- [x] `D3DImage` erhält seine `IDirect3DSurface9` über Silk.NET.Direct3D9.
 - [ ] Shader Reflection läuft über `D3DReflect`.
 - [ ] Assimp Import/Export ist migriert.
 - [ ] Texture loading und screen capture funktionieren.

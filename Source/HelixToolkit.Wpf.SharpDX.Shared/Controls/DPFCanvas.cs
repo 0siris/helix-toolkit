@@ -307,9 +307,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             EndD3D();
 
-            if (exception is COMException comException &&
-                (comException.HResult == unchecked((int)0x887A0005) ||
-                 comException.HResult == unchecked((int)0x887A0007)))
+            if (exception is COMException comException && IsDeviceLost(comException.HResult))
             {
                 // Try to recover from DeviceRemoved/DeviceReset
                 StartD3D();
@@ -321,6 +319,14 @@ namespace HelixToolkit.Wpf.SharpDX
                 ExceptionOccurred(this, args);
                 return args.Handled;
             }
+        }
+
+        private static bool IsDeviceLost(int hresult)
+        {
+            return hresult == unchecked((int)0x887A0005)
+                || hresult == unchecked((int)0x887A0006)
+                || hresult == unchecked((int)0x887A0007)
+                || hresult == unchecked((int)0x887A0026);
         }
 
         public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject

@@ -47,7 +47,8 @@ namespace HelixToolkit.UWP
             public void Initialize(object swapChain, D2DDeviceContext deviceContext)
             {
                 RemoveAndDispose(ref d2DTarget);
-                d2DTarget = BitmapProxy.Create("SwapChainTarget", deviceContext, swapChain);
+                // The D2D wrapper must not take ownership of the swap chain.
+                d2DTarget = BitmapProxy.Create("SwapChainTarget", deviceContext, null);
             }
             /// <summary>
             /// 

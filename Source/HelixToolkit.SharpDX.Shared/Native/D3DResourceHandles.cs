@@ -6,6 +6,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 using System;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
+using Silk.NET.DXGI;
 using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
 using SilkD3D11ResourcePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Resource>;
 using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture1D>;
@@ -437,6 +438,7 @@ namespace HelixToolkit.UWP
 
     public unsafe sealed class Texture2D : Resource
     {
+        private static readonly Guid DxgiResourceGuid = new Guid("035f3ab4-482e-4e50-b41f-8a7f8bd8960b");
         private SilkD3D11Texture2DPtr nativeTexture;
 
         internal Texture2D(SilkD3D11Texture2DPtr nativeTexture, Native.SilkD3DDevice device, Texture2DDescription description)
@@ -455,6 +457,23 @@ namespace HelixToolkit.UWP
         internal Native.SilkD3DDevice Device { get; }
 
         public Texture2DDescription Description { get; }
+
+        internal IntPtr GetSharedHandle()
+        {
+            IDXGIResource* resource = null;
+            var resourceGuid = DxgiResourceGuid;
+            SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**)&resource));
+            try
+            {
+                void* sharedHandle = null;
+                SilkMarshal.ThrowHResult(resource->GetSharedHandle(&sharedHandle));
+                return (IntPtr)sharedHandle;
+            }
+            finally
+            {
+                resource->Release();
+            }
+        }
 
         public override void Dispose()
         {

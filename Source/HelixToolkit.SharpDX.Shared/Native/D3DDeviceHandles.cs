@@ -383,11 +383,15 @@ namespace HelixToolkit.UWP
                 {
                     var viewDesc = description.Value.ToSilkDesc();
                     SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, ref viewDesc, ref view));
-                    return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view), resource);
+                    var nativeView = new SilkD3D11RenderTargetViewPtr(view);
+                    view->Release();
+                    return new RenderTargetView(nativeView, resource);
                 }
 
                 SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, (RenderTargetViewDesc*)null, ref view));
-                return new RenderTargetView(new SilkD3D11RenderTargetViewPtr(view), resource);
+                var defaultNativeView = new SilkD3D11RenderTargetViewPtr(view);
+                view->Release();
+                return new RenderTargetView(defaultNativeView, resource);
             }
 
             public DepthStencilView CreateDepthStencilView(Resource resource, DepthStencilViewDescription? description = null)

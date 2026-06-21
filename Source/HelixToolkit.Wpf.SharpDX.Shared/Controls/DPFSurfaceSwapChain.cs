@@ -12,7 +12,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
-using global::SharpDX;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Diagnostics.CodeAnalysis;  
@@ -291,9 +290,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             EndD3D();
 
-            if (exception is COMException comException &&
-                (comException.HResult == unchecked((int)0x887A0005) ||
-                 comException.HResult == unchecked((int)0x887A0007)))
+            if (exception is COMException comException && IsDeviceLost(comException.HResult))
             {
                 // Try to recover from DeviceRemoved/DeviceReset
                 StartD3D();
@@ -305,6 +302,14 @@ namespace HelixToolkit.Wpf.SharpDX
                 ExceptionOccurred(this, args);
                 return args.Handled;
             }
+        }
+
+        private static bool IsDeviceLost(int hresult)
+        {
+            return hresult == unchecked((int)0x887A0005)
+                || hresult == unchecked((int)0x887A0006)
+                || hresult == unchecked((int)0x887A0007)
+                || hresult == unchecked((int)0x887A0026);
         }
 
         public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject
@@ -360,6 +365,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         private sealed class D3DImageExt : D3DImage, IDisposable
         {
+            private readonly D3D9ImageSourceInterop interop;
             private readonly int adapterIndex;
 
             public int AdapterIndex => adapterIndex;
@@ -367,20 +373,50 @@ namespace HelixToolkit.Wpf.SharpDX
             public D3DImageExt(int adapterIndex = 0)
             {
                 this.adapterIndex = adapterIndex;
+                interop = new D3D9ImageSourceInterop(adapterIndex);
+                interop.CreateRenderTarget(1, 1);
+                Lock();
+                try
+                {
+                    SetBackBuffer(D3DResourceType.IDirect3DSurface9, interop.SurfacePointer, true);
+                    AddDirtyRect(new Int32Rect(0, 0, 1, 1));
+                }
+                finally
+                {
+                    Unlock();
+                }
             }
 
             public void InvalidateD3DImage()
             {
-                // ponytail: D3D9Ex back-buffer interop remains a later migration edge.
+                Lock();
+                try
+                {
+                    AddDirtyRect(new Int32Rect(0, 0, 1, 1));
+                }
+                finally
+                {
+                    Unlock();
+                }
             }
 
             public bool IsDeviceStateOk()
             {
-                return true;
+                return interop.IsDeviceStateOk();
             }
 
             public void Dispose()
             {
+                Lock();
+                try
+                {
+                    SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
+                }
+                finally
+                {
+                    Unlock();
+                }
+                interop.Dispose();
             }
         }
     }

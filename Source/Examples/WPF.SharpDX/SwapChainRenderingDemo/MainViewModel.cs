@@ -5,22 +5,19 @@
     using System.Windows.Media.Imaging;
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using HelixToolkit.Wpf;
     using System.IO;
     using System.Collections.Generic;
     using System.Linq;
-    using SharpDX.Direct3D11;
     using System.Diagnostics;
     using System.Threading.Tasks;
     using System.Threading;
@@ -128,7 +125,7 @@
         public Camera Camera3 { get; } = new PerspectiveCamera { Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0) };
 
         public Camera Camera4 { get; } = new PerspectiveCamera { Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0) };
-        public FillMode FillMode { set; get; } = FillMode.Solid;
+        public HelixToolkit.Wpf.SharpDX.FillMode FillMode { set; get; } = HelixToolkit.Wpf.SharpDX.FillMode.Solid;
 
         public int NumberOfTriangles { set; get; } = 0;
         public int NumberOfVertices { set; get; } = 0;
@@ -139,7 +136,7 @@
             {
                 if (SetValue(ref showWireframe, value))
                 {
-                    FillMode = value ? FillMode.Wireframe : FillMode.Solid;
+                    FillMode = value ? HelixToolkit.Wpf.SharpDX.FillMode.Wireframe : HelixToolkit.Wpf.SharpDX.FillMode.Solid;
                 }
             }
             get

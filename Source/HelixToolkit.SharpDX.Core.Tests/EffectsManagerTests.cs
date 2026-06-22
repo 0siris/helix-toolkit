@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using NUnit.Framework;
+using System.Linq;
 
 namespace HelixToolkit.SharpDX.Core.Tests
 {
@@ -23,6 +24,17 @@ namespace HelixToolkit.SharpDX.Core.Tests
                 {
                     var p = tech[passName];
                     Assert.IsFalse(p.IsNULL);
+                    var description = tech.Description.PassDescriptions.Single(x => x.Name == passName);
+                    foreach (var shader in description.ShaderList)
+                    {
+                        Assert.That(p.GetShader(shader.ShaderType), Is.Not.Null, $"{techName}/{passName}/{shader.Name}");
+                        Assert.That(p.GetShader(shader.ShaderType).IsNULL, Is.False, $"{techName}/{passName}/{shader.Name}");
+                    }
+                    if (description.InputLayoutDescription != null
+                        && description.InputLayoutDescription != Shaders.InputLayoutDescription.EmptyInputLayout)
+                    {
+                        Assert.That(p.Layout, Is.Not.Null, $"{techName}/{passName}/InputLayout");
+                    }
                 }
             }
         }

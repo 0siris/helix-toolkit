@@ -33,7 +33,7 @@ namespace HelixToolkit.UWP
                 Stream shaderStream = assembly.GetManifestResourceStream($"HelixToolkit.SharpDX.Core.Resources.{name}.cso");
                 if (shaderStream == null)
                 {
-                    throw new System.Exception($"Shader byte code is not read. Shader Name: {name}");
+                    throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");
                 }
                 using (var memory = new MemoryStream())
                 {
@@ -45,19 +45,19 @@ namespace HelixToolkit.UWP
                 var filePath = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + $"\\HelixToolkit.UWP\\Resources\\{name}.cso";
                 if (!File.Exists(filePath))
                 {
-                    throw new System.Exception($"Shader byte code is not read. Shader Name: {name}");
+                    throw new FileNotFoundException($"Shader byte code was not found: {name}", filePath);
                 }
                 var byteCode = global::SharpDX.IO.NativeFile.ReadAllBytes(filePath);
                 if(byteCode == null)
                 {
-                    throw new System.Exception($"Shader byte code is not read. Shader Name: {name}");
+                    throw new FileNotFoundException($"Shader byte code was not found: {name}", filePath);
                 }
                 return byteCode;
 #else
                 var byteCode = Properties.Resources.ResourceManager.GetObject(name) as byte[];
                 if (byteCode == null)
                 {
-                    throw new System.Exception($"Shader byte code is not read. Shader Name: {name}");
+                    throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");
                 }
                 return byteCode;
 #endif

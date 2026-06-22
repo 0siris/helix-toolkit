@@ -29,7 +29,7 @@ Der Name `SharpDX` in der öffentlichen API ist damit ein Legacy-Kompatibilität
 | D3DImage Interop | WPF `D3DImage` benötigt weiter eine `IDirect3DSurface9`; diese wird mit `Silk.NET.Direct3D9` bereitgestellt. |
 | Math-Typen | `Silk.NET.Maths` wird das primäre Modell für Vektoren, Matrizen, Quaternionen und geometrische Math-Typen im migrierten DirectX-Scope. Bestehende Helix-Typen bleiben dort erhalten, wo sie bereits fachliche Semantik tragen. |
 | Public API | Namespace- und XAML-Kompatibilität bleiben, SharpDX-Typen in Signaturen werden aber migriert. |
-| Shader Reflection | Kein eigener DXBC-Parser. Reflection wird über `D3DReflect` aus `Silk.NET.Direct3D.Compilers` umgesetzt. |
+| Shader Reflection | Kein eigener DXBC-Parser. Reflection wird über `D3DReflect` aus `d3dcompiler_47.dll` umgesetzt, weil Silk.NET 2.23.0 keine D3D11-Reflection-Oberfläche bereitstellt. |
 | Assimp | `HelixToolkit.Wpf.SharpDX.Assimp` wird in der ersten Migration mit migriert. |
 | Paketversionen | Silk.NET-Pakete werden fest auf `2.23.0` gepinnt. Keine Wildcards. |
 
@@ -1003,12 +1003,13 @@ Ziel: Bestehende `.cso`-Shader weiterverwenden und Reflection-Daten ohne SharpDX
 
 ### Fortschritt
 
-Status: In Arbeit.
+Status: Erledigt.
 
 - `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
 - Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
 - Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
-- Offene Arbeit: Phase-8-Gate vollständig validieren; weiter entfernte Legacy-Interop-, Warnungs- und Utility-Kanten separat bereinigen.
+- Raw-ByteAddress-SRVs und RWStructured-UAVs werden als eigene Mapping-Typen reflektiert.
+- Fehlende Shader-Ressourcen liefern `FileNotFoundException`; leere und ungültige Bytecodes liefern eindeutige Argument-/Datenfehler.
 
 ### Aufgaben
 
@@ -1023,6 +1024,16 @@ Status: In Arbeit.
   - Input signatures, soweit für input layouts benötigt.
 - Shader creation für alle Shader-Stages auf Silk.NET.Direct3D11 migrieren.
 - Fehlerpfade für ungültige oder fehlende `.cso`-Ressourcen dokumentieren.
+
+### Validierung
+
+```powershell
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1
+```
+
+Ergebnis: Der WPF-Build läuft mit `0` Fehlern. Alle `103` eingebetteten Vertex-, Pixel-, Geometry-, Hull-, Domain- und Compute-Shader werden geladen und über `D3DReflect` ausgewertet. Bekannte ConstantBuffer-, Texture- und Sampler-Mappings werden mit Variablen und Größen validiert. Alle in den Default-Rendertechniken deklarierten Shader-Stages werden als native, nicht-leere Shader erzeugt; reguläre InputLayouts werden ebenfalls erzeugt. Alle `15` Core- und `42` WPF-Tests laufen grün.
 
 ### Gate
 
@@ -1131,7 +1142,7 @@ Erwartung:
 - [ ] Supported Scope enthält keine SharpDX-Code-Referenzen.
 - [ ] Beide WPF-Renderpfade funktionieren.
 - [x] `D3DImage` erhält seine `IDirect3DSurface9` über Silk.NET.Direct3D9.
-- [ ] Shader Reflection läuft über `D3DReflect`.
+- [x] Shader Reflection läuft über `D3DReflect`.
 - [ ] Assimp Import/Export ist migriert.
 - [ ] Texture loading und screen capture funktionieren.
 - [ ] WPF.SharpDX Beispiele aus der Smoke-Test-Liste laufen.

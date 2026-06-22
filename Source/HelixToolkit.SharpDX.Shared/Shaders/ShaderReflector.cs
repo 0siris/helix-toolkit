@@ -5,6 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 
 #if !NETFX_CORE
@@ -46,14 +47,18 @@ namespace HelixToolkit.UWP
                 if (byteCode == null || byteCode.Length == 0)
                 {
                     FeatureLevel = FeatureLevel.Level_DEFAULT;
-                    return;
+                    throw new ArgumentException("Shader bytecode cannot be empty.", nameof(byteCode));
                 }
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     void* reflectionPtr = null;
                     var shaderReflectionGuid = ShaderReflectionGuid;
-                    Marshal.ThrowExceptionForHR(D3DReflect(byteCodePtr, (nuint)byteCode.Length, ref shaderReflectionGuid, &reflectionPtr));
+                    var result = D3DReflect(byteCodePtr, (nuint)byteCode.Length, ref shaderReflectionGuid, &reflectionPtr);
+                    if (result < 0)
+                    {
+                        throw new InvalidDataException($"Invalid {stage} shader bytecode.", Marshal.GetExceptionForHR(result));
+                    }
                     var reflection = (ID3D11ShaderReflection*)reflectionPtr;
                     try
                     {
@@ -79,6 +84,9 @@ namespace HelixToolkit.UWP
                                 case ShaderInputType.Structured:
                                     TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.Structured).CreateMapping((int)resourceDesc.BindPoint));
                                     break;
+                                case ShaderInputType.ByteAddress:
+                                    TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.ByteAddress).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
                                 case ShaderInputType.TextureBuffer:
                                     TextureMappings.Add(name, new TextureDescription(name, stage, TextureType.TextureBuffer).CreateMapping((int)resourceDesc.BindPoint));
                                     break;
@@ -95,8 +103,10 @@ namespace HelixToolkit.UWP
                                     UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWStructuredWithCounter).CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewRWTyped:
-                                case ShaderInputType.UnorderedAccessViewRWStructured:
                                     UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWTyped).CreateMapping((int)resourceDesc.BindPoint));
+                                    break;
+                                case ShaderInputType.UnorderedAccessViewRWStructured:
+                                    UAVMappings.Add(name, new UAVDescription(name, stage, UnorderedAccessViewType.RWStructured).CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.Sampler:
                                     SamplerMappings.Add(name, new SamplerMapping((int)resourceDesc.BindPoint, name, stage));

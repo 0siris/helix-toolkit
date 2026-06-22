@@ -19,7 +19,7 @@ namespace HelixToolkit.UWP
     {
         public enum TextureType
         {
-            Texture, Structured, TextureBuffer
+            Texture, Structured, TextureBuffer, ByteAddress
         }
         /// <summary>
         /// 

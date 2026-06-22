@@ -21,7 +21,8 @@ namespace HelixToolkit.UWP
             ConsumeStructured,
             RWByteAddress,
             RWStructuredWithCounter,
-            RWTyped
+            RWTyped,
+            RWStructured
         };
         public sealed class UAVDescription
         {

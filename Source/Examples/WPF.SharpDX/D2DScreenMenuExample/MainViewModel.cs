@@ -1,6 +1,5 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +10,7 @@ using Media3D = System.Windows.Media.Media3D;
 using Media = System.Windows.Media;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace D2DScreenMenuExample

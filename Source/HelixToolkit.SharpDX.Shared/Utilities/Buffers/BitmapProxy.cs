@@ -91,7 +91,7 @@ namespace HelixToolkit.UWP
             {
                 Properties = properties;
                 Context = context;
-                bitmap = new D2DBitmap(size, nativeBitmap);
+                bitmap = nativeBitmap as D2DBitmap ?? new D2DBitmap(size, nativeBitmap);
                 Size = size;
                 Name = name;
             }
@@ -140,6 +140,20 @@ namespace HelixToolkit.UWP
             /// <returns></returns>
             public static BitmapProxy Create(string name, D2DDeviceContext context, object surface)
             {
+                if (surface is Texture2D texture)
+                {
+                    var description = CreateDescription(
+                        context.DotsPerInch.Width,
+                        context.DotsPerInch.Height,
+                        texture.Description.Format);
+                    var bitmap = context.CreateTargetBitmap(texture, description);
+                    return new BitmapProxy(
+                        name,
+                        context,
+                        new Size2(texture.Description.Width, texture.Description.Height),
+                        description,
+                        bitmap);
+                }
                 return new BitmapProxy(name, context, default, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default), surface);
             }
 

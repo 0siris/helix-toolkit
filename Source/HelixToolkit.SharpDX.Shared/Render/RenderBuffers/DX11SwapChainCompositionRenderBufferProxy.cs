@@ -76,7 +76,7 @@ namespace HelixToolkit.UWP
 
                 var backBuffer = CreateBackBufferTexture(width, height);
                 d2dTarget = new D2DTargetProxy();
-                d2dTarget.Initialize(swapChain, DeviceContext2D);
+                d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
                 return backBuffer;
             }
 

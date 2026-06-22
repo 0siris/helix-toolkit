@@ -1,10 +1,12 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace BillboardDemo
 {

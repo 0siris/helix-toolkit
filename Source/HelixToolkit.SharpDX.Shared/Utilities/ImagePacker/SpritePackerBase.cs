@@ -236,15 +236,12 @@ namespace HelixToolkit.UWP
             {
                 try
                 {
-                    var bitmap = new Bitmap(new Size2F(OutputWidth, OutputHeight));
-                    using (var target = new Native.D2DDeviceContext())
-                    {
-                        target.Transform = Matrix3x2.Identity;
-                        target.BeginDraw();
-                        action(target);
-                        target.EndDraw();
-                    }
-                    return bitmap;
+                    return BitmapExtensions.CreateBitmapStream(
+                        deviceRes2D,
+                        OutputWidth,
+                        OutputHeight,
+                        Direct2DImageFormat.Bmp,
+                        action);
                 }
                 catch
                 {

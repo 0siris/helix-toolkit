@@ -395,8 +395,8 @@ namespace HelixToolkit.UWP
             factory2D = new D2DFactory();
             wicImgFactory = new WICImagingFactory();
             directWriteFactory = new DirectWriteFactory();
-            device2D = new D2DDevice();
-            deviceContext2D = new D2DDeviceContext();
+            device2D = new D2DDevice(nativeDeviceResources.Device);
+            deviceContext2D = new D2DDeviceContext(device2D);
             Initialized = true;
         }
 

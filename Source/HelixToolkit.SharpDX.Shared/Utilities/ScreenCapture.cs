@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using Microsoft.Extensions.Logging;
+using SharpDX.Toolkit.Graphics;
 using System;
 using System.IO;
 #if !NETFX_CORE
@@ -100,8 +101,14 @@ namespace HelixToolkit.UWP
             /// <exception cref="System.NotSupportedException"></exception>
             public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string fileName, Guid containerFormat)
             {
-                logger.LogDebug("WIC screen capture encoding is not implemented in the Silk.NET migration path yet.");
-                return false;
+                if (string.IsNullOrWhiteSpace(fileName))
+                {
+                    return false;
+                }
+                using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    return SaveWICTexture(deviceResource, source, stream, ToImageFileType(containerFormat));
+                }
             }
 
             /// <summary>
@@ -114,8 +121,74 @@ namespace HelixToolkit.UWP
             /// <exception cref="System.NotSupportedException"></exception>
             public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source, MemoryStream bitmapStream)
             {
-                logger.LogDebug("WIC screen capture encoding is not implemented in the Silk.NET migration path yet.");
-                return false;
+                return SaveWICTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
+            }
+
+            internal static bool SaveWICTextureToStream(
+                IDeviceResources deviceResource,
+                Texture2D source,
+                Stream stream,
+                Direct2DImageFormat format)
+            {
+                return SaveWICTexture(deviceResource, source, stream, ToImageFileType(BitmapExtensions.ToWICImageFormat(format)));
+            }
+
+            private static bool SaveWICTexture(IDeviceResources deviceResource, Texture2D source, Stream stream, ImageFileType fileType)
+            {
+                if (deviceResource?.NativeDeviceResources?.ImmediateContext == null || source == null || stream == null)
+                {
+                    return false;
+                }
+
+                var context = deviceResource.NativeDeviceResources.ImmediateContext;
+                if (!CaptureTexture(new Render.DeviceContextProxy(context, deviceResource.NativeDeviceResources.Device), source, out var stagingTexture))
+                {
+                    return false;
+                }
+
+                var disposeStaging = !ReferenceEquals(stagingTexture, source);
+                try
+                {
+                    var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
+                    try
+                    {
+                        if (stagingTexture.Description.Format != Format.FormatB8G8R8A8Unorm)
+                        {
+                            logger.LogWarning("Screen capture format {0} is not supported for WPF encoding.", stagingTexture.Description.Format);
+                            return false;
+                        }
+                        WICHelper.SaveBgra32(
+                            data.DataPointer,
+                            stagingTexture.Description.Width,
+                            stagingTexture.Description.Height,
+                            data.RowPitch,
+                            stream,
+                            fileType);
+                        stream.Position = 0;
+                        return true;
+                    }
+                    finally
+                    {
+                        context.UnmapSubresource(stagingTexture, 0);
+                    }
+                }
+                finally
+                {
+                    if (disposeStaging)
+                    {
+                        stagingTexture.Dispose();
+                    }
+                }
+            }
+
+            private static ImageFileType ToImageFileType(Guid containerFormat)
+            {
+                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Png)) return ImageFileType.Png;
+                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Jpeg)) return ImageFileType.Jpg;
+                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Gif)) return ImageFileType.Gif;
+                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Tiff)) return ImageFileType.Tiff;
+                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Wmp)) return ImageFileType.Wmp;
+                return ImageFileType.Bmp;
             }
         }
     }

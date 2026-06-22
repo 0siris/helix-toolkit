@@ -3,7 +3,6 @@
 using Cyotek.Drawing.BitmapFont;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Utilities.ImagePacker;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +12,39 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Color = BillboardDemo.BillboardColors;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using D2DFontStyle = HelixToolkit.Wpf.SharpDX.FontStyle;
+using D2DFontWeight = HelixToolkit.Wpf.SharpDX.FontWeight;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace BillboardDemo
 {
+    internal static class BillboardColors
+    {
+        public static readonly Color4 Black = System.Windows.Media.Colors.Black.ToColor4();
+        public static readonly Color4 Blue = System.Windows.Media.Colors.Blue.ToColor4();
+        public static readonly Color4 DarkBlue = System.Windows.Media.Colors.DarkBlue.ToColor4();
+        public static readonly Color4 DarkGray = System.Windows.Media.Colors.DarkGray.ToColor4();
+        public static readonly Color4 DarkRed = System.Windows.Media.Colors.DarkRed.ToColor4();
+        public static readonly Color4 DarkSeaGreen = System.Windows.Media.Colors.DarkSeaGreen.ToColor4();
+        public static readonly Color4 DarkSlateBlue = System.Windows.Media.Colors.DarkSlateBlue.ToColor4();
+        public static readonly Color4 Green = System.Windows.Media.Colors.Green.ToColor4();
+        public static readonly Color4 Indigo = System.Windows.Media.Colors.Indigo.ToColor4();
+        public static readonly Color4 Lavender = System.Windows.Media.Colors.Lavender.ToColor4();
+        public static readonly Color4 LightCoral = System.Windows.Media.Colors.LightCoral.ToColor4();
+        public static readonly Color4 LightCyan = System.Windows.Media.Colors.LightCyan.ToColor4();
+        public static readonly Color4 LightSalmon = System.Windows.Media.Colors.LightSalmon.ToColor4();
+        public static readonly Color4 Orchid = System.Windows.Media.Colors.Orchid.ToColor4();
+        public static readonly Color4 PaleGoldenrod = System.Windows.Media.Colors.PaleGoldenrod.ToColor4();
+        public static readonly Color4 Red = System.Windows.Media.Colors.Red.ToColor4();
+        public static readonly Color4 Transparent = System.Windows.Media.Colors.Transparent.ToColor4();
+        public static readonly Color4 White = System.Windows.Media.Colors.White.ToColor4();
+        public static readonly Color4 Yellow = System.Windows.Media.Colors.Yellow.ToColor4();
+    }
+
     public class MainViewModel : DemoCore.BaseViewModel
     {
         public Geometry3D SphereModel
@@ -131,10 +160,10 @@ namespace BillboardDemo
             EarthMaterial.EnableAutoTangent = true;
             BackgroundTexture =
                 BitmapExtensions.CreateLinearGradientBitmapStream(EffectsManager, 128, 128, Direct2DImageFormat.Bmp,
-                new Vector2(0, 0), new Vector2(0, 128), new SharpDX.Direct2D1.GradientStop[]
+                new Vector2(0, 0), new Vector2(0, 128), new GradientStop[]
                 {
-                    new SharpDX.Direct2D1.GradientStop(){ Color = Color.DarkBlue, Position = 0f },
-                    new SharpDX.Direct2D1.GradientStop(){ Color = Color.Black, Position = 1f }
+                    new GradientStop(){ Color = Color.DarkBlue, Position = 0f },
+                    new GradientStop(){ Color = Color.Black, Position = 1f }
                 });
 
             FlagsBillboard = new BillboardImage3D(TextureModel.Create("Flags.jpg"));
@@ -161,9 +190,9 @@ namespace BillboardDemo
             AxisLines.Colors = new Color4Collection() { Color.Red, Color.Red, Color.Green, Color.Green, Color.Blue, Color.Blue };
             var texts = new TextInfoExt[]
             {
-                new TextInfoExt(){Text = "右", Origin = Vector3.UnitX * 8, Foreground = Color.Red, Size = 16, FontWeight = SharpDX.DirectWrite.FontWeight.SemiBold },
-                new TextInfoExt(){Text = "前", Origin= Vector3.UnitY * 8 , Foreground = Color.Green, Size = 16, FontWeight = SharpDX.DirectWrite.FontWeight.SemiBold},
-                new TextInfoExt(){Text = "上", Origin = Vector3.UnitZ * 8, Foreground = Color.Blue, Size = 16, FontWeight = SharpDX.DirectWrite.FontWeight.SemiBold }
+                new TextInfoExt(){Text = "右", Origin = Vector3.UnitX * 8, Foreground = Color.Red, Size = 16, FontWeight = D2DFontWeight.SemiBold },
+                new TextInfoExt(){Text = "前", Origin= Vector3.UnitY * 8 , Foreground = Color.Green, Size = 16, FontWeight = D2DFontWeight.SemiBold},
+                new TextInfoExt(){Text = "上", Origin = Vector3.UnitZ * 8, Foreground = Color.Blue, Size = 16, FontWeight = D2DFontWeight.SemiBold }
             };
             AxisLabels = texts.ToBillboardImage3D(EffectsManager);
         }
@@ -276,7 +305,7 @@ namespace BillboardDemo
                     Text = "English",
                     Foreground = Color.Indigo,
                     Background = Color.LightCoral,
-                    FontWeight = SharpDX.DirectWrite.FontWeight.Light,
+                    FontWeight = D2DFontWeight.Light,
                     FontFamily = "Segoe UI",
                     Padding = new Vector4(4),
                     Origin = new Vector3(-10, 0, -4),
@@ -287,7 +316,7 @@ namespace BillboardDemo
                     Text = "中文",
                     Foreground = Color.Green,
                     Background = Color.White,
-                    FontStyle = SharpDX.DirectWrite.FontStyle.Italic,
+                    FontStyle = D2DFontStyle.Italic,
                     Origin = new Vector3(-10, 0, -2),
                     Padding = new Vector4(4,2,4,2),
                     FontFamily = "Microsoft YaHei",
@@ -298,7 +327,7 @@ namespace BillboardDemo
                     Text = "日本語",
                     Foreground = Color.Blue,
                     Background = Color.Green,
-                    FontWeight = SharpDX.DirectWrite.FontWeight.Bold,
+                    FontWeight = D2DFontWeight.Bold,
                     Origin = new Vector3(-10, 0, 0),
                     Padding = new Vector4(2,4,2,4),
                     Size = 18
@@ -330,7 +359,7 @@ namespace BillboardDemo
                     Background = Color.Blue,
                     Padding = new Vector4(2,2,2,2),
                     Origin = new Vector3(-14, 0, -4),
-                    FontStyle = SharpDX.DirectWrite.FontStyle.Oblique,
+                    FontStyle = D2DFontStyle.Oblique,
                     Size = 14
                 },
                 new TextInfoExt()
@@ -348,7 +377,7 @@ namespace BillboardDemo
                     Text = "Deutsch",
                     Foreground = Color.Blue,
                     Background = Color.White,
-                    FontWeight = SharpDX.DirectWrite.FontWeight.Bold,
+                    FontWeight = D2DFontWeight.Bold,
                     Origin = new Vector3(-14, 0, 0),
                     Padding = new Vector4(2,4,2,4),
                     FontFamily = "Garamond",

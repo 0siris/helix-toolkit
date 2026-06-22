@@ -7,6 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+#if !NETFX_CORE
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+#endif
 
 #if !NETFX_CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -110,15 +115,67 @@ namespace HelixToolkit.UWP
                 return null;
             }
 
-            var bitmap = new Bitmap(new Size2F(width, height));
-            using (var target = new Native.D2DDeviceContext())
+            if (deviceResources is not IDevice3DResources device3D
+                || device3D.NativeDeviceResources?.Device == null
+                || deviceResources.DeviceContext2D?.HasNativeContext != true)
             {
-                target.Transform = Matrix3x2.Identity;
-                target.BeginDraw();
-                drawingAction?.Invoke(target);
-                target.EndDraw();
+                return new Bitmap(new Size2F(width, height));
             }
-            return bitmap;
+
+            var texture = device3D.NativeDeviceResources.Device.CreateTexture2D(new Texture2DDescription
+            {
+                Width = width,
+                Height = height,
+                MipLevels = 1,
+                ArraySize = 1,
+                Format = Format.FormatB8G8R8A8Unorm,
+                SampleDescription = new SampleDescription(1, 0),
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                OptionFlags = ResourceOptionFlags.None,
+                Usage = ResourceUsage.Default
+            });
+            Utilities.BitmapProxy target = null;
+            try
+            {
+                var context = deviceResources.DeviceContext2D;
+                var properties = Utilities.BitmapProxy.CreateDescription(
+                    context.DotsPerInch.Width,
+                    context.DotsPerInch.Height,
+                    Format.FormatB8G8R8A8Unorm,
+                    Native.D2DAlphaMode.Premultiplied,
+                    Native.D2DBitmapOptions.Target);
+                var nativeBitmap = context.CreateTargetBitmap(texture, properties);
+                target = new Utilities.BitmapProxy(
+                    nameof(BitmapExtensions),
+                    context,
+                    new Size2(width, height),
+                    properties,
+                    nativeBitmap);
+                var previousTarget = context.Target;
+                try
+                {
+                    context.Target = target;
+                    context.Transform = Matrix3x2.Identity;
+                    context.BeginDraw();
+                    drawingAction?.Invoke(context);
+                    context.EndDraw();
+                }
+                finally
+                {
+                    context.Target = previousTarget;
+                }
+
+                var bitmap = new Bitmap(new Size2F(width, height), texture, target);
+                texture = null;
+                target = null;
+                return bitmap;
+            }
+            finally
+            {
+                target?.Dispose();
+                texture?.Dispose();
+            }
         }
 
 
@@ -129,6 +186,16 @@ namespace HelixToolkit.UWP
             if (bitmap == null)
             {
                 return null;
+            }
+
+            if (bitmap.Texture != null && deviceResources is IDeviceResources resources)
+            {
+                var stream = new MemoryStream();
+                if (Utilities.ScreenCapture.SaveWICTextureToStream(resources, bitmap.Texture, stream, imageType))
+                {
+                    return stream;
+                }
+                stream.Dispose();
             }
 
             var width = Math.Max(1, bitmap.Width);
@@ -181,6 +248,20 @@ namespace HelixToolkit.UWP
             int width, int height, Direct2DImageFormat imageType, Vector2 startPoint, Vector2 endPoint, GradientStop[] gradients,
             ExtendMode extendMode = ExtendMode.Clamp, Gamma gamma = Gamma.StandardRgb)
         {
+#if !NETFX_CORE
+            return CreateWpfGradientBitmapStream(
+                width,
+                height,
+                imageType,
+                new System.Windows.Media.LinearGradientBrush(
+                    ToWpfGradientStops(gradients),
+                    new Point(startPoint.X, startPoint.Y),
+                    new Point(endPoint.X, endPoint.Y))
+                {
+                    MappingMode = BrushMappingMode.Absolute,
+                    SpreadMethod = ToWpfSpreadMethod(extendMode)
+                });
+#else
             using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, (target) =>
              {
                  using (var gradientCol = new GradientStopCollection(target, gradients, gamma, extendMode))
@@ -198,6 +279,7 @@ namespace HelixToolkit.UWP
             {
                 return bmp.ToMemoryStream(deviceResources, imageType);
             }
+#endif
         }
 
         public static MemoryStream CreateRadiusGradientBitmapStream(IDevice2DResources deviceResources,
@@ -205,6 +287,21 @@ namespace HelixToolkit.UWP
             float radiusX, float radiusY, GradientStop[] gradients,
             ExtendMode extendMode = ExtendMode.Clamp, Gamma gamma = Gamma.StandardRgb)
         {
+#if !NETFX_CORE
+            return CreateWpfGradientBitmapStream(
+                width,
+                height,
+                imageType,
+                new System.Windows.Media.RadialGradientBrush(ToWpfGradientStops(gradients))
+                {
+                    MappingMode = BrushMappingMode.Absolute,
+                    Center = new Point(center.X, center.Y),
+                    GradientOrigin = new Point(center.X + gradientOriginOffset.X, center.Y + gradientOriginOffset.Y),
+                    RadiusX = radiusX,
+                    RadiusY = radiusY,
+                    SpreadMethod = ToWpfSpreadMethod(extendMode)
+                });
+#else
             using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, (target) =>
             {
                 using (var gradientCol = new GradientStopCollection(target, gradients, gamma, extendMode))
@@ -224,7 +321,66 @@ namespace HelixToolkit.UWP
             {
                 return bmp.ToMemoryStream(deviceResources, imageType);
             }
+#endif
         }
+
+#if !NETFX_CORE
+        private static MemoryStream CreateWpfGradientBitmapStream(
+            int width,
+            int height,
+            Direct2DImageFormat imageType,
+            System.Windows.Media.Brush brush)
+        {
+            var visual = new DrawingVisual();
+            using (var drawingContext = visual.RenderOpen())
+            {
+                drawingContext.DrawRectangle(brush, null, new Rect(0, 0, width, height));
+            }
+            var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+            BitmapEncoder encoder = imageType switch
+            {
+                Direct2DImageFormat.Bmp => new BmpBitmapEncoder(),
+                Direct2DImageFormat.Gif => new GifBitmapEncoder(),
+                Direct2DImageFormat.Jpeg => new JpegBitmapEncoder(),
+                Direct2DImageFormat.Png => new PngBitmapEncoder(),
+                Direct2DImageFormat.Tiff => new TiffBitmapEncoder(),
+                Direct2DImageFormat.Wmp => new WmpBitmapEncoder(),
+                _ => throw new NotSupportedException($"WPF encoding does not support {imageType}.")
+            };
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            var stream = new MemoryStream();
+            encoder.Save(stream);
+            stream.Position = 0;
+            return stream;
+        }
+
+        private static System.Windows.Media.GradientStopCollection ToWpfGradientStops(GradientStop[] gradients)
+        {
+            var result = new System.Windows.Media.GradientStopCollection();
+            foreach (var gradient in gradients ?? Array.Empty<GradientStop>())
+            {
+                result.Add(new System.Windows.Media.GradientStop(
+                    System.Windows.Media.Color.FromScRgb(
+                        gradient.Color.W,
+                        gradient.Color.X,
+                        gradient.Color.Y,
+                        gradient.Color.Z),
+                    gradient.Position));
+            }
+            return result;
+        }
+
+        private static GradientSpreadMethod ToWpfSpreadMethod(ExtendMode extendMode)
+        {
+            return extendMode switch
+            {
+                ExtendMode.Wrap => GradientSpreadMethod.Repeat,
+                ExtendMode.Mirror => GradientSpreadMethod.Reflect,
+                _ => GradientSpreadMethod.Pad
+            };
+        }
+#endif
 
         public static MemoryStream CreateViewBoxTexture(IDevice2DResources deviceResources, string front, string back, string left, string right, string top, string down,
             Color4 frontFaceColor, Color4 backFaceColor, Color4 leftFaceColor, Color4 rightFaceColor, Color4 topFaceColor, Color4 bottomFaceColor,

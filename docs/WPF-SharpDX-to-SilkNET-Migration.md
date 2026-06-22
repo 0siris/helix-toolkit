@@ -613,15 +613,14 @@ Stand dieses Implementierungsschnitts:
 - `RenderContext` und die einfache Geometry-/Offscreen-RenderCore-Kante sind von SharpDX-D3D11-Imports und SharpDX-DXGI-Formatparametern gelöst.
 - `IEffectsManager.Device`/`IDevice3DResources.Device` sind von SharpDX-D3D11-Device-Typen gelöst; die verbleibenden SharpDX-D3D11-Device-Verwendungen sind explizite Legacy-Interop-/ResourceManager-Kanten.
 - Die zentrale BufferModel-/Batching-InputAssembler-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Typen gelöst; `DeviceContextProxy` besitzt native Vertex-/Index-Buffer-Bindings.
-- Die RenderHost-/Core2D-D2D-Resource-Grenze ist von SharpDX-Direct2D-/DirectWrite-/WIC-Signaturen gelöst; die konkrete 2D-Renderer-, Text-, WIC- und Bitmap-Loading-Implementierung bleibt eine eigene Portierungskante.
-- Die konkrete Core2D-/Scene2D-D2D-Typfläche ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; echte Direct2D-Zeichnung und WIC-Decoding sind weiter Platzhalter bzw. separate Kanten.
-- Die Billboard-/BitmapExtensions-/ImagePacker-DWrite-/WIC-Kante ist von SharpDX-Direct2D-/DirectWrite-/WIC-Imports gelöst; Managed-BMP-Streams sind vorerst Platzhalter für spätere echte Text-/Bitmap-Encoding-Implementierung.
+- Die RenderHost-/Core2D-D2D-Resource-Grenze verwendet ein natives Silk.NET-Direct2D-Device samt DeviceContext und DirectWrite-Factory. Rechtecke, RoundedRectangles, Ellipsen, TextLayouts, Bitmaps, Context-Transforms und 2D-Image-Uploads laufen nativ.
+- Billboard-/BitmapExtensions-/ImagePacker erzeugen echte BGRA-Offscreen-Textures, rendern Textatlanten über Direct2D und encodieren sie über WPF Imaging. WPF-Gradienten werden ebenfalls als echte Bitmap-Streams erzeugt.
 - Die einfache Material-/Scene-State-Signatur-Kante ist von SharpDX-D3D11-/DXGI-Imports gelöst; Material- und SceneNode-Properties verwenden die eigenen State-/Format-/View-Typen.
 - Die einfache RenderCore-/PostEffect-D3D11-/DXGI-Signatur-Kante ist von SharpDX-D3D11-/D3D-/DXGI-Imports gelöst; die verbleibenden Treffer in diesem Umfeld liegen in bewusst ausgeklammerten ScreenClone-/RenderBuffer-/SwapChain-/EffectsManager-Interop-Pfaden.
 - Die RenderBuffer-/SwapChain-D3D11-/DXGI-Kante verwendet eine echte Silk.NET-DXGI-Flip-Model-SwapChain mit nativem Backbuffer, Present und ResizeBuffers.
-- Der D3DImage-Pfad öffnet shared D3D11-Textures über Silk.NET.Direct3D9 als `IDirect3DSurface9`; Desktop-Duplication und WIC-Encoding bleiben separate Implementierungskanten.
+- Der D3DImage-Pfad öffnet shared D3D11-Textures über Silk.NET.Direct3D9 als `IDirect3DSurface9`; ScreenCapture-Encoding ist für D3DImage- und SwapChain-Backbuffer validiert. Desktop-Duplication bleibt separat.
 - Die einfache Shader-/ResourceManager-D3D11-/DXGI-Restkante ist von SharpDX-D3D11-/D3D-/DXGI-/Toolkit-Typen gelöst; `EffectsManager` erzeugt keine SharpDX-D3D11-Device-Instanz mehr.
-- Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; WPF-Standardbilder werden per `BitmapDecoder` nach BGRA32 dekodiert und als native Texture2D/SRV hochgeladen. Die im Repository verwendeten DDS-Formate werden geladen; WIC-/DDS-Encoding und exotische Legacy-DDS-Formate bleiben offen.
+- Die `SharpDX.Toolkit.Graphics`-Texturcontainer-Kante ist von SharpDX-D3D11-/DXGI-/IO-/WIC-/Multimedia-Typen gelöst; WPF-Standardbilder werden per `BitmapDecoder` nach BGRA32 dekodiert und als native Texture2D/SRV hochgeladen. Die im Repository verwendeten DDS-Formate werden geladen. WPF-Encoding unterstützt BMP, GIF, JPEG, PNG, TIFF und WMP; DDS-Encoding und exotische Legacy-DDS-Formate bleiben offen.
 - Die erste qualifizierte SharpDX-Math- und Shared-Geometrie-Kante ist gelöst; der Compiler erreicht jetzt die nächste breite Compatibility-Front in Toolkit-`Format`/`Utilities` und generischen Silk-Math-Methodenunterschieden.
 - Die `SharpDX.Toolkit.Graphics`-Format-/Utilities-Kante ist auf lokale SharpDX-kompatible `Format`-, `FormatHelper`- und `Utilities`-Typen gelegt; die direkte native Format-Konvertierung bleibt erhalten.
 - Die nativen fixed-buffer-/Pointer-Kontexte in `D3DResourceHandles` und `D3DStateHandles` sind korrekt als `unsafe` gekapselt.
@@ -650,11 +649,11 @@ Nächste offene Migrationskante:
 
 Pragmatische Reihenfolge für die nächsten Commits:
 
-1. Warnungen nach Migration, Nullable und veralteten APIs gruppieren und regressionsrelevante Warnungen zuerst schließen.
-2. WPF-Image-/ScreenCapture-Encoding ergänzen.
+1. Phase-8-Shader-Pipeline-Gate vollständig messen und dokumentieren.
+2. Warnungen nach Migration, Nullable und veralteten APIs gruppieren und regressionsrelevante Warnungen zuerst schließen.
 3. DXGI-Adapterauswahl, Desktop-Duplication und manuelle WPF-Interop-Lifecycle-Smokes ergänzen.
-4. Verbleibende WPF-Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
-5. WPF-/Core-Smoke-Tests für Device-Erzeugung, Offscreen-Texture-Views und RenderHost-Lifecycle ergänzen.
+4. Erweiterte Direct2D-Pfadgeometrie, Custom-Strokes und den nicht-WPF-WIC-Pfad nur bei konkretem Bedarf ergänzen.
+5. Verbleibende WPF-Tests von `SharpDX.Diagnostics.ObjectTracker` und SharpDX-Math-Typen entkoppeln.
 
 ## Phase 0: Baseline und Inventar
 
@@ -956,24 +955,40 @@ Ziel: 2D Overlay, Text, Bitmap-/Texture-Loading und ScreenCapture laufen ohne Sh
 
 ### Fortschritt
 
-Status: In Arbeit.
+Status: Im unterstützten WPF-Scope erledigt.
 
-- D2D/DWrite bleiben zentrale Runtime-Platzhalter.
+- `EffectsManager` erstellt ein natives Direct2D-Device, einen Direct2D-DeviceContext und eine DirectWrite-Factory über Silk.NET.
+- Die Core2D-Basis zeichnet Rechtecke, RoundedRectangles, Ellipsen, TextLayouts und Bitmaps nativ; Context-Transforms und `ImageModel2D`-Uploads sind angeschlossen.
+- Billboard-Text und ImagePacker rendern in echte BGRA-Offscreen-Textures. Die Streams werden nicht mehr als leere BMP-Platzhalter erzeugt.
 - Die Toolkit-Texture-Wrapper sind auf native D3D11-Resources umgestellt; WPF-Standardbilder und die im Repository verwendeten DDS-Formate werden als native Texture2D/SRV geladen.
-- WIC-/DDS-Encoding, exotische Legacy-DDS-Formate und ScreenCapture-Encoding bleiben offen.
+- WPF Imaging encodiert BMP, GIF, JPEG, PNG, TIFF und WMP. ScreenCapture liest native Staging-Textures und ist für D3DImage- sowie SwapChain-Backbuffer validiert.
+- Außerhalb des Gates bleiben erweiterte Direct2D-Pfadgeometrie/Custom-Strokes, nicht-WPF-WIC, DDS-Encoding und exotische Legacy-DDS-Formate.
 
 ### Aufgaben
 
-- Direct2D device/factory/context über Silk.NET.Direct2D erstellen.
-- DirectWrite-Zugriffe ersetzen oder über passende Windows/Silk.NET-Interop-Schicht kapseln.
+- Direct2D device/factory/context über Silk.NET.Direct2D erstellen. (erledigt)
+- DirectWrite-Zugriffe ersetzen oder über passende Windows/Silk.NET-Interop-Schicht kapseln. (erledigt)
 - WIC-Helper ersetzen:
   - Für WPF bevorzugt WPF Imaging APIs nutzen, wenn keine native WIC-Semantik nötig ist. (Loading erledigt)
-  - Native WIC nur dort kapseln, wo GPU-Texture-Upload oder ScreenCapture es verlangt.
+  - Native WIC nur dort kapseln, wo GPU-Texture-Upload oder ScreenCapture es verlangt. (WPF-Encoding ohne zusätzliche native WIC-Schicht erledigt)
 - `SharpDX.Toolkit.Graphics`-Layer bereinigen:
   - DDS-Parsing behalten.
   - Texture-Wrapper auf Silk.NET resource creation umstellen. (erledigt)
   - PixelBuffer/DataBox-Äquivalente sauber kapseln. (teilweise erledigt)
-- ScreenCapture mit Silk.NET staging textures und WPF/Windows encoding validieren.
+- ScreenCapture mit Silk.NET staging textures und WPF/Windows encoding validieren. (erledigt)
+
+### Validierung
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1
+dotnet build Source\Examples\WPF.SharpDX\D2DScreenMenuExample\D2DScreenMenuExample.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\Examples\WPF.SharpDX\BillboardDemo\BillboardDemo.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+```
+
+Ergebnis: Core und WPF bauen mit `0` Fehlern. Alle `12` Core- und `42` WPF-Tests laufen grün. `D2DAndCaptureTests` validiert native DirectWrite-Ausgabe, Billboard-Offscreen-Text, Gradient-Encoding und nichtleere Pixel. `ImageLoadingTests` deckt WPF-BMP- sowie BC1/DXT1-DDS-Decoding ab. `DX11ImageSourceTests` und `SwapChainRenderBufferTests` encodieren die jeweiligen Backbuffer erfolgreich als BMP. `D2DScreenMenuExample` und `BillboardDemo` bauen ohne SharpDX-Direct2D-/DirectWrite-Imports und bleiben in einem fünfsekündigen Startup-Smoke stabil.
 
 ### Gate
 
@@ -993,7 +1008,7 @@ Status: In Arbeit.
 - `ShaderReflector` nutzt `D3DReflect` über `d3dcompiler_47.dll`, weil `Silk.NET.Direct3D.Compilers` 2.23.0 keine D3D11-Reflection-Wrapper bereitstellt.
 - Shader creation für alle sechs Shader-Stages und InputLayout-Erzeugung laufen über Silk.NET.Direct3D11.
 - Shader-Pools und `DeviceContextProxy`-Shader-/ConstantBuffer-Bindings sind auf native Handles umgestellt.
-- Offene Arbeit: konkrete Core2D-/DWrite-/WIC-Implementierungen, Legacy-Device-Interop-Kanten und weiter entfernte Buffer-/Utility-Aufrufer hängen noch an SharpDX-Typen.
+- Offene Arbeit: Phase-8-Gate vollständig validieren; weiter entfernte Legacy-Interop-, Warnungs- und Utility-Kanten separat bereinigen.
 
 ### Aufgaben
 

@@ -19,13 +19,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj" />
-        <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" />
+        <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" Aliases="global,WpfAssembly" />
         <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-        <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>

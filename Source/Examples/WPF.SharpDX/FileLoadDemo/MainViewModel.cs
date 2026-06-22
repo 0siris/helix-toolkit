@@ -2,6 +2,8 @@
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
+extern alias WpfAssembly;
+
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace FileLoadDemo
@@ -25,8 +27,9 @@ namespace FileLoadDemo
     using System.Windows;
     using System.Windows.Input;
     using System.Linq;
-    using SharpDX;
     using Point3D = System.Windows.Media.Media3D.Point3D;
+    using BoundingBox = WpfAssembly::HelixToolkit.Wpf.SharpDX.BoundingBox;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -397,10 +400,11 @@ namespace FileLoadDemo
 
         private void FocusCameraToScene()
         {
-            var maxWidth = Math.Max(Math.Max(modelBound.Width, modelBound.Height), modelBound.Depth);
-            var pos = modelBound.Center + new Vector3(0, 0, maxWidth);
+            var maxWidth = Math.Max(Math.Max(modelBound.Size.X, modelBound.Size.Y), modelBound.Size.Z);
+            var center = (modelBound.Minimum + modelBound.Maximum) / 2;
+            var pos = center + new Vector3(0, 0, maxWidth);
             Camera.Position = pos.ToPoint3D();
-            Camera.LookDirection = (modelBound.Center - pos).ToVector3D();
+            Camera.LookDirection = (center - pos).ToVector3D();
             Camera.UpDirection = Vector3.UnitY.ToVector3D();
             if (Camera is OrthographicCamera orthCam)
             {

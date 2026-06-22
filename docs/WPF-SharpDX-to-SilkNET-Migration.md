@@ -1047,12 +1047,14 @@ Ziel: Import/Export-Workflows bleiben im WPF-Scope erhalten.
 
 ### Fortschritt
 
-Status: In Arbeit.
+Status: Erledigt.
 
 - WPF.Assimp ist im supported Scope enthalten und die SharpDX-PackageReferences sind entfernt.
 - Assimp-Math-Konverter, Materialfarben und D3D11-State-Typen verwenden Silk.NET-/Helix-Typen.
-- `HelixToolkit.Wpf.SharpDX.Assimp` baut fehlerfrei.
-- Native Import-/Export-Smoke-Tests mit Material und Texture sowie das `FileLoadDemo`-Gate bleiben offen.
+- `HelixToolkit.Wpf.SharpDX.Assimp` und `HelixToolkit.SharpDX.Core.Assimp` bauen fehlerfrei.
+- Ein End-to-End-Test importiert OBJ/MTL mit PNG-Textur, validiert Geometrie und Phong-Material, exportiert wieder als OBJ und importiert das Ergebnis erneut.
+- Ein Assimp-Szenentest validiert Node-Animationen und erzeugte Helix-Animationsdaten.
+- `FileLoadDemo` verwendet keine SharpDX-Paketreferenz mehr und startet im fünfsekündigen Smoke-Test stabil.
 
 ### Aufgaben
 
@@ -1061,6 +1063,17 @@ Status: In Arbeit.
 - Material- und Texture-Mapping an neue Texture-Modelle anpassen.
 - `HelixToolkit.Wpf.SharpDX.Assimp` ohne SharpDX-PackageReferences bauen.
 - Core.Assimp nur soweit migrieren, wie es für WPF.Assimp benötigt wird.
+
+### Validierung
+
+```powershell
+dotnet build Source\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\Examples\WPF.SharpDX\FileLoadDemo\FileLoadDemo.csproj --no-restore -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1
+```
+
+Ergebnis: Beide Assimp-Libraries bauen mit `0` Fehlern und `0` Warnungen. `FileLoadDemo` baut mit `0` Fehlern und bleibt im fünfsekündigen Startup-Smoke stabil. Alle `44` WPF-Tests laufen grün; darunter OBJ/MTL/PNG-Import, OBJ-Export samt Roundtrip und Node-Animation-Import.
 
 ### Gate
 
@@ -1143,7 +1156,7 @@ Erwartung:
 - [ ] Beide WPF-Renderpfade funktionieren.
 - [x] `D3DImage` erhält seine `IDirect3DSurface9` über Silk.NET.Direct3D9.
 - [x] Shader Reflection läuft über `D3DReflect`.
-- [ ] Assimp Import/Export ist migriert.
+- [x] Assimp Import/Export ist migriert.
 - [ ] Texture loading und screen capture funktionieren.
 - [ ] WPF.SharpDX Beispiele aus der Smoke-Test-Liste laufen.
 - [ ] Breaking Changes für SharpDX-Math-Typen sind dokumentiert.

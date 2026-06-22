@@ -88,7 +88,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// The color property
         /// </summary>
         public static readonly DependencyProperty ColorProperty =
-            DependencyProperty.Register("Color", typeof(Color), typeof(PostEffectMeshOutlineBlur), new PropertyMetadata(Colors.Red, (d, e) =>
+            DependencyProperty.Register("Color", typeof(Color), typeof(PostEffectMeshOutlineBlur), new PropertyMetadata(Color.FromArgb(255, 255, 0, 0), (d, e) =>
             {
                 ((d as Element3DCore).SceneNode as NodePostEffectMeshOutlineBlur).Color = ((Color)e.NewValue).ToColor4();
             }));

@@ -1087,11 +1087,26 @@ Ziel: Supported Scope ist SharpDX-frei und WPF-funktional.
 
 ### Fortschritt
 
-Status: Begonnen.
+Status: Abgeschlossen im definierten WPF-Scope (23. Juni 2026).
 
-- SharpDX-PackageReferences im definierten WPF-Scope sind entfernt.
-- Öffentliche Legacy-Namen bleiben bewusst erhalten.
-- Offene Arbeit: SharpDX-Code-Referenzen, Kommentare, README-/Package-Metadaten und finale Gates sind noch nicht abgeschlossen.
+- Direkte und transitive SharpDX-Pakete sind aus den Zielprojekten entfernt.
+- `README.md` und NuGet-Tags benennen Silk.NET DirectX als technisches Backend.
+- Öffentliche Projekt-, Namespace- und XAML-Namen mit `SharpDX` bleiben bewusst als Kompatibilitätsnamen erhalten.
+- `SimpleDemo` verwendet Silk.NET-Math- und die migrierten D2D-Kompatibilitätstypen, enthält keine SharpDX-Pakete mehr und bindet `Sample.png` wieder korrekt als Ressource ein.
+- Die vier Zielbibliotheken bauen; Core-Tests (`15/15`) und WPF-Tests (`44/44`) laufen grün.
+- Alle fünf Validierungsbeispiele bestehen einen fünfsekündigen Startup-Smoke:
+  - `SimpleDemo`
+  - `FileLoadDemo`
+  - `BillboardDemo`
+  - `D2DScreenMenuExample`
+  - `SwapChainRenderingDemo`
+
+Qualifizierte `global::SharpDX`-Treffer in den Shared-Quellen sind kein Teil des unterstützten WPF-Compile-Graphs:
+
+- `NETFX_CORE` ohne `CORE`: stillgelegte UWP-Dateipfade.
+- `DEFERRED`: nicht eingebundener experimenteller Deferred-Renderer.
+- `DEBUGMEMORY`: alte SharpDX-ObjectTracker-Diagnostik, die in keinem Zielprojekt definiert ist.
+- `SharpDX.Toolkit`: lokal mitgeführter Legacy-Namespace für den migrierten DDS/WIC-Kompatibilitätscode, keine externe SharpDX-Assembly.
 
 ### Aufgaben
 
@@ -1108,18 +1123,35 @@ Status: Begonnen.
 
 ```powershell
 rg -n "PackageReference Include=\"SharpDX" Source\HelixToolkit.SharpDX.Core Source\HelixToolkit.Wpf.SharpDX Source\HelixToolkit.Wpf.SharpDX.Assimp Source\HelixToolkit.SharpDX.Core.Assimp Source\HelixToolkit.*.Tests
-rg -n "using SharpDX|global::SharpDX|SharpDX\." Source\HelixToolkit.SharpDX.Shared Source\HelixToolkit.Wpf.SharpDX.Shared Source\HelixToolkit.SharpDX.Assimp.Shared Source\HelixToolkit.Wpf.SharpDX Source\HelixToolkit.Wpf.SharpDX.Assimp
-dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj
-dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj
-dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj
+dotnet list Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj package --include-transitive
+dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -m:1
+dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj --no-restore -m:1
+dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1
+dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1
 ```
 
-Erwartung:
+Ergebnis vom 23. Juni 2026:
 
-- Keine SharpDX-Treffer im supported Scope.
-- WPF Library und WPF Assimp bauen.
-- WPF Tests laufen oder GPU-/Umgebungsabhängigkeiten sind explizit dokumentiert.
-- Manuelle Smoke-Tests bestätigen beide WPF-Renderpfade.
+- Keine SharpDX-Pakete im direkten oder transitiven Paketgraph der Zielprojekte.
+- Core, WPF, Core.Assimp und WPF.Assimp bauen mit `0` Fehlern.
+- `15/15` Core-Tests und `44/44` WPF-Tests bestanden.
+- D3DImage- und SwapChain-Beispiele starten stabil.
+
+### Breaking Changes
+
+- Öffentliche Math-Signaturen verwenden Silk.NET-Math-Typen statt SharpDX-Math-Typen. Das ist trotz stabiler Namespaces ein Source- und Binary-Break.
+- Native Ressourcen, Views, States und Shaderobjekte sind eigene Wrapper um Silk.NET-COM-Handles; SharpDX-Objekte können nicht mehr übergeben oder zurückerwartet werden.
+- Paket- und Namespace-Namen mit `SharpDX` bleiben vorerst unverändert. Sie beschreiben Kompatibilität, nicht das verwendete Backend.
+
+### Manuelle Release-Akzeptanz
+
+Diese Prüfungen benötigen eine interaktive Windows-/GPU-Sitzung und bleiben vor einem Release manuell:
+
+- DPI-Wechsel zwischen Monitoren sowie wiederholtes Resize/Minimize/Restore.
+- `D3DImage.IsFrontBufferAvailable`-Verlust und Wiederherstellung.
+- Wiederholtes Unload/Reload und Schließen von Parent-Window/Viewport.
+- Device-removed/reset-Recovery auf realer Hardware.
+- Längerer Resource-Lifetime-/Speicher-Smoke mit Debug-Layer.
 
 ## Testmatrix
 
@@ -1151,15 +1183,15 @@ Erwartung:
 ## Post-Migration Checklist
 
 - [x] SharpDX-PackageReferences im definierten WPF-Scope entfernt.
-- [ ] Supported Scope baut ohne SharpDX-PackageReferences.
-- [ ] Supported Scope enthält keine SharpDX-Code-Referenzen.
-- [ ] Beide WPF-Renderpfade funktionieren.
+- [x] Supported Scope baut ohne SharpDX-PackageReferences.
+- [x] Unterstützter WPF-Compile-Graph enthält keine SharpDX-Backend-Typen.
+- [x] Beide WPF-Renderpfade bestehen den Startup-Smoke.
 - [x] `D3DImage` erhält seine `IDirect3DSurface9` über Silk.NET.Direct3D9.
 - [x] Shader Reflection läuft über `D3DReflect`.
 - [x] Assimp Import/Export ist migriert.
-- [ ] Texture loading und screen capture funktionieren.
-- [ ] WPF.SharpDX Beispiele aus der Smoke-Test-Liste laufen.
-- [ ] Breaking Changes für SharpDX-Math-Typen sind dokumentiert.
+- [x] Texture loading und screen capture funktionieren.
+- [x] WPF.SharpDX Beispiele aus der Smoke-Test-Liste laufen.
+- [x] Breaking Changes für SharpDX-Math-Typen sind dokumentiert.
 
 ## Referenzen
 

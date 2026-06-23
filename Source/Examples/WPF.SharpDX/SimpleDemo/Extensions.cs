@@ -15,8 +15,11 @@
 
     using LineSegment = System.Windows.Media.LineSegment;
     using Point = System.Windows.Point;
-    using Vector3D = global::SharpDX.Vector3;
-    using Point3D = global::SharpDX.Vector3;
+    using Vector2 = Silk.NET.Maths.Vector2D<float>;
+    using Vector3D = Silk.NET.Maths.Vector3D<float>;
+    using Point3D = Silk.NET.Maths.Vector3D<float>;
+    using FontStyle = System.Windows.FontStyle;
+    using FontWeight = System.Windows.FontWeight;
 
     public static class Extensions
     {
@@ -37,7 +40,7 @@
                     var outline = outlines[i];
                     var isHole = i != outlines.Count - 1 && IsPointInPolygon(outerOutline, outline[0]);
                     polygon.AddContour(outline.Select(p => new Vertex(p.X, p.Y)), marker++, isHole);
-                    builder.AddExtrudedSegments(outline.ToSegments().Select(x => new SharpDX.Vector2((float)x.X, (float)x.Y)).ToList(),
+                    builder.AddExtrudedSegments(outline.ToSegments().Select(x => new Vector2((float)x.X, (float)x.Y)).ToList(),
                         textDirection, p0, p1);
                 }
             }
@@ -47,10 +50,13 @@
             var mesh = mesher.Triangulate(polygon, options);
 
             var u = textDirection;
-            u.Normalize();
+            u /= u.Length;
             var z = p1 - p0;
-            z.Normalize();
-            var v = Vector3D.Cross(z, u);
+            z /= z.Length;
+            var v = new Vector3D(
+                z.Y * u.Z - z.Z * u.Y,
+                z.Z * u.X - z.X * u.Z,
+                z.X * u.Y - z.Y * u.X);
 
             // Convert the triangles
             foreach (var t in mesh.Triangles)
@@ -130,7 +136,7 @@
             var formattedText = new FormattedText(
                 text,
                 CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
+                System.Windows.FlowDirection.LeftToRight,
                 new Typeface(new FontFamily(fontName), fontStyle, fontWeight, FontStretches.Normal),
                 fontSize,
                 Brushes.Black);
@@ -154,7 +160,7 @@
                 return;
             }
 
-            var pathGeometry = geometry as PathGeometry;
+            var pathGeometry = geometry as System.Windows.Media.PathGeometry;
             if (pathGeometry != null)
             {
                 var figures = pathGeometry.Figures.Select(figure => figure.ToPolyLine()).ToList();

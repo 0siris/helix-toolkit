@@ -12,11 +12,11 @@ Adds variety of functionalities/models on the top of internal WPF 3D models (Med
 [**HelixToolkit.Core.WPF:**](/Source/HelixToolkit.Core.Wpf) 
 Adds variety of functionalities/models on the top of internal .NET Core WPF 3D models (Media3D namespace).
 
-[**HelixToolkit.SharpDX.WPF:**](/Source/HelixToolkit.Wpf.SharpDX) 
-Custom 3D Engine and XAML/MVVM compatible Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for high performance usage.
+[**HelixToolkit.SharpDX.WPF:**](/Source/HelixToolkit.Wpf.SharpDX)
+Custom 3D engine and XAML/MVVM-compatible scene graphs based on Silk.NET DirectX 11. The `SharpDX` name is retained for API compatibility.
 
 [**HelixToolkit.SharpDX.Core:**](/Source/HelixToolkit.SharpDX.Core)
-Custom 3D Engine and Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for netstandard and .NET Core.
+Custom 3D engine and scene graphs based on Silk.NET DirectX 11. The `SharpDX` name is retained for API compatibility.
 
 [**HelixToolkit.SharpDX.Core.Wpf:**](/Source/HelixToolkit.SharpDX.Core.Wpf) 
 Wpf Wrapper Components based on `HelixToolkit.SharpDX.Core` for .NET Core Wpf.
@@ -60,7 +60,7 @@ Twitter             | https://twitter.com/hashtag/Helix3DToolkit
 ## Notes
 
 #### 1. Right-handed Cartesian coordinate system and row major matrix by default
-HelixToolkit default is using right-handed Cartesian coordinate system, including Meshbuilder etc. To use left-handed Cartesian coordinate system (Camera.CreateLeftHandedSystem = true), user must manually correct the triangle winding order or IsFrontCounterClockwise in raster state description if using SharpDX. Matrices are row major by default.
+HelixToolkit default is using right-handed Cartesian coordinate system, including Meshbuilder etc. To use left-handed Cartesian coordinate system (`Camera.CreateLeftHandedSystem = true`), users must manually correct the triangle winding order or `IsFrontCounterClockwise` in the rasterizer state description. Matrices are row major by default.
 
 #### 2. Performance [Topics](https://github.com/helix-toolkit/helix-toolkit/wiki/Tips-on-performance-optimization-(WPF.SharpDX-and-UWP)) for WPF.SharpDX. UWP content is retained as legacy reference only.
 

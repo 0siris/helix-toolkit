@@ -13,16 +13,15 @@ namespace SimpleDemo
     using HelixToolkit.Wpf.SharpDX;
     using HelixToolkit.Wpf.SharpDX.Core;
 
-    using SharpDX;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
+    using Vector2 = Silk.NET.Maths.Vector2D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
     using HelixToolkit.Wpf;
     using System.Windows.Media.Imaging;
     using System.IO;
@@ -69,7 +68,7 @@ namespace SimpleDemo
             EffectsManager = new DefaultEffectsManager();
             // titles
             Title = "Simple Demo";
-            SubTitle = "WPF & SharpDX";
+            SubTitle = "WPF & Silk.NET DirectX";
 
             // camera setup
             Camera = new OrthographicCamera { 
@@ -212,10 +211,10 @@ namespace SimpleDemo
             UpZCommand = new RelayCommand(x => { UpDirection = new Vector3D(0, 0, 1); });
             BackgroundTexture =
                 BitmapExtensions.CreateLinearGradientBitmapStream(EffectsManager, 128, 128, Direct2DImageFormat.Bmp,
-                new Vector2(0, 0), new Vector2(0, 128), new SharpDX.Direct2D1.GradientStop[]
+                new Vector2(0, 0), new Vector2(0, 128), new GradientStop[]
                 {
-                    new SharpDX.Direct2D1.GradientStop(){ Color = Colors.White.ToColor4(), Position = 0f },
-                    new SharpDX.Direct2D1.GradientStop(){ Color = Colors.DarkGray.ToColor4(), Position = 1f }
+                    new GradientStop(){ Color = Colors.White.ToColor4(), Position = 0f },
+                    new GradientStop(){ Color = Colors.DarkGray.ToColor4(), Position = 1f }
                 });
         }
 

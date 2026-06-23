@@ -12,7 +12,7 @@
     <Authors>HelixToolkit Contributors</Authors>
     <Version>0.0.0.1</Version>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>SharpDX; DirectX; 3D;</PackageTags>
+    <PackageTags>Silk.NET; DirectX; 3D;</PackageTags>
     <DelaySign>false</DelaySign>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

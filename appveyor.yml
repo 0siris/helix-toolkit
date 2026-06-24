@@ -23,22 +23,20 @@ dotnet_csproj:
   
 before_build:
   - appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-  - nuget restore .\Source\HelixToolkit.AppVeyor.sln
+  - dotnet restore .\Source\HelixToolkit.SharpDX.sln
   - gitversion /l console /output buildserver /updateAssemblyInfo
-  
+
 build_script:
-  - msbuild Source/HelixToolkit.AppVeyor.sln "/property:Platform=Any CPU" "/property:Version=%GitVersion_NuGetVersion%" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:SourceLinkCreate=true
+  - dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --configuration Release --no-incremental -m:1 -p:Version=%GitVersion_NuGetVersion% -p:SourceLinkCreate=true
 
 after_build:
   - nuget pack Source\HelixToolkit.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.Wpf.Input.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg  
+  - nuget pack Source\HelixToolkit.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.Wpf.Sharpdx.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.SharpDX.Core.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.SharpDX.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - nuget pack Source\HelixToolkit.SharpDX.Assimp.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.WinUI.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
   - if "%APPVEYOR_REPO_NAME%" == "helix-toolkit/helix-toolkit" if not defined APPVEYOR_PULL_REQUEST_NUMBER Source\build-dist-examples.cmd
 
 artifacts:

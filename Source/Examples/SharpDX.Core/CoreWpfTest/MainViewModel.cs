@@ -6,12 +6,11 @@
 
 namespace FileLoadDemo
 {
-    using HelixToolkit.SharpDX.Core;
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.SharpDX.Core.Animations;
-    using HelixToolkit.SharpDX.Core.Assimp;
-    using HelixToolkit.SharpDX.Core.Model;
-    using HelixToolkit.SharpDX.Core.Model.Scene;
+    using HelixToolkit.Wpf.SharpDX.Animations;
+    using HelixToolkit.Wpf.SharpDX.Assimp;
+    using HelixToolkit.Wpf.SharpDX.Model;
+    using HelixToolkit.Wpf.SharpDX.Model.Scene;
     using HelixToolkit.Wpf.SharpDX.Controls;
     using Microsoft.Win32;
     using System.Collections.Generic;
@@ -26,8 +25,8 @@ namespace FileLoadDemo
 
     public class MainViewModel : ObservableObject
     {
-        private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
-        private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
+        private string OpenFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Importer.SupportedFormatsString}";
+        private string ExportFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormatsString}";
         private bool showWireframe = false;
         public bool ShowWireframe
         {
@@ -151,7 +150,7 @@ namespace FileLoadDemo
         }
 
         public TextureModel EnvironmentMap { get; }
-        public EffectsManager EffectsManager { get; }
+        public HelixToolkit.Wpf.SharpDX.EffectsManager EffectsManager { get; }
         public Camera Camera { get; }
 
         private SynchronizationContext context = SynchronizationContext.Current;
@@ -165,7 +164,7 @@ namespace FileLoadDemo
         public MainViewModel()
         {
             this.OpenFileCommand = new DelegateCommand(this.OpenFile);
-            EffectsManager = new DefaultEffectsManager();
+            EffectsManager = new HelixToolkit.Wpf.SharpDX.DefaultEffectsManager();
             Camera = new OrthographicCamera()
             {
                 LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -10, -10),
@@ -273,8 +272,8 @@ namespace FileLoadDemo
             var index = SaveFileDialog(ExportFileFilter, out var path);
             if (!string.IsNullOrEmpty(path) && index >= 0)
             {
-                var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
-                var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
+                var id = HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormats[index].FormatId;
+                var exporter = new HelixToolkit.Wpf.SharpDX.Assimp.Exporter();
                 exporter.ExportToFile(path, scene, id);
                 return;
             }

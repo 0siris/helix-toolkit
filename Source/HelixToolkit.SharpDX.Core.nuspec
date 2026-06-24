@@ -3,33 +3,25 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>HelixToolkit.SharpDX.Core</id>
     <version>$version$</version>
-    <title>HelixToolkit for netstandard and netcore (based on SharpDX)</title>
+    <title>HelixToolkit DirectX core</title>
     <authors>Lunci</authors>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/helix-toolkit/helix-toolkit</projectUrl>
     <icon>helixtoolkit.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides custom 3D controls for netstandard and netcore based on SharpDX.</description>
+    <description>Provides the DirectX rendering core based on Silk.NET.</description>
     <readme>README.md</readme>
-    <tags>netstandard netcore SharpDX 3D DirectX</tags>
+    <tags>netstandard netcore Silk.NET 3D DirectX</tags>
     <dependencies>
       <group targetFramework="netstandard2.0">
         <dependency id="Cyotek.Drawing.BitmapFont" version="2.0.0" />
         <dependency id="HelixToolkit" version="[$version$]" />
-        <dependency id="SharpDX" version="4.2.0" />
-        <dependency id="SharpDX.D3DCompiler" version="4.2.0" />
-        <dependency id="SharpDX.Direct2D1" version="4.2.0" />
-        <dependency id="SharpDX.Direct3D11" version="4.2.0" />
-        <dependency id="SharpDX.DXGI" version="4.2.0" />
-        <dependency id="SharpDX.Mathematics" version="4.2.0" />
-        <dependency id="System.ComponentModel.TypeConverter" version="4.3.0"/>
-        <dependency id="System.Drawing.Primitives" version="4.3.0"/>
-        <dependency id="System.Private.DataContractSerialization" version="4.3.0"/>
-        <dependency id="System.Reflection.TypeExtensions" version="4.3.0"/>
-        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0"/>
-        <dependency id="System.Runtime.Serialization.Xml" version="4.3.0"/>
-        <dependency id="System.Threading.Tasks.Parallel" version="4.3.0"/>
-        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="6.0.0"/>
+        <dependency id="Microsoft.CSharp" version="4.7.0" />
+        <dependency id="Silk.NET.Direct2D" version="2.23.0" />
+        <dependency id="Silk.NET.Direct3D.Compilers" version="2.23.0" />
+        <dependency id="Silk.NET.Direct3D11" version="2.23.0" />
+        <dependency id="Silk.NET.DXGI" version="2.23.0" />
+        <dependency id="Silk.NET.Maths" version="2.23.0" />
       </group>
     </dependencies>
   </metadata>

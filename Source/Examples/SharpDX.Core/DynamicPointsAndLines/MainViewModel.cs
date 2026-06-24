@@ -11,11 +11,10 @@ using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Color = System.Windows.Media.Color;
-using Vector3 = SharpDX.Vector3;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Colors = System.Windows.Media.Colors;
 using System.Collections.Generic;
 using System.Diagnostics;
-using HelixToolkit.SharpDX.Core;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 

@@ -12,8 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj" />
-        <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj" />
+        <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" />
     </ItemGroup>
 
 </Project>

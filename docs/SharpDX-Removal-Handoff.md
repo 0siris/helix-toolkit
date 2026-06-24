@@ -6,7 +6,8 @@ Letzter Abschluss-Commit: `66f869ec0 chore(wpf)!: finish Silk.NET migration`
 
 ## Ziel
 
-SharpDX vollständig aus dem Repository entfernen:
+Verbindliches Produktiv-Endgate ist eine bereinigte
+`HelixToolkit.SharpDX.sln` für WPF + Silk.NET DirectX 11:
 
 - keine SharpDX-Pakete oder Assembly-Referenzen,
 - keine echten SharpDX-Typen oder Backend-Aufrufe,
@@ -14,6 +15,9 @@ SharpDX vollständig aus dem Repository entfernen:
 
 Öffentliche Namen wie `HelixToolkit.Wpf.SharpDX` dürfen vorerst als
 Kompatibilitätsnamen bleiben. Sie sind keine technische Abhängigkeit.
+WinUI und UWP bleiben nur als nicht unterstützter Legacy-Code außerhalb von
+Hauptmappe, CI und Packaging im Repository. Eine spätere repo-weite
+Namensbereinigung ist optional und nicht Teil des aktuellen Produktivgates.
 
 ## Erledigter Stand
 
@@ -49,6 +53,31 @@ Validierter Abschlussstand:
 
 Details und Phasenhistorie:
 [`WPF-SharpDX-to-SilkNET-Migration.md`](WPF-SharpDX-to-SilkNET-Migration.md)
+
+Zusätzlich erledigt am 23. Juni 2026:
+
+- `HelixToolkit.SharpDX.sln` von `HelixToolkit.WinUI`,
+  `HelixToolkit.UWP.Shared`, WinUI `ModelViewer` und
+  `HelixToolkit.SharpDX.Core.Wpf` entkoppelt.
+- Verwaiste Shared-Project-Importe dieser entfernten Projekte aus der
+  Hauptmappe entfernt.
+- `CoreWpfTest` und `DynamicPointsAndLines` hängen nicht mehr am alten
+  `HelixToolkit.SharpDX.Core.Wpf`, sondern direkt an
+  `HelixToolkit.Wpf.SharpDX`.
+- AppVeyor restauriert und baut die bereinigte `HelixToolkit.SharpDX.sln`
+  mit `dotnet`; WinUI- und `HelixToolkit.SharpDX.Core.Wpf`-Pakete werden
+  nicht mehr gepackt.
+- `Source/HelixToolkit.SharpDX.Core.Wpf.nuspec` wurde entfernt.
+- `CoreWpfTest` und `DynamicPointsAndLines` bauen nach der Umstellung wieder
+  einzeln mit `0` Fehlern.
+- `HelixToolkit.Wpf.SharpDX` referenziert `HelixToolkit.SharpDX.Core` nicht
+  mehr als normale Projektabhängigkeit. Die WPF-Assembly kompiliert ihre
+  Legacy-API weiter selbst und deklariert die dafür benötigten Silk.NET-
+  Abhängigkeiten direkt.
+- Die aktiven NuSpecs `HelixToolkit.Wpf.Sharpdx.nuspec`,
+  `HelixToolkit.SharpDX.Core.nuspec` und
+  `HelixToolkit.SharpDX.Assimp.nuspec` enthalten keine SharpDX-
+  Paketabhängigkeiten mehr.
 
 ## Verwendete Strategie
 
@@ -89,14 +118,17 @@ Mit kleinen Beispielen beginnen. Diese Sonderfälle zuletzt bearbeiten:
 - `DynamicTextureDemo`
 - `ScreenDuplicationDemo`
 
-### 2. `HelixToolkit.SharpDX.Core.Wpf` entfernen
+### 2. `HelixToolkit.SharpDX.Core.Wpf` fertig entfernen
 
 Das Projekt war ein Übergangspaket für .NET Core 3.0 und dupliziert heute
 den Zweck von `HelixToolkit.Wpf.SharpDX`.
 
-- Projekt, Nuspec, Solution-, README-, CI- und Packaging-Einträge entfernen.
-- `CoreWpfTest` und `DynamicPointsAndLines` auf
-  `HelixToolkit.Wpf.SharpDX` umstellen.
+- In der Hauptmappe, AppVeyor-Packaging und den beiden aktiven Core-WPF-Demos
+  ist es bereits entkoppelt.
+- Das Projektverzeichnis selbst und historische Solution-Einträge in
+  `HelixToolkit.SharpDX.Core.sln` und `HelixToolkit.AppVeyor.sln` bleiben
+  noch als Legacy-Reste liegen.
+- README-/Release-Dokumentation noch bereinigen.
 - Kein Alias- oder Kompatibilitätspaket weiterpflegen.
 
 ### 3. UWP und WinUI aus dem Produktiv-Scope entfernen
@@ -110,9 +142,10 @@ Aktuell verbleiben echte SharpDX-Abhängigkeiten in:
 - `HelixToolkit.UWP.Shared`
 
 Diese Projekte bleiben vorerst als nicht unterstützter Legacy-Code im
-Repository, werden aber aus `HelixToolkit.SharpDX.sln`, aktivem CI,
-Packaging und Release-Dokumentation entfernt. Das verbindliche Endgate ist
-die produktive WPF-Hauptmappe, nicht der vollständige Legacy-Bestand.
+Repository. Sie sind bereits aus `HelixToolkit.SharpDX.sln`, aktivem
+AppVeyor-Build und Packaging entfernt. Release-Dokumentation ist noch zu
+bereinigen. Das verbindliche Endgate ist die produktive WPF-Hauptmappe,
+nicht der vollständige Legacy-Bestand.
 
 ### 4. Shared-Altzweige bereinigen
 
@@ -333,26 +366,39 @@ diese Altaufrufe entfernen; danach für einen lokalen Diagnose-Build
 
 ## Verbindlicher Produktivplan
 
-Baseline: Der vollständige Build von `HelixToolkit.SharpDX.sln` endet am
-23. Juni 2026 mit `438` Fehlern. Fertig ist die Migration erst bei einem
-grünen Debug- und Release-Build der bereinigten Hauptmappe.
+Baseline: Der vollständige Build von `HelixToolkit.SharpDX.sln` endete am
+23. Juni 2026 vor Step 1 mit `438` Fehlern. Nach Step 1 endete der Build mit
+`295` Fehlern und `4041` Warnungen. Nach Step 2 endet der Build mit `291`
+Fehlern und `399` Warnungen. Fertig ist die Migration erst bei einem grünen
+Debug- und Release-Build der bereinigten Hauptmappe.
 
 ### 1. Hauptmappe und Packaging bereinigen
 
-- Aus `HelixToolkit.SharpDX.sln` entfernen:
-  - `HelixToolkit.WinUI`
-  - `HelixToolkit.UWP.Shared`
-  - WinUI `ModelViewer`
-  - `HelixToolkit.SharpDX.Core.Wpf`
-- `HelixToolkit.SharpDX.Core.Wpf` samt Nuspec und Packaging entfernen.
-- AppVeyor auf den WPF-/Silk.NET-Produktumfang reduzieren:
-  keine WinUI-, UWP- oder Core.Wpf-Pakete.
-- CI-Builds mit `dotnet` und dem SDK aus `global.json` ausführen.
+Status: erledigt am 23. Juni 2026.
+
+- Aus `HelixToolkit.SharpDX.sln` entfernt:
+  `HelixToolkit.WinUI`, `HelixToolkit.UWP.Shared`, WinUI `ModelViewer` und
+  `HelixToolkit.SharpDX.Core.Wpf`.
+- `HelixToolkit.SharpDX.Core.Wpf`-Nuspec gelöscht und Packaging entfernt.
+- AppVeyor auf `dotnet restore/build Source\HelixToolkit.SharpDX.sln`
+  umgestellt.
+- WinUI- und `HelixToolkit.SharpDX.Core.Wpf`-Pakete werden nicht mehr gebaut.
+- `HelixToolkit.Core.Wpf.nuspec` bleibt unverändert, weil das ein anderes,
+  nicht-DirectX-11-spezifisches WPF-Paket ist.
+- Verifikation:
+  `CoreWpfTest` und `DynamicPointsAndLines` bauen einzeln mit `0` Fehlern;
+  `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  bleibt mit `295` Fehlern rot. Die verbleibenden Fehler liegen in noch nicht
+  migrierten WPF-/Core-Demos, vor allem alte .NET-Framework-Demo,
+  SharpDX-Math-/Color-Typen, `WinFormsTest` und `OffScreenRendering`.
 
 ### 2. Assembly-Ownership korrigieren
 
-Der WPF-Build erzeugt aktuell tausende `CS0436`-Warnungen, weil Shared-Code
-sowohl in Core als auch erneut in WPF kompiliert wird.
+Status: erledigt für die produktive WPF-Bibliothekskante am 24. Juni 2026.
+
+Der WPF-Build erzeugte tausende `CS0436`-Warnungen, weil Shared-Code sowohl
+in Core als auch erneut in WPF kompiliert und Core zugleich als normale
+Referenz importiert wurde.
 
 - Allgemeine Typen gehören `HelixToolkit`.
 - Rendering-Core und lokaler Toolkit-Kompatibilitätscode gehören
@@ -362,6 +408,16 @@ sowohl in Core als auch erneut in WPF kompiliert wird.
 - Fixed-Namespace-Dateien in Core-/WPF-spezifische Projitems trennen oder
   ausschließlich aus der besitzenden Assembly referenzieren.
 - `CS0436` nicht unterdrücken, sondern doppelte Typdefinitionen beseitigen.
+- Umsetzung:
+  `HelixToolkit.Wpf.SharpDX` referenziert `HelixToolkit.SharpDX.Core` nicht
+  mehr direkt. Die WPF-Assembly bleibt Besitzerin ihrer Legacy-API und hat
+  die benötigten Silk.NET-/Cyotek-Pakete direkt. Ein gezielter WPF-Build-
+  Check auf `CS0436` liefert keine Treffer.
+- Verifikation:
+  `HelixToolkit.SharpDX.Core`, `HelixToolkit.Wpf.SharpDX`,
+  `HelixToolkit.Wpf.SharpDX.Assimp`, `CoreWpfTest` und
+  `DynamicPointsAndLines` bauen einzeln mit `0` Fehlern. Core-Tests
+  `15/15`, WPF-Tests `44/44`.
 
 ### 3. Alle DirectX-Demos migrieren
 
@@ -456,7 +512,9 @@ git status --short
 
 ## Nächster Schritt
 
-Zuerst Hauptmappe, CI und Packaging von WinUI/UWP/Core.Wpf entkoppeln und
-`CoreWpfTest` sowie `DynamicPointsAndLines` auf das produktive WPF-Paket
-umstellen. Danach die Demos in kleinen, fachlich zusammenhängenden Paketen
-migrieren und jeweils Build plus Startup-Smoke dokumentieren.
+Step 3: DirectX-Demos in kleinen Paketen migrieren. Zuerst reine
+Math-/Color-Migrationen in WPF.SharpDX-Demos angehen, weil der aktuelle
+Hauptmappen-Build fast nur noch an alten `SharpDX.Vector*`, `SharpDX.Color*`,
+`SharpDX.Direct3D11.CullMode/FillMode` und an der alten
+`CustomShaderDemo`-TFM-Kante scheitert. Danach `OffScreenRendering` und
+`WinFormsTest` separat bearbeiten.

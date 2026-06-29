@@ -10,8 +10,6 @@ namespace ScreenSpaceDemo
     using HelixToolkit.Wpf.SharpDX;
     using HelixToolkit.Wpf.SharpDX.Model;
     using HelixToolkit.Wpf.SharpDX.Extensions;
-
-    using SharpDX;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -26,6 +24,8 @@ namespace ScreenSpaceDemo
     using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 
     public class MainViewModel : BaseViewModel
@@ -46,6 +46,7 @@ namespace ScreenSpaceDemo
         public Color4 DirectionalLightColor { get; private set; }
         public Color4 AmbientLightColor { get; private set; }
         public Color4 BackgroundColor { get; private set; }
+        public IRenderTechnique RenderTechnique { get; private set; }
 
         public MainViewModel()
         {
@@ -59,32 +60,31 @@ namespace ScreenSpaceDemo
 
             // default render technique
             EffectsManager = new DefaultEffectsManager();
-            RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Blinn];
+            RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
 
             // background
-            this.BackgroundColor = (Color4)Color.White;
-            
-            // setup lighting            
+            this.BackgroundColor = new Color4(1, 1, 1, 1);
+
+            // setup lighting
             this.AmbientLightColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f);
-            this.DirectionalLightColor = Color.White;
+            this.DirectionalLightColor = new Color4(1, 1, 1, 1);
             this.DirectionalLightDirection1 = new Vector3(-2, -5, -2);
             this.DirectionalLightDirection2 = new Vector3(+2, +5, +5);
-     
-            // model materials            
-            this.DefaultMaterial = PhongMaterials.DefaultVRML;            
+
+            // model materials
+            this.DefaultMaterial = PhongMaterials.DefaultVRML;
 
             //load model
             var reader = new ObjReader();
-            var objModel = reader.Read(@"./Media/CornellBox-Glossy.obj");                              
-                        
+            var objModel = reader.Read(@"./Media/CornellBox-Glossy.obj");
+
             this.ModelGeometry = new ObservableElement3DCollection();
             foreach(var model in objModel.Select(x => new MeshGeometryModel3D() { Geometry = x.Geometry as MeshGeometry3D, Material = GetMaterialFromMaterialCore(x.Material as PhongMaterialCore), }))
             {
               this.ModelGeometry.Add(model);
             }
-                          
             // model trafos
-            this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);            
+            this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);
         }
 
         private static Material GetMaterialFromMaterialCore(PhongMaterialCore material)
@@ -104,7 +104,6 @@ namespace ScreenSpaceDemo
                 DiffuseMap = material.DiffuseMap,
                 DiffuseMapSampler = material.DiffuseMapSampler,
                 DiffuseAlphaMap = material.DiffuseAlphaMap,
-                DiffuseAlphaMapSampler = material.DiffuseAlphaMapSampler,
                 DisplacementMap = material.DisplacementMap,
                 DisplacementMapSampler = material.DisplacementMapSampler,
                 DisplacementMapScaleMask = material.DisplacementMapScaleMask,
@@ -115,7 +114,6 @@ namespace ScreenSpaceDemo
                 MinDistanceTessellationFactor = material.MinDistanceTessellationFactor,
                 MinTessellationDistance = material.MinTessellationDistance,
                 NormalMap = material.NormalMap,
-                NormalMapSampler = material.NormalMapSampler,
                 ReflectiveColor = material.ReflectiveColor,
                 RenderDiffuseAlphaMap = material.RenderDiffuseAlphaMap,
                 RenderDiffuseMap = material.RenderDiffuseMap,

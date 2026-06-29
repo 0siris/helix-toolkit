@@ -692,4 +692,13 @@ und Silk.NET-/Helix-Typen migriert. Direkte SharpDX-Referenzen,
 Einzelbuild: `0` Fehler, `61` Warnungen. Runtime-Smoke: fünf Sekunden stabil.
 Die Demo ist in `HelixToolkit.SharpDX.sln` eingehängt.
 
-Nächste Demo im separaten Block: `ScreenSpaceDemo`.
+`ScreenSpaceDemo` ist auf SDK-Projektformat, `net10.0-windows` und
+Silk.NET-/Helix-Typen migriert. Direkte SharpDX-Referenzen, `packages.config`,
+alte `app.config` und Fody-Altlasten sind entfernt. Die Demo nutzt
+`Viewport3DX.RenderTechnique`; die alte direkte SSAO-UI über
+`DeferredRenderer` wurde entfernt, weil der `DeferredRenderer` nicht mehr im
+WPF-Shared-Projekt eingebunden ist. Einzelbuild: `0` Fehler, `55` Warnungen.
+Runtime-Smoke: fünf Sekunden stabil. Die Demo ist in
+`HelixToolkit.SharpDX.sln` eingehängt.
+
+Der separate Demo-Migrationsblock ist damit abgearbeitet.

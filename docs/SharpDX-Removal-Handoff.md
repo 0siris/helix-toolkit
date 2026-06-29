@@ -181,7 +181,6 @@ Mit kleinen Beispielen beginnen. Diese Sonderfälle zuletzt bearbeiten:
 
 - `CustomShaderDemo`
 - `DeferredShadingDemo`
-- `GenericMaterialDemo`
 - `ScreenSpaceDemo`
 - `DynamicTextureDemo`
 - `ScreenDuplicationDemo`
@@ -677,7 +676,20 @@ Step 6 ist entschieden: `DeferredShadingDemo`, `GenericMaterialDemo` und
 `ScreenSpaceDemo` bleiben erhalten und werden separat auf Silk.NET migriert,
 weil sie wichtige Beispielabdeckung enthalten.
 
-Step 7: separaten Demo-Migrationsblock starten. Zuerst Projektstatus,
-Solution-Einbindung und SharpDX-Treffer der drei Demos erfassen. Danach eine
-Demo nach der anderen migrieren und jeweils mit Einzelbuild plus kurzem
-Runtime-Smoke validieren.
+Step 7 läuft: `GenericMaterialDemo` ist auf SDK-Projektformat,
+`net10.0-windows` und Silk.NET-/Helix-Typen migriert. Direkte SharpDX-
+Referenzen, `packages.config` und alte `App.config` sind entfernt.
+Einzelbuild: `0` Fehler, `56` Warnungen. Runtime-Smoke: fünf Sekunden stabil.
+Die Demo ist in `HelixToolkit.SharpDX.sln` eingehängt.
+
+`DeferredShadingDemo` ist ebenfalls auf SDK-Projektformat, `net10.0-windows`
+und Silk.NET-/Helix-Typen migriert. Direkte SharpDX-Referenzen,
+`packages.config`, alte `app.config` und die alten
+`sharpdx_direct3d11_1_effects_*`-DLLs sind entfernt. Die Demo nutzt wieder die
+`Viewport3DX.RenderTechnique`-Property; die alte direkte
+`DeferredRenderer.NumberSamplesMSAA`-UI wurde entfernt, weil der
+`DeferredRenderer` nicht mehr im WPF-Shared-Projekt eingebunden ist.
+Einzelbuild: `0` Fehler, `61` Warnungen. Runtime-Smoke: fünf Sekunden stabil.
+Die Demo ist in `HelixToolkit.SharpDX.sln` eingehängt.
+
+Nächste Demo im separaten Block: `ScreenSpaceDemo`.

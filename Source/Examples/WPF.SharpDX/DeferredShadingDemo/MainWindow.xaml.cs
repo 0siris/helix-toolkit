@@ -7,7 +7,6 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;

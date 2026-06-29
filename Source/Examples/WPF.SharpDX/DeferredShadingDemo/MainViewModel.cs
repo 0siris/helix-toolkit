@@ -13,11 +13,10 @@ namespace DeferredShadingDemo
     using HelixToolkit.Wpf;
     using HelixToolkit.Wpf.SharpDX;
     using HelixToolkit.Wpf.SharpDX.Extensions;
-    using System.Linq;
-    using SharpDX;
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Windows.Data;
     using System.Windows.Media.Animation;
     using System.Windows.Media.Imaging;
@@ -30,7 +29,9 @@ namespace DeferredShadingDemo
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Color = System.Windows.Media.Color;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
     using Colors = System.Windows.Media.Colors;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -43,6 +44,7 @@ namespace DeferredShadingDemo
         public PhongMaterial GreenMaterial { get; private set; }
         public PhongMaterial BlueMaterial { get; private set; }
         public PhongMaterial PlaneMaterial { get; private set; }
+        public IRenderTechnique RenderTechnique { get; private set; }
 
         public Transform3D Model1Transform { get; private set; }
         public Transform3D Model2Transform { get; private set; }
@@ -354,6 +356,17 @@ namespace DeferredShadingDemo
             //this.Model.Colors = this.Model.Positions.Select(x => new Color4(1, 0, 0, 1)).ToArray();
         }
 
+        private static MemoryStream LoadFileToMemory(string filePath)
+        {
+            using (var file = new FileStream(filePath, FileMode.Open))
+            {
+                var memory = new MemoryStream();
+                file.CopyTo(memory);
+                memory.Position = 0;
+                return memory;
+            }
+        }
+
 
 
         private Vector3D pointLightAttenuation;
@@ -371,12 +384,12 @@ namespace DeferredShadingDemo
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return ((Color4)value).ToColor();
+            return value is Color4 color ? color.ToColor() : value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return ((System.Windows.Media.Color)value).ToColor4();
+            return targetType == typeof(Color) ? value : ((Color)value).ToColor4();
         }
     }
 }

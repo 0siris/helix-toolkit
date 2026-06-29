@@ -42,6 +42,13 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }));
 
+        public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register(
+            "RenderTechnique", typeof(IRenderTechnique), typeof(Viewport3DX),
+            new PropertyMetadata(null, (s, e) =>
+            {
+                ((Viewport3DX)s).RenderTechniquePropertyChanged((IRenderTechnique)e.NewValue);
+            }));
+
         /// <summary>
         /// The camera changed event.
         /// </summary>
@@ -1782,13 +1789,6 @@ namespace HelixToolkit.Wpf.SharpDX
         }
 
 
-        //public DeferredRenderer DeferredRenderer
-        //{
-        //    get { return (DeferredRenderer)this.GetValue(DeferredRendererProperty); }
-        //    set { this.SetValue(DeferredRendererProperty, value); }
-        //}
-
-
         /// <summary>
         /// Gets or sets the default camera.
         /// </summary>
@@ -1820,6 +1820,18 @@ namespace HelixToolkit.Wpf.SharpDX
             set
             {
                 SetValue(EffectsManagerProperty, value);
+            }
+        }
+
+        public IRenderTechnique RenderTechnique
+        {
+            get
+            {
+                return (IRenderTechnique)GetValue(RenderTechniqueProperty);
+            }
+            set
+            {
+                SetValue(RenderTechniqueProperty, value);
             }
         }
 

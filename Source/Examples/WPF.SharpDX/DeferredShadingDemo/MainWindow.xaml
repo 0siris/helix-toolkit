@@ -10,7 +10,6 @@
         Title="{Binding Title}" Height="500" Width="800">
     <Window.Resources>
         <local:ColorVectorConverter x:Key="ColorConverter"/>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -53,35 +52,6 @@
         </hx:Viewport3DX>
 
         <StackPanel Grid.Row="1" Grid.Column="1">
-            <Expander Header="Render Technique" x:Name="shadingPanel" HorizontalAlignment="Right" Width="150" VerticalAlignment="Top" BorderBrush="LightGray" IsExpanded="True" Margin="10">
-                <Expander.Background>
-                    <SolidColorBrush Opacity="0.25" Color="WhiteSmoke"/>
-                </Expander.Background>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <ComboBox  Grid.Row="0" 
-                               Text="--- Select Model ---" 
-                               Grid.ColumnSpan="2"
-                               Margin="3" 
-                               DisplayMemberPath="Key" 
-                               SelectedValuePath="Value" 
-                               ItemsSource="{Binding RenderTechniquesManager.RenderTechniques}" 
-                               SelectedItem="{Binding RenderTechnique, Converter={StaticResource RenderTechniqueConverter}}" 
-                               SelectedValue="{Binding RenderTechnique, Converter={StaticResource RenderTechniqueConverter}}" 
-                               IsReadOnly="True"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="3" VerticalAlignment="Center">MSAA</TextBlock>
-                    <ComboBox  Grid.Row="1" Grid.Column="1" Text="--- Select Num Sample ---" SelectedItem="{Binding DeferredRenderer.NumberSamplesMSAA, ElementName=view1}" ItemsSource="{Binding SamplesMSAA}" Margin="3">
-                    </ComboBox>
-                </Grid>
-            </Expander>
-
             <Expander Header="Directional Light" HorizontalAlignment="Right" VerticalAlignment="Top" Width="150" BorderBrush="LightGray" IsExpanded="True" Margin="10">
                 <Expander.Background>
                     <SolidColorBrush Opacity="0.25" Color="WhiteSmoke"/>

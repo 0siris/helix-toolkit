@@ -6,7 +6,6 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:ShadowMapDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sdxm="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Title="Multiviewports"
     Width="900"

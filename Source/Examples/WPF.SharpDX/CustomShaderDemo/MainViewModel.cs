@@ -9,9 +9,6 @@ namespace CustomShaderDemo
     using CustomShaderDemo.Materials;
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
-    using SharpDX.Direct2D1.Effects;
-    using SharpDX.Direct3D11;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -22,6 +19,9 @@ namespace CustomShaderDemo
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector2 = Silk.NET.Maths.Vector2D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
     public class MainViewModel : BaseViewModel
     {
         public MeshGeometry3D Model { get; private set; }
@@ -211,17 +211,17 @@ namespace CustomShaderDemo
 
         public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps)
         {
-            float stepA = ((end.Alpha - start.Alpha) / (steps - 1));
-            float stepR = ((end.Red - start.Red) / (steps - 1));
-            float stepG = ((end.Green - start.Green) / (steps - 1));
-            float stepB = ((end.Blue - start.Blue) / (steps - 1));
+            float stepA = ((end.W - start.W) / (steps - 1));
+            float stepR = ((end.X - start.X) / (steps - 1));
+            float stepG = ((end.Y - start.Y) / (steps - 1));
+            float stepB = ((end.Z - start.Z) / (steps - 1));
 
             for (int i = 0; i < steps; i++)
             {
-                yield return new Color4((start.Red + (stepR * i)),
-                                            (start.Green + (stepG * i)),
-                                            (start.Blue + (stepB * i)),
-                                            (start.Alpha + (stepA * i)));
+                yield return new Color4((start.X + (stepR * i)),
+                                            (start.Y + (stepG * i)),
+                                            (start.Z + (stepB * i)),
+                                            (start.W + (stepA * i)));
             }
         }
 

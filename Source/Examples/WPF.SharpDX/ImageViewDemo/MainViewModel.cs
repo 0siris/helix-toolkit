@@ -18,12 +18,13 @@ namespace ImageViewDemo
 
     using HelixToolkit.Wpf.SharpDX;
 
-    using SharpDX;
-
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using HelixToolkit.Wpf;
+    using Color = HelixToolkit.Wpf.SharpDX.Color;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {

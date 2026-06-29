@@ -4,7 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using Vector3 = SharpDX.Vector3;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace RenderTechniqueImportExport
 {

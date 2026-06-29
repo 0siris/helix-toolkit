@@ -1,8 +1,6 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Core;
-using SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Drawing.Imaging;
 using System.IO;
@@ -16,12 +14,12 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Color = System.Windows.Media.Color;
-using Plane = SharpDX.Plane;
-using Vector3 = SharpDX.Vector3;
 using Colors = System.Windows.Media.Colors;
-using Color4 = SharpDX.Color4;
 using System.Threading.Tasks;
 using System.Threading;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace DynamicTextureDemo
 {

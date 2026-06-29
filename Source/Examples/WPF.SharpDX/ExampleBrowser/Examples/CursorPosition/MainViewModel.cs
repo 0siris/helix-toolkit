@@ -7,7 +7,7 @@
 using System.Linq;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CursorPosition
 {
@@ -26,7 +26,7 @@ namespace CursorPosition
         public PhongMaterial RedMaterial { get; private set; }
         public PhongMaterial GreenMaterial { get; private set; }
         public PhongMaterial BlueMaterial { get; private set; }
-        public SharpDX.Color GridColor { get; private set; }
+        public HelixToolkit.Wpf.SharpDX.Color GridColor { get; private set; }
 
         public Media3D.Transform3D Model1Transform { get; private set; }
         public Media3D.Transform3D Model2Transform { get; private set; }
@@ -58,7 +58,7 @@ namespace CursorPosition
 
             // floor plane grid
             this.Grid = LineBuilder.GenerateGrid();
-            this.GridColor = SharpDX.Color.Blue;
+            this.GridColor = HelixToolkit.Wpf.SharpDX.Color.Blue;
             this.GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
 
             // scene model3d

@@ -6,7 +6,6 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pt="http://propertytools.org/wpf"
-    xmlns:sdx="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
     Title="LightingDemo SharpDX"
     Width="1200"
     Height="700"
@@ -184,7 +183,6 @@
                     Transform="{Binding FloorTransform}" />
             </hx:GroupModel3D>
             <hx:PostEffectBloom x:Name="bloom" />
-            <!--<hx:LineGeometryModel3D Geometry="{Binding CubeEdges}" Color="{x:Static SharpDX:Color.Red}" Thickness="4"/>-->
         </hx:Viewport3DX>
         <StackPanel Grid.Column="1">
             <Expander

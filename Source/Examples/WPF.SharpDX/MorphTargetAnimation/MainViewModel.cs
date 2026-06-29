@@ -15,7 +15,6 @@ using HelixToolkit.Wpf.SharpDX.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX.Animations;
 using HelixToolkit.Wpf.SharpDX.Assimp;
-using SharpDX;
 using System.Windows.Input;
 using System.Linq;
 

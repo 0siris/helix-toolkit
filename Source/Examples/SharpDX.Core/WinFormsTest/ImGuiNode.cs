@@ -1,14 +1,12 @@
 ﻿using ImGuiNET;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Format = Silk.NET.DXGI.Format;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 
 namespace HelixToolkit.SharpDX.Core.Model
 {
-    using global::SharpDX.Direct3D;
-    using global::SharpDX.Direct3D11;
-    using global::SharpDX.DXGI;
     using Core.Components;
     using Shaders;
     using Core;
@@ -22,9 +20,9 @@ namespace HelixToolkit.SharpDX.Core.Model
         public const string ImGuiRenderTechnique = "ImGuiRender";
         public static InputElement[] VSInputImGui2D { get; } = new InputElement[]
         {
-            new InputElement("POSITION", 0, Format.R32G32_Float,  InputElement.AppendAligned, 0),
-            new InputElement("TEXCOORD", 0, Format.R32G32_Float,  InputElement.AppendAligned, 0),
-            new InputElement("COLOR", 0, Format.R8G8B8A8_UNorm,  InputElement.AppendAligned, 0),
+            new InputElement("POSITION", 0, Format.FormatR32G32Float,  InputElement.AppendAligned, 0),
+            new InputElement("TEXCOORD", 0, Format.FormatR32G32Float,  InputElement.AppendAligned, 0),
+            new InputElement("COLOR", 0, Format.FormatR8G8B8A8Unorm,  InputElement.AppendAligned, 0),
         };
 
         public static readonly TechniqueDescription RenderTechnique;
@@ -129,7 +127,7 @@ namespace HelixToolkit.SharpDX.Core.Model
                 io.Fonts.GetTexDataAsRGBA32(out IntPtr textureData, out var width, out var height);
                 var textureView = new ShaderResourceViewProxy(EffectsManager.Device);
                 textureView.CreateView(textureData, width, height, 
-                    Format.R8G8B8A8_UNorm);
+                    Format.FormatR8G8B8A8Unorm);
                 io.Fonts.SetTexID(fontAtlasID);
                 io.Fonts.ClearTexData();
                 (RenderCore as ImGuiRenderCore).TextureView = textureView;
@@ -180,7 +178,7 @@ namespace HelixToolkit.SharpDX.Core.Model
                 return;
             }
           
-            ProjectionMatrix = Matrix.OrthoOffCenterRH(
+            ProjectionMatrix = CreateOrthographicOffCenter(
                 0f,
                 io.DisplaySize.X / context.DpiScale,
                 io.DisplaySize.Y / context.DpiScale,
@@ -237,6 +235,18 @@ namespace HelixToolkit.SharpDX.Core.Model
                 #endregion
             }
             RaiseInvalidateRender();
+        }
+
+        private static Matrix CreateOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane)
+        {
+            var result = Matrix.Identity;
+            result.M11 = 2.0f / (right - left);
+            result.M22 = 2.0f / (top - bottom);
+            result.M33 = 1.0f / (zNearPlane - zFarPlane);
+            result.M41 = (left + right) / (left - right);
+            result.M42 = (top + bottom) / (bottom - top);
+            result.M43 = zNearPlane / (zNearPlane - zFarPlane);
+            return result;
         }
 
         private bool UpdateBuffer(DeviceContextProxy deviceContext)
@@ -313,9 +323,9 @@ namespace HelixToolkit.SharpDX.Core.Model
 
         internal DynamicBufferProxy IndexBufferInternal;
 
-        public ImGui2DBufferModel()
+        public unsafe ImGui2DBufferModel()
         {
-            VertexBufferInternal = new DynamicBufferProxy(global::SharpDX.Utilities.SizeOf<ImDrawVert>(), BindFlags.VertexBuffer);
+            VertexBufferInternal = new DynamicBufferProxy(sizeof(ImDrawVert), BindFlags.VertexBuffer);
             VertexBuffer[0] = VertexBufferInternal;
             IndexBuffer = IndexBufferInternal = new DynamicBufferProxy(sizeof(ushort), BindFlags.IndexBuffer);
         }
@@ -327,7 +337,7 @@ namespace HelixToolkit.SharpDX.Core.Model
                 return false;
             }
             context.SetVertexBuffers(0, new VertexBufferBinding(VertexBufferInternal.Buffer, VertexBufferInternal.StructureSize, VertexBufferInternal.Offset));
-            context.SetIndexBuffer(IndexBufferInternal.Buffer, Format.R16_UInt, IndexBufferInternal.Offset);
+            context.SetIndexBuffer(IndexBufferInternal.Buffer, Format.FormatR16Uint, IndexBufferInternal.Offset);
             return true;
         }
 

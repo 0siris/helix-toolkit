@@ -1,20 +1,8 @@
-﻿using SharpDX;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using HelixToolkit.Wpf.SharpDX;
 using System.Diagnostics;
+using System.Windows;
+using System.Windows.Input;
+using HelixToolkit.Wpf.SharpDX;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CustomViewCubeDemo
 {
@@ -30,11 +18,10 @@ namespace CustomViewCubeDemo
 
         private void MeshGeometryModel3D_Mouse3DDown(object sender, MouseDown3DEventArgs e)
         {
-            var normal = e.HitTestResult.NormalAtHit;
-            normal.Normalize();
+            var normal = Normalize(e.HitTestResult.NormalAtHit);
             var upDirection = Vector3.Zero;
             var lookDirection = -normal;
-            if (Vector3.Cross(normal, view1.ModelUpDirection.ToVector3()).LengthSquared() < 1e-5)
+            if (Cross(normal, view1.ModelUpDirection.ToVector3()).LengthSquared < 1e-5)
             {
                 var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
                 upDirection = vecLeft;
@@ -54,6 +41,19 @@ namespace CustomViewCubeDemo
         private void LineGeometryModel3D_Mouse3DDown(object sender, MouseDown3DEventArgs e)
         {
             Debug.WriteLine("Line hitted.");
+        }
+
+        private static Vector3 Normalize(Vector3 value)
+        {
+            return value.Length > 0 ? value / value.Length : value;
+        }
+
+        private static Vector3 Cross(Vector3 left, Vector3 right)
+        {
+            return new Vector3(
+                left.Y * right.Z - left.Z * right.Y,
+                left.Z * right.X - left.X * right.Z,
+                left.X * right.Y - left.Y * right.X);
         }
     }
 }

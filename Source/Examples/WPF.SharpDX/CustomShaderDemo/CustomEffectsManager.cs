@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Shaders;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 
 namespace CustomShaderDemo
 {

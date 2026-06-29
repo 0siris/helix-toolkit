@@ -14,6 +14,7 @@ namespace EnvironmentMapDemo
     using System.Windows.Data;
 
     using HelixToolkit.Wpf.SharpDX;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
 
     /// <summary>
     /// Interaction logic for MaterialControl.xaml
@@ -30,8 +31,8 @@ namespace EnvironmentMapDemo
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var c = (global::SharpDX.Color4)value;
-            return c.ToColor();      
+            var c = (Color4)value;
+            return c.ToColor();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

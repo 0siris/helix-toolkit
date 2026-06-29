@@ -91,8 +91,12 @@ namespace HelixToolkit.UWP
             Items.Attach(host.EffectsManager);
             Items.Invalidated += Items_Invalidated;
 
-            ViewCube.Attach(host.EffectsManager);
-            ViewCube.Invalidated += Items_Invalidated;
+            if (ViewCube.Visible)
+            {
+                ViewCube.Attach(host.EffectsManager);
+                ViewCube.Invalidated += Items_Invalidated;
+                ViewCube.RenderHost = host;
+            }
 
 
             CoordinateSystem.Attach(host.EffectsManager);
@@ -102,7 +106,6 @@ namespace HelixToolkit.UWP
             
             Items.RenderHost = host;
             CoordinateSystem.RenderHost = host;
-            ViewCube.RenderHost = host;
         }
 
         private void Items_Invalidated(object sender, InvalidateTypes e)
@@ -118,8 +121,11 @@ namespace HelixToolkit.UWP
             Items.Invalidated -= Items_Invalidated;
             Items.Detach();
 
-            ViewCube.Invalidated -= Items_Invalidated;
-            ViewCube.Detach();
+            if (ViewCube.IsAttached)
+            {
+                ViewCube.Invalidated -= Items_Invalidated;
+                ViewCube.Detach();
+            }
 
             CoordinateSystem.Invalidated -= Items_Invalidated;
             CoordinateSystem.Detach();

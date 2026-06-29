@@ -1,7 +1,6 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Model.Scene;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +17,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace Viewport3DXCodeBehindTester
 {
@@ -155,7 +156,7 @@ namespace Viewport3DXCodeBehindTester
         public MeshGeometryModel3D GetModelRandom()
         {
             var idx = rnd.Next(0, models.Count);
-            MeshGeometryModel3D model = new MeshGeometryModel3D() { Geometry = models[idx], CullMode = SharpDX.Direct3D11.CullMode.Back};
+            MeshGeometryModel3D model = new MeshGeometryModel3D() { Geometry = models[idx], CullMode = CullMode.Back};
             var scale = new System.Windows.Media.Media3D.ScaleTransform3D(rnd.NextDouble(1, 5), rnd.NextDouble(1, 5), rnd.NextDouble(1, 5));
             var translate =  new System.Windows.Media.Media3D.TranslateTransform3D(rnd.NextDouble(-20, 20), rnd.NextDouble(-20, 20), rnd.NextDouble(-20, 20));
             var group = new System.Windows.Media.Media3D.Transform3DGroup();
@@ -164,7 +165,7 @@ namespace Viewport3DXCodeBehindTester
             model.Transform = group;
             var material = materials[rnd.Next(0, materials.Count - 1)];
             model.Material = material;
-            if (material.DiffuseColor.Alpha < 1)
+            if (material.DiffuseColor.W < 1)
             {
                 model.IsTransparent = true;
             }
@@ -174,17 +175,44 @@ namespace Viewport3DXCodeBehindTester
         public MeshNode GetSceneNodeRandom()
         {
             var idx = rnd.Next(0, models.Count);
-            MeshNode model = new MeshNode() { Geometry = models[idx], CullMode = SharpDX.Direct3D11.CullMode.Back };
-            var scale = SharpDX.Matrix.Scaling((float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5));
-            var translate = SharpDX.Matrix.Translation((float)rnd.NextDouble(-20, 20), (float)rnd.NextDouble(-20, 20), (float)rnd.NextDouble(-20, 20));
+            MeshNode model = new MeshNode() { Geometry = models[idx], CullMode = CullMode.Back };
+            var scale = Scaling((float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5));
+            var translate = Translation((float)rnd.NextDouble(-20, 20), (float)rnd.NextDouble(-20, 20), (float)rnd.NextDouble(-20, 20));
             model.ModelMatrix = scale * translate;
             var material = materials[rnd.Next(0, materials.Count - 1)];
             model.Material = material;
-            if (material.DiffuseColor.Alpha < 1)
+            if (material.DiffuseColor.W < 1)
             {
                 model.IsTransparent = true;
             }
             return model;
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+        }
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
+        }
+
+        private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix)
+        {
+            return new Matrix(
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44);
+        }
+    }
+
+    internal static class RandomExtensions
+    {
+        public static double NextDouble(this Random random, double min, double max)
+        {
+            return min + random.NextDouble() * (max - min);
         }
     }
 }

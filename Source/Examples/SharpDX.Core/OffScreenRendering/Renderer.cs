@@ -3,10 +3,12 @@ using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Controls;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using SharpDX;
 using System;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace OffScreenRendering
 {
@@ -15,7 +17,7 @@ namespace OffScreenRendering
         private readonly ViewportCore viewport = new ViewportCore() { EffectsManager = new DefaultEffectsManager() };
         private readonly Random random = new Random((int)Stopwatch.GetTimestamp());
         private readonly DirectionalLightNode lightNode = new DirectionalLightNode()
-        { Direction = new Vector3(-1, -1, 0), Color = Color.White };
+        { Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1) };
         private GroupNode currentScene;
 
         public Renderer()
@@ -23,13 +25,14 @@ namespace OffScreenRendering
             viewport.CameraCore = new OrthographicCameraCore()
             {
                 LookDirection = new Vector3(-100, 0, 0),
-                UpDirection = Vector3.UnitY,
+                UpDirection = new Vector3(0, 1, 0),
                 Position = new Vector3(100, 0, 0),
                 Width = 100,
                 NearPlaneDistance = 0.1f,
                 FarPlaneDistance = 500
             };
             viewport.FXAALevel = FXAALevel.Medium;
+            viewport.ShowViewCube = false;
             viewport.Items.AddChildNode(lightNode);
             viewport.StartD3D(100, 100);
         }
@@ -75,10 +78,40 @@ namespace OffScreenRendering
                 {
                     Geometry = mesh,
                     Material = new PhongMaterialCore() { DiffuseColor = random.NextColor() },
-                    ModelMatrix = Matrix.Translation(random.NextVector3(new Vector3(-50, -50, -50), new Vector3(50, 50, 50)))
+                    ModelMatrix = Translation(random.NextVector3(new Vector3(-50, -50, -50), new Vector3(50, 50, 50)))
                 };
                 root.AddChildNode(meshNode);
             }
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            var matrix = Matrix.Identity;
+            matrix.M41 = value.X;
+            matrix.M42 = value.Y;
+            matrix.M43 = value.Z;
+            return matrix;
+        }
+    }
+
+    internal static class RandomExtensions
+    {
+        public static Color4 NextColor(this Random random)
+        {
+            return new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
+        }
+
+        public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max)
+        {
+            return new Vector3(
+                NextFloat(random, min.X, max.X),
+                NextFloat(random, min.Y, max.Y),
+                NextFloat(random, min.Z, max.Z));
+        }
+
+        private static float NextFloat(Random random, float min, float max)
+        {
+            return min + (max - min) * (float)random.NextDouble();
         }
     }
 }

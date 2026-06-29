@@ -14,7 +14,7 @@ skinparam noteBorderColor #F57F17
 skinparam noteFontSize 12
 
 legend right
-  .csproj : C# Project\n  Target: .NET 10 (WPF) | netstandard2.0 (Core) | net6.0-windows (WinUI)
+  .csproj : C# Project\n  Target: .NET 10 (WPF) | netstandard2.0 (Core)
   .shproj : Shared Project (linked files)
   [Demo] : Example/Demo Project
   [Test] : Test Project
@@ -54,30 +54,24 @@ note bottom of corewpf : Shared from Wpf/Shared
 ' =====================================================================
 package "HelixToolkit.SharpDX.sln" as sln_sharpdx {
     component [HelixToolkit.SharpDX.Core.csproj\n(netstandard2.0)] as sharpdx_core
-    component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(netcoreapp3.1)] as sharpdx_core_wpf
-    component [HelixToolkit.Wpf.SharpDX.csproj\n(.NET 4.6.2)] as wpf_sharpdx
-    component [HelixToolkit.Wpf.SharpDX.Tests.csproj\n(.NET 4.6.2)] as wpf_sharpdx_tests
-    component [HelixToolkit.WinUI.csproj\n(net6.0-windows)] as winui
+    component [HelixToolkit.Wpf.SharpDX.csproj\n(net10.0-windows)] as wpf_sharpdx
+    component [HelixToolkit.Wpf.SharpDX.Tests.csproj\n(net10.0-windows)] as wpf_sharpdx_tests
     component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp
-    component [HelixToolkit.Wpf.SharpDX.Assimp.csproj\n(.NET 4.6.2)] as wpf_sharpdx_assimp
-    component [SharpDX.Core Demos\n(~40 Examples)] as sharpdx_demos
-    component [WinUI Demos\n(~5 Examples)] as winui_demos
+    component [HelixToolkit.Wpf.SharpDX.Assimp.csproj\n(net10.0-windows)] as wpf_sharpdx_assimp
+    component [WPF.SharpDX Demos\n(active Examples)] as sharpdx_demos
+    component [SharpDX.Core Demos\n(4 active Examples)] as sharpdx_core_demos
 }
 
-sharpdx_core --> sharpdx_core_wpf
 sharpdx_core --> wpf_sharpdx
-sharpdx_core --> winui
 sharpdx_core --> sharpdx_core_assimp
+sharpdx_core --> sharpdx_core_demos
 wpf_sharpdx --> wpf_sharpdx_tests
 wpf_sharpdx --> wpf_sharpdx_assimp
 wpf_sharpdx --> sharpdx_demos
-winui --> winui_demos
 
 note bottom of sharpdx_core : Defines:\nNETFX_CORE | CORE | SHARPDX | DX11 | MSAA | DX11_1
-note bottom of sharpdx_core_wpf : Defines:\nDX11 | DX11_1 | MSAA | SHARPDX | COREWPF
 note bottom of wpf_sharpdx : Defines:\nDX11 | MSAA | SHARPDX
 note bottom of wpf_sharpdx_assimp : Defines:\nSHARPDX
-note bottom of winui : Defines:\nWINUI | DX11_1
 note bottom of sharpdx_core_assimp : Defines:\nNETFX_CORE | CORE
 
 '' =====================================================================
@@ -85,7 +79,7 @@ note bottom of sharpdx_core_assimp : Defines:\nNETFX_CORE | CORE
 ' =====================================================================
 package "HelixToolkit.SharpDX.Core.sln" as sln_sharpdx_core {
     component [HelixToolkit.SharpDX.Core.csproj\n(netstandard2.0)] as sharpdx_core2
-    component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(netcoreapp3.1)] as sharpdx_core_wpf2
+    component [HelixToolkit.SharpDX.Core.Wpf.csproj\n(legacy)] as sharpdx_core_wpf2
     component [HelixToolkit.SharpDX.Core.Assimp.csproj\n(netstandard2.0)] as sharpdx_core_assimp2
     component [HelixToolkit.SharpDX.Core.Tests.csproj\n(netstandard2.0)] as sharpdx_core_tests
     component [HelixToolkit.csproj\n(netstandard2.0)] as core_lib
@@ -100,6 +94,7 @@ sharpdx_core2 --> core_lib
 sharpdx_core2 --> sharpdx_demos2
 
 note right of core_lib : Core library\n(no non-default defines)
+note bottom of sharpdx_core_wpf2 : Legacy; not part of the\nsupported WPF DirectX gate.
 
 '' =====================================================================
 ' Solution 5: HelixToolkit.WinUI.sln
@@ -118,6 +113,8 @@ winui2 --> sharpdx_core_assimp3
 winui2 --> shader_builder
 winui2 --> model_viewer
 
+note bottom of sln_winui : Legacy only. WinUI is not supported,\nnot built in active CI and not packaged.
+
 '' =====================================================================
 ' Solution 6: HelixToolkit.Kinect.sln
 ' =====================================================================
@@ -135,7 +132,7 @@ wpf_engine2 --> depth_sensor
 ' =====================================================================
 package "HelixToolkit.AppVeyor.sln" as sln_appveyor {
     component [CI Build\n(All Major Projects)] as ci_all
-    note left of ci_all : Contains:\n- All WPF projects\n- All SharpDX projects\n- WinUI projects\n- Active Examples\n- Active Tests\n\nUWP projects are legacy and\nnot part of active CI builds.
+    note left of ci_all : Historical broad CI map.\nThe active product gate is\nHelixToolkit.SharpDX.sln.\nWinUI and UWP are legacy.
 }
 
 '' =====================================================================
@@ -168,10 +165,10 @@ shared_core_proj -right-> wpf_engine2
 shared_core_proj -down-> corewpf
 shared_wpf_proj -down-> corewpf
 
-' WinUI dependencies
-shared_models_proj -down-> winui
-shared_core_proj -up-> winui
-shared_sharpdx_proj -up-> winui
+' Legacy WinUI dependencies
+shared_models_proj -down-> winui2
+shared_core_proj -up-> winui2
+shared_sharpdx_proj -up-> winui2
 shared_assimp_proj -up-> sharpdx_core_assimp
 shared_models_proj -up-> sharpdx_core_assimp
 
@@ -201,17 +198,17 @@ Renderer: DirectX11
 Defines: NETFX_CORE, CORE, SHARPDX, DX11, MSAA, DX11_1
 end note
 
-note bottom of winui
+note bottom of winui2
 <b>HelixToolkit.WinUI.csproj</b>
 Framework: net6.0-windows10.0.19041
-Platform: WinUI 3
+Platform: WinUI 3 legacy
 Defines: WINUI, DX11_1
 end note
 
-note bottom of sharpdx_core_wpf
+note bottom of sharpdx_core_wpf2
 <b>HelixToolkit.SharpDX.Core.Wpf.csproj</b>
 Framework: netcoreapp3.1
-Platform: WPF + SharpDX
+Platform: discontinued legacy WPF wrapper
 Defines: DX11, DX11_1, MSAA, SHARPDX, COREWPF
 end note
 
@@ -224,17 +221,17 @@ note as define_legend
   <b>Platform/SDK:</b>
     NETFX_CORE     - .NET Native / UWP runtime
     WINDOWS_UWP    - Legacy Universal Windows Platform (not actively built)
-    WINUI          - Windows UI Library
-    CORE           - SharpDX Core library
+    WINUI          - Legacy Windows UI Library path
+    CORE           - DirectX core compatibility library
 
   <b>Graphics:</b>
-    SHARPDX        - SharpDX DirectX binding
+    SHARPDX        - Legacy compatibility name, Silk.NET backend
     DX11           - DirectX 11
     DX11_1         - DirectX 11.1
     MSAA           - Multi-sample Anti-Aliasing
 
   <b>Integration:</b>
-    COREWPF        - Core WPF binding
+    COREWPF        - Legacy Core WPF binding
     ASSIMP         - Assimp model loader (separate pkg)
 end note
 

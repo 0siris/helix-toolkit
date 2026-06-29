@@ -6,7 +6,6 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:ParticleSystemDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sdx="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
     Title="ParticleSystemDemo"
     Width="1200"
     Height="800"

@@ -6,7 +6,6 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:MouseDragDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sdx="clr-namespace:SharpDX;assembly=SharpDX"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Title="SharpDX in WPF"
     Width="800"
@@ -78,7 +77,7 @@
                                           TargetTransform="{Binding Transform,ElementName=shapeGroup}"
                                           Material="{x:Static hx:PhongMaterials.Green}"/>-->
 
-            <!--<hx:LineGeometryModel3D x:Name="lines"  Geometry="{Binding Lines}" Transform = "{Binding Model1Transform}" Color="{x:Static sdx:Color.Black}" Thickness="2.33"/>-->
+            <!--<hx:LineGeometryModel3D x:Name="lines"  Geometry="{Binding Lines}" Transform = "{Binding Model1Transform}" Color="Black" Thickness="2.33"/>-->
             <!--<hx:LineGeometryModel3D x:Name="grid"   Geometry="{Binding Grid}"  Transform = "{Binding GridTransform}"   Color="{Binding GridColor}"/>-->
         </hx:Viewport3DX>
 

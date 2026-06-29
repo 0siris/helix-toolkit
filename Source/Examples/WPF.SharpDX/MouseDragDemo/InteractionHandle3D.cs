@@ -13,14 +13,13 @@ namespace MouseDragDemo
     using System.Windows;
     using HelixToolkit.Wpf.SharpDX;
 
-    using SharpDX;
-
     using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
-    using Matrix = SharpDX.Matrix;
 
     using System.Windows.Input;
     using HelixToolkit.Wpf;
     using HelixToolkit.Wpf.SharpDX.Cameras;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable
     {
@@ -127,14 +126,14 @@ namespace MouseDragDemo
             // 3 --- 2 
             // |     |
             // 0 --- 1
-            var m0 = Matrix.Scaling(+2, 1, 1) * Matrix.Translation(positions[0]);
+            var m0 = Scaling(+2, 1, 1) * Translation(positions[0]);
             this.edgeHandles[0].Transform = new MatrixTransform3D(m0.ToMatrix3D());
-            var m2 = Matrix.Scaling(+2, 1, 1) * Matrix.Translation(positions[3]);
+            var m2 = Scaling(+2, 1, 1) * Translation(positions[3]);
             this.edgeHandles[2].Transform = new MatrixTransform3D(m2.ToMatrix3D());
 
-            var m1 = Matrix.Scaling(1,+2, 1) * Matrix.Translation(positions[1]);
+            var m1 = Scaling(1,+2, 1) * Translation(positions[1]);
             this.edgeHandles[1].Transform = new MatrixTransform3D(m1.ToMatrix3D());
-            var m3 = Matrix.Scaling(1,+2, 1) * Matrix.Translation(positions[0]);
+            var m3 = Scaling(1,+2, 1) * Translation(positions[0]);
             this.edgeHandles[3].Transform = new MatrixTransform3D(m3.ToMatrix3D());
 
             this.dragTransform = new MatrixTransform3D(this.Transform.Value);         
@@ -231,18 +230,18 @@ namespace MouseDragDemo
         {
             var cornerTrafos = this.cornerHandles.Select(x => (x.Transform as MatrixTransform3D)).ToArray();
             var cornerMatrix = cornerTrafos.Select(x => (x).Value).ToArray();
-            this.positions = cornerMatrix.Select(x => x.ToMatrix().TranslationVector).ToArray();
+            this.positions = cornerMatrix.Select(x => TranslationVector(x.ToMatrix())).ToArray();
 
             BoundingBox bb;
             if (sender == cornerHandles[0] || sender == cornerHandles[2])
             {
                 Application.Current.MainWindow.Cursor = Cursors.SizeNESW;
-                bb = BoundingBox.FromPoints(new[] { positions[0], positions[2] });
+                bb = BoundingBoxExtensions.FromPoints(new[] { positions[0], positions[2] });
             }
             else if (sender == cornerHandles[1] || sender == cornerHandles[3])
             {
                 Application.Current.MainWindow.Cursor = Cursors.SizeNWSE;
-                bb = BoundingBox.FromPoints(new[] { positions[1], positions[3] });
+                bb = BoundingBoxExtensions.FromPoints(new[] { positions[1], positions[3] });
             }
             else
             {
@@ -254,8 +253,8 @@ namespace MouseDragDemo
                 {
                     Application.Current.MainWindow.Cursor = Cursors.SizeWE;
                 }
-                positions = this.midpointHandles.Select(x => x.Transform.Value.ToMatrix().TranslationVector).ToArray();
-                bb = BoundingBox.FromPoints(positions);
+                positions = this.midpointHandles.Select(x => TranslationVector(x.Transform.Value.ToMatrix())).ToArray();
+                bb = BoundingBoxExtensions.FromPoints(positions);
             }
 
             // 3 --- 2 
@@ -285,14 +284,14 @@ namespace MouseDragDemo
             // 3 --- 2 
             // |     |
             // 0 --- 1
-            var m0 = Matrix.Scaling(positions[1].X - positions[0].X, 1, 1) * Matrix.Translation(positions[0]);
+            var m0 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[0]);
             ((MatrixTransform3D)this.edgeHandles[0].Transform).Matrix = (m0.ToMatrix3D());
-            var m2 = Matrix.Scaling(positions[1].X - positions[0].X, 1, 1) * Matrix.Translation(positions[3]);
+            var m2 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[3]);
             ((MatrixTransform3D)this.edgeHandles[2].Transform).Matrix = (m2.ToMatrix3D());
 
-            var m1 = Matrix.Scaling(1, positions[2].Y - positions[1].Y, 1) * Matrix.Translation(positions[1]);
+            var m1 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[1]);
             ((MatrixTransform3D)this.edgeHandles[1].Transform).Matrix = (m1.ToMatrix3D());
-            var m3 = Matrix.Scaling(1, positions[2].Y - positions[1].Y, 1) * Matrix.Translation(positions[0]);
+            var m3 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[0]);
             ((MatrixTransform3D)this.edgeHandles[3].Transform).Matrix = (m3.ToMatrix3D());
 
 
@@ -365,6 +364,29 @@ namespace MouseDragDemo
                     }                    
                 }
             }
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            return new Matrix(
+                x, 0, 0, 0,
+                0, y, 0, 0,
+                0, 0, z, 0,
+                0, 0, 0, 1);
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            var result = Matrix.Identity;
+            result.M41 = value.X;
+            result.M42 = value.Y;
+            result.M43 = value.Z;
+            return result;
+        }
+
+        private static Vector3 TranslationVector(Matrix value)
+        {
+            return new Vector3(value.M41, value.M42, value.M43);
         }
     }
 }

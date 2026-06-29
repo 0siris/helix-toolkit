@@ -1,6 +1,5 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +10,11 @@ using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Color = System.Windows.Media.Color;
-using Plane = SharpDX.Plane;
-using Vector3 = SharpDX.Vector3;
 using Colors = System.Windows.Media.Colors;
-using Color4 = SharpDX.Color4;
 using System.IO;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace MaterialDemo
 {
@@ -108,7 +107,7 @@ namespace MaterialDemo
                     materials.Add(m);
                     Models.Add(new MeshGeometryModel3D()
                     {
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         Geometry = SphereModel,
                         Material = m,
                         IsThrowingShadow = true,
@@ -130,7 +129,7 @@ namespace MaterialDemo
                 DisplacementMapScaleMask = new Vector4(0.1f, 0.1f, 0.1f, 0),
                 EnableAutoTangent =true, EnableTessellation = true, MaxDistanceTessellationFactor = 2, MinDistanceTessellationFactor = 4
             };
-            ModelTransform = new Media3D.MatrixTransform3D(Matrix.Translation(0, 30, 0).ToMatrix3D());
+            ModelTransform = new Media3D.MatrixTransform3D(Translation(0, 30, 0).ToMatrix3D());
 
             builder = new MeshBuilder();
             builder.AddBox(Vector3.Zero, 100, 0.5, 100);
@@ -153,7 +152,16 @@ namespace MaterialDemo
                 RenderShadowMap = true,
                 EnableAutoTangent = true,
             };
-            FloorModelTransform = new Media3D.MatrixTransform3D(Matrix.Translation(0, -5, 0).ToMatrix3D());
+            FloorModelTransform = new Media3D.MatrixTransform3D(Translation(0, -5, 0).ToMatrix3D());
+        }
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            var matrix = Matrix.Identity;
+            matrix.M41 = x;
+            matrix.M42 = y;
+            matrix.M43 = z;
+            return matrix;
         }
     }
 }

@@ -26,8 +26,6 @@
         <PackageReference Include="Fody" Version="6.2.1" />
         <PackageReference Include="PropertyChanged.Fody" Version="3.2.8" />
         <PackageReference Include="PropertyTools.Wpf" Version="3.0.0" />
-        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
-        <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>

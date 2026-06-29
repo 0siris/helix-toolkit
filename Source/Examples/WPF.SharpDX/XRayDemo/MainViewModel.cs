@@ -11,24 +11,21 @@ namespace XRayDemo
     using System.Windows.Media.Imaging;
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
     using HelixToolkit.Wpf;
     using System.IO;
     using System.Collections.Generic;
     using System.Linq;
-    using SharpDX.Direct3D11;
     using System.Windows;
     using System.Windows.Data;
     using HelixToolkit.Wpf.SharpDX.Extensions;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -119,7 +116,7 @@ namespace XRayDemo
             this.FloorMaterial.NormalMap = TextureModel.Create(new System.Uri(@"TextureCheckerboard2_dot3.jpg", System.UriKind.RelativeOrAbsolute).ToString());
 
             var caritems = Load3ds("leone.3DBuilder.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
-            var scale = new Vector3(1f);
+            var scale = new Vector3(1f, 1f, 1f);
 
             foreach (var item in caritems)
             {
@@ -136,13 +133,13 @@ namespace XRayDemo
             Instances = new Matrix[6];
             for(int i=0; i<Instances.Length; ++i)
             {
-                Instances[i] = Matrix.Translation(new Vector3(15 * i - 30, 15 * (i % 2) - 30, 0));
+                Instances[i] = Translation(new Vector3(15 * i - 30, 15 * (i % 2) - 30, 0));
             }
 
             OutlineInstances = new Matrix[6];
             for (int i = 0; i < Instances.Length; ++i)
             {
-                OutlineInstances[i] = Matrix.Translation(new Vector3(15 * i - 30, 15 * (i % 2), 0));
+                OutlineInstances[i] = Translation(new Vector3(15 * i - 30, 15 * (i % 2), 0));
             }
 
             var blendDesc = new BlendStateDescription();
@@ -187,6 +184,15 @@ namespace XRayDemo
             binding.Source = viewModel;
             binding.Mode = mode;
             BindingOperations.SetBinding(dobj, property, binding);
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            var matrix = Matrix.Identity;
+            matrix.M41 = value.X;
+            matrix.M42 = value.Y;
+            matrix.M43 = value.Z;
+            return matrix;
         }
     }
 }

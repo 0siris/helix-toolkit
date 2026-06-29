@@ -3,10 +3,9 @@ using HelixToolkit.Wpf.SharpDX.Core.Components;
 using HelixToolkit.Wpf.SharpDX.Model;
 using HelixToolkit.Wpf.SharpDX.Render;
 using HelixToolkit.Wpf.SharpDX.Shaders;
-using SharpDX;
-using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace CustomShaderDemo.Materials
 {

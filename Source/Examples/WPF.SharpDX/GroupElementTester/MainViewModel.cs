@@ -11,14 +11,12 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Color = System.Windows.Media.Color;
-using Plane = SharpDX.Plane;
-using Vector3 = SharpDX.Vector3;
 using Colors = System.Windows.Media.Colors;
-using Color4 = SharpDX.Color4;
 using HelixToolkit.Wpf.SharpDX.Core;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace GroupElementTester
 {
@@ -222,7 +220,7 @@ namespace GroupElementTester
             val = rnd.Next(0, materialCollection.Count - 1);
             var material = materialCollection[val];
             var diffuse = material.DiffuseColor;
-            diffuse.Alpha = (float)rnd.Next(20, 60)/100f;
+            diffuse.W = (float)rnd.Next(20, 60)/100f;
             material.DiffuseColor = diffuse;
             model.Material = material;
             model.Transform = new Media3D.TranslateTransform3D((float)rnd.Next(10, 100)/10, (float)rnd.Next(10, 100) / 10, (float)rnd.Next(10, 100) / 10);

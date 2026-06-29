@@ -15,17 +15,14 @@ namespace MouseDragDemo
     using HelixToolkit.Wpf.SharpDX;
     using HelixToolkit.Wpf.SharpDX.Core;
 
-    using SharpDX;
-
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -86,7 +83,7 @@ namespace MouseDragDemo
             this.Model1Instances = new List<Matrix>();
             for (int i = 0; i < 5; i++)
             {
-                this.Model1Instances.Add(Matrix.Translation(0, i, 0));
+                this.Model1Instances.Add(Translation(0, i, 0));
             }
 
             // lines model3d
@@ -155,10 +152,10 @@ namespace MouseDragDemo
                     Geometry = this.MeshGeometry,
                     Material = this.GreenMaterial,
                     Transform = this.Model2Transform,
-                    Instances = new List<Matrix> { 
-                        Matrix.Translation(-1,0,0), Matrix.Translation(+1,0,0), 
-                        Matrix.Translation(0,-1,0), Matrix.Translation(0,+1,0),
-                        Matrix.Translation(0,0,-1), Matrix.Translation(0,0,+1), 
+                    Instances = new List<Matrix> {
+                        Translation(-1,0,0), Translation(+1,0,0),
+                        Translation(0,-1,0), Translation(0,+1,0),
+                        Translation(0,0,-1), Translation(0,0,+1),
                     },
                 });
 
@@ -197,6 +194,15 @@ namespace MouseDragDemo
         public IList<Shape3D> Shape3DCollection { get; set; }
         public IList<Element3D> Element3DCollection { get; set; }
         public object SelectedItem { get; set; }
-        
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            var result = Matrix.Identity;
+            result.M41 = x;
+            result.M42 = y;
+            result.M43 = z;
+            return result;
+        }
+
     }
 }

@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpDX;
 using HelixToolkit.Wpf.SharpDX;
 using System.Threading;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using HelixToolkit.Wpf.SharpDX.Model;
 using Media3D = System.Windows.Media.Media3D;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace BatchedMeshDemo
 {

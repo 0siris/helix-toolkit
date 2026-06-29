@@ -1,7 +1,7 @@
 # SharpDX-Ablösung: Übergabe für Folgesessions
 
-Stand: 23. Juni 2026  
-Branch: `feature/wpf-sharpdx`  
+Stand: 29. Juni 2026
+Branch: `feature/wpf-sharpdx`
 Letzter Abschluss-Commit: `66f869ec0 chore(wpf)!: finish Silk.NET migration`
 
 ## Ziel
@@ -78,6 +78,74 @@ Zusätzlich erledigt am 23. Juni 2026:
   `HelixToolkit.SharpDX.Core.nuspec` und
   `HelixToolkit.SharpDX.Assimp.nuspec` enthalten keine SharpDX-
   Paketabhängigkeiten mehr.
+
+Zusätzlich erledigt am 25. Juni 2026:
+
+- Erstes WPF.SharpDX-Demo-Paket aus Step 3 migriert:
+  `RenderTechniqueImportExport`, `ImageViewDemo` und `LineShadingDemo`.
+- In diesen Demos echte `SharpDX.Vector*`-/`SharpDX.Color*`-Verwendungen
+  durch `Silk.NET.Maths` beziehungsweise die lokale WPF.SharpDX-
+  Kompatibilitätsfarbe ersetzt.
+- Direkte `SharpDX.Direct3D11`- und `SharpDX.Mathematics`-Paketreferenzen aus
+  diesen drei Demo-Projekten entfernt.
+- Alte SharpDX-BindingRedirects aus `ImageViewDemo` und `LineShadingDemo`
+  entfernt.
+- Die drei Demos bauen einzeln mit `0` Fehlern.
+- `CustomShaderDemo` wurde auf SDK-Projektformat und `net10.0-windows`
+  umgestellt. Die Demo enthält keine echten SharpDX-Paketrefs, Usings oder
+  BindingRedirects mehr und baut einzeln mit `0` Fehlern.
+- `CustomViewCubeDemo` wurde auf `Silk.NET.Maths`-Aliase umgestellt. Die Demo
+  enthält keine echten SharpDX-Paketrefs oder Usings mehr und baut einzeln
+  mit `0` Fehlern.
+- `SSAODemo` wurde auf `Silk.NET.Maths`-Aliase umgestellt. Direkte
+  `SharpDX.Direct3D11`- und `SharpDX.Mathematics`-Paketreferenzen wurden
+  entfernt; die Demo baut einzeln mit `0` Fehlern.
+- `MeshSimplification` hatte nur noch ungenutzte SharpDX-Imports und direkte
+  SharpDX-Paketreferenzen. Diese wurden entfernt; die Demo baut einzeln mit
+  `0` Fehlern.
+- `EnvironmentMapDemo` wurde auf `Silk.NET.Maths`-Aliase und lokale
+  Translation-Matrix-Erzeugung umgestellt. Alte SharpDX-Paketreferenzen und
+  BindingRedirects wurden entfernt; die Demo baut einzeln mit `0` Fehlern.
+- `ExampleBrowser` wurde für die aktuell fehlernden Workitems
+  `CursorPosition`, `Workitem10043`, `Workitem10045`, `Workitem10048` und
+  `Workitem1349` von echten SharpDX-Math-/Color-Typen befreit. Die direkten
+  SharpDX-Paketreferenzen und die alte `app.config` wurden entfernt; das
+  Projekt baut einzeln mit `0` Fehlern.
+- `InstancingDemo` wurde von SharpDX-Math, SharpDX-`Random`-Extensions,
+  direkten SharpDX-Paketreferenzen, SharpDX-XAML-Assembly-Namespaces und
+  alten BindingRedirects befreit. Die Demo baut einzeln mit `0` Fehlern.
+- `LightingDemo` wurde auf `Silk.NET.Maths`-Vektoren/Farben und eine lokale
+  `Random.NextDouble(min,max)`-Extension umgestellt. Direkte
+  SharpDX-Paketreferenzen, SharpDX-XAML-Assembly-Namespaces und alte
+  BindingRedirects wurden entfernt; die Demo baut einzeln mit `0` Fehlern.
+- `ManipulatorDemo` und `MouseDragDemo` wurden auf `Silk.NET.Maths`-Vektoren
+  und Matrizen umgestellt. Direkte SharpDX-Paketreferenzen, alte
+  BindingRedirects und ungenutzte SharpDX-XAML-Assembly-Namespaces wurden
+  entfernt; beide Demos bauen einzeln mit `0` Fehlern.
+- `PolygonTriangulationDemo`, `ShadowMapDemo` und `TemplateDemo` wurden von
+  echten SharpDX-Math-/Color-Typen, direkten SharpDX-Paketreferenzen und alten
+  BindingRedirects befreit; alle drei Demos bauen einzeln mit `0` Fehlern.
+- `TessellationDemo`, `DynamicTextureDemo`, `OctreeDemo` und `BoneSkinDemo`
+  wurden von echten SharpDX-Math-/Color-Typen, direkten SharpDX-Paketreferenzen
+  und alten BindingRedirects befreit. `OctreeDemo` ersetzt die entfernten
+  SharpDX-`Random`-Extensions lokal. Alle vier Demos bauen einzeln mit
+  `0` Fehlern.
+- `CrossSectionDemo`, `ParticleSystemDemo`, `XRayDemo` und
+  `GroupElementTester` wurden von echten SharpDX-Math-/Color-/State-Typen,
+  direkten SharpDX-Paketreferenzen und alten BindingRedirects befreit.
+  `CrossSectionDemo` ersetzt SharpDX-Matrix- und Trackball-Helfer lokal.
+  Alle vier Demos bauen einzeln mit `0` Fehlern.
+- `OrderIndependantTransparentRendering`, `Viewport3DXCodeBehindTester`,
+  `PostEffectsDemo` und `DynamicCodeSurfaceDemo` wurden von echten
+  SharpDX-Math-/Color-/State-Typen, direkten SharpDX-Paketreferenzen und alten
+  BindingRedirects befreit. Alle vier Demos bauen einzeln mit `0` Fehlern.
+- `MaterialDemo`, `BatchedMeshDemo`, `VolumeRendering` und der kleine
+  verbleibende `MemoryLeakTester`-Rest wurden von echten SharpDX-Math-/
+  Color-/State-Typen und direkten SharpDX-Paketreferenzen befreit. Alle vier
+  Projekte bauen einzeln mit `0` Fehlern.
+- `OffScreenRendering` wurde von echten SharpDX-Math-/Color-Typen und den
+  SharpDX-`Random`-Extensions befreit. Das Core-Beispiel baut einzeln mit
+  `0` Fehlern.
 
 ## Verwendete Strategie
 
@@ -290,7 +358,7 @@ Geeignete Breakpoints:
 - `DPFSurfaceSwapChain.HandleExceptionOccured`
 
 `SimpleDemo` nutzt den D3DImage-Pfad
-(`EnableSwapChainRendering="False"`).  
+(`EnableSwapChainRendering="False"`).
 `SwapChainRenderingDemo` nutzt den HwndHost-/SwapChain-Pfad
 (`EnableSwapChainRendering="True"`).
 
@@ -368,9 +436,32 @@ diese Altaufrufe entfernen; danach für einen lokalen Diagnose-Build
 
 Baseline: Der vollständige Build von `HelixToolkit.SharpDX.sln` endete am
 23. Juni 2026 vor Step 1 mit `438` Fehlern. Nach Step 1 endete der Build mit
-`295` Fehlern und `4041` Warnungen. Nach Step 2 endet der Build mit `291`
-Fehlern und `399` Warnungen. Fertig ist die Migration erst bei einem grünen
-Debug- und Release-Build der bereinigten Hauptmappe.
+`295` Fehlern und `4041` Warnungen. Nach Step 2 endete der Build mit `291`
+Fehlern und `399` Warnungen. Nach dem ersten Step-3-Demo-Paket endete der
+Build mit `283` Fehlern und `425` Warnungen. Nach der `CustomShaderDemo`-
+TFM-Migration endete der Build mit `281` Fehlern und `441` Warnungen. Nach
+`CustomViewCubeDemo` endete der Build mit `258` Fehlern und `454` Warnungen.
+Nach `SSAODemo` endete der Build mit `254` Fehlern und `456` Warnungen. Nach
+`MeshSimplification` endete der Build mit `253` Fehlern und `468` Warnungen.
+Nach `EnvironmentMapDemo` endete der Build mit `245` Fehlern und
+`473` Warnungen. Nach `ExampleBrowser` endete der Build mit `227` Fehlern und
+`488` Warnungen. Nach `InstancingDemo` und `LightingDemo` endete der Build mit
+`204` Fehlern und `502` Warnungen. Nach `ManipulatorDemo` und `MouseDragDemo`
+endete der Build mit `155` Fehlern und `517` Warnungen. Nach
+`PolygonTriangulationDemo`, `ShadowMapDemo` und `TemplateDemo` endet der Build
+mit `143` Fehlern und `524` Warnungen. Nach `TessellationDemo`,
+`DynamicTextureDemo`, `OctreeDemo` und `BoneSkinDemo` endet der Build mit
+`134` Fehlern und `590` Warnungen. Nach `CrossSectionDemo`,
+`ParticleSystemDemo`, `XRayDemo` und `GroupElementTester` endet der Build mit
+`108` Fehlern und `661` Warnungen. Nach
+`OrderIndependantTransparentRendering`, `Viewport3DXCodeBehindTester`,
+`PostEffectsDemo` und `DynamicCodeSurfaceDemo` endet der Build mit
+`48` Fehlern und `691` Warnungen. Nach `MaterialDemo`, `BatchedMeshDemo`,
+`VolumeRendering` und `MemoryLeakTester` endet der Build mit `17` Fehlern und
+`732` Warnungen. Nach `OffScreenRendering` endet der Build mit `7` Fehlern
+und `734` Warnungen. Nach `WinFormsTest` baut `HelixToolkit.SharpDX.sln` mit
+`0` Fehlern und `786` Warnungen. Fertig ist die Migration erst
+bei einem grünen Debug- und Release-Build der bereinigten Hauptmappe.
 
 ### 1. Hauptmappe und Packaging bereinigen
 
@@ -421,6 +512,16 @@ Referenz importiert wurde.
 
 ### 3. Alle DirectX-Demos migrieren
 
+Status: erledigt für die Hauptmappe am 26. Juni 2026. Erstes kleines WPF.SharpDX-Demo-Paket,
+`CustomShaderDemo`-TFM-Migration und `CustomViewCubeDemo` erledigt am
+25. Juni 2026. `SSAODemo`, `MeshSimplification` und `EnvironmentMapDemo`
+ebenfalls erledigt. `ExampleBrowser` ist ebenfalls aus der direkten
+SharpDX-Paketkante entfernt. `InstancingDemo` und `LightingDemo` sind
+ebenfalls migriert und bauen einzeln grün. `ManipulatorDemo` und
+`MouseDragDemo` sind ebenfalls migriert und bauen einzeln grün.
+`PolygonTriangulationDemo`, `ShadowMapDemo` und `TemplateDemo` sind ebenfalls
+migriert und bauen einzeln grün.
+
 Alle Demos unter `Examples/WPF.SharpDX` sowie die vier Demos unter
 `Examples/SharpDX.Core` bleiben erhalten.
 
@@ -448,19 +549,79 @@ Zusätzliche Vorgaben:
 - `CoreWpfTest` und `DynamicPointsAndLines` verwenden danach
   `HelixToolkit.Wpf.SharpDX`.
 - `OffScreenRendering` bleibt Core-/Silk.NET-basiert.
-- `WinFormsTest` behält WinForms und ImGui; nur `SharpDX.Windows`, Math- und
-  D3D-Typen werden durch BCL-/Silk.NET-/Engine-Typen ersetzt.
+- `WinFormsTest` behält WinForms und ImGui; `SharpDX.Windows`, Math- und
+  D3D-Typen wurden durch BCL-/Silk.NET-/Engine-Typen ersetzt.
+- Verifikation bisher:
+  `RenderTechniqueImportExport`, `ImageViewDemo`, `LineShadingDemo`,
+  `CustomShaderDemo`, `CustomViewCubeDemo`, `SSAODemo` und
+  `MeshSimplification` sowie `EnvironmentMapDemo` bauen einzeln mit
+  `0` Fehlern. `ExampleBrowser`, `InstancingDemo`, `LightingDemo`,
+  `ManipulatorDemo`, `MouseDragDemo`, `PolygonTriangulationDemo`,
+  `ShadowMapDemo`, `TemplateDemo`, `TessellationDemo`,
+  `DynamicTextureDemo`, `OctreeDemo`, `BoneSkinDemo`, `CrossSectionDemo`,
+  `ParticleSystemDemo`, `XRayDemo`, `GroupElementTester`,
+  `OrderIndependantTransparentRendering`, `Viewport3DXCodeBehindTester`,
+  `PostEffectsDemo`, `DynamicCodeSurfaceDemo`, `MaterialDemo`,
+  `BatchedMeshDemo`, `VolumeRendering` und `MemoryLeakTester` bauen ebenfalls
+  einzeln mit `0` Fehlern. `OffScreenRendering` und `WinFormsTest` bauen
+  ebenfalls einzeln mit `0` Fehlern.
+  `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  baut mit `0` Fehlern und `786` Warnungen.
 
 ### 4. Metadaten und Legacy-Grenzen aktualisieren
 
+Status: erledigt am 28. Juni 2026.
+
 - README, Diagramme und Paketlisten auf WPF als unterstützte Plattform
-  korrigieren.
+  korrigiert.
 - `HelixToolkit.SharpDX.Core.Wpf` als eingestellt und
-  `HelixToolkit.Wpf.SharpDX` als Ersatz dokumentieren.
+  `HelixToolkit.Wpf.SharpDX` als Ersatz dokumentiert.
 - WinUI/UWP ausdrücklich als nicht unterstützt und außerhalb von
-  Hauptmappe, CI und Packaging markieren.
+  Hauptmappe, CI und Packaging markiert.
 - Öffentliche WPF-Paketnamen, CLR-Namespaces und der XAML-Namespace bleiben
   vorerst aus Kompatibilitätsgründen unverändert.
+- `README.md`, `docs/repository-structure.puml`,
+  `docs/repository-structure.svg/HelixToolkit Repository Structure.png`,
+  `HelixToolkit.WinUI.nuspec` und `HelixToolkit.UWP.nuspec` wurden
+  aktualisiert.
+- Aktive Hauptmappen-Projekte haben keine `SharpDX`-Paket- oder
+  Assembly-Referenzen mehr. Verbleibende externe SharpDX-References liegen
+  nur in den nicht in `HelixToolkit.SharpDX.sln` eingehängten Alt-Demos
+  `DeferredShadingDemo`, `GenericMaterialDemo` und `ScreenSpaceDemo`.
+- `D2DScreenMenuExample`, `SwapChainRenderingDemo`,
+  `ScreenDuplicationDemo` und `MorphTargetAnimationDemo` wurden von
+  ungenutzten SharpDX-Paketreferenzen befreit und bauen einzeln mit
+  `0` Fehlern.
+- `MemoryLeakTester` nutzt keinen SharpDX-`ObjectTracker` mehr; die Demo
+  bleibt beim Prozessspeicher-Smoke. Der SharpDX-Object-Tracker wurde nicht
+  durch einen Silk.NET-/COM-Object-Tracer ersetzt.
+- `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -c Debug -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  baut mit `0` Fehlern und `785` Warnungen.
+- `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -c Release -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  baut mit `0` Fehlern und `864` Warnungen.
+
+### 5. Runtime-Smokes
+
+Status: erledigt am 29. Juni 2026.
+
+- `SimpleDemo` bleibt nach fünf Sekunden stabil und wurde danach beendet.
+- `SwapChainRenderingDemo` bleibt nach fünf Sekunden stabil und wurde danach
+  beendet.
+- `OffScreenRendering` bleibt nach fünf Sekunden stabil und wurde danach
+  beendet. Dafür wurde die ViewCube in der Offscreen-Demo deaktiviert und
+  `ViewportCore` hängt unsichtbare ViewCube-Nodes nicht mehr beim Start an;
+  der Core-Zielpfad kann die ViewCube-WIC-Textur nicht speichern.
+- `WinFormsTest` bleibt nach fünf Sekunden stabil und wurde danach beendet.
+- `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -c Debug -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  baut nach dem Smoke-Fix weiterhin mit `0` Fehlern und `785` Warnungen.
+- `dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --no-incremental -m:1 -c Release -p:UseSharedCompilation=false -clp:ErrorsOnly`
+  baut nach dem Smoke-Fix weiterhin mit `0` Fehlern und `864` Warnungen.
+- Hinweis zur Offscreen-Ausgabe: `OffScreenRendering` ist eine WPF-Demo mit
+  Render-Button und schreibt im Startup-Smoke keine Datei. Der Smoke prüft
+  daher Start/Stabilität, nicht einen automatisch erzeugten Export.
+- Der SharpDX-Object-Tracker bleibt bewusst offen: Es gibt aktuell keinen
+  Ersatz für `SharpDX.Diagnostics.ObjectTracker`. Für native Resource-Leak-
+  Diagnose wäre ein separater Silk.NET-COM-Handle-Tracker nötig.
 
 ## Prüfungen
 
@@ -512,9 +673,11 @@ git status --short
 
 ## Nächster Schritt
 
-Step 3: DirectX-Demos in kleinen Paketen migrieren. Zuerst reine
-Math-/Color-Migrationen in WPF.SharpDX-Demos angehen, weil der aktuelle
-Hauptmappen-Build fast nur noch an alten `SharpDX.Vector*`, `SharpDX.Color*`,
-`SharpDX.Direct3D11.CullMode/FillMode` und an der alten
-`CustomShaderDemo`-TFM-Kante scheitert. Danach `OffScreenRendering` und
-`WinFormsTest` separat bearbeiten.
+Step 6 ist entschieden: `DeferredShadingDemo`, `GenericMaterialDemo` und
+`ScreenSpaceDemo` bleiben erhalten und werden separat auf Silk.NET migriert,
+weil sie wichtige Beispielabdeckung enthalten.
+
+Step 7: separaten Demo-Migrationsblock starten. Zuerst Projektstatus,
+Solution-Einbindung und SharpDX-Treffer der drei Demos erfassen. Danach eine
+Demo nach der anderen migrieren und jeweils mit Einzelbuild plus kurzem
+Runtime-Smoke validieren.

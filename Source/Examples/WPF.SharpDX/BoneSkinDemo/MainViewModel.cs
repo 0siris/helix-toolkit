@@ -14,7 +14,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Media3D = System.Windows.Media.Media3D;
-using Vector3 = global::SharpDX.Vector3;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace BoneSkinDemo
 {
@@ -171,7 +172,7 @@ namespace BoneSkinDemo
                     if (!m.IsSkeletonNode)
                     {
                         m.IsThrowingShadow = true;
-                        m.WireframeColor = new SharpDX.Color4(0, 0, 1, 1);
+                        m.WireframeColor = new Color4(0, 0, 1, 1);
                         boneSkinNodes.Add(m);
                         m.MouseDown += HandleMouseDown;
                     }

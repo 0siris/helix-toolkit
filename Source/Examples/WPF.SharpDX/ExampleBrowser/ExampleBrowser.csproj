@@ -27,8 +27,6 @@
         <PackageReference Include="MicrosoftExpressionInteractions" Version="3.0.40218" />
         <PackageReference Include="NAudio" Version="1.10.0" />
         <PackageReference Include="PropertyTools.Wpf" Version="3.0.0" />
-        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
-        <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>

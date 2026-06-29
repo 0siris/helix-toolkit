@@ -15,14 +15,14 @@ namespace ShadowMapDemo
 
     using HelixToolkit.Wpf.SharpDX;
 
-    using SharpDX;
-
-    using Matrix = SharpDX.Matrix;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using System.Diagnostics;
     using System.Windows;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -38,7 +38,7 @@ namespace ShadowMapDemo
         public PhongMaterial BlueMaterial { get; private set; }
         public PhongMaterial GrayMaterial { get; private set; }
 
-        public PhongMaterial LightCameraMaterial { get; private set; } = new PhongMaterial() { EmissiveColor = Color.Yellow };
+        public PhongMaterial LightCameraMaterial { get; private set; } = new PhongMaterial() { EmissiveColor = Media.Colors.Yellow.ToColor4() };
         public Media.Color GridColor { get; private set; }
 
         public Media3D.Transform3D Model1Transform { get; private set; }
@@ -94,7 +94,7 @@ namespace ShadowMapDemo
             b1.AddSphere(new Vector3(0, 0, 0), 0.5);
             b1.AddBox(new Vector3(0, 0, 0), 1, 0.25, 2, BoxFaces.All);
             Model = b1.ToMeshGeometry3D();
-            Instances = new[] { Matrix.Translation(0, 0, -1.5f), Matrix.Translation(0, 0, 1.5f) };
+            Instances = new[] { Translation(0, 0, -1.5f), Translation(0, 0, 1.5f) };
 
             var b2 = new MeshBuilder();
             b2.AddBox(new Vector3(0, 0, 0), 10, 0, 10, BoxFaces.PositiveY);
@@ -169,6 +169,15 @@ namespace ShadowMapDemo
             rotateTransform.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation);
             lightTrafo.Children.Add(rotateTransform);            
             return lightTrafo;
+        }
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            var result = Matrix.Identity;
+            result.M41 = x;
+            result.M42 = y;
+            result.M43 = z;
+            return result;
         }
     }
 }

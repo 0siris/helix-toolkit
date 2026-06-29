@@ -1,6 +1,5 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Animation;
 using Media3D = System.Windows.Media.Media3D;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace OctreeDemo
 {
@@ -199,6 +199,19 @@ namespace OctreeDemo
             transformGroup.Children.Add(rotateTransform1);
 
             return transformGroup;
+        }
+    }
+
+    internal static class RandomExtensions
+    {
+        public static double NextDouble(this Random random, double min, double max)
+        {
+            return min + random.NextDouble() * (max - min);
+        }
+
+        public static System.Windows.Media.Color NextColor(this Random random)
+        {
+            return System.Windows.Media.Color.FromArgb(255, (byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256));
         }
     }
 }

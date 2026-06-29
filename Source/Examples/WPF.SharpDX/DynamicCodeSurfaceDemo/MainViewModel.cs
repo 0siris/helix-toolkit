@@ -1,6 +1,5 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace DynamicCodeSurfaceDemo
 {
@@ -114,7 +114,7 @@ namespace DynamicCodeSurfaceDemo
             materialDict.Add("BlackRubber", PhongMaterials.BlackRubber);
             materialDict.Add("Pearl", PhongMaterials.Pearl);
             materialDict.Add("PolishedBronze", PhongMaterials.PolishedBronze);
-            materialDict.Add("ColorStripe", new ColorStripeMaterial() { ColorStripeX = GetGradients(Color.Red, Color.Green, Color.Blue, 48).ToArray() });
+            materialDict.Add("ColorStripe", new ColorStripeMaterial() { ColorStripeX = GetGradients(new Color4(1, 0, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 0, 1, 1), 48).ToArray() });
             materialDict.Add("Diffuse", DiffuseMaterials.Orange);
             Materials = materialDict.Keys.ToArray();
             SelectedMaterial = "Normal";
@@ -141,17 +141,17 @@ namespace DynamicCodeSurfaceDemo
 
         public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps)
         {
-            float stepA = ((end.Alpha - start.Alpha) / (steps - 1));
-            float stepR = ((end.Red - start.Red) / (steps - 1));
-            float stepG = ((end.Green - start.Green) / (steps - 1));
-            float stepB = ((end.Blue - start.Blue) / (steps - 1));
+            float stepA = ((end.W - start.W) / (steps - 1));
+            float stepR = ((end.X - start.X) / (steps - 1));
+            float stepG = ((end.Y - start.Y) / (steps - 1));
+            float stepB = ((end.Z - start.Z) / (steps - 1));
 
             for (int i = 0; i < steps; i++)
             {
-                yield return new Color4((start.Red + (stepR * i)),
-                                            (start.Green + (stepG * i)),
-                                            (start.Blue + (stepB * i)),
-                                            (start.Alpha + (stepA * i)));
+                yield return new Color4((start.X + (stepR * i)),
+                                            (start.Y + (stepG * i)),
+                                            (start.Z + (stepB * i)),
+                                            (start.W + (stepA * i)));
             }
         }
     }

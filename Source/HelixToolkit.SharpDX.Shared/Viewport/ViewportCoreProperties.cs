@@ -82,7 +82,10 @@ namespace HelixToolkit.UWP
                 {
                     yield return node;
                 }
-                yield return ViewCube;
+                if (ViewCube.Visible)
+                {
+                    yield return ViewCube;
+                }
                 yield return CoordinateSystem;
             }
         }

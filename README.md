@@ -4,7 +4,7 @@
 
 # Helix Toolkit
 
-**Helix Toolkit is a collection of 3D components for .NET Framework.**
+**Helix Toolkit is a collection of 3D components for .NET.**
 
 [**HelixToolkit.WPF:**](/Source/HelixToolkit.Wpf) 
 Adds variety of functionalities/models on the top of internal WPF 3D models (Media3D namespace). 
@@ -18,14 +18,14 @@ Custom 3D engine and XAML/MVVM-compatible scene graphs based on Silk.NET DirectX
 [**HelixToolkit.SharpDX.Core:**](/Source/HelixToolkit.SharpDX.Core)
 Custom 3D engine and scene graphs based on Silk.NET DirectX 11. The `SharpDX` name is retained for API compatibility.
 
-[**HelixToolkit.SharpDX.Core.Wpf:**](/Source/HelixToolkit.SharpDX.Core.Wpf) 
-Wpf Wrapper Components based on `HelixToolkit.SharpDX.Core` for .NET Core Wpf.
+[**HelixToolkit.SharpDX.Core.Wpf:**](/Source/HelixToolkit.SharpDX.Core.Wpf)
+Discontinued legacy WPF wrapper. Use `HelixToolkit.Wpf.SharpDX` for the supported WPF DirectX path.
 
 [**HelixToolkit.WinUI:**](/Source/HelixToolkit.WinUI)
-Custom 3D Engine and XAML/MVVM compatible Scene Graphs based on [SharpDX](https://github.com/sharpdx/SharpDX)(DirectX 11) for WinUI.
+Legacy WinUI code is kept in the repository, but active WinUI support, CI builds and NuGet packaging have been discontinued.
 
 [**HelixToolkit.UWP:**](/Source/HelixToolkit.UWP)
-Legacy UWP code is kept in the repository, but active UWP support, CI builds and NuGet packaging have been discontinued. Use HelixToolkit.WinUI for current Windows app development.
+Legacy UWP code is kept in the repository, but active UWP support, CI builds and NuGet packaging have been discontinued.
 
 
 [**HelixToolkit.SharpDX.Assimp:**](/Source/HelixToolkit.Wpf.SharpDX.Assimp) 
@@ -55,7 +55,7 @@ Twitter             | https://twitter.com/hashtag/Helix3DToolkit
 
 ## Project Build
 
-**Visual Studio 2019. Windows 10 SDK (Min Ver.10.0.18362.0).**
+**Visual Studio 2026. Windows 10 SDK (Min Ver.10.0.18362.0). .NET SDK 10.0.0+.**
 
 ## Notes
 
@@ -85,11 +85,11 @@ graph TD
     hx[HelixToolkit] --> dx11[DirectX11 Engine]
     dx11 --> hxSharpDX[HelixToolkit.Wpf.SharpDX]
     dx11 --> hxCore[HelixToolkit.SharpDX.Core]
-    hxCore --> hxWinUI[HelixToolkit.SharpDX.Core.Wpf]
-    hxCore --> hxSharpDXCoreWpf[HelixToolkit.WinUI]
     hxSharpDX --> hxAssimp[HelixToolkit.SharpDX.Assimp]
     hxCore --> hxAssimp
 ```
+
+WinUI, UWP and `HelixToolkit.SharpDX.Core.Wpf` are legacy code paths and are not part of the supported DirectX 11 build, CI, or packaging scope.
 
 ## Bug Report
 Please use the following template to report bugs.
@@ -109,9 +109,9 @@ Please use the following template to report bugs.
 - [WPF.Input](https://www.nuget.org/packages/HelixToolkit.Wpf.Input/2.25.0)
 - [WPF.SharpDX](https://www.nuget.org/packages/HelixToolkit.Wpf.SharpDX/2.25.0)
 - [SharpDX.Core](https://www.nuget.org/packages/HelixToolkit.SharpDX.Core/2.25.0)
-- [SharpDX.Core.Wpf](https://www.nuget.org/packages/HelixToolkit.SharpDX.Core.Wpf/2.25.0)
-- [WinUI](https://www.nuget.org/packages/HelixToolkit.WinUI/2.25.0)
 - [SharpDX.Assimp](https://www.nuget.org/packages/HelixToolkit.SharpDX.Assimp/2.25.0)
+
+`HelixToolkit.SharpDX.Core.Wpf`, `HelixToolkit.WinUI` and `HelixToolkit.UWP` are discontinued legacy packages in the current WPF + Silk.NET DirectX scope.
 
 #### Changes (Please refer to [Release Note](https://github.com/helix-toolkit/helix-toolkit/blob/master/CHANGELOG.md) for details)
 

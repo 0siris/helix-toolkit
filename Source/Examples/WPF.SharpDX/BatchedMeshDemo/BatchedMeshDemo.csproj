@@ -30,8 +30,4 @@
         <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
-    </ItemGroup>
-
 </Project>

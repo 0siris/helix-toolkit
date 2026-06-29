@@ -11,22 +11,19 @@ namespace InstancingDemo
     using DemoCore;
 
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
-    using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
     using System;
-    using System.IO;
     using System.Windows.Threading;
-    using System.Diagnostics;
     using System.Linq;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector2 = Silk.NET.Maths.Vector2D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -66,7 +63,7 @@ namespace InstancingDemo
             // camera setup
             Camera = new PerspectiveCamera { Position = new Point3D(40, 40, 40), LookDirection = new Vector3D(-40, -40, -40), UpDirection = new Vector3D(0, 1, 0) };
 
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = Colors.DarkGray;
             this.DirectionalLightColor = Colors.White;
             this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
@@ -145,8 +142,8 @@ namespace InstancingDemo
             {
                 for (int j = -num - (int)aniX; j < num + aniX; j++)
                 {
-                    var matrix = Matrix.RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
-                        * Matrix.Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
+                    var matrix = RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
+                        * Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
                     var color = new Color4(1, 1, 1, 1);//new Color4((float)Math.Abs(i) / num, (float)Math.Abs(j) / num, (float)Math.Abs(i + j) / (2 * num), 1);
                     //  var emissiveColor = new Color4( rnd.NextFloat(0,1) , rnd.NextFloat(0, 1), rnd.NextFloat(0, 1), rnd.NextFloat(0, 0.2f));
                     var k = Math.Abs(i + j) % 4;
@@ -182,8 +179,8 @@ namespace InstancingDemo
                 {
                     billboardParams.Add(new BillboardInstanceParameter()
                     { TexCoordOffset = new Vector2(1f/6 * rnd.Next(0, 6), 1f/6 * rnd.Next(0,6)), TexCoordScale = new Vector2(1f/6, 1f/6) });
-                    billboardinstances.Add( Matrix.Scaling(rnd.NextFloat(0.5f, 4f), rnd.NextFloat(0.5f, 3f), rnd.NextFloat(0.5f, 3f))
-                        * Matrix.Translation(new Vector3(rnd.NextFloat(0, 100), rnd.NextFloat(0, 100), rnd.NextFloat(-50, 50))));
+                    billboardinstances.Add(Scaling(NextFloat(0.5f, 4f), NextFloat(0.5f, 3f), NextFloat(0.5f, 3f))
+                        * Translation(new Vector3(NextFloat(0, 100), NextFloat(0, 100), NextFloat(-50, 50))));
                 }
                 BillboardInstanceParams = billboardParams.ToArray();
                 BillboardInstances = billboardinstances.ToArray();
@@ -212,7 +209,7 @@ namespace InstancingDemo
             if (hitTests.Count > 0)
             {
                 foreach(var hit in hitTests)
-                {                  
+                {
                     if (hit.ModelHit is InstancingMeshGeometryModel3D)
                     {
                         var index = (int)hit.Tag;
@@ -235,6 +232,38 @@ namespace InstancingDemo
             timer.Stop();
             timer.Tick -= Timer_Tick;
             base.Dispose(disposing);
+        }
+
+        private static Matrix RotationAxis(Vector3 axis, float angle)
+        {
+            var m = System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle);
+            return ToMatrix(m);
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            var m = System.Numerics.Matrix4x4.CreateScale(x, y, z);
+            return ToMatrix(m);
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            var m = System.Numerics.Matrix4x4.CreateTranslation(value.X, value.Y, value.Z);
+            return ToMatrix(m);
+        }
+
+        private static Matrix ToMatrix(System.Numerics.Matrix4x4 m)
+        {
+            return new Matrix(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
+        }
+
+        private float NextFloat(float min, float max)
+        {
+            return min + (max - min) * (float)rnd.NextDouble();
         }
     }
 }

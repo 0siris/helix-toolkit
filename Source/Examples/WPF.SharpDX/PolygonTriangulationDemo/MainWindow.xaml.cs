@@ -7,12 +7,13 @@ using HelixToolkit.Wpf;
 namespace PolygonTriangulationDemo
 {
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using System.Windows.Media;
     using System;
     using DemoCore;
     using System.Windows.Media.Media3D;
     using System.Globalization;
+    using Vector2 = Silk.NET.Maths.Vector2D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -79,13 +80,13 @@ namespace PolygonTriangulationDemo
             var innerRadii = new List<float>();
             for (int i = 0; i < cnt; i++)
             {
-                radii.Add(random.NextFloat(radius * 0.9f, radius * 1.1f));
-                innerRadii.Add(random.NextFloat(radius * 0.2f, radius * 0.3f));
+                radii.Add(NextFloat(random, radius * 0.9f, radius * 1.1f));
+                innerRadii.Add(NextFloat(random, radius * 0.2f, radius * 0.3f));
             }
             var hole1 = new List<Vector2>();
             var hole2 = new List<Vector2>();
             var holeDistance = 2f;
-            var holeAngle = random.NextFloat(0, (float)Math.PI * 2);
+            var holeAngle = NextFloat(random, 0, (float)Math.PI * 2);
             var cos = (float)Math.Cos(holeAngle);
             var sin = (float)Math.Sin(holeAngle);
             var offset1 = new Vector2(holeDistance * cos, holeDistance * sin);
@@ -152,6 +153,11 @@ namespace PolygonTriangulationDemo
         {
             // Set the ViewModel's Material and the Polygon-Material
             mViewModel.Material = PhongMaterials.GetMaterial(e.AddedItems[0].ToString());
+        }
+
+        private static float NextFloat(Random random, float min, float max)
+        {
+            return min + (max - min) * (float)random.NextDouble();
         }
     }
 }

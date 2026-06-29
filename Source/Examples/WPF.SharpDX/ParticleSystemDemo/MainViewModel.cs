@@ -1,16 +1,17 @@
 ﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using SharpDX;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace ParticleSystemDemo
 {
@@ -109,9 +110,9 @@ namespace ParticleSystemDemo
             }
         }
 
-        public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new SharpDX.Color4(1, 0, 1, 1) };
+        public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
 
-        public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new SharpDX.Color4(0.5f, 1f, 0.5f, 1) };
+        public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1) };
 
         private Stream particleTexture;
         public Stream ParticleTexture
@@ -513,16 +514,16 @@ namespace ParticleSystemDemo
         {
             EffectsManager = new DefaultEffectsManager();
             var lineBuilder = new LineBuilder();
-            lineBuilder.AddBox(new SharpDX.Vector3(), 1, 1, 1);
+            lineBuilder.AddBox(new Vector3(), 1, 1, 1);
             BoundingLines = lineBuilder.ToLineGeometry3D();
             LoadTexture(SelectedTextureIndex);
             var meshBuilder = new MeshBuilder();
-            meshBuilder.AddSphere(new SharpDX.Vector3(0, 0, 0), 0.5, 16, 16);
+            meshBuilder.AddSphere(new Vector3(0, 0, 0), 0.5, 16, 16);
             Model = meshBuilder.ToMesh();
             Camera = new PerspectiveCamera() { Position = new Media3D.Point3D(0, 0, 20), UpDirection = new Media3D.Vector3D(0, 1, 0), LookDirection = new Media3D.Vector3D(0, 0, -20) };
             Instances = new Matrix[] {
-                Matrix.Identity, Matrix.Scaling(1,-1, 1) * Matrix.Translation(10, 0, 10), Matrix.Translation(-10, 0, 10), Matrix.Translation(10, 0, -10),
-                Matrix.RotationAxis(new Vector3(1,0,0), 90) *  Matrix.Translation(-10, 0, -10), };
+                Matrix.Identity, Scaling(1,-1, 1) * Translation(10, 0, 10), Translation(-10, 0, 10), Translation(10, 0, -10),
+                RotationAxis(new Vector3(1,0,0), 90) *  Translation(-10, 0, -10), };
         }
 
         private void LoadTexture(int index)
@@ -557,6 +558,31 @@ namespace ParticleSystemDemo
         private void UpdateAcceleration()
         {
             Acceleration = new Media3D.Vector3D((double)AccelerationX / 100, (double)AccelerationY / 100, (double)AccelerationZ / 100);
+        }
+
+        private static Matrix RotationAxis(Vector3 axis, float angle)
+        {
+            var m = System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle);
+            return ToMatrix(m);
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+        }
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
+        }
+
+        private static Matrix ToMatrix(System.Numerics.Matrix4x4 m)
+        {
+            return new Matrix(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
         }
     }
 }

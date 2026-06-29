@@ -52,8 +52,7 @@ namespace MemoryLeakTester
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             if (timer == null)
-            {               
-                SharpDX.Configuration.EnableObjectTracking = true;
+            {
                 timer = new DispatcherTimer();
                 timer.Interval = TimeSpan.FromSeconds(0.5);
                 timer.Tick += Timer_Tick;
@@ -87,7 +86,7 @@ namespace MemoryLeakTester
                 GC.WaitForPendingFinalizers();
                 GC.WaitForFullGCComplete();
                 GC.Collect();
-                Debug.WriteLine(SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects());
+                Debug.WriteLine("SharpDX object tracking is not available after the Silk.NET migration.");
                 var log = systemparams.Update();
                 paragraph.Inlines.Add(log);
                 logTextbox.ScrollToEnd();

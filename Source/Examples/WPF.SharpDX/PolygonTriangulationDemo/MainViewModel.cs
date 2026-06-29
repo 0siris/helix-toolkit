@@ -9,12 +9,14 @@ namespace PolygonTriangulationDemo
 {
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using System;
+    using Media = System.Windows.Media;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -33,11 +35,11 @@ namespace PolygonTriangulationDemo
         /// <summary>
         /// Color of the Gridlines
         /// </summary>
-        public SharpDX.Color GridColor { get; private set; }
+        public Media.Color GridColor { get; private set; }
         /// <summary>
         /// Color of the Triangle Lines
         /// </summary>
-        public SharpDX.Color TriangulationColor { get; private set; }
+        public Media.Color TriangulationColor { get; private set; }
         /// <summary>
         /// Transform of the Grid
         /// </summary>
@@ -170,7 +172,7 @@ namespace PolygonTriangulationDemo
 
             // Lighting Setup
             this.AmbientLightColor = new Color4(.1f, .1f, .1f, 1.0f);
-            this.DirectionalLightColor = Color.White;
+            this.DirectionalLightColor = new Color4(1, 1, 1, 1);
             this.DirectionalLightDirection = new Vector3(0, -1, 0);
             
             // Model Transformations
@@ -179,11 +181,11 @@ namespace PolygonTriangulationDemo
             
             // Model Materials and Colors
             this.Material = PhongMaterials.PolishedBronze;
-            this.TriangulationColor = SharpDX.Color.Black;
+            this.TriangulationColor = Media.Colors.Black;
 
             // Grid Setup
             this.Grid = LineBuilder.GenerateGrid(Vector3.UnitY, -5, 5, 0, 10);
-            this.GridColor = SharpDX.Color.DarkGray;
+            this.GridColor = Media.Colors.DarkGray;
             this.GridTransform = new TranslateTransform3D(0, -0.01, 0);
         }
     }

@@ -12,19 +12,16 @@ namespace LineShadingDemo
     using DemoCore;
     using HelixToolkit.Wpf;
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Core;
 
-    using SharpDX;
     using Media = System.Windows.Media;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -121,7 +118,7 @@ namespace LineShadingDemo
             var rnd = new Random();
             while (linesCount-- > 0)
             {
-                this.Lines.Colors.Add(rnd.NextColor());
+                this.Lines.Colors.Add(new Color4((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble(), 1f));
             }
 
             // lines params

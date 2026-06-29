@@ -13,7 +13,6 @@ namespace TessellationDemo
     using System.Windows;
     using System.Windows.Input;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;

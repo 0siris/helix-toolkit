@@ -9,13 +9,14 @@ namespace OrderIndependentTransparentRendering
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
     using HelixToolkit.Wpf.SharpDX.Model;
-    using SharpDX;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Media3D = System.Windows.Media.Media3D;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
     public enum MaterialType
     {
         BlinnPhong, PBR, Diffuse
@@ -211,13 +212,13 @@ namespace OrderIndependentTransparentRendering
             {
                 for (int j = 0; j < 10; ++j)
                 {
-                    builder.AddLine(new SharpDX.Vector3(-i * 5, 0, j * 5), new SharpDX.Vector3(i * 5, 0, j * 5));
-                    builder.AddLine(new SharpDX.Vector3(-i * 5, 0, -j * 5), new SharpDX.Vector3(i * 5, 0, -j * 5));
-                    builder.AddLine(new SharpDX.Vector3(i * 5, 0, -j * 5), new SharpDX.Vector3(i * 5, 0, j * 5));
-                    builder.AddLine(new SharpDX.Vector3(-i * 5, 0, -j * 5), new SharpDX.Vector3(-i * 5, 0, j * 5));
-                    builder.AddLine(new SharpDX.Vector3(-i * 5, j * 5, zOff), new SharpDX.Vector3(i * 5, j * 5, zOff));
-                    builder.AddLine(new SharpDX.Vector3(i * 5, 0, zOff), new SharpDX.Vector3(i * 5, j * 5, zOff));
-                    builder.AddLine(new SharpDX.Vector3(-i * 5, 0, zOff), new SharpDX.Vector3(-i * 5, j * 5, zOff));
+                    builder.AddLine(new Vector3(-i * 5, 0, j * 5), new Vector3(i * 5, 0, j * 5));
+                    builder.AddLine(new Vector3(-i * 5, 0, -j * 5), new Vector3(i * 5, 0, -j * 5));
+                    builder.AddLine(new Vector3(i * 5, 0, -j * 5), new Vector3(i * 5, 0, j * 5));
+                    builder.AddLine(new Vector3(-i * 5, 0, -j * 5), new Vector3(-i * 5, 0, j * 5));
+                    builder.AddLine(new Vector3(-i * 5, j * 5, zOff), new Vector3(i * 5, j * 5, zOff));
+                    builder.AddLine(new Vector3(i * 5, 0, zOff), new Vector3(i * 5, j * 5, zOff));
+                    builder.AddLine(new Vector3(-i * 5, 0, zOff), new Vector3(-i * 5, j * 5, zOff));
                 }
             }
             GridModel = builder.ToLineGeometry3D();
@@ -228,11 +229,11 @@ namespace OrderIndependentTransparentRendering
         {
             PlaneGeometry = new ObservableElement3DCollection();
             var builder = new MeshBuilder(true);
-            builder.AddBox(new SharpDX.Vector3(0, 0, 0), 15, 15, 0.5);
+            builder.AddBox(new Vector3(0, 0, 0), 15, 15, 0.5);
             var mesh = builder.ToMesh();
 
             var material = new PhongMaterial();
-            material.DiffuseColor = new SharpDX.Color4(1, 0, 0, RedPlaneOpacity / 100f);
+            material.DiffuseColor = new Color4(1, 0, 0, RedPlaneOpacity / 100f);
 
             var model = new MeshGeometryModel3D()
             {
@@ -240,12 +241,12 @@ namespace OrderIndependentTransparentRendering
                 Material = material,
                 Transform = new Media3D.TranslateTransform3D(-15, 0, 0),
                 IsTransparent = true,
-                CullMode = SharpDX.Direct3D11.CullMode.Back
+                CullMode = CullMode.Back
             };
             PlaneGeometry.Add(model);
 
             material = new PhongMaterial();
-            material.DiffuseColor = new SharpDX.Color4(0, 1, 0, GreenPlaneOpacity / 100f);
+            material.DiffuseColor = new Color4(0, 1, 0, GreenPlaneOpacity / 100f);
 
             model = new MeshGeometryModel3D()
             {
@@ -253,12 +254,12 @@ namespace OrderIndependentTransparentRendering
                 Material = material,
                 Transform = new Media3D.TranslateTransform3D(-20, 5, -10),
                 IsTransparent = true,
-                CullMode = SharpDX.Direct3D11.CullMode.Back
+                CullMode = CullMode.Back
             };
             PlaneGeometry.Add(model);
 
             material = new PhongMaterial();
-            material.DiffuseColor = new SharpDX.Color4(0, 0, 1, BluePlaneOpacity / 100f);
+            material.DiffuseColor = new Color4(0, 0, 1, BluePlaneOpacity / 100f);
 
             model = new MeshGeometryModel3D()
             {
@@ -266,7 +267,7 @@ namespace OrderIndependentTransparentRendering
                 Material = material,
                 Transform = new Media3D.TranslateTransform3D(-25, 10, -20),
                 IsTransparent = true,
-                CullMode = SharpDX.Direct3D11.CullMode.Back
+                CullMode = CullMode.Back
             };
             PlaneGeometry.Add(model);
         }
@@ -329,11 +330,10 @@ namespace OrderIndependentTransparentRendering
         private void UpdateMaterial(MeshGeometryModel3D mesh)
         {
             var diffuse = new Color4();
-            diffuse.Red = (float)rnd.NextDouble();
-            diffuse.Green = (float)rnd.NextDouble();
-            diffuse.Blue = (float)rnd.NextDouble();
-            diffuse.Alpha = 1;
-            diffuse.Alpha = 0.6f;
+            diffuse.X = (float)rnd.NextDouble();
+            diffuse.Y = (float)rnd.NextDouble();
+            diffuse.Z = (float)rnd.NextDouble();
+            diffuse.W = 0.6f;
             Material material = null;
             switch (materialType)
             {

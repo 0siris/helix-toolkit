@@ -1,10 +1,8 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CustomViewCubeDemo
 {
@@ -67,7 +65,7 @@ namespace CustomViewCubeDemo
             ViewCubeMaterial3 = DiffuseMaterials.Gray;
             ViewCubeMaterial4 = DiffuseMaterials.Pearl;
             //Center the model first and do scaling
-            var transform = Matrix.Translation(0, -2, 0) * Matrix.Scaling(3.5f);
+            var transform = CreateTransform();
             ViewCubeTransform3 = new System.Windows.Media.Media3D.MatrixTransform3D(transform.ToMatrix3D());
         }
 
@@ -87,6 +85,16 @@ namespace CustomViewCubeDemo
             CoordinateText.TextInfo.Add(new TextInfo("X", Vector3.UnitX * 6));
             CoordinateText.TextInfo.Add(new TextInfo("Y", Vector3.UnitY * 6));
             CoordinateText.TextInfo.Add(new TextInfo("Z", Vector3.UnitZ * 6));
+        }
+
+        private static Matrix CreateTransform()
+        {
+            var m = System.Numerics.Matrix4x4.CreateTranslation(0, -2, 0) * System.Numerics.Matrix4x4.CreateScale(3.5f);
+            return new Matrix(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿using SharpDX.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,12 +13,12 @@ namespace WinFormsTest
 {
     public partial class Form1 : Form
     {
-        private RenderForm renderForm;
+        private Form renderForm;
         private CoreTestApp app;
         public Form1()
         {
             InitializeComponent();
-            renderForm = new RenderForm()
+            renderForm = new Form()
             {
                 TopLevel = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right

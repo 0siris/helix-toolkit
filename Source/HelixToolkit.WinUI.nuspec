@@ -3,15 +3,15 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>HelixToolkit.WinUI</id>
     <version>$version$</version>
-    <title>HelixToolkit for WinUI(based on SharpDX)</title>
+    <title>HelixToolkit for WinUI (legacy, discontinued)</title>
     <authors>Lunci</authors>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/helix-toolkit/helix-toolkit</projectUrl>
     <icon>helixtoolkit.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides custom 3D controls for WinUI based on SharpDX.</description>
+    <description>Legacy WinUI package. Active WinUI support, CI builds and NuGet packaging are discontinued.</description>
 	<readme>README.md</readme>
-    <tags>net6.0 WinUI Wpf SharpDX 3D DirectX</tags>
+    <tags>net6.0 WinUI legacy discontinued 3D DirectX</tags>
     <dependencies>
 	   <group targetFramework="net6.0-windows10.0.19041">
 		<dependency id="Cyotek.Drawing.BitmapFont" version="2.0.0" />

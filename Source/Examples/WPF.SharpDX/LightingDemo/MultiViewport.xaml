@@ -57,7 +57,6 @@
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}"
                 Transform="{Binding FloorTransform}" />
-            <!--<hx:LineGeometryModel3D Geometry="{Binding CubeEdges}" Color="{x:Static SharpDX:Color.Red}" Thickness="4"/>-->
         </hx:ModelContainer3DX>
         <hx:Viewport3DX
             x:Name="view1"

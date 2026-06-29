@@ -9,12 +9,14 @@ namespace EnvironmentMapDemo
     using DemoCore;
     using HelixToolkit.Wpf;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using System.Collections.Generic;
-    using System.IO;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
+    using Color = HelixToolkit.Wpf.SharpDX.Color;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {        
@@ -65,15 +67,15 @@ namespace EnvironmentMapDemo
             int t = 5;
             for (int i = 0; i < 10; ++i)
             {
-                Instances1.Add(Matrix.Translation(new Vector3(t, t, (i - 5) * t)));
+                Instances1.Add(Translation(t, t, (i - 5) * t));
             }
             for (int i = 0; i < 10; ++i)
             {
-                Instances2.Add(Matrix.Translation(new Vector3(t, (i - 5) * t, t)));
+                Instances2.Add(Translation(t, (i - 5) * t, t));
             }
             for (int i = 0; i < 10; ++i)
             {
-                Instances3.Add(Matrix.Translation(new Vector3(-(i - 5) * t, t, (i - 5) * t)));
+                Instances3.Add(Translation(-(i - 5) * t, t, (i - 5) * t));
             }
             //int t = 5;
             //Instances.Add(Matrix.Translation(new Vector3(t, t, t)));
@@ -107,6 +109,16 @@ namespace EnvironmentMapDemo
             var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
             var model = objModel[0].Geometry as MeshGeometry3D;
             Model = model;
+        }
+
+        private static Matrix Translation(float x, float y, float z)
+        {
+            var m = System.Numerics.Matrix4x4.CreateTranslation(x, y, z);
+            return new Matrix(
+                m.M11, m.M12, m.M13, m.M14,
+                m.M21, m.M22, m.M23, m.M24,
+                m.M31, m.M32, m.M33, m.M34,
+                m.M41, m.M42, m.M43, m.M44);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Workitem10048
     using System.Windows.Forms;
 
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
     using System.Windows.Media;
     using HelixToolkit.Wpf.SharpDX.Model.Scene;
     using Color = System.Windows.Media.Color;

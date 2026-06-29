@@ -3,22 +3,21 @@
     using System;
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-   // using SharpDX;
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
     using System.Collections.Generic;
     using System.Linq;
     using System.Windows.Data;
     using System.Windows;
     using System.Windows.Threading;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Plane = HelixToolkit.Wpf.SharpDX.Plane;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -123,7 +122,7 @@
             Plane2Transform = new TranslateTransform3D(new Vector3D(15, 0, 0));
 
             var meshBuilder = new MeshBuilder();
-            meshBuilder.AddBox(new Vector3(5f), 40, 1, 2);
+            meshBuilder.AddBox(new Vector3(5f, 5f, 5f), 40, 1, 2);
             BoxModel = meshBuilder.ToMeshGeometry3D();
         }
 

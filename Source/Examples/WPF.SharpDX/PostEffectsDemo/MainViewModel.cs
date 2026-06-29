@@ -10,10 +10,9 @@ using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Color = System.Windows.Media.Color;
-using Plane = SharpDX.Plane;
-using Vector3 = SharpDX.Vector3;
 using Colors = System.Windows.Media.Colors;
-using Color4 = SharpDX.Color4;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace PostEffectsDemo
 {
@@ -65,9 +64,9 @@ namespace PostEffectsDemo
             MeshModel3 = builder.ToMesh();
 
             var lineBuilder = new LineBuilder();
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitX * 5);
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitY * 5);
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitZ * 5);
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(5, 0, 0));
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 5, 0));
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 0, 5));
             LineModel = lineBuilder.ToLineGeometry3D();
             LineModel.Colors = new Color4Collection() { new Color4(1, 0, 0, 1), new Color4(1, 0, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 0, 1, 1), new Color4(0, 0, 1, 1), };
         }

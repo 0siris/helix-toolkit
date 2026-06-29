@@ -8,21 +8,17 @@ namespace LightingDemo
 {
     using System;
     using System.Windows.Media.Animation;
-    using System.Windows.Media.Imaging;
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
 
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
-    using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
+    using Color4 = Silk.NET.Maths.Vector4D<float>;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -193,7 +189,7 @@ namespace LightingDemo
 
         public MainViewModel()
         {
-            //    RenderTechniquesManager = new DefaultRenderTechniquesManager();           
+            //    RenderTechniquesManager = new DefaultRenderTechniquesManager();
             EffectsManager = new DefaultEffectsManager();
             // ----------------------------------------------
             // titles
@@ -286,11 +282,11 @@ namespace LightingDemo
                 RenderShadowMap = true
             };
             ModelMaterial.DiffuseMap = FloorMaterial.DiffuseMap;
-            
+
             ReflectMaterial = PhongMaterials.PolishedSilver;
-            ReflectMaterial.ReflectiveColor = global::SharpDX.Color.Silver;
+            ReflectMaterial.ReflectiveColor = Colors.Silver.ToColor4();
             ReflectMaterial.RenderEnvironmentMap = true;
-            InitialObjectTransforms();           
+            InitialObjectTransforms();
         }
 
         private void InitialObjectTransforms()
@@ -351,13 +347,21 @@ namespace LightingDemo
                 To = new Media3D.AxisAngleRotation3D(axis, 225),
                 AutoReverse = true,
                 Duration = TimeSpan.FromSeconds(speed / 4),
-                //IsCumulative = true,                  
+                //IsCumulative = true,
             };
 
             var rotateTransform = new Media3D.RotateTransform3D();
             rotateTransform.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation);
             lightTrafo.Children.Add(rotateTransform);
             return lightTrafo;
+        }
+    }
+
+    internal static class RandomExtensions
+    {
+        public static double NextDouble(this Random random, double min, double max)
+        {
+            return min + (max - min) * random.NextDouble();
         }
     }
 }

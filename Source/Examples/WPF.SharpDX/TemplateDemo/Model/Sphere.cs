@@ -9,7 +9,7 @@ namespace TemplateDemo
     using HelixToolkit.Wpf;
     using HelixToolkit.Wpf.SharpDX;
 
-    using SharpDX;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class Sphere : Shape
     {

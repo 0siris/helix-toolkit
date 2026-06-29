@@ -1,5 +1,4 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
 using System.Windows;
 using Point = System.Windows.Point;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
@@ -8,6 +7,10 @@ using System.Windows.Input;
 using HelixToolkit.Wpf.SharpDX.Model.Scene;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CrossSectionDemo
 {
@@ -28,9 +31,9 @@ namespace CrossSectionDemo
                     if (!model.internalUpdate)
                     {
                         var plane = (Plane)e.NewValue;
-                        model.currentTranslation = Matrix.Translation(plane.Normal * plane.D);
+                        model.currentTranslation = Translation(plane.Normal * plane.D);
                         var v1 = plane.Normal.FindAnyPerpendicular();
-                        var v2 = Vector3.Cross(plane.Normal, v1);
+                        var v2 = Cross(plane.Normal, v1);
                         model.currentRotation = new Matrix(v2.X, v2.Y, v2.Z, 0, v1.X, v1.Y, v1.Z, 0, -plane.Normal.X, -plane.Normal.Y, -plane.Normal.Z, 0, 0, 0, 0, 1);
                         model.UpdateTransform(false);
                     }
@@ -177,7 +180,7 @@ namespace CrossSectionDemo
             this.cornerHandle = new MeshGeometryModel3D()
             {
                 Geometry = NodeGeometry,
-                CullMode = SharpDX.Direct3D11.CullMode.Back,
+                CullMode = CullMode.Back,
             };
             this.cornerHandle.MouseMove3D += OnNodeMouse3DMove;
             this.cornerHandle.MouseUp3D += OnNodeMouse3DUp;
@@ -187,7 +190,7 @@ namespace CrossSectionDemo
             this.edgeHandle = new MeshGeometryModel3D()
             {
                 Geometry = EdgeHGeometry,
-                CullMode = SharpDX.Direct3D11.CullMode.Back,
+                CullMode = CullMode.Back,
             };
 
             this.edgeHandle.MouseMove3D += OnEdgeMouse3DMove;
@@ -213,17 +216,17 @@ namespace CrossSectionDemo
             // 0 --- 1
             edgeHandle.Instances = new Matrix[4]
             {
-                Matrix.Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Matrix.Translation(positions[0] * sizeScale),
-                Matrix.Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Matrix.Translation(positions[3] * sizeScale),
-                Matrix.Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Matrix.RotationAxis(new Vector3(0, 0, 1), (float)(Math.PI / 2)) * Matrix.Translation(positions[1] * sizeScale),
-                Matrix.Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Matrix.RotationAxis(new Vector3(0, 0, 1), (float)(Math.PI / 2)) * Matrix.Translation(positions[0] * sizeScale)
+                Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Translation(positions[0] * sizeScale),
+                Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Translation(positions[3] * sizeScale),
+                Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * RotationAxis(new Vector3(0, 0, 1), (float)(Math.PI / 2)) * Translation(positions[1] * sizeScale),
+                Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * RotationAxis(new Vector3(0, 0, 1), (float)(Math.PI / 2)) * Translation(positions[0] * sizeScale)
             };
             cornerHandle.Instances = new Matrix[4]
             {
-                Matrix.Scaling(cornerScale) * Matrix.Translation(positions[0] * sizeScale),
-                Matrix.Scaling(cornerScale) * Matrix.Translation(positions[1] * sizeScale),
-                Matrix.Scaling(cornerScale) * Matrix.Translation(positions[2] * sizeScale),
-                Matrix.Scaling(cornerScale) * Matrix.Translation(positions[3] * sizeScale),
+                Scaling(cornerScale) * Translation(positions[0] * sizeScale),
+                Scaling(cornerScale) * Translation(positions[1] * sizeScale),
+                Scaling(cornerScale) * Translation(positions[2] * sizeScale),
+                Scaling(cornerScale) * Translation(positions[3] * sizeScale),
             };
         }
 
@@ -278,7 +281,7 @@ namespace CrossSectionDemo
         {
             if (isCaptured && e is Mouse3DEventArgs arg && arg.Viewport == viewport)
             {
-                RotateTrackball(startPoint, arg.Position, currentTranslation.TranslationVector);
+                RotateTrackball(startPoint, arg.Position, TranslationVector(currentTranslation));
                 startPoint = arg.Position;
                 arg.Handled=true;
             }
@@ -324,7 +327,7 @@ namespace CrossSectionDemo
                     newPos = new Vector3(newPos.X, startHitPoint.Y, newPos.Z); // trying to constraint elevation
                     var offset = newPos - startHitPoint;
                     startHitPoint = newPos;
-                    currentTranslation.TranslationVector += offset;
+                    SetTranslationVector(ref currentTranslation, TranslationVector(currentTranslation) + offset);
                     UpdateTransform();
                     arg.Handled = true;
                 }
@@ -358,7 +361,7 @@ namespace CrossSectionDemo
                     );
 
                 // can we project the constraintAxis onto the view?
-                var t3 = Vector3.TransformCoordinate(ConstrainAxis.Value, camera.CameraInternal.GetViewMatrix());
+                var t3 = TransformCoordinate(ConstrainAxis.Value, camera.CameraInternal.GetViewMatrix());
                 var dir = new Vector2(t3.X, t3.Y); // axis of Constraint in view coordinates
                 
                 var pp1 = p1.ToVector2(); // computing distance perpendicular to axis in view coordinates
@@ -367,9 +370,9 @@ namespace CrossSectionDemo
                 var pp2 = p2.ToVector2(); // computing distance perpendicular to axis in view coordinates
                 var r2 = pp2 - (pp2 * dir);
 
-                var angle = (r2.Length() - r1.Length()) / diag * 4;
+                var angle = (r2.Length - r1.Length) / diag * 4;
                 // Create the transform
-                currentRotation *= Matrix.RotationAxis(Vector3.Normalize(ConstrainAxis.Value), (float)(angle * this.RotationSensitivity * 5));
+                currentRotation *= RotationAxis(ConstrainAxis.Value.Normalized(), (float)(angle * this.RotationSensitivity * 5));
                 UpdateTransform();
             }
             else
@@ -379,11 +382,11 @@ namespace CrossSectionDemo
 
                 // transform the trackball coordinates to view space
                 var viewZ = camera.CameraInternal.LookDirection;
-                var viewX = Vector3.Cross(camera.CameraInternal.UpDirection, viewZ);
-                var viewY = Vector3.Cross(viewX, viewZ);
-                viewX.Normalize();
-                viewY.Normalize();
-                viewZ.Normalize();
+                var viewX = Cross(camera.CameraInternal.UpDirection, viewZ);
+                var viewY = Cross(viewX, viewZ);
+                viewX = viewX.Normalized();
+                viewY = viewY.Normalized();
+                viewZ = viewZ.Normalized();
                 var u1 = (viewZ * v1.Z) + (viewX * v1.X) + (viewY * v1.Y);
                 var u2 = (viewZ * v2.Z) + (viewX * v2.X) + (viewY * v2.Y);
 
@@ -395,15 +398,15 @@ namespace CrossSectionDemo
                 // var u2 = ct.Transform(v2);
 
                 // Find the rotation axis and angle
-                var axis = Vector3.Cross(u1, u2);
-                if (axis.LengthSquared() < 1e-8)
+                var axis = Cross(u1, u2);
+                if (axis.LengthSquared < 1e-8)
                 {
                     return;
                 }
 
                 var angle = u1.AngleBetween(u2);
                 // Create the transform
-                currentRotation *= Matrix.RotationAxis(Vector3.Normalize(axis), (float)(angle * this.RotationSensitivity * 5));
+                currentRotation *= RotationAxis(axis.Normalized(), (float)(angle * this.RotationSensitivity * 5));
                 UpdateTransform();
             }
             
@@ -413,8 +416,8 @@ namespace CrossSectionDemo
 
         private void UpdateCutPlane()
         {
-            var planeNormal = Vector3.TransformNormal(new Vector3(0, 0, -1), currentRotation);
-            CutPlane = new Plane(-currentTranslation.TranslationVector, planeNormal);
+            var planeNormal = TransformNormal(new Vector3(0, 0, -1), currentRotation);
+            CutPlane = new Plane(-TranslationVector(currentTranslation), planeNormal);
         }
 
         private void UpdateTransform(bool updateCutPlane = true)
@@ -431,6 +434,76 @@ namespace CrossSectionDemo
         protected override SceneNode OnCreateSceneNode()
         {
             return new AlwaysHitGroupNode(this);
+        }
+
+        private static Vector3 Cross(Vector3 left, Vector3 right)
+        {
+            return new Vector3(
+                left.Y * right.Z - left.Z * right.Y,
+                left.Z * right.X - left.X * right.Z,
+                left.X * right.Y - left.Y * right.X);
+        }
+
+        private static Matrix RotationAxis(Vector3 axis, float angle)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
+        }
+
+        private static Matrix Scaling(float scale)
+        {
+            return Scaling(scale, scale, scale);
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(value.X, value.Y, value.Z));
+        }
+
+        private static Vector3 TransformCoordinate(Vector3 value, Matrix matrix)
+        {
+            var result = System.Numerics.Vector4.Transform(new System.Numerics.Vector4(value.X, value.Y, value.Z, 1), ToNumerics(matrix));
+            return new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W);
+        }
+
+        private static Vector3 TransformNormal(Vector3 value, Matrix matrix)
+        {
+            var result = System.Numerics.Vector3.TransformNormal(new System.Numerics.Vector3(value.X, value.Y, value.Z), ToNumerics(matrix));
+            return new Vector3(result.X, result.Y, result.Z);
+        }
+
+        private static Vector3 TranslationVector(Matrix matrix)
+        {
+            return new Vector3(matrix.M41, matrix.M42, matrix.M43);
+        }
+
+        private static void SetTranslationVector(ref Matrix matrix, Vector3 value)
+        {
+            matrix.M41 = value.X;
+            matrix.M42 = value.Y;
+            matrix.M43 = value.Z;
+        }
+
+        private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix)
+        {
+            return new Matrix(
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44);
+        }
+
+        private static System.Numerics.Matrix4x4 ToNumerics(Matrix matrix)
+        {
+            return new System.Numerics.Matrix4x4(
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44);
         }
 
         private sealed class AlwaysHitGroupNode : GroupNode

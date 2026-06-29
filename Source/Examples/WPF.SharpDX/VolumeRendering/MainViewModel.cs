@@ -2,15 +2,16 @@
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Model;
 using HelixToolkit.Wpf.SharpDX.Utilities;
-using SharpDX;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Color4 = SharpDX.Color4;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using System.Linq;
 
@@ -73,14 +74,14 @@ namespace VolumeRendering
             var builder = new MeshBuilder();
             //builder.AddBox(new Vector3(0, 0, 0), 2, 2, 0.001);
             builder.AddSphere(Vector3.Zero, 0.1);
-            builder.AddBox(Vector3.UnitX, 0.2, 0.2, 0.2);
+            builder.AddBox(new Vector3(1, 0, 0), 0.2, 0.2, 0.2);
             MeshModel = builder.ToMesh();
             MeshMaterial = PhongMaterials.Yellow;
 
             var lineBuilder = new LineBuilder();
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitX * 1.5f);
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitY * 1.5f);
-            lineBuilder.AddLine(Vector3.Zero, Vector3.UnitZ * 1.5f);
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(1.5f, 0, 0));
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 1.5f, 0));
+            lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 0, 1.5f));
             AxisModel = lineBuilder.ToLineGeometry3D();
             AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count);
             AxisModel.Colors.Add(Colors.Red.ToColor4());
@@ -129,8 +130,8 @@ namespace VolumeRendering
             m.Color = new Color4(1, 1, 1, 0.4f);
             m.TransferMap = transferMap;
             m.Freeze();
-            var scale = Matrix.Scaling(2, 2, 178 / 256f * 2);
-            var rotate = Matrix.RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
+            var scale = Scaling(2, 2, 178 / 256f * 2);
+            var rotate = RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
             var t = new Media3D.MatrixTransform3D((scale * rotate).ToMatrix3D());
             t.Freeze();
             return new Tuple<Material, Media3D.Transform3D>(m, t);
@@ -144,7 +145,7 @@ namespace VolumeRendering
             m.Color = new Color4(0.6f, 0.6f, 0.6f, 1f);
             m.TransferMap = transferMap;
             m.Freeze();
-            var rotate = Matrix.RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
+            var rotate = RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
             var transform = new Media3D.MatrixTransform3D(rotate.ToMatrix3D());
             transform.Freeze();
             return new Tuple<Material, Media3D.Transform3D>(m, transform);
@@ -270,6 +271,25 @@ namespace VolumeRendering
                     return stream.ReadUInt16(width * height * depth);
                 }
             }
+        }
+
+        private static Matrix RotationAxis(Vector3 axis, float angle)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
+        }
+
+        private static Matrix Scaling(float x, float y, float z)
+        {
+            return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+        }
+
+        private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix)
+        {
+            return new Matrix(
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44);
         }
     }
 }

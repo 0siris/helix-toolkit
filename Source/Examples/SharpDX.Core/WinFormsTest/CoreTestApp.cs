@@ -6,8 +6,6 @@ using HelixToolkit.SharpDX.Core.Controls;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using ImGuiNET;
-using SharpDX;
-using SharpDX.Windows;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,7 +15,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Color = SharpDX.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using DrawingColor = System.Drawing.Color;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace WinFormsTest
 {
@@ -130,6 +132,30 @@ namespace WinFormsTest
             InitializeScene();
         }
 
+        private static Color4 ToColor4(DrawingColor color)
+        {
+            const float scale = 1f / 255f;
+            return new Color4(color.R * scale, color.G * scale, color.B * scale, color.A * scale);
+        }
+
+        private static Matrix Translation(Vector3 value)
+        {
+            var result = Matrix.Identity;
+            result.M41 = value.X;
+            result.M42 = value.Y;
+            result.M43 = value.Z;
+            return result;
+        }
+
+        private void RunRenderLoop(Action render)
+        {
+            while (!window.IsDisposed && window.Visible)
+            {
+                Application.DoEvents();
+                render();
+            }
+        }
+
         private void AssignViewportOption()
         {
             viewport.FXAALevel = options.EnableFXAA ? FXAALevel.Low : FXAALevel.None;
@@ -167,13 +193,13 @@ namespace WinFormsTest
             directionalLight = new DirectionalLightNode()
             {
                 Direction = new Vector3(0, -1, 1),
-                Color = Color.White.ToColor4().ChangeIntensity(options.DirectionLightIntensity)
+                Color = ToColor4(DrawingColor.White).ChangeIntensity(options.DirectionLightIntensity)
             };
             viewport.Items.AddChildNode(directionalLight);
 
             ambientLight = new AmbientLightNode()
             {
-                Color = Color.White.ToColor4().ChangeIntensity(options.AmbientLightIntensity)
+                Color = ToColor4(DrawingColor.White).ChangeIntensity(options.AmbientLightIntensity)
             };
             viewport.Items.AddChildNode(ambientLight);
 
@@ -202,7 +228,7 @@ namespace WinFormsTest
                 for (int i = 0; i < NumItems; ++i)
                 {
                     var sphere1 = builder.ToMesh();
-                    var transform = Matrix.Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
+                    var transform = Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
                     var material = materials[i % materialCount];
                     var node = new MeshNode()
                     {
@@ -210,7 +236,7 @@ namespace WinFormsTest
                         IsTransparent = material.Item1,
                         Material = material.Item2,
                         ModelMatrix = transform,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back
+                        CullMode = CullMode.Back
                     };
                     node.Attach(effectsManager);
                     context.Post((o) => { 
@@ -223,7 +249,7 @@ namespace WinFormsTest
             Task.Run(() => {
                 for (int i = 0; i < NumItems; ++i)
                 {
-                    var transform = Matrix.Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
+                    var transform = Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                     var material = materials[i % materialCount];
                     var node = new MeshNode()
                     {
@@ -231,7 +257,7 @@ namespace WinFormsTest
                         IsTransparent = material.Item1,
                         Material = material.Item2,
                         ModelMatrix = transform,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back
+                        CullMode = CullMode.Back
                     };
                     node.Attach(effectsManager);
                     context.Post((o) =>
@@ -245,8 +271,8 @@ namespace WinFormsTest
             Task.Run(() => { 
                 for (int i = 0; i < NumItems; ++i)
                 {
-                    var transform = Matrix.Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
-                    var node = new PointNode() { Geometry = points, ModelMatrix = transform, Material = new PointMaterialCore() { PointColor = Color.Red } };
+                    var transform = Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
+                    var node = new PointNode() { Geometry = points, ModelMatrix = transform, Material = new PointMaterialCore() { PointColor = ToColor4(DrawingColor.Red) } };
                     node.Attach(effectsManager);
                     context.Post((o) =>
                     {
@@ -259,8 +285,8 @@ namespace WinFormsTest
             Task.Run(() => { 
                 for (int i = 0; i < NumItems; ++i)
                 {
-                    var transform = Matrix.Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
-                    var node = new LineNode() { Geometry = lines, ModelMatrix = transform, Material = new LineMaterialCore() { LineColor = Color.LightBlue } };
+                    var transform = Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
+                    var node = new LineNode() { Geometry = lines, ModelMatrix = transform, Material = new LineMaterialCore() { LineColor = ToColor4(DrawingColor.LightBlue) } };
                     node.Attach(effectsManager);
                     context.Post((o) =>
                     {
@@ -278,7 +304,7 @@ namespace WinFormsTest
             var imGui = new ImGuiNode();
             viewport.Items.AddChildNode(imGui);
             imGui.UpdatingImGuiUI += ImGui_UpdatingImGuiUI;
-            groupEffects.AddChildNode(new NodePostEffectBorderHighlight() { EffectName = "highlightEffect", Color = Color.Yellow });
+            groupEffects.AddChildNode(new NodePostEffectBorderHighlight() { EffectName = "highlightEffect", Color = ToColor4(DrawingColor.Yellow) });
             viewport.Items.AddChildNode(groupEffects);
             environmentMap = new EnvironmentMapNode() { Texture = TextureModel.Create("Cubemap_Grandcanyon.dds") };
             viewport.Items.AddChildNode(environmentMap);
@@ -308,29 +334,29 @@ namespace WinFormsTest
         {
             var diffuse = TextureModel.Create("TextureCheckerboard2.jpg");
             var normal = TextureModel.Create("TextureCheckerboard2_dot3.jpg");
-            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = Color.Red, DiffuseMap = diffuse }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = Color.Green, DiffuseMap = diffuse }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = Color.Blue, DiffuseMap = diffuse }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = Color.DodgerBlue, ReflectiveColor = Color.DarkGray, 
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = Color.Orange, ReflectiveColor = Color.DarkGray, 
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = Color.PaleGreen, ReflectiveColor = Color.DarkGray, 
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = ToColor4(DrawingColor.Green), DiffuseMap = diffuse }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new DiffuseMaterialCore() { DiffuseColor = ToColor4(DrawingColor.Blue), DiffuseMap = diffuse }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = ToColor4(DrawingColor.DodgerBlue), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = ToColor4(DrawingColor.Orange), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PhongMaterialCore() { DiffuseColor = ToColor4(DrawingColor.PaleGreen), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
             materials.Add(new Tuple<bool, MaterialCore>(false, new NormalMaterialCore()));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = Color.Beige, MetallicFactor = 0.8f, RoughnessFactor = 0.6f }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = Color.Bisque, MetallicFactor = 0.4f, RoughnessFactor = 0.9f }));
-            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = Color.Chartreuse, MetallicFactor = 0.2f, RoughnessFactor = 0.2f }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = ToColor4(DrawingColor.Beige), MetallicFactor = 0.8f, RoughnessFactor = 0.6f }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = ToColor4(DrawingColor.Bisque), MetallicFactor = 0.4f, RoughnessFactor = 0.9f }));
+            materials.Add(new Tuple<bool, MaterialCore>(false, new PBRMaterialCore() { AlbedoColor = ToColor4(DrawingColor.Chartreuse), MetallicFactor = 0.2f, RoughnessFactor = 0.2f }));
 
             materials.Add(new Tuple<bool, MaterialCore>(true, new DiffuseMaterialCore() { DiffuseColor = new Color4(1, 0, 1, 0.6f), DiffuseMap = diffuse }));
             materials.Add(new Tuple<bool, MaterialCore>(true, new DiffuseMaterialCore() { DiffuseColor = new Color4(0, 1, 1, 0.4f), DiffuseMap = diffuse }));
             materials.Add(new Tuple<bool, MaterialCore>(true, new DiffuseMaterialCore() { DiffuseColor = new Color4(1, 0, 1, 0.3f), DiffuseMap = diffuse }));
-            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(1, 1, 0, 0.6f), ReflectiveColor = Color.DarkGray, 
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
-            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(0, 1, 1, 0.4f), ReflectiveColor = Color.DarkGray,
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
-            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 1, 0.3f), ReflectiveColor = Color.DarkGray,
-                SpecularShininess = 10, SpecularColor = Color.Red, DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(1, 1, 0, 0.6f), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(0, 1, 1, 0.4f), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
+            materials.Add(new Tuple<bool, MaterialCore>(true, new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 1, 0.3f), ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10, SpecularColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse, NormalMap = normal }));
             materials.Add(new Tuple<bool, MaterialCore>(true, new PBRMaterialCore() { AlbedoColor = new Color4(1, 1, 0, 0.6f), MetallicFactor = 0.8f, RoughnessFactor = 0.6f }));
             materials.Add(new Tuple<bool, MaterialCore>(true, new PBRMaterialCore() { AlbedoColor = new Color4(0, 1, 1, 0.4f), MetallicFactor = 0.4f, RoughnessFactor = 0.9f }));
             materials.Add(new Tuple<bool, MaterialCore>(true, new PBRMaterialCore() { AlbedoColor = new Color4(1, 0, 1, 0.6f), MetallicFactor = 0.2f, RoughnessFactor = 0.2f }));
@@ -350,7 +376,7 @@ namespace WinFormsTest
         {
             bool isGoingOut = true;
             bool isAddingNode = false;
-            RenderLoop.Run(window, () => 
+            RunRenderLoop(() =>
             {
                 if (resizeRequested)
                 {
@@ -369,8 +395,8 @@ namespace WinFormsTest
                     directionalLight.Direction = camera.LookDirection.Normalized();
                 }
                 AssignViewportOption();
-                directionalLight.Color = Color.White.ToColor4().ChangeIntensity(options.DirectionLightIntensity);
-                ambientLight.Color = Color.White.ToColor4().ChangeIntensity(options.AmbientLightIntensity);
+                directionalLight.Color = ToColor4(DrawingColor.White).ChangeIntensity(options.DirectionLightIntensity);
+                ambientLight.Color = ToColor4(DrawingColor.White).ChangeIntensity(options.AmbientLightIntensity);
                 ChangeEnvironmentMapVisibility(options.ShowEnvironmentMap);
                 viewport.Render();
 
@@ -395,10 +421,10 @@ namespace WinFormsTest
                 else
                 {
                     var materialCount = materialList.Length;
-                    var transform = Matrix.Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
-                    groupSphere.AddChildNode(new MeshNode() { Geometry = box, Material = materialList[groupSphere.Items.Count % materialCount], ModelMatrix = transform, CullMode = SharpDX.Direct3D11.CullMode.Back });
-                    transform = Matrix.Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
-                    groupSphere.AddChildNode(new MeshNode() { Geometry = sphere, Material = materialList[groupSphere.Items.Count % materialCount], ModelMatrix = transform, CullMode = SharpDX.Direct3D11.CullMode.Back });
+                    var transform = Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
+                    groupSphere.AddChildNode(new MeshNode() { Geometry = box, Material = materialList[groupSphere.Items.Count % materialCount], ModelMatrix = transform, CullMode = CullMode.Back });
+                    transform = Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
+                    groupSphere.AddChildNode(new MeshNode() { Geometry = sphere, Material = materialList[groupSphere.Items.Count % materialCount], ModelMatrix = transform, CullMode = CullMode.Back });
                     if (groupSphere.Items.Count > NumItems)
                     {
                         isAddingNode = false;
@@ -583,5 +609,13 @@ namespace WinFormsTest
             io.AddInputCharacter(e.KeyChar);
         }
         #endregion
+    }
+
+    internal static class RandomExtensions
+    {
+        public static float NextFloat(this Random random, float minimum, float maximum)
+        {
+            return minimum + (float)random.NextDouble() * (maximum - minimum);
+        }
     }
 }

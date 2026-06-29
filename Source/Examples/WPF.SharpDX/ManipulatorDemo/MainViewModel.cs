@@ -12,21 +12,15 @@ namespace ManipulatorDemo
     using DemoCore;
 
     using HelixToolkit.Wpf.SharpDX;
-    using SharpDX;
-    using AxisAngleRotation3D = System.Windows.Media.Media3D.AxisAngleRotation3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
-    using RotateTransform3D = System.Windows.Media.Media3D.RotateTransform3D;
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
-    using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
     using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using Color = System.Windows.Media.Color;
-    using Plane = SharpDX.Plane;
-    using Vector3 = SharpDX.Vector3;
     using Colors = System.Windows.Media.Colors;
-    using Color4 = SharpDX.Color4;
     using System.Collections.Generic;
     using System.Windows.Input;
+    using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
@@ -118,7 +112,7 @@ namespace ManipulatorDemo
             if(e.HitTestResult != null && e.HitTestResult.ModelHit is MeshGeometryModel3D m && (m.Geometry == Model || m.Geometry == Model2))
             {
                 Target = null;
-                CenterOffset = m.Geometry.Bound.Center; // Must update this before updating target
+                CenterOffset = m.Geometry.Bound.Center(); // Must update this before updating target
                 Target = e.HitTestResult.ModelHit as Element3D;
 
             }

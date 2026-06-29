@@ -10,14 +10,13 @@ using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Color = System.Windows.Media.Color;
-using Plane = SharpDX.Plane;
-using Vector3 = SharpDX.Vector3;
 using Colors = System.Windows.Media.Colors;
-using Color4 = SharpDX.Color4;
 using System.IO;
 using System.Threading;
 using HelixToolkit.Wpf.SharpDX.Model;
 using System.Windows.Input;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace MaterialDemo
 {
@@ -131,7 +130,7 @@ namespace MaterialDemo
                     var s = new MeshGeometryModel3D
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Transform = scaleTransform
                     };
@@ -169,7 +168,7 @@ namespace MaterialDemo
                     Model2.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = NormalMaterial,
                         Transform = scaleTransform
@@ -178,7 +177,7 @@ namespace MaterialDemo
                     ModelNormalVector.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = NormalVectorMaterial,
                         Transform = scaleTransform
@@ -186,7 +185,7 @@ namespace MaterialDemo
                     Model3.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = diffuseMaterial,
                         Transform = scaleTransform
@@ -195,7 +194,7 @@ namespace MaterialDemo
                     Model4.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = PositionMaterial,
                         Transform = scaleTransform
@@ -204,7 +203,7 @@ namespace MaterialDemo
                     Model5.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = VertMaterial,
                         Transform = scaleTransform
@@ -213,7 +212,7 @@ namespace MaterialDemo
                     Model6.Add(new MeshGeometryModel3D()
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Material = ColorStripeMaterial,
                         Transform = scaleTransform
@@ -222,7 +221,7 @@ namespace MaterialDemo
                     Model7.Add(new MeshGeometryModel3D
                     {
                         Geometry = ob.Geometry,
-                        CullMode = SharpDX.Direct3D11.CullMode.Back,
+                        CullMode = CullMode.Back,
                         IsThrowingShadow = true,
                         Transform = scaleTransform,
                         Material = pbrMaterial
@@ -238,17 +237,17 @@ namespace MaterialDemo
 
         public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps)
         {
-            float stepA = ((end.Alpha - start.Alpha) / (steps - 1));
-            float stepR = ((end.Red - start.Red) / (steps - 1));
-            float stepG = ((end.Green - start.Green) / (steps - 1));
-            float stepB = ((end.Blue - start.Blue) / (steps - 1));
+            float stepA = ((end.W - start.W) / (steps - 1));
+            float stepR = ((end.X - start.X) / (steps - 1));
+            float stepG = ((end.Y - start.Y) / (steps - 1));
+            float stepB = ((end.Z - start.Z) / (steps - 1));
 
             for (int i = 0; i < steps; i++)
             {
-                yield return new Color4((start.Red + (stepR * i)),
-                                            (start.Green + (stepG * i)),
-                                            (start.Blue + (stepB * i)),
-                                            (start.Alpha + (stepA * i)));
+                yield return new Color4((start.X + (stepR * i)),
+                                            (start.Y + (stepG * i)),
+                                            (start.Z + (stepB * i)),
+                                            (start.W + (stepA * i)));
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -22,7 +22,7 @@ namespace ImageViewDemo
     using Point3D = System.Windows.Media.Media3D.Point3D;
     using Vector3D = System.Windows.Media.Media3D.Vector3D;
     using HelixToolkit.Wpf;
-    using Color = HelixToolkit.Wpf.SharpDX.Color;
+    using Color = HelixToolkit.SharpDX.Core.Color;
     using Color4 = Silk.NET.Maths.Vector4D<float>;
     using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
@@ -137,7 +137,7 @@ namespace ImageViewDemo
             this.defaultOrthographicCamera = new OrthographicCamera { Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5), UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0, FarPlaneDistance = 100 };
             this.Camera = this.defaultPerspectiveCamera;
 
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = new Color4(0f, 0f, 0f, 0f);
             this.DirectionalLightColor = Color.White;
             this.DirectionalLightDirection = new Vector3D(-0, -0, -10);
@@ -167,13 +167,13 @@ namespace ImageViewDemo
                 switch (orientation)
                 {
                     default:
-                    case 1: // 
+                    case 1: //
                         transform = transform.AppendTransform(new Media3D.ScaleTransform3D(ratio, 1.0, 1.0));
                         break;
                     case 2: //"-flip horizontal";;
                         //transform = Media3D.Transform3D.Identity;
                         break;
-                    case 3: //"-rotate 180";;            
+                    case 3: //"-rotate 180";;
                         transform = transform.AppendTransform(new Media3D.ScaleTransform3D(ratio, 1.0, 1.0));
                         transform = transform.AppendTransform(new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 0, 1), -180)));
                         break;

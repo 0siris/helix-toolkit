@@ -1,10 +1,10 @@
-﻿<Window
+<Window
     x:Class="D2DScreenMenuExample.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
-    xmlns:hx2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Elements2D;assembly=HelixToolkit.Wpf.SharpDX"
+    xmlns:hx2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Elements2D;assembly=SilkToolkit"
     xmlns:local="clr-namespace:D2DScreenMenuExample"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
@@ -60,17 +60,17 @@
                                 Text="{Binding VM2D.Text}" />
                             <hx2D:Button2D Margin="10" VerticalAlignment="Center">Button 1</hx2D:Button2D>
                             <hx2D:Button2D Margin="10" VerticalAlignment="Center">Button 2</hx2D:Button2D>
-                        </hx2D:StackPanel2D>       
+                        </hx2D:StackPanel2D>
                         <hx2D:StackPanel2D
                             Margin="10"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             Orientation="Vertical">
                             <hx2D:StackPanel2D VerticalAlignment="Center" Orientation="Horizontal">
-                                <hx2D:Button2D Margin="10" VerticalAlignment="Center" Width="60" Height="30" 
+                                <hx2D:Button2D Margin="10" VerticalAlignment="Center" Width="60" Height="30"
                                                Content2D="{Binding ElementName=tb, Path=Text}"></hx2D:Button2D>
                                 <hx2D:Button2D Margin="10" VerticalAlignment="Center" Width="60" Height="30">Button 4</hx2D:Button2D>
-                            </hx2D:StackPanel2D>                        
+                            </hx2D:StackPanel2D>
                             <hx2D:Button2D Margin="10" HorizontalAlignment="Center">Button4</hx2D:Button2D>
                             <hx2D:Button2D Margin="10" HorizontalAlignment="Center">Button5</hx2D:Button2D>
                             <hx2D:EllipseModel2D
@@ -79,7 +79,7 @@
                                 Fill="AliceBlue"
                                 Stroke="Red"
                                 StrokeThickness="1" />
-                        </hx2D:StackPanel2D>                        
+                        </hx2D:StackPanel2D>
                     </hx2D:StackPanel2D>
 
 

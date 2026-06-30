@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -13,7 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace OffScreenRendering
 {
-    internal class MainWindowViewModel : ObservableObject
+    internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
     {
         private ImageSource image;
         public ImageSource Image { get => image; set => SetProperty(ref image, value); }

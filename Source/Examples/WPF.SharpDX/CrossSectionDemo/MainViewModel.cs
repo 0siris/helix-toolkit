@@ -1,4 +1,4 @@
-﻿namespace CrossSectionDemo
+namespace CrossSectionDemo
 {
     using System;
     using DemoCore;
@@ -16,7 +16,7 @@
     using System.Windows;
     using System.Windows.Threading;
     using Color4 = Silk.NET.Maths.Vector4D<float>;
-    using Plane = HelixToolkit.Wpf.SharpDX.Plane;
+    using Plane = HelixToolkit.SharpDX.Core.Plane;
     using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
@@ -47,7 +47,7 @@
         public bool EnablePlane1 { set { SetValue(ref enablePlane1, value); } get => enablePlane1; }
 
         private Plane plane1 = new Plane(new Vector3(0, -1, 0), -8);
-        public Plane Plane1 { set { SetValue(ref plane1, value); } get => plane1; } 
+        public Plane Plane1 { set { SetValue(ref plane1, value); } get => plane1; }
 
         private bool enablePlane2 = true;
         public bool EnablePlane2 { set { SetValue(ref enablePlane2, value); } get => enablePlane2; }

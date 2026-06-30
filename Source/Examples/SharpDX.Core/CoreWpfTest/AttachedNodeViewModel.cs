@@ -1,11 +1,11 @@
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight;
+using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 namespace FileLoadDemo
 {

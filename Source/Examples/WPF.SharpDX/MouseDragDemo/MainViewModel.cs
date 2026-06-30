@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -13,7 +13,7 @@ namespace MouseDragDemo
     using DemoCore;
 
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Core;
+    using HelixToolkit.SharpDX.Core.Core;
 
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -63,7 +63,7 @@ namespace MouseDragDemo
             // camera setup
             this.Camera = new PerspectiveCamera { Position = new Point3D(0, 0, 9), LookDirection = new Vector3D(-0, -0, -9), UpDirection = new Vector3D(0, 1, 0) };
 
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = Colors.DimGray;
             this.DirectionalLightColor = Colors.White;
             this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
@@ -130,7 +130,7 @@ namespace MouseDragDemo
                     Material = this.BlueMaterial,
                     Transform = this.Model3Transform,
                 },
-                                
+
                 new DraggableGeometryModel3D()
                 {
                     Geometry = this.MeshGeometry,
@@ -179,7 +179,7 @@ namespace MouseDragDemo
             this.Shape3DCollection.Remove((Shape3D)SelectedItem);
         }
 
-       
+
 
         public class Shape3D : BaseViewModel
         {

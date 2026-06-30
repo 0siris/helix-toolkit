@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -11,10 +11,10 @@ using Media3D = System.Windows.Media.Media3D;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX.Animations;
-using HelixToolkit.Wpf.SharpDX.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
 using System.Windows.Input;
 using System.Linq;
 
@@ -44,7 +44,7 @@ namespace MorphTargetAnimationDemo
                 if (SetValue(ref currTime, value))
                 {
                     foreach (IAnimationUpdater updater in animationUpdaters)
-                    { 
+                    {
                         updater.Update((float)value, 1);
                     }
                 }

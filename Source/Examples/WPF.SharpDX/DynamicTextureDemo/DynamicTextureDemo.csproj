@@ -19,7 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-        <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" />
+        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
     </ItemGroup>
 
     <ItemGroup>

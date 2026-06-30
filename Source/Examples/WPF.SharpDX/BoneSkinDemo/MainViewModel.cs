@@ -1,13 +1,13 @@
-﻿/*
+/*
 Model: Sphere Bot Rusty Version. Author: 3DHaupt. Source : https://sketchfab.com/models/d18753fe3e494ddbbc52a8a2e58be7a4
 Model: Character. Source : https://github.com/spazzarama/Direct3D-Rendering-Cookbook
 */
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Animations;
-using HelixToolkit.Wpf.SharpDX.Assimp;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;

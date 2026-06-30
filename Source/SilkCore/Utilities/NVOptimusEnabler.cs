@@ -12,7 +12,7 @@ namespace HelixToolkit.UWP
 {
     namespace Utilities
     {
-#if !NETFX_CORE
+#if !WINDOWS_UWP
         /// <summary>
         /// Enable dedicated graphics card for rendering. https://stackoverflow.com/questions/17270429/forcing-hardware-accelerated-rendering
         /// </summary>

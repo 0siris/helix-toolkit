@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -11,7 +11,7 @@ namespace SimpleDemo
     using DemoCore;
 
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Core;
+    using HelixToolkit.SharpDX.Core.Core;
 
     using Media3D = System.Windows.Media.Media3D;
     using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -27,6 +27,8 @@ namespace SimpleDemo
     using System.IO;
     using System.Windows.Input;
     using System;
+    using D2DFontStyle = HelixToolkit.SharpDX.Core.FontStyle;
+    using D2DFontWeight = HelixToolkit.SharpDX.Core.FontWeight;
 
     public class MainViewModel : BaseViewModel
     {
@@ -71,14 +73,14 @@ namespace SimpleDemo
             SubTitle = "WPF & Silk.NET DirectX";
 
             // camera setup
-            Camera = new OrthographicCamera { 
-                Position = new Point3D(3, 3, 5), 
-                LookDirection = new Vector3D(-3, -3, -5), 
+            Camera = new OrthographicCamera {
+                Position = new Point3D(3, 3, 5),
+                LookDirection = new Vector3D(-3, -3, -5),
                 UpDirection = new Vector3D(0, 1, 0),
                 FarPlaneDistance = 50000
             };
 
-            // setup lighting            
+            // setup lighting
             AmbientLightColor = Colors.DimGray;
             DirectionalLightColor = Colors.White;
             DirectionalLightDirection = new Vector3D(-2, -5, -2);
@@ -89,10 +91,10 @@ namespace SimpleDemo
             GridTransform = new Media3D.TranslateTransform3D(0, -3, 0);
 
             // scene model3d
-            var b1 = new MeshBuilder();            
+            var b1 = new MeshBuilder();
             b1.AddSphere(new Vector3(0, 0, 0), 0.5);
             b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2, BoxFaces.All);
-           
+
             var meshGeometry = b1.ToMeshGeometry3D();
             meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
             Model = meshGeometry;
@@ -119,7 +121,7 @@ namespace SimpleDemo
             BlueMaterial = PhongMaterials.Blue;
             //var diffColor = this.RedMaterial.DiffuseColor;
             //diffColor.Alpha = 0.5f;
-            //this.RedMaterial.DiffuseColor = diffColor;   
+            //this.RedMaterial.DiffuseColor = diffColor;
 
             Points = new PointGeometry3D();
             var ptPos = new Vector3Collection();
@@ -173,8 +175,8 @@ namespace SimpleDemo
                 FontColor =Colors.Blue.ToColor4(),
                 FontSize=12,
                 BackgroundColor =Colors.Plum.ToColor4(),
-                FontStyle= System.Windows.FontStyles.Italic,
-                Padding = new System.Windows.Thickness(2), 
+                FontStyle= D2DFontStyle.Italic,
+                Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
             };
 
             var background = Colors.Blue;
@@ -185,8 +187,8 @@ namespace SimpleDemo
                 FontSize =12,
                 FontColor = Colors.Green.ToColor4(),
                 BackgroundColor = background.ToColor4(),
-                FontWeight = System.Windows.FontWeights.Bold,
-                Padding = new System.Windows.Thickness(2), 
+                FontWeight = D2DFontWeight.Bold,
+                Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
             };
             background = Colors.Purple;
             background.A = (byte)50;
@@ -197,8 +199,8 @@ namespace SimpleDemo
                 FontColor = Colors.Red.ToColor4(),
                 BackgroundColor = background.ToColor4(),
                 FontFamily = "Times New Roman",
-                FontStyle= System.Windows.FontStyles.Italic,
-                Padding = new System.Windows.Thickness(2),               
+                FontStyle= D2DFontStyle.Italic,
+                Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
             };
 
 
@@ -222,7 +224,7 @@ namespace SimpleDemo
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            //Read the texture description           
+            //Read the texture description
             var texDescriptionStream = assembly.GetManifestResourceStream("SimpleDemo.Sample.png");
             var decoder = new PngBitmapDecoder(texDescriptionStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnDemand);
             return decoder.Frames[0];
@@ -232,7 +234,7 @@ namespace SimpleDemo
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            //Read the texture description           
+            //Read the texture description
             var texDescriptionStream = assembly.GetManifestResourceStream("SimpleDemo.Sample.png");
             texDescriptionStream.Position = 0;
             return texDescriptionStream;

@@ -1,6 +1,6 @@
-﻿using DemoCore;
+using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace FileLoadDemo
     /// Provide your own view model to manipulate the scene nodes
     /// </summary>
     /// <seealso cref="DemoCore.ObservableObject" />
-    public class AttachedNodeViewModel : ObservableObject
+    public class AttachedNodeViewModel : DemoCore.ObservableObject
     {
         private bool selected = false;
         public bool Selected

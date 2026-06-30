@@ -1,4 +1,4 @@
-﻿namespace SwapChainRenderingDemo
+namespace SwapChainRenderingDemo
 {
     using System;
     using System.Windows.Media.Animation;
@@ -125,7 +125,7 @@
         public Camera Camera3 { get; } = new PerspectiveCamera { Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0) };
 
         public Camera Camera4 { get; } = new PerspectiveCamera { Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0) };
-        public HelixToolkit.Wpf.SharpDX.FillMode FillMode { set; get; } = HelixToolkit.Wpf.SharpDX.FillMode.Solid;
+        public HelixToolkit.SharpDX.Core.FillMode FillMode { set; get; } = HelixToolkit.SharpDX.Core.FillMode.Solid;
 
         public int NumberOfTriangles { set; get; } = 0;
         public int NumberOfVertices { set; get; } = 0;
@@ -136,7 +136,7 @@
             {
                 if (SetValue(ref showWireframe, value))
                 {
-                    FillMode = value ? HelixToolkit.Wpf.SharpDX.FillMode.Wireframe : HelixToolkit.Wpf.SharpDX.FillMode.Solid;
+                    FillMode = value ? HelixToolkit.SharpDX.Core.FillMode.Wireframe : HelixToolkit.SharpDX.Core.FillMode.Solid;
                 }
             }
             get
@@ -150,7 +150,7 @@
         public MainViewModel()
         {
             EffectsManager = new DefaultEffectsManager();
-            
+
 
             // ----------------------------------------------
             // titles
@@ -226,7 +226,7 @@
                     var model = new MeshGeometryModel3D() { Geometry = obj.Geometry };
                     if(obj.Material is PhongMaterialCore p)
                     {
-                        model.Material = p;
+                        model.Material = p.ConvertToPhongMaterial();
                     }
                     LanderModels.Add(model);
                     NumberOfTriangles += obj.Geometry.Indices.Count/3;
@@ -317,7 +317,7 @@
                 To = new Media3D.AxisAngleRotation3D(axis, 225),
                 AutoReverse = true,
                 Duration = TimeSpan.FromSeconds(speed / 4),
-                //IsCumulative = true,                  
+                //IsCumulative = true,
             };
 
             var rotateTransform = new Media3D.RotateTransform3D();

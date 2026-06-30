@@ -1,10 +1,10 @@
-﻿using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX;
 using System.Windows;
 using Point = System.Windows.Point;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using System;
 using System.Windows.Input;
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -42,7 +42,7 @@ namespace CrossSectionDemo
 
 
         /// <summary>
-        /// This is used to demonstrate the code to constraint the rotation against a fixed axis instead 
+        /// This is used to demonstrate the code to constraint the rotation against a fixed axis instead
         /// of a free gimble. If left null a free trakcball approach is used, otherwise the rotation
         /// is determined around the specified axis.
         /// </summary>
@@ -133,7 +133,7 @@ namespace CrossSectionDemo
 
         public float RotationSensitivity { set; get; } = 1;
 
-        // 3 --- 2 
+        // 3 --- 2
         // |     |
         // 0 --- 1
         private static readonly Vector3[] positions = new Vector3[4]
@@ -211,7 +211,7 @@ namespace CrossSectionDemo
 
         private void UpdateScaling(float cornerScale, float edgeThicknessScale, float sizeScale)
         {
-            // 3 --- 2 
+            // 3 --- 2
             // |     |
             // 0 --- 1
             edgeHandle.Instances = new Matrix[4]
@@ -343,7 +343,7 @@ namespace CrossSectionDemo
             double z2 = 1 - (x * x) - (y * y);
             double z = z2 > 0 ? Math.Sqrt(z2) : 0;
 
-            return new Vector3((float)x, (float)y, (float)z); 
+            return new Vector3((float)x, (float)y, (float)z);
         }
 
         private void RotateTrackball(Point p1, Point p2, Vector3 rotateAround)
@@ -363,7 +363,7 @@ namespace CrossSectionDemo
                 // can we project the constraintAxis onto the view?
                 var t3 = TransformCoordinate(ConstrainAxis.Value, camera.CameraInternal.GetViewMatrix());
                 var dir = new Vector2(t3.X, t3.Y); // axis of Constraint in view coordinates
-                
+
                 var pp1 = p1.ToVector2(); // computing distance perpendicular to axis in view coordinates
                 var r1 =  pp1 - (pp1 * dir);
 
@@ -409,9 +409,9 @@ namespace CrossSectionDemo
                 currentRotation *= RotationAxis(axis.Normalized(), (float)(angle * this.RotationSensitivity * 5));
                 UpdateTransform();
             }
-            
 
-           
+
+
         }
 
         private void UpdateCutPlane()

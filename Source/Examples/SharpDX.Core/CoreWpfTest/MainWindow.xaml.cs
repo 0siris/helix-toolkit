@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainWindow.xaml.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -10,7 +10,7 @@
 namespace CoreWpfTest
 {
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Model.Scene;
+    using HelixToolkit.SharpDX.Core.Model.Scene;
     using System.Windows;
     using FileLoadDemo;
 
@@ -23,7 +23,7 @@ namespace CoreWpfTest
         {
             InitializeComponent();
             this.DataContext = new MainViewModel();
-            view.AddHandler(Element3D.MouseDown3DEvent, new RoutedEventHandler((s,e)=> 
+            view.AddHandler(Element3D.MouseDown3DEvent, new RoutedEventHandler((s,e)=>
             {
                 var arg = e as MouseDown3DEventArgs;
 

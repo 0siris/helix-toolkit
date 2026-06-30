@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MyLineGeometryModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -14,9 +14,9 @@ namespace Workitem10048
 
     using HelixToolkit.Wpf.SharpDX;
     using System.Windows.Media;
-    using HelixToolkit.Wpf.SharpDX.Model.Scene;
+    using HelixToolkit.SharpDX.Core.Model.Scene;
     using Color = System.Windows.Media.Color;
-    using HitTestResult = HelixToolkit.Wpf.SharpDX.HitTestResult;
+    using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
 
     public class MyLineGeometryModel3D : LineGeometryModel3D
     {

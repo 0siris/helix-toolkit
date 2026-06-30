@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -18,7 +18,7 @@ namespace TessellationDemo
     using Transform3D = System.Windows.Media.Media3D.Transform3D;
     using Color = System.Windows.Media.Color;
     using Colors = System.Windows.Media.Colors;
-    using HelixToolkit.Wpf.SharpDX.Core;
+    using HelixToolkit.SharpDX.Core.Core;
     using System.Collections.Generic;
     using Color4 = Silk.NET.Maths.Vector4D<float>;
     using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -87,7 +87,7 @@ namespace TessellationDemo
             {
                 /// if topology is changes, reload the model with proper type of faces
                 this.meshTopology = value;
-                this.LoadModel(@"./Media/teapot_quads_tex.obj", this.meshTopology == MeshTopologyEnum.PNTriangles ? 
+                this.LoadModel(@"./Media/teapot_quads_tex.obj", this.meshTopology == MeshTopologyEnum.PNTriangles ?
                     MeshFaces.Default : MeshFaces.QuadPatches);
             }
         }
@@ -107,7 +107,7 @@ namespace TessellationDemo
             this.Camera = new PerspectiveCamera { Position = new Point3D(7, 10, 12), LookDirection = new Vector3D(-7, -10, -12), UpDirection = new Vector3D(0, 1, 0) };
 
             // ---------------------------------------------
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = Color.FromArgb(1, 12, 12, 12);
             this.DirectionalLightColor = Colors.White;
             this.DirectionalLightDirection1 = new Vector3D(-0, -20, -20);

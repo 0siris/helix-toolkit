@@ -11,7 +11,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace OctreeDemo
 {
-    public class DataModel : ObservableObject
+    public class DataModel : DemoCore.ObservableObject
     {
         private MeshGeometry3D model = null;
         public MeshGeometry3D Model
@@ -162,13 +162,13 @@ namespace OctreeDemo
                 case 3:
                     Model = Pipe;
                     break;
-            }           
+            }
         }
 
         private static Media3D.Transform3D CreateAnimatedTransform1(Media3D.Transform3DGroup transformGroup,
             Media3D.Vector3D center, Media3D.Vector3D axis, double speed = 4)
-        {            
-           
+        {
+
             var rotateAnimation = new Rotation3DAnimation
             {
                 RepeatBehavior = RepeatBehavior.Forever,

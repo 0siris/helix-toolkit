@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -26,7 +26,7 @@ namespace CursorPosition
         public PhongMaterial RedMaterial { get; private set; }
         public PhongMaterial GreenMaterial { get; private set; }
         public PhongMaterial BlueMaterial { get; private set; }
-        public HelixToolkit.Wpf.SharpDX.Color GridColor { get; private set; }
+        public HelixToolkit.SharpDX.Core.Color GridColor { get; private set; }
 
         public Media3D.Transform3D Model1Transform { get; private set; }
         public Media3D.Transform3D Model2Transform { get; private set; }
@@ -52,13 +52,13 @@ namespace CursorPosition
 
             EffectsManager = new DefaultEffectsManager();
 
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = Colors.GhostWhite;
             this.DirectionalLightColor = Colors.White;
 
             // floor plane grid
             this.Grid = LineBuilder.GenerateGrid();
-            this.GridColor = HelixToolkit.Wpf.SharpDX.Color.Blue;
+            this.GridColor = HelixToolkit.SharpDX.Core.Color.Blue;
             this.GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
 
             // scene model3d

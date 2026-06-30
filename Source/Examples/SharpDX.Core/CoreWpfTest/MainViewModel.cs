@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -7,10 +7,10 @@
 namespace FileLoadDemo
 {
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Animations;
-    using HelixToolkit.Wpf.SharpDX.Assimp;
+    using HelixToolkit.SharpDX.Core.Animations;
+    using HelixToolkit.SharpDX.Core.Assimp;
     using HelixToolkit.Wpf.SharpDX.Model;
-    using HelixToolkit.Wpf.SharpDX.Model.Scene;
+    using HelixToolkit.SharpDX.Core.Model.Scene;
     using HelixToolkit.Wpf.SharpDX.Controls;
     using Microsoft.Win32;
     using System.Collections.Generic;
@@ -25,8 +25,8 @@ namespace FileLoadDemo
 
     public class MainViewModel : ObservableObject
     {
-        private string OpenFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Importer.SupportedFormatsString}";
-        private string ExportFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormatsString}";
+        private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
+        private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
         private bool showWireframe = false;
         public bool ShowWireframe
         {
@@ -150,7 +150,7 @@ namespace FileLoadDemo
         }
 
         public TextureModel EnvironmentMap { get; }
-        public HelixToolkit.Wpf.SharpDX.EffectsManager EffectsManager { get; }
+        public HelixToolkit.SharpDX.Core.EffectsManager EffectsManager { get; }
         public Camera Camera { get; }
 
         private SynchronizationContext context = SynchronizationContext.Current;
@@ -164,7 +164,7 @@ namespace FileLoadDemo
         public MainViewModel()
         {
             this.OpenFileCommand = new DelegateCommand(this.OpenFile);
-            EffectsManager = new HelixToolkit.Wpf.SharpDX.DefaultEffectsManager();
+            EffectsManager = new HelixToolkit.SharpDX.Core.DefaultEffectsManager();
             Camera = new OrthographicCamera()
             {
                 LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -10, -10),
@@ -240,7 +240,7 @@ namespace FileLoadDemo
                         {
                             n.Tag = new AttachedNodeViewModel(n);
                         }
-                    }                  
+                    }
                 }
                 else if (result.IsFaulted && result.Exception != null)
                 {
@@ -272,8 +272,8 @@ namespace FileLoadDemo
             var index = SaveFileDialog(ExportFileFilter, out var path);
             if (!string.IsNullOrEmpty(path) && index >= 0)
             {
-                var id = HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormats[index].FormatId;
-                var exporter = new HelixToolkit.Wpf.SharpDX.Assimp.Exporter();
+                var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
+                var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
                 exporter.ExportToFile(path, scene, id);
                 return;
             }

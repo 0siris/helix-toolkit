@@ -74,7 +74,7 @@ namespace MeshSimplification
         public ICommand SimplifyCommand { private set; get; }
         public ICommand ResetCommand { private set; get; }
 
-        private MeshSimplification simHelper;
+        private HelixToolkit.SharpDX.Core.MeshSimplification simHelper;
 
         public bool Busy { set; get; } = false;
 
@@ -147,8 +147,8 @@ namespace MeshSimplification
             //ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
 
             SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
-            ResetCommand = new RelayCommand((o)=> { Model = OrgMesh; simHelper = new MeshSimplification(Model); }, CanSimplify);
-            simHelper = new MeshSimplification(Model);
+            ResetCommand = new RelayCommand((o)=> { Model = OrgMesh; simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model); }, CanSimplify);
+            simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
         }
 
         public List<Object3D> Load3ds(string path)
@@ -181,7 +181,7 @@ namespace MeshSimplification
             Busy = true;
             int size = Model.Indices.Count / 3 / 2;
             CalculationTime = 0;
-            Task.Factory.StartNew(() => 
+            Task.Factory.StartNew(() =>
             {
                 var sw = Stopwatch.StartNew();
                 var model = simHelper.Simplify(size, 7, true, Lossless);
@@ -189,12 +189,12 @@ namespace MeshSimplification
                 CalculationTime = sw.ElapsedMilliseconds;
                 model.Normals = model.CalculateNormals();
                 return model;
-            }).ContinueWith(x => 
+            }).ContinueWith(x =>
             {
                 Busy = false;
                 Model = x.Result;
                 CommandManager.InvalidateRequerySuggested();
-            }, TaskScheduler.FromCurrentSynchronizationContext());           
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

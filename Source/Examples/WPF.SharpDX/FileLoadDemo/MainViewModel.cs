@@ -1,9 +1,7 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
-extern alias WpfAssembly;
-
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace FileLoadDemo
@@ -11,11 +9,11 @@ namespace FileLoadDemo
 
     using DemoCore;
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Animations;
-    using HelixToolkit.Wpf.SharpDX.Assimp;
+    using HelixToolkit.SharpDX.Core.Animations;
+    using HelixToolkit.SharpDX.Core.Assimp;
     using HelixToolkit.Wpf.SharpDX.Controls;
     using HelixToolkit.Wpf.SharpDX.Model;
-    using HelixToolkit.Wpf.SharpDX.Model.Scene;
+    using HelixToolkit.SharpDX.Core.Model.Scene;
     using Microsoft.Win32;
     using System;
     using System.Collections.Generic;
@@ -28,13 +26,13 @@ namespace FileLoadDemo
     using System.Windows.Input;
     using System.Linq;
     using Point3D = System.Windows.Media.Media3D.Point3D;
-    using BoundingBox = WpfAssembly::HelixToolkit.Wpf.SharpDX.BoundingBox;
+    using BoundingBox = HelixToolkit.SharpDX.Core.BoundingBox;
     using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public class MainViewModel : BaseViewModel
     {
-        private string OpenFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Importer.SupportedFormatsString}";
-        private string ExportFileFilter = $"{HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormatsString}";
+        private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
+        private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
         private bool showWireframe = false;
         public bool ShowWireframe
         {
@@ -417,8 +415,8 @@ namespace FileLoadDemo
             var index = SaveFileDialog(ExportFileFilter, out var path);
             if (!string.IsNullOrEmpty(path) && index >= 0)
             {
-                var id = HelixToolkit.Wpf.SharpDX.Assimp.Exporter.SupportedFormats[index].FormatId;
-                var exporter = new HelixToolkit.Wpf.SharpDX.Assimp.Exporter();
+                var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
+                var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
                 exporter.ExportToFile(path, scene, id);
                 return;
             }

@@ -1,8 +1,8 @@
-﻿//Flag.jpg image is created by Luis_molinero - Freepik.com
+//Flag.jpg image is created by Luis_molinero - Freepik.com
 
 using Cyotek.Drawing.BitmapFont;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Utilities.ImagePacker;
+using HelixToolkit.SharpDX.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +14,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Color = BillboardDemo.BillboardColors;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
-using D2DFontStyle = HelixToolkit.Wpf.SharpDX.FontStyle;
-using D2DFontWeight = HelixToolkit.Wpf.SharpDX.FontWeight;
+using D2DFontStyle = HelixToolkit.SharpDX.Core.FontStyle;
+using D2DFontWeight = HelixToolkit.SharpDX.Core.FontWeight;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
@@ -70,9 +70,9 @@ namespace BillboardDemo
         } = new BillboardSingleText3D()
         {
             FontColor = Color.Blue,
-            FontWeight = FontWeights.Bold,
+            FontWeight = D2DFontWeight.Bold,
             BackgroundColor = new Color4(0.8f, 0.8f, 0.8f, 0.8f),
-            Padding = new Thickness(2),
+            Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
             IsDynamic = true // Mark dynamic because it will change frequently
         };
         public BillboardText3D LandmarkBillboards

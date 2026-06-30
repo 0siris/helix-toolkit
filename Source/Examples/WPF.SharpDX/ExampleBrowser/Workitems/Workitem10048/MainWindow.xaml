@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+    xmlns:hxCore="clr-namespace:HelixToolkit.SharpDX.Core;assembly=SilkCore"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:local="clr-namespace:Workitem10048"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -17,7 +18,7 @@
     </Window.DataContext>
     <Window.Resources>
         <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
-        <hx:LineGeometry3D
+        <hxCore:LineGeometry3D
             x:Key="Lines"
             Indices="0 1"
             Positions="-6.0,0.0,0.0 3.0,0.0,0.0" />
@@ -105,7 +106,7 @@
                 Size="16 16"
                 Color="Green">
                 <hx:PointGeometryModel3D.Geometry>
-                    <hx:PointGeometry3D Indices="0" Positions="0 0 0" />
+                    <hxCore:PointGeometry3D Indices="0" Positions="0 0 0" />
                 </hx:PointGeometryModel3D.Geometry>
                 <hx:PointGeometryModel3D.Transform>
                     <TranslateTransform3D

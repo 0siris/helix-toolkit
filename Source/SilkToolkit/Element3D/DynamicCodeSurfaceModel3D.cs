@@ -20,7 +20,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 namespace HelixToolkit.Wpf.SharpDX
 #endif
 {
-#if !WINDOWS_UWP && !COREWPF && !WINUI
+#if !WINDOWS_UWP && !WINUI
     using Model.Scene;
 
     public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D

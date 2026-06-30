@@ -112,7 +112,7 @@ namespace MemoryLeakTester
 
         internal sealed class SystemStateParams
         {
-            
+
             public long Count = 0;
             public long WorkingSet { private set; get; }
             public long PrivateMemory { private set; get; }
@@ -136,10 +136,10 @@ namespace MemoryLeakTester
                 var handleCount = proc.HandleCount;
                 var threadCount = proc.Threads.Count;
                 var run = new Run($"{Count}  Total: {privateMemory / 1000000} MB; Physical: {workingSet / 1000000} MB; Managed: {managedMemory / 1000000} MB; Handle: {handleCount}; Threads: {threadCount};\n");
-                if(Changed(PrivateMemory, privateMemory) 
+                if(Changed(PrivateMemory, privateMemory)
                     || Changed(HandleCount, handleCount) || Changed(ThreadCount, threadCount))
                 {
-                    run.Foreground = new SolidColorBrush(Colors.Red);
+                    run.Foreground = new System.Windows.Media.SolidColorBrush(Colors.Red);
                 }
                 return run;
             }

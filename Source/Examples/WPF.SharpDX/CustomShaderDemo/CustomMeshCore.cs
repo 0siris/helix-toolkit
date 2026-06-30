@@ -1,7 +1,7 @@
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX.Render;
-using HelixToolkit.Wpf.SharpDX.Shaders;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
 namespace CustomShaderDemo

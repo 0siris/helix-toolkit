@@ -1,0 +1,14 @@
+<Project>
+  <ItemGroup>
+    <Using Include="HelixToolkit.SharpDX.Core" />
+    <Using Include="HelixToolkit.SharpDX.Core.Animations" />
+    <Using Include="HelixToolkit.SharpDX.Core.Cameras" />
+    <Using Include="HelixToolkit.SharpDX.Core.Core" />
+    <Using Include="HelixToolkit.SharpDX.Core.Core.Components" />
+    <Using Include="HelixToolkit.SharpDX.Core.Model" />
+    <Using Include="HelixToolkit.SharpDX.Core.Model.Scene" />
+    <Using Include="HelixToolkit.SharpDX.Core.Render" />
+    <Using Include="HelixToolkit.SharpDX.Core.Shaders" />
+    <Using Include="HelixToolkit.SharpDX.Core.Utilities" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Linq;
@@ -24,12 +24,12 @@ namespace PolygonTriangulationDemo
         /// List of Polygon Points to display
         /// </summary>
         List<Vector2> mPolygonPoints;
-        
+
         /// <summary>
         /// The ViewModel
         /// </summary>
         MainViewModel mViewModel;
-        
+
         /// <summary>
         /// Constructor for the MainWindow
         /// </summary>
@@ -37,11 +37,11 @@ namespace PolygonTriangulationDemo
         {
             // Initialize all Components
             InitializeComponent();
-            
+
             // Setup the ViewModel
             mViewModel = new MainViewModel();
             this.DataContext = mViewModel;
-            
+
             // Setup the Line Drawing Handler
             mViewModel.PropertyChanged += ((s, e) =>
             {
@@ -107,9 +107,9 @@ namespace PolygonTriangulationDemo
             var before = DateTime.Now;
             var sLTI = SweepLinePolygonTriangulator.Triangulate(mPolygonPoints, holes);
             var after = DateTime.Now;
-            
+
             // Generate the Output
-            var geometry = new HelixToolkit.Wpf.SharpDX.MeshGeometry3D();
+            var geometry = new HelixToolkit.SharpDX.Core.MeshGeometry3D();
             geometry.Positions = new Vector3Collection();
             geometry.Normals = new Vector3Collection();
             foreach (var point in mPolygonPoints.Union(holes.SelectMany(h => h)))
@@ -128,7 +128,7 @@ namespace PolygonTriangulationDemo
                 lb.AddLine(geometry.Positions[sLTI[i + 2]], geometry.Positions[sLTI[i]]);
             }
             mViewModel.LineGeometry  = lb.ToLineGeometry3D();
-            
+
             // Set the Lines if activated
             if (mViewModel.ShowTriangleLines)
             {
@@ -138,7 +138,7 @@ namespace PolygonTriangulationDemo
             {
                 lineTriangulatedPolygon.Geometry = null;
             }
-            
+
             // Set the InfoLabel Text
             var timeNeeded = (after - before).TotalMilliseconds;
             infoLabel.Content = String.Format("Last triangulation of {0} Points took {1:0.##} Milliseconds!", triangulatedPolygon.Geometry.Positions.Count, timeNeeded);

@@ -1,6 +1,6 @@
-﻿using DemoCore;
+using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -253,7 +253,7 @@ namespace OctreeDemo
             RemoveModelCommand = new RelayCommand(RemoveModel);
             ClearModelCommand = new RelayCommand(ClearModel);
             AutoTestCommand = new RelayCommand(AutoTestAddRemove);
-            MultiViewportCommand = new RelayCommand((o) => 
+            MultiViewportCommand = new RelayCommand((o) =>
             {
                 var win = new MultiviewportWin() { DataContext = this };
                 win.Show();
@@ -272,7 +272,7 @@ namespace OctreeDemo
 
             PointsModel = new PointGeometry3D();
             var offset = new Vector3(1, 1, 1);
-            
+
             PointsModel.Positions = new Vector3Collection(DefaultModel.Positions.Select(x=>x+offset));
             PointsModel.Indices = new IntCollection(Enumerable.Range(0, PointsModel.Positions.Count));
             PointsModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
@@ -404,7 +404,7 @@ namespace OctreeDemo
                                 idx.Add(0);
                                 PointsHitModel = new PointGeometry3D() { Positions = v, Indices = idx };
                             }
-                        }                    
+                        }
                     }
                 }
             }
@@ -472,7 +472,7 @@ namespace OctreeDemo
         {
             if (!timer.IsEnabled)
             {
-                AutoTesting = true;              
+                AutoTesting = true;
                 timer.Start();
             }
             else

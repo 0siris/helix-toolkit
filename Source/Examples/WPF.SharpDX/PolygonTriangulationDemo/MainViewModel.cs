@@ -1,4 +1,4 @@
-﻿
+
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -145,7 +145,7 @@ namespace PolygonTriangulationDemo
         /// <summary>
         /// The Geometry for the Triangle Lines
         /// </summary>
-        public HelixToolkit.Wpf.SharpDX.LineGeometry3D LineGeometry;
+        public HelixToolkit.SharpDX.Core.LineGeometry3D LineGeometry;
 
         /// <summary>
         /// Constructor of the MainViewModel
@@ -161,7 +161,7 @@ namespace PolygonTriangulationDemo
 
             // Camera Setup
             this.Camera = new PerspectiveCamera { Position = new Point3D(0, 5, 9), LookDirection = new Vector3D(0, -5, -4), UpDirection = new Vector3D(0, 1, 0) };
-            
+
             // Lines Setup
             this.LineThickness = 1;
             this.TriangulationThickness = .5;
@@ -174,11 +174,11 @@ namespace PolygonTriangulationDemo
             this.AmbientLightColor = new Color4(.1f, .1f, .1f, 1.0f);
             this.DirectionalLightColor = new Color4(1, 1, 1, 1);
             this.DirectionalLightDirection = new Vector3(0, -1, 0);
-            
+
             // Model Transformations
             this.ModelTransform = new TranslateTransform3D(0, 0, 0);
             this.ModelLineTransform = new TranslateTransform3D(0, 0.001, 0);
-            
+
             // Model Materials and Colors
             this.Material = PhongMaterials.PolishedBronze;
             this.TriangulationColor = Media.Colors.Black;

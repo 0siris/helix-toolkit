@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -16,8 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj" />
-        <ProjectReference Include="..\..\..\HelixToolkit\HelixToolkit.csproj" />
+        <ProjectReference Include="..\..\..\SilkCore\SilkCore.csproj" />
     </ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+    xmlns:hxWpf="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
     xmlns:local="clr-namespace:DynamicCodeSurfaceDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
@@ -41,7 +42,7 @@
                 FXAALevel="Low">
                 <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
                 <hx:AmbientLight3D Color="#4B4B4B"/>
-                <hx:DynamicCodeSurfaceModel3D
+                <hxWpf:DynamicCodeSurfaceModel3D
                     x:Name="surface1"
                     Material="{Binding Material}"
                     MeshSizeU="{Binding MeshSizeU}"

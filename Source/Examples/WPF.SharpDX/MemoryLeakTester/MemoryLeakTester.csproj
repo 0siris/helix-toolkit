@@ -17,7 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj" />
+        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
         <ProjectReference Include="..\BoneSkinDemo\BoneSkinDemo.csproj" />
         <ProjectReference Include="..\CrossSectionDemo\CrossSectionDemo.csproj" />
         <ProjectReference Include="..\DemoCore\DemoCore.csproj" />

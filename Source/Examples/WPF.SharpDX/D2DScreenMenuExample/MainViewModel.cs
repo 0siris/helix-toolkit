@@ -35,7 +35,7 @@ namespace D2DScreenMenuExample
         }
     }
 
-    public class ViewModel3D : ObservableObject
+    public class ViewModel3D : DemoCore.ObservableObject
     {
         public MeshGeometry3D Model { set; get; }
         public PhongMaterial ModelMaterial { set; get; } = PhongMaterials.White;
@@ -69,7 +69,7 @@ namespace D2DScreenMenuExample
         }
     }
 
-    public class ViewModel2D : ObservableObject
+    public class ViewModel2D : DemoCore.ObservableObject
     {
         public Media.Transform TextTransform
         {
@@ -114,7 +114,7 @@ namespace D2DScreenMenuExample
                 RepeatBehavior = Media.Animation.RepeatBehavior.Forever,
                 By=360,
                 AutoReverse = false,
-                Duration = TimeSpan.FromSeconds(speed / 4),                
+                Duration = TimeSpan.FromSeconds(speed / 4),
             };
 
             var rotateTransform = new Media.RotateTransform(0, 0, 0);

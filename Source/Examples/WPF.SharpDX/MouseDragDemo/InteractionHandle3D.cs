@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="InteractionHandle3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -17,13 +17,13 @@ namespace MouseDragDemo
 
     using System.Windows.Input;
     using HelixToolkit.Wpf;
-    using HelixToolkit.Wpf.SharpDX.Cameras;
+    using HelixToolkit.SharpDX.Core.Cameras;
     using Matrix = Silk.NET.Maths.Matrix4X4<float>;
     using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
     public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable
     {
-        // 3 --- 2 
+        // 3 --- 2
         // |     |
         // 0 --- 1
         private Vector3[] positions = new Vector3[4]
@@ -33,7 +33,7 @@ namespace MouseDragDemo
             new Vector3(+1,+1,0),
             new Vector3(-1,+1,0),
         };
-        private DraggableGeometryModel3D[] cornerHandles = new DraggableGeometryModel3D[4];        
+        private DraggableGeometryModel3D[] cornerHandles = new DraggableGeometryModel3D[4];
         private DraggableGeometryModel3D[] midpointHandles = new DraggableGeometryModel3D[4];
         private MeshGeometryModel3D[] edgeHandles = new MeshGeometryModel3D[4];
         private bool isCaptured;
@@ -43,7 +43,7 @@ namespace MouseDragDemo
         private MatrixTransform3D dragTransform;
         //private Material selectionMaterial;
 
-                
+
         private static Geometry3D NodeGeometry;
         private static Geometry3D EdgeHGeometry, EdgeVGeometry;
         private static Geometry3D BoxGeometry;
@@ -68,7 +68,7 @@ namespace MouseDragDemo
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public InteractionHandle3D()
         {
@@ -81,13 +81,13 @@ namespace MouseDragDemo
             {
                 var translate = Matrix3DExtensions.Translate3D(positions[i].ToVector3D());
                 this.cornerHandles[i] = new DraggableGeometryModel3D()
-                {                    
+                {
                     DragZ = false,
                     Visibility = Visibility.Visible,
                     Material = this.Material,
                     Geometry = NodeGeometry,
                     Transform = new MatrixTransform3D(translate),
-                };                               
+                };
                 this.cornerHandles[i].MouseMove3D += OnNodeMouse3DMove;
                 this.cornerHandles[i].MouseUp3D += OnNodeMouse3DUp;
                 this.cornerHandles[i].MouseDown3D += OnNodeMouse3DDown;
@@ -98,7 +98,7 @@ namespace MouseDragDemo
                     Material = this.Material,
                     Visibility = Visibility.Visible,
                     Transform = new MatrixTransform3D(translate),
-                };                                              
+                };
                 this.edgeHandles[i].MouseMove3D += OnEdgeMouse3DMove;
                 this.edgeHandles[i].MouseUp3D += OnEdgeMouse3DUp;
                 this.edgeHandles[i].MouseDown3D += OnEdgeMouse3DDown;
@@ -117,13 +117,13 @@ namespace MouseDragDemo
                 this.midpointHandles[i].MouseMove3D += OnNodeMouse3DMove;
                 this.midpointHandles[i].MouseUp3D += OnNodeMouse3DUp;
                 this.midpointHandles[i].MouseDown3D += OnNodeMouse3DDown;
-       
+
                 this.Children.Add(cornerHandles[i]);
                 this.Children.Add(edgeHandles[i]);
                 this.Children.Add(midpointHandles[i]);
             }
 
-            // 3 --- 2 
+            // 3 --- 2
             // |     |
             // 0 --- 1
             var m0 = Scaling(+2, 1, 1) * Translation(positions[0]);
@@ -136,7 +136,7 @@ namespace MouseDragDemo
             var m3 = Scaling(1,+2, 1) * Translation(positions[0]);
             this.edgeHandles[3].Transform = new MatrixTransform3D(m3.ToMatrix3D());
 
-            this.dragTransform = new MatrixTransform3D(this.Transform.Value);         
+            this.dragTransform = new MatrixTransform3D(this.Transform.Value);
         }
 
 
@@ -151,21 +151,21 @@ namespace MouseDragDemo
 
         private void OnNodeMouse3DUp(object sender, RoutedEventArgs e)
         {
-            
+
             if (this.isCaptured)
             {
                 Application.Current.MainWindow.Cursor = Cursors.Arrow;
                 //UpdateTransforms(sender);
-                
+
             }
         }
 
         private void OnNodeMouse3DMove(object sender, RoutedEventArgs e)
-        {            
+        {
             if (this.isCaptured)
             {
 
-                
+
                 UpdateTransforms(sender);
             }
         }
@@ -183,7 +183,7 @@ namespace MouseDragDemo
         }
 
         private void OnEdgeMouse3DUp(object sender, RoutedEventArgs e)
-        {            
+        {
             if (this.isCaptured)
             {
                 Application.Current.MainWindow.Cursor = Cursors.Arrow;
@@ -194,16 +194,16 @@ namespace MouseDragDemo
         }
 
         private void OnEdgeMouse3DMove(object sender, RoutedEventArgs e)
-        {            
+        {
             if (this.isCaptured)
             {
                 Application.Current.MainWindow.Cursor = Cursors.SizeAll;
                 var args = e as Mouse3DEventArgs;
 
-                // move dragmodel                         
+                // move dragmodel
                 var normal = this.camera.LookDirection;
 
-                // hit position                        
+                // hit position
                 var newHit = this.viewport.UnProjectOnPlane(args.Position, lastHitPos, normal.ToVector3D());
                 if (newHit.HasValue)
                 {
@@ -257,7 +257,7 @@ namespace MouseDragDemo
                 bb = BoundingBoxExtensions.FromPoints(positions);
             }
 
-            // 3 --- 2 
+            // 3 --- 2
             // |     |
             // 0 --- 1
             positions[0].X = bb.Minimum.X;
@@ -281,7 +281,7 @@ namespace MouseDragDemo
                 ((MatrixTransform3D)this.midpointHandles[i].Transform).Matrix = m;
             }
 
-            // 3 --- 2 
+            // 3 --- 2
             // |     |
             // 0 --- 1
             var m0 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[0]);
@@ -334,7 +334,7 @@ namespace MouseDragDemo
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Material Material
         {
@@ -343,13 +343,13 @@ namespace MouseDragDemo
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static readonly DependencyProperty MaterialProperty =
             DependencyProperty.Register("Material", typeof(Material), typeof(InteractionHandle3D), new UIPropertyMetadata(MaterialChanged));
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private static void MaterialChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -361,7 +361,7 @@ namespace MouseDragDemo
                     if (model != null)
                     {
                         model.Material = e.NewValue as PhongMaterial;
-                    }                    
+                    }
                 }
             }
         }

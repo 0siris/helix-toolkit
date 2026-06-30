@@ -1,6 +1,6 @@
-﻿using DemoCore;
+using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using System;
 using System.Drawing.Imaging;
 using System.IO;
@@ -131,7 +131,7 @@ namespace DynamicTextureDemo
         {            // titles
             this.Title = "DynamicTexture Demo";
             this.SubTitle = "WPF & SharpDX";
-            EffectsManager = new DefaultEffectsManager();           
+            EffectsManager = new DefaultEffectsManager();
             this.Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera
             {
                 Position = new Point3D(10, 10, 10),
@@ -211,7 +211,7 @@ namespace DynamicTextureDemo
                 indices.Add(i);
             }
             LineModel.Indices = indices;
-            colors = new Color4Collection(LineModel.Positions.Count);           
+            colors = new Color4Collection(LineModel.Positions.Count);
             for(int i = 0; i < count; ++i)
             {
                 colors.Add(new Color4((float)i / count,1-(float)i / count, 0, 1));
@@ -257,9 +257,9 @@ namespace DynamicTextureDemo
                     {
                         texture[i - 1] = texture[i];
                     }
-                    texture[texture.Count - 1] = t0;    
+                    texture[texture.Count - 1] = t0;
                 }
-            
+
                 context.Send((o) =>
                 {
                     if (!AnimateUVOffset)
@@ -268,7 +268,7 @@ namespace DynamicTextureDemo
                         if (ReverseInnerRotation)
                         {
                             var texture1 = new Vector2Collection(texture);
-                            texture1.Reverse();                   
+                            texture1.Reverse();
                             InnerModel.TextureCoordinates = texture1;
                         }
                         else

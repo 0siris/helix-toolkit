@@ -6,7 +6,7 @@ Copyright(c) 2018 Helix Toolkit contributors
 using SharpDX;
 using System;
 using System.Reflection;
-#if !NETFX_CORE
+#if !WINDOWS_UWP
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 #endif
@@ -49,9 +49,9 @@ namespace HelixToolkit.UWP
             }
             }";
         }
-#if !NETFX_CORE
+#if !WINDOWS_UWP
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public class DynamicCodeSurface3DNode : ParametricSurface3DNode
         {

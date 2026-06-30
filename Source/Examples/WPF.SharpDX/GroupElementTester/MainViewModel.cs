@@ -1,4 +1,4 @@
-﻿using DemoCore;
+using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using HelixToolkit.Wpf.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
@@ -76,7 +76,7 @@ namespace GroupElementTester
         public ICommand ReplaceItemsModelSourceCommand { private set; get; }
         public MainViewModel()
         {
-            //    RenderTechniquesManager = new DefaultRenderTechniquesManager();           
+            //    RenderTechniquesManager = new DefaultRenderTechniquesManager();
             EffectsManager = new DefaultEffectsManager();
             // ----------------------------------------------
             // titles
@@ -129,7 +129,7 @@ namespace GroupElementTester
                 GroupModelSource = new ObservableElement3DCollection();
                 OnPropertyChanged(nameof(GroupModelSource));
             });
-            ReplaceItemsModelSourceCommand = new RelayCommand((o) => 
+            ReplaceItemsModelSourceCommand = new RelayCommand((o) =>
             {
                 ItemsSource = new ObservableCollection<MeshDataModel>();
                 OnPropertyChanged(nameof(ItemsSource));

@@ -25,7 +25,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        
+
         <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
         <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
         <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0" />
@@ -35,9 +35,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="System.CodeDom">
+            <HintPath>$(NuGetPackageRoot)system.codedom\10.0.9\lib\net10.0\System.CodeDom.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\SilkCore\SilkCore.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
       <EmbeddedResource Include="Textures\arial.dds" />
       <EmbeddedResource Include="Textures\arial.fnt" />
@@ -46,5 +52,5 @@
         <SubType>Designer</SubType>
       </Page>
     </ItemGroup>
-    
+
 </Project>

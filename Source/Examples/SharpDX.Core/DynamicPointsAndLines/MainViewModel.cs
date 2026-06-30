@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
@@ -123,7 +124,7 @@ namespace DynamicPointsAndLines
                 UpDirection = new Vector3D(0, 1, 0)
             };
 
-            // setup lighting            
+            // setup lighting
             AmbientLightColor = Colors.DimGray;
             DirectionalLightColor = Colors.White;
             DirectionalLightDirection = new Vector3D(-2, -5, -2);
@@ -148,7 +149,7 @@ namespace DynamicPointsAndLines
             {
                 Points.Positions.Clear();
                 Points.Positions.AddRange(GeneratePoints(NumberOfPoints, StopWatch.ElapsedMilliseconds * 0.003));
-                Lines.Positions.Clear();            
+                Lines.Positions.Clear();
                 Lines.Positions.AddRange(Points.Positions);
                 Points.UpdateVertices();
                 Lines.UpdateVertices();

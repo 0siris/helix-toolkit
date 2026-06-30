@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -12,7 +12,7 @@
     using DemoCore;
 
     using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.Wpf.SharpDX.Core;
+    using HelixToolkit.SharpDX.Core.Core;
     using HelixToolkit.Wpf.SharpDX.Extensions;
 
     using Media3D = System.Windows.Media.Media3D;
@@ -32,7 +32,7 @@
         public PhongMaterial RedMaterial { get; private set; }
         public PhongMaterial GreenMaterial { get; private set; }
         public PhongMaterial BlueMaterial { get; private set; }
-        public HelixToolkit.Wpf.SharpDX.Color GridColor { get; private set; }
+        public HelixToolkit.SharpDX.Core.Color GridColor { get; private set; }
 
         public Media3D.Transform3D Model1Transform { get; private set; }
         public Media3D.Transform3D Model2Transform { get; private set; }
@@ -54,20 +54,20 @@
 
             EffectsManager = new DefaultEffectsManager();
 
-            // setup lighting            
+            // setup lighting
             this.AmbientLightColor = Colors.Black;
             this.DirectionalLightColor = Colors.White;
 
             // floor plane grid
             this.Grid = LineBuilder.GenerateGrid();
-            this.GridColor = HelixToolkit.Wpf.SharpDX.Color.Black;
+            this.GridColor = HelixToolkit.SharpDX.Core.Color.Black;
             this.GridTransform = new Media3D.TranslateTransform3D(-5, -1, -5);
 
             // scene model3d
-            var b1 = new MeshBuilder();            
+            var b1 = new MeshBuilder();
             b1.AddSphere(new Vector3(0, 0, 0), 0.5);
             b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2, BoxFaces.All);
-           
+
             var meshGeometry = b1.ToMeshGeometry3D();
             meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
             this.Model = meshGeometry;
@@ -81,14 +81,14 @@
             this.Model1Transform = new Media3D.TranslateTransform3D(0, 0, 0);
             this.Model2Transform = new Media3D.TranslateTransform3D(-2, 0, 0);
             this.Model3Transform = new Media3D.TranslateTransform3D(+2, 0, 0);
-            
+
             // model materials
             this.RedMaterial = PhongMaterials.Red;
             this.GreenMaterial = PhongMaterials.Green;
             this.BlueMaterial = PhongMaterials.Blue;
             //var diffColor = this.RedMaterial.DiffuseColor;
             //diffColor.Alpha = 0.5f;
-            //this.RedMaterial.DiffuseColor = diffColor;            
+            //this.RedMaterial.DiffuseColor = diffColor;
         }
     }
 }

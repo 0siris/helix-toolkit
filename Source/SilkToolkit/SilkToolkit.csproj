@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DefineConstants>TRACE;DX11;DX11_1;MSAA;SILKNET;SHARPDX;COREWPF</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;DX11;DX11_1;MSAA;SILKNET;SHARPDX;COREWPF</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.0" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        
+        <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Direct3D9" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.DXGI" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SilkCore\SilkCore.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Textures\arial.dds" />
+      <EmbeddedResource Include="Textures\arial.fnt" />
+      <Page Update="Themes\Generic.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+    
+</Project>

@@ -1,17 +1,31 @@
-# SharpDX-Ablösung: Übergabe für Folgesessions
+# SilkToolkit: Übergabe für Folgesessions
 
-Stand: 29. Juni 2026
+Stand: 1. Juli 2026
 Branch: `feature/wpf-sharpdx`
-Letzter Abschluss-Commit: `66f869ec0 chore(wpf)!: finish Silk.NET migration`
+Letzter bekannter Commit: `b108e3473 feat(core): introduce CameraController and assembly descriptions`
+
+Aktueller Working Tree enthält noch nicht committete SilkToolkit-Arbeit:
+
+- `Source/SilkToolkit.slnx`
+- `Source/SilkCore/SilkCore.csproj`
+- `Source/HelixToolkit.Native.ShaderBuilder/HelixToolkit.Native.ShaderBuilder.csproj`
+- untracked Build-Artefakt:
+  `Source/Examples/WPF.SharpDX/DeferredShadingDemo/FodyWeavers.xsd`
 
 ## Ziel
 
-Verbindliches Produktiv-Endgate ist eine bereinigte
-`HelixToolkit.SharpDX.sln` für WPF + Silk.NET DirectX 11:
+Aktueller Produktivfokus ist die eigenständige Silk.NET-Mappe
+`Source/SilkToolkit.slnx`:
 
-- keine SharpDX-Pakete oder Assembly-Referenzen,
-- keine echten SharpDX-Typen oder Backend-Aufrufe,
-- keine aktiven Projekte, Tests oder Beispiele, die SharpDX benötigen.
+- `SilkCore`, `SilkToolkit` und `SilkAssimp` bauen ohne Shared-`projitems`-
+  Imports aus den alten HelixToolkit-Projekten,
+- alle Beispiele aus `Source/HelixToolkit.SharpDX.sln` sind in
+  `Source/SilkToolkit.slnx` eingehängt,
+- Beispielprojekte referenzieren nur `Source/SilkCore`,
+  `Source/SilkToolkit` oder `Source/SilkAssimp`; NuGet-Abhängigkeiten bleiben
+  erlaubt,
+- Shader werden über `HelixToolkit.Native.ShaderBuilder` erzeugt und als
+  Resources aus `SilkCore` geladen.
 
 Öffentliche Namen wie `HelixToolkit.Wpf.SharpDX` dürfen vorerst als
 Kompatibilitätsnamen bleiben. Sie sind keine technische Abhängigkeit.
@@ -20,6 +34,26 @@ Hauptmappe, CI und Packaging im Repository. Eine spätere repo-weite
 Namensbereinigung ist optional und nicht Teil des aktuellen Produktivgates.
 
 ## Erledigter Stand
+
+Der aktuelle SilkToolkit-Stand ist:
+
+- `SilkCore`, `SilkToolkit` und `SilkAssimp` sind konsolidierte lokale
+  Projekte.
+- `SilkToolkit` importiert keine Dateien mehr über
+  `HelixToolkit.Wpf.SharpDX.Shared.projitems`.
+- Core-Duplikate sind in `SilkCore` gebündelt; WPF-spezifische Dateien liegen
+  lokal in `SilkToolkit`.
+- `SilkAssimp` referenziert `SilkCore`.
+- `Source/SilkToolkit.slnx` enthält `SilkCore`, `SilkToolkit`, `SilkAssimp`,
+  `HelixToolkit.Native.ShaderBuilder` und alle DirectX-Beispiele.
+- `HelixToolkit.Native.ShaderBuilder` kopiert erzeugte `.cso`-Dateien auch nach
+  `Source/SilkCore/Resources`.
+- `SilkCore` embedded `Resources/*.cso` mit LogicalNames im Format
+  `HelixToolkit.SharpDX.Core.Resources.*.cso`.
+- Validiert: `SilkCore`, `SilkToolkit` und `SilkToolkit.slnx` bauen mit
+  `0` Fehlern; `SilkCore` enthält `103` Shader-Resources.
+
+Historischer Kontext:
 
 Der definierte produktive WPF-Scope ist auf Silk.NET DirectX migriert:
 
@@ -241,12 +275,13 @@ und alle Verwendungen aktualisieren.
 
 ### Vorhandene Projektmappen
 
-Im Verzeichnis `Source` liegen sieben klassische `.sln`-Dateien. Aktuell
-existiert keine `.slnx`-Projektmappe.
+Im Verzeichnis `Source` liegen die historischen `.sln`-Dateien und die neue
+SilkToolkit-Mappe `SilkToolkit.slnx`.
 
 | Projektmappe | Zweck | Bedeutung für die Migration |
 | --- | --- | --- |
-| `HelixToolkit.SharpDX.sln` | Große Entwicklungsmappe für den DirectX-Renderer, WPF.SharpDX, Core, Assimp, Tests, ShaderBuilder und fast alle DirectX-Beispiele. | Hauptmappe für die SharpDX-Ablösung. Sie enthält aber noch nicht migrierte Beispiele, `Core.Wpf` und WinUI und ist daher kein grünes Gesamtgate. |
+| `SilkToolkit.slnx` | Aktuelle Silk.NET-Mappe mit `SilkCore`, `SilkToolkit`, `SilkAssimp`, ShaderBuilder und allen DirectX-Beispielen. | Aktuelles Hauptgate. |
+| `HelixToolkit.SharpDX.sln` | Historische Entwicklungsmappe für den DirectX-Renderer, WPF.SharpDX, Core, Assimp, Tests, ShaderBuilder und DirectX-Beispiele. | Historischer Vergleichsstand, nicht mehr der aktuelle SilkToolkit-Fokus. |
 | `HelixToolkit.SharpDX.Core.sln` | Kleine Core-orientierte Mappe mit Rendering-Core, Core.Assimp und Shared-Projekten. | Bei Entfernung von `Core.Wpf` und Umstellung der Core-Demos ebenfalls bereinigen. |
 | `HelixToolkit.WinUI.sln` | Legacy-Mappe für WinUI, ModelViewer und UWP-Shared-Code. | Nicht unterstützt und kein Produktiv-Gate. Bleibt vorerst außerhalb von CI und Packaging im Repository. |
 | `HelixToolkit.Wpf.sln` | Klassischer WPF-3D-Renderer ohne DirectX-11-Engine, einschließlich WPF-Beispielen und Tests. | Von der Silk.NET-Migration weitgehend unabhängig; als Regressionstest für den normalen WPF-Bereich verwenden. |
@@ -261,21 +296,21 @@ Projektmappe aufgenommen und migriert werden.
 
 Empfohlene Verwendung:
 
-1. Während der Migration gezielt einzelne `.csproj` bauen.
-2. Für zusammenhängende WPF-DirectX-Arbeit `HelixToolkit.SharpDX.sln`
-   in der IDE öffnen, aber nur betroffene Projekte bauen.
-3. Nach Bereinigung der Beispiele die gesamte `HelixToolkit.SharpDX.sln`
-   als Gate verwenden.
-4. `HelixToolkit.AppVeyor.sln` erst als letztes Repository-Gesamtgate
+1. Für SilkToolkit-Arbeit `Source/SilkToolkit.slnx` verwenden.
+2. Bei Fehlern gezielt `SilkCore`, `SilkToolkit`, `SilkAssimp` oder das
+   betroffene Beispiel bauen.
+3. `HelixToolkit.SharpDX.sln` nur noch als historischen Vergleichsstand
+   verwenden.
+4. `HelixToolkit.AppVeyor.sln` erst als spätes Repository-Gesamtgate
    bereinigen und ausführen.
 
 Projektmappe in Visual Studio öffnen:
 
 ```powershell
-devenv Source\HelixToolkit.SharpDX.sln
+devenv Source\SilkToolkit.slnx
 ```
 
-In Rider über **Open** die gewünschte `.sln` auswählen.
+In Rider über **Open** die gewünschte `.slnx` oder `.sln` auswählen.
 
 ### Voraussetzungen
 
@@ -294,8 +329,9 @@ Bibliotheksprojekte sind nicht direkt startbar. Sie werden gebaut und über
 Tests oder ein WPF-Beispiel ausgeführt:
 
 ```powershell
-dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -m:1
-dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj --no-restore -m:1
+dotnet build Source\SilkCore\SilkCore.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\SilkToolkit\SilkToolkit.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\SilkAssimp\SilkAssimp.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
 Bei parallelen Builds können gemeinsame `obj`-Dateien gesperrt werden.
@@ -431,7 +467,10 @@ diese Altaufrufe entfernen; danach für einen lokalen Diagnose-Build
   zuerst `EffectsManager`, Shader-Loading, RenderTarget-Erzeugung und
   `RenderExceptionOccurred` prüfen; danach WARP-Modus testen.
 
-## Verbindlicher Produktivplan
+## Historischer Produktivplan
+
+Dieser Abschnitt dokumentiert den abgeschlossenen SharpDX-Migrationsverlauf.
+Aktuelles Gate ist `Source/SilkToolkit.slnx`.
 
 Baseline: Der vollständige Build von `HelixToolkit.SharpDX.sln` endete am
 23. Juni 2026 vor Step 1 mit `438` Fehlern. Nach Step 1 endete der Build mit
@@ -627,25 +666,21 @@ Status: erledigt am 29. Juni 2026.
 ### Suche
 
 ```powershell
-rg -n 'PackageReference Include="SharpDX|Reference Include="SharpDX' <Projekte-der-Hauptmappe> -g '*.csproj' -g '*.props' -g '*.targets'
-rg -n 'using SharpDX|global::SharpDX|SharpDX\.' <Projekte-der-Hauptmappe> -g '*.cs'
+rg -n 'projitems|HelixToolkit.Wpf.SharpDX.Shared|HelixToolkit.SharpDX.Shared' Source\SilkCore Source\SilkToolkit Source\SilkAssimp Source\SilkToolkit.slnx
+rg -n 'ProjectReference Include=".*HelixToolkit|PackageReference Include="SharpDX|Reference Include="SharpDX' Source\Examples\WPF.SharpDX Source\Examples\SharpDX.Core Source\SilkCore Source\SilkToolkit Source\SilkAssimp -g '*.csproj' -g '*.props' -g '*.targets'
 ```
 
-Treffer in öffentlichen Namen separat von echten Backend-Typen bewerten.
-Das Endziel ist innerhalb der Hauptmappe: keine Paket-/Assembly-Treffer und
-keine qualifizierten SharpDX-Backend-Typen.
+Treffer in öffentlichen Namen separat von echten Backend-Typen bewerten. Die
+SilkToolkit-Mappe darf keine alten Projekt- oder Shared-Import-Kanten haben.
 
 ### Builds und Tests
 
 ```powershell
-dotnet build Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj --no-restore -m:1
-dotnet build Source\HelixToolkit.Wpf.SharpDX\HelixToolkit.Wpf.SharpDX.csproj --no-restore -m:1
-dotnet build Source\HelixToolkit.SharpDX.Core.Assimp\HelixToolkit.SharpDX.Core.Assimp.csproj --no-restore -m:1
-dotnet build Source\HelixToolkit.Wpf.SharpDX.Assimp\HelixToolkit.Wpf.SharpDX.Assimp.csproj --no-restore -m:1
-dotnet test Source\HelixToolkit.SharpDX.Core.Tests\HelixToolkit.SharpDX.Core.Tests.csproj --no-restore -m:1
-dotnet test Source\HelixToolkit.Wpf.SharpDX.Tests\HelixToolkit.Wpf.SharpDX.Tests.csproj --no-restore -m:1
-dotnet build Source\HelixToolkit.SharpDX.sln --no-restore -m:1 -c Debug
-dotnet build Source\HelixToolkit.SharpDX.sln --no-restore -m:1 -c Release
+dotnet build Source\HelixToolkit.Native.ShaderBuilder\HelixToolkit.Native.ShaderBuilder.csproj --no-restore --no-incremental -m:1 -clp:ErrorsOnly
+dotnet build Source\SilkCore\SilkCore.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\SilkToolkit\SilkToolkit.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\SilkAssimp\SilkAssimp.csproj --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
+dotnet build Source\SilkToolkit.slnx --no-restore --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly
 ```
 
 Beispiele einzeln bauen. Startup-Smokes mit dem jeweiligen
@@ -672,33 +707,12 @@ git status --short
 
 ## Nächster Schritt
 
-Step 6 ist entschieden: `DeferredShadingDemo`, `GenericMaterialDemo` und
-`ScreenSpaceDemo` bleiben erhalten und werden separat auf Silk.NET migriert,
-weil sie wichtige Beispielabdeckung enthalten.
+Der separate Demo-Migrationsblock ist abgearbeitet. Aktueller nächster Schritt
+ist die SilkToolkit-Übergabe zu finalisieren:
 
-Step 7 läuft: `GenericMaterialDemo` ist auf SDK-Projektformat,
-`net10.0-windows` und Silk.NET-/Helix-Typen migriert. Direkte SharpDX-
-Referenzen, `packages.config` und alte `App.config` sind entfernt.
-Einzelbuild: `0` Fehler, `56` Warnungen. Runtime-Smoke: fünf Sekunden stabil.
-Die Demo ist in `HelixToolkit.SharpDX.sln` eingehängt.
-
-`DeferredShadingDemo` ist ebenfalls auf SDK-Projektformat, `net10.0-windows`
-und Silk.NET-/Helix-Typen migriert. Direkte SharpDX-Referenzen,
-`packages.config`, alte `app.config` und die alten
-`sharpdx_direct3d11_1_effects_*`-DLLs sind entfernt. Die Demo nutzt wieder die
-`Viewport3DX.RenderTechnique`-Property; die alte direkte
-`DeferredRenderer.NumberSamplesMSAA`-UI wurde entfernt, weil der
-`DeferredRenderer` nicht mehr im WPF-Shared-Projekt eingebunden ist.
-Einzelbuild: `0` Fehler, `61` Warnungen. Runtime-Smoke: fünf Sekunden stabil.
-Die Demo ist in `HelixToolkit.SharpDX.sln` eingehängt.
-
-`ScreenSpaceDemo` ist auf SDK-Projektformat, `net10.0-windows` und
-Silk.NET-/Helix-Typen migriert. Direkte SharpDX-Referenzen, `packages.config`,
-alte `app.config` und Fody-Altlasten sind entfernt. Die Demo nutzt
-`Viewport3DX.RenderTechnique`; die alte direkte SSAO-UI über
-`DeferredRenderer` wurde entfernt, weil der `DeferredRenderer` nicht mehr im
-WPF-Shared-Projekt eingebunden ist. Einzelbuild: `0` Fehler, `55` Warnungen.
-Runtime-Smoke: fünf Sekunden stabil. Die Demo ist in
-`HelixToolkit.SharpDX.sln` eingehängt.
-
-Der separate Demo-Migrationsblock ist damit abgearbeitet.
+1. Offene SilkToolkit-Änderungen committen.
+2. Runtime-Smokes aus `Source/SilkToolkit.slnx` starten:
+   `SimpleDemo`, `FileLoadDemo`, `DeferredShadingDemo`, `ScreenSpaceDemo`,
+   `OffScreenRendering`, `WinFormsTest`.
+3. Danach entscheiden, ob historische `HelixToolkit.SharpDX.*`-Projektmappen
+   weiter gepflegt oder nur noch als Vergleichsstand behalten werden.

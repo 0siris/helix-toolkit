@@ -3,59 +3,25 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using Shaders;
-        using Utilities;
-
         public class BillboardMaterialVariable : MaterialVariable
         {
             /// <summary>
-            /// Set texture variable name insider shader for binding
-            /// </summary>
-            public string ShaderTextureName { get; } = DefaultBufferNames.BillboardTB;
-            /// <summary>
-            /// Set texture sampler variable name inside shader for binding
-            /// </summary>
-            public string ShaderTextureSamplerName { get; } = DefaultSamplerStateNames.BillboardTextureSampler;
-
-            public ShaderPass BillboardPass
-            {
-                get;
-            }
-
-            public ShaderPass OITPass
-            {
-                get;
-            }
-
-            public ShaderPass OITDepthPeelingInit
-            {
-                get;
-            }
-
-            public ShaderPass OITDepthPeeling
-            {
-                get;
-            }
-
-            #region Private Variables
-            private readonly int textureSamplerSlot;
-            private readonly int shaderTextureSlot;
-            private SamplerStateProxy textureSampler;
-            private readonly BillboardMaterialCore materialCore;
-            #endregion        
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BillboardMaterialVariable"/> class.
+            ///     Initializes a new instance of the <see cref="BillboardMaterialVariable" /> class.
             /// </summary>
             /// <param name="manager">The manager.</param>
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public BillboardMaterialVariable(IEffectsManager manager, IRenderTechnique technique, BillboardMaterialCore materialCore,
+            public BillboardMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+                BillboardMaterialCore materialCore,
                 string defaultPassName = DefaultPassNames.Default)
                 : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore)
             {
@@ -64,16 +30,40 @@ namespace HelixToolkit.SharpDX.Core
                 OITDepthPeelingInit = technique[DefaultPassNames.OITDepthPeelingInit];
                 OITDepthPeeling = technique[DefaultPassNames.OITDepthPeeling];
                 this.materialCore = materialCore;
-                shaderTextureSlot = BillboardPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureName);
+                shaderTextureSlot =
+                    BillboardPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureName);
                 textureSamplerSlot = BillboardPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderTextureSamplerName);
                 textureSampler = EffectsManager.StateManager.Register(materialCore.SamplerDescription);
             }
 
+            /// <summary>
+            ///     Set texture variable name insider shader for binding
+            /// </summary>
+            public string ShaderTextureName { get; } = DefaultBufferNames.BillboardTB;
+
+            /// <summary>
+            ///     Set texture sampler variable name inside shader for binding
+            /// </summary>
+            public string ShaderTextureSamplerName { get; } = DefaultSamplerStateNames.BillboardTextureSampler;
+
+            public ShaderPass BillboardPass { get; }
+
+            public ShaderPass OITPass { get; }
+
+            public ShaderPass OITDepthPeelingInit { get; }
+
+            public ShaderPass OITDepthPeeling { get; }
+
             protected override void OnInitialPropertyBindings()
             {
                 base.OnInitialPropertyBindings();
-                AddPropertyBinding(nameof(BillboardMaterialCore.FixedSize), () => { WriteValue(PointLineMaterialStruct.FixedSize, materialCore.FixedSize); });
-                AddPropertyBinding(nameof(BillboardMaterialCore.Type), () => { WriteValue(PointLineMaterialStruct.ParamsStr, new Vector4((int)materialCore.Type, 0, 0, 0)); });
+                AddPropertyBinding(nameof(BillboardMaterialCore.FixedSize),
+                    () => { WriteValue(PointLineMaterialStruct.FixedSize, materialCore.FixedSize); });
+                AddPropertyBinding(nameof(BillboardMaterialCore.Type),
+                    () =>
+                    {
+                        WriteValue(PointLineMaterialStruct.ParamsStr, new Vector4((int) materialCore.Type, 0, 0, 0));
+                    });
                 AddPropertyBinding(nameof(BillboardMaterialCore.SamplerDescription), () =>
                 {
                     var newSampler = EffectsManager.StateManager.Register(materialCore.SamplerDescription);
@@ -82,7 +72,8 @@ namespace HelixToolkit.SharpDX.Core
                 });
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 shaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
                 return true;
@@ -91,7 +82,6 @@ namespace HelixToolkit.SharpDX.Core
             public override ShaderPass GetPass(RenderType renderType, RenderContext context)
             {
                 if (renderType == RenderType.Transparent)
-                {
                     switch (context.OITRenderStage)
                     {
                         case OITRenderStage.SinglePassWeighted:
@@ -100,10 +90,8 @@ namespace HelixToolkit.SharpDX.Core
                             return OITDepthPeelingInit;
                         case OITRenderStage.DepthPeeling:
                             return OITDepthPeeling;
-                        default:
-                            break;
                     }
-                }
+
                 return BillboardPass;
             }
 
@@ -122,7 +110,8 @@ namespace HelixToolkit.SharpDX.Core
                 return ShaderPass.NullPass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 if (bufferModel is IBillboardBufferModel billboardModel)
                 {
@@ -136,6 +125,15 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref textureSampler);
                 base.OnDispose(disposeManagedResources);
             }
+
+            #region Private Variables
+
+            private readonly int textureSamplerSlot;
+            private readonly int shaderTextureSlot;
+            private SamplerStateProxy textureSampler;
+            private readonly BillboardMaterialCore materialCore;
+
+            #endregion
         }
     }
 }

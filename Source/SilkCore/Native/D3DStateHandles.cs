@@ -3,9 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
 using Silk.NET.Core;
-using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
 using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
@@ -202,7 +200,6 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     renderTarget = new RenderTargetBlendDescription[8];
                     for (var i = 0; i < renderTarget.Length; i++)
-                    {
                         renderTarget[i] = new RenderTargetBlendDescription
                         {
                             SourceBlend = BlendOption.One,
@@ -213,15 +210,11 @@ namespace HelixToolkit.SharpDX.Core
                             AlphaBlendOperation = BlendOperation.Add,
                             RenderTargetWriteMask = ColorWriteMaskFlags.All
                         };
-                    }
                 }
 
                 return renderTarget;
             }
-            set
-            {
-                renderTarget = value;
-            }
+            set => renderTarget = value;
         }
     }
 
@@ -273,7 +266,7 @@ namespace HelixToolkit.SharpDX.Core
         public float MaximumLod;
     }
 
-    public unsafe sealed class BlendState : IDisposable
+    public sealed unsafe class BlendState : IDisposable
     {
         private SilkD3D11BlendStatePtr nativeState;
 
@@ -283,7 +276,7 @@ namespace HelixToolkit.SharpDX.Core
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeState.Handle;
+        public nint NativePointer => (nint) nativeState.Handle;
 
         internal ID3D11BlendState* Handle => nativeState.Handle;
 
@@ -293,20 +286,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
-            if (nativeState.Handle != null)
-            {
-                nativeState.Dispose();
-            }
+            if (nativeState.Handle != null) nativeState.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class DepthStencilState : IDisposable
+    public sealed unsafe class DepthStencilState : IDisposable
     {
         private SilkD3D11DepthStencilStatePtr nativeState;
 
@@ -316,7 +303,7 @@ namespace HelixToolkit.SharpDX.Core
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeState.Handle;
+        public nint NativePointer => (nint) nativeState.Handle;
 
         internal ID3D11DepthStencilState* Handle => nativeState.Handle;
 
@@ -326,20 +313,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
-            if (nativeState.Handle != null)
-            {
-                nativeState.Dispose();
-            }
+            if (nativeState.Handle != null) nativeState.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class RasterizerState : IDisposable
+    public sealed unsafe class RasterizerState : IDisposable
     {
         private SilkD3D11RasterizerStatePtr nativeState;
 
@@ -349,7 +330,7 @@ namespace HelixToolkit.SharpDX.Core
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeState.Handle;
+        public nint NativePointer => (nint) nativeState.Handle;
 
         internal ID3D11RasterizerState* Handle => nativeState.Handle;
 
@@ -359,20 +340,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
-            if (nativeState.Handle != null)
-            {
-                nativeState.Dispose();
-            }
+            if (nativeState.Handle != null) nativeState.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class SamplerState : IDisposable
+    public sealed unsafe class SamplerState : IDisposable
     {
         private SilkD3D11SamplerStatePtr nativeState;
 
@@ -382,7 +357,7 @@ namespace HelixToolkit.SharpDX.Core
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeState.Handle;
+        public nint NativePointer => (nint) nativeState.Handle;
 
         internal ID3D11SamplerState* Handle => nativeState.Handle;
 
@@ -392,15 +367,9 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
-            if (nativeState.Handle != null)
-            {
-                nativeState.Dispose();
-            }
+            if (nativeState.Handle != null) nativeState.Dispose();
             IsDisposed = true;
         }
     }
@@ -424,13 +393,13 @@ namespace HelixToolkit.SharpDX.Core
                     desc.RenderTarget[i] = new RenderTargetBlendDesc
                     {
                         BlendEnable = new Bool32(renderTarget.IsBlendEnabled),
-                        SrcBlend = (Blend)renderTarget.SourceBlend,
-                        DestBlend = (Blend)renderTarget.DestinationBlend,
-                        BlendOp = (BlendOp)renderTarget.BlendOperation,
-                        SrcBlendAlpha = (Blend)renderTarget.SourceAlphaBlend,
-                        DestBlendAlpha = (Blend)renderTarget.DestinationAlphaBlend,
-                        BlendOpAlpha = (BlendOp)renderTarget.AlphaBlendOperation,
-                        RenderTargetWriteMask = (byte)renderTarget.RenderTargetWriteMask
+                        SrcBlend = (Blend) renderTarget.SourceBlend,
+                        DestBlend = (Blend) renderTarget.DestinationBlend,
+                        BlendOp = (BlendOp) renderTarget.BlendOperation,
+                        SrcBlendAlpha = (Blend) renderTarget.SourceAlphaBlend,
+                        DestBlendAlpha = (Blend) renderTarget.DestinationAlphaBlend,
+                        BlendOpAlpha = (BlendOp) renderTarget.AlphaBlendOperation,
+                        RenderTargetWriteMask = (byte) renderTarget.RenderTargetWriteMask
                     };
                 }
 
@@ -442,8 +411,8 @@ namespace HelixToolkit.SharpDX.Core
                 return new DepthStencilDesc
                 {
                     DepthEnable = new Bool32(description.IsDepthEnabled),
-                    DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask)description.DepthWriteMask,
-                    DepthFunc = (ComparisonFunc)description.DepthComparison,
+                    DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask) description.DepthWriteMask,
+                    DepthFunc = (ComparisonFunc) description.DepthComparison,
                     StencilEnable = new Bool32(description.IsStencilEnabled),
                     StencilReadMask = description.StencilReadMask,
                     StencilWriteMask = description.StencilWriteMask,
@@ -456,10 +425,10 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return new DepthStencilopDesc
                 {
-                    StencilFailOp = (StencilOp)description.FailOperation,
-                    StencilDepthFailOp = (StencilOp)description.DepthFailOperation,
-                    StencilPassOp = (StencilOp)description.PassOperation,
-                    StencilFunc = (ComparisonFunc)description.Comparison
+                    StencilFailOp = (StencilOp) description.FailOperation,
+                    StencilDepthFailOp = (StencilOp) description.DepthFailOperation,
+                    StencilPassOp = (StencilOp) description.PassOperation,
+                    StencilFunc = (ComparisonFunc) description.Comparison
                 };
             }
 
@@ -467,8 +436,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return new RasterizerDesc
                 {
-                    FillMode = (Silk.NET.Direct3D11.FillMode)description.FillMode,
-                    CullMode = (Silk.NET.Direct3D11.CullMode)description.CullMode,
+                    FillMode = (Silk.NET.Direct3D11.FillMode) description.FillMode,
+                    CullMode = (Silk.NET.Direct3D11.CullMode) description.CullMode,
                     FrontCounterClockwise = new Bool32(description.IsFrontCounterClockwise),
                     DepthBias = description.DepthBias,
                     DepthBiasClamp = description.DepthBiasClamp,
@@ -484,13 +453,13 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var desc = new SamplerDesc
                 {
-                    Filter = (Silk.NET.Direct3D11.Filter)description.Filter,
-                    AddressU = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressU,
-                    AddressV = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressV,
-                    AddressW = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressW,
+                    Filter = (Silk.NET.Direct3D11.Filter) description.Filter,
+                    AddressU = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressU,
+                    AddressV = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressV,
+                    AddressW = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressW,
                     MipLODBias = description.MipLodBias,
-                    MaxAnisotropy = (uint)description.MaximumAnisotropy,
-                    ComparisonFunc = (ComparisonFunc)description.ComparisonFunction,
+                    MaxAnisotropy = (uint) description.MaximumAnisotropy,
+                    ComparisonFunc = (ComparisonFunc) description.ComparisonFunction,
                     MinLOD = description.MinimumLod,
                     MaxLOD = description.MaximumLod
                 };

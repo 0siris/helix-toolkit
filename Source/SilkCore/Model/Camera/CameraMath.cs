@@ -1,14 +1,11 @@
-﻿using System;
-
-
-namespace HelixToolkit.SharpDX.Core
+﻿namespace HelixToolkit.SharpDX.Core
 {
     namespace Cameras
     {
         public static class CameraMath
         {
             /// <summary>
-            /// Rotates the trackball.
+            ///     Rotates the trackball.
             /// </summary>
             /// <param name="cameraMode">The camera mode.</param>
             /// <param name="p1">The p1.</param>
@@ -22,7 +19,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="newPosition">The new position.</param>
             /// <param name="newLookDirection">The new look direction.</param>
             /// <param name="newUpDirection">The new up direction.</param>
-            public static void RotateTrackball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2, ref Vector3 rotateAround,
+            public static void RotateTrackball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2,
+                ref Vector3 rotateAround,
                 float sensitivity,
                 int viewportWidth, int viewportHeight, CameraCore camera, int invertFactor,
                 out Vector3 newPosition, out Vector3 newLookDirection, out Vector3 newUpDirection)
@@ -36,8 +34,8 @@ namespace HelixToolkit.SharpDX.Core
                 var viewZ = SilkMath.Normalize(camera.LookDirection * invertFactor);
                 var viewX = SilkMath.Normalize(SilkMath.Cross(cUP, viewZ)) * invertFactor;
                 var viewY = SilkMath.Cross(viewX, viewZ);
-                var u1 = (viewZ * v1.Z) + (viewX * v1.X) + (viewY * v1.Y);
-                var u2 = (viewZ * v2.Z) + (viewX * v2.X) + (viewY * v2.Y);
+                var u1 = viewZ * v1.Z + viewX * v1.X + viewY * v1.Y;
+                var u2 = viewZ * v2.Z + viewX * v2.X + viewY * v2.Y;
 
                 // Could also use the Camera ViewMatrix
                 // var vm = Viewport3DHelper.GetViewMatrix(this.ActualCamera);
@@ -56,7 +54,7 @@ namespace HelixToolkit.SharpDX.Core
                     return;
                 }
 
-                var angle = VectorExtensions.AngleBetween(u1, u2);
+                var angle = u1.AngleBetween(u2);
 
                 // Create the transform
                 var rotate = SilkMath.RotationAxis(SilkMath.Normalize(axis), -angle * sensitivity * 5);
@@ -75,41 +73,38 @@ namespace HelixToolkit.SharpDX.Core
                 newPosition = rotateAround - newRelativePosition;
 
                 newLookDirection = newTarget - newPosition;
-                if (cameraMode != CameraMode.Inspect)
-                {
-                    newPosition = camera.Position;
-                }
+                if (cameraMode != CameraMode.Inspect) newPosition = camera.Position;
             }
 
             /// <summary>
-            /// Projects a screen position to the trackball unit sphere.
+            ///     Projects a screen position to the trackball unit sphere.
             /// </summary>
             /// <param name="point">
-            /// The screen position.
+            ///     The screen position.
             /// </param>
             /// <param name="w">
-            /// The width of the viewport.
+            ///     The width of the viewport.
             /// </param>
             /// <param name="h">
-            /// The height of the viewport.
+            ///     The height of the viewport.
             /// </param>
             /// <returns>
-            /// A trackball coordinate.
+            ///     A trackball coordinate.
             /// </returns>
             private static Vector3 ProjectToTrackball(Vector2 point, double w, double h)
             {
                 // Use the diagonal for scaling, making sure that the whole client area is inside the trackball
-                var r = Math.Sqrt((w * w) + (h * h)) / 2;
-                var x = (point.X - (w / 2)) / r;
-                var y = ((h / 2) - point.Y) / r;
-                var z2 = 1 - (x * x) - (y * y);
+                var r = Math.Sqrt(w * w + h * h) / 2;
+                var x = (point.X - w / 2) / r;
+                var y = (h / 2 - point.Y) / r;
+                var z2 = 1 - x * x - y * y;
                 var z = z2 > 0 ? Math.Sqrt(z2) : 0;
 
-                return new Vector3((float)x, (float)y, (float)z);
+                return new Vector3((float) x, (float) y, (float) z);
             }
 
             /// <summary>
-            /// Rotates around three axes.
+            ///     Rotates around three axes.
             /// </summary>
             /// <param name="cameraMode">The camera mode.</param>
             /// <param name="p1">The p1.</param>
@@ -123,13 +118,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="newPosition">The new position.</param>
             /// <param name="newLookDirection">The new look direction.</param>
             /// <param name="newUpDirection">The new up direction.</param>
-            public static void RotateTurnball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2, ref Vector3 rotateAround,
+            public static void RotateTurnball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2,
+                ref Vector3 rotateAround,
                 float sensitivity,
                 int viewportWidth, int viewportHeight,
                 CameraCore camera, int invertFactor,
                 out Vector3 newPosition, out Vector3 newLookDirection, out Vector3 newUpDirection)
             {
-                InitTurnballRotationAxes(p1, viewportWidth, viewportHeight, camera, out var rotationAxisX, out var rotationAxisY);
+                InitTurnballRotationAxes(p1, viewportWidth, viewportHeight, camera, out var rotationAxisX,
+                    out var rotationAxisY);
 
                 var delta = p2 - p1;
 
@@ -137,15 +134,13 @@ namespace HelixToolkit.SharpDX.Core
                 var relativePosition = rotateAround - camera.Position;
 
                 float d = -1;
-                if (cameraMode != CameraMode.Inspect)
-                {
-                    d = 0.2f;
-                }
+                if (cameraMode != CameraMode.Inspect) d = 0.2f;
 
                 d *= sensitivity;
 
-                var q1 = SilkMath.QuaternionRotationAxis(rotationAxisX, d * invertFactor * delta.X / 180 * (float)Math.PI);
-                var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float)Math.PI);
+                var q1 = SilkMath.QuaternionRotationAxis(rotationAxisX,
+                    d * invertFactor * delta.X / 180 * (float) Math.PI);
+                var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float) Math.PI);
                 var q = q1 * q2;
 
                 var m = SilkMath.RotationQuaternion(q);
@@ -157,26 +152,20 @@ namespace HelixToolkit.SharpDX.Core
 
                 var newRightVector = SilkMath.Normalize(SilkMath.Cross(newLookDir, newUpDirection));
                 var modUpDir = SilkMath.Cross(newRightVector, newLookDir);
-                if ((newUpDirection - modUpDir).Length > 1e-8)
-                {
-                    newUpDirection = modUpDir;
-                }
+                if ((newUpDirection - modUpDir).Length > 1e-8) newUpDirection = modUpDir;
 
                 var newTarget = rotateAround - newRelativeTarget;
                 newPosition = rotateAround - newRelativePosition;
                 newLookDirection = newTarget - newPosition;
 
-                if (cameraMode != CameraMode.Inspect)
-                {
-                    newPosition = camera.Position;
-                }
+                if (cameraMode != CameraMode.Inspect) newPosition = camera.Position;
             }
 
             /// <summary>
-            /// Initializes the 'turn-ball' rotation axes from the specified point.
+            ///     Initializes the 'turn-ball' rotation axes from the specified point.
             /// </summary>
             /// <param name="p1">
-            /// The point.
+            ///     The point.
             /// </param>
             /// <param name="camera"></param>
             /// <param name="rotationAxisX"></param>
@@ -199,20 +188,16 @@ namespace HelixToolkit.SharpDX.Core
                 rotationAxisY = right;
 
                 if (fx > 0.8)
-                {
                     // delta.X = 0;
                     rotationAxisY = dir;
-                }
 
                 if (fx < 0.2)
-                {
                     // delta.X = 0;
                     rotationAxisY = -dir;
-                }
             }
 
             /// <summary>
-            /// Rotates using turntable.
+            ///     Rotates using turntable.
             /// </summary>
             /// <param name="cameraMode">The camera mode.</param>
             /// <param name="delta">The delta.</param>
@@ -241,15 +226,12 @@ namespace HelixToolkit.SharpDX.Core
                 var right = SilkMath.Normalize(SilkMath.Cross(dir, cUp));
 
                 var d = -0.5f;
-                if (cameraMode != CameraMode.Inspect)
-                {
-                    d *= -0.2f;
-                }
+                if (cameraMode != CameraMode.Inspect) d *= -0.2f;
 
                 d *= sensitivity;
 
-                var q1 = SilkMath.QuaternionRotationAxis(up, d * invertFactor * delta.X / 180 * (float)Math.PI);
-                var q2 = SilkMath.QuaternionRotationAxis(right, d * delta.Y / 180 * (float)Math.PI);
+                var q1 = SilkMath.QuaternionRotationAxis(up, d * invertFactor * delta.X / 180 * (float) Math.PI);
+                var q2 = SilkMath.QuaternionRotationAxis(right, d * delta.Y / 180 * (float) Math.PI);
                 var q = q1 * q2;
 
                 var m = SilkMath.RotationQuaternion(q);
@@ -262,11 +244,8 @@ namespace HelixToolkit.SharpDX.Core
                 var newTarget = rotateAround - newRelativeTarget;
                 newPosition = rotateAround - newRelativePosition;
 
-                newLookDirection = (newTarget - newPosition);
-                if (cameraMode != CameraMode.Inspect)
-                {
-                    newPosition = camera.Position;
-                }
+                newLookDirection = newTarget - newPosition;
+                if (cameraMode != CameraMode.Inspect) newPosition = camera.Position;
             }
         }
     }

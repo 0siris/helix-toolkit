@@ -3,92 +3,36 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.IO;
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Components;
-        using Render;
-        using Shaders;
-        using Utilities;
-
         public class DrawScreenQuadCore : RenderCore
         {
-            private string passName = DefaultPassNames.Default;
-            public string PassName
-            {
-                set
-                {
-                    if (SetAffectsRender(ref passName, value) && IsAttached)
-                    {
-                        pass = EffectTechnique[value];
-                        textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
-                        samplerSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-                    }
-                }
-                get
-                {
-                    return passName;
-                }
-            }
+            private readonly ConstantBufferComponent modelCB;
 
             public ScreenQuadModelStruct ModelStruct;
 
-            private TextureModel texture;
-            /// <summary>
-            /// Gets or sets the texture.
-            /// </summary>
-            /// <value>
-            /// The texture.
-            /// </value>
-            public TextureModel Texture
-            {
-                set
-                {
-                    if (SetAffectsRender(ref texture, value) && IsAttached)
-                    {
-                        UpdateTexture(value);
-                    }
-                }
-                get
-                {
-                    return texture;
-                }
-            }
-            private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
-            /// <summary>
-            /// Gets or sets the sampler description.
-            /// </summary>
-            /// <value>
-            /// The sampler description.
-            /// </value>
-            public SamplerStateDescription SamplerDescription
-            {
-                set
-                {
-                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
-                    {
-
-                    }
-                }
-                get
-                {
-                    return samplerDescription;
-                }
-            }
-
             private ShaderPass pass;
-            private readonly ConstantBufferComponent modelCB;
-            private ShaderResourceViewProxy textureProxy;
+            private string passName = DefaultPassNames.Default;
             private SamplerStateProxy sampler;
-            private int textureSlot;
+            private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
             private int samplerSlot;
+
+            private TextureModel texture;
+            private ShaderResourceViewProxy textureProxy;
+            private int textureSlot;
 
             public DrawScreenQuadCore() : base(RenderType.Opaque)
             {
-                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.ScreenQuadCB, ScreenQuadModelStruct.SizeInBytes)));
-                ModelStruct = new ScreenQuadModelStruct()
+                modelCB = AddComponent(new ConstantBufferComponent(
+                    new ConstantBufferDescription(DefaultBufferNames.ScreenQuadCB, ScreenQuadModelStruct.SizeInBytes)));
+                ModelStruct = new ScreenQuadModelStruct
                 {
                     TopLeft = new Vector4(-1, 1, 1, 1),
                     TopRight = new Vector4(1, 1, 1, 1),
@@ -97,14 +41,64 @@ namespace HelixToolkit.SharpDX.Core
                     TexTopLeft = new Vector2(0, 1),
                     TexTopRight = new Vector2(1, 1),
                     TexBottomLeft = new Vector2(0, 0),
-                    TexBottomRight = new Vector2(1, 0),
+                    TexBottomRight = new Vector2(1, 0)
                 };
+            }
+
+            public string PassName
+            {
+                get => passName;
+                set
+                {
+                    if (SetAffectsRender(ref passName, value) && IsAttached)
+                    {
+                        pass = EffectTechnique[value];
+                        textureSlot =
+                            pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+                        samplerSlot =
+                            pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames
+                                .SurfaceSampler);
+                    }
+                }
+            }
+
+            /// <summary>
+            ///     Gets or sets the texture.
+            /// </summary>
+            /// <value>
+            ///     The texture.
+            /// </value>
+            public TextureModel Texture
+            {
+                get => texture;
+                set
+                {
+                    if (SetAffectsRender(ref texture, value) && IsAttached) UpdateTexture(value);
+                }
+            }
+
+            /// <summary>
+            ///     Gets or sets the sampler description.
+            /// </summary>
+            /// <value>
+            ///     The sampler description.
+            /// </value>
+            public SamplerStateDescription SamplerDescription
+            {
+                get => samplerDescription;
+                set
+                {
+                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
+                    {
+                    }
+                }
             }
 
             private void UpdateTexture(TextureModel texture)
             {
-                var newTexture = texture == null ?
-                    null : EffectTechnique.EffectsManager.MaterialTextureManager.Register(texture);
+                var newTexture = texture == null
+                    ? null
+                    : EffectTechnique.EffectsManager.MaterialTextureManager.Register(texture);
                 RemoveAndDispose(ref textureProxy);
                 textureProxy = newTexture;
             }
@@ -118,14 +112,12 @@ namespace HelixToolkit.SharpDX.Core
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                if (pass.IsNULL)
-                {
-                    return;
-                }
+                if (pass.IsNULL) return;
                 ModelStruct.mWorld = ModelMatrix;
                 modelCB.Upload(deviceContext, ref ModelStruct);
                 pass.BindShader(deviceContext);
-                pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
+                pass.BindStates(deviceContext,
+                    StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
                 pass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
                 pass.PixelShader.BindTexture(deviceContext, textureSlot, textureProxy);
                 deviceContext.Draw(4, 0);
@@ -134,7 +126,8 @@ namespace HelixToolkit.SharpDX.Core
             protected override bool OnAttach(IRenderTechnique technique)
             {
                 pass = technique[passName];
-                textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+                textureSlot =
+                    pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
                 samplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
                 UpdateTexture(texture);
                 UpdateSampler();

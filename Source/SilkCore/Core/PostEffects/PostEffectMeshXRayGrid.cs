@@ -3,184 +3,42 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Model;
-        using Model.Scene;
-        using Render;
-        using Shaders;
-        using Components;
-
         public interface IPostEffectMeshXRayGrid : IPostEffect
         {
-            Color4 Color
-            {
-                set; get;
-            }
-            int GridDensity
-            {
-                set; get;
-            }
-            float DimmingFactor
-            {
-                set; get;
-            }
-            float BlendingFactor
-            {
-                set; get;
-            }
-            string XRayDrawingPassName
-            {
-                set; get;
-            }
-            bool UseDepthOcclusion
-            {
-                set; get;
-            }
+            Color4 Color { get; set; }
+
+            int GridDensity { get; set; }
+
+            float DimmingFactor { get; set; }
+
+            float BlendingFactor { get; set; }
+
+            string XRayDrawingPassName { get; set; }
+
+            bool UseDepthOcclusion { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid
         {
-            #region Variables
-            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = new List<KeyValuePair<SceneNode, IEffectAttributes>>();
-            private readonly ConstantBufferComponent modelCB;
-            private BorderEffectStruct modelStruct;
-            #endregion
-            #region Properties
-            private string effectName = DefaultRenderTechniqueNames.PostEffectMeshXRayGrid;
             /// <summary>
-            /// Gets or sets the name of the effect.
-            /// </summary>
-            /// <value>
-            /// The name of the effect.
-            /// </value>
-            public string EffectName
-            {
-                set
-                {
-                    SetAffectsCanRenderFlag(ref effectName, value);
-                }
-                get
-                {
-                    return effectName;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the color of the border.
-            /// </summary>
-            /// <value>
-            /// The color of the border.
-            /// </value>
-            public Color4 Color
-            {
-                set
-                {
-                    SetAffectsRender(ref modelStruct.Color, value);
-                }
-                get
-                {
-                    return modelStruct.Color;
-                }
-            }
-
-            private int gridDensity = 8;
-            /// <summary>
-            /// Gets or sets the grid density.
-            /// </summary>
-            /// <value>
-            /// The grid density.
-            /// </value>
-            public int GridDensity
-            {
-                set
-                {
-                    SetAffectsRender(ref gridDensity, value);
-                }
-                get
-                {
-                    return gridDensity;
-                }
-            }
-
-            private float dimmingFactor = 0.8f;
-            /// <summary>
-            /// Gets or sets the dim factor on original color
-            /// </summary>
-            /// <value>
-            /// The dim factor.
-            /// </value>
-            public float DimmingFactor
-            {
-                set
-                {
-                    SetAffectsRender(ref dimmingFactor, value);
-                }
-                get
-                {
-                    return dimmingFactor;
-                }
-            }
-
-            private float blendingFactor = 1f;
-            /// <summary>
-            /// Gets or sets the blending factor for grid and original mesh color blending
-            /// </summary>
-            /// <value>
-            /// The blending factor.
-            /// </value>
-            public float BlendingFactor
-            {
-                set
-                {
-                    SetAffectsRender(ref blendingFactor, value);
-                }
-                get
-                {
-                    return blendingFactor;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the name of the x ray drawing pass. This is the final pass to draw mesh and grid overlay onto render target
-            /// </summary>
-            /// <value>
-            /// The name of the x ray drawing pass.
-            /// </value>
-            public string XRayDrawingPassName
-            {
-                set; get;
-            } = DefaultPassNames.EffectMeshXRayGridP3;
-
-            private bool useDepthOcclusion = true;
-            /// <summary>
-            /// Uses the scene depth buffer to hide x-ray parts that are not occluded.
-            /// Disable this for overlays that must stay visible after OIT rendering.
-            /// </summary>
-            public bool UseDepthOcclusion
-            {
-                set
-                {
-                    SetAffectsRender(ref useDepthOcclusion, value);
-                }
-                get
-                {
-                    return useDepthOcclusion;
-                }
-            }
-            #endregion
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="PostEffectMeshXRayGridCore"/> class.
+            ///     Initializes a new instance of the <see cref="PostEffectMeshXRayGridCore" /> class.
             /// </summary>
             public PostEffectMeshXRayGridCore() : base(RenderType.PostEffect)
             {
-                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
+                modelCB = AddComponent(new ConstantBufferComponent(
+                    new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
                 Color = new Color4(0, 0, 1, 1);
             }
 
@@ -197,8 +55,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return IsAttached && !string.IsNullOrEmpty(EffectName);
             }
+
             /// <summary>
-            /// Called when [render].
+            ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
@@ -219,32 +78,25 @@ namespace HelixToolkit.SharpDX.Core
                         currentCores.Add(new KeyValuePair<SceneNode, IEffectAttributes>(mesh, effect));
                         context.CustomPassName = DefaultPassNames.EffectMeshXRayGridP1;
                         var pass = mesh.EffectTechnique[DefaultPassNames.EffectMeshXRayGridP1];
-                        if (pass.IsNULL)
-                        {
-                            continue;
-                        }
+                        if (pass.IsNULL) continue;
                         pass.BindShader(deviceContext);
                         pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
                         mesh.RenderCustom(context, deviceContext);
                     }
                 }
+
                 //Second pass, remove not covered part from stencil buffer
                 if (UseDepthOcclusion)
-                {
                     for (var i = 0; i < currentCores.Count; ++i)
                     {
                         var mesh = currentCores[i].Key;
                         context.CustomPassName = DefaultPassNames.EffectMeshXRayGridP2;
                         var pass = mesh.EffectTechnique[DefaultPassNames.EffectMeshXRayGridP2];
-                        if (pass.IsNULL)
-                        {
-                            continue;
-                        }
+                        if (pass.IsNULL) continue;
                         pass.BindShader(deviceContext);
                         pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
                         mesh.RenderCustom(context, deviceContext);
                     }
-                }
 
                 OnUpdatePerModelStruct(context);
                 modelCB.Upload(deviceContext, ref modelStruct);
@@ -253,29 +105,25 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     var mesh = currentCores[i].Key;
                     var color = Color;
-                    if (currentCores[i].Value.TryGetAttribute(EffectAttributeNames.ColorAttributeName, out var attribute) && attribute is string colorStr)
-                    {
-                        color = colorStr.ToColor4();
-                    }
+                    if (currentCores[i].Value
+                            .TryGetAttribute(EffectAttributeNames.ColorAttributeName, out var attribute) &&
+                        attribute is string colorStr) color = colorStr.ToColor4();
                     if (modelStruct.Color != color)
                     {
                         modelStruct.Color = color;
                         modelCB.Upload(deviceContext, ref modelStruct);
                     }
+
                     context.CustomPassName = XRayDrawingPassName;
                     var pass = mesh.EffectTechnique[XRayDrawingPassName];
-                    if (pass.IsNULL)
-                    {
-                        continue;
-                    }
+                    if (pass.IsNULL) continue;
                     pass.BindShader(deviceContext);
                     pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
                     if (mesh.RenderCore is IMaterialRenderParams material)
-                    {
                         material.MaterialVariables.BindMaterialResources(context, deviceContext, pass);
-                    }
                     mesh.RenderCustom(context, deviceContext);
                 }
+
                 currentCores.Clear();
             }
 
@@ -285,6 +133,107 @@ namespace HelixToolkit.SharpDX.Core
                 modelStruct.Param.M12 = dimmingFactor;
                 modelStruct.Param.M13 = blendingFactor;
             }
+
+            #region Variables
+
+            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = new();
+            private readonly ConstantBufferComponent modelCB;
+            private BorderEffectStruct modelStruct;
+
+            #endregion
+
+            #region Properties
+
+            private string effectName = DefaultRenderTechniqueNames.PostEffectMeshXRayGrid;
+
+            /// <summary>
+            ///     Gets or sets the name of the effect.
+            /// </summary>
+            /// <value>
+            ///     The name of the effect.
+            /// </value>
+            public string EffectName
+            {
+                get => effectName;
+                set => SetAffectsCanRenderFlag(ref effectName, value);
+            }
+
+            /// <summary>
+            ///     Gets or sets the color of the border.
+            /// </summary>
+            /// <value>
+            ///     The color of the border.
+            /// </value>
+            public Color4 Color
+            {
+                get => modelStruct.Color;
+                set => SetAffectsRender(ref modelStruct.Color, value);
+            }
+
+            private int gridDensity = 8;
+
+            /// <summary>
+            ///     Gets or sets the grid density.
+            /// </summary>
+            /// <value>
+            ///     The grid density.
+            /// </value>
+            public int GridDensity
+            {
+                get => gridDensity;
+                set => SetAffectsRender(ref gridDensity, value);
+            }
+
+            private float dimmingFactor = 0.8f;
+
+            /// <summary>
+            ///     Gets or sets the dim factor on original color
+            /// </summary>
+            /// <value>
+            ///     The dim factor.
+            /// </value>
+            public float DimmingFactor
+            {
+                get => dimmingFactor;
+                set => SetAffectsRender(ref dimmingFactor, value);
+            }
+
+            private float blendingFactor = 1f;
+
+            /// <summary>
+            ///     Gets or sets the blending factor for grid and original mesh color blending
+            /// </summary>
+            /// <value>
+            ///     The blending factor.
+            /// </value>
+            public float BlendingFactor
+            {
+                get => blendingFactor;
+                set => SetAffectsRender(ref blendingFactor, value);
+            }
+
+            /// <summary>
+            ///     Gets or sets the name of the x ray drawing pass. This is the final pass to draw mesh and grid overlay onto render
+            ///     target
+            /// </summary>
+            /// <value>
+            ///     The name of the x ray drawing pass.
+            /// </value>
+            public string XRayDrawingPassName { get; set; } = DefaultPassNames.EffectMeshXRayGridP3;
+
+            private bool useDepthOcclusion = true;
+
+            /// <summary>
+            ///     Uses the scene depth buffer to hide x-ray parts that are not occluded.
+            ///     Disable this for overlays that must stay visible after OIT rendering.
+            /// </summary>
+            public bool UseDepthOcclusion
+            {
+                get => useDepthOcclusion;
+                set => SetAffectsRender(ref useDepthOcclusion, value);
+            }
+
+            #endregion
         }
     }
 }

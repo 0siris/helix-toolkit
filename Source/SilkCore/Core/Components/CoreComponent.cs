@@ -2,8 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections.Generic;
+
 using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
@@ -12,19 +11,15 @@ namespace HelixToolkit.SharpDX.Core
     {
         public abstract class CoreComponent : DisposeObject
         {
+            public bool IsAttached { get; private set; }
+
+            public IRenderTechnique Technique { get; private set; }
+
             public event EventHandler InvalidateRender;
-            public bool IsAttached { private set; get; } = false;
-            public IRenderTechnique Technique
-            {
-                private set; get;
-            }
 
             public void Attach(IRenderTechnique technique)
             {
-                if (IsAttached)
-                {
-                    return;
-                }
+                if (IsAttached) return;
                 IsAttached = true;
                 Technique = technique;
                 OnAttach(technique);
@@ -34,10 +29,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void Detach()
             {
-                if (!IsAttached)
-                {
-                    return;
-                }
+                if (!IsAttached) return;
                 OnDetach();
                 IsAttached = false;
             }
@@ -45,7 +37,6 @@ namespace HelixToolkit.SharpDX.Core
             protected abstract void OnDetach();
 
             /// <summary>
-            /// 
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="backingField"></param>
@@ -54,10 +45,7 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected bool SetAffectsRender<T>(ref T backingField, T value)
             {
-                if (EqualityComparer<T>.Default.Equals(backingField, value))
-                {
-                    return false;
-                }
+                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
                 RaiseInvalidateRender();

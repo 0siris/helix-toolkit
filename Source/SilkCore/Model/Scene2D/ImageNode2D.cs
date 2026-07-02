@@ -3,9 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.IO;
-
+using HelixToolkit.SharpDX.Core.Core2D;
 #if !NETFX_CORE
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -15,40 +13,26 @@ namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
-
         public class ImageNode2D : SceneNode2D
         {
             private Stream imageStream;
 
             public Stream ImageStream
             {
+                get => imageStream;
                 set
                 {
-                    if (SetAffectsMeasure(ref imageStream, value))
-                    {
-                        bitmapChanged = true;
-                    }
-                }
-                get
-                {
-                    return imageStream;
+                    if (SetAffectsMeasure(ref imageStream, value)) bitmapChanged = true;
                 }
             }
 
             public float Opacity
             {
-                set
-                {
-                    (RenderCore as ImageRenderCore2D).Opacity = value;
-                }
-                get
-                {
-                    return (RenderCore as ImageRenderCore2D).Opacity;
-                }
+                get => (RenderCore as ImageRenderCore2D).Opacity;
+                set => (RenderCore as ImageRenderCore2D).Opacity = value;
             }
 
-            protected bool bitmapChanged { private set; get; } = true;
+            protected bool bitmapChanged { get; private set; } = true;
 
             protected override RenderCore2D CreateRenderCore()
             {
@@ -62,10 +46,8 @@ namespace HelixToolkit.SharpDX.Core
                     bitmapChanged = true;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             private void LoadBitmap(RenderContext2D context, Stream stream)
@@ -83,7 +65,8 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         stream.Position = 0;
                     }
-                    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                    var decoder =
+ BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                     if (decoder.Frames.Count == 0)
                     {
                         return null;
@@ -128,28 +111,22 @@ namespace HelixToolkit.SharpDX.Core
                     imageSize.Width *= DpiScale;
                     imageSize.Height *= DpiScale;
                     if (Width == 0 && Height == 0)
+                        return new Size2F(Math.Min(availableSize.Width, imageSize.Width),
+                            Math.Min(availableSize.Height, imageSize.Height));
+
+                    if (imageSize.Width == 0 || imageSize.Height == 0) return availableSize;
+
+                    var aspectRatio = imageSize.Width / imageSize.Height;
+                    if (Width == 0)
                     {
-                        return new Size2F(Math.Min(availableSize.Width, imageSize.Width), Math.Min(availableSize.Height, imageSize.Height));
+                        var height = Math.Min(availableSize.Height, Height) * DpiScale;
+                        return new Size2F(height / aspectRatio, height);
                     }
-                    else if (imageSize.Width == 0 || imageSize.Height == 0)
-                    {
-                        return availableSize;
-                    }
-                    else
-                    {
-                        var aspectRatio = imageSize.Width / imageSize.Height;
-                        if (Width == 0)
-                        {
-                            var height = Math.Min(availableSize.Height, Height) * DpiScale;
-                            return new Size2F(height / aspectRatio, height);
-                        }
-                        else
-                        {
-                            var width = Math.Min(availableSize.Width, Width) * DpiScale;
-                            return new Size2F(width, width * aspectRatio);
-                        }
-                    }
+
+                    var width = Math.Min(availableSize.Width, Width) * DpiScale;
+                    return new Size2F(width, width * aspectRatio);
                 }
+
                 return new Size2F(Math.Max(0, Width * DpiScale), Math.Max(0, Height * DpiScale));
             }
 
@@ -161,10 +138,8 @@ namespace HelixToolkit.SharpDX.Core
                     hitResult = new HitTest2DResult(this);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
         }
     }

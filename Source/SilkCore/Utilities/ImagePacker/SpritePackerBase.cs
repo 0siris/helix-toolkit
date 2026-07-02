@@ -4,33 +4,29 @@
  * Copyright (c) 2018 HelixToolkit Contributors (MIT License)
  * Modified from https://github.com/nickgravelyn/SpriteSheetPacker
  * Copyright (c) 2009-2010 Nick Gravelyn (nick@gravelyn.com), Markus Ewald (cygon@nuclex.org)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation 
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all 
+ *
+ * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
- * 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  */
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using HelixToolkit.SharpDX.Core.Native;
-
 
 namespace HelixToolkit.SharpDX.Core
 {
@@ -46,40 +42,32 @@ namespace HelixToolkit.SharpDX.Core
 
         public abstract class SpritePackerBase<T, E> : IDisposable
         {
+            protected readonly IDevice2DResources deviceRes2D;
+
+            private int padding;
+
             // various properties of the resulting image
             private bool requirePow2, requireSquare;
-            private int padding;
-            protected int OutputWidth
-            {
-                private set; get;
-            }
-            protected int OutputHeight
-            {
-                private set; get;
-            }
-
-            // the input list of image files
-            protected KeyValuePair<int, E>[] ItemArray
-            {
-                private set; get;
-            }
-            // some dictionaries to hold the image sizes and destination rectangles
-            protected Size2F[] ImageSizes
-            {
-                private set; get;
-            }
-            protected RectangleF[] ImagePlacement
-            {
-                private set; get;
-            }
-            protected readonly IDevice2DResources deviceRes2D;
 
             public SpritePackerBase(IDevice2DResources deviceResources)
             {
                 deviceRes2D = deviceResources;
             }
+
+            protected int OutputWidth { get; private set; }
+
+            protected int OutputHeight { get; private set; }
+
+            // the input list of image files
+            protected KeyValuePair<int, E>[] ItemArray { get; private set; }
+
+            // some dictionaries to hold the image sizes and destination rectangles
+            protected Size2F[] ImageSizes { get; private set; }
+
+            protected RectangleF[] ImagePlacement { get; private set; }
+
             /// <summary>
-            /// Packs a collection of items into a single image.
+            ///     Packs a collection of items into a single image.
             /// </summary>
             /// <param name="items">The list of file paths of the images to be combined.</param>
             /// <param name="requirePowerOfTwo">Whether or not the output image must have a power of two size.</param>
@@ -110,16 +98,12 @@ namespace HelixToolkit.SharpDX.Core
                     outputMap = null;
                     return ImagePackReturnCode.DeviceFailed;
                 }
+
                 if (ItemArray != null)
-                {
                     foreach (var item in ItemArray)
-                    {
                         if (item.Value is IDisposable disposable)
-                        {
                             disposable.Dispose();
-                        }
-                    }
-                }
+
                 ItemArray = GetArray(items);
                 requirePow2 = requirePowerOfTwo;
                 requireSquare = requireSquareImage;
@@ -175,10 +159,8 @@ namespace HelixToolkit.SharpDX.Core
                 var testHeight = OutputHeight;
 
                 // try to pack the images into our current test size
-                if (!TestPackingImages(testWidth, testHeight, ImagePlacement, out var packedWidth, out var packedHeight))
-                {
-                    return false;
-                }
+                if (!TestPackingImages(testWidth, testHeight, ImagePlacement, out var packedWidth,
+                        out var packedHeight)) return false;
                 testWidth = packedWidth;
                 testHeight = packedHeight;
                 // if we require a power of two texture, find the next power of two that can fit this image
@@ -213,14 +195,13 @@ namespace HelixToolkit.SharpDX.Core
                     var size = ImageSizes[image.Key];
 
                     // pack the image
-                    if (!rectanglePacker.TryPack((int)Math.Ceiling(size.Width + padding), (int)Math.Ceiling(size.Height + padding), out var origin))
-                    {
-                        return false;
-                    }
+                    if (!rectanglePacker.TryPack((int) Math.Ceiling(size.Width + padding),
+                            (int) Math.Ceiling(size.Height + padding), out var origin)) return false;
 
                     // add the destination rectangle to our dictionary
                     testImagePlacement[image.Key] = new RectangleF(origin.X, origin.Y, size.Width, size.Height);
                 }
+
                 packedWidth = rectanglePacker.ActualPackingAreaWidth;
                 packedHeight = rectanglePacker.ActualPackingAreaHeight;
                 return true;
@@ -242,44 +223,40 @@ namespace HelixToolkit.SharpDX.Core
                     return null;
                 }
             }
+
             /// <summary>
-            /// Gets the array.
+            ///     Gets the array.
             /// </summary>
             /// <param name="items">The items.</param>
             /// <returns></returns>
             protected abstract KeyValuePair<int, E>[] GetArray(IEnumerable<T> items);
+
             /// <summary>
-            /// Gets the size.
+            ///     Gets the size.
             /// </summary>
             /// <param name="value">The value.</param>
             /// <returns></returns>
             protected abstract Size2F GetSize(E value);
+
             /// <summary>
-            /// Draws the onto output target.
+            ///     Draws the onto output target.
             /// </summary>
             /// <param name="target">The target.</param>
             protected abstract void DrawOntoOutputTarget(D2DDeviceContext target);
 
             #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
 
-            void Dispose(bool disposing)
+            private bool disposedValue; // To detect redundant calls
+
+            private void Dispose(bool disposing)
             {
                 if (!disposedValue)
                 {
                     if (disposing)
-                    {
                         if (ItemArray != null)
-                        {
                             foreach (var item in ItemArray)
-                            {
                                 if (item.Value is IDisposable disposable)
-                                {
                                     disposable.Dispose();
-                                }
-                            }
-                        }
-                    }
 
                     // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                     // TODO: set large fields to null.
@@ -302,6 +279,7 @@ namespace HelixToolkit.SharpDX.Core
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
+
             #endregion
         }
     }

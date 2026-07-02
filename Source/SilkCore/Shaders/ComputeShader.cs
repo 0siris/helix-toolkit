@@ -2,28 +2,26 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
+
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Native;
-        using Render;
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public sealed class ComputeShader : ShaderBase
         {
-            private ComputeShaderHandle shader;
-            internal ComputeShaderHandle Shader => shader;
-            internal override IShaderHandle NativeShader => shader;
-            public static readonly ComputeShader NullComputeShader = new ComputeShader("NULL");
+            public static readonly ComputeShader NullComputeShader = new("NULL");
             public static readonly ComputeShaderType Type;
+            private ComputeShaderHandle shader;
+
             /// <summary>
-            /// Vertex Shader
+            ///     Vertex Shader
             /// </summary>
             /// <param name="device"></param>
             /// <param name="name"></param>
@@ -37,11 +35,13 @@ namespace HelixToolkit.SharpDX.Core
             private ComputeShader(string name)
                 : base(name, ShaderStage.Compute, true)
             {
-
             }
 
+            internal ComputeShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
+
             /// <summary>
-            /// Binds shader to pipeline
+            ///     Binds shader to pipeline
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="bindConstantBuffer"></param>
@@ -50,8 +50,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 context.SetShader(this);
             }
+
             /// <summary>
-            /// Binds the texture.
+            ///     Binds the texture.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="name">The name.</param>
@@ -59,11 +60,12 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy texture)
             {
-                var slot = this.ShaderResourceViewMapping.TryGetBindSlot(name);
+                var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
                 context.SetShaderResource(Type, slot, texture);
             }
+
             /// <summary>
-            /// Binds the texture.
+            ///     Binds the texture.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="slot">The slot.</param>
@@ -73,21 +75,21 @@ namespace HelixToolkit.SharpDX.Core
             {
                 context.SetShaderResource(Type, slot, texture);
             }
+
             /// <summary>
-            /// Binds the textures.
+            ///     Binds the textures.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="textures">The textures.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindTextures(DeviceContextProxy context, IList<KeyValuePair<int, ShaderResourceViewProxy>> textures)
+            public void BindTextures(DeviceContextProxy context,
+                IList<KeyValuePair<int, ShaderResourceViewProxy>> textures)
             {
-                foreach (var texture in textures)
-                {
-                    context.SetShaderResource(Type, texture.Key, texture.Value);
-                }
+                foreach (var texture in textures) context.SetShaderResource(Type, texture.Key, texture.Value);
             }
+
             /// <summary>
-            /// Binds the sampler.
+            ///     Binds the sampler.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="slot">The slot.</param>
@@ -97,8 +99,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 context.SetSampler(Type, slot, sampler);
             }
+
             /// <summary>
-            /// Binds the sampler.
+            ///     Binds the sampler.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="name">The name.</param>
@@ -106,25 +109,23 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy sampler)
             {
-                var slot = this.SamplerMapping.TryGetBindSlot(name);
+                var slot = SamplerMapping.TryGetBindSlot(name);
                 context.SetSampler(Type, slot, sampler);
             }
 
             /// <summary>
-            /// Binds the samplers.
+            ///     Binds the samplers.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="samplers">The samplers.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers)
             {
-                foreach (var sampler in samplers)
-                {
-                    context.SetSampler(Type, sampler.Key, sampler.Value);
-                }
+                foreach (var sampler in samplers) context.SetSampler(Type, sampler.Key, sampler.Value);
             }
+
             /// <summary>
-            /// Binds the UnorderedAccessView.
+            ///     Binds the UnorderedAccessView.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="slot">The slot.</param>
@@ -134,8 +135,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 context.SetUnorderedAccessView(Type, slot, uav);
             }
+
             /// <summary>
-            /// Binds the UnorderedAccessView.
+            ///     Binds the UnorderedAccessView.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="name">The name.</param>
@@ -143,21 +145,19 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void BindUAV(DeviceContextProxy context, string name, UAVBufferViewProxy uav)
             {
-                var slot = this.UnorderedAccessViewMapping.TryGetBindSlot(name);
+                var slot = UnorderedAccessViewMapping.TryGetBindSlot(name);
                 context.SetUnorderedAccessView(Type, slot, uav);
             }
+
             /// <summary>
-            /// Binds the UnorderedAccessViews.
+            ///     Binds the UnorderedAccessViews.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="uavs">The uavs.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void BindUAVs(DeviceContextProxy context, IList<KeyValuePair<int, UAVBufferViewProxy>> uavs)
             {
-                foreach (var uav in uavs)
-                {
-                    context.SetUnorderedAccessView(Type, uav.Key, uav.Value);
-                }
+                foreach (var uav in uavs) context.SetUnorderedAccessView(Type, uav.Key, uav.Value);
             }
 
             protected override void OnDispose(bool disposeManagedResources)

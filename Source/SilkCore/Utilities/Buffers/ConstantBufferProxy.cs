@@ -3,46 +3,24 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using System.Threading;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
-        using Shaders;
-        using Render;
-        using System.Diagnostics;
-
         /// <summary>
-        ///
         /// </summary>
         public sealed class ConstantBufferProxy : BufferProxyBase
         {
-            /// <summary>
-            ///
-            /// </summary>
-            public bool Initialized
-            {
-                get
-                {
-                    return buffer != null;
-                }
-            }
+            private readonly object lockObj = new();
 
             internal BufferDescription bufferDesc;
 
-            public string Name
-            {
-                private set; get;
-            }
-
-            private readonly object lockObj = new object();
-
-            internal Dictionary<string, ConstantBufferVariable> VariableDictionary { get; } = new Dictionary<string, ConstantBufferVariable>();
             /// <summary>
-            ///
             /// </summary>
             /// <param name="name"></param>
             /// <param name="structSize"></param>
@@ -52,16 +30,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="usage"></param>
             /// <param name="strideSize"></param>
             public ConstantBufferProxy(string name, int structSize, BindFlags bindFlags = BindFlags.ConstantBuffer,
-                CpuAccessFlags cpuAccessFlags = CpuAccessFlags.None, ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+                CpuAccessFlags cpuAccessFlags = CpuAccessFlags.None,
+                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
                 ResourceUsage usage = ResourceUsage.Default, int strideSize = 0)
                 : base(structSize, bindFlags)
             {
                 if (structSize % 16 != 0)
-                {
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
-                }
                 Name = name;
-                bufferDesc = new BufferDescription()
+                bufferDesc = new BufferDescription
                 {
                     SizeInBytes = structSize,
                     BindFlags = bindFlags,
@@ -73,18 +50,15 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            ///
             /// </summary>
             /// <param name="description"></param>
             public ConstantBufferProxy(ConstantBufferDescription description)
                 : base(description.StructSize, description.BindFlags)
             {
                 if (description.StructSize % 16 != 0)
-                {
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
-                }
                 Name = description.Name;
-                bufferDesc = new BufferDescription()
+                bufferDesc = new BufferDescription
                 {
                     SizeInBytes = description.StructSize,
                     BindFlags = description.BindFlags,
@@ -93,27 +67,38 @@ namespace HelixToolkit.SharpDX.Core
                     Usage = description.Usage,
                     StructureByteStride = description.StrideSize
                 };
-                foreach (var var in description.Variables)
-                {
-                    AddVariable(var);
-                }
+                foreach (var var in description.Variables) AddVariable(var);
             }
+
+            /// <summary>
+            /// </summary>
+            public bool Initialized => buffer != null;
+
+            public string Name { get; private set; }
+
+            internal Dictionary<string, ConstantBufferVariable> VariableDictionary { get; } = new();
+
+            /// <summary>
+            ///     Gets the <see cref="ConstantBufferVariable" /> with the specified name.
+            /// </summary>
+            /// <value>
+            ///     The <see cref="ConstantBufferVariable" />.
+            /// </value>
+            /// <param name="name">The name.</param>
+            /// <returns></returns>
+            public ConstantBufferVariable this[string name] => VariableDictionary[name];
 
             public void AddVariable(ConstantBufferVariable var)
             {
                 if (!VariableDictionary.TryGetValue(var.Name, out var v))
-                {
                     VariableDictionary.Add(var.Name, var);
-                }
                 else if (v.StartOffset != var.StartOffset || v.Size != var.Size)
-                {
                     throw new ArgumentException($"Variable {var.Name} already exists in constant buffer definition. " +
                                                 $"But start offset {var.StartOffset} and {v.StartOffset} or sizes {var.Size} and {v.Size} are not match");
-                }
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.CreateBuffer(object)"/>
+            ///     <see cref="ConstantBufferProxy.CreateBuffer(object)" />
             /// </summary>
             /// <param name="device"></param>
             public void CreateBuffer(object device)
@@ -126,14 +111,11 @@ namespace HelixToolkit.SharpDX.Core
 
             private void EnsureBuffer(DeviceContextProxy context)
             {
-                if (buffer == null)
-                {
-                    buffer = new Buffer(context, bufferDesc);
-                }
+                if (buffer == null) buffer = new Buffer(context, bufferDesc);
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, ref T)"/>
+            ///     <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, ref T)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -145,21 +127,21 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     EnsureBuffer(context);
                     if (bufferDesc.Usage == ResourceUsage.Dynamic)
-                    {     
-                        Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());            
-                        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);                           
+                    {
+                        Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());
+                        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                         UnsafeHelper.Write(dataBox.DataPointer, ref data);
                         context.UnmapSubresource(buffer, 0);
                     }
                     else
                     {
                         context.UpdateSubresource(ref data, buffer);
-                    }                
+                    }
                 }
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, T[], int)"/>
+            ///     <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, T[], int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -172,7 +154,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, T[], int, int)"/>
+            ///     <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, T[], int, int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -180,7 +162,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="count"></param>
             /// <param name="offset"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count, int offset) where T : unmanaged
+            public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count, int offset)
+                where T : unmanaged
             {
                 lock (lockObj)
                 {
@@ -188,19 +171,19 @@ namespace HelixToolkit.SharpDX.Core
                     if (bufferDesc.Usage == ResourceUsage.Dynamic)
                     {
                         Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= buffer.Description.SizeInBytes);
-                        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);                       
+                        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                         UnsafeHelper.Write(dataBox.DataPointer, data, offset, count);
                         context.UnmapSubresource(buffer, 0);
                     }
                     else
                     {
                         context.UpdateSubresource(data, buffer);
-                    }                
+                    }
                 }
             }
 
             /// <summary>
-            /// <see cref="ConstantBufferProxy.UploadDataToBuffer(DeviceContextProxy, Action{DataBox})"/>
+            ///     <see cref="ConstantBufferProxy.UploadDataToBuffer(DeviceContextProxy, Action{DataBox})" />
             /// </summary>
             /// <param name="context"></param>
             /// <param name="writeFuc"></param>
@@ -218,10 +201,10 @@ namespace HelixToolkit.SharpDX.Core
                     }
                     else
                     {
-    #if DEBUG
+#if DEBUG
                         throw new Exception("Constant buffer must be dynamic to use this function.");
-    #endif
-                    }                
+#endif
+                    }
                 }
             }
 
@@ -250,16 +233,14 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Special function to recreate existing constant buffer to new size.
+            ///     Special function to recreate existing constant buffer to new size.
             /// </summary>
             /// <param name="device"></param>
             /// <param name="structSize"></param>
             public void ResizeBuffer(object device, int structSize)
             {
                 if (structSize % 16 != 0)
-                {
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
-                }
                 lock (lockObj)
                 {
                     RemoveAndDispose(ref buffer);
@@ -272,31 +253,21 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref buffer);
                 base.OnDispose(disposeManagedResources);
             }
+
             /// <summary>
-            /// Performs an implicit conversion from <see cref="ConstantBufferProxy"/> to <see cref="Buffer"/>.
+            ///     Performs an implicit conversion from <see cref="ConstantBufferProxy" /> to <see cref="Buffer" />.
             /// </summary>
             /// <param name="proxy">The proxy.</param>
             /// <returns>
-            /// The result of the conversion.
+            ///     The result of the conversion.
             /// </returns>
             public static implicit operator Buffer(ConstantBufferProxy proxy)
             {
                 return proxy?.buffer;
             }
+
             /// <summary>
-            /// Gets the <see cref="ConstantBufferVariable"/> with the specified name.
-            /// </summary>
-            /// <value>
-            /// The <see cref="ConstantBufferVariable"/>.
-            /// </value>
-            /// <param name="name">The name.</param>
-            /// <returns></returns>
-            public ConstantBufferVariable this[string name]
-            {
-                get => VariableDictionary[name];
-            }
-            /// <summary>
-            /// Tries the name of the get variable by.
+            ///     Tries the name of the get variable by.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="variable">The variable.</param>

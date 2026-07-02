@@ -9,36 +9,29 @@ namespace HelixToolkit.SharpDX.Core
     namespace Utilities
     {
         /// <summary>
-        /// 
         /// </summary>
         public interface IRandomSeed
         {
             /// <summary>
-            /// Gets the seed.
+            ///     Gets the seed.
             /// </summary>
             /// <value>
-            /// The seed.
+            ///     The seed.
             /// </value>
-            uint Seed
-            {
-                get;
-            }
+            uint Seed { get; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface IRandomVector : IRandomSeed
         {
             /// <summary>
-            /// Gets the random vector3.
+            ///     Gets the random vector3.
             /// </summary>
             /// <value>
-            /// The random vector3.
+            ///     The random vector3.
             /// </value>
-            Vector3 RandomVector3
-            {
-                get;
-            }
+            Vector3 RandomVector3 { get; }
         }
     }
 }

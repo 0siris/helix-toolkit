@@ -3,51 +3,45 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
-        using Shaders;
-
         public sealed class BoneUploaderCore : RenderCore
         {
-            public event EventHandler BoneChanged;
             private static readonly Matrix[] empty = new Matrix[0];
-            private bool matricesChanged = true;
             private Matrix[] boneMatrices = empty;
-            public Matrix[] BoneMatrices
-            {
-                set
-                {
-                    if (SetAffectsRender(ref boneMatrices, value))
-                    {
-                        matricesChanged = true;
-                        if (value == null)
-                        {
-                            boneMatrices = empty;
-                        }
-                        BoneChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                }
-                get
-                {
-                    return boneMatrices;
-                }
-            }
-            public StructuredBufferProxy boneSkinSB = null;
-            public StructuredBufferProxy BoneSkinSB => boneSkinSB;
+            public StructuredBufferProxy boneSkinSB;
+            private bool matricesChanged = true;
 
             public BoneUploaderCore() : base(RenderType.None)
             {
                 NeedUpdate = false;
             }
 
+            public Matrix[] BoneMatrices
+            {
+                get => boneMatrices;
+                set
+                {
+                    if (SetAffectsRender(ref boneMatrices, value))
+                    {
+                        matricesChanged = true;
+                        if (value == null) boneMatrices = empty;
+                        BoneChanged?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+
+            public StructuredBufferProxy BoneSkinSB => boneSkinSB;
+            public event EventHandler BoneChanged;
+
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-
             }
 
             protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext)
@@ -72,10 +66,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void BindBuffer(DeviceContextProxy deviceContext, int slot)
             {
-                if (BoneSkinSB != null)
-                {
-                    deviceContext.SetShaderResource(VertexShader.Type, slot, BoneSkinSB);
-                }
+                if (BoneSkinSB != null) deviceContext.SetShaderResource(VertexShader.Type, slot, BoneSkinSB);
             }
 
             public void InvalidateBoneMatrices()
@@ -85,10 +76,7 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override void OnDispose(bool disposeManagedResources)
             {
-                if (disposeManagedResources)
-                {
-                    BoneChanged = null;
-                }
+                if (disposeManagedResources) BoneChanged = null;
                 base.OnDispose(disposeManagedResources);
             }
         }

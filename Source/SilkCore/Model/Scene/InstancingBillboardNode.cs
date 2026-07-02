@@ -3,53 +3,43 @@ The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Collections.Generic;
-
-using System.Diagnostics;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
-
         /// <summary>
-        /// 
         /// </summary>
         public class InstancingBillboardNode : BillboardNode
         {
             /// <summary>
-            /// Gets or sets the instance parameter array.
+            ///     The instance parameter buffer
+            /// </summary>
+            protected IElementsBufferModel<BillboardInstanceParameter> instanceParamBuffer =
+                new InstanceParamsBufferModel<BillboardInstanceParameter>(BillboardInstanceParameter.SizeInBytes);
+
+            /// <summary>
+            ///     Gets or sets the instance parameter array.
             /// </summary>
             /// <value>
-            /// The instance parameter array.
+            ///     The instance parameter array.
             /// </value>
             public IList<BillboardInstanceParameter> InstanceParamArray
             {
-                set
-                {
-                    instanceParamBuffer.Elements = value;
-                }
-                get
-                {
-                    return instanceParamBuffer.Elements;
-                }
+                get => instanceParamBuffer.Elements;
+                set => instanceParamBuffer.Elements = value;
             }
 
-            /// <summary>
-            /// The instance parameter buffer
-            /// </summary>
-            protected IElementsBufferModel<BillboardInstanceParameter> instanceParamBuffer = new InstanceParamsBufferModel<BillboardInstanceParameter>(BillboardInstanceParameter.SizeInBytes);
             #region Overridable Methods
 
             /// <summary>
-            /// Called when [create render core].
+            ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore()
             {
-                return new InstancingBillboardRenderCore() { ParameterBuffer = this.instanceParamBuffer };
+                return new InstancingBillboardRenderCore {ParameterBuffer = instanceParamBuffer};
             }
 
             protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
@@ -60,21 +50,20 @@ namespace HelixToolkit.SharpDX.Core
             protected override bool OnAttach(IEffectsManager effectsManager)
             {
                 // --- attach
-                if (!base.OnAttach(effectsManager))
-                {
-                    return false;
-                }
+                if (!base.OnAttach(effectsManager)) return false;
                 instanceParamBuffer.Initialize();
                 return true;
             }
+
             /// <summary>
-            /// Used to override Detach
+            ///     Used to override Detach
             /// </summary>
             protected override void OnDetach()
             {
                 instanceParamBuffer.DisposeAndClear();
                 base.OnDetach();
             }
+
             #endregion
         }
     }

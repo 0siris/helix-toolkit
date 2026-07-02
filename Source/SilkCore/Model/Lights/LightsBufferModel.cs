@@ -2,55 +2,44 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using Utilities;
         /// <summary>
-        /// Default Light Model
+        ///     Default Light Model
         /// </summary>
         public sealed class LightsBufferModel : ILightsBufferProxy<LightStruct>
         {
-            public const int SizeInBytes = LightStruct.SizeInBytes * Constants.MaxLights + 4 * (4 * 2);
+            public const int SizeInBytes = LightStruct.SizeInBytes * Constants.MaxLights + 4 * 4 * 2;
 
-            private readonly LightStruct[] lights = new LightStruct[Constants.MaxLights];
-            public Color4 AmbientLight { set; get; } = new Color4(0, 0, 0, 1);
-            public int LightCount { private set; get; } = 0;
             /// <summary>
-            /// Gets or sets a value indicating whether the scene has environment map.
+            ///     Gets or sets the environment map mip levels.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if the scene has environment map; otherwise, <c>false</c>.
-            /// </value>
-            internal bool HasEnvironmentMap = false;
-            /// <summary>
-            /// Gets or sets the environment map mip levels.
-            /// </summary>
-            /// <value>
-            /// The environment map mip levels.
+            ///     The environment map mip levels.
             /// </value>
             internal int EnvironmentMapMipLevels = 0;
 
-            public int BufferSize
-            {
-                get
-                {
-                    return SizeInBytes;
-                }
-            }
+            /// <summary>
+            ///     Gets or sets a value indicating whether the scene has environment map.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if the scene has environment map; otherwise, <c>false</c>.
+            /// </value>
+            internal bool HasEnvironmentMap = false;
 
-            public LightStruct[] Lights
-            {
-                get
-                {
-                    return lights;
-                }
-            }
+            public Color4 AmbientLight { get; set; } = new(0, 0, 0, 1);
+            public int LightCount { get; private set; }
+
+            public int BufferSize => SizeInBytes;
+
+            public LightStruct[] Lights { get; } = new LightStruct[Constants.MaxLights];
 
             public void IncrementLightCount()
             {
@@ -69,10 +58,7 @@ namespace HelixToolkit.SharpDX.Core
                 if (buffer.StructureSize == SizeInBytes)
                 {
                     var dataBox = context.MapSubresource(buffer.Buffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                    if (dataBox.IsEmpty)
-                    {
-                        return;
-                    }
+                    if (dataBox.IsEmpty) return;
                     var ptr = UnsafeHelper.Write(dataBox.DataPointer, Lights, 0, Lights.Length);
                     ptr = UnsafeHelper.Write(ptr, AmbientLight);
                     ptr = UnsafeHelper.Write(ptr, LightCount);

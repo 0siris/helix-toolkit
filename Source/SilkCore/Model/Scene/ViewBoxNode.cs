@@ -4,112 +4,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Shaders;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Shaders;
-        using Core;
-
         /// <summary>
-        /// 
         /// </summary>
         public class ViewBoxNode : ScreenSpacedNode
         {
-            static readonly ILogger logger = Logger.LogManager.Create<ViewBoxNode>();
-            #region Properties
-            private TextureModel viewboxTexture;
-            /// <summary>
-            /// Gets or sets the view box texture.
-            /// </summary>
-            /// <value>
-            /// The view box texture.
-            /// </value>
-            public TextureModel ViewBoxTexture
-            {
-                set
-                {
-                    if (Set(ref viewboxTexture, value))
-                    {
-                        UpdateTexture(value);
-                    }
-                }
-                get
-                {
-                    return viewboxTexture;
-                }
-            }
-            /// <summary>
-            /// Gets or sets a value indicating whether [enable edge click].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [enable edge click]; otherwise, <c>false</c>.
-            /// </value>
-            public bool EnableEdgeClick
-            {
-                set
-                {
-                    CornerModel.Visible = EdgeModel.Visible = value;
-                }
-                get
-                {
-                    return CornerModel.Visible;
-                }
-            }
-
-            private Vector3 upDirection = new Vector3(0, 1, 0);
-            /// <summary>
-            /// Gets or sets up direction.
-            /// </summary>
-            /// <value>
-            /// Up direction.
-            /// </value>
-            public Vector3 UpDirection
-            {
-                set
-                {
-                    if (Set(ref upDirection, value))
-                    {
-                        UpdateModel(value);
-                    }
-                }
-                get
-                {
-                    return upDirection;
-                }
-            }
-            #endregion
-
-            #region Fields
-            private const float size = 5;
-
-            private static readonly Vector3[] xAligned = { new Vector3(0, -1, -1), new Vector3(0, 1, -1), new Vector3(0, -1, 1), new Vector3(0, 1, 1) }; //x
-            private static readonly Vector3[] yAligned = { new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(-1, 0, 1), new Vector3(1, 0, 1) };//y
-            private static readonly Vector3[] zAligned = { new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0) };//z
-
-            private static readonly Vector3[] cornerPoints =   {
-                    new Vector3(-1,-1,-1 ), new Vector3(1, -1, -1), new Vector3(1, 1, -1), new Vector3(-1, 1, -1),
-                    new Vector3(-1,-1,1 ),new Vector3(1,-1,1 ),new Vector3(1,1,1 ),new Vector3(-1,1,1 )};
-
-            private static readonly Matrix[] cornerInstances;
-            private static readonly Matrix[] edgeInstances;
-            private static readonly Geometry3D cornerGeometry;
-            private static readonly Geometry3D edgeGeometry;
-
-            private readonly MeshNode ViewBoxMeshModel;
-            private readonly InstancingMeshNode EdgeModel;
-            private readonly InstancingMeshNode CornerModel;
-
-            private bool isRightHanded = true;
-            private List<HitTestResult> hitsInternal = new List<HitTestResult>();
-            #endregion
+            private static readonly ILogger logger = LogManager.Create<ViewBoxNode>();
 
             static ViewBoxNode()
             {
@@ -126,60 +33,54 @@ namespace HelixToolkit.SharpDX.Core
 
                 cornerInstances = new Matrix[cornerPoints.Length];
                 for (var i = 0; i < cornerPoints.Length; ++i)
-                {
                     cornerInstances[i] = SilkMath.Translation(cornerPoints[i] * size / 2 * 0.95f);
-                }
                 var count = xAligned.Length;
                 edgeInstances = new Matrix[count * 3];
 
                 for (var i = 0; i < count; ++i)
-                {
-                    edgeInstances[i] = SilkMath.RotationZ((float)Math.PI / 2) * SilkMath.Translation(xAligned[i] * halfSize * 0.95f);
-                }
+                    edgeInstances[i] = SilkMath.RotationZ((float) Math.PI / 2) *
+                                       SilkMath.Translation(xAligned[i] * halfSize * 0.95f);
                 for (var i = count; i < count * 2; ++i)
-                {
                     edgeInstances[i] = SilkMath.Translation(yAligned[i % count] * halfSize * 0.95f);
-                }
                 for (var i = count * 2; i < count * 3; ++i)
-                {
-                    edgeInstances[i] = SilkMath.RotationX((float)Math.PI / 2) * SilkMath.Translation(zAligned[i % count] * halfSize * 0.95f);
-                }
+                    edgeInstances[i] = SilkMath.RotationX((float) Math.PI / 2) *
+                                       SilkMath.Translation(zAligned[i % count] * halfSize * 0.95f);
             }
 
             public ViewBoxNode()
             {
                 CameraType = ScreenSpacedCameraType.Perspective;
                 RelativeScreenLocationX = 0.8f;
-                ViewBoxMeshModel = new MeshNode() { EnableViewFrustumCheck = false, CullMode = CullMode.Back };
+                ViewBoxMeshModel = new MeshNode {EnableViewFrustumCheck = false, CullMode = CullMode.Back};
                 var sampler = DefaultSamplers.LinearSamplerWrapAni1;
                 sampler.BorderColor = Color.Gray;
                 sampler.AddressU = sampler.AddressV = sampler.AddressW = TextureAddressMode.Border;
-                this.AddChildNode(ViewBoxMeshModel);
-                ViewBoxMeshModel.Material = new ViewCubeMaterialCore()
+                AddChildNode(ViewBoxMeshModel);
+                ViewBoxMeshModel.Material = new ViewCubeMaterialCore
                 {
                     DiffuseColor = Color.White,
                     DiffuseMapSampler = sampler
                 };
 
-                CornerModel = new InstancingMeshNode()
+                CornerModel = new InstancingMeshNode
                 {
                     EnableViewFrustumCheck = false,
-                    Material = new DiffuseMaterialCore() { DiffuseColor = Color.Yellow },
+                    Material = new DiffuseMaterialCore {DiffuseColor = Color.Yellow},
                     Geometry = cornerGeometry,
                     Instances = cornerInstances,
                     Visible = false
                 };
-                this.AddChildNode(CornerModel);
+                AddChildNode(CornerModel);
 
-                EdgeModel = new InstancingMeshNode()
+                EdgeModel = new InstancingMeshNode
                 {
                     EnableViewFrustumCheck = false,
-                    Material = new DiffuseMaterialCore() { DiffuseColor = Color.Silver },
+                    Material = new DiffuseMaterialCore {DiffuseColor = Color.Silver},
                     Geometry = edgeGeometry,
                     Instances = edgeInstances,
                     Visible = false
                 };
-                this.AddChildNode(EdgeModel);
+                AddChildNode(EdgeModel);
                 UpdateModel(UpDirection);
             }
 
@@ -187,19 +88,17 @@ namespace HelixToolkit.SharpDX.Core
             {
                 if (base.OnAttach(effectsManager))
                 {
-                    var material = (ViewBoxMeshModel.Material as ViewCubeMaterialCore);
+                    var material = ViewBoxMeshModel.Material as ViewCubeMaterialCore;
                     if (material.DiffuseMap == null)
-                    {
-                        material.DiffuseMap = ViewBoxTexture ?? new TextureModel(BitmapExtensions.CreateViewBoxTexture(effectsManager,
-                            "F", "B", "L", "R", "U", "D", Color.Red, Color.Red, Color.Blue, Color.Blue, Color.Green, Color.Green,
+                        material.DiffuseMap = ViewBoxTexture ?? new TextureModel(BitmapExtensions.CreateViewBoxTexture(
+                            effectsManager,
+                            "F", "B", "L", "R", "U", "D", Color.Red, Color.Red, Color.Blue, Color.Blue, Color.Green,
+                            Color.Green,
                             Color.White, Color.White, Color.White, Color.White, Color.White, Color.White), true);
-                    }
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnCoordinateSystemChanged(bool e)
@@ -226,7 +125,8 @@ namespace HelixToolkit.SharpDX.Core
                     front *= -1;
                     left *= -1;
                 }
-                var builder = new MeshBuilder(true, true, false);
+
+                var builder = new MeshBuilder(true);
                 builder.AddCubeFace(new Vector3(0, 0, 0), front, up, size, size, size);
                 builder.AddCubeFace(new Vector3(0, 0, 0), -front, up, size, size, size);
                 builder.AddCubeFace(new Vector3(0, 0, 0), left, up, size, size, size);
@@ -243,13 +143,14 @@ namespace HelixToolkit.SharpDX.Core
                 var phi = 24;
                 for (var i = 0; i < phi; i++)
                 {
-                    double angle = 0 + (360 * i / (phi - 1));
+                    double angle = 0 + 360 * i / (phi - 1);
                     var angleRad = angle / 180 * Math.PI;
-                    var dir = (left * (float)Math.Cos(angleRad)) + (front * (float)Math.Sin(angleRad));
-                    pts.Add(center + (dir * (size - 0.75f)));
-                    pts.Add(center + (dir * (size + 1.1f)));
+                    var dir = left * (float) Math.Cos(angleRad) + front * (float) Math.Sin(angleRad);
+                    pts.Add(center + dir * (size - 0.75f));
+                    pts.Add(center + dir * (size + 1.1f));
                 }
-                builder = new MeshBuilder(false, false, false);
+
+                builder = new MeshBuilder(false, false);
                 builder.AddTriangleStrip(pts);
                 var pie = builder.ToMesh();
                 var count = pie.Indices.Count;
@@ -262,20 +163,21 @@ namespace HelixToolkit.SharpDX.Core
                     pie.Indices.Add(v3);
                     pie.Indices.Add(v2);
                 }
-                var newMesh = MeshGeometry3D.Merge(new MeshGeometry3D[] { pie, mesh });
+
+                var newMesh = MeshGeometry3D.Merge(pie, mesh);
 
                 if (!isRightHanded)
-                {
                     for (var i = 0; i < newMesh.Positions.Count; ++i)
                     {
                         var p = newMesh.Positions[i];
                         p.Z *= -1;
                         newMesh.Positions[i] = p;
                     }
-                }
 
-                newMesh.TextureCoordinates = new Vector2Collection(Enumerable.Repeat(new Vector2(-1, -1), pie.Positions.Count));
-                newMesh.Colors = new Color4Collection(Enumerable.Repeat(new Color4(1f, 1f, 1f, 1f), pie.Positions.Count));
+                newMesh.TextureCoordinates =
+                    new Vector2Collection(Enumerable.Repeat(new Vector2(-1, -1), pie.Positions.Count));
+                newMesh.Colors =
+                    new Color4Collection(Enumerable.Repeat(new Color4(1f, 1f, 1f, 1f), pie.Positions.Count));
                 newMesh.TextureCoordinates.AddRange(mesh.TextureCoordinates);
                 newMesh.Colors.AddRange(Enumerable.Repeat(new Color4(1, 1, 1, 1), mesh.Positions.Count));
                 newMesh.Normals = newMesh.CalculateNormals();
@@ -289,9 +191,8 @@ namespace HelixToolkit.SharpDX.Core
                 var inc = 1f / faces;
 
                 for (var i = 0; i < mesh.TextureCoordinates.Count; ++i)
-                {
-                    mesh.TextureCoordinates[i] = new Vector2(mesh.TextureCoordinates[i].X * inc + inc * (int)(i / segment), mesh.TextureCoordinates[i].Y);
-                }
+                    mesh.TextureCoordinates[i] = new Vector2(mesh.TextureCoordinates[i].X * inc + inc * (i / segment),
+                        mesh.TextureCoordinates[i].Y);
             }
 
             protected override bool CanHitTest(HitTestContext context)
@@ -299,27 +200,21 @@ namespace HelixToolkit.SharpDX.Core
                 return context != null;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 if (base.OnHitTest(context, totalModelMatrix, ref hitsInternal))
                 {
-                    if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug("View box hit.");
-                    }
+                    if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("View box hit.");
                     var hit = hitsInternal.OrderBy(x => x.Distance).FirstOrDefault();
-                    if (hit == null)
-                    { return false; }
-                    Vector3 normal = Vector3.Zero;
-                    int inv = isRightHanded ? 1 : -1;
+                    if (hit == null) return false;
+                    var normal = Vector3.Zero;
+                    var inv = isRightHanded ? 1 : -1;
                     if (hit.ModelHit == ViewBoxMeshModel)
                     {
                         normal = -hit.NormalAtHit * inv;
                         //Fix the normal if returned normal is reversed
-                        if (SilkMath.Dot(normal, context.RenderMatrices.CameraParams.LookAtDir) < 0)
-                        {
-                            normal *= -1;
-                        }
+                        if (SilkMath.Dot(normal, context.RenderMatrices.CameraParams.LookAtDir) < 0) normal *= -1;
                     }
                     else if (hit.Tag is int index)
                     {
@@ -342,19 +237,101 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         return false;
                     }
+
                     normal.Normalize();
                     hit.NormalAtHit = normal;
                     hit.ModelHit = this;
-                    hit.Tag = this.Tag;
+                    hit.Tag = Tag;
                     hits.Add(hit);
                     hitsInternal.Clear();
                     return true;
                 }
-                else
+
+                return false;
+            }
+
+            #region Properties
+
+            private TextureModel viewboxTexture;
+
+            /// <summary>
+            ///     Gets or sets the view box texture.
+            /// </summary>
+            /// <value>
+            ///     The view box texture.
+            /// </value>
+            public TextureModel ViewBoxTexture
+            {
+                get => viewboxTexture;
+                set
                 {
-                    return false;
+                    if (Set(ref viewboxTexture, value)) UpdateTexture(value);
                 }
             }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether [enable edge click].
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if [enable edge click]; otherwise, <c>false</c>.
+            /// </value>
+            public bool EnableEdgeClick
+            {
+                get => CornerModel.Visible;
+                set => CornerModel.Visible = EdgeModel.Visible = value;
+            }
+
+            private Vector3 upDirection = new(0, 1, 0);
+
+            /// <summary>
+            ///     Gets or sets up direction.
+            /// </summary>
+            /// <value>
+            ///     Up direction.
+            /// </value>
+            public Vector3 UpDirection
+            {
+                get => upDirection;
+                set
+                {
+                    if (Set(ref upDirection, value)) UpdateModel(value);
+                }
+            }
+
+            #endregion
+
+            #region Fields
+
+            private const float size = 5;
+
+            private static readonly Vector3[] xAligned =
+                {new(0, -1, -1), new(0, 1, -1), new(0, -1, 1), new(0, 1, 1)}; //x
+
+            private static readonly Vector3[] yAligned =
+                {new(-1, 0, -1), new(1, 0, -1), new(-1, 0, 1), new(1, 0, 1)}; //y
+
+            private static readonly Vector3[] zAligned =
+                {new(-1, -1, 0), new(-1, 1, 0), new(1, -1, 0), new(1, 1, 0)}; //z
+
+            private static readonly Vector3[] cornerPoints =
+            {
+                new(-1, -1, -1), new(1, -1, -1), new(1, 1, -1), new(-1, 1, -1),
+                new(-1, -1, 1), new(1, -1, 1), new(1, 1, 1), new(-1, 1, 1)
+            };
+
+            private static readonly Matrix[] cornerInstances;
+            private static readonly Matrix[] edgeInstances;
+            private static readonly Geometry3D cornerGeometry;
+            private static readonly Geometry3D edgeGeometry;
+
+            private readonly MeshNode ViewBoxMeshModel;
+            private readonly InstancingMeshNode EdgeModel;
+            private readonly InstancingMeshNode CornerModel;
+
+            private bool isRightHanded = true;
+            private List<HitTestResult> hitsInternal = new();
+
+            #endregion
         }
     }
 }

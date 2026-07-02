@@ -3,11 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Core2D;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
         public class EllipseNode2D : ShapeNode2D
         {
             protected override ShapeRenderCore2DBase CreateShapeRenderCore()

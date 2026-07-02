@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Native

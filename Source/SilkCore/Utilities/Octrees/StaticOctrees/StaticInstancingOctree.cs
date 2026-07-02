@@ -4,34 +4,33 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
         /// <summary>
-        /// 
         /// </summary>
         public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, BoundingBox>>
         {
-            protected readonly IList<Matrix> InstanceMatrix;
             protected readonly BoundingBox GeometryBound;
+            protected readonly IList<Matrix> InstanceMatrix;
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="StaticInstancingModelOctree"/> class.
+            ///     Initializes a new instance of the <see cref="StaticInstancingModelOctree" /> class.
             /// </summary>
             /// <param name="instanceMatrix">The instance matrix.</param>
             /// <param name="geometryBound">The geometry bound.</param>
             /// <param name="parameter">The parameter.</param>
-            public StaticInstancingModelOctree(IList<Matrix> instanceMatrix, BoundingBox geometryBound, OctreeBuildParameter parameter)
+            public StaticInstancingModelOctree(IList<Matrix> instanceMatrix, BoundingBox geometryBound,
+                OctreeBuildParameter parameter)
                 : base(parameter)
             {
                 InstanceMatrix = instanceMatrix;
                 GeometryBound = geometryBound;
             }
+
             /// <summary>
-            /// Gets the bounding box from item.
+            ///     Gets the bounding box from item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
@@ -39,8 +38,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return item.Value;
             }
+
             /// <summary>
-            /// Gets the maximum bound.
+            ///     Gets the maximum bound.
             /// </summary>
             /// <returns></returns>
             protected override BoundingBox GetMaxBound()
@@ -51,10 +51,12 @@ namespace HelixToolkit.SharpDX.Core
                     var b = GeometryBound.Transform(InstanceMatrix[i]);
                     BoundingBox.Merge(ref totalBound, ref b, out totalBound);
                 }
+
                 return totalBound;
             }
+
             /// <summary>
-            /// Gets the objects.
+            ///     Gets the objects.
             /// </summary>
             /// <returns></returns>
             protected override KeyValuePair<int, BoundingBox>[] GetObjects()
@@ -65,10 +67,12 @@ namespace HelixToolkit.SharpDX.Core
                     var b = GeometryBound.Transform(InstanceMatrix[i]);
                     bounds[i] = new KeyValuePair<int, BoundingBox>(i, b);
                 }
+
                 return bounds;
             }
+
             /// <summary>
-            /// Hits the test current node exclude child.
+            ///     Hits the test current node exclude child.
             /// </summary>
             /// <param name="octant">The octant.</param>
             /// <param name="context">The context.</param>
@@ -81,15 +85,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="isIntersect">if set to <c>true</c> [is intersect].</param>
             /// <param name="hitThickness">The hit thickness.</param>
             /// <returns></returns>
-            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context, object model,
+            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context,
+                object model,
                 Geometry3D geometry, Matrix modelMatrix, ref Ray rayModel, bool returnMultiple,
                 ref List<HitTestResult> hits, ref bool isIntersect, float hitThickness)
             {
                 isIntersect = false;
-                if (!octant.IsBuilt)
-                {
-                    return false;
-                }
+                if (!octant.IsBuilt) return false;
                 var isHit = false;
                 var bound = octant.Bound.Transform(modelMatrix);
                 var rayWS = context.RayWS;
@@ -101,7 +103,7 @@ namespace HelixToolkit.SharpDX.Core
                         var b = Objects[i].Value.Transform(modelMatrix);
                         if (b.Intersects(ref rayWS))
                         {
-                            var result = new HitTestResult()
+                            var result = new HitTestResult
                             {
                                 Tag = Objects[i].Key
                             };
@@ -110,10 +112,12 @@ namespace HelixToolkit.SharpDX.Core
                         }
                     }
                 }
+
                 return isHit;
             }
+
             /// <summary>
-            /// Finds the nearest point by sphere exclude child.
+            ///     Finds the nearest point by sphere exclude child.
             /// </summary>
             /// <param name="octant">The octant.</param>
             /// <param name="context">The context.</param>
@@ -121,32 +125,36 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="points">The points.</param>
             /// <param name="isIntersect">if set to <c>true</c> [is intersect].</param>
             /// <returns></returns>
-            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context, ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
+            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context,
+                ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
             {
                 return false;
             }
         }
 
         /// <summary>
-        /// Octree for batched geometry array
+        ///     Octree for batched geometry array
         /// </summary>
         public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, BoundingBox>>
         {
             protected readonly BatchedMeshGeometryConfig[] Geometries;
             protected readonly BoundingBox[] GeometryBound;
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="StaticInstancingModelOctree"/> class.
+            ///     Initializes a new instance of the <see cref="StaticInstancingModelOctree" /> class.
             /// </summary>
             /// <param name="geometries">Batched geometries.</param>
             /// <param name="parameter">The parameter.</param>
-            public StaticBatchedGeometryBoundsOctree(BatchedMeshGeometryConfig[] geometries, OctreeBuildParameter parameter)
+            public StaticBatchedGeometryBoundsOctree(BatchedMeshGeometryConfig[] geometries,
+                OctreeBuildParameter parameter)
                 : base(parameter)
             {
                 Geometries = geometries;
                 GeometryBound = geometries.Select(x => x.Geometry.Bound.Transform(x.ModelTransform)).ToArray();
             }
+
             /// <summary>
-            /// Gets the bounding box from item.
+            ///     Gets the bounding box from item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
@@ -154,34 +162,33 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return item.Value;
             }
+
             /// <summary>
-            /// Gets the maximum bound.
+            ///     Gets the maximum bound.
             /// </summary>
             /// <returns></returns>
             protected override BoundingBox GetMaxBound()
             {
                 var totalBound = GeometryBound[0];
                 for (var i = 0; i < GeometryBound.Length; ++i)
-                {
                     BoundingBox.Merge(ref totalBound, ref GeometryBound[i], out totalBound);
-                }
                 return totalBound;
             }
+
             /// <summary>
-            /// Gets the objects.
+            ///     Gets the objects.
             /// </summary>
             /// <returns></returns>
             protected override KeyValuePair<int, BoundingBox>[] GetObjects()
             {
                 var bounds = new KeyValuePair<int, BoundingBox>[GeometryBound.Length];
                 for (var i = 0; i < GeometryBound.Length; ++i)
-                {
                     bounds[i] = new KeyValuePair<int, BoundingBox>(i, GeometryBound[i]);
-                }
                 return bounds;
             }
+
             /// <summary>
-            /// Hits the test current node exclude child.
+            ///     Hits the test current node exclude child.
             /// </summary>
             /// <param name="octant">The octant.</param>
             /// <param name="context">The context.</param>
@@ -199,10 +206,7 @@ namespace HelixToolkit.SharpDX.Core
                 ref List<HitTestResult> hits, ref bool isIntersect, float hitThickness)
             {
                 isIntersect = false;
-                if (!octant.IsBuilt)
-                {
-                    return false;
-                }
+                if (!octant.IsBuilt) return false;
                 var isHit = false;
                 var bound = octant.Bound.Transform(modelMatrix);
                 var rayWS = context.RayWS;
@@ -223,20 +227,21 @@ namespace HelixToolkit.SharpDX.Core
                                 {
                                     var newCount = hits.Count;
                                     for (var j = currCount; j < newCount; ++j)
-                                    {
                                         hits.Add(new BatchedMeshHitTestResult(Objects[i].Key, ref geo, hits[j]));
-                                    }
                                     hits.RemoveRange(currCount, newCount - currCount);
                                 }
+
                                 isHit |= hasHit;
                             }
                         }
                     }
                 }
+
                 return isHit;
             }
+
             /// <summary>
-            /// Finds the nearest point by sphere exclude child.
+            ///     Finds the nearest point by sphere exclude child.
             /// </summary>
             /// <param name="octant">The octant.</param>
             /// <param name="context">The context.</param>
@@ -244,7 +249,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="points">The points.</param>
             /// <param name="isIntersect">if set to <c>true</c> [is intersect].</param>
             /// <returns></returns>
-            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context, ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
+            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context,
+                ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect)
             {
                 return false;
             }

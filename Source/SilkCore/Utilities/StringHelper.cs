@@ -1,7 +1,6 @@
-﻿namespace HelixToolkit.SharpDX.Core
+﻿namespace HelixToolkit.SharpDX.Core;
+
+internal static class StringHelper
 {
-    internal static class StringHelper
-    {
-        public const string EmptyStr = "";
-    }
+    public const string EmptyStr = "";
 }

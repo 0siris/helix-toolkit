@@ -3,662 +3,484 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.IO;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Shaders;
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
-        public partial class PhongMaterialCore : MaterialCore
+        public class PhongMaterialCore : MaterialCore
         {
             private Color4 ambientColor = Color.DarkGray;
+
+            private TextureModel diffuseAlphaMap;
+
+            private Color4 diffuseColor = Color.White;
+
+            private TextureModel diffuseMap;
+
+            private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
+
+            private TextureModel displacementMap;
+
+
+            private SamplerStateDescription displacementMapSampler = DefaultSamplers.LinearSamplerWrapAni1;
+
+            private Vector4 displacementMapScaleMask;
+
+            private Color4 emissiveColor = Color.Black;
+
+            private TextureModel emissiveMap;
+
+            private bool enableAutoTangent;
+
+            private bool enableFlatShading;
+
+            private bool enableTessellation;
+
+            private float maxDistanceTessellationFactor = 1;
+
+            private float maxTessellationDistance = 100;
+
+            private MeshTopologyEnum meshType = MeshTopologyEnum.PNTriangles;
+
+            private float minDistanceTessellationFactor = 2;
+
+            private float minTessellationDistance = 10;
+
+            private TextureModel normalMap;
+
+            private Color4 reflectiveColor = Color.Black;
+
+            private bool renderDiffuseAlphaMap = true;
+
+            private bool renderDiffuseMap = true;
+
+            private bool renderDisplacementMap = true;
+
+            private bool renderEmissiveMap = true;
+
+            private bool renderEnvironmentMap;
+            private bool renderNormalMap = true;
+
+            private bool renderShadowMap;
+
+            private bool renderSpecularColorMap = true;
+
+            private Color4 specularColor = Color.Gray;
+
+            private TextureModel specularColorMap;
+
+            private float specularShininess = 1;
+
+            private UVTransform uvTransform = UVTransform.Identity;
+
+            private float vertexColorBlendingFactor;
+
             /// <summary>
-            /// Gets or sets the color of the ambient.
+            ///     Gets or sets the color of the ambient.
             /// </summary>
             /// <value>
-            /// The color of the ambient.
+            ///     The color of the ambient.
             /// </value>
             public Color4 AmbientColor
             {
-                set
-                {
-                    Set(ref ambientColor, value);
-                }
-                get
-                {
-                    return ambientColor;
-                }
+                get => ambientColor;
+                set => Set(ref ambientColor, value);
             }
 
-            private Color4 diffuseColor = Color.White;
             /// <summary>
-            /// Gets or sets the color of the diffuse.
+            ///     Gets or sets the color of the diffuse.
             /// </summary>
             /// <value>
-            /// The color of the diffuse.
+            ///     The color of the diffuse.
             /// </value>
             public Color4 DiffuseColor
             {
-                set
-                {
-                    Set(ref diffuseColor, value);
-                }
-                get
-                {
-                    return diffuseColor;
-                }
+                get => diffuseColor;
+                set => Set(ref diffuseColor, value);
             }
 
-            private Color4 emissiveColor = Color.Black;
             /// <summary>
-            /// Gets or sets the color of the emissive.
+            ///     Gets or sets the color of the emissive.
             /// </summary>
             /// <value>
-            /// The color of the emissive.
+            ///     The color of the emissive.
             /// </value>
             public Color4 EmissiveColor
             {
-                set
-                {
-                    Set(ref emissiveColor, value);
-                }
-                get
-                {
-                    return emissiveColor;
-                }
+                get => emissiveColor;
+                set => Set(ref emissiveColor, value);
             }
 
-            private Color4 reflectiveColor = Color.Black;
             /// <summary>
-            /// Gets or sets the color of the reflective.
+            ///     Gets or sets the color of the reflective.
             /// </summary>
             /// <value>
-            /// The color of the reflective.
+            ///     The color of the reflective.
             /// </value>
             public Color4 ReflectiveColor
             {
-                set
-                {
-                    Set(ref reflectiveColor, value);
-                }
-                get
-                {
-                    return reflectiveColor;
-                }
+                get => reflectiveColor;
+                set => Set(ref reflectiveColor, value);
             }
 
-            private Color4 specularColor = Color.Gray;
             /// <summary>
-            /// Gets or sets the color of the specular.
+            ///     Gets or sets the color of the specular.
             /// </summary>
             /// <value>
-            /// The color of the specular.
+            ///     The color of the specular.
             /// </value>
             public Color4 SpecularColor
             {
-                set
-                {
-                    Set(ref specularColor, value);
-                }
-                get
-                {
-                    return specularColor;
-                }
+                get => specularColor;
+                set => Set(ref specularColor, value);
             }
 
-            private float specularShininess = 1;
             /// <summary>
-            /// Gets or sets the specular shininess.
+            ///     Gets or sets the specular shininess.
             /// </summary>
             /// <value>
-            /// The specular shininess.
+            ///     The specular shininess.
             /// </value>
             /// <exception cref="System.NotImplementedException">
             /// </exception>
             public float SpecularShininess
             {
-                set
-                {
-                    Set(ref specularShininess, value);
-                }
-                get
-                {
-                    return specularShininess;
-                }
+                get => specularShininess;
+                set => Set(ref specularShininess, value);
             }
 
-            private TextureModel diffuseMap;
             /// <summary>
-            /// Gets or sets the diffuse map.
+            ///     Gets or sets the diffuse map.
             /// </summary>
             /// <value>
-            /// The diffuse map.
+            ///     The diffuse map.
             /// </value>
             public TextureModel DiffuseMap
             {
-                set
-                {
-                    Set(ref diffuseMap, value);
-                }
-                get
-                {
-                    return diffuseMap;
-                }
+                get => diffuseMap;
+                set => Set(ref diffuseMap, value);
             }
 
             /// <summary>
-            /// Gets or sets the diffuse map file path. For export only
+            ///     Gets or sets the diffuse map file path. For export only
             /// </summary>
             /// <value>
-            /// The diffuse map file path.
+            ///     The diffuse map file path.
             /// </value>
-            public string DiffuseMapFilePath
-            {
-                set; get;
-            }
+            public string DiffuseMapFilePath { get; set; }
 
-            private TextureModel diffuseAlphaMap;
             /// <summary>
-            /// Gets or sets the DiffuseAlphaMap.
+            ///     Gets or sets the DiffuseAlphaMap.
             /// </summary>
             /// <value>
-            /// DiffuseAlphaMap
+            ///     DiffuseAlphaMap
             /// </value>
             public TextureModel DiffuseAlphaMap
             {
-                set
-                {
-                    Set(ref diffuseAlphaMap, value);
-                }
-                get
-                {
-                    return diffuseAlphaMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the diffuse alpha map file path. For export only
-            /// </summary>
-            /// <value>
-            /// The diffuse alpha map file path.
-            /// </value>
-            public string DiffuseAlphaMapFilePath
-            {
-                set; get;
+                get => diffuseAlphaMap;
+                set => Set(ref diffuseAlphaMap, value);
             }
 
-            private TextureModel normalMap;
             /// <summary>
-            /// Gets or sets the NormalMap.
+            ///     Gets or sets the diffuse alpha map file path. For export only
             /// </summary>
             /// <value>
-            /// NormalMap
+            ///     The diffuse alpha map file path.
+            /// </value>
+            public string DiffuseAlphaMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the NormalMap.
+            /// </summary>
+            /// <value>
+            ///     NormalMap
             /// </value>
             public TextureModel NormalMap
             {
-                set
-                {
-                    Set(ref normalMap, value);
-                }
-                get
-                {
-                    return normalMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the normal map file path. For export only
-            /// </summary>
-            /// <value>
-            /// The normal map file path.
-            /// </value>
-            public string NormalMapFilePath
-            {
-                set; get;
+                get => normalMap;
+                set => Set(ref normalMap, value);
             }
 
-            private TextureModel specularColorMap;
             /// <summary>
-            /// Gets or sets the specular color map.
+            ///     Gets or sets the normal map file path. For export only
             /// </summary>
             /// <value>
-            /// The specular color map.
+            ///     The normal map file path.
+            /// </value>
+            public string NormalMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the specular color map.
+            /// </summary>
+            /// <value>
+            ///     The specular color map.
             /// </value>
             public TextureModel SpecularColorMap
             {
-                set
-                {
-                    Set(ref specularColorMap, value);
-                }
-                get
-                {
-                    return specularColorMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the specular color map file path. For export only
-            /// </summary>
-            /// <value>
-            /// The specular color map file path.
-            /// </value>
-            public string SpecularColorMapFilePath
-            {
-                set; get;
+                get => specularColorMap;
+                set => Set(ref specularColorMap, value);
             }
 
-            private TextureModel displacementMap;
             /// <summary>
-            /// Gets or sets the DisplacementMap.
+            ///     Gets or sets the specular color map file path. For export only
             /// </summary>
             /// <value>
-            /// DisplacementMap
+            ///     The specular color map file path.
+            /// </value>
+            public string SpecularColorMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the DisplacementMap.
+            /// </summary>
+            /// <value>
+            ///     DisplacementMap
             /// </value>
             public TextureModel DisplacementMap
             {
-                set
-                {
-                    Set(ref displacementMap, value);
-                }
-                get
-                {
-                    return displacementMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the displacement file path. For export only
-            /// </summary>
-            /// <value>
-            /// The displacement file path.
-            /// </value>
-            public string DisplacementMapFilePath
-            {
-                set; get;
+                get => displacementMap;
+                set => Set(ref displacementMap, value);
             }
 
-            private TextureModel emissiveMap;
             /// <summary>
-            /// Gets or sets the emissive map.
+            ///     Gets or sets the displacement file path. For export only
             /// </summary>
             /// <value>
-            /// The emissive map.
+            ///     The displacement file path.
+            /// </value>
+            public string DisplacementMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the emissive map.
+            /// </summary>
+            /// <value>
+            ///     The emissive map.
             /// </value>
             public TextureModel EmissiveMap
             {
-                set
-                {
-                    Set(ref emissiveMap, value);
-                }
-                get
-                {
-                    return emissiveMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the emissive map file path. For export only
-            /// </summary>
-            /// <value>
-            /// The emissive map file path.
-            /// </value>
-            public string EmissiveMapFilePath
-            {
-                set; get;
+                get => emissiveMap;
+                set => Set(ref emissiveMap, value);
             }
 
-            private Vector4 displacementMapScaleMask;
             /// <summary>
-            /// Gets or sets the DisplacementMapScaleMask.
+            ///     Gets or sets the emissive map file path. For export only
             /// </summary>
             /// <value>
-            /// DisplacementMapScaleMask
+            ///     The emissive map file path.
+            /// </value>
+            public string EmissiveMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the DisplacementMapScaleMask.
+            /// </summary>
+            /// <value>
+            ///     DisplacementMapScaleMask
             /// </value>
             public Vector4 DisplacementMapScaleMask
             {
-                set
-                {
-                    Set(ref displacementMapScaleMask, value);
-                }
-                get
-                {
-                    return displacementMapScaleMask;
-                }
+                get => displacementMapScaleMask;
+                set => Set(ref displacementMapScaleMask, value);
             }
 
-            private UVTransform uvTransform = UVTransform.Identity;
             /// <summary>
-            /// Gets or sets the uv transform.
+            ///     Gets or sets the uv transform.
             /// </summary>
             /// <value>
-            /// The uv transform.
+            ///     The uv transform.
             /// </value>
             public UVTransform UVTransform
             {
-                set
-                {
-                    Set(ref uvTransform, value);
-                }
-                get
-                {
-                    return uvTransform;
-                }
+                get => uvTransform;
+                set => Set(ref uvTransform, value);
             }
 
-            private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
             /// <summary>
-            /// Gets or sets the DiffuseMapSampler.
+            ///     Gets or sets the DiffuseMapSampler.
             /// </summary>
             /// <value>
-            /// DiffuseMapSampler
+            ///     DiffuseMapSampler
             /// </value>
             public SamplerStateDescription DiffuseMapSampler
             {
-                set
-                {
-                    Set(ref diffuseMapSampler, value);
-                }
-                get
-                {
-                    return diffuseMapSampler;
-                }
+                get => diffuseMapSampler;
+                set => Set(ref diffuseMapSampler, value);
             }
 
-
-            private SamplerStateDescription displacementMapSampler = DefaultSamplers.LinearSamplerWrapAni1;
             /// <summary>
-            /// Gets or sets the DisplacementMapSampler.
+            ///     Gets or sets the DisplacementMapSampler.
             /// </summary>
             /// <value>
-            /// DisplacementMapSampler
+            ///     DisplacementMapSampler
             /// </value>
             public SamplerStateDescription DisplacementMapSampler
             {
-                set
-                {
-                    Set(ref displacementMapSampler, value);
-                }
-                get
-                {
-                    return displacementMapSampler;
-                }
+                get => displacementMapSampler;
+                set => Set(ref displacementMapSampler, value);
             }
 
-            private bool renderDiffuseMap = true;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderDiffuseMap
             {
-                set
-                {
-                    Set(ref renderDiffuseMap, value);
-                }
-                get
-                {
-                    return renderDiffuseMap;
-                }
+                get => renderDiffuseMap;
+                set => Set(ref renderDiffuseMap, value);
             }
 
-            private bool renderDiffuseAlphaMap = true;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderDiffuseAlphaMap
             {
-                set
-                {
-                    Set(ref renderDiffuseAlphaMap, value);
-                }
-                get
-                {
-                    return renderDiffuseAlphaMap;
-                }
+                get => renderDiffuseAlphaMap;
+                set => Set(ref renderDiffuseAlphaMap, value);
             }
-            private bool renderNormalMap = true;
+
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderNormalMap
             {
-                set
-                {
-                    Set(ref renderNormalMap, value);
-                }
-                get
-                {
-                    return renderNormalMap;
-                }
+                get => renderNormalMap;
+                set => Set(ref renderNormalMap, value);
             }
 
-            private bool renderSpecularColorMap = true;
             /// <summary>
-            /// Gets or sets a value indicating whether [render specular color map].
+            ///     Gets or sets a value indicating whether [render specular color map].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [render specular color map]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [render specular color map]; otherwise, <c>false</c>.
             /// </value>
             public bool RenderSpecularColorMap
             {
-                set
-                {
-                    Set(ref renderSpecularColorMap, value);
-                }
-                get
-                {
-                    return renderSpecularColorMap;
-                }
+                get => renderSpecularColorMap;
+                set => Set(ref renderSpecularColorMap, value);
             }
 
-            private bool renderDisplacementMap = true;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderDisplacementMap
             {
-                set
-                {
-                    Set(ref renderDisplacementMap, value);
-                }
-                get
-                {
-                    return renderDisplacementMap;
-                }
+                get => renderDisplacementMap;
+                set => Set(ref renderDisplacementMap, value);
             }
 
-            private bool renderEmissiveMap = true;
             /// <summary>
-            /// Gets or sets a value indicating whether [render emissive map].
+            ///     Gets or sets a value indicating whether [render emissive map].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [render emissive map]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [render emissive map]; otherwise, <c>false</c>.
             /// </value>
             public bool RenderEmissiveMap
             {
-                set
-                {
-                    Set(ref renderEmissiveMap, value);
-                }
-                get
-                {
-                    return renderEmissiveMap;
-                }
+                get => renderEmissiveMap;
+                set => Set(ref renderEmissiveMap, value);
             }
 
-            private bool enableAutoTangent = false;
             /// <summary>
-            /// Gets or sets a value indicating whether [enable automatic tangent].
+            ///     Gets or sets a value indicating whether [enable automatic tangent].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
             /// </value>
             public bool EnableAutoTangent
             {
-                set => Set(ref enableAutoTangent, value);
                 get => enableAutoTangent;
+                set => Set(ref enableAutoTangent, value);
             }
 
-            private float minTessellationDistance = 10;
             public float MinTessellationDistance
             {
-                set
-                {
-                    Set(ref minTessellationDistance, value);
-                }
-                get
-                {
-                    return minTessellationDistance;
-                }
+                get => minTessellationDistance;
+                set => Set(ref minTessellationDistance, value);
             }
 
-            private float maxTessellationDistance = 100;
             public float MaxTessellationDistance
             {
-                set
-                {
-                    Set(ref maxTessellationDistance, value);
-                }
-                get
-                {
-                    return maxTessellationDistance;
-                }
+                get => maxTessellationDistance;
+                set => Set(ref maxTessellationDistance, value);
             }
 
-            private float minDistanceTessellationFactor = 2;
             /// <summary>
-            /// Gets or sets the tessellation factor at <see cref="MinTessellationDistance"/>.
+            ///     Gets or sets the tessellation factor at <see cref="MinTessellationDistance" />.
             /// </summary>
             /// <value>
-            /// The minimum distance tessellation factor.
+            ///     The minimum distance tessellation factor.
             /// </value>
             public float MinDistanceTessellationFactor
             {
-                set
-                {
-                    Set(ref minDistanceTessellationFactor, value);
-                }
-                get
-                {
-                    return minDistanceTessellationFactor;
-                }
+                get => minDistanceTessellationFactor;
+                set => Set(ref minDistanceTessellationFactor, value);
             }
 
-            private float maxDistanceTessellationFactor = 1;
             /// <summary>
-            /// Gets or sets the tessellation factor at <see cref="MaxDistanceTessellationFactor"/>
+            ///     Gets or sets the tessellation factor at <see cref="MaxDistanceTessellationFactor" />
             /// </summary>
             /// <value>
-            /// The maximum distance tessellation factor.
+            ///     The maximum distance tessellation factor.
             /// </value>
             public float MaxDistanceTessellationFactor
             {
-                set
-                {
-                    Set(ref maxDistanceTessellationFactor, value);
-                }
-                get
-                {
-                    return maxDistanceTessellationFactor;
-                }
+                get => maxDistanceTessellationFactor;
+                set => Set(ref maxDistanceTessellationFactor, value);
             }
 
-            private MeshTopologyEnum meshType = MeshTopologyEnum.PNTriangles;
             public MeshTopologyEnum MeshType
             {
-                set
-                {
-                    Set(ref meshType, value);
-                }
-                get
-                {
-                    return meshType;
-                }
+                get => meshType;
+                set => Set(ref meshType, value);
             }
 
-            private bool enableTessellation = false;
             public bool EnableTessellation
             {
-                set
-                {
-                    Set(ref enableTessellation, value);
-                }
-                get
-                {
-                    return enableTessellation;
-                }
+                get => enableTessellation;
+                set => Set(ref enableTessellation, value);
             }
 
-            private bool renderShadowMap = false;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderShadowMap
             {
-                set
-                {
-                    Set(ref renderShadowMap, value);
-                }
-                get
-                {
-                    return renderShadowMap;
-                }
+                get => renderShadowMap;
+                set => Set(ref renderShadowMap, value);
             }
 
-            private bool renderEnvironmentMap = false;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderEnvironmentMap
             {
-                set
-                {
-                    Set(ref renderEnvironmentMap, value);
-                }
-                get
-                {
-                    return renderEnvironmentMap;
-                }
+                get => renderEnvironmentMap;
+                set => Set(ref renderEnvironmentMap, value);
             }
 
-            private bool enableFlatShading = false;
             /// <summary>
-            /// Gets or sets a value indicating whether [enable flat shading].
+            ///     Gets or sets a value indicating whether [enable flat shading].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
             /// </value>
             public bool EnableFlatShading
             {
-                set
-                {
-                    Set(ref enableFlatShading, value);
-                }
-                get
-                {
-                    return enableFlatShading;
-                }
+                get => enableFlatShading;
+                set => Set(ref enableFlatShading, value);
             }
 
-            private float vertexColorBlendingFactor = 0f;
             /// <summary>
-            /// Gets or sets the vert color blending factor.
-            /// Diffuse = (1- <see cref="VertexColorBlendingFactor"/>) * Diffuse + <see cref="VertexColorBlendingFactor"/> * Vertex Color
+            ///     Gets or sets the vert color blending factor.
+            ///     Diffuse = (1- <see cref="VertexColorBlendingFactor" />) * Diffuse + <see cref="VertexColorBlendingFactor" /> *
+            ///     Vertex Color
             /// </summary>
             /// <value>
-            /// The vert color blending factor.
+            ///     The vert color blending factor.
             /// </value>
             public float VertexColorBlendingFactor
             {
-                set
-                {
-                    Set(ref vertexColorBlendingFactor, value);
-                }
-                get
-                {
-                    return vertexColorBlendingFactor;
-                }
+                get => vertexColorBlendingFactor;
+                set => Set(ref vertexColorBlendingFactor, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager, IRenderTechnique technique)
+            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
+                IRenderTechnique technique)
             {
                 return new PhongMaterialVariables(manager, technique, this);
             }

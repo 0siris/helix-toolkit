@@ -4,78 +4,81 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
         using SortStruct = KeyValuePair<float, SceneNode>;
+
         /// <summary>
-        /// Used for geometry sorting
+        ///     Used for geometry sorting
         /// </summary>
         public enum SortingMethod
         {
             /// <summary>
-            /// Sort on the distance from camera to bounding bound center.
+            ///     Sort on the distance from camera to bounding bound center.
             /// </summary>
             BoundingBoxCenter,
 
             /// <summary>
-            /// Sort on the minimum distance from camera to bounding bound corners.
+            ///     Sort on the minimum distance from camera to bounding bound corners.
             /// </summary>
             BoundingBoxCorners,
 
             /// <summary>
-            /// Sort on the minimum distance from camera to bounding sphere surface.
+            ///     Sort on the minimum distance from camera to bounding sphere surface.
             /// </summary>
             BoundingSphereSurface
         }
 
         public class SortingGroupNode : GroupNode
         {
-            /// <summary>
-            /// Gets or sets a value indicating whether [enable sorting].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [enable sorting]; otherwise, <c>false</c>.
-            /// </value>
-            public bool EnableSorting { set; get; } = true;
-            /// <summary>
-            /// Gets or sets the sorting interval by milliseconds. Default is 500ms.
-            /// </summary>
-            /// <value>
-            /// The sorting interval.
-            /// </value>
-            public int SortingInterval { set; get; } = 500;
-            /// <summary>
-            /// Gets or sets the last sort time.
-            /// </summary>
-            /// <value>
-            /// The last sort time.
-            /// </value>
-            public long LastSortTime { private set; get; } = 0;
-            /// <summary>
-            /// Gets or sets a value indicating whether [sort transparent only].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [sort transparent only]; otherwise, <c>false</c>.
-            /// </value>
-            public bool SortTransparentOnly { set; get; } = true;
-            /// <summary>
-            /// Gets or sets the sorting method.
-            /// </summary>
-            /// <value>
-            /// The sorting method.
-            /// </value>
-            public SortingMethod SortingMethod { set; get; } = SortingMethod.BoundingBoxCorners;
+            private readonly List<SceneNode> notSorted = new();
+            private readonly List<SortStruct> sortingOpaqueCache = new();
 
-            private readonly List<SortStruct> sortingTransparentCache = new List<SortStruct>();
-            private readonly List<SortStruct> sortingOpaqueCache = new List<SortStruct>();
-            private readonly List<SceneNode> notSorted = new List<SceneNode>();
+            private readonly List<SortStruct> sortingTransparentCache = new();
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether [enable sorting].
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if [enable sorting]; otherwise, <c>false</c>.
+            /// </value>
+            public bool EnableSorting { get; set; } = true;
+
+            /// <summary>
+            ///     Gets or sets the sorting interval by milliseconds. Default is 500ms.
+            /// </summary>
+            /// <value>
+            ///     The sorting interval.
+            /// </value>
+            public int SortingInterval { get; set; } = 500;
+
+            /// <summary>
+            ///     Gets or sets the last sort time.
+            /// </summary>
+            /// <value>
+            ///     The last sort time.
+            /// </value>
+            public long LastSortTime { get; private set; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether [sort transparent only].
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if [sort transparent only]; otherwise, <c>false</c>.
+            /// </value>
+            public bool SortTransparentOnly { get; set; } = true;
+
+            /// <summary>
+            ///     Gets or sets the sorting method.
+            /// </summary>
+            /// <value>
+            ///     The sorting method.
+            /// </value>
+            public SortingMethod SortingMethod { get; set; } = SortingMethod.BoundingBoxCorners;
 
             protected override bool OnAttach(IEffectsManager effectsManager)
             {
@@ -86,10 +89,7 @@ namespace HelixToolkit.SharpDX.Core
             public override void UpdateNotRender(RenderContext context)
             {
                 base.UpdateNotRender(context);
-                if (!EnableSorting || ItemsInternal.Count == 0)
-                {
-                    return;
-                }
+                if (!EnableSorting || ItemsInternal.Count == 0) return;
                 var currTime = Stopwatch.GetTimestamp() * 1000 / Stopwatch.Frequency;
 
                 if (currTime - LastSortTime > SortingInterval)
@@ -109,17 +109,13 @@ namespace HelixToolkit.SharpDX.Core
                 if (SortTransparentOnly)
                 {
                     for (var i = 0; i < nodes.Count; ++i)
-                    {
                         if (nodes[i].RenderCore.RenderType == RenderType.Transparent)
-                        {
-                            sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition), nodes[i]));
-                        }
+                            sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition),
+                                nodes[i]));
                         else
-                        {
                             notSorted.Add(nodes[i]);
-                        }
-                    }
-                    sortingTransparentCache.Sort(delegate (SortStruct a, SortStruct b)
+
+                    sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
                     {
                         return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
                     });
@@ -127,43 +123,39 @@ namespace HelixToolkit.SharpDX.Core
                 else
                 {
                     for (var i = 0; i < nodes.Count; ++i)
-                    {
                         if (nodes[i].RenderCore.RenderType == RenderType.Transparent)
-                        {
-                            sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition), nodes[i]));
-                        }
+                            sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition),
+                                nodes[i]));
                         else if (nodes[i].RenderCore.RenderType == RenderType.Opaque)
-                        {
                             sortingOpaqueCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition), nodes[i]));
-                        }
                         else
-                        {
                             notSorted.Add(nodes[i]);
-                        }
-                    }
+
                     if (sortingTransparentCache.Count > 50 && sortingOpaqueCache.Count > 50)
                     {
-                        Parallel.Invoke(() =>
-                        {
-                            sortingTransparentCache.Sort(delegate (SortStruct a, SortStruct b)
+                        Parallel.Invoke(
+                            () =>
                             {
-                                return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
-                            });
-                        }, () =>
-                        {
-                            sortingOpaqueCache.Sort(delegate (SortStruct a, SortStruct b)
+                                sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
+                                {
+                                    return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
+                                });
+                            },
+                            () =>
                             {
-                                return a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0;
+                                sortingOpaqueCache.Sort(delegate(SortStruct a, SortStruct b)
+                                {
+                                    return a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0;
+                                });
                             });
-                        });
                     }
                     else
                     {
-                        sortingTransparentCache.Sort(delegate (SortStruct a, SortStruct b)
+                        sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
                         {
                             return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
                         });
-                        sortingOpaqueCache.Sort(delegate (SortStruct a, SortStruct b)
+                        sortingOpaqueCache.Sort(delegate(SortStruct a, SortStruct b)
                         {
                             return a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0;
                         });
@@ -171,18 +163,10 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 ItemsInternal.Clear();
-                for (var i = 0; i < notSorted.Count; ++i)
-                {
-                    ItemsInternal.Add(notSorted[i]);
-                }
-                for (var i = 0; i < sortingOpaqueCache.Count; ++i)
-                {
-                    ItemsInternal.Add(sortingOpaqueCache[i].Value);
-                }
+                for (var i = 0; i < notSorted.Count; ++i) ItemsInternal.Add(notSorted[i]);
+                for (var i = 0; i < sortingOpaqueCache.Count; ++i) ItemsInternal.Add(sortingOpaqueCache[i].Value);
                 for (var i = 0; i < sortingTransparentCache.Count; ++i)
-                {
                     ItemsInternal.Add(sortingTransparentCache[i].Value);
-                }
 
                 sortingTransparentCache.Clear();
                 sortingOpaqueCache.Clear();
@@ -217,7 +201,8 @@ namespace HelixToolkit.SharpDX.Core
                             distance += (cameraPos.Z - bound.Maximum.Z) * (cameraPos.Z - bound.Maximum.Z);
                         return distance;
                     case SortingMethod.BoundingSphereSurface:
-                        var distS = (node.BoundsSphereWithTransform.Center - cameraPos).Length - node.BoundsSphereWithTransform.Radius;
+                        var distS = (node.BoundsSphereWithTransform.Center - cameraPos).Length -
+                                    node.BoundsSphereWithTransform.Radius;
                         return Math.Max(distS, 0f);
                     default:
                         return 0;

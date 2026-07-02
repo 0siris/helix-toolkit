@@ -1,13 +1,11 @@
-using System;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Shaders;
-        using Utilities;
-
         public partial class DeviceContextProxy
         {
             public const int ConstantBufferCount = 15;
@@ -171,7 +169,8 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetUnorderedAccessView(ComputeShaderType shaderType, int slot, UnorderedAccessView uav, int uavInitialCount)
+            public void SetUnorderedAccessView(ComputeShaderType shaderType, int slot, UnorderedAccessView uav,
+                int uavInitialCount)
             {
                 NativeContext.SetUnorderedAccessView(slot, uav, uavInitialCount);
             }
@@ -183,7 +182,8 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetUnorderedAccessViews(ComputeShaderType shaderType, int slot, UnorderedAccessView[] uavs, int[] uavInitialCounts)
+            public void SetUnorderedAccessViews(ComputeShaderType shaderType, int slot, UnorderedAccessView[] uavs,
+                int[] uavInitialCounts)
             {
                 NativeContext.SetUnorderedAccessViews(slot, uavs, uavInitialCounts);
             }
@@ -305,10 +305,7 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetShaderPass(ShaderPass pass, bool bindConstantBuffer = true)
             {
-                if (pass == null || CurrShaderPass == pass || pass.IsNULL)
-                {
-                    return;
-                }
+                if (pass == null || CurrShaderPass == pass || pass.IsNULL) return;
 
                 SetShader(pass.VertexShader, bindConstantBuffer);
                 SetShader(pass.PixelShader, bindConstantBuffer);
@@ -332,34 +329,20 @@ namespace HelixToolkit.SharpDX.Core
             private void SetShader(int shaderStage, ShaderBase shader, bool bindConstantBuffer)
             {
                 NativeContext.SetShader(shaderStage, shader == null || shader.IsNULL ? null : shader.NativeShader);
-                if (!bindConstantBuffer || shader == null || shader.IsNULL)
-                {
-                    return;
-                }
+                if (!bindConstantBuffer || shader == null || shader.IsNULL) return;
 
                 foreach (var mapping in shader.ConstantBufferMapping.Mappings)
-                {
                     TrackConstantBuffer(shaderStage, mapping.Key, mapping.Value);
-                }
             }
 
             private void TrackConstantBuffer(int shaderStage, int slot, ConstantBufferProxy buffer)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var index = shaderStage * ConstantBufferCount + slot;
-                if (index >= ConstantBufferCheck.Length)
-                {
-                    return;
-                }
+                if (index >= ConstantBufferCheck.Length) return;
 
-                if (AutoSkipRedundantStateSetting && ConstantBufferCheck[index] == buffer)
-                {
-                    return;
-                }
+                if (AutoSkipRedundantStateSetting && ConstantBufferCheck[index] == buffer) return;
 
                 NativeContext.SetConstantBuffer(shaderStage, slot, buffer);
                 ConstantBufferCheck[index] = buffer;
@@ -367,21 +350,12 @@ namespace HelixToolkit.SharpDX.Core
 
             private void TrackSampler(int shaderStage, int slot, SamplerStateProxy sampler)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var index = shaderStage * SamplerStateCount + slot;
-                if (index >= SamplerStateCheck.Length)
-                {
-                    return;
-                }
+                if (index >= SamplerStateCheck.Length) return;
 
-                if (AutoSkipRedundantStateSetting && SamplerStateCheck[index] == sampler)
-                {
-                    return;
-                }
+                if (AutoSkipRedundantStateSetting && SamplerStateCheck[index] == sampler) return;
 
                 NativeContext.SetSampler(shaderStage, slot, sampler?.State);
                 SamplerStateCheck[index] = sampler;
@@ -389,34 +363,23 @@ namespace HelixToolkit.SharpDX.Core
 
             private void TrackSamplers(int shaderStage, int slot, SamplerStateProxy[] samplers)
             {
-                if (slot < 0 || samplers == null)
-                {
-                    return;
-                }
+                if (slot < 0 || samplers == null) return;
 
                 var start = shaderStage * SamplerStateCount + slot;
                 var count = Math.Min(samplers.Length, SamplerStateCheck.Length - start);
-                if (count <= 0)
-                {
-                    return;
-                }
+                if (count <= 0) return;
 
                 if (AutoSkipRedundantStateSetting)
                 {
                     var allSame = true;
                     for (var i = 0; i < count; i++)
-                    {
                         if (SamplerStateCheck[start + i] != samplers[i])
                         {
                             allSame = false;
                             break;
                         }
-                    }
 
-                    if (allSame)
-                    {
-                        return;
-                    }
+                    if (allSame) return;
                 }
 
                 var nativeSamplers = new SamplerState[count];

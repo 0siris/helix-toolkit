@@ -11,14 +11,9 @@ namespace HelixToolkit.SharpDX.Core
         {
             protected override void OnRender(RenderContext2D context)
             {
-                if (FillBrush != null)
-                {
-                    context.DeviceContext.FillRectangle(LayoutBound, FillBrush);
-                }
+                if (FillBrush != null) context.DeviceContext.FillRectangle(LayoutBound, FillBrush);
                 if (StrokeBrush != null && StrokeStyle != null)
-                {
                     context.DeviceContext.DrawRectangle(LayoutBound, StrokeBrush, StrokeWidth, StrokeStyle);
-                }
             }
         }
     }

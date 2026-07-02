@@ -2,39 +2,42 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Utilities;
-        using Render;
-        using Shaders;
         /// <summary>
-        /// 
         /// </summary>
         public sealed class EmptyMaterialVariable : MaterialVariable
         {
-            public static readonly EmptyMaterialVariable EmptyVariable = new EmptyMaterialVariable();
+            public static readonly EmptyMaterialVariable EmptyVariable = new();
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="EmptyMaterialVariable"/> class.
+            ///     Initializes a new instance of the <see cref="EmptyMaterialVariable" /> class.
             /// </summary>
             public EmptyMaterialVariable() : base(null, null, null, null)
             {
-
             }
+
             /// <summary>
-            /// Binds the material resources.
+            ///     Binds the material resources.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             /// <param name="shaderPass">The shader pass.</param>
             /// <returns></returns>
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 return false;
             }
+
             /// <summary>
-            /// Gets the pass.
+            ///     Gets the pass.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
@@ -47,17 +50,20 @@ namespace HelixToolkit.SharpDX.Core
             protected override void UpdateInternalVariables(DeviceContextProxy context)
             {
             }
+
             /// <summary>
-            /// Draws the specified device context.
+            ///     Draws the specified device context.
             /// </summary>
             /// <param name="deviceContext">The device context.</param>
             /// <param name="bufferModel">The buffer model.</param>
             /// <param name="instanceCount">The instance count.</param>
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
             }
+
             /// <summary>
-            /// Gets the shadow pass.
+            ///     Gets the shadow pass.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
@@ -66,8 +72,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return ShaderPass.NullPass;
             }
+
             /// <summary>
-            /// Gets the wireframe pass.
+            ///     Gets the wireframe pass.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
@@ -76,8 +83,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return ShaderPass.NullPass;
             }
+
             /// <summary>
-            /// Gets the depth pass.
+            ///     Gets the depth pass.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>

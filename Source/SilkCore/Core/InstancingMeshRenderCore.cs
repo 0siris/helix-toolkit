@@ -2,36 +2,28 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
+using HelixToolkit.SharpDX.Core.Render;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-
         public class InstancingMeshRenderCore : MeshRenderCore
         {
             private IElementsBufferModel parameterBufferModel;
+
             public IElementsBufferModel ParameterBuffer
             {
+                get => parameterBufferModel;
                 set
                 {
                     var old = parameterBufferModel;
                     if (SetAffectsCanRenderFlag(ref parameterBufferModel, value))
                     {
-                        if (old != null)
-                        {
-                            old.ElementChanged -= OnElementChanged;
-                        }
-                        if (parameterBufferModel != null)
-                        {
-                            parameterBufferModel.ElementChanged += OnElementChanged;
-                        }
+                        if (old != null) old.ElementChanged -= OnElementChanged;
+                        if (parameterBufferModel != null) parameterBufferModel.ElementChanged += OnElementChanged;
                     }
-                }
-                get
-                {
-                    return parameterBufferModel;
                 }
             }
 
@@ -39,6 +31,7 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return base.OnAttach(technique);
             }
+
             protected override bool OnUpdateCanRenderFlag()
             {
                 return base.OnUpdateCanRenderFlag() && InstanceBuffer != null && InstanceBuffer.HasElements;
@@ -57,10 +50,8 @@ namespace HelixToolkit.SharpDX.Core
                     ParameterBuffer?.AttachBuffer(context, ref vertStartSlot);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
         }
     }

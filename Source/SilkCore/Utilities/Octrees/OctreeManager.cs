@@ -5,166 +5,159 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
-
-        using Model;
-        using Model.Scene;
-
-
         /// <summary>
-        /// 
         /// </summary>
         public abstract class OctreeManagerBase : ObservableObject, IOctreeManager
         {
-            static readonly ILogger logger = Logger.LogManager.Create<OctreeManagerBase>();
+            private static readonly ILogger logger = LogManager.Create<OctreeManagerBase>();
+
+            private bool mEnabled = true;
+
             /// <summary>
-            /// Occurs when [on octree created].
+            ///     The m octree
+            /// </summary>
+            protected BoundableNodeOctree mOctree;
+
+            private volatile bool mRequestUpdateOctree;
+
+            private IOctreeBasic octree;
+
+            /// <summary>
+            ///     Occurs when [on octree created].
             /// </summary>
             public event EventHandler<OctreeArgs> OnOctreeCreated;
 
-            private IOctreeBasic octree;
             /// <summary>
-            /// Gets or sets the octree.
+            ///     Gets or sets the octree.
             /// </summary>
             /// <value>
-            /// The octree.
+            ///     The octree.
             /// </value>
             public IOctreeBasic Octree
             {
+                get => octree;
                 protected set
                 {
-                    if (Set(ref octree, value))
-                    {
-                        OnOctreeCreated?.Invoke(this, new OctreeArgs(value));
-                    }
-                }
-                get
-                {
-                    return octree;
+                    if (Set(ref octree, value)) OnOctreeCreated?.Invoke(this, new OctreeArgs(value));
                 }
             }
-            /// <summary>
-            /// The m octree
-            /// </summary>
-            protected BoundableNodeOctree mOctree = null;
-            /// <summary>
-            /// Gets or sets the parameter.
-            /// </summary>
-            /// <value>
-            /// The parameter.
-            /// </value>
-            public OctreeBuildParameter Parameter { set; get; } = new OctreeBuildParameter();
 
-            private bool mEnabled = true;
             /// <summary>
-            /// Gets or sets a value indicating whether this <see cref="OctreeManagerBase"/> is enabled.
+            ///     Gets or sets the parameter.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if enabled; otherwise, <c>false</c>.
+            ///     The parameter.
+            /// </value>
+            public OctreeBuildParameter Parameter { get; set; } = new();
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether this <see cref="OctreeManagerBase" /> is enabled.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if enabled; otherwise, <c>false</c>.
             /// </value>
             public bool Enabled
             {
+                get => mEnabled;
                 set
                 {
                     mEnabled = value;
-                    if (!mEnabled)
-                    {
-                        Clear();
-                    }
-                }
-                get
-                {
-                    return mEnabled;
+                    if (!mEnabled) Clear();
                 }
             }
+
             /// <summary>
-            /// Gets or sets a value indicating whether [request update octree].
+            ///     Gets or sets a value indicating whether [request update octree].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [request update octree]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [request update octree]; otherwise, <c>false</c>.
             /// </value>
             public bool RequestUpdateOctree
             {
-                get
-                {
-                    return mRequestUpdateOctree;
-                }
-                protected set
-                {
-                    mRequestUpdateOctree = value;
-                }
+                get => mRequestUpdateOctree;
+                protected set => mRequestUpdateOctree = value;
             }
-            private volatile bool mRequestUpdateOctree = false;
+
             /// <summary>
-            /// Adds the pending item.
+            ///     Adds the pending item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
             public abstract bool AddPendingItem(SceneNode item);
+
             /// <summary>
-            /// Clears this instance.
+            ///     Clears this instance.
             /// </summary>
             public abstract void Clear();
+
             /// <summary>
-            /// Rebuilds the tree.
+            ///     Rebuilds the tree.
             /// </summary>
             /// <param name="items">The items.</param>
             public abstract void RebuildTree(IEnumerable<SceneNode> items);
+
             /// <summary>
-            /// Removes the item.
+            ///     Removes the item.
             /// </summary>
             /// <param name="item">The item.</param>
             public abstract void RemoveItem(SceneNode item);
+
             /// <summary>
-            /// Requests the rebuild.
+            ///     Requests the rebuild.
             /// </summary>
             public abstract void RequestRebuild();
+
             /// <summary>
-            /// Processes the pending items.
+            ///     Processes the pending items.
             /// </summary>
             public abstract void ProcessPendingItems();
 
             /// <summary>
-            /// Normal hit test from top to bottom
+            ///     Normal hit test from top to bottom
             /// </summary>
             /// <param name="context"></param>
             /// <param name="model"></param>
             /// <param name="modelMatrix"></param>
             /// <param name="hits"></param>
             /// <returns></returns>
-            public virtual bool HitTest(HitTestContext context, object model, Matrix modelMatrix, ref List<HitTestResult> hits)
+            public virtual bool HitTest(HitTestContext context, object model, Matrix modelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return Octree.HitTest(context, model, null, modelMatrix, ref hits);
             }
         }
 
         /// <summary>
-        /// Use to create geometryModel3D octree for groups. Each ItemsModel3D must has its own manager, do not share between two ItemsModel3D
+        ///     Use to create geometryModel3D octree for groups. Each ItemsModel3D must has its own manager, do not share between
+        ///     two ItemsModel3D
         /// </summary>
         public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase
         {
-            static readonly ILogger logger = Logger.LogManager.Create<GroupNodeGeometryBoundOctreeManager>();
-            private object lockObj = new object();
+            private static readonly ILogger logger = LogManager.Create<GroupNodeGeometryBoundOctreeManager>();
+            private readonly object lockObj = new();
 
-            private readonly HashSet<SceneNode> NonBoundableItems = new HashSet<SceneNode>();
+            private readonly HashSet<SceneNode> NonBoundableItems = new();
+
+            private readonly HashSet<SceneNode> pendingItems = new();
 
             private void UpdateOctree(BoundableNodeOctree tree)
             {
                 Octree = tree;
                 mOctree = tree;
             }
+
             /// <summary>
-            /// Rebuilds the tree.
+            ///     Rebuilds the tree.
             /// </summary>
             /// <param name="items">The items.</param>
             public override void RebuildTree(IEnumerable<SceneNode> items)
@@ -175,22 +168,13 @@ namespace HelixToolkit.SharpDX.Core
                     if (Enabled)
                     {
                         var nodes = items.Where(x => x.HasBound);
-                        if (nodes.Count() == 0)
-                        {
-                            return;
-                        }
+                        if (nodes.Count() == 0) return;
                         UpdateOctree(RebuildOctree(nodes));
                         if (Octree == null)
-                        {
                             RequestRebuild();
-                        }
                         else
-                        {
                             foreach (var item in nodes)
-                            {
                                 NonBoundableItems.Add(item);
-                            }
-                        }
                     }
                     else
                     {
@@ -212,24 +196,19 @@ namespace HelixToolkit.SharpDX.Core
                 item.TransformBoundChanged -= Item_OnBoundChanged;
             }
 
-            private readonly HashSet<SceneNode> pendingItems
-                = new HashSet<SceneNode>();
-
             private void Item_OnBoundChanged(object sender, BoundChangeArgs<BoundingBox> args)
             {
                 var item = sender as SceneNode;
                 if (item == null)
                 {
-                    return;
                 }
                 else
                 {
                     pendingItems.Add(item);
-                    return;
                 }
             }
+
             /// <summary>
-            /// 
             /// </summary>
             public override void ProcessPendingItems()
             {
@@ -242,11 +221,13 @@ namespace HelixToolkit.SharpDX.Core
                             NonBoundableItems.Add(item);
                             continue;
                         }
+
                         if (mOctree == null || !item.IsAttached)
                         {
                             UnsubscribeBoundChangeEvent(item);
                             continue;
                         }
+
                         int index;
                         var node = mOctree.FindItemByGuid(item.GUID, item, out index);
                         var rootAdd = true;
@@ -258,27 +239,24 @@ namespace HelixToolkit.SharpDX.Core
                             var itemBounds = item.BoundsWithTransform;
                             if (geoNode.Bound.Contains(ref itemBounds) == ContainmentType.Contains)
                             {
-                                if (geoNode.PushExistingToChild(index))
-                                {
-                                    tree = tree.Shrink() as BoundableNodeOctree;
-                                }
+                                if (geoNode.PushExistingToChild(index)) tree = tree.Shrink() as BoundableNodeOctree;
                                 rootAdd = false;
                             }
                             else
                             {
                                 geoNode.RemoveAt(index, tree);
                             }
+
                             UpdateOctree(tree);
                         }
                         else
                         {
                             mOctree.RemoveByGuid(item.GUID, item, mOctree);
                         }
-                        if (rootAdd)
-                        {
-                            AddItem(item);
-                        }
+
+                        if (rootAdd) AddItem(item);
                     }
+
                     pendingItems.Clear();
                 }
             }
@@ -286,24 +264,18 @@ namespace HelixToolkit.SharpDX.Core
             private BoundableNodeOctree RebuildOctree(IEnumerable<SceneNode> items)
             {
                 Clear();
-                if (items == null)
-                {
-                    return null;
-                }
+                if (items == null) return null;
                 var tree = new BoundableNodeOctree(items.ToList(), Parameter);
                 tree.BuildTree();
                 if (tree.TreeBuilt)
-                {
                     foreach (var item in items)
-                    {
                         SubscribeBoundChangeEvent(item);
-                    }
-                }
+
                 return tree.TreeBuilt ? tree : null;
             }
 
             /// <summary>
-            /// Adds the pending item.
+            ///     Adds the pending item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
@@ -323,20 +295,20 @@ namespace HelixToolkit.SharpDX.Core
                         {
                             NonBoundableItems.Add(item);
                         }
+
                         //if (item.Bounds != ZeroBound)
                         //{
                         //    AddItem(item);
                         //}
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
+
+                    return false;
                 }
             }
 
-            private void GeometryModel3DOctreeManager_OnBoundInitialized(object sender, BoundChangeArgs<BoundingBox> args)
+            private void GeometryModel3DOctreeManager_OnBoundInitialized(object sender,
+                BoundChangeArgs<BoundingBox> args)
             {
                 var item = sender as SceneNode;
                 item.TransformBoundChanged -= GeometryModel3DOctreeManager_OnBoundInitialized;
@@ -361,8 +333,8 @@ namespace HelixToolkit.SharpDX.Core
                             var counter = 0;
                             while (!tree.Add(item))
                             {
-                                var direction = (item.Bounds.Minimum + item.Bounds.Maximum)
-                                    - (tree.Bound.Minimum + tree.Bound.Maximum);
+                                var direction = item.Bounds.Minimum + item.Bounds.Maximum
+                                                - (tree.Bound.Minimum + tree.Bound.Maximum);
                                 tree = tree.Expand(ref direction) as BoundableNodeOctree;
                                 ++counter;
                                 if (counter > 10)
@@ -375,6 +347,7 @@ namespace HelixToolkit.SharpDX.Core
 #endif
                                 }
                             }
+
                             if (succeed)
                             {
                                 UpdateOctree(tree);
@@ -392,14 +365,14 @@ namespace HelixToolkit.SharpDX.Core
                     }
                 }
             }
+
             /// <summary>
-            /// Removes the item.
+            ///     Removes the item.
             /// </summary>
             /// <param name="item">The item.</param>
             public override void RemoveItem(SceneNode item)
             {
                 if (Enabled && Octree != null && item != null)
-                {
                     lock (lockObj)
                     {
                         if (item.HasBound)
@@ -410,15 +383,13 @@ namespace HelixToolkit.SharpDX.Core
                             UnsubscribeBoundChangeEvent(item);
                             if (!tree.RemoveByBound(item))
                             {
-                                if (logger.IsEnabled(LogLevel.Debug))
-                                {
-                                    logger.LogDebug("Remove failed.");
-                                }
+                                if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Remove failed.");
                             }
                             else
                             {
                                 tree = tree.Shrink() as BoundableNodeOctree;
                             }
+
                             UpdateOctree(tree);
                         }
                         else
@@ -426,10 +397,10 @@ namespace HelixToolkit.SharpDX.Core
                             NonBoundableItems.Remove(item);
                         }
                     }
-                }
             }
+
             /// <summary>
-            /// Clears this instance.
+            ///     Clears this instance.
             /// </summary>
             public override void Clear()
             {
@@ -440,8 +411,9 @@ namespace HelixToolkit.SharpDX.Core
                     NonBoundableItems.Clear();
                 }
             }
+
             /// <summary>
-            /// Requests the rebuild.
+            ///     Requests the rebuild.
             /// </summary>
             public override void RequestRebuild()
             {
@@ -451,29 +423,24 @@ namespace HelixToolkit.SharpDX.Core
                     RequestUpdateOctree = true;
                 }
             }
-            public override bool HitTest(HitTestContext context, object model, Matrix modelMatrix, ref List<HitTestResult> hits)
+
+            public override bool HitTest(HitTestContext context, object model, Matrix modelMatrix,
+                ref List<HitTestResult> hits)
             {
-                if (Octree == null)
-                {
-                    return false;
-                }
+                if (Octree == null) return false;
                 var hit = Octree.HitTest(context, model, null, modelMatrix, ref hits);
-                foreach (var item in NonBoundableItems)
-                {
-                    hit |= item.HitTest(context, ref hits);
-                }
+                foreach (var item in NonBoundableItems) hit |= item.HitTest(context, ref hits);
                 return hit;
             }
         }
 
 
         /// <summary>
-        /// 
         /// </summary>
         public sealed class InstancingRenderableOctreeManager : OctreeManagerBase
         {
             /// <summary>
-            /// Adds the pending item.
+            ///     Adds the pending item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
@@ -482,51 +449,53 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return false;
             }
+
             /// <summary>
-            /// Clears this instance.
+            ///     Clears this instance.
             /// </summary>
             public override void Clear()
             {
                 Octree = null;
             }
+
             /// <summary>
-            /// Processes the pending items.
+            ///     Processes the pending items.
             /// </summary>
             /// <exception cref="NotImplementedException"></exception>
             public override void ProcessPendingItems()
             {
-
             }
+
             /// <summary>
-            /// Rebuilds the tree.
+            ///     Rebuilds the tree.
             /// </summary>
             /// <param name="items">The items.</param>
             public override void RebuildTree(IEnumerable<SceneNode> items)
             {
                 Clear();
-                if (items == null)
-                {
-                    return;
-                }
+                if (items == null) return;
                 if (items.FirstOrDefault() is IInstancing inst)
                 {
                     var instMatrix = inst.InstanceBuffer.Elements;
-                    var octree = new StaticInstancingModelOctree(instMatrix, (inst as SceneNode).OriginalBounds, this.Parameter);
+                    var octree =
+                        new StaticInstancingModelOctree(instMatrix, (inst as SceneNode).OriginalBounds, Parameter);
                     //new InstancingModel3DOctree(instMatrix, (inst as SceneNode).OriginalBounds, this.Parameter, new Stack<KeyValuePair<int, IOctree[]>>(10));
                     octree.BuildTree();
                     Octree = octree;
                 }
             }
+
             /// <summary>
-            /// Removes the item.
+            ///     Removes the item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <exception cref="NotImplementedException"></exception>
             public override void RemoveItem(SceneNode item)
             {
             }
+
             /// <summary>
-            /// Requests the rebuild.
+            ///     Requests the rebuild.
             /// </summary>
             /// <exception cref="NotImplementedException"></exception>
             public override void RequestRebuild()

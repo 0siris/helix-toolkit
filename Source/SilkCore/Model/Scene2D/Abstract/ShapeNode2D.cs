@@ -3,192 +3,123 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-
+using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
-
         public abstract class ShapeNode2D : SceneNode2D
         {
+            protected ShapeRenderCore2DBase shapeRenderable;
+
+            private float[] strokeDashArray;
+
+            private CapStyle strokeDashCap = CapStyle.Flat;
+
+            private float strokeDashOffset;
+
+            private DashStyle strokeDashStyle = DashStyle.Solid;
+
+            private CapStyle strokeEndLineCap = CapStyle.Flat;
+
+            private LineJoin strokeLineJoin = LineJoin.Miter;
+
+            private float strokeMiterLimit = 1;
+
+            private CapStyle strokeStartLineCap = CapStyle.Flat;
+
+            private bool strokeStyleChanged = true;
+
             public Brush Fill
             {
-                set
-                {
-                    (RenderCore as ShapeRenderCore2DBase).FillBrush = value;
-                }
-                get
-                {
-                    return (RenderCore as ShapeRenderCore2DBase).FillBrush;
-                }
+                get => (RenderCore as ShapeRenderCore2DBase).FillBrush;
+                set => (RenderCore as ShapeRenderCore2DBase).FillBrush = value;
             }
 
             public Brush Stroke
             {
-                set
-                {
-                    (RenderCore as ShapeRenderCore2DBase).StrokeBrush = value;
-                }
-                get
-                {
-                    return (RenderCore as ShapeRenderCore2DBase).StrokeBrush;
-                }
+                get => (RenderCore as ShapeRenderCore2DBase).StrokeBrush;
+                set => (RenderCore as ShapeRenderCore2DBase).StrokeBrush = value;
             }
-
-            private CapStyle strokeDashCap = CapStyle.Flat;
 
             public CapStyle StrokeDashCap
             {
+                get => strokeDashCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashCap;
+                    if (SetAffectsRender(ref strokeDashCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private CapStyle strokeStartLineCap = CapStyle.Flat;
 
             public CapStyle StrokeStartLineCap
             {
+                get => strokeStartLineCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeStartLineCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeStartLineCap;
+                    if (SetAffectsRender(ref strokeStartLineCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private CapStyle strokeEndLineCap = CapStyle.Flat;
 
             public CapStyle StrokeEndLineCap
             {
+                get => strokeEndLineCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeEndLineCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeEndLineCap;
+                    if (SetAffectsRender(ref strokeEndLineCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private DashStyle strokeDashStyle = DashStyle.Solid;
 
             public DashStyle StrokeDashStyle
             {
+                get => strokeDashStyle;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashStyle, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashStyle;
+                    if (SetAffectsRender(ref strokeDashStyle, value)) strokeStyleChanged = true;
                 }
             }
-
-            private float strokeDashOffset = 0;
 
             public float StrokeDashOffset
             {
+                get => strokeDashOffset;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashOffset, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashOffset;
+                    if (SetAffectsRender(ref strokeDashOffset, value)) strokeStyleChanged = true;
                 }
             }
-
-            private LineJoin strokeLineJoin = LineJoin.Miter;
 
             public LineJoin StrokeLineJoin
             {
+                get => strokeLineJoin;
                 set
                 {
-                    if (SetAffectsRender(ref strokeLineJoin, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeLineJoin;
+                    if (SetAffectsRender(ref strokeLineJoin, value)) strokeStyleChanged = true;
                 }
             }
 
-            private float strokeMiterLimit = 1;
-
             public float StrokeMiterLimit
             {
+                get => strokeMiterLimit;
                 set
                 {
-                    if (SetAffectsRender(ref strokeMiterLimit, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeMiterLimit;
+                    if (SetAffectsRender(ref strokeMiterLimit, value)) strokeStyleChanged = true;
                 }
             }
 
             public float StrokeThickness
             {
-                set
-                {
-                    (RenderCore as ShapeRenderCore2DBase).StrokeWidth = value * DpiScale;
-                }
-                get
-                {
-                    return (RenderCore as ShapeRenderCore2DBase).StrokeWidth / DpiScale;
-                }
+                get => (RenderCore as ShapeRenderCore2DBase).StrokeWidth / DpiScale;
+                set => (RenderCore as ShapeRenderCore2DBase).StrokeWidth = value * DpiScale;
             }
-
-            private float[] strokeDashArray;
 
             public float[] StrokeDashArray
             {
+                get => strokeDashArray;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashArray, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashArray;
+                    if (SetAffectsRender(ref strokeDashArray, value)) strokeStyleChanged = true;
                 }
             }
-
-            private bool strokeStyleChanged = true;
-
-            protected ShapeRenderCore2DBase shapeRenderable;
 
             protected override RenderCore2D CreateRenderCore()
             {
@@ -205,10 +136,8 @@ namespace HelixToolkit.SharpDX.Core
                     strokeStyleChanged = true;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public override void Update(RenderContext2D context)
@@ -217,14 +146,14 @@ namespace HelixToolkit.SharpDX.Core
                 if (strokeStyleChanged)
                 {
                     shapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
-                        new StrokeStyleProperties()
+                        new StrokeStyleProperties
                         {
-                            DashCap = this.StrokeDashCap,
+                            DashCap = StrokeDashCap,
                             StartCap = StrokeStartLineCap,
                             EndCap = StrokeEndLineCap,
                             DashOffset = StrokeDashOffset,
                             LineJoin = StrokeLineJoin,
-                            MiterLimit = Math.Max(1, (float)StrokeMiterLimit),
+                            MiterLimit = Math.Max(1, StrokeMiterLimit),
                             DashStyle = StrokeDashStyle
                         },
                         StrokeDashArray == null ? new float[0] : StrokeDashArray);

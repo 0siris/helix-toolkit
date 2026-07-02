@@ -1,34 +1,30 @@
 ﻿/*
-* Copyright (c) 2012-2018 AssimpNet - Nicholas Woodfield
-* 
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-* 
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
-using System;
-using System.Collections.Generic;
-
+ * Copyright (c) 2012-2018 AssimpNet - Nicholas Woodfield
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
         /// <summary>
-        /// 
         /// </summary>
         public enum MetaDataType
         {
@@ -42,32 +38,31 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         /// <summary>
-        /// Represents a container for holding metadata, representing as key-value pairs.
+        ///     Represents a container for holding metadata, representing as key-value pairs.
         /// </summary>
         public sealed class Metadata : Dictionary<string, Metadata.Entry>
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="Metadata"/> class.
+            ///     Initializes a new instance of the <see cref="Metadata" /> class.
             /// </summary>
             public Metadata()
             {
-
             }
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="Metadata"/> class.
+            ///     Initializes a new instance of the <see cref="Metadata" /> class.
             /// </summary>
             /// <param name="capacity">The capacity.</param>
             public Metadata(int capacity) : base(capacity)
             {
-
             }
+
             /// <summary>
-            /// 
             /// </summary>
             public struct Entry : IEquatable<Entry>
             {
                 /// <summary>
-                /// Initializes a new instance of the <see cref="Entry"/> struct.
+                ///     Initializes a new instance of the <see cref="Entry" /> struct.
                 /// </summary>
                 /// <param name="dataType">Type of the data.</param>
                 /// <param name="data">The data.</param>
@@ -76,26 +71,22 @@ namespace HelixToolkit.SharpDX.Core
                     DataType = dataType;
                     Data = data;
                 }
+
                 /// <summary>
-                /// Gets the type of the data.
+                ///     Gets the type of the data.
                 /// </summary>
                 /// <value>
-                /// The type of the data.
+                ///     The type of the data.
                 /// </value>
-                public MetaDataType DataType
-                {
-                    get;
-                }
+                public MetaDataType DataType { get; }
+
                 /// <summary>
-                /// Gets the data.
+                ///     Gets the data.
                 /// </summary>
                 /// <value>
-                /// The data.
+                ///     The data.
                 /// </value>
-                public object Data
-                {
-                    get;
-                }
+                public object Data { get; }
 
                 public T? DataAs<T>() where T : unmanaged
                 {
@@ -115,10 +106,10 @@ namespace HelixToolkit.SharpDX.Core
                             dataTypeType = typeof(int);
                             break;
                         case MetaDataType.String:
-                            dataTypeType = typeof(String);
+                            dataTypeType = typeof(string);
                             break;
                         case MetaDataType.UInt64:
-                            dataTypeType = typeof(UInt64);
+                            dataTypeType = typeof(ulong);
                             break;
                         case MetaDataType.Vector3D:
                             dataTypeType = typeof(Vector3);
@@ -126,17 +117,14 @@ namespace HelixToolkit.SharpDX.Core
                     }
 
                     if (dataTypeType == typeof(T))
-                        return (T)Data;
+                        return (T) Data;
 
                     return null;
                 }
 
                 public override bool Equals(object obj)
                 {
-                    if (obj is Entry e)
-                    {
-                        return e.Equals(this);
-                    }
+                    if (obj is Entry e) return e.Equals(this);
                     return false;
                 }
 
@@ -150,8 +138,8 @@ namespace HelixToolkit.SharpDX.Core
                     unchecked
                     {
                         var hash = 17;
-                        hash = (hash * 31) + Data.GetHashCode();
-                        hash = (hash * 31) + ((Data == null) ? 0 : Data.GetHashCode());
+                        hash = hash * 31 + Data.GetHashCode();
+                        hash = hash * 31 + (Data == null ? 0 : Data.GetHashCode());
 
                         return hash;
                     }
@@ -159,7 +147,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 public override string ToString()
                 {
-                    return $"Type:{DataType}; Value:{Data.ToString()}";
+                    return $"Type:{DataType}; Value:{Data}";
                 }
 
                 public static bool operator ==(Entry a, Entry b)

@@ -4,128 +4,74 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
-
         public class TextNode2D : SceneNode2D
         {
             private string text = string.Empty;
+
+            private TextRenderCore2D textRenderable;
+
             public string Text
             {
+                get => text;
                 set
                 {
-                    if (SetAffectsMeasure(ref text, value))
-                    {
-                        (RenderCore as TextRenderCore2D).Text = value;
-                    }
-                }
-                get
-                {
-                    return text;
+                    if (SetAffectsMeasure(ref text, value)) (RenderCore as TextRenderCore2D).Text = value;
                 }
             }
 
             public Brush Foreground
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).Foreground = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).Foreground;
-                }
+                get => (RenderCore as TextRenderCore2D).Foreground;
+                set => (RenderCore as TextRenderCore2D).Foreground = value;
             }
 
             public Brush Background
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).Background = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).Background;
-                }
+                get => (RenderCore as TextRenderCore2D).Background;
+                set => (RenderCore as TextRenderCore2D).Background = value;
             }
 
             public int FontSize
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).FontSize = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).FontSize;
-                }
+                get => (RenderCore as TextRenderCore2D).FontSize;
+                set => (RenderCore as TextRenderCore2D).FontSize = value;
             }
 
             public FontWeight FontWeight
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).FontWeight = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).FontWeight;
-                }
+                get => (RenderCore as TextRenderCore2D).FontWeight;
+                set => (RenderCore as TextRenderCore2D).FontWeight = value;
             }
 
             public FontStyle FontStyle
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).FontStyle = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).FontStyle;
-                }
+                get => (RenderCore as TextRenderCore2D).FontStyle;
+                set => (RenderCore as TextRenderCore2D).FontStyle = value;
             }
 
             public TextAlignment TextAlignment
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).TextAlignment = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).TextAlignment;
-                }
+                get => (RenderCore as TextRenderCore2D).TextAlignment;
+                set => (RenderCore as TextRenderCore2D).TextAlignment = value;
             }
 
             public FlowDirection FlowDirection
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).FlowDirection = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).FlowDirection;
-                }
+                get => (RenderCore as TextRenderCore2D).FlowDirection;
+                set => (RenderCore as TextRenderCore2D).FlowDirection = value;
             }
 
             public string FontFamily
             {
-                set
-                {
-                    (RenderCore as TextRenderCore2D).FontFamily = value;
-                }
-                get
-                {
-                    return (RenderCore as TextRenderCore2D).FontFamily;
-                }
+                get => (RenderCore as TextRenderCore2D).FontFamily;
+                set => (RenderCore as TextRenderCore2D).FontFamily = value;
             }
-
-            private TextRenderCore2D textRenderable;
 
             protected override RenderCore2D CreateRenderCore()
             {
@@ -141,10 +87,8 @@ namespace HelixToolkit.SharpDX.Core
                     hitResult = new HitTest2DResult(WrapperSource);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override Size2F MeasureOverride(Size2F availableSize)

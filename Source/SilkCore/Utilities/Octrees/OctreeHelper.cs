@@ -5,25 +5,58 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-using System.Collections.Generic;
+namespace HelixToolkit.SharpDX.Core;
 
-namespace HelixToolkit.SharpDX.Core
+public static class OctreeHelper
 {
-    public static class OctreeHelper
+    public static LineGeometry3D CreateOctreeLineModel(this IDynamicOctree tree)
     {
-        public static LineGeometry3D CreateOctreeLineModel(this IDynamicOctree tree)
-        {
-            var builder = new LineBuilder();
-            CreateOctreeLineModel(tree, builder);
-            return builder.ToLineGeometry3D();
-        }
+        var builder = new LineBuilder();
+        tree.CreateOctreeLineModel(builder);
+        return builder.ToLineGeometry3D();
+    }
 
-        public static void CreateOctreeLineModel(this IDynamicOctree tree, LineBuilder builder)
+    public static void CreateOctreeLineModel(this IDynamicOctree tree, LineBuilder builder)
+    {
+        if (tree == null)
+            return;
+        var box = tree.Bound;
+        var verts = new Vector3[8];
+        verts[0] = box.Minimum;
+        verts[1] = new Vector3(box.Minimum.X, box.Minimum.Y, box.Maximum.Z); //Z
+        verts[2] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Minimum.Z); //Y
+        verts[3] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Minimum.Z); //X
+
+        verts[7] = box.Maximum;
+        verts[4] = new Vector3(box.Maximum.X, box.Maximum.Y, box.Minimum.Z); //Z
+        verts[5] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Maximum.Z); //Y
+        verts[6] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Maximum.Z); //X
+        builder.AddLine(verts[0], verts[1]);
+        builder.AddLine(verts[0], verts[2]);
+        builder.AddLine(verts[0], verts[3]);
+        builder.AddLine(verts[7], verts[4]);
+        builder.AddLine(verts[7], verts[5]);
+        builder.AddLine(verts[7], verts[6]);
+
+        builder.AddLine(verts[1], verts[6]);
+        builder.AddLine(verts[1], verts[5]);
+        builder.AddLine(verts[4], verts[2]);
+        builder.AddLine(verts[4], verts[3]);
+        builder.AddLine(verts[2], verts[6]);
+        builder.AddLine(verts[3], verts[5]);
+
+        if (tree.HasChildren)
+            foreach (var child in tree.ChildNodes)
+                if (child != null)
+                    child.CreateOctreeLineModel(builder);
+    }
+
+    public static LineGeometry3D CreatePathLines(this IList<BoundingBox> path)
+    {
+        var verts = new Vector3[8];
+        var builder = new LineBuilder();
+        foreach (var box in path)
         {
-            if (tree == null)
-                return;
-            var box = tree.Bound;
-            var verts = new Vector3[8];
             verts[0] = box.Minimum;
             verts[1] = new Vector3(box.Minimum.X, box.Minimum.Y, box.Maximum.Z); //Z
             verts[2] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Minimum.Z); //Y
@@ -46,49 +79,8 @@ namespace HelixToolkit.SharpDX.Core
             builder.AddLine(verts[4], verts[3]);
             builder.AddLine(verts[2], verts[6]);
             builder.AddLine(verts[3], verts[5]);
-
-            if (tree.HasChildren)
-            {
-                foreach (var child in tree.ChildNodes)
-                {
-                    if (child != null)
-                    {
-                        CreateOctreeLineModel(child, builder);
-                    }
-                }
-            }
         }
 
-        public static LineGeometry3D CreatePathLines(this IList<BoundingBox> path)
-        {
-            var verts = new Vector3[8];
-            var builder = new LineBuilder();
-            foreach (var box in path)
-            {
-                verts[0] = box.Minimum;
-                verts[1] = new Vector3(box.Minimum.X, box.Minimum.Y, box.Maximum.Z); //Z
-                verts[2] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Minimum.Z); //Y
-                verts[3] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Minimum.Z); //X
-
-                verts[7] = box.Maximum;
-                verts[4] = new Vector3(box.Maximum.X, box.Maximum.Y, box.Minimum.Z); //Z
-                verts[5] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Maximum.Z); //Y
-                verts[6] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Maximum.Z); //X
-                builder.AddLine(verts[0], verts[1]);
-                builder.AddLine(verts[0], verts[2]);
-                builder.AddLine(verts[0], verts[3]);
-                builder.AddLine(verts[7], verts[4]);
-                builder.AddLine(verts[7], verts[5]);
-                builder.AddLine(verts[7], verts[6]);
-
-                builder.AddLine(verts[1], verts[6]);
-                builder.AddLine(verts[1], verts[5]);
-                builder.AddLine(verts[4], verts[2]);
-                builder.AddLine(verts[4], verts[3]);
-                builder.AddLine(verts[2], verts[6]);
-                builder.AddLine(verts[3], verts[5]);
-            }
-            return builder.ToLineGeometry3D();
-        }
+        return builder.ToLineGeometry3D();
     }
 }

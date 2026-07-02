@@ -1,3 +1,4 @@
+using System.Collections;
 #if SILKNET
 #if !CORE
 namespace HelixToolkit.Wpf.SharpDX
@@ -496,9 +497,6 @@ namespace HelixToolkit.Wpf.SharpDX
 
 namespace HelixToolkit.SharpDX.Core
 {
-    using System.Collections;
-    using System.Collections.Generic;
-
     public enum PlaneIntersectionType
     {
         Front,
@@ -561,14 +559,8 @@ namespace HelixToolkit.SharpDX.Core
         public PlaneIntersectionType Intersects(ref BoundingSphere sphere)
         {
             var distance = Collision.Dot(Normal, sphere.Center) + D;
-            if (distance > sphere.Radius)
-            {
-                return PlaneIntersectionType.Front;
-            }
-            if (distance < -sphere.Radius)
-            {
-                return PlaneIntersectionType.Back;
-            }
+            if (distance > sphere.Radius) return PlaneIntersectionType.Front;
+            if (distance < -sphere.Radius) return PlaneIntersectionType.Back;
             return PlaneIntersectionType.Intersecting;
         }
     }
@@ -599,13 +591,14 @@ namespace HelixToolkit.SharpDX.Core
         public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point)
         {
             var distance = Dot(plane.Normal, point) + plane.D;
-            return distance > 0 ? PlaneIntersectionType.Front : distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+            return distance > 0 ? PlaneIntersectionType.Front :
+                distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
         }
 
         public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance)
         {
             var denominator = Dot(plane.Normal, ray.Direction);
-            if (global::System.Math.Abs(denominator) < Epsilon)
+            if (Math.Abs(denominator) < Epsilon)
             {
                 distance = 0;
                 return false;
@@ -628,14 +621,15 @@ namespace HelixToolkit.SharpDX.Core
             return false;
         }
 
-        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out float distance)
         {
             var edge1 = vertex2 - vertex1;
             var edge2 = vertex3 - vertex1;
             var directionCrossEdge2 = Cross(ray.Direction, edge2);
             var determinant = Dot(edge1, directionCrossEdge2);
 
-            if (global::System.Math.Abs(determinant) < Epsilon)
+            if (Math.Abs(determinant) < Epsilon)
             {
                 distance = 0;
                 return false;
@@ -662,7 +656,8 @@ namespace HelixToolkit.SharpDX.Core
             return distance >= 0;
         }
 
-        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out Vector3 point)
         {
             float distance;
             if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance))
@@ -675,7 +670,8 @@ namespace HelixToolkit.SharpDX.Core
             return false;
         }
 
-        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 result)
+        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out Vector3 result)
         {
             var ab = vertex2 - vertex1;
             var ac = vertex3 - vertex1;
@@ -723,7 +719,7 @@ namespace HelixToolkit.SharpDX.Core
             var va = d3 * d6 - d5 * d4;
             if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
             {
-                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / (d4 - d3 + (d5 - d6)));
                 return;
             }
 
@@ -752,22 +748,22 @@ namespace HelixToolkit.SharpDX.Core
         {
         }
 
-        public static readonly Color Transparent = new Color(0, 0, 0, 0);
-        public static readonly Color White = new Color(255, 255, 255, 255);
-        public static readonly Color Black = new Color(0, 0, 0, 255);
-        public static readonly Color Red = new Color(255, 0, 0, 255);
-        public static readonly Color Green = new Color(0, 128, 0, 255);
-        public static readonly Color Blue = new Color(0, 0, 255, 255);
-        public static readonly Color Gold = new Color(255, 215, 0, 255);
-        public static readonly Color Gray = new Color(128, 128, 128, 255);
-        public static readonly Color DarkGray = new Color(169, 169, 169, 255);
-        public static readonly Color Yellow = new Color(255, 255, 0, 255);
-        public static readonly Color Silver = new Color(192, 192, 192, 255);
-        public static readonly Color LightBlue = new Color(173, 216, 230, 255);
-        public static readonly Color SkyBlue = new Color(135, 206, 235, 255);
-        public static readonly Color LightGreen = new Color(144, 238, 144, 255);
-        public static readonly Color BlanchedAlmond = new Color(255, 235, 205, 255);
-        public static readonly Color Bisque = new Color(255, 228, 196, 255);
+        public static readonly Color Transparent = new(0, 0, 0, 0);
+        public static readonly Color White = new(255, 255, 255);
+        public static readonly Color Black = new(0, 0, 0);
+        public static readonly Color Red = new(255, 0, 0);
+        public static readonly Color Green = new(0, 128, 0);
+        public static readonly Color Blue = new(0, 0, 255);
+        public static readonly Color Gold = new(255, 215, 0);
+        public static readonly Color Gray = new(128, 128, 128);
+        public static readonly Color DarkGray = new(169, 169, 169);
+        public static readonly Color Yellow = new(255, 255, 0);
+        public static readonly Color Silver = new(192, 192, 192);
+        public static readonly Color LightBlue = new(173, 216, 230);
+        public static readonly Color SkyBlue = new(135, 206, 235);
+        public static readonly Color LightGreen = new(144, 238, 144);
+        public static readonly Color BlanchedAlmond = new(255, 235, 205);
+        public static readonly Color Bisque = new(255, 228, 196);
         public static readonly Color Zero = Transparent;
 
         public static Color FromRgb(byte red, byte green, byte blue)
@@ -782,15 +778,9 @@ namespace HelixToolkit.SharpDX.Core
 
         private static byte ToByte(float value)
         {
-            if (value <= 0)
-            {
-                return 0;
-            }
-            if (value >= 1)
-            {
-                return 255;
-            }
-            return (byte)(value * 255f);
+            if (value <= 0) return 0;
+            if (value >= 1) return 255;
+            return (byte) (value * 255f);
         }
 
         public Color4 ToColor4()
@@ -838,17 +828,17 @@ namespace HelixToolkit.SharpDX.Core
 
         public override int GetHashCode()
         {
-            return global::System.HashCode.Combine(Minimum, Maximum);
+            return HashCode.Combine(Minimum, Maximum);
         }
 
         private static Vector3 Min(Vector3 left, Vector3 right)
         {
-            return new Vector3(global::System.Math.Min(left.X, right.X), global::System.Math.Min(left.Y, right.Y), global::System.Math.Min(left.Z, right.Z));
+            return new Vector3(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y), Math.Min(left.Z, right.Z));
         }
 
         private static Vector3 Max(Vector3 left, Vector3 right)
         {
-            return new Vector3(global::System.Math.Max(left.X, right.X), global::System.Math.Max(left.Y, right.Y), global::System.Math.Max(left.Z, right.Z));
+            return new Vector3(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y), Math.Max(left.Z, right.Z));
         }
 
         public static BoundingBox Merge(BoundingBox value1, BoundingBox value2)
@@ -886,8 +876,8 @@ namespace HelixToolkit.SharpDX.Core
         public ContainmentType Contains(Vector3 point)
         {
             return point.X < Minimum.X || point.X > Maximum.X
-                || point.Y < Minimum.Y || point.Y > Maximum.Y
-                || point.Z < Minimum.Z || point.Z > Maximum.Z
+                                       || point.Y < Minimum.Y || point.Y > Maximum.Y
+                                       || point.Z < Minimum.Z || point.Z > Maximum.Z
                 ? ContainmentType.Disjoint
                 : ContainmentType.Contains;
         }
@@ -895,15 +885,13 @@ namespace HelixToolkit.SharpDX.Core
         public ContainmentType Contains(ref BoundingBox box)
         {
             if (Maximum.X < box.Minimum.X || Minimum.X > box.Maximum.X
-                || Maximum.Y < box.Minimum.Y || Minimum.Y > box.Maximum.Y
-                || Maximum.Z < box.Minimum.Z || Minimum.Z > box.Maximum.Z)
-            {
+                                          || Maximum.Y < box.Minimum.Y || Minimum.Y > box.Maximum.Y
+                                          || Maximum.Z < box.Minimum.Z || Minimum.Z > box.Maximum.Z)
                 return ContainmentType.Disjoint;
-            }
 
             return Minimum.X <= box.Minimum.X && Maximum.X >= box.Maximum.X
-                && Minimum.Y <= box.Minimum.Y && Maximum.Y >= box.Maximum.Y
-                && Minimum.Z <= box.Minimum.Z && Maximum.Z >= box.Maximum.Z
+                                              && Minimum.Y <= box.Minimum.Y && Maximum.Y >= box.Maximum.Y
+                                              && Minimum.Z <= box.Minimum.Z && Maximum.Z >= box.Maximum.Z
                 ? ContainmentType.Contains
                 : ContainmentType.Intersects;
         }
@@ -919,31 +907,19 @@ namespace HelixToolkit.SharpDX.Core
         {
             var tmin = (Minimum.X - ray.Origin.X) / ray.Direction.X;
             var tmax = (Maximum.X - ray.Origin.X) / ray.Direction.X;
-            if (tmin > tmax)
-            {
-                (tmin, tmax) = (tmax, tmin);
-            }
+            if (tmin > tmax) (tmin, tmax) = (tmax, tmin);
 
             var tymin = (Minimum.Y - ray.Origin.Y) / ray.Direction.Y;
             var tymax = (Maximum.Y - ray.Origin.Y) / ray.Direction.Y;
-            if (tymin > tymax)
-            {
-                (tymin, tymax) = (tymax, tymin);
-            }
-            if (tmin > tymax || tymin > tmax)
-            {
-                return false;
-            }
+            if (tymin > tymax) (tymin, tymax) = (tymax, tymin);
+            if (tmin > tymax || tymin > tmax) return false;
 
-            tmin = global::System.Math.Max(tmin, tymin);
-            tmax = global::System.Math.Min(tmax, tymax);
+            tmin = Math.Max(tmin, tymin);
+            tmax = Math.Min(tmax, tymax);
 
             var tzmin = (Minimum.Z - ray.Origin.Z) / ray.Direction.Z;
             var tzmax = (Maximum.Z - ray.Origin.Z) / ray.Direction.Z;
-            if (tzmin > tzmax)
-            {
-                (tzmin, tzmax) = (tzmax, tzmin);
-            }
+            if (tzmin > tzmax) (tzmin, tzmax) = (tzmax, tzmin);
 
             return !(tmin > tzmax || tzmin > tmax);
         }
@@ -951,9 +927,19 @@ namespace HelixToolkit.SharpDX.Core
 
     public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>>
     {
-        private readonly Dictionary<(K, T), V> dictionary = new Dictionary<(K, T), V>();
+        private readonly Dictionary<(K, T), V> dictionary = new();
 
         public IEnumerable<V> Values => dictionary.Values;
+
+        public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator()
+        {
+            return dictionary.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public void Add(K key1, T key2, V value)
         {
@@ -973,25 +959,12 @@ namespace HelixToolkit.SharpDX.Core
         public void Clear()
         {
             dictionary.Clear();
-        }
-
-        public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator()
-        {
-            return dictionary.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
 
 namespace HelixToolkit.UWP
 {
-    using System.Collections;
-    using System.Collections.Generic;
-
     public enum PlaneIntersectionType
     {
         Front,
@@ -1054,14 +1027,8 @@ namespace HelixToolkit.UWP
         public PlaneIntersectionType Intersects(ref BoundingSphere sphere)
         {
             var distance = Collision.Dot(Normal, sphere.Center) + D;
-            if (distance > sphere.Radius)
-            {
-                return PlaneIntersectionType.Front;
-            }
-            if (distance < -sphere.Radius)
-            {
-                return PlaneIntersectionType.Back;
-            }
+            if (distance > sphere.Radius) return PlaneIntersectionType.Front;
+            if (distance < -sphere.Radius) return PlaneIntersectionType.Back;
             return PlaneIntersectionType.Intersecting;
         }
     }
@@ -1092,13 +1059,14 @@ namespace HelixToolkit.UWP
         public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point)
         {
             var distance = Dot(plane.Normal, point) + plane.D;
-            return distance > 0 ? PlaneIntersectionType.Front : distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+            return distance > 0 ? PlaneIntersectionType.Front :
+                distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
         }
 
         public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance)
         {
             var denominator = Dot(plane.Normal, ray.Direction);
-            if (global::System.Math.Abs(denominator) < Epsilon)
+            if (Math.Abs(denominator) < Epsilon)
             {
                 distance = 0;
                 return false;
@@ -1121,14 +1089,15 @@ namespace HelixToolkit.UWP
             return false;
         }
 
-        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out float distance)
         {
             var edge1 = vertex2 - vertex1;
             var edge2 = vertex3 - vertex1;
             var directionCrossEdge2 = Cross(ray.Direction, edge2);
             var determinant = Dot(edge1, directionCrossEdge2);
 
-            if (global::System.Math.Abs(determinant) < Epsilon)
+            if (Math.Abs(determinant) < Epsilon)
             {
                 distance = 0;
                 return false;
@@ -1155,7 +1124,8 @@ namespace HelixToolkit.UWP
             return distance >= 0;
         }
 
-        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
+        public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out Vector3 point)
         {
             float distance;
             if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance))
@@ -1168,7 +1138,8 @@ namespace HelixToolkit.UWP
             return false;
         }
 
-        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 result)
+        public static void ClosestPointPointTriangle(ref Vector3 point, ref Vector3 vertex1, ref Vector3 vertex2,
+            ref Vector3 vertex3, out Vector3 result)
         {
             var ab = vertex2 - vertex1;
             var ac = vertex3 - vertex1;
@@ -1216,7 +1187,7 @@ namespace HelixToolkit.UWP
             var va = d3 * d6 - d5 * d4;
             if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
             {
-                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+                result = vertex2 + (vertex3 - vertex2) * ((d4 - d3) / (d4 - d3 + (d5 - d6)));
                 return;
             }
 
@@ -1245,22 +1216,22 @@ namespace HelixToolkit.UWP
         {
         }
 
-        public static readonly Color Transparent = new Color(0, 0, 0, 0);
-        public static readonly Color White = new Color(255, 255, 255, 255);
-        public static readonly Color Black = new Color(0, 0, 0, 255);
-        public static readonly Color Red = new Color(255, 0, 0, 255);
-        public static readonly Color Green = new Color(0, 128, 0, 255);
-        public static readonly Color Blue = new Color(0, 0, 255, 255);
-        public static readonly Color Gold = new Color(255, 215, 0, 255);
-        public static readonly Color Gray = new Color(128, 128, 128, 255);
-        public static readonly Color DarkGray = new Color(169, 169, 169, 255);
-        public static readonly Color Yellow = new Color(255, 255, 0, 255);
-        public static readonly Color Silver = new Color(192, 192, 192, 255);
-        public static readonly Color LightBlue = new Color(173, 216, 230, 255);
-        public static readonly Color SkyBlue = new Color(135, 206, 235, 255);
-        public static readonly Color LightGreen = new Color(144, 238, 144, 255);
-        public static readonly Color BlanchedAlmond = new Color(255, 235, 205, 255);
-        public static readonly Color Bisque = new Color(255, 228, 196, 255);
+        public static readonly Color Transparent = new(0, 0, 0, 0);
+        public static readonly Color White = new(255, 255, 255);
+        public static readonly Color Black = new(0, 0, 0);
+        public static readonly Color Red = new(255, 0, 0);
+        public static readonly Color Green = new(0, 128, 0);
+        public static readonly Color Blue = new(0, 0, 255);
+        public static readonly Color Gold = new(255, 215, 0);
+        public static readonly Color Gray = new(128, 128, 128);
+        public static readonly Color DarkGray = new(169, 169, 169);
+        public static readonly Color Yellow = new(255, 255, 0);
+        public static readonly Color Silver = new(192, 192, 192);
+        public static readonly Color LightBlue = new(173, 216, 230);
+        public static readonly Color SkyBlue = new(135, 206, 235);
+        public static readonly Color LightGreen = new(144, 238, 144);
+        public static readonly Color BlanchedAlmond = new(255, 235, 205);
+        public static readonly Color Bisque = new(255, 228, 196);
         public static readonly Color Zero = Transparent;
 
         public static Color FromRgb(byte red, byte green, byte blue)
@@ -1275,15 +1246,9 @@ namespace HelixToolkit.UWP
 
         private static byte ToByte(float value)
         {
-            if (value <= 0)
-            {
-                return 0;
-            }
-            if (value >= 1)
-            {
-                return 255;
-            }
-            return (byte)(value * 255f);
+            if (value <= 0) return 0;
+            if (value >= 1) return 255;
+            return (byte) (value * 255f);
         }
 
         public Color4 ToColor4()
@@ -1331,17 +1296,17 @@ namespace HelixToolkit.UWP
 
         public override int GetHashCode()
         {
-            return global::System.HashCode.Combine(Minimum, Maximum);
+            return HashCode.Combine(Minimum, Maximum);
         }
 
         private static Vector3 Min(Vector3 left, Vector3 right)
         {
-            return new Vector3(global::System.Math.Min(left.X, right.X), global::System.Math.Min(left.Y, right.Y), global::System.Math.Min(left.Z, right.Z));
+            return new Vector3(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y), Math.Min(left.Z, right.Z));
         }
 
         private static Vector3 Max(Vector3 left, Vector3 right)
         {
-            return new Vector3(global::System.Math.Max(left.X, right.X), global::System.Math.Max(left.Y, right.Y), global::System.Math.Max(left.Z, right.Z));
+            return new Vector3(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y), Math.Max(left.Z, right.Z));
         }
 
         public static BoundingBox Merge(BoundingBox value1, BoundingBox value2)
@@ -1379,8 +1344,8 @@ namespace HelixToolkit.UWP
         public ContainmentType Contains(Vector3 point)
         {
             return point.X < Minimum.X || point.X > Maximum.X
-                || point.Y < Minimum.Y || point.Y > Maximum.Y
-                || point.Z < Minimum.Z || point.Z > Maximum.Z
+                                       || point.Y < Minimum.Y || point.Y > Maximum.Y
+                                       || point.Z < Minimum.Z || point.Z > Maximum.Z
                 ? ContainmentType.Disjoint
                 : ContainmentType.Contains;
         }
@@ -1388,15 +1353,13 @@ namespace HelixToolkit.UWP
         public ContainmentType Contains(ref BoundingBox box)
         {
             if (Maximum.X < box.Minimum.X || Minimum.X > box.Maximum.X
-                || Maximum.Y < box.Minimum.Y || Minimum.Y > box.Maximum.Y
-                || Maximum.Z < box.Minimum.Z || Minimum.Z > box.Maximum.Z)
-            {
+                                          || Maximum.Y < box.Minimum.Y || Minimum.Y > box.Maximum.Y
+                                          || Maximum.Z < box.Minimum.Z || Minimum.Z > box.Maximum.Z)
                 return ContainmentType.Disjoint;
-            }
 
             return Minimum.X <= box.Minimum.X && Maximum.X >= box.Maximum.X
-                && Minimum.Y <= box.Minimum.Y && Maximum.Y >= box.Maximum.Y
-                && Minimum.Z <= box.Minimum.Z && Maximum.Z >= box.Maximum.Z
+                                              && Minimum.Y <= box.Minimum.Y && Maximum.Y >= box.Maximum.Y
+                                              && Minimum.Z <= box.Minimum.Z && Maximum.Z >= box.Maximum.Z
                 ? ContainmentType.Contains
                 : ContainmentType.Intersects;
         }
@@ -1412,31 +1375,19 @@ namespace HelixToolkit.UWP
         {
             var tmin = (Minimum.X - ray.Origin.X) / ray.Direction.X;
             var tmax = (Maximum.X - ray.Origin.X) / ray.Direction.X;
-            if (tmin > tmax)
-            {
-                (tmin, tmax) = (tmax, tmin);
-            }
+            if (tmin > tmax) (tmin, tmax) = (tmax, tmin);
 
             var tymin = (Minimum.Y - ray.Origin.Y) / ray.Direction.Y;
             var tymax = (Maximum.Y - ray.Origin.Y) / ray.Direction.Y;
-            if (tymin > tymax)
-            {
-                (tymin, tymax) = (tymax, tymin);
-            }
-            if (tmin > tymax || tymin > tmax)
-            {
-                return false;
-            }
+            if (tymin > tymax) (tymin, tymax) = (tymax, tymin);
+            if (tmin > tymax || tymin > tmax) return false;
 
-            tmin = global::System.Math.Max(tmin, tymin);
-            tmax = global::System.Math.Min(tmax, tymax);
+            tmin = Math.Max(tmin, tymin);
+            tmax = Math.Min(tmax, tymax);
 
             var tzmin = (Minimum.Z - ray.Origin.Z) / ray.Direction.Z;
             var tzmax = (Maximum.Z - ray.Origin.Z) / ray.Direction.Z;
-            if (tzmin > tzmax)
-            {
-                (tzmin, tzmax) = (tzmax, tzmin);
-            }
+            if (tzmin > tzmax) (tzmin, tzmax) = (tzmax, tzmin);
 
             return !(tmin > tzmax || tzmin > tmax);
         }
@@ -1444,9 +1395,19 @@ namespace HelixToolkit.UWP
 
     public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>>
     {
-        private readonly Dictionary<(K, T), V> dictionary = new Dictionary<(K, T), V>();
+        private readonly Dictionary<(K, T), V> dictionary = new();
 
         public IEnumerable<V> Values => dictionary.Values;
+
+        public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator()
+        {
+            return dictionary.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public void Add(K key1, T key2, V value)
         {
@@ -1466,16 +1427,6 @@ namespace HelixToolkit.UWP
         public void Clear()
         {
             dictionary.Clear();
-        }
-
-        public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator()
-        {
-            return dictionary.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
@@ -1484,70 +1435,63 @@ namespace HelixToolkit.SharpDX.Core
 {
     public struct BoundingFrustum
     {
-        private Plane left;
-        private Plane right;
-        private Plane top;
-        private Plane bottom;
-        private Plane near;
-        private Plane far;
-
         public BoundingFrustum(Matrix matrix)
         {
             Matrix = matrix;
-            left = NormalizePlane(new Plane(
+            Left = NormalizePlane(new Plane(
                 new Vector3(matrix.M14 + matrix.M11, matrix.M24 + matrix.M21, matrix.M34 + matrix.M31),
                 matrix.M44 + matrix.M41));
-            right = NormalizePlane(new Plane(
+            Right = NormalizePlane(new Plane(
                 new Vector3(matrix.M14 - matrix.M11, matrix.M24 - matrix.M21, matrix.M34 - matrix.M31),
                 matrix.M44 - matrix.M41));
-            top = NormalizePlane(new Plane(
+            Top = NormalizePlane(new Plane(
                 new Vector3(matrix.M14 - matrix.M12, matrix.M24 - matrix.M22, matrix.M34 - matrix.M32),
                 matrix.M44 - matrix.M42));
-            bottom = NormalizePlane(new Plane(
+            Bottom = NormalizePlane(new Plane(
                 new Vector3(matrix.M14 + matrix.M12, matrix.M24 + matrix.M22, matrix.M34 + matrix.M32),
                 matrix.M44 + matrix.M42));
-            near = NormalizePlane(new Plane(
+            Near = NormalizePlane(new Plane(
                 new Vector3(matrix.M13, matrix.M23, matrix.M33),
                 matrix.M43));
-            far = NormalizePlane(new Plane(
+            Far = NormalizePlane(new Plane(
                 new Vector3(matrix.M14 - matrix.M13, matrix.M24 - matrix.M23, matrix.M34 - matrix.M33),
                 matrix.M44 - matrix.M43));
         }
 
         public Matrix Matrix { get; }
 
-        public Plane Left => left;
+        public Plane Left { get; }
 
-        public Plane Right => right;
+        public Plane Right { get; }
 
-        public Plane Top => top;
+        public Plane Top { get; }
 
-        public Plane Bottom => bottom;
+        public Plane Bottom { get; }
 
-        public Plane Near => near;
+        public Plane Near { get; }
 
-        public Plane Far => far;
+        public Plane Far { get; }
 
-        public bool IsOrthographic => global::System.Math.Abs(Matrix.M34) < 1e-6f;
+        public bool IsOrthographic => Math.Abs(Matrix.M34) < 1e-6f;
 
         public Plane GetPlane(int index)
         {
             switch (index)
             {
                 case 0:
-                    return left;
+                    return Left;
                 case 1:
-                    return right;
+                    return Right;
                 case 2:
-                    return top;
+                    return Top;
                 case 3:
-                    return bottom;
+                    return Bottom;
                 case 4:
-                    return near;
+                    return Near;
                 case 5:
-                    return far;
+                    return Far;
                 default:
-                    throw new global::System.ArgumentOutOfRangeException(nameof(index));
+                    throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1559,6 +1503,7 @@ namespace HelixToolkit.SharpDX.Core
                 plane.Normal /= length;
                 plane.D /= length;
             }
+
             return plane;
         }
     }

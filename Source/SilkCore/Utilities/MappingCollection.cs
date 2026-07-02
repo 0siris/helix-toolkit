@@ -2,72 +2,67 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
         /// <summary>
-        ///
         /// </summary>
         /// <typeparam name="INDEXTYPE"></typeparam>
         /// <typeparam name="NAMETYPE"></typeparam>
         /// <typeparam name="DATATYPE"></typeparam>
         public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE>
         {
-            private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = new Dictionary<INDEXTYPE, NAMETYPE>();
-            private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = new Dictionary<NAMETYPE, INDEXTYPE>();
-            private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = new Dictionary<INDEXTYPE, DATATYPE>();
+            private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = new();
+            private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = new();
+            private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = new();
+
             /// <summary>
-            /// 
             /// </summary>
-            public KeyValuePair<INDEXTYPE, DATATYPE>[] MappingArray { private set; get; } = new KeyValuePair<INDEXTYPE, DATATYPE>[0];
+            public KeyValuePair<INDEXTYPE, DATATYPE>[] MappingArray { get; private set; } =
+                new KeyValuePair<INDEXTYPE, DATATYPE>[0];
+
             /// <summary>
-            /// 
             /// </summary>
-            public IEnumerable<DATATYPE> Datas
-            {
-                get
-                {
-                    return indexDataMapping.Values;
-                }
-            }
+            public IEnumerable<DATATYPE> Datas => indexDataMapping.Values;
+
             /// <summary>
-            /// 
             /// </summary>
-            public int Count
-            {
-                get
-                {
-                    return indexNameMapping.Count;
-                }
-            }
+            public int Count => indexNameMapping.Count;
+
             /// <summary>
-            /// 
+            /// </summary>
+            public IEnumerable<INDEXTYPE> Keys => indexNameMapping.Keys;
+
+            /// <summary>
+            /// </summary>
+            /// <param name="key"></param>
+            /// <returns></returns>
+            public DATATYPE this[INDEXTYPE key] => indexDataMapping[key];
+
+            /// <summary>
+            /// </summary>
+            /// <param name="name"></param>
+            /// <returns></returns>
+            public INDEXTYPE this[NAMETYPE name] => nameIndexMapping[name];
+
+            /// <summary>
             /// </summary>
             /// <param name="index"></param>
             /// <param name="name"></param>
             /// <param name="item"></param>
             public void Add(INDEXTYPE index, NAMETYPE name, DATATYPE item)
             {
-                if (nameIndexMapping.ContainsKey(name))
-                {
-                    throw new ArgumentException("Cannot add duplicate name.");
-                }
-                if (indexNameMapping.ContainsKey(index))
-                {
-                    throw new ArgumentException("Cannot add duplicate index");
-                }
+                if (nameIndexMapping.ContainsKey(name)) throw new ArgumentException("Cannot add duplicate name.");
+                if (indexNameMapping.ContainsKey(index)) throw new ArgumentException("Cannot add duplicate index");
                 indexNameMapping.Add(index, name);
                 nameIndexMapping.Add(name, index);
                 indexDataMapping.Add(index, item);
                 MappingArray = indexDataMapping.ToArray();
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
@@ -81,13 +76,11 @@ namespace HelixToolkit.SharpDX.Core
                     MappingArray = indexDataMapping.ToArray();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
@@ -101,13 +94,11 @@ namespace HelixToolkit.SharpDX.Core
                     MappingArray = indexDataMapping.ToArray();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="id"></param>
             /// <returns></returns>
@@ -115,8 +106,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return indexNameMapping.ContainsKey(id);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="id"></param>
             /// <param name="data"></param>
@@ -125,8 +116,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return indexDataMapping.TryGetValue(id, out data);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <param name="index"></param>
@@ -135,8 +126,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return nameIndexMapping.TryGetValue(name, out index);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="id"></param>
             /// <param name="name"></param>
@@ -145,8 +136,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return indexNameMapping.TryGetValue(id, out name);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
@@ -154,8 +145,8 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return nameIndexMapping.ContainsKey(name);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <param name="data"></param>
@@ -164,17 +155,13 @@ namespace HelixToolkit.SharpDX.Core
             {
                 INDEXTYPE idx;
                 if (nameIndexMapping.TryGetValue(name, out idx) && indexDataMapping.TryGetValue(idx, out data))
-                {
                     return true;
-                }
-                else
-                {
-                    data = default(DATATYPE);
-                    return false;
-                }
+
+                data = default;
+                return false;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             public void Clear()
             {
@@ -182,40 +169,6 @@ namespace HelixToolkit.SharpDX.Core
                 indexNameMapping.Clear();
                 indexDataMapping.Clear();
                 MappingArray = new KeyValuePair<INDEXTYPE, DATATYPE>[0];
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            public IEnumerable<INDEXTYPE> Keys
-            {
-                get
-                {
-                    return indexNameMapping.Keys;
-                }
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="key"></param>
-            /// <returns></returns>
-            public DATATYPE this[INDEXTYPE key]
-            {
-                get
-                {
-                    return indexDataMapping[key];
-                }
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="name"></param>
-            /// <returns></returns>
-            public INDEXTYPE this[NAMETYPE name]
-            {
-                get
-                {
-                    return nameIndexMapping[name];
-                }
             }
         }
     }

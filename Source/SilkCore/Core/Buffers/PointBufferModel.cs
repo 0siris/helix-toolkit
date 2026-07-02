@@ -3,35 +3,37 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
         /// <summary>
-        /// Point Geometry Buffer Model. Use for point rendering
+        ///     Point Geometry Buffer Model. Use for point rendering
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class PointGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct
         {
             protected static readonly VertexStruct[] emptyVerts = new VertexStruct[0];
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="structSize">Size of the structure.</param>
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public PointGeometryBufferModel(int structSize, bool dynamic = false)
                 : base(PrimitiveTopology.PointList,
-                dynamic ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer) : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer) as IElementsBufferProxy,
-                null)
+                    dynamic
+                        ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                        : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+                    null)
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
             public PointGeometryBufferModel(IElementsBufferProxy vertexBuffer) : base(PrimitiveTopology.PointList,
@@ -40,7 +42,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
             public PointGeometryBufferModel(IElementsBufferProxy[] vertexBuffer) : base(PrimitiveTopology.PointList,
@@ -50,50 +52,55 @@ namespace HelixToolkit.SharpDX.Core
 
 
             /// <summary>
-            /// Called when [create index buffer].
+            ///     Called when [create index buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                Geometry3D geometry, IDeviceResources deviceResources)
             {
-
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public class DefaultPointGeometryBufferModel : PointGeometryBufferModel<PointsVertex>
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultPointGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DefaultPointGeometryBufferModel" /> class.
             /// </summary>
-            public DefaultPointGeometryBufferModel() : base(PointsVertex.SizeInBytes) { }
+            public DefaultPointGeometryBufferModel() : base(PointsVertex.SizeInBytes)
+            {
+            }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultPointGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DefaultPointGeometryBufferModel" /> class.
             /// </summary>
             /// <param name="isDynamic"></param>
-            public DefaultPointGeometryBufferModel(bool isDynamic) : base(PointsVertex.SizeInBytes, isDynamic) { }
+            public DefaultPointGeometryBufferModel(bool isDynamic) : base(PointsVertex.SizeInBytes, isDynamic)
+            {
+            }
 
             /// <summary>
-            /// Called when [create vertex buffer].
+            ///     Called when [create vertex buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
             /// <param name="bufferIndex"></param>
-            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
             {
                 // -- set geometry if given
                 if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
                 {
                     // --- get geometry
                     var data = OnBuildVertexArray(geometry);
-                    buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0, geometry.PreDefinedVertexCount);
+                    buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0,
+                        geometry.PreDefinedVertexCount);
                 }
                 else
                 {
@@ -104,10 +111,12 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex)
             {
-                return base.IsVertexBufferChanged(propertyName, vertexBufferIndex) || propertyName.Equals(nameof(Geometry3D.Colors));
+                return base.IsVertexBufferChanged(propertyName, vertexBufferIndex) ||
+                       propertyName.Equals(nameof(Geometry3D.Colors));
             }
+
             /// <summary>
-            /// Called when [build vertex array].
+            ///     Called when [build vertex array].
             /// </summary>
             /// <param name="geometry">The geometry.</param>
             /// <returns></returns>
@@ -116,7 +125,9 @@ namespace HelixToolkit.SharpDX.Core
                 var positions = geometry.Positions;
                 var vertexCount = geometry.Positions.Count;
                 var array = ThreadBufferManager<PointsVertex>.GetBuffer(vertexCount);
-                var colors = geometry.Colors != null ? geometry.Colors.GetEnumerator() : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
+                var colors = geometry.Colors != null
+                    ? geometry.Colors.GetEnumerator()
+                    : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
 
                 for (var i = 0; i < vertexCount; i++)
                 {
@@ -124,20 +135,22 @@ namespace HelixToolkit.SharpDX.Core
                     array[i].Position = new Vector4(positions[i], 1f);
                     array[i].Color = colors.Current;
                 }
+
                 colors.Dispose();
                 return array;
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public sealed class DynamicPointGeometryBufferModel : DefaultPointGeometryBufferModel
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DynamicPointGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DynamicPointGeometryBufferModel" /> class.
             /// </summary>
-            public DynamicPointGeometryBufferModel() : base(true) { }
+            public DynamicPointGeometryBufferModel() : base(true)
+            {
+            }
         }
     }
 }

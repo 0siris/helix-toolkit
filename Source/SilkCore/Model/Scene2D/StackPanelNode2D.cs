@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
@@ -13,21 +11,15 @@ namespace HelixToolkit.SharpDX.Core
         {
             private Orientation orientation = Orientation.Horizontal;
 
-            public Orientation Orientation
-            {
-                set
-                {
-                    SetAffectsMeasure(ref orientation, value);
-                }
-                get
-                {
-                    return orientation;
-                }
-            }
-
             public StackPanelNode2D()
             {
                 EnableBitmapCache = true;
+            }
+
+            public Orientation Orientation
+            {
+                get => orientation;
+                set => SetAffectsMeasure(ref orientation, value);
             }
 
             protected override Size2F MeasureOverride(Size2F availableSize)
@@ -47,7 +39,6 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 foreach (var child in Items)
-                {
                     if (child is SceneNode2D c)
                     {
                         child.Measure(availableSize);
@@ -64,7 +55,6 @@ namespace HelixToolkit.SharpDX.Core
                                 break;
                         }
                     }
-                }
 
                 return size;
             }
@@ -74,7 +64,6 @@ namespace HelixToolkit.SharpDX.Core
                 float lastSize = 0;
                 var totalSize = finalSize;
                 foreach (var child in Items)
-                {
                     if (child is SceneNode2D c)
                     {
                         switch (Orientation)
@@ -93,9 +82,9 @@ namespace HelixToolkit.SharpDX.Core
                                 totalSize.Bottom = totalSize.Top + lastSize;
                                 break;
                         }
+
                         c.Arrange(totalSize);
                     }
-                }
 
                 return finalSize;
             }

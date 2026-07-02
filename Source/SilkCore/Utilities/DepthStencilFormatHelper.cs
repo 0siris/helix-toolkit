@@ -1,8 +1,5 @@
-using System;
-
 namespace HelixToolkit.SharpDX.Core
 {
-    using Model;
     namespace Utilities
     {
         public static class DepthStencilFormatHelper
@@ -21,7 +18,9 @@ namespace HelixToolkit.SharpDX.Core
                     case Format.FormatR32G8X24Typeless:
                         return Format.FormatD32FloatS8X24Uint;
                 }
-                throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for depth buffer", format));
+
+                throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for depth buffer",
+                    format));
             }
 
             public static Format ComputeTextureFormat(this Format format, out bool canUseAsShaderResource)
@@ -48,7 +47,7 @@ namespace HelixToolkit.SharpDX.Core
                         canUseAsShaderResource = true;
                         break;
                     default:
-                        viewFormat = (Format)format;
+                        viewFormat = format;
                         break;
                 }
 
@@ -70,12 +69,13 @@ namespace HelixToolkit.SharpDX.Core
                         return Format.FormatR32FloatX8X24Typeless;
                 }
 
-                throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for creating shaderResourceView", format));
+                throw new InvalidOperationException(
+                    string.Format("Unsupported DXGI.FORMAT [{0}] for creating shaderResourceView", format));
             }
 
             public static bool CanUseAsShaderResource(this Format format)
             {
-                ComputeTextureFormat(format, out var canUse);
+                format.ComputeTextureFormat(out var canUse);
                 return canUse;
             }
         }

@@ -1,10 +1,6 @@
-﻿namespace HelixToolkit.SharpDX.Core
+﻿namespace HelixToolkit.SharpDX.Core;
+
+public interface IApplyPostEffect
 {
-    public interface IApplyPostEffect
-    {
-        string PostEffects
-        {
-            set; get;
-        }
-    }
+    string PostEffects { get; set; }
 }

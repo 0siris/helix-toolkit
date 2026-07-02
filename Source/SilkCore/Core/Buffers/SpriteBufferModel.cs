@@ -1,48 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
         public sealed class Sprite2DBufferModel : DisposeObject, IGUID, IAttachableBufferModel
         {
-            public PrimitiveTopology Topology { get; set; } = PrimitiveTopology.TriangleList;
-
-            public IElementsBufferProxy[] VertexBuffer { get; } = new DynamicBufferProxy[1];
-
-            public IEnumerable<int> VertexStructSize
-            {
-                get
-                {
-                    return VertexBuffer.Select(x => x != null ? x.StructureSize : 0);
-                }
-            }
-
-            public IElementsBufferProxy IndexBuffer => indexBuffer;
-
-            public Guid GUID { get; } = Guid.NewGuid();
-
-            public SpriteStruct[] Sprites
-            {
-                set; get;
-            }
+            private IElementsBufferProxy indexBuffer;
             public int SpriteCount;
 
-            public int[] Indices
-            {
-                set; get;
-            }
-            public int IndexCount
-            {
-                set; get;
-            }
-
             private DynamicBufferProxy vertextBuffer;
-            private IElementsBufferProxy indexBuffer;
 
             public Sprite2DBufferModel()
             {
@@ -51,27 +19,48 @@ namespace HelixToolkit.SharpDX.Core
                 indexBuffer = new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer);
             }
 
-            public bool AttachBuffers(DeviceContextProxy context, ref int vertexBufferStartSlot, IDeviceResources deviceResources)
+            public SpriteStruct[] Sprites { get; set; }
+
+            public int[] Indices { get; set; }
+
+            public int IndexCount { get; set; }
+
+            public PrimitiveTopology Topology { get; set; } = PrimitiveTopology.TriangleList;
+
+            public IElementsBufferProxy[] VertexBuffer { get; } = new DynamicBufferProxy[1];
+
+            public IEnumerable<int> VertexStructSize
+            {
+                get { return VertexBuffer.Select(x => x != null ? x.StructureSize : 0); }
+            }
+
+            public IElementsBufferProxy IndexBuffer => indexBuffer;
+
+            public bool AttachBuffers(DeviceContextProxy context, ref int vertexBufferStartSlot,
+                IDeviceResources deviceResources)
             {
                 if (UpdateBuffers(context, deviceResources))
                 {
-                    context.SetVertexBuffers(0, new VertexBufferBinding(vertextBuffer.Buffer, vertextBuffer.StructureSize, vertextBuffer.Offset));
+                    context.SetVertexBuffers(0,
+                        new VertexBufferBinding(vertextBuffer.Buffer, vertextBuffer.StructureSize,
+                            vertextBuffer.Offset));
                     context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
                     return true;
                 }
+
                 return false;
             }
 
             public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources)
             {
-                if (SpriteCount == 0 || IndexCount == 0 || Sprites == null || Indices == null || Sprites.Length < SpriteCount || Indices.Length < IndexCount)
-                {
-                    return false;
-                }
+                if (SpriteCount == 0 || IndexCount == 0 || Sprites == null || Indices == null ||
+                    Sprites.Length < SpriteCount || Indices.Length < IndexCount) return false;
                 vertextBuffer.UploadDataToBuffer(context, Sprites, SpriteCount);
                 IndexBuffer.UploadDataToBuffer(context, Indices, IndexCount);
                 return true;
             }
+
+            public Guid GUID { get; } = Guid.NewGuid();
 
             protected override void OnDispose(bool disposeManagedResources)
             {

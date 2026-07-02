@@ -3,35 +3,20 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
         public class UniformRandomVectorGenerator : IRandomVector
         {
-            public Vector3 MinVector { set; get; } = -Vector3.One;
+            private readonly Random random = new(Environment.TickCount);
+            public Vector3 MinVector { get; set; } = -Vector3.One;
 
-            public Vector3 MaxVector { set; get; } = Vector3.One;
+            public Vector3 MaxVector { get; set; } = Vector3.One;
 
-            public Vector3 RandomVector3
-            {
-                get
-                {
-                    return random.NextVector3(MinVector, MaxVector);
-                }
-            }
+            public Vector3 RandomVector3 => random.NextVector3(MinVector, MaxVector);
 
-            public uint Seed
-            {
-                get
-                {
-                    return (uint)Math.Abs(random.Next());
-                }
-            }
-
-            private readonly Random random = new Random(Environment.TickCount);
+            public uint Seed => (uint) Math.Abs(random.Next());
         }
     }
 }

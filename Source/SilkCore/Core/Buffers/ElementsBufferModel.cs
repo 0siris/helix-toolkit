@@ -2,52 +2,46 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-
-        using Render;
-        using Utilities;
-
         /// <summary>
-        /// Used for managing instance buffer update
+        ///     Used for managing instance buffer update
         /// </summary>
         public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> where T : unmanaged
         {
-            public static readonly ElementsBufferModel<T> Empty = new ElementsBufferModel<T>(0);
-            public event EventHandler<EventArgs> ElementChanged;
-            public Guid GUID { get; } = Guid.NewGuid();
-            public bool Initialized
-            {
-                private set; get;
-            }
-            public bool HasElements { private set; get; } = false;
-            public IElementsBufferProxy Buffer
-            {
-                get
-                {
-                    return elementBuffer;
-                }
-            }
-            private IElementsBufferProxy elementBuffer;
+            public static readonly ElementsBufferModel<T> Empty = new(0);
             private VertexBufferBinding bufferBinding;
+            private IElementsBufferProxy elementBuffer;
 
-            public bool Changed
-            {
-                get
-                {
-                    return instanceChanged;
-                }
-            }
+            private IList<T> elements;
             private volatile bool instanceChanged = true;
 
-            private IList<T> elements = null;
+            public ElementsBufferModel(int structSize)
+            {
+                StructSize = structSize;
+            }
+
+            public int StructSize { get; }
+
+            public event EventHandler<EventArgs> ElementChanged;
+            public Guid GUID { get; } = Guid.NewGuid();
+
+            public bool Initialized { get; private set; }
+
+            public bool HasElements { get; private set; }
+            public IElementsBufferProxy Buffer => elementBuffer;
+
+            public bool Changed => instanceChanged;
+
             public IList<T> Elements
             {
+                get => elements;
                 set
                 {
                     if (elements != value)
@@ -58,29 +52,9 @@ namespace HelixToolkit.SharpDX.Core
                         ElementChanged?.Invoke(this, EventArgs.Empty);
                     }
                 }
-                get
-                {
-                    return elements;
-                }
             }
 
-            public int ElementCount
-            {
-                get
-                {
-                    return HasElements ? Elements.Count : 0;
-                }
-            }
-
-            public int StructSize
-            {
-                private set; get;
-            }
-
-            public ElementsBufferModel(int structSize)
-            {
-                StructSize = structSize;
-            }
+            public int ElementCount => HasElements ? Elements.Count : 0;
 
             public void Initialize()
             {
@@ -94,19 +68,20 @@ namespace HelixToolkit.SharpDX.Core
                 if (HasElements)
                 {
                     if (instanceChanged)
-                    {
                         lock (elementBuffer)
                         {
                             if (instanceChanged)
                             {
                                 elementBuffer.UploadDataToBuffer(context, elements, elements.Count);
                                 instanceChanged = false;
-                                bufferBinding = new VertexBufferBinding(Buffer.Buffer, Buffer.StructureSize, Buffer.Offset);
+                                bufferBinding =
+                                    new VertexBufferBinding(Buffer.Buffer, Buffer.StructureSize, Buffer.Offset);
                             }
                         }
-                    }
+
                     context.SetVertexBuffers(vertexBufferStartSlot, bufferBinding);
                 }
+
                 ++vertexBufferStartSlot;
             }
 
@@ -140,7 +115,9 @@ namespace HelixToolkit.SharpDX.Core
 
         public class VertexBoneIdBufferModel<T> : ElementsBufferModel<T> where T : unmanaged
         {
-            public VertexBoneIdBufferModel(int structSize) : base(structSize) { }
+            public VertexBoneIdBufferModel(int structSize) : base(structSize)
+            {
+            }
         }
     }
 }

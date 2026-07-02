@@ -1,12 +1,12 @@
 <Project>
-  <PropertyGroup>
-    <LangVersion>10.0</LangVersion>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-   <Prefer32Bit>false</Prefer32Bit>
-   <NoWarn>1701;1702;1705;CS1591;CA1416;MSB3884</NoWarn>
- </PropertyGroup>
+    <PropertyGroup>
+        <LangVersion>10.0</LangVersion>
+        <SignAssembly>false</SignAssembly>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Prefer32Bit>false</Prefer32Bit>
+        <NoWarn>1701;1702;1705;CS1591;CA1416;MSB3884</NoWarn>
+    </PropertyGroup>
 
 </Project>

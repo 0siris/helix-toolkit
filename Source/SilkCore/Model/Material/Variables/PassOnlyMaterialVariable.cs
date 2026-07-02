@@ -2,41 +2,22 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using Shaders;
         /// <summary>
-        /// 
         /// </summary>
         public sealed class PassOnlyMaterialVariable : MaterialVariable
         {
-            public ShaderPass MaterialPass
-            {
-                get;
-            }
-
-            public ShaderPass ShadowPass
-            {
-                get;
-            }
-
-            public ShaderPass WireframePass
-            {
-                get;
-            }
-
-            public ShaderPass DepthPass
-            {
-                get;
-            }
-
             private readonly string passName;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PassOnlyMaterialVariable"/> class.
+            ///     Initializes a new instance of the <see cref="PassOnlyMaterialVariable" /> class.
             /// </summary>
             /// <param name="passName">Name of the pass.</param>
             /// <param name="technique">The technique.</param>
@@ -56,7 +37,16 @@ namespace HelixToolkit.SharpDX.Core
                 DepthPass = technique[depthPassName];
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public ShaderPass MaterialPass { get; }
+
+            public ShaderPass ShadowPass { get; }
+
+            public ShaderPass WireframePass { get; }
+
+            public ShaderPass DepthPass { get; }
+
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 return true;
             }
@@ -65,6 +55,7 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return MaterialPass;
             }
+
             public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
             {
                 return ShadowPass;
@@ -80,7 +71,8 @@ namespace HelixToolkit.SharpDX.Core
                 return DepthPass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }

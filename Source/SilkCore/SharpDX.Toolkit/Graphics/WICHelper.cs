@@ -2,8 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.IO;
+
 using System.Runtime.InteropServices;
 #if !NETFX_CORE
 using System.Windows;
@@ -11,12 +10,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
 
-namespace SharpDX.Toolkit.Graphics
+namespace SharpDX.Toolkit.Graphics;
+
+internal static class WICHelper
 {
-    internal static class WICHelper
+    public static Image LoadFromWICMemory(nint pSource, int size, bool makeACopy, GCHandle? handle)
     {
-        public static Image LoadFromWICMemory(IntPtr pSource, int size, bool makeACopy, GCHandle? handle)
-        {
 #if !NETFX_CORE
             if (pSource == IntPtr.Zero || size <= 0)
             {
@@ -68,42 +67,49 @@ namespace SharpDX.Toolkit.Graphics
                 return null;
             }
 #else
-            throw new NotSupportedException("WIC loading is not ported to the Silk.NET backend yet.");
+        throw new NotSupportedException("WIC loading is not ported to the Silk.NET backend yet.");
 #endif
-        }
+    }
 
-        public static void SaveGifToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Gif);
-        }
+    public static void SaveGifToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Gif);
+    }
 
-        public static void SaveTiffToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Tiff);
-        }
+    public static void SaveTiffToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Tiff);
+    }
 
-        public static void SaveBmpToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Bmp);
-        }
+    public static void SaveBmpToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Bmp);
+    }
 
-        public static void SaveJpgToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Jpg);
-        }
+    public static void SaveJpgToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Jpg);
+    }
 
-        public static void SavePngToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Png);
-        }
+    public static void SavePngToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Png);
+    }
 
-        public static void SaveWmpToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream)
-        {
-            SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Wmp);
-        }
+    public static void SaveWmpToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream)
+    {
+        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Wmp);
+    }
 
-        internal static void SaveBgra32(IntPtr data, int width, int height, int rowPitch, Stream imageStream, ImageFileType fileType)
-        {
+    internal static void SaveBgra32(nint data, int width, int height, int rowPitch, Stream imageStream,
+        ImageFileType fileType)
+    {
 #if !NETFX_CORE
             var pixels = new byte[checked(width * height * 4)];
             for (var row = 0; row < height; ++row)
@@ -115,49 +121,52 @@ namespace SharpDX.Toolkit.Graphics
             encoder.Frames.Add(BitmapFrame.Create(source));
             encoder.Save(imageStream);
 #else
-            throw new NotSupportedException("WIC saving is only supported by the WPF target.");
+        throw new NotSupportedException("WIC saving is only supported by the WPF target.");
 #endif
-        }
+    }
 
-        private static void SaveToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream, ImageFileType fileType)
+    private static void SaveToWICMemory(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
+        Stream imageStream, ImageFileType fileType)
+    {
+        if (pixelBuffers == null || count <= 0 || imageStream == null)
+            throw new ArgumentException("A pixel buffer and destination stream are required.");
+
+        var source = pixelBuffers[0];
+        if (source.Format == Format.B8G8R8A8_UNorm || source.Format == Format.B8G8R8X8_UNorm)
         {
-            if (pixelBuffers == null || count <= 0 || imageStream == null)
+            SaveBgra32(source.DataPointer, source.Width, source.Height, source.RowStride, imageStream, fileType);
+            return;
+        }
+
+        if (source.Format == Format.R8G8B8A8_UNorm)
+        {
+            var pixels = new byte[checked(source.Width * source.Height * 4)];
+            for (var row = 0; row < source.Height; ++row)
+                Marshal.Copy(nint.Add(source.DataPointer, row * source.RowStride), pixels, row * source.Width * 4,
+                    source.Width * 4);
+            for (var i = 0; i < pixels.Length; i += 4)
             {
-                throw new ArgumentException("A pixel buffer and destination stream are required.");
+                var red = pixels[i];
+                pixels[i] = pixels[i + 2];
+                pixels[i + 2] = red;
             }
 
-            var source = pixelBuffers[0];
-            if (source.Format == Format.B8G8R8A8_UNorm || source.Format == Format.B8G8R8X8_UNorm)
+            var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+            try
             {
-                SaveBgra32(source.DataPointer, source.Width, source.Height, source.RowStride, imageStream, fileType);
-                return;
+                SaveBgra32(handle.AddrOfPinnedObject(), source.Width, source.Height, source.Width * 4, imageStream,
+                    fileType);
             }
-            if (source.Format == Format.R8G8B8A8_UNorm)
+            finally
             {
-                var pixels = new byte[checked(source.Width * source.Height * 4)];
-                for (var row = 0; row < source.Height; ++row)
-                {
-                    Marshal.Copy(IntPtr.Add(source.DataPointer, row * source.RowStride), pixels, row * source.Width * 4, source.Width * 4);
-                }
-                for (var i = 0; i < pixels.Length; i += 4)
-                {
-                    var red = pixels[i];
-                    pixels[i] = pixels[i + 2];
-                    pixels[i + 2] = red;
-                }
-                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
-                try
-                {
-                    SaveBgra32(handle.AddrOfPinnedObject(), source.Width, source.Height, source.Width * 4, imageStream, fileType);
-                }
-                finally
-                {
-                    handle.Free();
-                }
-                return;
+                handle.Free();
             }
-            throw new NotSupportedException($"WIC saving does not support pixel format {source.Format}.");
+
+            return;
         }
+
+        throw new NotSupportedException($"WIC saving does not support pixel format {source.Format}.");
+    }
 
 #if !NETFX_CORE
         private static BitmapEncoder CreateEncoder(ImageFileType fileType)
@@ -174,5 +183,4 @@ namespace SharpDX.Toolkit.Graphics
             };
         }
 #endif
-    }
 }

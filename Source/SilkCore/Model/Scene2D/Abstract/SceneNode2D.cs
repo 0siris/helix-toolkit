@@ -3,203 +3,168 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
-
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
-        using Utilities;
         /// <summary>
-        ///
         /// </summary>
         public abstract partial class SceneNode2D : DisposeObject, IHitable2D
         {
-            static readonly ILogger logger = Logger.LogManager.Create<SceneNode2D>();
-            public sealed class UpdateEventArgs : EventArgs
-            {
-                public RenderContext2D Context
-                {
-                    private set; get;
-                }
+            private static readonly ILogger logger = LogManager.Create<SceneNode2D>();
 
-                public UpdateEventArgs(RenderContext2D context)
-                {
-                    Context = context;
-                }
-            }
+            private readonly WeakReference<SceneNode2D> parent = new(null);
 
-            /// <summary>
-            /// Gets the unique identifier.
-            /// </summary>
-            /// <value>
-            /// The unique identifier.
-            /// </value>
-            public Guid GUID { get; } = Guid.NewGuid();
+            private Matrix3x2 layoutTranslate = Matrix3x2.Identity;
 
-            private readonly WeakReference<SceneNode2D> parent = new WeakReference<SceneNode2D>(null);
-            /// <summary>
-            /// Gets or sets the parent.
-            /// </summary>
-            /// <value>
-            /// The parent.
-            /// </value>
-            public SceneNode2D Parent
-            {
-                set
-                {
-                    parent.TryGetTarget(out var target);
-                    if (Set(ref target, value))
-                    {
-                        parent.SetTarget(value);
-                    }
-                }
-                get 
-                { 
-                    parent.TryGetTarget(out var target); 
-                    return target; 
-                }
-            }
+            private Matrix3x2 modelMatrix = Matrix3x2.Identity;
+
+            private Matrix3x2 parentMatrix = Matrix3x2.Identity;
+
+            private RenderCore2D renderCore;
+
+            private Matrix3x2 totalTransform = Matrix3x2.Identity;
 
             private Visibility visibility = Visibility.Visible;
 
             /// <summary>
-            /// Gets or sets a value indicating whether this <see cref="SceneNode2D"/> is visible.
+            ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
+            /// </summary>
+            public SceneNode2D()
+            {
+                WrapperSource = this;
+            }
+
+            /// <summary>
+            ///     Gets the unique identifier.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if visible; otherwise, <c>false</c>.
+            ///     The unique identifier.
+            /// </value>
+            public Guid GUID { get; } = Guid.NewGuid();
+
+            /// <summary>
+            ///     Gets or sets the parent.
+            /// </summary>
+            /// <value>
+            ///     The parent.
+            /// </value>
+            public SceneNode2D Parent
+            {
+                get
+                {
+                    parent.TryGetTarget(out var target);
+                    return target;
+                }
+                set
+                {
+                    parent.TryGetTarget(out var target);
+                    if (Set(ref target, value)) parent.SetTarget(value);
+                }
+            }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether this <see cref="SceneNode2D" /> is visible.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if visible; otherwise, <c>false</c>.
             /// </value>
             public Visibility Visibility
             {
+                get => visibility;
                 set
                 {
-                    if (Set(ref visibility, value))
-                    {
-                        InvalidateVisual();
-                    }
-                }
-                get
-                {
-                    return visibility;
+                    if (Set(ref visibility, value)) InvalidateVisual();
                 }
             }
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is hit test visible.
+            ///     Gets or sets the wrapper source used to link the external wrapper with the node.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is hit test visible; otherwise, <c>false</c>.
+            ///     The hit test source.
             /// </value>
-            public bool IsHitTestVisible { set; get; } = true;
+            public object WrapperSource { get; set; }
 
             /// <summary>
-            /// Gets or sets the wrapper source used to link the external wrapper with the node.
+            ///     Gets or sets a value indicating whether this instance is attached.
             /// </summary>
             /// <value>
-            /// The hit test source.
+            ///     <c>true</c> if this instance is attached; otherwise, <c>false</c>.
             /// </value>
-            public object WrapperSource
-            {
-                set; get;
-            }
+            public bool IsAttached { get; private set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is attached.
+            ///     Gets or sets a value indicating whether this instance is renderable.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is attached; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is renderable; otherwise, <c>false</c>.
             /// </value>
-            public bool IsAttached
-            {
-                private set; get;
-            }
+            public bool IsRenderable { get; private set; } = true;
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is renderable.
+            ///     Gets or sets the render core.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is renderable; otherwise, <c>false</c>.
-            /// </value>
-            public bool IsRenderable { private set; get; } = true;
-
-            private RenderCore2D renderCore;
-
-            /// <summary>
-            /// Gets or sets the render core.
-            /// </summary>
-            /// <value>
-            /// The render core.
+            ///     The render core.
             /// </value>
             public RenderCore2D RenderCore
             {
+                get
+                {
+                    if (renderCore == null) RenderCore = CreateRenderCore();
+                    return renderCore;
+                }
                 private set
                 {
                     if (renderCore != value)
                     {
-                        if (renderCore != null)
-                        {
-                            renderCore.InvalidateRender -= RenderCore_OnInvalidateRenderer;
-                        }
+                        if (renderCore != null) renderCore.InvalidateRender -= RenderCore_OnInvalidateRenderer;
                         renderCore = value;
-                        if (renderCore != null)
-                        {
-                            renderCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
-                        }
+                        if (renderCore != null) renderCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
                     }
-                }
-                get
-                {
-                    if (renderCore == null)
-                    {
-                        RenderCore = CreateRenderCore();
-                    }
-                    return renderCore;
                 }
             }
 
             /// <summary>
-            /// Gets or sets the render host.
+            ///     Gets or sets the render host.
             /// </summary>
             /// <value>
-            /// The render host.
+            ///     The render host.
             /// </value>
-            protected IRenderHost RenderHost
-            {
-                private set; get;
-            }
+            protected IRenderHost RenderHost { get; private set; }
 
             /// <summary>
-            /// Gets the items.
+            ///     Gets the items.
             /// </summary>
             /// <value>
-            /// The items.
+            ///     The items.
             /// </value>
-            internal ObservableFastList<SceneNode2D> ItemsInternal { set; get; } = Constants.EmptyRenderable2D;
-            /// <summary>
-            /// Gets the items as readonly. Expose for outside for UI access or bindings
-            /// </summary>
-            /// <value>
-            /// The items.
-            /// </value>
-            public ReadOnlyObservableFastList<SceneNode2D> Items { internal set; get; } = Constants.EmptyReadOnlyRenderable2DArray;
-
-            private Matrix3x2 modelMatrix = Matrix3x2.Identity;
+            internal ObservableFastList<SceneNode2D> ItemsInternal { get; set; } = Constants.EmptyRenderable2D;
 
             /// <summary>
-            /// Gets or sets the model matrix.
+            ///     Gets the items as readonly. Expose for outside for UI access or bindings
             /// </summary>
             /// <value>
-            /// The model matrix.
+            ///     The items.
+            /// </value>
+            public ReadOnlyObservableFastList<SceneNode2D> Items { get; internal set; } =
+                Constants.EmptyReadOnlyRenderable2DArray;
+
+            /// <summary>
+            ///     Gets or sets the model matrix.
+            /// </summary>
+            /// <value>
+            ///     The model matrix.
             /// </value>
             public Matrix3x2 ModelMatrix
             {
+                get => modelMatrix;
                 set
                 {
                     if (Set(ref modelMatrix, value))
@@ -208,141 +173,114 @@ namespace HelixToolkit.SharpDX.Core
                         InvalidateVisual();
                     }
                 }
-                get
-                {
-                    return modelMatrix;
-                }
             }
 
-            private Matrix3x2 layoutTranslate = Matrix3x2.Identity;
-
             /// <summary>
-            /// Gets or sets the layout translate.
+            ///     Gets or sets the layout translate.
             /// </summary>
             /// <value>
-            /// The layout translate.
+            ///     The layout translate.
             /// </value>
             public Matrix3x2 LayoutTranslate
             {
+                get => layoutTranslate;
                 set
                 {
-                    if (Set(ref layoutTranslate, value))
-                    {
-                        InvalidateRender();
-                    }
-                }
-                get
-                {
-                    return layoutTranslate;
+                    if (Set(ref layoutTranslate, value)) InvalidateRender();
                 }
             }
 
-            private Matrix3x2 parentMatrix = Matrix3x2.Identity;
-
             /// <summary>
-            /// Gets or sets the parent matrix.
+            ///     Gets or sets the parent matrix.
             /// </summary>
             /// <value>
-            /// The parent matrix.
+            ///     The parent matrix.
             /// </value>
             public Matrix3x2 ParentMatrix
             {
+                get => parentMatrix;
                 set
                 {
-                    if (Set(ref parentMatrix, value))
-                    {
-                        IsTransformDirty = true;
-                    }
-                }
-                get
-                {
-                    return parentMatrix;
+                    if (Set(ref parentMatrix, value)) IsTransformDirty = true;
                 }
             }
 
-            private Matrix3x2 totalTransform = Matrix3x2.Identity;
-
             /// <summary>
-            /// Gets or sets the total model matrix.
+            ///     Gets or sets the total model matrix.
             /// </summary>
             /// <value>
-            /// The total model matrix.
+            ///     The total model matrix.
             /// </value>
             public Matrix3x2 TotalModelMatrix
             {
+                get => totalTransform;
                 private set
                 {
                     if (Set(ref totalTransform, value))
                     {
-                        for (var i = 0; i < ItemsInternal.Count; ++i)
-                        {
-                            ItemsInternal[i].ParentMatrix = totalTransform;
-                        }
+                        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = totalTransform;
                         TransformChanged(ref value);
                         OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
                     }
                 }
-                get
-                {
-                    return totalTransform;
-                }
             }
 
             /// <summary>
-            /// Gets or sets the transform matrix relative to its parent
+            ///     Gets or sets the transform matrix relative to its parent
             /// </summary>
             /// <value>
-            /// The relative matrix.
+            ///     The relative matrix.
             /// </value>
-            private Matrix3x2 RelativeMatrix
-            {
-                set; get;
-            }
+            private Matrix3x2 RelativeMatrix { get; set; }
 
             /// <summary>
-            /// Gets or sets the layout bound with transform.
+            ///     Gets or sets the layout bound with transform.
             /// </summary>
             /// <value>
-            /// The layout bound with transform.
+            ///     The layout bound with transform.
             /// </value>
-            public RectangleF LayoutBoundWithTransform
-            {
-                private set; get;
-            }
+            public RectangleF LayoutBoundWithTransform { get; private set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is mouse over.
+            ///     Gets or sets a value indicating whether this instance is mouse over.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
             /// </value>
             public bool IsMouseOver
             {
-                set
-                {
-                    RenderCore.IsMouseOver = value;
-                }
-                get
-                {
-                    return RenderCore.IsMouseOver;
-                }
+                get => RenderCore.IsMouseOver;
+                set => RenderCore.IsMouseOver = value;
             }
 
-            public float DpiScale
-            {
-                private set; get;
-            } = 1;
+            public float DpiScale { get; private set; } = 1;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="SceneNode2D"/> class.
+            ///     Gets or sets a value indicating whether this instance is hit test visible.
             /// </summary>
-            public SceneNode2D()
+            /// <value>
+            ///     <c>true</c> if this instance is hit test visible; otherwise, <c>false</c>.
+            /// </value>
+            public bool IsHitTestVisible { get; set; } = true;
+
+            /// <summary>
+            ///     Hits the test.
+            /// </summary>
+            /// <param name="mousePoint">The mouse point.</param>
+            /// <param name="hitResult">The hit result.</param>
+            /// <returns></returns>
+            public bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult)
             {
-                WrapperSource = this;
+                if (Parent == null) mousePoint *= DpiScale;
+
+                if (CanHitTest()) return OnHitTest(ref mousePoint, out hitResult);
+
+                hitResult = null;
+                return false;
             }
 
             /// <summary>
-            /// Creates the render core.
+            ///     Creates the render core.
             /// </summary>
             /// <returns></returns>
             protected virtual RenderCore2D CreateRenderCore()
@@ -351,29 +289,28 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// <para>Attaches the element to the specified host. To overide Attach, please override <see cref="OnAttach(IRenderHost)"/> function.</para>
-            /// <para>Attach Flow: Set RenderHost -> Get Effect ->
-            /// <see cref="OnAttach(IRenderHost)"/> -> <see cref="OnAttach"/> -> <see cref="InvalidateRender"/></para>
+            ///     <para>
+            ///         Attaches the element to the specified host. To overide Attach, please override
+            ///         <see cref="OnAttach(IRenderHost)" /> function.
+            ///     </para>
+            ///     <para>
+            ///         Attach Flow: Set RenderHost -> Get Effect ->
+            ///         <see cref="OnAttach(IRenderHost)" /> -> <see cref="OnAttach" /> -> <see cref="InvalidateRender" />
+            ///     </para>
             /// </summary>
             /// <param name="host">The host.</param>
             public void Attach(IRenderHost host)
             {
-                if (IsAttached || host == null)
-                {
-                    return;
-                }
+                if (IsAttached || host == null) return;
                 RenderHost = host;
                 DpiScale = host.DpiScale;
                 IsAttached = OnAttach(host);
-                if (IsAttached)
-                {
-                    Attached?.Invoke(this, EventArgs.Empty);
-                }
+                if (IsAttached) Attached?.Invoke(this, EventArgs.Empty);
                 InvalidateAll();
             }
 
             /// <summary>
-            /// To override Attach routine, please override this.
+            ///     To override Attach routine, please override this.
             /// </summary>
             /// <param name="host"></param>
             /// <returns>Return true if attached</returns>
@@ -384,7 +321,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Detaches this instance.
+            ///     Detaches this instance.
             /// </summary>
             public void Detach()
             {
@@ -399,7 +336,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Called when [detach].
+            ///     Called when [detach].
             /// </summary>
             protected virtual void OnDetach()
             {
@@ -407,7 +344,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Updates the specified context.
+            ///     Updates the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
             public virtual void Update(RenderContext2D context)
@@ -416,10 +353,94 @@ namespace HelixToolkit.SharpDX.Core
                 IsRenderable = CanRender(context);
             }
 
+            /// <summary>
+            ///     Determines whether this instance [can hit test].
+            /// </summary>
+            /// <returns>
+            ///     <c>true</c> if this instance [can hit test]; otherwise, <c>false</c>.
+            /// </returns>
+            protected virtual bool CanHitTest()
+            {
+                return IsAttached && IsHitTestVisible;
+            }
+
+            /// <summary>
+            ///     Called when [hit test].
+            /// </summary>
+            /// <param name="mousePoint">The mouse point.</param>
+            /// <param name="hitResult">The hit result.</param>
+            /// <returns></returns>
+            protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult);
+
+            /// <summary>
+            ///     Use InvalidateVisual if render update required.
+            /// </summary>
+            /// <param name="sender">The source of the event.</param>
+            /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e)
+            {
+                InvalidateVisual();
+            }
+
+            /// <summary>
+            ///     Invalidates the render.
+            /// </summary>
+            public void InvalidateRender()
+            {
+                RenderHost?.InvalidateRender();
+            }
+
+            protected override void OnDispose(bool disposeManagedResources)
+            {
+                renderCore?.Dispose();
+                renderCore = null;
+                base.OnDispose(disposeManagedResources);
+            }
+
+            /// <summary>
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="backingField"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            protected bool SetAffectsRender<T>(ref T backingField, T value)
+            {
+                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+
+                backingField = value;
+                InvalidateRender();
+                return true;
+            }
+
+            /// <summary>
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="backingField"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            protected bool SetAffectsMeasure<T>(ref T backingField, T value)
+            {
+                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+
+                backingField = value;
+                InvalidateMeasure();
+                return true;
+            }
+
+            public sealed class UpdateEventArgs : EventArgs
+            {
+                public UpdateEventArgs(RenderContext2D context)
+                {
+                    Context = context;
+                }
+
+                public RenderContext2D Context { get; private set; }
+            }
+
             #region Handling Transforms
 
             /// <summary>
-            /// Transforms the changed.
+            ///     Transforms the changed.
             /// </summary>
             /// <param name="totalTransform">The total transform.</param>
             protected virtual void TransformChanged(ref Matrix3x2 totalTransform)
@@ -427,7 +448,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Occurs when [on transform changed].
+            ///     Occurs when [on transform changed].
             /// </summary>
             public event EventHandler<Transform2DArgs> OnTransformChanged;
 
@@ -436,17 +457,17 @@ namespace HelixToolkit.SharpDX.Core
             #region Events;
 
             /// <summary>
-            /// Occurs when [on attached].
+            ///     Occurs when [on attached].
             /// </summary>
             public event EventHandler Attached;
 
             /// <summary>
-            /// Occurs when [on detached].
+            ///     Occurs when [on detached].
             /// </summary>
             public event EventHandler Detached;
 
             /// <summary>
-            /// Occurs when [on update].
+            ///     Occurs when [on update].
             /// </summary>
             public event EventHandler<UpdateEventArgs> UpdateRequested;
 
@@ -455,7 +476,7 @@ namespace HelixToolkit.SharpDX.Core
             #region Rendering
 
             /// <summary>
-            /// <para>Determine if this can be rendered.</para>
+            ///     <para>Determine if this can be rendered.</para>
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
@@ -465,21 +486,20 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// <para>Renders the element in the specified context. To override Render, please override <see cref="OnRender"/></para>
-            /// <para>Uses <see cref="CanRender"/>  to call OnRender or not. </para>
+            ///     <para>
+            ///         Renders the element in the specified context. To override Render, please override <see cref="OnRender" />
+            ///     </para>
+            ///     <para>Uses <see cref="CanRender" />  to call OnRender or not. </para>
             /// </summary>
             /// <param name="context">The context.</param>
             public void Render(RenderContext2D context)
             {
-                if (!IsRenderable)
-                {
-                    return;
-                }
+                if (!IsRenderable) return;
                 if (IsTransformDirty)
                 {
                     RelativeMatrix = Matrix3x2.Translation(-RenderSize * RenderTransformOrigin)
-                        * ModelMatrix * Matrix3x2.Translation(RenderSize * RenderTransformOrigin)
-                        * LayoutTranslate;
+                                     * ModelMatrix * Matrix3x2.Translation(RenderSize * RenderTransformOrigin)
+                                     * LayoutTranslate;
                     TotalModelMatrix = RelativeMatrix * ParentMatrix;
                     IsTransformDirty = false;
                     InvalidateVisual();
@@ -490,7 +510,9 @@ namespace HelixToolkit.SharpDX.Core
 #if DISABLEBITMAPCACHE
                 IsBitmapCacheValid = false;
 #else
-                EnsureBitmapCache(context, new Size2((int)Math.Ceiling(LayoutClipBound.Width), (int)Math.Ceiling(LayoutClipBound.Height)), context.DeviceContext.MaximumBitmapSize);
+                EnsureBitmapCache(context,
+                    new Size2((int) Math.Ceiling(LayoutClipBound.Width), (int) Math.Ceiling(LayoutClipBound.Height)),
+                    context.DeviceContext.MaximumBitmapSize);
 #endif
                 if (EnableBitmapCache && IsBitmapCacheValid)
                 {
@@ -511,11 +533,11 @@ namespace HelixToolkit.SharpDX.Core
                         context.PopRenderTarget();
                         IsVisualDirty = false;
                     }
+
                     if (context.HasTarget)
                     {
                         context.DeviceContext.Transform = context.RelativeTransform * RelativeMatrix;
-                        context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), LayoutClipBound,
-                            BitmapInterpolationMode.Linear, CompositeMode.SourceOver);
+                        context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), LayoutClipBound);
                     }
                 }
                 else if (context.HasTarget)
@@ -529,7 +551,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Renders the bitmap cache to a render target only.
+            ///     Renders the bitmap cache to a render target only.
             /// </summary>
             /// <param name="context">The context.</param>
             public void RenderBitmapCache(RenderContext2D context)
@@ -537,8 +559,8 @@ namespace HelixToolkit.SharpDX.Core
                 if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty && context.HasTarget)
                 {
                     context.DeviceContext.Transform = RelativeMatrix;
-                    context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), new RectangleF(0, 0, RenderSize.X, RenderSize.Y),
-                        BitmapInterpolationMode.Linear, CompositeMode.SourceOver);
+                    context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0),
+                        new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
                 }
                 else
                 {
@@ -547,125 +569,16 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Called when [render].
+            ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             protected virtual void OnRender(RenderContext2D context)
             {
                 RenderCore.Render(context);
-                for (var i = 0; i < this.ItemsInternal.Count; ++i)
-                {
-                    ItemsInternal[i].Render(context);
-                }
+                for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Render(context);
             }
 
             #endregion Rendering
-
-            /// <summary>
-            /// Determines whether this instance [can hit test].
-            /// </summary>
-            /// <returns>
-            ///   <c>true</c> if this instance [can hit test]; otherwise, <c>false</c>.
-            /// </returns>
-            protected virtual bool CanHitTest()
-            {
-                return IsAttached && IsHitTestVisible;
-            }
-
-            /// <summary>
-            /// Called when [hit test].
-            /// </summary>
-            /// <param name="mousePoint">The mouse point.</param>
-            /// <param name="hitResult">The hit result.</param>
-            /// <returns></returns>
-            protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult);
-
-            /// <summary>
-            /// Hits the test.
-            /// </summary>
-            /// <param name="mousePoint">The mouse point.</param>
-            /// <param name="hitResult">The hit result.</param>
-            /// <returns></returns>
-            public bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
-                if (Parent == null)
-                {
-                    mousePoint *= DpiScale;
-                }
-
-                if (CanHitTest())
-                {
-                    return OnHitTest(ref mousePoint, out hitResult);
-                }
-                else
-                {
-                    hitResult = null;
-                    return false;
-                }
-            }
-
-            /// <summary>
-            /// Use InvalidateVisual if render update required.
-            /// </summary>
-            /// <param name="sender">The source of the event.</param>
-            /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e)
-            {
-                InvalidateVisual();
-            }
-
-            /// <summary>
-            /// Invalidates the render.
-            /// </summary>
-            public void InvalidateRender()
-            {
-                RenderHost?.InvalidateRender();
-            }
-
-            protected override void OnDispose(bool disposeManagedResources)
-            {
-                renderCore?.Dispose();
-                renderCore = null;
-                base.OnDispose(disposeManagedResources);
-            }
-
-            /// <summary>
-            ///
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="backingField"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
-                if (EqualityComparer<T>.Default.Equals(backingField, value))
-                {
-                    return false;
-                }
-
-                backingField = value;
-                InvalidateRender();
-                return true;
-            }
-
-            /// <summary>
-            ///
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="backingField"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
-            protected bool SetAffectsMeasure<T>(ref T backingField, T value)
-            {
-                if (EqualityComparer<T>.Default.Equals(backingField, value))
-                {
-                    return false;
-                }
-
-                backingField = value;
-                InvalidateMeasure();
-                return true;
-            }
         }
     }
 }

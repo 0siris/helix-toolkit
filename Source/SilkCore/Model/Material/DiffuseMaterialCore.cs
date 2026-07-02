@@ -3,176 +3,134 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.IO;
 using System.Runtime.Serialization;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Shaders;
-
         [DataContract]
         public class DiffuseMaterialCore : MaterialCore
         {
             private Color4 diffuseColor = Color.White;
+            private TextureModel diffuseMap;
+            private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
+
+            private bool enableFlatShading;
+
+            private bool enableUnLit;
+
+            private bool renderDiffuseMap = true;
+
+            private UVTransform uvTransform = UVTransform.Identity;
+
+            private float vertexColorBlendingFactor;
+
             /// <summary>
-            /// Gets or sets the color of the diffuse.
+            ///     Gets or sets the color of the diffuse.
             /// </summary>
             /// <value>
-            /// The color of the diffuse.
+            ///     The color of the diffuse.
             /// </value>
             public Color4 DiffuseColor
             {
-                set
-                {
-                    Set(ref diffuseColor, value);
-                }
-                get
-                {
-                    return diffuseColor;
-                }
+                get => diffuseColor;
+                set => Set(ref diffuseColor, value);
             }
-            private TextureModel diffuseMap;
+
             /// <summary>
-            /// Gets or sets the diffuse map.
+            ///     Gets or sets the diffuse map.
             /// </summary>
             /// <value>
-            /// The diffuse map.
+            ///     The diffuse map.
             /// </value>
             public TextureModel DiffuseMap
             {
-                set
-                {
-                    Set(ref diffuseMap, value);
-                }
-                get
-                {
-                    return diffuseMap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the diffuse map file path. Only for export
-            /// </summary>
-            /// <value>
-            /// The diffuse map file path.
-            /// </value>
-            public string DiffuseMapFilePath
-            {
-                set; get;
+                get => diffuseMap;
+                set => Set(ref diffuseMap, value);
             }
 
-            private UVTransform uvTransform = UVTransform.Identity;
             /// <summary>
-            /// Gets or sets the uv transform.
+            ///     Gets or sets the diffuse map file path. Only for export
             /// </summary>
             /// <value>
-            /// The uv transform.
+            ///     The diffuse map file path.
+            /// </value>
+            public string DiffuseMapFilePath { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the uv transform.
+            /// </summary>
+            /// <value>
+            ///     The uv transform.
             /// </value>
             public UVTransform UVTransform
             {
-                set
-                {
-                    Set(ref uvTransform, value);
-                }
-                get
-                {
-                    return uvTransform;
-                }
+                get => uvTransform;
+                set => Set(ref uvTransform, value);
             }
-            private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
+
             /// <summary>
-            /// Gets or sets the DiffuseMapSampler.
+            ///     Gets or sets the DiffuseMapSampler.
             /// </summary>
             /// <value>
-            /// DiffuseMapSampler
+            ///     DiffuseMapSampler
             /// </value>
             public SamplerStateDescription DiffuseMapSampler
             {
-                set
-                {
-                    Set(ref diffuseMapSampler, value);
-                }
-                get
-                {
-                    return diffuseMapSampler;
-                }
+                get => diffuseMapSampler;
+                set => Set(ref diffuseMapSampler, value);
             }
 
-            private bool renderDiffuseMap = true;
             /// <summary>
-            /// 
             /// </summary>
             public bool RenderDiffuseMap
             {
-                set
-                {
-                    Set(ref renderDiffuseMap, value);
-                }
-                get
-                {
-                    return renderDiffuseMap;
-                }
+                get => renderDiffuseMap;
+                set => Set(ref renderDiffuseMap, value);
             }
 
-            private bool enableUnLit = false;
             /// <summary>
-            /// Gets or sets a value indicating whether disable lighting. Directly render diffuse color and diffuse map
+            ///     Gets or sets a value indicating whether disable lighting. Directly render diffuse color and diffuse map
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
             /// </value>
             public bool EnableUnLit
             {
-                set
-                {
-                    Set(ref enableUnLit, value);
-                }
-                get
-                {
-                    return enableUnLit;
-                }
+                get => enableUnLit;
+                set => Set(ref enableUnLit, value);
             }
 
-            private bool enableFlatShading = false;
             /// <summary>
-            /// Gets or sets a value indicating whether [enable flat shading].
+            ///     Gets or sets a value indicating whether [enable flat shading].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
             /// </value>
             public bool EnableFlatShading
             {
-                set
-                {
-                    Set(ref enableFlatShading, value);
-                }
-                get
-                {
-                    return enableFlatShading;
-                }
+                get => enableFlatShading;
+                set => Set(ref enableFlatShading, value);
             }
 
-            private float vertexColorBlendingFactor = 0f;
             /// <summary>
-            /// Gets or sets the vert color blending factor.
-            /// Diffuse = (1- <see cref="VertexColorBlendingFactor"/>) * Diffuse + <see cref="VertexColorBlendingFactor"/> * Vertex Color
+            ///     Gets or sets the vert color blending factor.
+            ///     Diffuse = (1- <see cref="VertexColorBlendingFactor" />) * Diffuse + <see cref="VertexColorBlendingFactor" /> *
+            ///     Vertex Color
             /// </summary>
             /// <value>
-            /// The vert color blending factor.
+            ///     The vert color blending factor.
             /// </value>
             public float VertexColorBlendingFactor
             {
-                set
-                {
-                    Set(ref vertexColorBlendingFactor, value);
-                }
-                get
-                {
-                    return vertexColorBlendingFactor;
-                }
+                get => vertexColorBlendingFactor;
+                set => Set(ref vertexColorBlendingFactor, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager, IRenderTechnique technique)
+            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
+                IRenderTechnique technique)
             {
                 return new DiffuseMaterialVariables(DefaultPassNames.Diffuse, manager, technique, this);
             }
@@ -180,7 +138,8 @@ namespace HelixToolkit.SharpDX.Core
 
         public sealed class ViewCubeMaterialCore : DiffuseMaterialCore
         {
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager, IRenderTechnique technique)
+            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
+                IRenderTechnique technique)
             {
                 return new DiffuseMaterialVariables(DefaultPassNames.ViewCube, manager, technique, this);
             }

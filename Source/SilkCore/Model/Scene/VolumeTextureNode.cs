@@ -4,30 +4,26 @@ Copyright(c) 2018 Helix Toolkit contributors
 */
 
 
-using System;
-using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
         public class VolumeTextureNode : SceneNode
         {
             private MaterialCore material;
+
+            private MaterialVariable materialVariable;
+
             /// <summary>
-            ///
             /// </summary>
             public MaterialCore Material
             {
-                get
-                {
-                    return material;
-                }
+                get => material;
                 set
                 {
                     if (Set(ref material, value))
-                    {
                         if (EffectsManager != null)
                         {
                             if (IsAttached)
@@ -41,11 +37,8 @@ namespace HelixToolkit.SharpDX.Core
                                 Attach(EffectsManager);
                             }
                         }
-                    }
                 }
             }
-
-            private MaterialVariable materialVariable;
 
 
             protected override bool OnAttach(IEffectsManager effectsManager)
@@ -55,10 +48,8 @@ namespace HelixToolkit.SharpDX.Core
                     AttachMaterial();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnDetach()
@@ -69,19 +60,17 @@ namespace HelixToolkit.SharpDX.Core
 
             protected virtual void AttachMaterial()
             {
-                var newVar = material != null && RenderCore is VolumeRenderCore ?
-                    EffectsManager.MaterialVariableManager.Register(material, EffectTechnique) : null;
+                var newVar = material != null && RenderCore is VolumeRenderCore
+                    ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+                    : null;
                 RemoveAndDispose(ref materialVariable);
-                if (RenderCore is VolumeRenderCore core)
-                {
-                    materialVariable = core.MaterialVariables = newVar;
-                }
+                if (RenderCore is VolumeRenderCore core) materialVariable = core.MaterialVariables = newVar;
             }
 
 
             protected override OrderKey OnUpdateRenderOrderKey()
             {
-                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
+                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
             }
 
             protected override bool CanRender(RenderContext context)
@@ -91,7 +80,7 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override RenderCore OnCreateRenderCore()
             {
-                return new VolumeRenderCore() { DefaultStateBinding = StateType.All };
+                return new VolumeRenderCore {DefaultStateBinding = StateType.All};
             }
 
             protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
@@ -99,7 +88,8 @@ namespace HelixToolkit.SharpDX.Core
                 return effectsManager[DefaultRenderTechniqueNames.Volume3D];
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return false;
             }

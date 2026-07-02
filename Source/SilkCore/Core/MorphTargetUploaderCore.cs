@@ -3,58 +3,34 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
-        using Shaders;
-        using Components;
-
-        class MorphTargetUploaderCore : RenderCore
+        internal class MorphTargetUploaderCore : RenderCore
         {
-            public event EventHandler WeightsChanged;
-            private bool weightUpdated;
-            private float[] morphTargetWeights = Array.Empty<float>();
-            public float[] MorphTargetWeights
-            {
-                get
-                {
-                    return morphTargetWeights;
-                }
-                set
-                {
-                    if (SetAffectsRender(ref morphTargetWeights, value ?? Array.Empty<float>()))
-                    {
-                        weightUpdated = true;
-                        WeightsChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                }
-            }
-
-            private bool setDeltas = false;
-            private Vector3[] morphTargetsDeltas = Array.Empty<Vector3>();
+            private readonly ConstantBufferComponent cbMorphTarget;
 
             private int[] morphTargetOffsets = Array.Empty<int>();
-
-            private bool hasMorphTarget => mtCount > 0 && mtPitch > 0;
-            private bool setCBuffer = true;
+            private Vector3[] morphTargetsDeltas = Array.Empty<Vector3>();
+            private float[] morphTargetWeights = Array.Empty<float>();
             private int mtCount;
-            private int mtPitch;
-            private StructuredBufferProxy mtWeightsB;
             private ImmutableBufferProxy mtDeltasB;
-            private ImmutableBufferProxy mtOffsetsB;
-            public StructuredBufferProxy MTWeightsB => mtWeightsB;
-            public ImmutableBufferProxy MTDeltasB => mtDeltasB;
-            public ImmutableBufferProxy MTOffsetsB => mtOffsetsB;
 
             private ShaderResourceViewProxy mtDeltasSRV;
+            private ImmutableBufferProxy mtOffsetsB;
             private ShaderResourceViewProxy mtOffsetsSRV;
+            private int mtPitch;
+            private StructuredBufferProxy mtWeightsB;
+            private bool setCBuffer = true;
 
-            private ConstantBufferComponent cbMorphTarget;
+            private bool setDeltas;
+            private bool weightUpdated;
 
             public MorphTargetUploaderCore()
                 : base(RenderType.None)
@@ -66,9 +42,27 @@ namespace HelixToolkit.SharpDX.Core
                 cbMorphTarget = AddComponent(new ConstantBufferComponent(cbd));
             }
 
+            public float[] MorphTargetWeights
+            {
+                get => morphTargetWeights;
+                set
+                {
+                    if (SetAffectsRender(ref morphTargetWeights, value ?? Array.Empty<float>()))
+                    {
+                        weightUpdated = true;
+                        WeightsChanged?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+
+            private bool hasMorphTarget => mtCount > 0 && mtPitch > 0;
+            public StructuredBufferProxy MTWeightsB => mtWeightsB;
+            public ImmutableBufferProxy MTDeltasB => mtDeltasB;
+            public ImmutableBufferProxy MTOffsetsB => mtOffsetsB;
+            public event EventHandler WeightsChanged;
+
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-
             }
 
             protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext)
@@ -86,7 +80,8 @@ namespace HelixToolkit.SharpDX.Core
                     MTDeltasB.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
                     RemoveAndDispose(ref mtDeltasSRV);
                     //Handle deltas srv
-                    mtDeltasSRV = new ShaderResourceViewProxy(MTDeltasB.Buffer, MTDeltasB.Buffer.Device.CreateShaderResourceView(MTDeltasB.Buffer));
+                    mtDeltasSRV = new ShaderResourceViewProxy(MTDeltasB.Buffer,
+                        MTDeltasB.Buffer.Device.CreateShaderResourceView(MTDeltasB.Buffer));
                     mtDeltasSRV.CreateTextureView();
 
                     //Setup offsets buffer
@@ -94,7 +89,8 @@ namespace HelixToolkit.SharpDX.Core
                     MTOffsetsB.UploadDataToBuffer(deviceContext, morphTargetOffsets, c);
                     RemoveAndDispose(ref mtOffsetsSRV);
                     //Handle offsets srv
-                    mtOffsetsSRV = new ShaderResourceViewProxy(MTOffsetsB.Buffer, MTOffsetsB.Buffer.Device.CreateShaderResourceView(MTOffsetsB.Buffer));
+                    mtOffsetsSRV = new ShaderResourceViewProxy(MTOffsetsB.Buffer,
+                        MTOffsetsB.Buffer.Device.CreateShaderResourceView(MTOffsetsB.Buffer));
                     mtOffsetsSRV.CreateTextureView();
 
 
@@ -104,11 +100,12 @@ namespace HelixToolkit.SharpDX.Core
                 if (setCBuffer)
                 {
                     //Set Values
-                    cbMorphTarget.WriteValue<int>(mtCount, 0);
-                    cbMorphTarget.WriteValue<int>(mtPitch, sizeof(int));
+                    cbMorphTarget.WriteValue(mtCount, 0);
+                    cbMorphTarget.WriteValue(mtPitch, sizeof(int));
 
                     setCBuffer = false;
                 }
+
                 //Update/upload or whatever
                 cbMorphTarget.Upload(deviceContext);
             }
@@ -116,8 +113,10 @@ namespace HelixToolkit.SharpDX.Core
             protected override bool OnAttach(IRenderTechnique technique)
             {
                 mtWeightsB = new StructuredBufferProxy(sizeof(float), false);
-                mtDeltasB = new ImmutableBufferProxy(sizeof(float) * 3, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured);
-                mtOffsetsB = new ImmutableBufferProxy(sizeof(int), BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured);
+                mtDeltasB = new ImmutableBufferProxy(sizeof(float) * 3, BindFlags.ShaderResource,
+                    ResourceOptionFlags.BufferStructured);
+                mtOffsetsB = new ImmutableBufferProxy(sizeof(int), BindFlags.ShaderResource,
+                    ResourceOptionFlags.BufferStructured);
                 return true;
             }
 
@@ -153,6 +152,7 @@ namespace HelixToolkit.SharpDX.Core
                     mtPitch = 0;
                     return true;
                 }
+
                 //Setup buffer and keep track of data to update
                 setDeltas = true;
 
@@ -170,7 +170,6 @@ namespace HelixToolkit.SharpDX.Core
 
                 var current = 1;
                 for (var i = 0; i < targets.Length; i++)
-                {
                     //Skip if 0 delta
                     if (targets[i].deltaNormal == zv && targets[i].deltaPosition == zv && targets[i].deltaTangent == zv)
                     {
@@ -186,7 +185,7 @@ namespace HelixToolkit.SharpDX.Core
 
                         current++;
                     }
-                }
+
                 morphTargetsDeltas = mtdList.ToArray();
 
                 //Set cbuffer data {int count, int pitch}

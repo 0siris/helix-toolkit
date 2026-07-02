@@ -3,41 +3,25 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
-using System.IO;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
 using SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core
 {
-    using Model;
     namespace Utilities
     {
-        using Render;
-
         /// <summary>
-        /// A proxy container to handle view resources.
+        ///     A proxy container to handle view resources.
         /// </summary>
         public class ShaderResourceViewProxy : DisposeObject
         {
-            public Guid Guid { set; get; } = Guid.NewGuid();
-            public static ShaderResourceViewProxy Empty { get; } = new ShaderResourceViewProxy();
-
             private readonly DeviceContextProxy context;
-            private readonly Native.SilkD3DDevice nativeDevice;
-            private ShaderResourceView textureView;
+            private readonly NativeD3DDevice nativeDevice;
             private DepthStencilView depthStencilView;
             private RenderTargetView renderTargetView;
             private Resource resource;
-
-            public ShaderResourceView TextureView => textureView;
-
-            public DepthStencilView DepthStencilView => depthStencilView;
-
-            public RenderTargetView RenderTargetView => renderTargetView;
-
-            public Resource Resource => resource;
-
-            public Format TextureFormat { private set; get; }
+            private ShaderResourceView textureView;
 
             private ShaderResourceViewProxy()
             {
@@ -55,7 +39,8 @@ namespace HelixToolkit.SharpDX.Core
                 this.resource = resource;
             }
 
-            public ShaderResourceViewProxy(DeviceContextProxy context, Resource resource, ShaderResourceViewDescription description)
+            public ShaderResourceViewProxy(DeviceContextProxy context, Resource resource,
+                ShaderResourceViewDescription description)
                 : this(context, resource)
             {
                 CreateTextureView(ref description);
@@ -82,30 +67,21 @@ namespace HelixToolkit.SharpDX.Core
             public ShaderResourceViewProxy(object device, Texture1DDescription textureDesc)
                 : this(device)
             {
-                if (nativeDevice != null)
-                {
-                    resource = nativeDevice.CreateTexture1D(textureDesc);
-                }
+                if (nativeDevice != null) resource = nativeDevice.CreateTexture1D(textureDesc);
                 TextureFormat = textureDesc.Format;
             }
 
             public ShaderResourceViewProxy(object device, Texture2DDescription textureDesc)
                 : this(device)
             {
-                if (nativeDevice != null)
-                {
-                    resource = nativeDevice.CreateTexture2D(textureDesc);
-                }
+                if (nativeDevice != null) resource = nativeDevice.CreateTexture2D(textureDesc);
                 TextureFormat = textureDesc.Format;
             }
 
             public ShaderResourceViewProxy(object device, Texture3DDescription textureDesc)
                 : this(device)
             {
-                if (nativeDevice != null)
-                {
-                    resource = nativeDevice.CreateTexture3D(textureDesc);
-                }
+                if (nativeDevice != null) resource = nativeDevice.CreateTexture3D(textureDesc);
                 TextureFormat = textureDesc.Format;
             }
 
@@ -130,12 +106,22 @@ namespace HelixToolkit.SharpDX.Core
                 TextureFormat = view == null ? default : view.Description.Format;
             }
 
+            public Guid Guid { get; set; } = Guid.NewGuid();
+            public static ShaderResourceViewProxy Empty { get; } = new();
+
+            public ShaderResourceView TextureView => textureView;
+
+            public DepthStencilView DepthStencilView => depthStencilView;
+
+            public RenderTargetView RenderTargetView => renderTargetView;
+
+            public Resource Resource => resource;
+
+            public Format TextureFormat { get; private set; }
+
             public void CreateView(TextureModel texture, bool createSRV = true, bool enableAutoGenMipMap = true)
             {
-                if (texture == null)
-                {
-                    return;
-                }
+                if (texture == null) return;
 
                 var info = texture.Load();
                 var succeeded = false;
@@ -155,25 +141,16 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateView(Stream texture, bool createSRV = true, bool enableAutoGenMipMap = true)
             {
-                if (nativeDevice == null || texture == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || texture == null) return;
 
                 var originalPosition = texture.CanSeek ? texture.Position : 0;
                 try
                 {
-                    if (texture.CanSeek)
-                    {
-                        texture.Position = 0;
-                    }
+                    if (texture.CanSeek) texture.Position = 0;
 
                     using (var image = Image.Load(texture))
                     {
-                        if (image == null || image.Description.Dimension != TextureDimension.Texture2D)
-                        {
-                            return;
-                        }
+                        if (image == null || image.Description.Dimension != TextureDimension.Texture2D) return;
 
                         RemoveAndDispose(ref textureView);
                         RemoveAndDispose(ref resource);
@@ -193,18 +170,12 @@ namespace HelixToolkit.SharpDX.Core
                         };
                         resource = nativeDevice.CreateTexture2D(description, image.ToDataBox());
                         TextureFormat = description.Format;
-                        if (createSRV)
-                        {
-                            CreateTextureView();
-                        }
+                        if (createSRV) CreateTextureView();
                     }
                 }
                 finally
                 {
-                    if (texture.CanSeek)
-                    {
-                        texture.Position = originalPosition;
-                    }
+                    if (texture.CanSeek) texture.Position = originalPosition;
                 }
             }
 
@@ -225,10 +196,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateTextureView()
             {
-                if (nativeDevice == null || resource == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || resource == null) return;
 
                 RemoveAndDispose(ref textureView);
                 textureView = nativeDevice.CreateShaderResourceView(resource);
@@ -255,10 +223,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateRenderTargetView()
             {
-                if (nativeDevice == null || resource == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || resource == null) return;
 
                 RemoveAndDispose(ref renderTargetView);
                 renderTargetView = nativeDevice.CreateRenderTargetView(resource);
@@ -271,10 +236,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateRenderTargetView(ref RenderTargetViewDescription desc)
             {
-                if (nativeDevice == null || resource == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || resource == null) return;
 
                 RemoveAndDispose(ref renderTargetView);
                 renderTargetView = nativeDevice.CreateRenderTargetView(resource, desc);
@@ -282,10 +244,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateDepthStencilView()
             {
-                if (nativeDevice == null || resource == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || resource == null) return;
 
                 RemoveAndDispose(ref depthStencilView);
                 depthStencilView = nativeDevice.CreateDepthStencilView(resource);
@@ -298,10 +257,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void CreateDepthStencilView(ref DepthStencilViewDescription desc)
             {
-                if (nativeDevice == null || resource == null)
-                {
-                    return;
-                }
+                if (nativeDevice == null || resource == null) return;
 
                 RemoveAndDispose(ref depthStencilView);
                 depthStencilView = nativeDevice.CreateDepthStencilView(resource, desc);
@@ -313,52 +269,59 @@ namespace HelixToolkit.SharpDX.Core
                 TextureFormat = format;
             }
 
-            public void CreateView<T>(T[] array, int length, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView<T>(T[] array, int length, Format format, bool createSRV = true,
+                bool generateMipMaps = true)
                 where T : unmanaged
             {
                 TextureFormat = format;
             }
 
-            public unsafe void CreateView(IntPtr dataPtr, int width, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView(nint dataPtr, int width, Format format, bool createSRV = true,
+                bool generateMipMaps = true)
             {
                 TextureFormat = format;
             }
 
-            public void CreateView<T>(T[] array, int width, int height, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView<T>(T[] array, int width, int height, Format format, bool createSRV = true,
+                bool generateMipMaps = true)
                 where T : unmanaged
             {
                 TextureFormat = format;
             }
 
-            public unsafe void CreateView(IntPtr dataPtr, int width, int height, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView(nint dataPtr, int width, int height, Format format, bool createSRV = true,
+                bool generateMipMaps = true)
             {
                 TextureFormat = format;
             }
 
-            public void CreateView<T>(T[] pixels, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView<T>(T[] pixels, int width, int height, int depth, Format format,
+                bool createSRV = true, bool generateMipMaps = true)
                 where T : unmanaged
             {
                 unsafe
                 {
                     fixed (T* pixelsPtr = pixels)
                     {
-                        CreateView((IntPtr)pixelsPtr, width, height, depth, format, sizeof(T), createSRV, generateMipMaps);
+                        CreateView((nint) pixelsPtr, width, height, depth, format, sizeof(T), createSRV,
+                            generateMipMaps);
                     }
                 }
             }
 
-            public unsafe void CreateView(IntPtr dataPtr, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateView(nint dataPtr, int width, int height, int depth, Format format, bool createSRV = true,
+                bool generateMipMaps = true)
             {
-                CreateView(dataPtr, width, height, depth, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
+                CreateView(dataPtr, width, height, depth, format, GetFormatSizeInBytes(format), createSRV,
+                    generateMipMaps);
             }
 
-            private unsafe void CreateView(IntPtr dataPtr, int width, int height, int depth, Format format, int bytesPerPixel, bool createSRV, bool generateMipMaps)
+            private void CreateView(nint dataPtr, int width, int height, int depth, Format format, int bytesPerPixel,
+                bool createSRV, bool generateMipMaps)
             {
                 TextureFormat = format;
-                if (nativeDevice == null || dataPtr == IntPtr.Zero || width <= 0 || height <= 0 || depth <= 0 || bytesPerPixel <= 0)
-                {
-                    return;
-                }
+                if (nativeDevice == null || dataPtr == nint.Zero || width <= 0 || height <= 0 || depth <= 0 ||
+                    bytesPerPixel <= 0) return;
 
                 RemoveAndDispose(ref textureView);
                 RemoveAndDispose(ref resource);
@@ -415,12 +378,14 @@ namespace HelixToolkit.SharpDX.Core
                 CreateView(array, Format.FormatR32G32B32A32Float);
             }
 
-            public void CreateViewFromColorArray(Color4[] array, int width, int height, bool createSRV = true, bool generateMipMaps = true)
+            public void CreateViewFromColorArray(Color4[] array, int width, int height, bool createSRV = true,
+                bool generateMipMaps = true)
             {
                 CreateView(array, width, height, Format.FormatR32G32B32A32Float, createSRV, generateMipMaps);
             }
 
-            public static ShaderResourceViewProxy CreateView<T>(object device, T[] array, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateView<T>(object device, T[] array, Format format,
+                bool createSRV = true, bool generateMipMaps = true)
                 where T : unmanaged
             {
                 var proxy = new ShaderResourceViewProxy(device);
@@ -428,14 +393,16 @@ namespace HelixToolkit.SharpDX.Core
                 return proxy;
             }
 
-            public static ShaderResourceViewProxy CreateView(object device, Stream texture, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateView(object device, Stream texture, bool createSRV = true,
+                bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateView(texture, createSRV, generateMipMaps);
                 return proxy;
             }
 
-            public static ShaderResourceViewProxy CreateView<T>(object device, T[] array, int width, int height, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateView<T>(object device, T[] array, int width, int height,
+                Format format, bool createSRV = true, bool generateMipMaps = true)
                 where T : unmanaged
             {
                 var proxy = new ShaderResourceViewProxy(device);
@@ -443,7 +410,8 @@ namespace HelixToolkit.SharpDX.Core
                 return proxy;
             }
 
-            public unsafe static ShaderResourceViewProxy CreateView(object device, IntPtr dataPtr, int width, int height, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateView(object device, nint dataPtr, int width, int height,
+                Format format, bool createSRV = true, bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateView(dataPtr, width, height, format, createSRV, generateMipMaps);
@@ -457,28 +425,32 @@ namespace HelixToolkit.SharpDX.Core
                 return proxy;
             }
 
-            public static ShaderResourceViewProxy CreateViewFromColorArray(object device, Color4[] array, int width, int height, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateViewFromColorArray(object device, Color4[] array, int width,
+                int height, bool createSRV = true, bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateViewFromColorArray(array, width, height, createSRV, generateMipMaps);
                 return proxy;
             }
 
-            public static ShaderResourceViewProxy CreateViewFromPixelData(object device, byte[] pixels, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateViewFromPixelData(object device, byte[] pixels, int width,
+                int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
                 return proxy;
             }
 
-            public static ShaderResourceViewProxy CreateViewFromPixelData(object device, Half4[] pixels, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateViewFromPixelData(object device, Half4[] pixels, int width,
+                int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
                 return proxy;
             }
 
-            public unsafe static ShaderResourceViewProxy CreateViewFromPixelData(object device, IntPtr pixels, int width, int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
+            public static ShaderResourceViewProxy CreateViewFromPixelData(object device, nint pixels, int width,
+                int height, int depth, Format format, bool createSRV = true, bool generateMipMaps = true)
             {
                 var proxy = new ShaderResourceViewProxy(device);
                 proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
@@ -494,13 +466,13 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            private static Native.SilkD3DDevice ResolveNativeDevice(object device)
+            private static NativeD3DDevice ResolveNativeDevice(object device)
             {
                 return device switch
                 {
                     DeviceContextProxy contextProxy => contextProxy.NativeDevice,
-                    Native.SilkD3DDevice silkDevice => silkDevice,
-                    Native.INativeDeviceResources nativeResources => nativeResources.Device,
+                    NativeD3DDevice silkDevice => silkDevice,
+                    INativeDeviceResources nativeResources => nativeResources.Device,
                     IDevice3DResources deviceResources => deviceResources.NativeDeviceResources?.Device,
                     _ => null
                 };

@@ -2,206 +2,197 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-namespace HelixToolkit.SharpDX.Core.Controls
+
+using HelixToolkit.SharpDX.Core.Cameras;
+
+namespace HelixToolkit.SharpDX.Core.Controls;
+
+public sealed class RotateHandler : MouseGestureHandler
 {
-    using Cameras;
+    /// <summary>
+    ///     The change look at.
+    /// </summary>
+    private readonly bool changeLookAt;
 
-    public sealed class RotateHandler : MouseGestureHandler
+    private bool invertUpDir;
+
+    /// <summary>
+    ///     The x rotation axis.
+    /// </summary>
+    private Vector3 rotationAxisX;
+
+    /// <summary>
+    ///     The y rotation axis.
+    /// </summary>
+    private Vector3 rotationAxisY;
+
+    /// <summary>
+    ///     The rotation point.
+    /// </summary>
+    private Vector2 rotationPoint;
+
+    /// <summary>
+    ///     The 3D rotation point.
+    /// </summary>
+    private Vector3 rotationPoint3D;
+
+    public RotateHandler(CameraController controller, bool changeLookAt = false)
+        : base(controller)
     {
-        /// <summary>
-        /// The change look at.
-        /// </summary>
-        private readonly bool changeLookAt;
+        this.changeLookAt = changeLookAt;
+    }
 
-        /// <summary>
-        /// The x rotation axis.
-        /// </summary>
-        private Vector3 rotationAxisX;
+    /// <summary>
+    ///     Gets the camera rotation mode.
+    /// </summary>
+    /// <value>
+    ///     The camera rotation mode.
+    /// </value>
+    private CameraRotationMode CameraRotationMode => Controller.CameraRotationMode;
 
-        /// <summary>
-        /// The y rotation axis.
-        /// </summary>
-        private Vector3 rotationAxisY;
+    /// <summary>
+    ///     Occurs when the position is changed during a manipulation.
+    /// </summary>
+    /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
+    public override void Delta(Vector2 e)
+    {
+        base.Delta(e);
+        Rotate(LastPoint, e, rotationPoint3D);
+        LastPoint = e;
+    }
 
-        /// <summary>
-        /// The rotation point.
-        /// </summary>
-        private Vector2 rotationPoint;
+    /// <summary>
+    ///     Change the "look-at" point.
+    /// </summary>
+    /// <param name="target">
+    ///     The target.
+    /// </param>
+    /// <param name="animationTime">
+    ///     The animation time.
+    /// </param>
+    public void LookAt(Vector3 target, float animationTime)
+    {
+        if (!Controller.IsPanEnabled) return;
 
-        /// <summary>
-        /// The 3D rotation point.
-        /// </summary>
-        private Vector3 rotationPoint3D;
+        Camera.LookAt(target, animationTime);
+    }
 
-        private bool invertUpDir = false;
-
-        /// <summary>
-        /// Gets the camera rotation mode.
-        /// </summary>
-        /// <value>
-        /// The camera rotation mode.
-        /// </value>
-        private CameraRotationMode CameraRotationMode
+    /// <summary>
+    ///     Rotate the camera around the specified point.
+    /// </summary>
+    /// <param name="p0">
+    ///     The p 0.
+    /// </param>
+    /// <param name="p1">
+    ///     The p 1.
+    /// </param>
+    /// <param name="rotateAround">
+    ///     The rotate around.
+    /// </param>
+    /// <param name="stopOther">Stop other manipulation</param>
+    public void Rotate(Vector2 p0, Vector2 p1, Vector3 rotateAround, bool stopOther = true)
+    {
+        if (!Controller.IsRotationEnabled) return;
+        if (stopOther)
         {
-            get
-            {
-                return this.Controller.CameraRotationMode;
-            }
+            Controller.StopZooming();
+            Controller.StopPanning();
         }
 
-        public RotateHandler(CameraController controller, bool changeLookAt = false)
-            : base(controller)
+        p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
+        p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
+        var newPos = Camera.Position;
+        var newLook = Camera.LookDirection;
+        var newUp = SilkMath.Normalize(Camera.UpDirection);
+        switch (Controller.CameraRotationMode)
         {
-            this.changeLookAt = changeLookAt;
+            case CameraRotationMode.Trackball:
+                CameraMath.RotateTrackball(CameraMode, ref p0, ref p1, ref rotateAround, (float) RotationSensitivity,
+                    Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
+                break;
+            case CameraRotationMode.Turntable:
+                var p = p1 - p0;
+                CameraMath.RotateTurntable(CameraMode, ref p, ref rotateAround, (float) RotationSensitivity,
+                    Controller.Width, Controller.Height, Camera, inv,
+                    invertUpDir ? -ModelUpDirection : ModelUpDirection, out newPos, out newLook, out newUp);
+                break;
+            case CameraRotationMode.Turnball:
+                CameraMath.RotateTurnball(CameraMode, ref p0, ref p1, ref rotateAround, (float) RotationSensitivity,
+                    Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
+                break;
         }
 
-        /// <summary>
-        /// Occurs when the position is changed during a manipulation.
-        /// </summary>
-        /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
-        public override void Delta(Vector2 e)
+        Camera.LookDirection = newLook;
+        Camera.Position = newPos;
+        Camera.UpDirection = newUp;
+    }
+
+    /// <summary>
+    ///     Occurs when the manipulation is started.
+    /// </summary>
+    /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
+    protected override void Started(Vector2 e)
+    {
+        base.Started(e);
+        rotationPoint = new Vector2(
+            Controller.Width / 2, Controller.Height / 2);
+        rotationPoint3D = Camera.Target;
+        invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
+
+        switch (CameraMode)
         {
-            base.Delta(e);
-            this.Rotate(this.LastPoint, e, this.rotationPoint3D);
-            this.LastPoint = e;
+            case CameraMode.WalkAround:
+                rotationPoint = MouseDownPoint;
+                rotationPoint3D = Camera.Position;
+                break;
+            default:
+                if (Controller.FixedRotationPointEnabled)
+                {
+                    rotationPoint3D = Controller.FixedRotationPoint;
+                }
+                else if (changeLookAt && MouseDownNearestPoint3D != null)
+                {
+                    LookAt(MouseDownNearestPoint3D.Value, 0);
+                    rotationPoint3D = Camera.Target;
+                }
+                else if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D != null)
+                {
+                    rotationPoint = MouseDownPoint;
+                    rotationPoint3D = MouseDownNearestPoint3D.Value;
+                }
+
+                break;
         }
 
-        /// <summary>
-        /// Change the "look-at" point.
-        /// </summary>
-        /// <param name="target">
-        /// The target.
-        /// </param>
-        /// <param name="animationTime">
-        /// The animation time.
-        /// </param>
-        public void LookAt(Vector3 target, float animationTime)
+        switch (CameraRotationMode)
         {
-            if (!this.Controller.IsPanEnabled)
-            {
-                return;
-            }
-
-            this.Camera.LookAt(target, animationTime);
+            case CameraRotationMode.Trackball:
+                break;
+            case CameraRotationMode.Turntable:
+                break;
+            case CameraRotationMode.Turnball:
+                CameraMath.InitTurnballRotationAxes(e, Controller.Width, Controller.Height, Camera,
+                    out rotationAxisX, out rotationAxisY);
+                break;
         }
 
-        /// <summary>
-        /// Rotate the camera around the specified point.
-        /// </summary>
-        /// <param name="p0">
-        /// The p 0.
-        /// </param>
-        /// <param name="p1">
-        /// The p 1.
-        /// </param>
-        /// <param name="rotateAround">
-        /// The rotate around.
-        /// </param>
-        /// <param name="stopOther">Stop other manipulation</param>
-        public void Rotate(Vector2 p0, Vector2 p1, Vector3 rotateAround, bool stopOther = true)
-        {
-            if (!this.Controller.IsRotationEnabled)
-            {
-                return;
-            }
-            if (stopOther)
-            {
-                Controller.StopZooming();
-                Controller.StopPanning();
-            }
-            p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
-            p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
-            var newPos = Camera.Position;
-            var newLook = Camera.LookDirection;
-            var newUp = SilkMath.Normalize(Camera.UpDirection);
-            switch (this.Controller.CameraRotationMode)
-            {
-                case CameraRotationMode.Trackball:
-                    CameraMath.RotateTrackball(CameraMode, ref p0, ref p1, ref rotateAround, (float)RotationSensitivity,
-                        Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
-                    break;
-                case CameraRotationMode.Turntable:
-                    var p = p1 - p0;
-                    CameraMath.RotateTurntable(CameraMode, ref p, ref rotateAround, (float)RotationSensitivity,
-                        Controller.Width, Controller.Height, Camera, inv, invertUpDir ? -ModelUpDirection : ModelUpDirection, out newPos, out newLook, out newUp);
-                    break;
-                case CameraRotationMode.Turnball:
-                    CameraMath.RotateTurnball(CameraMode, ref p0, ref p1, ref rotateAround, (float)RotationSensitivity,
-                        Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
-                    break;
-            }
-            Camera.LookDirection = newLook;
-            Camera.Position = newPos;
-            Camera.UpDirection = newUp;
-        }
+        Controller.StopSpin();
+    }
 
-        /// <summary>
-        /// Occurs when the manipulation is started.
-        /// </summary>
-        /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
-        protected override void Started(Vector2 e)
-        {
-            base.Started(e);
-            this.rotationPoint = new Vector2(
-                this.Controller.Width / 2, this.Controller.Height / 2);
-            this.rotationPoint3D = this.Camera.Target;
-            invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
-
-            switch (this.CameraMode)
-            {
-                case CameraMode.WalkAround:
-                    this.rotationPoint = this.MouseDownPoint;
-                    this.rotationPoint3D = this.Camera.Position;
-                    break;
-                default:
-                    if (Controller.FixedRotationPointEnabled)
-                    {
-                        this.rotationPoint3D = Controller.FixedRotationPoint;
-                    }
-                    else if (this.changeLookAt && this.MouseDownNearestPoint3D != null)
-                    {
-                        this.LookAt(this.MouseDownNearestPoint3D.Value, 0);
-                        this.rotationPoint3D = this.Camera.Target;
-                    }
-                    else if (this.Controller.RotateAroundMouseDownPoint && this.MouseDownNearestPoint3D != null)
-                    {
-                        this.rotationPoint = this.MouseDownPoint;
-                        this.rotationPoint3D = this.MouseDownNearestPoint3D.Value;
-                    }
-
-                    break;
-            }
-
-            switch (this.CameraRotationMode)
-            {
-                case CameraRotationMode.Trackball:
-                    break;
-                case CameraRotationMode.Turntable:
-                    break;
-                case CameraRotationMode.Turnball:
-                    CameraMath.InitTurnballRotationAxes(e, (int)Controller.Width, (int)Controller.Height, Camera,
-                        out rotationAxisX, out rotationAxisY);
-                    break;
-            }
-
-            this.Controller.StopSpin();
-        }
-
-        /// <summary>
-        /// Called when inertia is starting.
-        /// </summary>
-        /// <param name="elapsedTime">
-        /// The elapsed time.
-        /// </param>
-        protected override void OnInertiaStarting(double elapsedTime)
-        {
-            var delta = this.LastPoint - this.MouseDownPoint;
-            var deltaV = new Vector2((float)delta.X, (float)delta.Y);
-            // Debug.WriteLine("SpinInertiaStarting: " + elapsedTime + "ms " + delta.Length + "px");
-            this.Controller.StartSpin(
-                4 * deltaV * (float)(this.Controller.SpinReleaseTime / elapsedTime),
-                this.MouseDownPoint,
-                this.rotationPoint3D);
-        }
+    /// <summary>
+    ///     Called when inertia is starting.
+    /// </summary>
+    /// <param name="elapsedTime">
+    ///     The elapsed time.
+    /// </param>
+    protected override void OnInertiaStarting(double elapsedTime)
+    {
+        var delta = LastPoint - MouseDownPoint;
+        var deltaV = new Vector2(delta.X, delta.Y);
+        // Debug.WriteLine("SpinInertiaStarting: " + elapsedTime + "ms " + delta.Length + "px");
+        Controller.StartSpin(
+            4 * deltaV * (float) (Controller.SpinReleaseTime / elapsedTime),
+            MouseDownPoint,
+            rotationPoint3D);
     }
 }

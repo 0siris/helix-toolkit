@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
 #if NETFX_CORE
 #if CORE
 namespace HelixToolkit.SharpDX.Core
@@ -17,63 +16,38 @@ namespace HelixToolkit.Wpf.SharpDX
     public sealed class HitTestContext
     {
         /// <summary>
-        /// Gets or sets the render matrices. This is only needed for line/point hit test.
-        /// </summary>
-        /// <value>
-        /// The render matrices.
-        /// </value>
-        public IRenderMatrices RenderMatrices
-        {
-            set; get;
-        } = null;
-        /// <summary>
-        /// Gets or sets the ray in world space.
-        /// </summary>
-        /// <value>
-        /// The ray.
-        /// </value>
-        public Ray RayWS
-        {
-            set; get;
-        }
-        /// <summary>
-        /// Gets or sets the hit point on screen space. This is the hit point on viewport region without DpiScaled coordinate.
-        /// </summary>
-        /// <value>
-        /// The screen hit point.
-        /// </value>
-        public Vector2 HitPointSP
-        {
-            set; get;
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HitTestContext"/> class.
+        ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
         /// <param name="rayWS">The ray in world space.</param>
-        /// <param name="hitSP">The hit point on screen space. Pass in the hit point on viewport region directly. 
-        /// <para>Do not scale with DpiScale factor.</para></param>
+        /// <param name="hitSP">
+        ///     The hit point on screen space. Pass in the hit point on viewport region directly.
+        ///     <para>Do not scale with DpiScale factor.</para>
+        /// </param>
         public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP)
         {
             RenderMatrices = metrices;
             RayWS = rayWS;
             HitPointSP = hitSP;
         }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="HitTestContext"/> class.
+        ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
         /// <param name="rayWS">The ray in world space.</param>
-        /// <param name="hitSP">The hit point on screen space. Pass in the hit point on viewport region directly.
-        /// <para>Do not scale with DpiScale factor.</para></param>
+        /// <param name="hitSP">
+        ///     The hit point on screen space. Pass in the hit point on viewport region directly.
+        ///     <para>Do not scale with DpiScale factor.</para>
+        /// </param>
         public HitTestContext(IRenderMatrices metrices, Ray rayWS, Vector2 hitSP)
             : this(metrices, ref rayWS, ref hitSP)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HitTestContext"/> class.
-        /// This calculates screen hit point automatically from metrices and world space ray.
+        ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
+        ///     This calculates screen hit point automatically from metrices and world space ray.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
         /// <param name="rayWS">The ray in world space.</param>
@@ -81,19 +55,18 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             RenderMatrices = metrices;
             RayWS = rayWS;
-            if (metrices != null)
-            {
-                HitPointSP = metrices.Project(rayWS.Position);
-            }
+            if (metrices != null) HitPointSP = metrices.Project(rayWS.Position);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HitTestContext"/> class.
-        /// This calculates ray in world space automatically from metrices and hit point.
+        ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
+        ///     This calculates ray in world space automatically from metrices and hit point.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
-        /// <param name="hitSP">Screen hit point. Pass in the hit point on viewport region directly.
-        /// <para>Do not scale with DpiScale factor.</para></param>
+        /// <param name="hitSP">
+        ///     Screen hit point. Pass in the hit point on viewport region directly.
+        ///     <para>Do not scale with DpiScale factor.</para>
+        /// </param>
         public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP)
         {
             RenderMatrices = metrices;
@@ -104,5 +77,29 @@ namespace HelixToolkit.Wpf.SharpDX
                 RayWS = ray;
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the render matrices. This is only needed for line/point hit test.
+        /// </summary>
+        /// <value>
+        ///     The render matrices.
+        /// </value>
+        public IRenderMatrices RenderMatrices { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the ray in world space.
+        /// </summary>
+        /// <value>
+        ///     The ray.
+        /// </value>
+        public Ray RayWS { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the hit point on screen space. This is the hit point on viewport region without DpiScaled coordinate.
+        /// </summary>
+        /// <value>
+        ///     The screen hit point.
+        /// </value>
+        public Vector2 HitPointSP { get; set; }
     }
 }

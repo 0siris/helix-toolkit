@@ -4,17 +4,17 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using ShaderManager;
-        using Shaders;
-        using Utilities;
-
         /// <summary>
-        /// Default PhongMaterial Variables
+        ///     Default PhongMaterial Variables
         /// </summary>
         public class PhongMaterialVariables : MaterialVariable
         {
@@ -27,157 +27,41 @@ namespace HelixToolkit.SharpDX.Core
                 SpecularColorIdx = 4,
                 EmissiveIdx = 5;
 
-            private readonly ITextureResourceManager textureManager;
+            private readonly PhongMaterialCore material;
             private readonly IStatePoolManager statePoolManager;
+
+            private readonly ITextureResourceManager textureManager;
             private readonly ShaderResourceViewProxy[] textureResources = new ShaderResourceViewProxy[NUMTEXTURES];
+
+            private bool enableTessellation;
+            private int samplerDiffuseSlot, samplerDisplaceSlot, samplerShadowSlot;
             private SamplerStateProxy surfaceSampler, displacementSampler, shadowSampler;
 
-            private int texDiffuseSlot, texAlphaSlot, texNormalSlot, texDisplaceSlot, texShadowSlot,
-                texSpecularSlot, texEmissiveSlot, texSSAOSlot, texEnvironmentSlot;
-            private int samplerDiffuseSlot, samplerDisplaceSlot, samplerShadowSlot;
-            private uint textureIndex = 0;
+            private int texDiffuseSlot,
+                texAlphaSlot,
+                texNormalSlot,
+                texDisplaceSlot,
+                texShadowSlot,
+                texSpecularSlot,
+                texEmissiveSlot,
+                texSSAOSlot,
+                texEnvironmentSlot;
 
-            private bool HasTextures
-            {
-                get
-                {
-                    return textureIndex != 0;
-                }
-            }
-
-            public ShaderPass MaterialPass
-            {
-                get;
-            }
-            public ShaderPass OITPass
-            {
-                get;
-            }
-
-            public ShaderPass OITDepthPeelingInit
-            { 
-                get;
-            }
-
-            public ShaderPass OITDepthPeeling
-            {
-                get;
-            }
-
-            public ShaderPass ShadowPass
-            {
-                get;
-            }
-            public ShaderPass WireframePass
-            {
-                get;
-            }
-            public ShaderPass WireframeOITPass
-            {
-                get;
-            }
-            public ShaderPass WireframeOITDPPass 
-            { 
-                get;
-            }
-            public ShaderPass TessellationPass
-            {
-                get;
-            }
-            public ShaderPass TessellationOITPass
-            {
-                get;
-            }
-            public ShaderPass TessellationOITDPPass
-            {
-                get;
-            }
-            public ShaderPass DepthPass
-            {
-                get;
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderAlphaTexName { get; } = DefaultBufferNames.AlphaMapTB;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderDiffuseTexName { get; } = DefaultBufferNames.DiffuseMapTB;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderNormalTexName { get; } = DefaultBufferNames.NormalMapTB;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderDisplaceTexName { get; } = DefaultBufferNames.DisplacementMapTB;
-            /// <summary>
-            /// Gets or sets the name of the shader shadow tex.
-            /// </summary>
-            /// <value>
-            /// The name of the shader shadow tex.
-            /// </value>
-            public string ShaderShadowTexName { get; } = DefaultBufferNames.ShadowMapTB;
-            /// <summary>
-            /// Gets the shader specular texture.
-            /// </summary>
-            /// <value>
-            /// The shader specular texture.
-            /// </value>
-            public string ShaderSpecularTexName { get; } = DefaultBufferNames.SpecularTB;
-            /// <summary>
-            /// Gets the name of the shader emissive tex.
-            /// </summary>
-            /// <value>
-            /// The name of the shader emissive tex.
-            /// </value>
-            public string ShaderEmissiveTexName { get; } = DefaultBufferNames.EmissiveTB;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderSamplerDiffuseTexName { get; } = DefaultSamplerStateNames.SurfaceSampler;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderSamplerDisplaceTexName { get; } = DefaultSamplerStateNames.DisplacementMapSampler;
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ShaderSamplerShadowMapName { get; } = DefaultSamplerStateNames.ShadowMapSampler;
-
-            private bool enableTessellation = false;
-            public bool EnableTessellation
-            {
-                private set
-                {
-                    if (Set(ref enableTessellation, value))
-                    {
-                        UpdateMappings(currentMaterialPass);
-                        InvalidateRenderer();
-                    }
-                }
-                get
-                {
-                    return enableTessellation;
-                }
-            }
-
-            private readonly PhongMaterialCore material;
-            private ShaderPass currentMaterialPass => EnableTessellation ? TessellationPass : MaterialPass;
+            private uint textureIndex;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PhongMaterialVariables"/> class.
+            ///     Initializes a new instance of the <see cref="PhongMaterialVariables" /> class.
             /// </summary>
             /// <param name="manager">The manager.</param>
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The material core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public PhongMaterialVariables(IEffectsManager manager, IRenderTechnique technique, PhongMaterialCore materialCore, 
+            public PhongMaterialVariables(IEffectsManager manager, IRenderTechnique technique,
+                PhongMaterialCore materialCore,
                 string defaultPassName = DefaultPassNames.Default)
                 : base(manager, technique, DefaultMeshConstantBufferDesc, materialCore)
             {
-                this.material = materialCore;
+                material = materialCore;
                 texDiffuseSlot = texAlphaSlot = texDisplaceSlot = texNormalSlot = -1;
                 samplerDiffuseSlot = samplerDisplaceSlot = samplerShadowSlot = -1;
                 textureManager = manager.MaterialTextureManager;
@@ -199,36 +83,188 @@ namespace HelixToolkit.SharpDX.Core
                 EnableTessellation = materialCore.EnableTessellation;
             }
 
+            private bool HasTextures => textureIndex != 0;
+
+            public ShaderPass MaterialPass { get; }
+
+            public ShaderPass OITPass { get; }
+
+            public ShaderPass OITDepthPeelingInit { get; }
+
+            public ShaderPass OITDepthPeeling { get; }
+
+            public ShaderPass ShadowPass { get; }
+
+            public ShaderPass WireframePass { get; }
+
+            public ShaderPass WireframeOITPass { get; }
+
+            public ShaderPass WireframeOITDPPass { get; }
+
+            public ShaderPass TessellationPass { get; }
+
+            public ShaderPass TessellationOITPass { get; }
+
+            public ShaderPass TessellationOITDPPass { get; }
+
+            public ShaderPass DepthPass { get; }
+
+            /// <summary>
+            /// </summary>
+            public string ShaderAlphaTexName { get; } = DefaultBufferNames.AlphaMapTB;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderDiffuseTexName { get; } = DefaultBufferNames.DiffuseMapTB;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderNormalTexName { get; } = DefaultBufferNames.NormalMapTB;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderDisplaceTexName { get; } = DefaultBufferNames.DisplacementMapTB;
+
+            /// <summary>
+            ///     Gets or sets the name of the shader shadow tex.
+            /// </summary>
+            /// <value>
+            ///     The name of the shader shadow tex.
+            /// </value>
+            public string ShaderShadowTexName { get; } = DefaultBufferNames.ShadowMapTB;
+
+            /// <summary>
+            ///     Gets the shader specular texture.
+            /// </summary>
+            /// <value>
+            ///     The shader specular texture.
+            /// </value>
+            public string ShaderSpecularTexName { get; } = DefaultBufferNames.SpecularTB;
+
+            /// <summary>
+            ///     Gets the name of the shader emissive tex.
+            /// </summary>
+            /// <value>
+            ///     The name of the shader emissive tex.
+            /// </value>
+            public string ShaderEmissiveTexName { get; } = DefaultBufferNames.EmissiveTB;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderSamplerDiffuseTexName { get; } = DefaultSamplerStateNames.SurfaceSampler;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderSamplerDisplaceTexName { get; } = DefaultSamplerStateNames.DisplacementMapSampler;
+
+            /// <summary>
+            /// </summary>
+            public string ShaderSamplerShadowMapName { get; } = DefaultSamplerStateNames.ShadowMapSampler;
+
+            public bool EnableTessellation
+            {
+                get => enableTessellation;
+                private set
+                {
+                    if (Set(ref enableTessellation, value))
+                    {
+                        UpdateMappings(currentMaterialPass);
+                        InvalidateRenderer();
+                    }
+                }
+            }
+
+            private ShaderPass currentMaterialPass => EnableTessellation ? TessellationPass : MaterialPass;
+
             protected override void OnInitialPropertyBindings()
             {
-                AddPropertyBinding(nameof(PhongMaterialCore.DiffuseColor), () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.AmbientColor), () => { WriteValue(PhongPBRMaterialStruct.AmbientStr, material.AmbientColor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.EmissiveColor), () => { WriteValue(PhongPBRMaterialStruct.EmissiveStr, material.EmissiveColor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.ReflectiveColor), () => { WriteValue(PhongPBRMaterialStruct.ReflectStr, material.ReflectiveColor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.SpecularColor), () => { WriteValue(PhongPBRMaterialStruct.SpecularStr, material.SpecularColor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.SpecularShininess), () => { WriteValue(PhongPBRMaterialStruct.ShininessStr, material.SpecularShininess); });
-                AddPropertyBinding(nameof(PhongMaterialCore.DisplacementMapScaleMask), () => { WriteValue(PhongPBRMaterialStruct.DisplacementMapScaleMaskStr, material.DisplacementMapScaleMask); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderShadowMap), () => { WriteValue(PhongPBRMaterialStruct.RenderShadowMapStr, material.RenderShadowMap ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderEnvironmentMap), () => { WriteValue(PhongPBRMaterialStruct.HasCubeMapStr, material.RenderEnvironmentMap ? 1 : 0); });
+                AddPropertyBinding(nameof(PhongMaterialCore.DiffuseColor),
+                    () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.AmbientColor),
+                    () => { WriteValue(PhongPBRMaterialStruct.AmbientStr, material.AmbientColor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.EmissiveColor),
+                    () => { WriteValue(PhongPBRMaterialStruct.EmissiveStr, material.EmissiveColor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.ReflectiveColor),
+                    () => { WriteValue(PhongPBRMaterialStruct.ReflectStr, material.ReflectiveColor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.SpecularColor),
+                    () => { WriteValue(PhongPBRMaterialStruct.SpecularStr, material.SpecularColor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.SpecularShininess),
+                    () => { WriteValue(PhongPBRMaterialStruct.ShininessStr, material.SpecularShininess); });
+                AddPropertyBinding(nameof(PhongMaterialCore.DisplacementMapScaleMask),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.DisplacementMapScaleMaskStr,
+                            material.DisplacementMapScaleMask);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderShadowMap),
+                    () => { WriteValue(PhongPBRMaterialStruct.RenderShadowMapStr, material.RenderShadowMap ? 1 : 0); });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderEnvironmentMap),
+                    () => { WriteValue(PhongPBRMaterialStruct.HasCubeMapStr, material.RenderEnvironmentMap ? 1 : 0); });
                 AddPropertyBinding(nameof(PhongMaterialCore.UVTransform), () =>
                 {
                     Matrix m = material.UVTransform;
                     WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, m.Column1);
                     WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, m.Column2);
                 });
-                AddPropertyBinding(nameof(PhongMaterialCore.EnableAutoTangent), () => { WriteValue(PhongPBRMaterialStruct.EnableAutoTangent, material.EnableAutoTangent); });
-                AddPropertyBinding(nameof(PhongMaterialCore.MaxTessellationDistance), () => { WriteValue(PhongPBRMaterialStruct.MaxTessDistanceStr, material.MaxTessellationDistance); });
-                AddPropertyBinding(nameof(PhongMaterialCore.MaxDistanceTessellationFactor), () => { WriteValue(PhongPBRMaterialStruct.MaxDistTessFactorStr, material.MaxDistanceTessellationFactor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.MinTessellationDistance), () => { WriteValue(PhongPBRMaterialStruct.MinTessDistanceStr, material.MinTessellationDistance); });
-                AddPropertyBinding(nameof(PhongMaterialCore.MinDistanceTessellationFactor), () => { WriteValue(PhongPBRMaterialStruct.MinDistTessFactorStr, material.MinDistanceTessellationFactor); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderDiffuseMap), () => { WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr, material.RenderDiffuseMap && textureResources[DiffuseIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderDiffuseAlphaMap), () => { WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr, material.RenderDiffuseAlphaMap && textureResources[AlphaIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderNormalMap), () => { WriteValue(PhongPBRMaterialStruct.HasNormalMapStr, material.RenderNormalMap && textureResources[NormalIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderSpecularColorMap), () => { WriteValue(PhongPBRMaterialStruct.HasSpecularColorMap, material.RenderSpecularColorMap && textureResources[SpecularColorIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderDisplacementMap), () => { WriteValue(PhongPBRMaterialStruct.HasDisplacementMapStr, material.RenderDisplacementMap && textureResources[DisplaceIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.RenderEmissiveMap), () => { WriteValue(PhongPBRMaterialStruct.HasEmissiveMapStr, material.RenderEmissiveMap && textureResources[EmissiveIdx] != null ? 1 : 0); });
-                AddPropertyBinding(nameof(PhongMaterialCore.EnableFlatShading), () => { WriteValue(PhongPBRMaterialStruct.RenderFlat, material.EnableFlatShading); });
-                AddPropertyBinding(nameof(PhongMaterialCore.VertexColorBlendingFactor), () => { WriteValue(PhongPBRMaterialStruct.VertColorBlending, material.VertexColorBlendingFactor); });
+                AddPropertyBinding(nameof(PhongMaterialCore.EnableAutoTangent),
+                    () => { WriteValue(PhongPBRMaterialStruct.EnableAutoTangent, material.EnableAutoTangent); });
+                AddPropertyBinding(nameof(PhongMaterialCore.MaxTessellationDistance),
+                    () => { WriteValue(PhongPBRMaterialStruct.MaxTessDistanceStr, material.MaxTessellationDistance); });
+                AddPropertyBinding(nameof(PhongMaterialCore.MaxDistanceTessellationFactor),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.MaxDistTessFactorStr, material.MaxDistanceTessellationFactor);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.MinTessellationDistance),
+                    () => { WriteValue(PhongPBRMaterialStruct.MinTessDistanceStr, material.MinTessellationDistance); });
+                AddPropertyBinding(nameof(PhongMaterialCore.MinDistanceTessellationFactor),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.MinDistTessFactorStr, material.MinDistanceTessellationFactor);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderDiffuseMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                            material.RenderDiffuseMap && textureResources[DiffuseIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderDiffuseAlphaMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
+                            material.RenderDiffuseAlphaMap && textureResources[AlphaIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderNormalMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasNormalMapStr,
+                            material.RenderNormalMap && textureResources[NormalIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderSpecularColorMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasSpecularColorMap,
+                            material.RenderSpecularColorMap && textureResources[SpecularColorIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderDisplacementMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasDisplacementMapStr,
+                            material.RenderDisplacementMap && textureResources[DisplaceIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.RenderEmissiveMap),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.HasEmissiveMapStr,
+                            material.RenderEmissiveMap && textureResources[EmissiveIdx] != null ? 1 : 0);
+                    });
+                AddPropertyBinding(nameof(PhongMaterialCore.EnableFlatShading),
+                    () => { WriteValue(PhongPBRMaterialStruct.RenderFlat, material.EnableFlatShading); });
+                AddPropertyBinding(nameof(PhongMaterialCore.VertexColorBlendingFactor),
+                    () =>
+                    {
+                        WriteValue(PhongPBRMaterialStruct.VertColorBlending, material.VertexColorBlendingFactor);
+                    });
                 AddPropertyBinding(nameof(PhongMaterialCore.DiffuseMap), () =>
                 {
                     CreateTextureView(material.DiffuseMap, DiffuseIdx);
@@ -273,7 +309,8 @@ namespace HelixToolkit.SharpDX.Core
                     CreateTextureView(material.EmissiveMap, EmissiveIdx);
                     TriggerPropertyAction(nameof(PhongMaterialCore.RenderEmissiveMap));
                 });
-                AddPropertyBinding(nameof(PhongMaterialCore.EnableTessellation), () => { EnableTessellation = material.EnableTessellation; });
+                AddPropertyBinding(nameof(PhongMaterialCore.EnableTessellation),
+                    () => { EnableTessellation = material.EnableTessellation; });
 
                 shadowSampler = statePoolManager.Register(DefaultSamplers.ShadowSampler);
             }
@@ -285,16 +322,13 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref textureResources[index]);
                 textureResources[index] = newTexture;
                 if (textureResources[index] != null)
-                {
                     textureIndex |= 1u << index;
-                }
                 else
-                {
                     textureIndex &= ~(1u << index);
-                }
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 if (HasTextures)
                 {
@@ -302,56 +336,53 @@ namespace HelixToolkit.SharpDX.Core
                     OnBindMaterialTextures(deviceContext, shaderPass.DomainShader);
                     OnBindMaterialTextures(context, deviceContext, shaderPass.PixelShader);
                 }
+
                 if (material.RenderShadowMap && context.IsShadowMapEnabled)
                 {
                     shaderPass.PixelShader.BindTexture(deviceContext, texShadowSlot, context.SharedResource.ShadowView);
                     shaderPass.PixelShader.BindSampler(deviceContext, samplerShadowSlot, shadowSampler);
                 }
+
                 shaderPass.PixelShader.BindTexture(deviceContext, texSSAOSlot, context.SharedResource.SSAOMap);
-                shaderPass.PixelShader.BindTexture(deviceContext, texEnvironmentSlot, context.SharedResource.EnvironementMap);
+                shaderPass.PixelShader.BindTexture(deviceContext, texEnvironmentSlot,
+                    context.SharedResource.EnvironementMap);
                 return true;
             }
 
             /// <summary>
-            /// Actual bindings
+            ///     Actual bindings
             /// </summary>
             /// <param name="context"></param>
             /// <param name="shader"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private void OnBindMaterialTextures(DeviceContextProxy context, VertexShader shader)
             {
-                if (shader.IsNULL)
-                {
-                    return;
-                }
+                if (shader.IsNULL) return;
                 var idx = shader.ShaderStageIndex;
                 shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceIdx]);
                 shader.BindSampler(context, samplerDisplaceSlot, displacementSampler);
             }
+
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private void OnBindMaterialTextures(DeviceContextProxy context, DomainShader shader)
             {
-                if (shader.IsNULL)
-                {
-                    return;
-                }
+                if (shader.IsNULL) return;
                 var idx = shader.ShaderStageIndex;
                 shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceIdx]);
                 shader.BindSampler(context, samplerDisplaceSlot, displacementSampler);
             }
+
             /// <summary>
-            /// Actual bindings
+            ///     Actual bindings
             /// </summary>
             /// <param name="context"></param>
             /// <param name="deviceContext"></param>
             /// <param name="shader"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void OnBindMaterialTextures(RenderContext context, DeviceContextProxy deviceContext, PixelShader shader)
+            private void OnBindMaterialTextures(RenderContext context, DeviceContextProxy deviceContext,
+                PixelShader shader)
             {
-                if (shader.IsNULL)
-                {
-                    return;
-                }
+                if (shader.IsNULL) return;
                 var idx = shader.ShaderStageIndex;
                 shader.BindTexture(deviceContext, texDiffuseSlot, textureResources[DiffuseIdx]);
                 shader.BindTexture(deviceContext, texNormalSlot, textureResources[NormalIdx]);
@@ -368,35 +399,43 @@ namespace HelixToolkit.SharpDX.Core
                 texAlphaSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderAlphaTexName);
                 texNormalSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderNormalTexName);
                 texShadowSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderShadowTexName);
-                texSpecularSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderSpecularTexName);
-                texEmissiveSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderEmissiveTexName);
-                texSSAOSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAOMapTB);
-                texEnvironmentSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.CubeMapTB);
+                texSpecularSlot =
+                    shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderSpecularTexName);
+                texEmissiveSlot =
+                    shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderEmissiveTexName);
+                texSSAOSlot =
+                    shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAOMapTB);
+                texEnvironmentSlot =
+                    shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.CubeMapTB);
                 samplerDiffuseSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderSamplerDiffuseTexName);
                 samplerShadowSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderSamplerShadowMapName);
                 if (!shaderPass.DomainShader.IsNULL && material.EnableTessellation)
                 {
-                    texDisplaceSlot = shaderPass.DomainShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DisplacementMapTB);
-                    samplerDisplaceSlot = shaderPass.DomainShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.DisplacementMapSampler);
+                    texDisplaceSlot =
+                        shaderPass.DomainShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
+                            .DisplacementMapTB);
+                    samplerDisplaceSlot =
+                        shaderPass.DomainShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames
+                            .DisplacementMapSampler);
                 }
                 else
                 {
-                    texDisplaceSlot = shaderPass.VertexShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DisplacementMapTB);
-                    samplerDisplaceSlot = shaderPass.VertexShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.DisplacementMapSampler);
+                    texDisplaceSlot =
+                        shaderPass.VertexShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
+                            .DisplacementMapTB);
+                    samplerDisplaceSlot =
+                        shaderPass.VertexShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames
+                            .DisplacementMapSampler);
                 }
             }
 
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="disposeManagedResources"></param>
             protected override void OnDispose(bool disposeManagedResources)
             {
-                for (var i = 0; i < textureResources.Length; ++i)
-                {
-                    RemoveAndDispose(ref textureResources[i]);
-                }
+                for (var i = 0; i < textureResources.Length; ++i) RemoveAndDispose(ref textureResources[i]);
                 RemoveAndDispose(ref surfaceSampler);
                 RemoveAndDispose(ref displacementSampler);
                 RemoveAndDispose(ref shadowSampler);
@@ -406,7 +445,6 @@ namespace HelixToolkit.SharpDX.Core
             public override ShaderPass GetPass(RenderType renderType, RenderContext context)
             {
                 if (renderType == RenderType.Transparent)
-                {
                     switch (context.OITRenderStage)
                     {
                         case OITRenderStage.SinglePassWeighted:
@@ -415,10 +453,8 @@ namespace HelixToolkit.SharpDX.Core
                             return OITDepthPeelingInit;
                         case OITRenderStage.DepthPeeling:
                             return EnableTessellation ? TessellationOITDPPass : OITDepthPeeling;
-                        default:
-                            break;
                     }
-                }
+
                 return currentMaterialPass;
             }
 
@@ -430,7 +466,6 @@ namespace HelixToolkit.SharpDX.Core
             public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
             {
                 if (renderType == RenderType.Transparent)
-                {
                     switch (context.OITRenderStage)
                     {
                         case OITRenderStage.SinglePassWeighted:
@@ -439,10 +474,8 @@ namespace HelixToolkit.SharpDX.Core
                             return OITDepthPeelingInit;
                         case OITRenderStage.DepthPeeling:
                             return WireframeOITDPPass;
-                        default:
-                            break;
                     }
-                }
+
                 return WireframePass;
             }
 
@@ -451,7 +484,8 @@ namespace HelixToolkit.SharpDX.Core
                 return DepthPass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }

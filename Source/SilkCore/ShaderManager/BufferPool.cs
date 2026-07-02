@@ -2,25 +2,23 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace ShaderManager
     {
         /// <summary>
-        /// 
         /// </summary>
         public interface IBufferPool
         {
             /// <summary>
-            /// Register a buffer with object as its key
+            ///     Register a buffer with object as its key
             /// </summary>
             /// <param name="guid"></param>
             /// <param name="description"></param>
             /// <param name="data"></param>
             /// <returns></returns>
-            Buffer Register<T>(System.Guid guid, BufferDescription description, IList<T> data) where T : unmanaged;
+            Buffer Register<T>(Guid guid, BufferDescription description, IList<T> data) where T : unmanaged;
         }
         ///// <summary>
         ///// 

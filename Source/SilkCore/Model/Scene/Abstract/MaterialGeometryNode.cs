@@ -2,51 +2,43 @@
 The MIT License(MIT)
 Copyright(c) 2020 Helix Toolkit contributors
 */
+
+using HelixToolkit.SharpDX.Core.Core;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
-
         public abstract class MaterialGeometryNode : GeometryNode
         {
-            private bool isTransparent = false;
+            private bool isTransparent;
+            private MaterialCore material;
+            private MaterialVariable materialVariable;
+
             /// <summary>
-            /// Specifiy if model material is transparent.
-            /// During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph are preserved.
+            ///     Specifiy if model material is transparent.
+            ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
+            ///     are preserved.
             /// </summary>
             public bool IsTransparent
             {
-                get
-                {
-                    return isTransparent;
-                }
+                get => isTransparent;
                 set
                 {
                     if (Set(ref isTransparent, value))
-                    {
                         if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
-                        {
                             RenderType = value ? RenderType.Transparent : RenderType.Opaque;
-                        }
-                    }
                 }
             }
-            private MaterialVariable materialVariable;
-            private MaterialCore material;
+
             /// <summary>
-            ///
             /// </summary>
             public MaterialCore Material
             {
-                get
-                {
-                    return material;
-                }
+                get => material;
                 set
                 {
                     if (Set(ref material, value))
-                    {
                         if (EffectsManager != null)
                         {
                             if (IsAttached)
@@ -60,25 +52,22 @@ namespace HelixToolkit.SharpDX.Core
                                 Attach(EffectsManager);
                             }
                         }
-                    }
                 }
             }
 
             protected virtual void AttachMaterial()
             {
-                var newVar = material != null && RenderCore is IMaterialRenderParams ?
-                    EffectsManager.MaterialVariableManager.Register(material, EffectTechnique) : null;
+                var newVar = material != null && RenderCore is IMaterialRenderParams
+                    ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+                    : null;
                 RemoveAndDispose(ref materialVariable);
                 materialVariable = newVar;
-                if (RenderCore is IMaterialRenderParams core)
-                {
-                    core.MaterialVariables = newVar;
-                }
+                if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
             }
 
             protected override OrderKey OnUpdateRenderOrderKey()
             {
-                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
+                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
             }
 
             protected override bool CanRender(RenderContext context)
@@ -93,19 +82,14 @@ namespace HelixToolkit.SharpDX.Core
                     AttachMaterial();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnDetach()
             {
                 RemoveAndDispose(ref materialVariable);
-                if (RenderCore is IMaterialRenderParams core)
-                {
-                    core.MaterialVariables = null;
-                }
+                if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
                 base.OnDetach();
             }
         }

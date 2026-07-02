@@ -3,22 +3,18 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Render;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
-        using Render;
-
-
         /// <summary>
-        ///
         /// </summary>
         public interface IElementsBufferProxy : IBufferProxy
         {
             /// <summary>
-            ///
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -27,62 +23,56 @@ namespace HelixToolkit.SharpDX.Core
             void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count) where T : unmanaged;
 
             /// <summary>
-            ///
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
             /// <param name="data"></param>
             /// <param name="count"></param>
             /// <param name="offset"></param>
-            /// <param name="minBufferCount">Used to initialize a buffer which size is Max(count, minBufferCount). Only used in dynamic buffer.</param>
+            /// <param name="minBufferCount">
+            ///     Used to initialize a buffer which size is Max(count, minBufferCount). Only used in dynamic
+            ///     buffer.
+            /// </param>
             void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count, int offset,
-                int minBufferCount = default(int)) where T : unmanaged;
+                int minBufferCount = default) where T : unmanaged;
 
             /// <summary>
-            /// Uploads the data to buffer using data pointer.
+            ///     Uploads the data to buffer using data pointer.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="data">The data.</param>
             /// <param name="countByBytes">The count by bytes.</param>
             /// <param name="offsetByBytes">The offset by bytes.</param>
             /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
-            unsafe void UploadDataToBuffer(DeviceContextProxy context, System.IntPtr data, int countByBytes, int offsetByBytes,
-                int minBufferCountByBytes = default(int));
+            void UploadDataToBuffer(DeviceContextProxy context, nint data, int countByBytes, int offsetByBytes,
+                int minBufferCountByBytes = default);
+
             /// <summary>
-            /// Creates the buffer with size = count * structure size;
+            ///     Creates the buffer with size = count * structure size;
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="count">The count.</param>
             void CreateBuffer(DeviceContextProxy context, int count);
+
             /// <summary>
-            /// Dispose and clear internal buffers. Does not dispose this object.
+            ///     Dispose and clear internal buffers. Does not dispose this object.
             /// </summary>
             void DisposeAndClear();
         }
 
         /// <summary>
-        ///
         /// </summary>
         public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
         {
             /// <summary>
-            ///
-            /// </summary>
-            public ResourceOptionFlags OptionFlags
-            {
-                private set; get;
-            }
-            public ResourceUsage Usage { private set; get; } = ResourceUsage.Immutable;
-
-            public CpuAccessFlags CpuAccess { private set; get; } = CpuAccessFlags.None;
-            /// <summary>
-            ///
             /// </summary>
             /// <param name="structureSize"></param>
             /// <param name="bindFlags"></param>
             /// <param name="optionFlags"></param>
             /// <param name="usage"></param>
-            public ImmutableBufferProxy(int structureSize, BindFlags bindFlags, ResourceOptionFlags optionFlags = ResourceOptionFlags.None, ResourceUsage usage = ResourceUsage.Immutable)
+            public ImmutableBufferProxy(int structureSize, BindFlags bindFlags,
+                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+                ResourceUsage usage = ResourceUsage.Immutable)
                 : base(structureSize, bindFlags)
             {
                 OptionFlags = optionFlags;
@@ -90,7 +80,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="ImmutableBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="ImmutableBufferProxy" /> class.
             /// </summary>
             /// <param name="structureSize">Size of the structure.</param>
             /// <param name="bindFlags">The bind flags.</param>
@@ -109,7 +99,15 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)"/>
+            /// </summary>
+            public ResourceOptionFlags OptionFlags { get; }
+
+            public ResourceUsage Usage { get; } = ResourceUsage.Immutable;
+
+            public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.None;
+
+            /// <summary>
+            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -117,11 +115,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="count"></param>
             public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count) where T : unmanaged
             {
-                UploadDataToBuffer<T>(context, data, count, 0);
+                UploadDataToBuffer(context, data, count, 0);
             }
 
             /// <summary>
-            /// <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)"/>
+            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -130,19 +128,16 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="offset"></param>
             /// <param name="minBufferCount">This is not being used in ImmutableBuffer</param>
             public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count, int offset,
-                int minBufferCount = default(int)) where T : unmanaged
+                int minBufferCount = default) where T : unmanaged
             {
                 RemoveAndDispose(ref buffer);
                 ElementCount = count;
-                if (count == 0)
+                if (count == 0) return;
+                var buffdesc = new BufferDescription
                 {
-                    return;
-                }
-                var buffdesc = new BufferDescription()
-                {
-                    BindFlags = this.BindFlags,
+                    BindFlags = BindFlags,
                     CpuAccessFlags = CpuAccess,
-                    OptionFlags = this.OptionFlags,
+                    OptionFlags = OptionFlags,
                     SizeInBytes = StructureSize * count,
                     StructureByteStride = StructureSize,
                     Usage = Usage
@@ -151,34 +146,33 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Uploads the data to buffer using data pointer.
+            ///     Uploads the data to buffer using data pointer.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="data">The data pointer.</param>
             /// <param name="countByBytes">The count by bytes.</param>
             /// <param name="offsetByBytes">The offset by bytes.</param>
             /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
-            public unsafe void UploadDataToBuffer(DeviceContextProxy context, System.IntPtr data, int countByBytes, int offsetByBytes, int minBufferCountByBytes = default(int))
+            public void UploadDataToBuffer(DeviceContextProxy context, nint data, int countByBytes, int offsetByBytes,
+                int minBufferCountByBytes = default)
             {
                 RemoveAndDispose(ref buffer);
                 ElementCount = countByBytes / StructureSize;
-                if (countByBytes == 0)
+                if (countByBytes == 0) return;
+                var buffdesc = new BufferDescription
                 {
-                    return;
-                }
-                var buffdesc = new BufferDescription()
-                {
-                    BindFlags = this.BindFlags,
+                    BindFlags = BindFlags,
                     CpuAccessFlags = CpuAccess,
-                    OptionFlags = this.OptionFlags,
+                    OptionFlags = OptionFlags,
                     SizeInBytes = countByBytes,
                     StructureByteStride = StructureSize,
                     Usage = Usage
                 };
                 buffer = new Buffer(context, data, buffdesc);
             }
+
             /// <summary>
-            /// Creates the buffer with size of count * structure size.
+            ///     Creates the buffer with size of count * structure size.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="count">The element count.</param>
@@ -186,15 +180,12 @@ namespace HelixToolkit.SharpDX.Core
             {
                 RemoveAndDispose(ref buffer);
                 ElementCount = count;
-                if (count == 0)
+                if (count == 0) return;
+                var buffdesc = new BufferDescription
                 {
-                    return;
-                }
-                var buffdesc = new BufferDescription()
-                {
-                    BindFlags = this.BindFlags,
+                    BindFlags = BindFlags,
                     CpuAccessFlags = CpuAccess,
-                    OptionFlags = this.OptionFlags,
+                    OptionFlags = OptionFlags,
                     SizeInBytes = StructureSize * count,
                     StructureByteStride = StructureSize,
                     Usage = Usage
@@ -210,59 +201,32 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         /// <summary>
-        ///
         /// </summary>
         public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy
         {
-            public readonly bool CanOverwrite = false;
+            public readonly bool CanOverwrite;
             public readonly bool LazyResize = true;
-            /// <summary>
-            ///
-            /// </summary>
-            public ResourceOptionFlags OptionFlags
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Gets the capacity in bytes.
-            /// </summary>
-            /// <value>
-            /// The capacity.
-            /// </value>
-            public int Capacity
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Gets the capacity used in bytes.
-            /// </summary>
-            /// <value>
-            /// The capacity used.
-            /// </value>
-            public int CapacityUsed
-            {
-                private set; get;
-            }
 
-            public CpuAccessFlags CpuAccess { private set; get; } = CpuAccessFlags.Write;
             /// <summary>
-            ///
             /// </summary>
             /// <param name="structureSize"></param>
             /// <param name="bindFlags"></param>
             /// <param name="optionFlags"></param>
-            /// <param name="lazyResize">If existing data size is smaller than buffer size, reuse existing. Otherwise create a new buffer with exact same size</param>
+            /// <param name="lazyResize">
+            ///     If existing data size is smaller than buffer size, reuse existing. Otherwise create a new
+            ///     buffer with exact same size
+            /// </param>
             public DynamicBufferProxy(int structureSize, BindFlags bindFlags,
                 ResourceOptionFlags optionFlags = ResourceOptionFlags.None, bool lazyResize = true)
                 : base(structureSize, bindFlags)
             {
                 CanOverwrite = (bindFlags & (BindFlags.VertexBuffer | BindFlags.IndexBuffer)) != 0;
-                this.OptionFlags = optionFlags;
+                OptionFlags = optionFlags;
                 LazyResize = lazyResize;
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DynamicBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
             /// </summary>
             /// <param name="structureSize">Size of the structure.</param>
             /// <param name="bindFlags">The bind flags.</param>
@@ -274,11 +238,12 @@ namespace HelixToolkit.SharpDX.Core
                 : base(structureSize, bindFlags)
             {
                 CanOverwrite = canOverWrite;
-                this.OptionFlags = optionFlags;
+                OptionFlags = optionFlags;
                 LazyResize = lazyResize;
             }
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="DynamicBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
             /// </summary>
             /// <param name="structureSize">Size of the structure.</param>
             /// <param name="bindFlags">The bind flags.</param>
@@ -292,12 +257,35 @@ namespace HelixToolkit.SharpDX.Core
                 : base(structureSize, bindFlags)
             {
                 CanOverwrite = canOverWrite;
-                this.OptionFlags = optionFlags;
+                OptionFlags = optionFlags;
                 LazyResize = lazyResize;
                 CpuAccess = cpuAccess;
             }
+
             /// <summary>
-            /// <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)"/>
+            /// </summary>
+            public ResourceOptionFlags OptionFlags { get; }
+
+            /// <summary>
+            ///     Gets the capacity in bytes.
+            /// </summary>
+            /// <value>
+            ///     The capacity.
+            /// </value>
+            public int Capacity { get; private set; }
+
+            /// <summary>
+            ///     Gets the capacity used in bytes.
+            /// </summary>
+            /// <value>
+            ///     The capacity used.
+            /// </value>
+            public int CapacityUsed { get; private set; }
+
+            public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.Write;
+
+            /// <summary>
+            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -305,11 +293,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="count"></param>
             public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count) where T : unmanaged
             {
-                UploadDataToBuffer<T>(context, data, count, 0);
+                UploadDataToBuffer(context, data, count, 0);
             }
 
             /// <summary>
-            /// <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)"/>
+            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="context"></param>
@@ -318,14 +306,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="offset"></param>
             /// <param name="minBufferCount">Used to create a dynamic buffer with size of Max(count, minBufferCount).</param>
             public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count, int offset,
-                int minBufferCount = default(int)) where T : unmanaged
+                int minBufferCount = default) where T : unmanaged
             {
                 ElementCount = count;
                 var newSizeInBytes = StructureSize * count;
-                if (count == 0)
-                {
-                    return;
-                }
+                if (count == 0) return;
                 EnsureBufferCapacity(context, ElementCount, minBufferCount);
                 var mapMode = MapMode.WriteNoOverwrite;
                 if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite)
@@ -338,29 +323,27 @@ namespace HelixToolkit.SharpDX.Core
                     mapMode = MapMode.WriteDiscard;
                     Offset = CapacityUsed = 0;
                 }
+
                 var dataArray = data.GetArrayByType();
-                var dataBox = context.MapSubresource(this.buffer, 0, mapMode, MapFlags.None);
+                var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer + Offset, dataArray, offset, count);
-                context.UnmapSubresource(this.buffer, 0);
+                context.UnmapSubresource(buffer, 0);
             }
 
             /// <summary>
-            /// Uploads the data pointer to buffer. 
+            ///     Uploads the data pointer to buffer.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="data">The data.</param>
             /// <param name="byteCount">The count by bytes.</param>
             /// <param name="byteOffset">The offset by bytes.</param>
             /// <param name="minBufferSizeByBytes">The minimum buffer count by bytes.</param>
-            public unsafe void UploadDataToBuffer(DeviceContextProxy context, System.IntPtr data, int byteCount,
-                int byteOffset, int minBufferSizeByBytes = default(int))
+            public void UploadDataToBuffer(DeviceContextProxy context, nint data, int byteCount,
+                int byteOffset, int minBufferSizeByBytes = default)
             {
                 ElementCount = byteCount / StructureSize;
                 var newSizeInBytes = byteCount;
-                if (byteCount == 0)
-                {
-                    return;
-                }
+                if (byteCount == 0) return;
                 EnsureBufferCapacity(context, ElementCount, minBufferSizeByBytes / StructureSize);
                 var mapMode = MapMode.WriteNoOverwrite;
                 if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite)
@@ -373,13 +356,24 @@ namespace HelixToolkit.SharpDX.Core
                     mapMode = MapMode.WriteDiscard;
                     Offset = CapacityUsed = 0;
                 }
-                var dataBox = context.MapSubresource(this.buffer, 0, mapMode, MapFlags.None);
+
+                var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer + Offset, data, byteOffset, byteCount);
-                context.UnmapSubresource(this.buffer, 0);
+                context.UnmapSubresource(buffer, 0);
             }
 
             /// <summary>
-            /// Ensures the buffer capacity is enough.
+            ///     Creates the buffer with size of count * structure size.
+            /// </summary>
+            /// <param name="context">The context.</param>
+            /// <param name="count">The element count.</param>
+            public void CreateBuffer(DeviceContextProxy context, int count)
+            {
+                Initialize(context, count);
+            }
+
+            /// <summary>
+            ///     Ensures the buffer capacity is enough.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="count">The count.</param>
@@ -389,39 +383,39 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var bytes = count * StructureSize;
                 if (buffer == null || Capacity < bytes || (!LazyResize && Capacity != bytes))
-                {
                     Initialize(context, count, minSizeCount);
-                }
             }
 
             /// <summary>
-            /// Maps the buffer. Make sure to call <see cref="EnsureBufferCapacity(DeviceContextProxy, int, int)"/> to make sure buffer has enough space
+            ///     Maps the buffer. Make sure to call <see cref="EnsureBufferCapacity(DeviceContextProxy, int, int)" /> to make sure
+            ///     buffer has enough space
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="action">The action.</param>
-            public void MapBuffer(DeviceContextProxy context, System.Action<DataBox> action)
+            public void MapBuffer(DeviceContextProxy context, Action<DataBox> action)
             {
-                var dataBox = context.MapSubresource(this.buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 action(dataBox);
-                context.UnmapSubresource(this.buffer, 0);
+                context.UnmapSubresource(buffer, 0);
                 Offset = CapacityUsed = 0;
             }
+
             /// <summary>
-            /// Initializes the specified device.
+            ///     Initializes the specified device.
             /// </summary>
             /// <param name="device">The device.</param>
             /// <param name="count">The count.</param>
             /// <param name="minBufferCount">The minimum buffer count.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default(int))
+            public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default)
             {
                 RemoveAndDispose(ref buffer);
-                var buffdesc = new BufferDescription()
+                var buffdesc = new BufferDescription
                 {
-                    BindFlags = this.BindFlags,
+                    BindFlags = BindFlags,
                     CpuAccessFlags = CpuAccess,
-                    OptionFlags = this.OptionFlags,
-                    SizeInBytes = StructureSize * System.Math.Max(count, minBufferCount),
+                    OptionFlags = OptionFlags,
+                    SizeInBytes = StructureSize * Math.Max(count, minBufferCount),
                     StructureByteStride = StructureSize,
                     Usage = ResourceUsage.Dynamic
                 };
@@ -429,16 +423,6 @@ namespace HelixToolkit.SharpDX.Core
                 CapacityUsed = 0;
                 buffer = new Buffer(context, buffdesc);
                 OnBufferChanged(buffer);
-            }
-
-            /// <summary>
-            /// Creates the buffer with size of count * structure size.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="count">The element count.</param>
-            public void CreateBuffer(DeviceContextProxy context, int count)
-            {
-                Initialize(context, count);
             }
 
             protected virtual void OnBufferChanged(Buffer newBuffer)
@@ -455,33 +439,26 @@ namespace HelixToolkit.SharpDX.Core
         public sealed class StructuredBufferProxy : DynamicBufferProxy
         {
             private ShaderResourceViewProxy srv;
-            public ShaderResourceViewProxy SRV
-            {
-                get
-                {
-                    return srv;
-                }
-            }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="StructuredBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="StructuredBufferProxy" /> class.
             /// </summary>
             /// <param name="structureSize">Size of the structure.</param>
-            /// <param name="lazyResize">If existing data size is smaller than buffer size, reuse existing.
-            /// Otherwise create a new buffer with exact same size</param>
+            /// <param name="lazyResize">
+            ///     If existing data size is smaller than buffer size, reuse existing.
+            ///     Otherwise create a new buffer with exact same size
+            /// </param>
             public StructuredBufferProxy(int structureSize, bool lazyResize = true)
                 : base(structureSize, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured, lazyResize)
             {
-
             }
+
+            public ShaderResourceViewProxy SRV => srv;
 
             protected override void OnBufferChanged(Buffer newBuffer)
             {
                 RemoveAndDispose(ref srv);
-                if (newBuffer == null || ElementCount <= 0)
-                {
-                    return;
-                }
+                if (newBuffer == null || ElementCount <= 0) return;
 
                 var desc = new ShaderResourceViewDescription
                 {
@@ -493,7 +470,8 @@ namespace HelixToolkit.SharpDX.Core
                         ElementCount = ElementCount
                     }
                 };
-                srv = new ShaderResourceViewProxy(newBuffer, newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
+                srv = new ShaderResourceViewProxy(newBuffer,
+                    newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
             }
 
             protected override void OnDispose(bool disposeManagedResources)

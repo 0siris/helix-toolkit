@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
@@ -56,23 +55,21 @@ namespace HelixToolkit.SharpDX.Core
             Level_11_1
         }
 
-        public unsafe sealed class SilkD3DDevice : IDisposable
+        public sealed unsafe class SilkD3DDevice : IDisposable
         {
             private SilkD3D11DevicePtr nativeDevice;
 
-            public SilkD3DDevice(SilkD3D11DevicePtr nativeDevice, SilkDriverType driverType, SilkFeatureLevel featureLevel)
+            public SilkD3DDevice(SilkD3D11DevicePtr nativeDevice, SilkDriverType driverType,
+                SilkFeatureLevel featureLevel)
             {
-                if (nativeDevice.Handle == null)
-                {
-                    throw new ArgumentNullException(nameof(nativeDevice));
-                }
+                if (nativeDevice.Handle == null) throw new ArgumentNullException(nameof(nativeDevice));
 
                 this.nativeDevice = nativeDevice;
                 DriverType = driverType;
                 FeatureLevel = featureLevel;
             }
 
-            public IntPtr NativePointer => (IntPtr)nativeDevice.Handle;
+            public nint NativePointer => (nint) nativeDevice.Handle;
 
             internal ID3D11Device* Handle => nativeDevice.Handle;
 
@@ -84,11 +81,20 @@ namespace HelixToolkit.SharpDX.Core
 
             public bool IsDisposed { get; private set; }
 
+            public void Dispose()
+            {
+                if (IsDisposed) return;
+
+                nativeDevice.Dispose();
+                IsDisposed = true;
+            }
+
             public int CheckMultisampleQualityLevels(Format format, int sampleCount)
             {
                 uint qualityLevels = 0;
-                SilkMarshal.ThrowHResult(nativeDevice.CheckMultisampleQualityLevels(format, (uint)sampleCount, ref qualityLevels));
-                return (int)qualityLevels;
+                SilkMarshal.ThrowHResult(
+                    nativeDevice.CheckMultisampleQualityLevels(format, (uint) sampleCount, ref qualityLevels));
+                return (int) qualityLevels;
             }
 
             public SilkD3DDeviceContext CreateDeferredContext()
@@ -102,16 +108,13 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var bufferDesc = description.ToSilkDesc();
                 ID3D11Buffer* buffer = null;
-                SilkMarshal.ThrowHResult(nativeDevice.CreateBuffer(ref bufferDesc, (SubresourceData*)null, ref buffer));
+                SilkMarshal.ThrowHResult(nativeDevice.CreateBuffer(ref bufferDesc, null, ref buffer));
                 return new SilkD3D11BufferPtr(buffer);
             }
 
-            public SilkD3D11BufferPtr CreateBuffer(BufferDescription description, IntPtr initialData)
+            public SilkD3D11BufferPtr CreateBuffer(BufferDescription description, nint initialData)
             {
-                if (initialData == IntPtr.Zero)
-                {
-                    return CreateBuffer(description);
-                }
+                if (initialData == nint.Zero) return CreateBuffer(description);
 
                 var bufferDesc = description.ToSilkDesc();
                 var subresource = new SubresourceData
@@ -182,135 +185,117 @@ namespace HelixToolkit.SharpDX.Core
 
             internal VertexShaderHandle CreateVertexShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11VertexShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateVertexShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateVertexShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new VertexShaderHandle(new SilkD3D11VertexShaderPtr(shader));
                 }
             }
 
             internal PixelShaderHandle CreatePixelShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11PixelShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreatePixelShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreatePixelShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new PixelShaderHandle(new SilkD3D11PixelShaderPtr(shader));
                 }
             }
 
             internal ComputeShaderHandle CreateComputeShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11ComputeShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateComputeShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateComputeShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new ComputeShaderHandle(new SilkD3D11ComputeShaderPtr(shader));
                 }
             }
 
             internal DomainShaderHandle CreateDomainShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11DomainShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateDomainShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateDomainShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new DomainShaderHandle(new SilkD3D11DomainShaderPtr(shader));
                 }
             }
 
             internal HullShaderHandle CreateHullShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11HullShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateHullShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateHullShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new HullShaderHandle(new SilkD3D11HullShaderPtr(shader));
                 }
             }
 
             internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 fixed (byte* byteCodePtr = byteCode)
                 {
                     ID3D11GeometryShader* shader = null;
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShader(byteCodePtr, (nuint)byteCode.Length, (ID3D11ClassLinkage*)null, ref shader));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShader(byteCodePtr, (nuint) byteCode.Length,
+                        (ID3D11ClassLinkage*) null, ref shader));
                     return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
                 }
             }
 
-            internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode, StreamOutputElement[] streamOutputElements, int[] bufferStrides, int rasterizedStream)
+            internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode,
+                StreamOutputElement[] streamOutputElements, int[] bufferStrides, int rasterizedStream)
             {
-                if (byteCode == null || byteCode.Length == 0)
-                {
-                    return null;
-                }
+                if (byteCode == null || byteCode.Length == 0) return null;
 
                 if (streamOutputElements == null || streamOutputElements.Length == 0)
-                {
                     return CreateGeometryShader(byteCode);
-                }
 
-                var semanticNamePtrs = new IntPtr[streamOutputElements.Length];
+                var semanticNamePtrs = new nint[streamOutputElements.Length];
                 try
                 {
                     var streamOutputDescs = stackalloc SODeclarationEntry[streamOutputElements.Length];
                     for (var i = 0; i < streamOutputElements.Length; i++)
                     {
-                        semanticNamePtrs[i] = SilkMarshal.StringToPtr(streamOutputElements[i].SemanticName ?? string.Empty);
+                        semanticNamePtrs[i] =
+                            SilkMarshal.StringToPtr(streamOutputElements[i].SemanticName ?? string.Empty);
                         streamOutputDescs[i] = streamOutputElements[i].ToSilkDesc(semanticNamePtrs[i]);
                     }
 
                     var stridesLength = bufferStrides == null ? 0 : bufferStrides.Length;
                     var strides = stackalloc uint[stridesLength];
-                    for (var i = 0; i < stridesLength; i++)
-                    {
-                        strides[i] = (uint)bufferStrides[i];
-                    }
+                    for (var i = 0; i < stridesLength; i++) strides[i] = (uint) bufferStrides[i];
 
                     fixed (byte* byteCodePtr = byteCode)
                     {
                         ID3D11GeometryShader* shader = null;
                         SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShaderWithStreamOutput(
                             byteCodePtr,
-                            (nuint)byteCode.Length,
+                            (nuint) byteCode.Length,
                             streamOutputDescs,
-                            (uint)streamOutputElements.Length,
+                            (uint) streamOutputElements.Length,
                             stridesLength == 0 ? null : strides,
-                            (uint)stridesLength,
-                            unchecked((uint)rasterizedStream),
-                            (ID3D11ClassLinkage*)null,
+                            (uint) stridesLength,
+                            unchecked((uint) rasterizedStream),
+                            (ID3D11ClassLinkage*) null,
                             ref shader));
                         return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
                     }
@@ -318,23 +303,17 @@ namespace HelixToolkit.SharpDX.Core
                 finally
                 {
                     for (var i = 0; i < semanticNamePtrs.Length; i++)
-                    {
-                        if (semanticNamePtrs[i] != IntPtr.Zero)
-                        {
+                        if (semanticNamePtrs[i] != nint.Zero)
                             SilkMarshal.Free(semanticNamePtrs[i]);
-                        }
-                    }
                 }
             }
 
             internal InputLayout CreateInputLayout(byte[] shaderByteCode, InputElement[] elements)
             {
-                if (shaderByteCode == null || shaderByteCode.Length == 0 || elements == null || elements.Length == 0)
-                {
-                    return null;
-                }
+                if (shaderByteCode == null || shaderByteCode.Length == 0 || elements == null ||
+                    elements.Length == 0) return null;
 
-                var semanticNamePtrs = new IntPtr[elements.Length];
+                var semanticNamePtrs = new nint[elements.Length];
                 try
                 {
                     var inputElements = stackalloc InputElementDesc[elements.Length];
@@ -347,144 +326,147 @@ namespace HelixToolkit.SharpDX.Core
                     fixed (byte* byteCodePtr = shaderByteCode)
                     {
                         ID3D11InputLayout* layout = null;
-                        SilkMarshal.ThrowHResult(nativeDevice.CreateInputLayout(inputElements, (uint)elements.Length, byteCodePtr, (nuint)shaderByteCode.Length, ref layout));
+                        SilkMarshal.ThrowHResult(nativeDevice.CreateInputLayout(inputElements, (uint) elements.Length,
+                            byteCodePtr, (nuint) shaderByteCode.Length, ref layout));
                         return new InputLayout(new SilkD3D11InputLayoutPtr(layout));
                     }
                 }
                 finally
                 {
                     for (var i = 0; i < semanticNamePtrs.Length; i++)
-                    {
-                        if (semanticNamePtrs[i] != IntPtr.Zero)
-                        {
+                        if (semanticNamePtrs[i] != nint.Zero)
                             SilkMarshal.Free(semanticNamePtrs[i]);
-                        }
-                    }
                 }
             }
 
-            public RenderTargetView CreateRenderTargetView(Resource resource, RenderTargetViewDescription? description = null)
+            public RenderTargetView CreateRenderTargetView(Resource resource,
+                RenderTargetViewDescription? description = null)
             {
-                if (resource == null)
-                {
-                    return null;
-                }
+                if (resource == null) return null;
 
                 ID3D11RenderTargetView* view = null;
                 if (description.HasValue)
                 {
                     var viewDesc = description.Value.ToSilkDesc();
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, ref viewDesc, ref view));
+                    SilkMarshal.ThrowHResult(
+                        nativeDevice.CreateRenderTargetView(resource.Handle, ref viewDesc, ref view));
                     var nativeView = new SilkD3D11RenderTargetViewPtr(view);
                     view->Release();
                     return new RenderTargetView(nativeView, resource);
                 }
 
-                SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle, (RenderTargetViewDesc*)null, ref view));
+                SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle,
+                    (RenderTargetViewDesc*) null, ref view));
                 var defaultNativeView = new SilkD3D11RenderTargetViewPtr(view);
                 view->Release();
                 return new RenderTargetView(defaultNativeView, resource);
             }
 
-            public DepthStencilView CreateDepthStencilView(Resource resource, DepthStencilViewDescription? description = null)
+            public DepthStencilView CreateDepthStencilView(Resource resource,
+                DepthStencilViewDescription? description = null)
             {
-                if (resource == null)
-                {
-                    return null;
-                }
+                if (resource == null) return null;
 
                 ID3D11DepthStencilView* view = null;
                 if (description.HasValue)
                 {
                     var viewDesc = description.Value.ToSilkDesc();
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle, ref viewDesc, ref view));
+                    SilkMarshal.ThrowHResult(
+                        nativeDevice.CreateDepthStencilView(resource.Handle, ref viewDesc, ref view));
                     return new DepthStencilView(new SilkD3D11DepthStencilViewPtr(view));
                 }
 
-                SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle, (DepthStencilViewDesc*)null, ref view));
+                SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle,
+                    (DepthStencilViewDesc*) null, ref view));
                 return new DepthStencilView(new SilkD3D11DepthStencilViewPtr(view));
             }
 
-            public ShaderResourceView CreateShaderResourceView(Resource resource, ShaderResourceViewDescription? description = null)
+            public ShaderResourceView CreateShaderResourceView(Resource resource,
+                ShaderResourceViewDescription? description = null)
             {
-                if (resource == null)
-                {
-                    return null;
-                }
+                if (resource == null) return null;
 
                 ID3D11ShaderResourceView* view = null;
                 if (description.HasValue)
                 {
                     var viewDesc = description.Value.ToSilkDesc();
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle, ref viewDesc, ref view));
+                    SilkMarshal.ThrowHResult(
+                        nativeDevice.CreateShaderResourceView(resource.Handle, ref viewDesc, ref view));
                     return new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(view), description.Value);
                 }
 
-                SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle, (ShaderResourceViewDesc*)null, ref view));
+                SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle,
+                    (ShaderResourceViewDesc*) null, ref view));
                 return new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(view));
             }
 
-            public UnorderedAccessView CreateUnorderedAccessView(Resource resource, UnorderedAccessViewDescription? description = null)
+            public UnorderedAccessView CreateUnorderedAccessView(Resource resource,
+                UnorderedAccessViewDescription? description = null)
             {
-                if (resource == null)
-                {
-                    return null;
-                }
+                if (resource == null) return null;
 
                 ID3D11UnorderedAccessView* view = null;
                 if (description.HasValue)
                 {
                     var viewDesc = description.Value.ToSilkDesc();
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle, ref viewDesc, ref view));
+                    SilkMarshal.ThrowHResult(
+                        nativeDevice.CreateUnorderedAccessView(resource.Handle, ref viewDesc, ref view));
                     return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view), description.Value);
                 }
 
-                SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle, (UnorderedAccessViewDesc*)null, ref view));
+                SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle,
+                    (UnorderedAccessViewDesc*) null, ref view));
                 return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view));
             }
 
-            private void CreateTexture(ref Texture1DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture1D* texture)
+            private void CreateTexture(ref Texture1DDesc textureDesc, DataBox[] initialData,
+                ref ID3D11Texture1D* texture)
             {
                 if (initialData == null || initialData.Length == 0)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, null, ref texture));
                     return;
                 }
 
                 var subresources = ToSubresourceData(initialData);
                 fixed (SubresourceData* subresourcePtr = subresources)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, subresourcePtr, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, subresourcePtr,
+                        ref texture));
                 }
             }
 
-            private void CreateTexture(ref Texture2DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture2D* texture)
+            private void CreateTexture(ref Texture2DDesc textureDesc, DataBox[] initialData,
+                ref ID3D11Texture2D* texture)
             {
                 if (initialData == null || initialData.Length == 0)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, null, ref texture));
                     return;
                 }
 
                 var subresources = ToSubresourceData(initialData);
                 fixed (SubresourceData* subresourcePtr = subresources)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, subresourcePtr, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture2D(ref textureDesc, subresourcePtr,
+                        ref texture));
                 }
             }
 
-            private void CreateTexture(ref Texture3DDesc textureDesc, DataBox[] initialData, ref ID3D11Texture3D* texture)
+            private void CreateTexture(ref Texture3DDesc textureDesc, DataBox[] initialData,
+                ref ID3D11Texture3D* texture)
             {
                 if (initialData == null || initialData.Length == 0)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, (SubresourceData*)null, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, null, ref texture));
                     return;
                 }
 
                 var subresources = ToSubresourceData(initialData);
                 fixed (SubresourceData* subresourcePtr = subresources)
                 {
-                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, subresourcePtr, ref texture));
+                    SilkMarshal.ThrowHResult(nativeDevice.CreateTexture3D(ref textureDesc, subresourcePtr,
+                        ref texture));
                 }
             }
 
@@ -492,45 +474,29 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var subresources = new SubresourceData[initialData.Length];
                 for (var i = 0; i < initialData.Length; i++)
-                {
                     subresources[i] = new SubresourceData
                     {
                         PSysMem = initialData[i].DataPointer.ToPointer(),
-                        SysMemPitch = (uint)initialData[i].RowPitch,
-                        SysMemSlicePitch = (uint)initialData[i].SlicePitch
+                        SysMemPitch = (uint) initialData[i].RowPitch,
+                        SysMemSlicePitch = (uint) initialData[i].SlicePitch
                     };
-                }
 
                 return subresources;
             }
-
-            public void Dispose()
-            {
-                if (IsDisposed)
-                {
-                    return;
-                }
-
-                nativeDevice.Dispose();
-                IsDisposed = true;
-            }
         }
 
-        public unsafe sealed class CommandList : IDisposable
+        public sealed unsafe class CommandList : IDisposable
         {
             private SilkD3D11CommandListPtr commandList;
 
             internal CommandList(SilkD3D11CommandListPtr commandList)
             {
-                if (commandList.Handle == null)
-                {
-                    throw new ArgumentNullException(nameof(commandList));
-                }
+                if (commandList.Handle == null) throw new ArgumentNullException(nameof(commandList));
 
                 this.commandList = commandList;
             }
 
-            public IntPtr NativePointer => (IntPtr)commandList.Handle;
+            public nint NativePointer => (nint) commandList.Handle;
 
             internal ID3D11CommandList* Handle => commandList.Handle;
 
@@ -538,34 +504,29 @@ namespace HelixToolkit.SharpDX.Core
 
             public void Dispose()
             {
-                if (IsDisposed)
-                {
-                    return;
-                }
+                if (IsDisposed) return;
 
                 commandList.Dispose();
                 IsDisposed = true;
             }
         }
 
-        public unsafe sealed class SilkD3DDeviceContext : IDisposable
+        public sealed unsafe class SilkD3DDeviceContext : IDisposable
         {
             private SilkD3D11ContextPtr nativeContext;
+
             // ponytail: cache until Silk exposes the base ID3D11DeviceContext getter.
             private D3DPrimitiveTopology primitiveTopology;
 
             public SilkD3DDeviceContext(SilkD3D11ContextPtr nativeContext, bool isDeferred)
             {
-                if (nativeContext.Handle == null)
-                {
-                    throw new ArgumentNullException(nameof(nativeContext));
-                }
+                if (nativeContext.Handle == null) throw new ArgumentNullException(nameof(nativeContext));
 
                 this.nativeContext = nativeContext;
                 IsDeferred = isDeferred;
             }
 
-            public IntPtr NativePointer => (IntPtr)nativeContext.Handle;
+            public nint NativePointer => (nint) nativeContext.Handle;
 
             internal ID3D11DeviceContext* Handle => nativeContext.Handle;
 
@@ -574,6 +535,24 @@ namespace HelixToolkit.SharpDX.Core
             public bool IsDeferred { get; }
 
             public bool IsDisposed { get; private set; }
+
+            public D3DPrimitiveTopology PrimitiveTopology
+            {
+                get => primitiveTopology;
+                set
+                {
+                    nativeContext.IASetPrimitiveTopology(value);
+                    primitiveTopology = value;
+                }
+            }
+
+            public void Dispose()
+            {
+                if (IsDisposed) return;
+
+                nativeContext.Dispose();
+                IsDisposed = true;
+            }
 
             public void ClearState()
             {
@@ -588,9 +567,8 @@ namespace HelixToolkit.SharpDX.Core
             public CommandList FinishCommandList(bool restoreState)
             {
                 if (!IsDeferred)
-                {
-                    throw new InvalidOperationException("Command lists can only be finished on deferred device contexts.");
-                }
+                    throw new InvalidOperationException(
+                        "Command lists can only be finished on deferred device contexts.");
 
                 ID3D11CommandList* commandList = null;
                 SilkMarshal.ThrowHResult(nativeContext.FinishCommandList(new Bool32(restoreState), ref commandList));
@@ -600,17 +578,10 @@ namespace HelixToolkit.SharpDX.Core
             public void ExecuteCommandList(CommandList commandList, bool restoreContextState)
             {
                 if (IsDeferred)
-                {
-                    throw new InvalidOperationException("Command lists can only be executed on the immediate device context.");
-                }
-                if (commandList == null)
-                {
-                    throw new ArgumentNullException(nameof(commandList));
-                }
-                if (commandList.IsDisposed)
-                {
-                    throw new ObjectDisposedException(nameof(CommandList));
-                }
+                    throw new InvalidOperationException(
+                        "Command lists can only be executed on the immediate device context.");
+                if (commandList == null) throw new ArgumentNullException(nameof(commandList));
+                if (commandList.IsDisposed) throw new ObjectDisposedException(nameof(CommandList));
 
                 nativeContext.ExecuteCommandList(commandList.Handle, new Bool32(restoreContextState));
             }
@@ -630,14 +601,18 @@ namespace HelixToolkit.SharpDX.Core
                 nativeContext.DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
             }
 
-            public void DrawIndexedInstanced(uint indexCountPerInstance, uint instanceCount, uint startIndexLocation, int baseVertexLocation, uint startInstanceLocation)
+            public void DrawIndexedInstanced(uint indexCountPerInstance, uint instanceCount, uint startIndexLocation,
+                int baseVertexLocation, uint startInstanceLocation)
             {
-                nativeContext.DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+                nativeContext.DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation,
+                    baseVertexLocation, startInstanceLocation);
             }
 
-            public void DrawInstanced(uint vertexCountPerInstance, uint instanceCount, uint startVertexLocation, uint startInstanceLocation)
+            public void DrawInstanced(uint vertexCountPerInstance, uint instanceCount, uint startVertexLocation,
+                uint startInstanceLocation)
             {
-                nativeContext.DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+                nativeContext.DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation,
+                    startInstanceLocation);
             }
 
             public void DrawInstancedIndirect(Buffer buffer, uint alignedByteOffsetForArgs)
@@ -650,19 +625,6 @@ namespace HelixToolkit.SharpDX.Core
                 nativeContext.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
             }
 
-            public D3DPrimitiveTopology PrimitiveTopology
-            {
-                get
-                {
-                    return primitiveTopology;
-                }
-                set
-                {
-                    nativeContext.IASetPrimitiveTopology(value);
-                    primitiveTopology = value;
-                }
-            }
-
             internal void SetInputLayout(InputLayout inputLayout)
             {
                 nativeContext.IASetInputLayout(inputLayout?.Handle);
@@ -670,23 +632,20 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetIndexBuffer(Buffer buffer, Format format, int offset)
             {
-                nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint)offset);
+                nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint) offset);
             }
 
             public void SetVertexBuffer(int slot, VertexBufferBinding binding)
             {
                 var bufferPtr = binding.Buffer?.BufferHandle;
-                var stride = (uint)binding.Stride;
-                var offset = (uint)binding.Offset;
-                nativeContext.IASetVertexBuffers((uint)slot, 1, &bufferPtr, &stride, &offset);
+                var stride = (uint) binding.Stride;
+                var offset = (uint) binding.Offset;
+                nativeContext.IASetVertexBuffers((uint) slot, 1, &bufferPtr, &stride, &offset);
             }
 
             public void SetVertexBuffers(int startSlot, VertexBufferBinding[] bindings)
             {
-                if (bindings == null || bindings.Length == 0)
-                {
-                    return;
-                }
+                if (bindings == null || bindings.Length == 0) return;
 
                 var bufferPtrs = stackalloc ID3D11Buffer*[bindings.Length];
                 var strides = stackalloc uint[bindings.Length];
@@ -694,53 +653,48 @@ namespace HelixToolkit.SharpDX.Core
                 for (var i = 0; i < bindings.Length; i++)
                 {
                     bufferPtrs[i] = bindings[i].Buffer?.BufferHandle;
-                    strides[i] = (uint)bindings[i].Stride;
-                    offsets[i] = (uint)bindings[i].Offset;
+                    strides[i] = (uint) bindings[i].Stride;
+                    offsets[i] = (uint) bindings[i].Offset;
                 }
 
-                nativeContext.IASetVertexBuffers((uint)startSlot, (uint)bindings.Length, bufferPtrs, strides, offsets);
+                nativeContext.IASetVertexBuffers((uint) startSlot, (uint) bindings.Length, bufferPtrs, strides,
+                    offsets);
             }
 
             internal void SetShader(IShaderHandle shader)
             {
-                if (shader != null)
-                {
-                    SetShader(shader.StageIndex, shader);
-                }
+                if (shader != null) SetShader(shader.StageIndex, shader);
             }
 
             internal void SetShader(int shaderStage, IShaderHandle shader)
             {
-                void* shaderHandle = shader == null ? null : shader.NativeHandle;
+                var shaderHandle = shader == null ? null : shader.NativeHandle;
                 switch (shaderStage)
                 {
                     case Constants.VertexIdx:
-                        nativeContext.VSSetShader((ID3D11VertexShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.VSSetShader((ID3D11VertexShader*) shaderHandle, null, 0);
                         break;
                     case Constants.HullIdx:
-                        nativeContext.HSSetShader((ID3D11HullShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.HSSetShader((ID3D11HullShader*) shaderHandle, null, 0);
                         break;
                     case Constants.DomainIdx:
-                        nativeContext.DSSetShader((ID3D11DomainShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.DSSetShader((ID3D11DomainShader*) shaderHandle, null, 0);
                         break;
                     case Constants.GeometryIdx:
-                        nativeContext.GSSetShader((ID3D11GeometryShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.GSSetShader((ID3D11GeometryShader*) shaderHandle, null, 0);
                         break;
                     case Constants.PixelIdx:
-                        nativeContext.PSSetShader((ID3D11PixelShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.PSSetShader((ID3D11PixelShader*) shaderHandle, null, 0);
                         break;
                     case Constants.ComputeIdx:
-                        nativeContext.CSSetShader((ID3D11ComputeShader*)shaderHandle, (ID3D11ClassInstance**)null, 0);
+                        nativeContext.CSSetShader((ID3D11ComputeShader*) shaderHandle, null, 0);
                         break;
                 }
             }
 
             public void SetConstantBuffer(int shaderStage, int slot, Buffer buffer)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var bufferPtr = buffer?.BufferHandle;
                 SetConstantBuffers(shaderStage, slot, 1, &bufferPtr);
@@ -748,18 +702,12 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetConstantBuffers(int shaderStage, int slot, Buffer[] buffers)
             {
-                if (slot < 0 || buffers == null || buffers.Length == 0)
-                {
-                    return;
-                }
+                if (slot < 0 || buffers == null || buffers.Length == 0) return;
 
                 var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
-                for (var i = 0; i < buffers.Length; i++)
-                {
-                    bufferPtrs[i] = buffers[i]?.BufferHandle;
-                }
+                for (var i = 0; i < buffers.Length; i++) bufferPtrs[i] = buffers[i]?.BufferHandle;
 
-                SetConstantBuffers(shaderStage, slot, (uint)buffers.Length, bufferPtrs);
+                SetConstantBuffers(shaderStage, slot, (uint) buffers.Length, bufferPtrs);
             }
 
             public void SetViewport(float x, float y, float width, float height, float minZ, float maxZ)
@@ -776,131 +724,115 @@ namespace HelixToolkit.SharpDX.Core
 
             public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags)
             {
-                if (resource == null)
-                {
-                    return default;
-                }
+                if (resource == null) return default;
 
                 MappedSubresource mapped = default;
-                SilkMarshal.ThrowHResult(nativeContext.Map(resource.Handle, (uint)subresource, mode.ToSilkMap(), flags.ToSilkMapFlags(), ref mapped));
+                SilkMarshal.ThrowHResult(nativeContext.Map(resource.Handle, (uint) subresource, mode.ToSilkMap(),
+                    flags.ToSilkMapFlags(), ref mapped));
                 return mapped.ToDataBox();
             }
 
-            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags, out DataStream stream)
+            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags,
+                out DataStream stream)
             {
                 var dataBox = MapSubresource(resource, subresource, mode, flags);
-                stream = new DataStream(dataBox.DataPointer, 0, mode == MapMode.Read || mode == MapMode.ReadWrite, mode != MapMode.Read);
+                stream = new DataStream(dataBox.DataPointer, 0, mode == MapMode.Read || mode == MapMode.ReadWrite,
+                    mode != MapMode.Read);
                 return dataBox;
             }
 
             public void UnmapSubresource(Resource resource, int subresource)
             {
-                if (resource == null)
-                {
-                    return;
-                }
+                if (resource == null) return;
 
-                nativeContext.Unmap(resource.Handle, (uint)subresource);
+                nativeContext.Unmap(resource.Handle, (uint) subresource);
             }
 
-            public void UpdateSubresource(Resource resource, int subresource, ResourceRegion? region, IntPtr sourceData, int rowPitch, int depthPitch)
+            public void UpdateSubresource(Resource resource, int subresource, ResourceRegion? region, nint sourceData,
+                int rowPitch, int depthPitch)
             {
-                if (resource == null || sourceData == IntPtr.Zero)
-                {
-                    return;
-                }
+                if (resource == null || sourceData == nint.Zero) return;
 
                 if (region.HasValue)
                 {
                     var box = region.Value.ToSilkBox();
-                    nativeContext.UpdateSubresource(resource.Handle, (uint)subresource, ref box, sourceData.ToPointer(), (uint)rowPitch, (uint)depthPitch);
+                    nativeContext.UpdateSubresource(resource.Handle, (uint) subresource, ref box,
+                        sourceData.ToPointer(), (uint) rowPitch, (uint) depthPitch);
                 }
                 else
                 {
-                    nativeContext.UpdateSubresource(resource.Handle, (uint)subresource, (Box*)null, sourceData.ToPointer(), (uint)rowPitch, (uint)depthPitch);
+                    nativeContext.UpdateSubresource(resource.Handle, (uint) subresource, (Box*) null,
+                        sourceData.ToPointer(), (uint) rowPitch, (uint) depthPitch);
                 }
             }
 
             public void CopyResource(Resource source, Resource destination)
             {
-                if (source == null || destination == null)
-                {
-                    return;
-                }
+                if (source == null || destination == null) return;
 
                 nativeContext.CopyResource(destination.Handle, source.Handle);
             }
 
-            public void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion, Resource destination, int destinationSubResource, int dstX, int dstY, int dstZ)
+            public void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion,
+                Resource destination, int destinationSubResource, int dstX, int dstY, int dstZ)
             {
-                if (source == null || destination == null)
-                {
-                    return;
-                }
+                if (source == null || destination == null) return;
 
                 if (sourceRegion.HasValue)
                 {
                     var box = sourceRegion.Value.ToSilkBox();
                     nativeContext.CopySubresourceRegion(
                         destination.Handle,
-                        (uint)destinationSubResource,
-                        (uint)dstX,
-                        (uint)dstY,
-                        (uint)dstZ,
+                        (uint) destinationSubResource,
+                        (uint) dstX,
+                        (uint) dstY,
+                        (uint) dstZ,
                         source.Handle,
-                        (uint)sourceSubresource,
+                        (uint) sourceSubresource,
                         ref box);
                 }
                 else
                 {
                     nativeContext.CopySubresourceRegion(
                         destination.Handle,
-                        (uint)destinationSubResource,
-                        (uint)dstX,
-                        (uint)dstY,
-                        (uint)dstZ,
+                        (uint) destinationSubResource,
+                        (uint) dstX,
+                        (uint) dstY,
+                        (uint) dstZ,
                         source.Handle,
-                        (uint)sourceSubresource,
-                        (Box*)null);
+                        (uint) sourceSubresource,
+                        (Box*) null);
                 }
             }
 
-            public void ResolveSubresource(Resource source, int sourceSubresource, Resource destination, int destinationSubresource, Format format)
+            public void ResolveSubresource(Resource source, int sourceSubresource, Resource destination,
+                int destinationSubresource, Format format)
             {
-                if (source == null || destination == null)
-                {
-                    return;
-                }
+                if (source == null || destination == null) return;
 
-                nativeContext.ResolveSubresource(destination.Handle, (uint)destinationSubresource, source.Handle, (uint)sourceSubresource, format);
+                nativeContext.ResolveSubresource(destination.Handle, (uint) destinationSubresource, source.Handle,
+                    (uint) sourceSubresource, format);
             }
 
-            public void CopyStructureCount(Buffer destination, int destinationAlignedByteOffset, UnorderedAccessView source)
+            public void CopyStructureCount(Buffer destination, int destinationAlignedByteOffset,
+                UnorderedAccessView source)
             {
-                if (destination == null || source == null)
-                {
-                    return;
-                }
+                if (destination == null || source == null) return;
 
-                nativeContext.CopyStructureCount(destination.BufferHandle, (uint)destinationAlignedByteOffset, source.Handle);
+                nativeContext.CopyStructureCount(destination.BufferHandle, (uint) destinationAlignedByteOffset,
+                    source.Handle);
             }
 
             public void GenerateMips(ShaderResourceView shaderResourceView)
             {
-                if (shaderResourceView == null)
-                {
-                    return;
-                }
+                if (shaderResourceView == null) return;
 
                 nativeContext.GenerateMips(shaderResourceView.Handle);
             }
 
             public void SetShaderResource(int shaderStage, int slot, ShaderResourceView shaderResourceView)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var viewPtr = shaderResourceView?.Handle;
                 SetShaderResources(shaderStage, slot, 1, &viewPtr);
@@ -908,26 +840,17 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetShaderResources(int shaderStage, int slot, ShaderResourceView[] shaderResourceViews)
             {
-                if (slot < 0 || shaderResourceViews == null || shaderResourceViews.Length == 0)
-                {
-                    return;
-                }
+                if (slot < 0 || shaderResourceViews == null || shaderResourceViews.Length == 0) return;
 
                 var viewPtrs = stackalloc ID3D11ShaderResourceView*[shaderResourceViews.Length];
-                for (var i = 0; i < shaderResourceViews.Length; i++)
-                {
-                    viewPtrs[i] = shaderResourceViews[i]?.Handle;
-                }
+                for (var i = 0; i < shaderResourceViews.Length; i++) viewPtrs[i] = shaderResourceViews[i]?.Handle;
 
-                SetShaderResources(shaderStage, slot, (uint)shaderResourceViews.Length, viewPtrs);
+                SetShaderResources(shaderStage, slot, (uint) shaderResourceViews.Length, viewPtrs);
             }
 
             public void SetSampler(int shaderStage, int slot, SamplerState samplerState)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var statePtr = samplerState?.Handle;
                 SetSamplers(shaderStage, slot, 1, &statePtr);
@@ -935,71 +858,64 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetSamplers(int shaderStage, int slot, SamplerState[] samplerStates)
             {
-                if (slot < 0 || samplerStates == null || samplerStates.Length == 0)
-                {
-                    return;
-                }
+                if (slot < 0 || samplerStates == null || samplerStates.Length == 0) return;
 
                 var statePtrs = stackalloc ID3D11SamplerState*[samplerStates.Length];
-                for (var i = 0; i < samplerStates.Length; i++)
-                {
-                    statePtrs[i] = samplerStates[i]?.Handle;
-                }
+                for (var i = 0; i < samplerStates.Length; i++) statePtrs[i] = samplerStates[i]?.Handle;
 
-                SetSamplers(shaderStage, slot, (uint)samplerStates.Length, statePtrs);
+                SetSamplers(shaderStage, slot, (uint) samplerStates.Length, statePtrs);
             }
 
             public void SetUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView, int initialCount = -1)
             {
-                if (slot < 0)
-                {
-                    return;
-                }
+                if (slot < 0) return;
 
                 var viewPtr = unorderedAccessView?.Handle;
-                var count = unchecked((uint)initialCount);
-                nativeContext.CSSetUnorderedAccessViews((uint)slot, 1, &viewPtr, &count);
+                var count = unchecked((uint) initialCount);
+                nativeContext.CSSetUnorderedAccessViews((uint) slot, 1, &viewPtr, &count);
             }
 
-            public void SetUnorderedAccessViews(int slot, UnorderedAccessView[] unorderedAccessViews, int[] initialCounts = null)
+            public void SetUnorderedAccessViews(int slot, UnorderedAccessView[] unorderedAccessViews,
+                int[] initialCounts = null)
             {
-                if (slot < 0 || unorderedAccessViews == null || unorderedAccessViews.Length == 0)
-                {
-                    return;
-                }
+                if (slot < 0 || unorderedAccessViews == null || unorderedAccessViews.Length == 0) return;
 
                 var viewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
                 var counts = stackalloc uint[unorderedAccessViews.Length];
                 for (var i = 0; i < unorderedAccessViews.Length; i++)
                 {
                     viewPtrs[i] = unorderedAccessViews[i]?.Handle;
-                    counts[i] = initialCounts == null || i >= initialCounts.Length ? unchecked((uint)-1) : unchecked((uint)initialCounts[i]);
+                    counts[i] = initialCounts == null || i >= initialCounts.Length
+                        ? unchecked((uint) -1)
+                        : unchecked((uint) initialCounts[i]);
                 }
 
-                nativeContext.CSSetUnorderedAccessViews((uint)slot, (uint)unorderedAccessViews.Length, viewPtrs, counts);
+                nativeContext.CSSetUnorderedAccessViews((uint) slot, (uint) unorderedAccessViews.Length, viewPtrs,
+                    counts);
             }
 
-            private void SetShaderResources(int shaderStage, int slot, uint count, ID3D11ShaderResourceView** shaderResourceViews)
+            private void SetShaderResources(int shaderStage, int slot, uint count,
+                ID3D11ShaderResourceView** shaderResourceViews)
             {
                 switch (shaderStage)
                 {
                     case Constants.VertexIdx:
-                        nativeContext.VSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.VSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                     case Constants.HullIdx:
-                        nativeContext.HSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.HSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                     case Constants.DomainIdx:
-                        nativeContext.DSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.DSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                     case Constants.GeometryIdx:
-                        nativeContext.GSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.GSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                     case Constants.PixelIdx:
-                        nativeContext.PSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.PSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                     case Constants.ComputeIdx:
-                        nativeContext.CSSetShaderResources((uint)slot, count, shaderResourceViews);
+                        nativeContext.CSSetShaderResources((uint) slot, count, shaderResourceViews);
                         break;
                 }
             }
@@ -1009,22 +925,22 @@ namespace HelixToolkit.SharpDX.Core
                 switch (shaderStage)
                 {
                     case Constants.VertexIdx:
-                        nativeContext.VSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.VSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                     case Constants.HullIdx:
-                        nativeContext.HSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.HSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                     case Constants.DomainIdx:
-                        nativeContext.DSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.DSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                     case Constants.GeometryIdx:
-                        nativeContext.GSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.GSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                     case Constants.PixelIdx:
-                        nativeContext.PSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.PSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                     case Constants.ComputeIdx:
-                        nativeContext.CSSetConstantBuffers((uint)slot, count, constantBuffers);
+                        nativeContext.CSSetConstantBuffers((uint) slot, count, constantBuffers);
                         break;
                 }
             }
@@ -1034,22 +950,22 @@ namespace HelixToolkit.SharpDX.Core
                 switch (shaderStage)
                 {
                     case Constants.VertexIdx:
-                        nativeContext.VSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.VSSetSamplers((uint) slot, count, samplerStates);
                         break;
                     case Constants.HullIdx:
-                        nativeContext.HSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.HSSetSamplers((uint) slot, count, samplerStates);
                         break;
                     case Constants.DomainIdx:
-                        nativeContext.DSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.DSSetSamplers((uint) slot, count, samplerStates);
                         break;
                     case Constants.GeometryIdx:
-                        nativeContext.GSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.GSSetSamplers((uint) slot, count, samplerStates);
                         break;
                     case Constants.PixelIdx:
-                        nativeContext.PSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.PSSetSamplers((uint) slot, count, samplerStates);
                         break;
                     case Constants.ComputeIdx:
-                        nativeContext.CSSetSamplers((uint)slot, count, samplerStates);
+                        nativeContext.CSSetSamplers((uint) slot, count, samplerStates);
                         break;
                 }
             }
@@ -1061,7 +977,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetDepthStencilState(DepthStencilState depthStencilState, int stencilRef)
             {
-                nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint)stencilRef));
+                nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint) stencilRef));
             }
 
             public void SetBlendState(BlendState blendState, Color4? blendFactor, uint sampleMask)
@@ -1080,14 +996,14 @@ namespace HelixToolkit.SharpDX.Core
                 }
                 else
                 {
-                    nativeContext.OMSetBlendState(blendState?.Handle, (float*)null, sampleMask);
+                    nativeContext.OMSetBlendState(blendState?.Handle, (float*) null, sampleMask);
                 }
             }
 
             public void SetStreamOutputTarget(Buffer buffer, int offset)
             {
                 var bufferPtr = buffer?.BufferHandle;
-                var offsetValue = (uint)offset;
+                var offsetValue = (uint) offset;
                 nativeContext.SOSetTargets(1, &bufferPtr, &offsetValue);
             }
 
@@ -1095,7 +1011,7 @@ namespace HelixToolkit.SharpDX.Core
             {
                 if (buffers == null || buffers.Length == 0)
                 {
-                    nativeContext.SOSetTargets(0, (ID3D11Buffer**)null, (uint*)null);
+                    nativeContext.SOSetTargets(0, null, (uint*) null);
                     return;
                 }
 
@@ -1107,7 +1023,7 @@ namespace HelixToolkit.SharpDX.Core
                     offsets[i] = 0;
                 }
 
-                nativeContext.SOSetTargets((uint)buffers.Length, bufferPtrs, offsets);
+                nativeContext.SOSetTargets((uint) buffers.Length, bufferPtrs, offsets);
             }
 
             public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView renderTargetView)
@@ -1120,25 +1036,21 @@ namespace HelixToolkit.SharpDX.Core
             {
                 if (renderTargetViews == null || renderTargetViews.Length == 0)
                 {
-                    nativeContext.OMSetRenderTargets(0, (ID3D11RenderTargetView**)null, depthStencilView?.Handle);
+                    nativeContext.OMSetRenderTargets(0, null, depthStencilView?.Handle);
                     return;
                 }
 
                 var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[renderTargetViews.Length];
                 for (var i = 0; i < renderTargetViews.Length; i++)
-                {
                     renderTargetViewPtrs[i] = renderTargetViews[i]?.Handle;
-                }
 
-                nativeContext.OMSetRenderTargets((uint)renderTargetViews.Length, renderTargetViewPtrs, depthStencilView?.Handle);
+                nativeContext.OMSetRenderTargets((uint) renderTargetViews.Length, renderTargetViewPtrs,
+                    depthStencilView?.Handle);
             }
 
             public void ClearRenderTargetView(RenderTargetView renderTargetView, Color4 color)
             {
-                if (renderTargetView == null)
-                {
-                    return;
-                }
+                if (renderTargetView == null) return;
 
                 var clearColor = stackalloc float[4]
                 {
@@ -1150,26 +1062,26 @@ namespace HelixToolkit.SharpDX.Core
                 nativeContext.ClearRenderTargetView(renderTargetView.Handle, clearColor);
             }
 
-            public void ClearDepthStencilView(DepthStencilView depthStencilView, DepthStencilClearFlags clearFlags, float depth, byte stencil)
+            public void ClearDepthStencilView(DepthStencilView depthStencilView, DepthStencilClearFlags clearFlags,
+                float depth, byte stencil)
             {
-                if (depthStencilView == null)
-                {
-                    return;
-                }
+                if (depthStencilView == null) return;
 
-                nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint)clearFlags, depth, stencil);
+                nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint) clearFlags, depth, stencil);
             }
 
             public void ClearRenderTargetBindings()
             {
-                nativeContext.OMSetRenderTargets(0, (ID3D11RenderTargetView**)null, (ID3D11DepthStencilView*)null);
+                nativeContext.OMSetRenderTargets(0, null, (ID3D11DepthStencilView*) null);
             }
 
             public void GetDepthStencilView(out DepthStencilView depthStencilView)
             {
                 ID3D11DepthStencilView* depthStencilViewPtr = null;
-                nativeContext.OMGetRenderTargets(0, (ID3D11RenderTargetView**)null, &depthStencilViewPtr);
-                depthStencilView = depthStencilViewPtr == null ? null : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
+                nativeContext.OMGetRenderTargets(0, null, &depthStencilViewPtr);
+                depthStencilView = depthStencilViewPtr == null
+                    ? null
+                    : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
             }
 
             public RenderTargetView[] GetRenderTargets(int numViews)
@@ -1187,41 +1099,37 @@ namespace HelixToolkit.SharpDX.Core
 
                 var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[numViews];
                 ID3D11DepthStencilView* depthStencilViewPtr = null;
-                nativeContext.OMGetRenderTargets((uint)numViews, renderTargetViewPtrs, &depthStencilViewPtr);
+                nativeContext.OMGetRenderTargets((uint) numViews, renderTargetViewPtrs, &depthStencilViewPtr);
 
                 var renderTargetViews = new RenderTargetView[numViews];
                 for (var i = 0; i < numViews; i++)
-                {
-                    renderTargetViews[i] = renderTargetViewPtrs[i] == null ? null : new RenderTargetView(new SilkD3D11RenderTargetViewPtr(renderTargetViewPtrs[i]));
-                }
+                    renderTargetViews[i] = renderTargetViewPtrs[i] == null
+                        ? null
+                        : new RenderTargetView(new SilkD3D11RenderTargetViewPtr(renderTargetViewPtrs[i]));
 
-                depthStencilView = depthStencilViewPtr == null ? null : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
+                depthStencilView = depthStencilViewPtr == null
+                    ? null
+                    : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
                 return renderTargetViews;
             }
 
             public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Int4 values)
             {
-                if (unorderedAccessView == null)
-                {
-                    return;
-                }
+                if (unorderedAccessView == null) return;
 
                 var clearValues = stackalloc uint[4]
                 {
-                    unchecked((uint)values.X),
-                    unchecked((uint)values.Y),
-                    unchecked((uint)values.Z),
-                    unchecked((uint)values.W)
+                    unchecked((uint) values.X),
+                    unchecked((uint) values.Y),
+                    unchecked((uint) values.Z),
+                    unchecked((uint) values.W)
                 };
                 nativeContext.ClearUnorderedAccessViewUint(unorderedAccessView.Handle, clearValues);
             }
 
             public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Vector4 values)
             {
-                if (unorderedAccessView == null)
-                {
-                    return;
-                }
+                if (unorderedAccessView == null) return;
 
                 var clearValues = stackalloc float[4]
                 {
@@ -1236,12 +1144,12 @@ namespace HelixToolkit.SharpDX.Core
             public void SetOutputUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView)
             {
                 var unorderedAccessViewPtr = unorderedAccessView?.Handle;
-                var initialCount = unchecked((uint)-1);
+                var initialCount = unchecked((uint) -1);
                 nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(
                     uint.MaxValue,
-                    (ID3D11RenderTargetView**)null,
-                    (ID3D11DepthStencilView*)null,
-                    (uint)slot,
+                    null,
+                    (ID3D11DepthStencilView*) null,
+                    (uint) slot,
                     1,
                     &unorderedAccessViewPtr,
                     &initialCount);
@@ -1249,25 +1157,22 @@ namespace HelixToolkit.SharpDX.Core
 
             public void SetOutputUnorderedAccessViews(int startSlot, UnorderedAccessView[] unorderedAccessViews)
             {
-                if (unorderedAccessViews == null || unorderedAccessViews.Length == 0)
-                {
-                    return;
-                }
+                if (unorderedAccessViews == null || unorderedAccessViews.Length == 0) return;
 
                 var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
                 var initialCounts = stackalloc uint[unorderedAccessViews.Length];
                 for (var i = 0; i < unorderedAccessViews.Length; i++)
                 {
                     unorderedAccessViewPtrs[i] = unorderedAccessViews[i]?.Handle;
-                    initialCounts[i] = unchecked((uint)-1);
+                    initialCounts[i] = unchecked((uint) -1);
                 }
 
                 nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(
                     uint.MaxValue,
-                    (ID3D11RenderTargetView**)null,
-                    (ID3D11DepthStencilView*)null,
-                    (uint)startSlot,
-                    (uint)unorderedAccessViews.Length,
+                    null,
+                    (ID3D11DepthStencilView*) null,
+                    (uint) startSlot,
+                    (uint) unorderedAccessViews.Length,
                     unorderedAccessViewPtrs,
                     initialCounts);
             }
@@ -1280,30 +1185,19 @@ namespace HelixToolkit.SharpDX.Core
                 var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[count];
                 nativeContext.OMGetRenderTargetsAndUnorderedAccessViews(
                     0,
-                    (ID3D11RenderTargetView**)null,
-                    (ID3D11DepthStencilView**)null,
-                    (uint)startSlot,
-                    (uint)count,
+                    null,
+                    null,
+                    (uint) startSlot,
+                    (uint) count,
                     unorderedAccessViewPtrs);
 
                 var unorderedAccessViews = new UnorderedAccessView[count];
                 for (var i = 0; i < count; i++)
-                {
-                    unorderedAccessViews[i] = unorderedAccessViewPtrs[i] == null ? null : new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(unorderedAccessViewPtrs[i]));
-                }
+                    unorderedAccessViews[i] = unorderedAccessViewPtrs[i] == null
+                        ? null
+                        : new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(unorderedAccessViewPtrs[i]));
 
                 return unorderedAccessViews;
-            }
-
-            public void Dispose()
-            {
-                if (IsDisposed)
-                {
-                    return;
-                }
-
-                nativeContext.Dispose();
-                IsDisposed = true;
             }
         }
     }

@@ -17,7 +17,8 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetScissorRectangle(ref ViewportF viewport)
             {
-                SetScissorRectangle((int)viewport.X, (int)viewport.Y, (int)(viewport.X + viewport.Width), (int)(viewport.Y + viewport.Height));
+                SetScissorRectangle((int) viewport.X, (int) viewport.Y, (int) (viewport.X + viewport.Width),
+                    (int) (viewport.Y + viewport.Height));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,7 +30,8 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetViewport(ref ViewportF viewport)
             {
-                SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height, viewport.MinDepth, viewport.MaxDepth);
+                SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height, viewport.MinDepth,
+                    viewport.MaxDepth);
             }
 
             #endregion Viewport and Scissors

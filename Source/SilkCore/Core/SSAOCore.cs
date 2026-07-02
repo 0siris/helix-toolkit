@@ -3,85 +3,78 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
-using System;
+using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Shaders;
-        using Components;
-        using Utilities;
-
         public sealed class SSAOCore : RenderCore
         {
-            private float radius = 0.5f;
-            public float Radius
-            {
-                set
-                {
-                    SetAffectsRender(ref radius, value);
-                }
-                get
-                {
-                    return radius;
-                }
-            }
+            private const int KernalSize = 32;
+            private const Format DEPTHFORMAT = Format.FormatD32Float;
+            private const Format RENDERTARGETFORMAT = Format.FormatR16G16B16A16Float;
+            private const Format SSAOTARGETFORMAT = Format.FormatR16Float;
+            private readonly Vector4[] kernels = new Vector4[KernalSize];
+            private readonly ConstantBufferComponent ssaoCB;
+
+            private OffScreenTextureSize offScreenTextureSize = OffScreenTextureSize.Half;
 
             private SSAOQuality quality = SSAOQuality.Low;
-            public SSAOQuality Quality
-            {
-                set
-                {
-                    if (SetAffectsRender(ref quality, value))
-                    {
-                        offScreenTextureSize = value == SSAOQuality.High ? OffScreenTextureSize.Full : OffScreenTextureSize.Half;
-                    }
-                }
-                get
-                {
-                    return quality;
-                }
-            }
+            private float radius = 0.5f;
+            private SSAOParamStruct ssaoParam;
+            private ShaderPass ssaoPass, ssaoBlur;
+            private int ssaoTexSlot, noiseTexSlot, surfaceSampleSlot, noiseSamplerSlot, depthSlot;
 
-            private Texture2DDescription ssaoTextureDesc = new Texture2DDescription()
+            private Texture2DDescription ssaoTextureDesc = new()
             {
                 CpuAccessFlags = CpuAccessFlags.None,
                 BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
                 Format = Format.FormatR16Float,
-                SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
+                SampleDescription = new SampleDescription {Count = 1, Quality = 0},
                 OptionFlags = ResourceOptionFlags.None,
                 Usage = ResourceUsage.Default,
                 ArraySize = 1,
-                MipLevels = 1,
+                MipLevels = 1
             };
 
             private ShaderResourceViewProxy ssaoView, ssaoNoiseView;
-            private int width, height;
-            private int ssaoTexSlot, noiseTexSlot, surfaceSampleSlot, noiseSamplerSlot, depthSlot;
-            private ShaderPass ssaoPass, ssaoBlur;
             private SamplerStateProxy surfaceSampler, noiseSampler, blurSampler;
-            private SSAOParamStruct ssaoParam;
-            private readonly ConstantBufferComponent ssaoCB;
-            private const int KernalSize = 32;
-            private readonly Vector4[] kernels = new Vector4[KernalSize];
-            private const Format DEPTHFORMAT = Format.FormatD32Float;
-            private const Format RENDERTARGETFORMAT = Format.FormatR16G16B16A16Float;
-            private const Format SSAOTARGETFORMAT = Format.FormatR16Float;
-
-            private OffScreenTextureSize offScreenTextureSize = OffScreenTextureSize.Half;
+            private int width, height;
 
             public SSAOCore() : base(RenderType.PreProc)
             {
-                ssaoCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.SSAOCB, SSAOParamStruct.SizeInBytes)));
+                ssaoCB = AddComponent(new ConstantBufferComponent(
+                    new ConstantBufferDescription(DefaultBufferNames.SSAOCB, SSAOParamStruct.SizeInBytes)));
+            }
+
+            public float Radius
+            {
+                get => radius;
+                set => SetAffectsRender(ref radius, value);
+            }
+
+            public SSAOQuality Quality
+            {
+                get => quality;
+                set
+                {
+                    if (SetAffectsRender(ref quality, value))
+                        offScreenTextureSize = value == SSAOQuality.High
+                            ? OffScreenTextureSize.Full
+                            : OffScreenTextureSize.Half;
+                }
             }
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                EnsureTextureResources((int)context.ActualWidth, (int)context.ActualHeight, deviceContext);
-                int texScale = (int)offScreenTextureSize;
+                EnsureTextureResources((int) context.ActualWidth, (int) context.ActualHeight, deviceContext);
+                var texScale = (int) offScreenTextureSize;
                 var viewport = context.Viewport;
                 using (var ds = context.GetOffScreenDS(offScreenTextureSize, DEPTHFORMAT))
                 {
@@ -89,9 +82,11 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         using (var rt1 = context.GetOffScreenRT(offScreenTextureSize, SSAOTARGETFORMAT))
                         {
-                            var w = (int)(context.ActualWidth / texScale);// Make sure to set correct viewport width/height by quality
-                            var h = (int)(context.ActualHeight / texScale);
-                            deviceContext.SetRenderTarget(ds, rt0, true, new Color4(0, 0, 0, 1), true, DepthStencilClearFlags.Depth);
+                            var w = (int) (context.ActualWidth /
+                                           texScale); // Make sure to set correct viewport width/height by quality
+                            var h = (int) (context.ActualHeight / texScale);
+                            deviceContext.SetRenderTarget(ds, rt0, true, new Color4(0, 0, 0, 1), true,
+                                DepthStencilClearFlags.Depth);
                             deviceContext.SetViewport(0, 0, w, h);
                             deviceContext.SetScissorRectangle(0, 0, w, h);
                             IRenderTechnique currTechnique = null;
@@ -105,10 +100,8 @@ namespace HelixToolkit.SharpDX.Core
                                     currTechnique = node.EffectTechnique;
                                     ssaoPass1 = currTechnique[DefaultPassNames.MeshSSAOPass];
                                 }
-                                if (ssaoPass1.IsNULL)
-                                {
-                                    continue;
-                                }
+
+                                if (ssaoPass1.IsNULL) continue;
                                 node.RenderDepth(context, deviceContext, ssaoPass1);
                             }
 
@@ -117,10 +110,11 @@ namespace HelixToolkit.SharpDX.Core
                             ssaoParam.NoiseScale = new Vector2(w / 4f, h / 4f);
                             ssaoParam.Radius = radius;
                             ssaoParam.TextureScale = texScale;
-                            ssaoCB.ModelConstBuffer.UploadDataToBuffer(deviceContext, (dataBox) =>
+                            ssaoCB.ModelConstBuffer.UploadDataToBuffer(deviceContext, dataBox =>
                             {
                                 Debug.Assert(UnsafeHelper.SizeOf(kernels)
-                                    + UnsafeHelper.SizeOf(ref ssaoParam) <= ssaoCB.ModelConstBuffer.bufferDesc.SizeInBytes);
+                                             + UnsafeHelper.SizeOf(ref ssaoParam) <=
+                                             ssaoCB.ModelConstBuffer.bufferDesc.SizeInBytes);
                                 var nextPtr = UnsafeHelper.Write(dataBox.DataPointer, kernels, 0, kernels.Length);
                                 UnsafeHelper.Write(nextPtr, ref ssaoParam);
                             });
@@ -174,22 +168,21 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool OnAttach(IRenderTechnique technique)
             {
-                if (technique.IsNull)
-                {
-                    return false;
-                }
+                if (technique.IsNull) return false;
                 width = height = 0;
                 ssaoPass = technique[DefaultPassNames.Default];
                 ssaoBlur = technique[DefaultPassNames.EffectBlurHorizontal];
-                if (ssaoPass.IsNULL || ssaoBlur.IsNULL)
-                {
-                    return false;
-                }
-                ssaoTexSlot = ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAOMapTB);
-                noiseTexSlot = ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAONoiseTB);
-                depthSlot = ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAODepthTB);
-                surfaceSampleSlot = ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-                noiseSamplerSlot = ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.NoiseSampler);
+                if (ssaoPass.IsNULL || ssaoBlur.IsNULL) return false;
+                ssaoTexSlot =
+                    ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAOMapTB);
+                noiseTexSlot =
+                    ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAONoiseTB);
+                depthSlot =
+                    ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAODepthTB);
+                surfaceSampleSlot =
+                    ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
+                noiseSamplerSlot =
+                    ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.NoiseSampler);
                 surfaceSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SSAOSamplerClamp);
                 noiseSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SSAONoise);
                 blurSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
@@ -209,10 +202,9 @@ namespace HelixToolkit.SharpDX.Core
             private void InitialParameters()
             {
                 ssaoParam.Radius = radius;
-                var rnd = new Random((int)Stopwatch.GetTimestamp());
+                var rnd = new Random((int) Stopwatch.GetTimestamp());
                 var thres = Math.Cos(Math.PI / 2 - Math.PI / 12);
                 for (var i = 0; i < 32; ++i)
-                {
                     while (true)
                     {
                         var x = rnd.NextFloat(-1, 1);
@@ -220,17 +212,13 @@ namespace HelixToolkit.SharpDX.Core
                         var z = rnd.NextFloat(1e-3f, 1);
                         var v = SilkMath.Normalize(new Vector3(x, y, z));
                         var angle = SilkMath.Dot(v, Vector3.UnitZ);
-                        if (SilkMath.Dot(v, Vector3.UnitZ) < thres)
-                        {
-                            continue;
-                        }
+                        if (SilkMath.Dot(v, Vector3.UnitZ) < thres) continue;
                         var scale = i / 32f;
                         scale = 0.1f + 0.9f * scale;
                         v *= scale;
                         kernels[i] = new Vector4(v.X, v.Y, v.Z, 0);
                         break;
                     }
-                }
 
                 var noise = new Vector3[4 * 4];
                 for (var i = 0; i < 16; ++i)
@@ -239,6 +227,7 @@ namespace HelixToolkit.SharpDX.Core
                     var y = rnd.NextFloat(-1, 1);
                     noise[i] = SilkMath.Normalize(new Vector3(x, y, 0));
                 }
+
                 ssaoNoiseView = ShaderResourceViewProxy
                     .CreateView(Device, noise, 4, 4, Format.FormatR32G32B32Float, true, false);
             }

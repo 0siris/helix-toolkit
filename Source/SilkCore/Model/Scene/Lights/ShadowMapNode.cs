@@ -4,32 +4,43 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Core;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Cameras;
-        using Core;
-
         /// <summary>
-        /// 
         /// </summary>
         public class ShadowMapNode : SceneNode
         {
+            private readonly OrthographicCameraCore orthoCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
+            private readonly PerspectiveCameraCore persCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
+
+            private float distance = 200;
+
+            private float farField = 500;
+
+            private ProjectionCameraCore lightCamera;
+
+            private float nearField = 500;
+
+            private float orthoWidth = 100;
+            private bool sceneChanged;
+
+            private ShadowMapCore shadowCore;
+
             /// <summary>
-            /// Gets or sets the resolution.
+            ///     Gets or sets the resolution.
             /// </summary>
             /// <value>
-            /// The resolution.
+            ///     The resolution.
             /// </value>
             public Size2 Resolution
             {
-                get
-                {
-                    return new Size2((RenderCore as ShadowMapCore).Width, (RenderCore as ShadowMapCore).Height);
-                }
+                get => new((RenderCore as ShadowMapCore).Width, (RenderCore as ShadowMapCore).Height);
                 set
                 {
                     (RenderCore as ShadowMapCore).Width = value.Width;
@@ -38,70 +49,42 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            ///
             /// </summary>
             public float Bias
             {
-                get
-                {
-                    return (RenderCore as ShadowMapCore).Bias;
-                }
-                set
-                {
-                    (RenderCore as ShadowMapCore).Bias = value;
-                }
+                get => (RenderCore as ShadowMapCore).Bias;
+                set => (RenderCore as ShadowMapCore).Bias = value;
             }
 
             /// <summary>
-            ///
             /// </summary>
             public float Intensity
             {
-                get
-                {
-                    return (RenderCore as ShadowMapCore).Intensity;
-                }
-                set
-                {
-                    (RenderCore as ShadowMapCore).Intensity = value;
-                }
+                get => (RenderCore as ShadowMapCore).Intensity;
+                set => (RenderCore as ShadowMapCore).Intensity = value;
             }
 
-            private float distance = 200;
             public float Distance
             {
-                set
-                {
-                    SetAffectsRender(ref distance, value);
-                }
-                get
-                {
-                    return distance;
-                }
+                get => distance;
+                set => SetAffectsRender(ref distance, value);
             }
 
-            private float orthoWidth = 100;
             public float OrthoWidth
             {
-                set
-                {
-                    SetAffectsRender(ref orthoWidth, value);
-                }
-                get
-                {
-                    return orthoWidth;
-                }
+                get => orthoWidth;
+                set => SetAffectsRender(ref orthoWidth, value);
             }
 
-            private float farField = 500;
             /// <summary>
-            /// Gets or sets the far field.
+            ///     Gets or sets the far field.
             /// </summary>
             /// <value>
-            /// The far field.
+            ///     The far field.
             /// </value>
             public float FarField
             {
+                get => farField;
                 set
                 {
                     if (SetAffectsRender(ref farField, value))
@@ -110,21 +93,17 @@ namespace HelixToolkit.SharpDX.Core
                         persCamera.FarPlaneDistance = value;
                     }
                 }
-                get
-                {
-                    return farField;
-                }
             }
 
-            private float nearField = 500;
             /// <summary>
-            /// Gets or sets the near field.
+            ///     Gets or sets the near field.
             /// </summary>
             /// <value>
-            /// The far field.
+            ///     The far field.
             /// </value>
             public float NearField
             {
+                get => nearField;
                 set
                 {
                     if (SetAffectsRender(ref nearField, value))
@@ -133,72 +112,57 @@ namespace HelixToolkit.SharpDX.Core
                         persCamera.NearPlaneDistance = value;
                     }
                 }
-                get
-                {
-                    return nearField;
-                }
             }
 
-            private ProjectionCameraCore lightCamera = null;
             /// <summary>
-            /// Distance of the directional light from origin
+            ///     Distance of the directional light from origin
             /// </summary>
             public ProjectionCameraCore LightCamera
             {
+                get => lightCamera;
                 set
                 {
-                    if (lightCamera != null)
-                    {
-                        lightCamera.PropertyChanged -= LightCamera_PropertyChanged;
-                    }
+                    if (lightCamera != null) lightCamera.PropertyChanged -= LightCamera_PropertyChanged;
                     SetAffectsRender(ref lightCamera, value);
-                    if (lightCamera != null)
-                    {
-                        lightCamera.PropertyChanged += LightCamera_PropertyChanged;
-                    }
+                    if (lightCamera != null) lightCamera.PropertyChanged += LightCamera_PropertyChanged;
                 }
-                get => lightCamera;
             }
 
             /// <summary>
-            /// Gets or sets a value indicating whether shadow map should automatically cover complete scene. Only effective with directional light.
-            /// <para>Limitation: Currently unable to properly cover BoneSkinned model animation.</para>
+            ///     Gets or sets a value indicating whether shadow map should automatically cover complete scene. Only effective with
+            ///     directional light.
+            ///     <para>Limitation: Currently unable to properly cover BoneSkinned model animation.</para>
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [automatic cover complete scene]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [automatic cover complete scene]; otherwise, <c>false</c>.
             /// </value>
-            public bool AutoCoverCompleteScene
-            {
-                set; get;
-            } = false;
+            public bool AutoCoverCompleteScene { get; set; } = false;
+
             /// <summary>
-            /// Gets or sets a value indicating whether the scene is dynamic. Only effective if <see cref="AutoCoverCompleteScene"/> is true.
-            /// <para>Setting to true will force shadow map to update the shadow camera for each frame. May impact the performance.</para>
+            ///     Gets or sets a value indicating whether the scene is dynamic. Only effective if
+            ///     <see cref="AutoCoverCompleteScene" /> is true.
+            ///     <para>Setting to true will force shadow map to update the shadow camera for each frame. May impact the performance.</para>
             /// </summary>
             /// <value>
-            ///   <c>true</c> if scene is dynamic; otherwise, <c>false</c>.
+            ///     <c>true</c> if scene is dynamic; otherwise, <c>false</c>.
             /// </value>
-            public bool IsSceneDynamic
-            {
-                set; get;
-            } = false;
+            public bool IsSceneDynamic { get; set; } = false;
+
             /// <summary>
-            /// Gets or sets the shadow cast scene scale. Only effective if <see cref="AutoCoverCompleteScene"/> is true.
-            /// <para>
-            /// This is used if the mesh render shadow is much bigger than the meshes casting shadow.
-            /// The shadow cast camera has to cover the shadow rendering region, otherwise the shadow maybe cut off.
-            /// Increase the value to increase the shadow cast camera rendering region.
-            /// </para>
+            ///     Gets or sets the shadow cast scene scale. Only effective if <see cref="AutoCoverCompleteScene" /> is true.
+            ///     <para>
+            ///         This is used if the mesh render shadow is much bigger than the meshes casting shadow.
+            ///         The shadow cast camera has to cover the shadow rendering region, otherwise the shadow maybe cut off.
+            ///         Increase the value to increase the shadow cast camera rendering region.
+            ///     </para>
             /// </summary>
             /// <value>
-            /// Region scale for shadow cast.
+            ///     Region scale for shadow cast.
             /// </value>
-            public float CastSceneScale
-            {
-                set; get;
-            } = 2f;
+            public float CastSceneScale { get; set; } = 2f;
+
             /// <summary>
-            /// Called when [create render core].
+            ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore()
@@ -208,13 +172,8 @@ namespace HelixToolkit.SharpDX.Core
                 return core;
             }
 
-            private ShadowMapCore shadowCore;
-
-            private readonly OrthographicCameraCore orthoCamera = new OrthographicCameraCore() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
-            private readonly PerspectiveCameraCore persCamera = new PerspectiveCameraCore() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
-            private bool sceneChanged = false;
             /// <summary>
-            /// Assigns the default values to core.
+            ///     Assigns the default values to core.
             /// </summary>
             /// <param name="core">The core.</param>
             protected override void AssignDefaultValuesToCore(RenderCore core)
@@ -222,88 +181,75 @@ namespace HelixToolkit.SharpDX.Core
                 base.AssignDefaultValuesToCore(core);
                 var c = core as ShadowMapCore;
                 //c.FactorPCF = (float)FactorPCF;
-                c.Intensity = (float)Intensity;
-                c.Bias = (float)Bias;
-                c.Width = (int)(Resolution.Width);
-                c.Height = (int)(Resolution.Height);
+                c.Intensity = Intensity;
+                c.Bias = Bias;
+                c.Width = Resolution.Width;
+                c.Height = Resolution.Height;
             }
 
-            private void LightCamera_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+            private void LightCamera_PropertyChanged(object sender, PropertyChangedEventArgs e)
             {
                 InvalidateRender();
             }
 
             /// <summary>
-            /// To override Attach routine, please override this.
+            ///     To override Attach routine, please override this.
             /// </summary>
             /// <param name="effectsManager"></param>
             /// <returns>
-            /// Return true if attached
+            ///     Return true if attached
             /// </returns>
             protected override bool OnAttach(IEffectsManager effectsManager)
             {
                 base.OnAttach(effectsManager);
                 shadowCore = RenderCore as ShadowMapCore;
-                this.Invalidated += Host_SceneGraphUpdated;
+                Invalidated += Host_SceneGraphUpdated;
                 sceneChanged = true;
                 return true;
             }
 
             protected override void OnDetach()
             {
-                this.Invalidated -= Host_SceneGraphUpdated;
+                Invalidated -= Host_SceneGraphUpdated;
                 base.OnDetach();
             }
 
             private void Host_SceneGraphUpdated(object sender, InvalidateTypes type)
             {
-                if (type == InvalidateTypes.SceneGraph)
-                {
-                    sceneChanged = true;
-                }
+                if (type == InvalidateTypes.SceneGraph) sceneChanged = true;
             }
 
             /// <summary>
-            /// <para>Determine if this can be rendered.</para>
+            ///     <para>Determine if this can be rendered.</para>
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
             protected override bool CanRender(RenderContext context)
             {
-                (RenderCore as ShadowMapCore).NeedRender = base.CanRender(context) && context.RenderHost.IsShadowMapEnabled;
+                (RenderCore as ShadowMapCore).NeedRender =
+                    base.CanRender(context) && context.RenderHost.IsShadowMapEnabled;
                 return true;
             }
 
-            private BoundingBox FindSceneBound(FastList<SceneNode> nodes) 
+            private BoundingBox FindSceneBound(FastList<SceneNode> nodes)
             {
                 var box = new BoundingBox();
                 if (nodes.Count > 0)
-                {
                     foreach (var node in nodes.Where(x => x is IThrowingShadow k && k.IsThrowingShadow))
                     {
-                        if (node.BoundsWithTransform.Minimum == node.BoundsWithTransform.Maximum)
-                        {
-                            continue;
-                        }
+                        if (node.BoundsWithTransform.Minimum == node.BoundsWithTransform.Maximum) continue;
                         if (box.Minimum == box.Maximum)
-                        {
                             box = node.BoundsWithTransform;
-                        }
                         else
-                        {
                             box = BoundingBox.Merge(box, node.BoundsWithTransform);
-                        }
                     }
-                }
+
                 return box;
             }
 
             private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir)
             {
-                if (box.Maximum == box.Minimum)
-                {
-                    return false;
-                }
+                if (box.Maximum == box.Minimum) return false;
                 var center = box.Center();
                 var dist = 0.0f;
                 var points = stackalloc Vector3[8];
@@ -323,12 +269,9 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     SilkMath.Dot(ref plane.Normal, ref points[i], out var dot);
                     dot += plane.D;
-                    if (dot > 0)
-                    {
-                        continue;
-                    }
+                    if (dot > 0) continue;
                     var t = dot - plane.D;
-                    var v = points[i] - (t * plane.Normal);
+                    var v = points[i] - t * plane.Normal;
                     var vDist = v.Length;
                     if (vDist > farestDist)
                     {
@@ -338,7 +281,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 dist = farestDist * CastSceneScale + 0.1f;
-                var pos = center + (-lookDir * dist);
+                var pos = center + -lookDir * dist;
                 orthoCamera.Position = pos;
                 orthoCamera.LookDirection = center - pos;
                 orthoCamera.Width = dist * 2;
@@ -375,32 +318,33 @@ namespace HelixToolkit.SharpDX.Core
                                     sceneChanged = false;
                                     var boundingBox = FindSceneBound(e.Context.RenderHost.PerFrameOpaqueNodes);
                                     if (!CreateCameraFromBound(ref boundingBox, ref dir))
-                                    {
                                         SetOrthoCameraParameters(ref dir);
-                                    }
                                 }
                             }
                             else
                             {
                                 SetOrthoCameraParameters(ref dir);
                             }
+
                             camera = orthoCamera;
                             break;
                         }
-                        else if (light.LightType == LightType.Spot)
+
+                        if (light.LightType == LightType.Spot)
                         {
                             var splight = light.RenderCore as SpotLightCore;
-                            persCamera.Position = (splight.Position + splight.ModelMatrix.Row4.ToVector3());
+                            persCamera.Position = splight.Position + splight.ModelMatrix.Row4.ToVector3();
                             var look = SilkMath.TransformNormal(splight.Direction, splight.ModelMatrix);
                             persCamera.LookDirection = look;
-                            persCamera.FarPlaneDistance = (float)splight.Range;
-                            persCamera.FieldOfView = (float)splight.OuterAngle;
+                            persCamera.FarPlaneDistance = splight.Range;
+                            persCamera.FieldOfView = splight.OuterAngle;
                             persCamera.UpDirection = Vector3.UnitZ;
                             camera = persCamera;
                             break;
                         }
                     }
                 }
+
                 if (camera == null)
                 {
                     shadowCore.FoundLightSource = false;
@@ -418,7 +362,8 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return false;
             }

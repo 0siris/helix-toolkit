@@ -4,132 +4,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Shaders;
-        using Render;
-        using Utilities;
-        using Model;
-
-
         public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable
         {
-            #region Variables
-            /// <summary>
-            /// Gets the raster state wireframe.
-            /// </summary>
-            /// <value>
-            /// The raster state wireframe.
-            /// </value>
-            protected RasterizerStateProxy RasterStateWireframe
-            {
-                get
-                {
-                    return rasterStateWireframe;
-                }
-            }
-            private RasterizerStateProxy rasterStateWireframe = null;
-
-            #endregion
-
-            #region Properties
-            /// <summary>
-            /// 
-            /// </summary>
-            public bool InvertNormal
-            {
-                set
-                {
-                    SetAffectsRender(ref modelStruct.InvertNormal, (value ? 1 : 0));
-                }
-                get
-                {
-                    return modelStruct.InvertNormal == 1 ? true : false;
-                }
-            }
-            private bool renderWireframe = false;
-            /// <summary>
-            /// Gets or sets a value indicating whether [render wireframe].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
-            /// </value>
-            public bool RenderWireframe
-            {
-                set
-                {
-                    SetAffectsRender(ref renderWireframe, value);
-                }
-                get
-                {
-                    return renderWireframe;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the color of the wireframe.
-            /// </summary>
-            /// <value>
-            /// The color of the wireframe.
-            /// </value>
-            public Color4 WireframeColor
-            {
-                set
-                {
-                    SetAffectsRender(ref modelStruct.WireframeColor, value);
-                }
-                get
-                {
-                    return modelStruct.WireframeColor;
-                }
-            }
-
-
-
-            /// <summary>
-            /// Gets or sets the dynamic reflector.
-            /// </summary>
-            /// <value>
-            /// The dynamic reflector.
-            /// </value>
-            public IDynamicReflector DynamicReflector
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets a value indicating whether this <see cref="MeshRenderCore"/> is batched.
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if batched; otherwise, <c>false</c>.
-            /// </value>
-            public bool Batched
-            {
-                set; get;
-            } = false;
-
-            private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
-            /// <summary>
-            /// Used to wrap all material resources
-            /// </summary>
-            public MaterialVariable MaterialVariables
-            {
-                set
-                {
-                    if (SetAffectsCanRenderFlag(ref materialVariables, value))
-                    {
-                        materialVariables = materialVariables ?? EmptyMaterialVariable.EmptyVariable;
-                    }
-                }
-                get
-                {
-                    return materialVariables;
-                }
-            }
-            #endregion
-
-            protected ModelStruct modelStruct = new ModelStruct() { World = Matrix.Identity };
+            protected ModelStruct modelStruct = new() {World = Matrix.Identity};
 
             protected override bool CreateRasterState(RasterizerStateDescription description, bool force)
             {
@@ -145,10 +31,8 @@ namespace HelixToolkit.SharpDX.Core
                     rasterStateWireframe = newState;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnDetach()
@@ -172,21 +56,12 @@ namespace HelixToolkit.SharpDX.Core
             protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext)
             {
                 var pass = MaterialVariables.GetPass(RenderType, context);
-                if (pass.IsNULL)
-                {
-                    return;
-                }
+                if (pass.IsNULL) return;
                 OnUpdatePerModelStruct(context);
-                if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct))
-                {
-                    return;
-                }
+                if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext, DefaultStateBinding);
-                if (!materialVariables.BindMaterialResources(context, deviceContext, pass))
-                {
-                    return;
-                }
+                if (!materialVariables.BindMaterialResources(context, deviceContext, pass)) return;
 
                 DynamicReflector?.BindCubeMap(deviceContext);
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
@@ -195,10 +70,7 @@ namespace HelixToolkit.SharpDX.Core
                 if (RenderWireframe)
                 {
                     pass = materialVariables.GetWireframePass(RenderType, context);
-                    if (pass.IsNULL)
-                    {
-                        return;
-                    }
+                    if (pass.IsNULL) return;
                     pass.BindShader(deviceContext, false);
                     pass.BindStates(deviceContext, DefaultStateBinding);
                     deviceContext.SetRasterState(RasterStateWireframe);
@@ -208,54 +80,124 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext)
             {
-                if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct))
-                {
-                    return;
-                }
+                if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
             protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext)
             {
                 var pass = materialVariables.GetShadowPass(RenderType, context);
-                if (pass.IsNULL)
-                {
-                    return;
-                }
-                var v = new SimpleMeshStruct()
+                if (pass.IsNULL) return;
+                var v = new SimpleMeshStruct
                 {
                     World = ModelMatrix,
                     HasInstances = InstanceBuffer.HasElements ? 1 : 0
                 };
-                if (!materialVariables.UpdateNonMaterialStruct(deviceContext, ref v))
-                {
-                    return;
-                }
+                if (!materialVariables.UpdateNonMaterialStruct(deviceContext, ref v)) return;
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext, ShadowStateBinding);
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            protected override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass customPass)
+            protected override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass customPass)
             {
                 var pass = customPass ?? materialVariables.GetDepthPass(RenderType, context);
-                if (pass.IsNULL)
-                {
-                    return;
-                }
-                var v = new SimpleMeshStruct()
+                if (pass.IsNULL) return;
+                var v = new SimpleMeshStruct
                 {
                     World = ModelMatrix,
                     HasInstances = InstanceBuffer.HasElements ? 1 : 0
                 };
-                if (!materialVariables.UpdateNonMaterialStruct(deviceContext, ref v))
-                {
-                    return;
-                }
+                if (!materialVariables.UpdateNonMaterialStruct(deviceContext, ref v)) return;
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext, ShadowStateBinding);
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
+
+            #region Variables
+
+            /// <summary>
+            ///     Gets the raster state wireframe.
+            /// </summary>
+            /// <value>
+            ///     The raster state wireframe.
+            /// </value>
+            protected RasterizerStateProxy RasterStateWireframe => rasterStateWireframe;
+
+            private RasterizerStateProxy rasterStateWireframe;
+
+            #endregion
+
+            #region Properties
+
+            /// <summary>
+            /// </summary>
+            public bool InvertNormal
+            {
+                get => modelStruct.InvertNormal == 1 ? true : false;
+                set => SetAffectsRender(ref modelStruct.InvertNormal, value ? 1 : 0);
+            }
+
+            private bool renderWireframe;
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether [render wireframe].
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
+            /// </value>
+            public bool RenderWireframe
+            {
+                get => renderWireframe;
+                set => SetAffectsRender(ref renderWireframe, value);
+            }
+
+            /// <summary>
+            ///     Gets or sets the color of the wireframe.
+            /// </summary>
+            /// <value>
+            ///     The color of the wireframe.
+            /// </value>
+            public Color4 WireframeColor
+            {
+                get => modelStruct.WireframeColor;
+                set => SetAffectsRender(ref modelStruct.WireframeColor, value);
+            }
+
+
+            /// <summary>
+            ///     Gets or sets the dynamic reflector.
+            /// </summary>
+            /// <value>
+            ///     The dynamic reflector.
+            /// </value>
+            public IDynamicReflector DynamicReflector { get; set; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether this <see cref="MeshRenderCore" /> is batched.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if batched; otherwise, <c>false</c>.
+            /// </value>
+            public bool Batched { get; set; } = false;
+
+            private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
+
+            /// <summary>
+            ///     Used to wrap all material resources
+            /// </summary>
+            public MaterialVariable MaterialVariables
+            {
+                get => materialVariables;
+                set
+                {
+                    if (SetAffectsCanRenderFlag(ref materialVariables, value))
+                        materialVariables = materialVariables ?? EmptyMaterialVariable.EmptyVariable;
+                }
+            }
+
+            #endregion
         }
     }
 }

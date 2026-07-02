@@ -3,12 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
 using System.Runtime.InteropServices;
-using Silk.NET.Core.Contexts;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
-using Silk.NET.DXGI;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
 using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 
@@ -19,8 +16,9 @@ namespace HelixToolkit.SharpDX.Core
         internal static unsafe class SilkD3D11DeviceFactory
         {
             private const uint D3D11SdkVersion = 7;
+
             // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
-            private static readonly D3D11 D3D11Api = D3D11.GetApi((INativeWindowSource)null, false);
+            private static readonly D3D11 D3D11Api = D3D11.GetApi(null);
 
             private static readonly D3DFeatureLevel[] DefaultFeatureLevels =
             {
@@ -37,10 +35,7 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var flags = CreateDeviceFlag.CreateDeviceBgraSupport;
 
-                if (enableDebugLayer)
-                {
-                    flags |= CreateDeviceFlag.CreateDeviceDebug;
-                }
+                if (enableDebugLayer) flags |= CreateDeviceFlag.CreateDeviceDebug;
 
                 ID3D11Device* nativeDevice = null;
                 ID3D11DeviceContext* nativeContext = null;
@@ -49,12 +44,12 @@ namespace HelixToolkit.SharpDX.Core
                 fixed (D3DFeatureLevel* featureLevels = DefaultFeatureLevels)
                 {
                     var result = D3D11Api.CreateDevice(
-                        (IDXGIAdapter*)null,
+                        null,
                         ToSilkDriverType(driverType),
-                        IntPtr.Zero,
-                        (uint)flags,
+                        nint.Zero,
+                        (uint) flags,
                         featureLevels,
-                        (uint)DefaultFeatureLevels.Length,
+                        (uint) DefaultFeatureLevels.Length,
                         D3D11SdkVersion,
                         ref nativeDevice,
                         ref selectedFeatureLevel,
@@ -63,7 +58,8 @@ namespace HelixToolkit.SharpDX.Core
                     Marshal.ThrowExceptionForHR(result);
                 }
 
-                var device = new SilkD3DDevice(new SilkD3D11DevicePtr(nativeDevice), driverType, FromSilkFeatureLevel(selectedFeatureLevel));
+                var device = new SilkD3DDevice(new SilkD3D11DevicePtr(nativeDevice), driverType,
+                    FromSilkFeatureLevel(selectedFeatureLevel));
                 var context = new SilkD3DDeviceContext(new SilkD3D11ContextPtr(nativeContext), false);
                 return new SilkD3DDeviceResources(adapterIndex, device, context);
             }

@@ -14,16 +14,11 @@ namespace HelixToolkit.SharpDX.Core
                 hitResult = null;
                 if (LayoutBoundWithTransform.Contains(mousePoint))
                 {
-                    if (!base.OnHitTest(ref mousePoint, out hitResult))
-                    {
-                        hitResult = new HitTest2DResult(WrapperSource);
-                    }
+                    if (!base.OnHitTest(ref mousePoint, out hitResult)) hitResult = new HitTest2DResult(WrapperSource);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
         }
     }

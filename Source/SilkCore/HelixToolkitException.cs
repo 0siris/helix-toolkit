@@ -6,17 +6,16 @@
 //   Represents errors that occurs in the Helix 3D Toolkit.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 #if SHARPDX
 namespace HelixToolkit.SharpDX.Core
 #else
 namespace HelixToolkit.Wpf
 #endif
 {
-    using System;
-
 #pragma warning disable 0436
     /// <summary>
-    /// Represents errors that occurs in the Helix 3D Toolkit.
+    ///     Represents errors that occurs in the Helix 3D Toolkit.
     /// </summary>
 #if !NETFX_CORE
     [Serializable]
@@ -24,13 +23,13 @@ namespace HelixToolkit.Wpf
     public class HelixToolkitException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="HelixToolkitException"/> class.
+        ///     Initializes a new instance of the <see cref="HelixToolkitException" /> class.
         /// </summary>
         /// <param name="formatString">
-        /// The format string.
+        ///     The format string.
         /// </param>
         /// <param name="args">
-        /// The args.
+        ///     The args.
         /// </param>
         public HelixToolkitException(string formatString, params object[] args)
             : base(string.Format(formatString, args))

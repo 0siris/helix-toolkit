@@ -3,366 +3,272 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
-using System.IO;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Model;
-        using Render;
         /// <summary>
-        /// 
         /// </summary>
         public interface IGeometryRenderCore
         {
             /// <summary>
-            /// Gets or sets the instance buffer.
+            ///     Gets or sets the instance buffer.
             /// </summary>
             /// <value>
-            /// The instance buffer.
+            ///     The instance buffer.
             /// </value>
-            IElementsBufferModel InstanceBuffer
-            {
-                set; get;
-            }
+            IElementsBufferModel InstanceBuffer { get; set; }
+
             /// <summary>
-            /// Gets or sets the geometry buffer.
+            ///     Gets or sets the geometry buffer.
             /// </summary>
             /// <value>
-            /// The geometry buffer.
+            ///     The geometry buffer.
             /// </value>
-            IAttachableBufferModel GeometryBuffer
-            {
-                set; get;
-            }
+            IAttachableBufferModel GeometryBuffer { get; set; }
+
             /// <summary>
-            /// Gets or sets the raster description.
+            ///     Gets or sets the raster description.
             /// </summary>
             /// <value>
-            /// The raster description.
+            ///     The raster description.
             /// </value>
-            RasterizerStateDescription RasterDescription
-            {
-                set; get;
-            }
+            RasterizerStateDescription RasterDescription { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IMaterialRenderParams
         {
             /// <summary>
-            /// Gets or sets the material variables used for rendering.
+            ///     Gets or sets the material variables used for rendering.
             /// </summary>
             /// <value>
-            /// The material variable.
+            ///     The material variable.
             /// </value>
-            MaterialVariable MaterialVariables
-            {
-                set; get;
-            }
+            MaterialVariable MaterialVariables { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IMeshRenderParams : IInvertNormal, IMaterialRenderParams
         {
-            bool RenderWireframe
-            {
-                set; get;
-            }
-            Color4 WireframeColor
-            {
-                set; get;
-            }
+            bool RenderWireframe { get; set; }
+
+            Color4 WireframeColor { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IDynamicReflector
         {
-            bool IsDynamicScene
-            {
-                set; get;
-            }
-            bool EnableReflector
-            {
-                set; get;
-            }
-            Vector3 Center
-            {
-                set; get;
-            }
-            int FaceSize
-            {
-                set; get;
-            }
-            float NearField
-            {
-                set; get;
-            }
-            float FarField
-            {
-                set; get;
-            }
-            bool IsLeftHanded
-            {
-                set; get;
-            }
+            bool IsDynamicScene { get; set; }
+
+            bool EnableReflector { get; set; }
+
+            Vector3 Center { get; set; }
+
+            int FaceSize { get; set; }
+
+            float NearField { get; set; }
+
+            float FarField { get; set; }
+
+            bool IsLeftHanded { get; set; }
+
             void BindCubeMap(DeviceContextProxy deviceContext);
             void UnBindCubeMap(DeviceContextProxy deviceContext);
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IDynamicReflectable
         {
-            IDynamicReflector DynamicReflector
-            {
-                set; get;
-            }
+            IDynamicReflector DynamicReflector { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IInvertNormal
         {
             /// <summary>
-            /// Gets or sets a value indicating whether [invert normal].
+            ///     Gets or sets a value indicating whether [invert normal].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [invert normal]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [invert normal]; otherwise, <c>false</c>.
             /// </value>
-            bool InvertNormal
-            {
-                set; get;
-            }
+            bool InvertNormal { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface IBillboardRenderParams
         {
             /// <summary>
-            /// Gets or sets the type.
+            ///     Gets or sets the type.
             /// </summary>
             /// <value>
-            /// The type.
+            ///     The type.
             /// </value>
-            BillboardType Type
-            {
-                set; get;
-            }
+            BillboardType Type { get; set; }
+
             /// <summary>
-            /// Gets or sets a value indicating whether [fixed size].
+            ///     Gets or sets a value indicating whether [fixed size].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [fixed size]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [fixed size]; otherwise, <c>false</c>.
             /// </value>
-            bool FixedSize
-            {
-                set; get;
-            }
+            bool FixedSize { get; set; }
+
             /// <summary>
-            /// Gets or sets the sampler description.
+            ///     Gets or sets the sampler description.
             /// </summary>
             /// <value>
-            /// The sampler description.
+            ///     The sampler description.
             /// </value>
-            SamplerStateDescription SamplerDescription
-            {
-                set; get;
-            }
+            SamplerStateDescription SamplerDescription { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface ICrossSectionRenderParams
         {
             /// <summary>
-            /// Cutting operation, intersects or substract
+            ///     Cutting operation, intersects or substract
             /// </summary>
-            CuttingOperation CuttingOperation
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the color of the section.
-            /// </summary>
-            /// <value>
-            /// The color of the section.
-            /// </value>
-            Color4 SectionColor
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets a value indicating whether [plane1/plane2/plane3/plane4 enabled].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [plane1/plane2/plane3/plane4 enabled]; otherwise, <c>false</c>.
-            /// </value>
-            Bool4 PlaneEnabled
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane5 to 8 enabled.
-            /// </summary>
-            /// <value>
-            /// The plane5 to8 enabled.
-            /// </value>
-            Bool4 Plane5To8Enabled
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Defines the plane (Normal + d)
-            /// </summary>
-            Vector4 Plane1Params
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane2 parameters.(Normal + d)
-            /// </summary>
-            /// <value>
-            /// The plane2 parameters.
-            /// </value>
-            Vector4 Plane2Params
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane3 parameters.(Normal + d)
-            /// </summary>
-            /// <value>
-            /// The plane3 parameters.
-            /// </value>
-            Vector4 Plane3Params
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane4 parameters.(Normal + d)
-            /// </summary>
-            /// <value>
-            /// The plane4 parameters.
-            /// </value>
-            Vector4 Plane4Params
-            {
-                set; get;
-            }
+            CuttingOperation CuttingOperation { get; set; }
 
             /// <summary>
-            /// Gets or sets the plane5 parameters.(Normal + d)
+            ///     Gets or sets the color of the section.
             /// </summary>
             /// <value>
-            /// The plane5 parameters.
+            ///     The color of the section.
             /// </value>
-            Vector4 Plane5Params
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane6 parameters.(Normal + d)
-            /// </summary>
-            /// <value>
-            /// The plane6 parameters.
-            /// </value>
-            Vector4 Plane6Params
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets the plane7 parameters.(Normal + d)
-            /// </summary>
-            /// <value>
-            /// The plane7 parameters.
-            /// </value>
-            Vector4 Plane7Params
-            {
-                set; get;
-            }
+            Color4 SectionColor { get; set; }
 
             /// <summary>
-            /// Gets or sets the plane8 parameters.(Normal + d)
+            ///     Gets or sets a value indicating whether [plane1/plane2/plane3/plane4 enabled].
             /// </summary>
             /// <value>
-            /// The plane8 parameters.
+            ///     <c>true</c> if [plane1/plane2/plane3/plane4 enabled]; otherwise, <c>false</c>.
             /// </value>
-            Vector4 Plane8Params
-            {
-                set; get;
-            }
+            Bool4 PlaneEnabled { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane5 to 8 enabled.
+            /// </summary>
+            /// <value>
+            ///     The plane5 to8 enabled.
+            /// </value>
+            Bool4 Plane5To8Enabled { get; set; }
+
+            /// <summary>
+            ///     Defines the plane (Normal + d)
+            /// </summary>
+            Vector4 Plane1Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane2 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane2 parameters.
+            /// </value>
+            Vector4 Plane2Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane3 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane3 parameters.
+            /// </value>
+            Vector4 Plane3Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane4 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane4 parameters.
+            /// </value>
+            Vector4 Plane4Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane5 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane5 parameters.
+            /// </value>
+            Vector4 Plane5Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane6 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane6 parameters.
+            /// </value>
+            Vector4 Plane6Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane7 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane7 parameters.
+            /// </value>
+            Vector4 Plane7Params { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the plane8 parameters.(Normal + d)
+            /// </summary>
+            /// <value>
+            ///     The plane8 parameters.
+            /// </value>
+            Vector4 Plane8Params { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IMeshOutlineParams
         {
             /// <summary>
-            /// Gets or sets the color.
+            ///     Gets or sets the color.
             /// </summary>
             /// <value>
-            /// The color.
+            ///     The color.
             /// </value>
-            Color4 Color
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Enable outline
-            /// </summary>
-            bool OutlineEnabled
-            {
-                set; get;
-            }
+            Color4 Color { get; set; }
 
             /// <summary>
-            /// Draw original mesh
+            ///     Enable outline
             /// </summary>
-            bool DrawMesh
-            {
-                set; get;
-            }
+            bool OutlineEnabled { get; set; }
 
             /// <summary>
-            /// Draw outline order
+            ///     Draw original mesh
             /// </summary>
-            bool DrawOutlineBeforeMesh
-            {
-                set; get;
-            }
+            bool DrawMesh { get; set; }
 
             /// <summary>
-            /// Outline fading
+            ///     Draw outline order
             /// </summary>
-            float OutlineFadingFactor
-            {
-                set; get;
-            }
+            bool DrawOutlineBeforeMesh { get; set; }
+
+            /// <summary>
+            ///     Outline fading
+            /// </summary>
+            float OutlineFadingFactor { get; set; }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public static class MeshTopologies
         {
             /// <summary>
-            /// Gets the topologies.
+            ///     Gets the topologies.
             /// </summary>
             /// <value>
-            /// The topologies.
+            ///     The topologies.
             /// </value>
             public static IEnumerable<MeshTopologyEnum> Topologies
             {
@@ -376,167 +282,111 @@ namespace HelixToolkit.SharpDX.Core
 
 
         /// <summary>
-        /// 
         /// </summary>
         public interface IPointRenderParams
         {
             /// <summary>
-            /// 
             /// </summary>
-            Color4 PointColor
-            {
-                set; get;
-            }
+            Color4 PointColor { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            float Width
-            {
-                set; get;
-            }
+            float Width { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            float Height
-            {
-                set; get;
-            }
+            float Height { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            PointFigure Figure
-            {
-                set; get;
-            }
+            PointFigure Figure { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            float FigureRatio
-            {
-                set; get;
-            }
+            float FigureRatio { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface IShadowMapRenderParams
         {
             /// <summary>
-            /// 
             /// </summary>
-            int Width
-            {
-                set; get;
-            }
+            int Width { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            int Height
-            {
-                set; get;
-            }
+            int Height { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            float Bias
-            {
-                set; get;
-            }
+            float Bias { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            float Intensity
-            {
-                set; get;
-            }
+            float Intensity { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            Matrix LightView
-            {
-                set; get;
-            }
+            Matrix LightView { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            Matrix LightProjection
-            {
-                set; get;
-            }
+            Matrix LightProjection { get; set; }
+
             /// <summary>
-            /// Update shadow map every N frames
+            ///     Update shadow map every N frames
             /// </summary>
-            int UpdateFrequency
-            {
-                set; get;
-            }
+            int UpdateFrequency { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface ISkyboxRenderParams
         {
             /// <summary>
-            /// Gets or sets the cube texture.
+            ///     Gets or sets the cube texture.
             /// </summary>
             /// <value>
-            /// The cube texture.
+            ///     The cube texture.
             /// </value>
-            TextureModel CubeTexture
-            {
-                set; get;
-            }
+            TextureModel CubeTexture { get; set; }
+
             /// <summary>
-            /// Skip environment map rendering, but still keep it available for other object to use.
+            ///     Skip environment map rendering, but still keep it available for other object to use.
             /// </summary>
-            bool SkipRendering
-            {
-                set; get;
-            }
+            bool SkipRendering { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface IThrowingShadow
         {
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is throwing shadow.
+            ///     Gets or sets a value indicating whether this instance is throwing shadow.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is throwing shadow; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is throwing shadow; otherwise, <c>false</c>.
             /// </value>
-            bool IsThrowingShadow
-            {
-                get; set;
-            }
+            bool IsThrowingShadow { get; set; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public interface ILineRenderParams
         {
             /// <summary>
-            /// 
             /// </summary>
-            float Thickness
-            {
-                set; get;
-            }
+            float Thickness { get; set; }
 
             /// <summary>
-            /// 
             /// </summary>
-            float Smoothness
-            {
-                set; get;
-            }
+            float Smoothness { get; set; }
+
             /// <summary>
-            /// Final Line Color = LineColor * PerVertexLineColor
+            ///     Final Line Color = LineColor * PerVertexLineColor
             /// </summary>
-            Color4 LineColor
-            {
-                set; get;
-            }
+            Color4 LineColor { get; set; }
         }
     }
 }

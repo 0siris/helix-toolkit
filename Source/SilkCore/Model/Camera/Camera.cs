@@ -2,81 +2,66 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
 
+using System.Diagnostics;
 using System.Globalization;
+using HelixToolkit.SharpDX.Core.Model;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Cameras
     {
-        using Model;
-
         public abstract class CameraCore : ObservableObject, ICamera
         {
-            private Vector3 position;
-            public Vector3 Position
-            {
-                set
-                {
-                    Set(ref position, value);
-                }
-                get
-                {
-                    return position;
-                }
-            }
+            private float accumTime;
+            private float aniTime;
+
+            private bool createLeftHandSystem;
 
             private Vector3 lookDirection;
-            public Vector3 LookDirection
-            {
-                set
-                {
-                    Set(ref lookDirection, value);
-                }
-                get
-                {
-                    return lookDirection;
-                }
-            }
+            private Vector3 oldLookDir;
+            private Vector3 oldPosition;
+            private Vector3 oldUpDir;
+            private Vector3 position;
+            private long prevTicks;
+            private Vector3 targetLookDirection;
+
+
+            private Vector3 targetPosition;
+            private Vector3 targetUpDirection;
 
             private Vector3 upDirection;
+
+            public Vector3 Target => position + lookDirection;
+
+            public Vector3 Position
+            {
+                get => position;
+                set => Set(ref position, value);
+            }
+
+            public Vector3 LookDirection
+            {
+                get => lookDirection;
+                set => Set(ref lookDirection, value);
+            }
+
             public Vector3 UpDirection
             {
-                set
-                {
-                    Set(ref upDirection, value);
-                }
-                get
-                {
-                    return upDirection;
-                }
+                get => upDirection;
+                set => Set(ref upDirection, value);
             }
 
-            public Vector3 Target
-            {
-                get
-                {
-                    return position + lookDirection;
-                }
-            }
-
-            private bool createLeftHandSystem = false;
             /// <summary>
-            /// Gets or sets a value indicating whether to create a left hand system.
+            ///     Gets or sets a value indicating whether to create a left hand system.
             /// </summary>
             /// <value>
-            /// <c>true</c> if creating a left hand system; otherwise, <c>false</c>.
+            ///     <c>true</c> if creating a left hand system; otherwise, <c>false</c>.
             /// </value>
             public bool CreateLeftHandSystem
             {
-                set
-                {
-                    Set(ref createLeftHandSystem, value);
-                }
-                get
-                {
-                    return createLeftHandSystem;
-                }
+                get => createLeftHandSystem;
+                set => Set(ref createLeftHandSystem, value);
             }
 
             public abstract Matrix CreateProjectionMatrix(float aspectRatio);
@@ -87,47 +72,38 @@ namespace HelixToolkit.SharpDX.Core
 
             public abstract FrustumCameraParams CreateCameraParams(float aspectRatio);
             public abstract FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane);
+
             public override string ToString()
             {
                 var target = Position + LookDirection;
                 return string.Format(
-                            CultureInfo.InvariantCulture,
-                            "LookDirection:\t{0:0.000},{1:0.000},{2:0.000}",
-                            LookDirection.X,
-                            LookDirection.Y,
-                            LookDirection.Z) + "\n"
-                            + string.Format(
-                            CultureInfo.InvariantCulture,
-                            "UpDirection:\t{0:0.000},{1:0.000},{2:0.000}",
-                            UpDirection.X,
-                            UpDirection.Y,
-                            UpDirection.Z) + "\n"
-                            + string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Position:\t\t{0:0.000},{1:0.000},{2:0.000}",
-                            Position.X,
-                            Position.Y,
-                            Position.Z) + "\n"
-                            + string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Target:\t\t{0:0.000},{1:0.000},{2:0.000}",
-                            target.X,
-                            target.Y,
-                            target.Z);
+                        CultureInfo.InvariantCulture,
+                        "LookDirection:\t{0:0.000},{1:0.000},{2:0.000}",
+                        LookDirection.X,
+                        LookDirection.Y,
+                        LookDirection.Z) + "\n"
+                                         + string.Format(
+                                             CultureInfo.InvariantCulture,
+                                             "UpDirection:\t{0:0.000},{1:0.000},{2:0.000}",
+                                             UpDirection.X,
+                                             UpDirection.Y,
+                                             UpDirection.Z) + "\n"
+                                         + string.Format(
+                                             CultureInfo.InvariantCulture,
+                                             "Position:\t\t{0:0.000},{1:0.000},{2:0.000}",
+                                             Position.X,
+                                             Position.Y,
+                                             Position.Z) + "\n"
+                                         + string.Format(
+                                             CultureInfo.InvariantCulture,
+                                             "Target:\t\t{0:0.000},{1:0.000},{2:0.000}",
+                                             target.X,
+                                             target.Y,
+                                             target.Z);
             }
 
-
-            private Vector3 targetPosition;
-            private Vector3 targetLookDirection;
-            private Vector3 targetUpDirection;
-            private Vector3 oldPosition;
-            private Vector3 oldLookDir;
-            private Vector3 oldUpDir;
-            private float aniTime = 0;
-            private float accumTime = 0;
-            private long prevTicks = 0;
             /// <summary>
-            /// Animates to.
+            ///     Animates to.
             /// </summary>
             /// <param name="newPosition">The new position.</param>
             /// <param name="newDirection">The new direction.</param>
@@ -156,28 +132,26 @@ namespace HelixToolkit.SharpDX.Core
                     oldUpDir = UpDirection;
                     aniTime = animationTime;
                     accumTime = 1;
-                    prevTicks = System.Diagnostics.Stopwatch.GetTimestamp();
+                    prevTicks = Stopwatch.GetTimestamp();
                     OnUpdateAnimation(0);
                 }
             }
+
             /// <summary>
-            /// Called when [time step] to update camera animation.
+            ///     Called when [time step] to update camera animation.
             /// </summary>
             /// <returns></returns>
             public virtual bool OnTimeStep()
             {
-                var ticks = System.Diagnostics.Stopwatch.GetTimestamp();
-                var ellapsed = (float)(ticks - prevTicks) / System.Diagnostics.Stopwatch.Frequency * 1000;
+                var ticks = Stopwatch.GetTimestamp();
+                var ellapsed = (float) (ticks - prevTicks) / Stopwatch.Frequency * 1000;
                 prevTicks = ticks;
                 return OnUpdateAnimation(ellapsed);
             }
 
             protected virtual bool OnUpdateAnimation(float ellapsed)
             {
-                if (aniTime == 0)
-                {
-                    return false;
-                }
+                if (aniTime == 0) return false;
                 accumTime += ellapsed;
                 if (accumTime > aniTime)
                 {
@@ -187,17 +161,15 @@ namespace HelixToolkit.SharpDX.Core
                     aniTime = 0;
                     return false;
                 }
-                else
-                {
-                    var l = accumTime / aniTime;
-                    var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
-                    var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
-                    var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);
-                    Position = nextPos;
-                    LookDirection = nextLook;
-                    UpDirection = nextUp;
-                    return true;
-                }
+
+                var l = accumTime / aniTime;
+                var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
+                var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
+                var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);
+                Position = nextPos;
+                LookDirection = nextLook;
+                UpDirection = nextUp;
+                return true;
             }
 
             public void StopAnimation()
@@ -209,71 +181,57 @@ namespace HelixToolkit.SharpDX.Core
         public abstract class ProjectionCameraCore : CameraCore
         {
             private float farPlane = 100;
+
+            private float nearPlane = 0.001f;
+
             /// <summary>
-            /// Gets or sets the far plane distance.
+            ///     Gets or sets the far plane distance.
             /// </summary>
             /// <value>
-            /// The far plane distance.
+            ///     The far plane distance.
             /// </value>
             public float FarPlaneDistance
             {
-                set
-                {
-                    Set(ref farPlane, value);
-                }
-                get
-                {
-                    return farPlane;
-                }
+                get => farPlane;
+                set => Set(ref farPlane, value);
             }
 
-            private float nearPlane = 0.001f;
             /// <summary>
-            /// Gets or sets the near plane distance.
+            ///     Gets or sets the near plane distance.
             /// </summary>
             /// <value>
-            /// The near plane distance.
+            ///     The near plane distance.
             /// </value>
             public float NearPlaneDistance
             {
-                set
-                {
-                    Set(ref nearPlane, value);
-                }
-                get
-                {
-                    return nearPlane;
-                }
+                get => nearPlane;
+                set => Set(ref nearPlane, value);
             }
 
             public override Matrix CreateViewMatrix()
             {
-                return CreateLeftHandSystem ? SilkMath.LookAtLH(this.Position, this.Position + this.LookDirection, this.UpDirection)
-                    : SilkMath.LookAtRH(this.Position, this.Position + this.LookDirection, this.UpDirection);
+                return CreateLeftHandSystem
+                    ? SilkMath.LookAtLH(Position, Position + LookDirection, UpDirection)
+                    : SilkMath.LookAtRH(Position, Position + LookDirection, UpDirection);
             }
 
             public override string ToString()
             {
                 return base.ToString() + "\n" +
-                    string.Format(
-                            CultureInfo.InvariantCulture, "NearPlaneDist:\t{0}", NearPlaneDistance) + "\n"
-                            + string.Format(CultureInfo.InvariantCulture, "FarPlaneDist:\t{0}", FarPlaneDistance);
+                       string.Format(
+                           CultureInfo.InvariantCulture, "NearPlaneDist:\t{0}", NearPlaneDistance) + "\n"
+                       + string.Format(CultureInfo.InvariantCulture, "FarPlaneDist:\t{0}", FarPlaneDistance);
             }
         }
 
         public class OrthographicCameraCore : ProjectionCameraCore
         {
             private float width = 100;
+
             public float Width
             {
-                set
-                {
-                    Set(ref width, value);
-                }
-                get
-                {
-                    return width;
-                }
+                get => width;
+                set => Set(ref width, value);
             }
 
             public override FrustumCameraParams CreateCameraParams(float aspectRatio)
@@ -283,10 +241,10 @@ namespace HelixToolkit.SharpDX.Core
 
             public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane)
             {
-                return new FrustumCameraParams()
+                return new FrustumCameraParams
                 {
                     AspectRatio = aspectRatio,
-                    FOV = (float)Math.PI / 2,
+                    FOV = (float) Math.PI / 2,
                     LookAtDir = LookDirection,
                     UpDir = UpDirection,
                     Position = Position,
@@ -302,9 +260,9 @@ namespace HelixToolkit.SharpDX.Core
 
             public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane)
             {
-                return this.CreateLeftHandSystem ?
-                    SilkMath.OrthoLH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane))
-                    : SilkMath.OrthoRH(this.Width, (float)(this.Width / aspectRatio), nearPlane, Math.Min(1e15f, farPlane));
+                return CreateLeftHandSystem
+                    ? SilkMath.OrthoLH(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane))
+                    : SilkMath.OrthoRH(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane));
             }
 
 
@@ -329,7 +287,7 @@ namespace HelixToolkit.SharpDX.Core
                 else
                 {
                     oldWidth = Width;
-                    this.targetWidth = newWidth;
+                    targetWidth = newWidth;
                     accumTime = 1;
                     aniTime = animationTime;
                     OnUpdateAnimation(0);
@@ -338,11 +296,8 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool OnUpdateAnimation(float ellapsed)
             {
-                bool res = base.OnUpdateAnimation(ellapsed);
-                if (aniTime == 0)
-                {
-                    return res;
-                }
+                var res = base.OnUpdateAnimation(ellapsed);
+                if (aniTime == 0) return res;
                 accumTime += ellapsed;
                 if (accumTime > aniTime)
                 {
@@ -351,13 +306,11 @@ namespace HelixToolkit.SharpDX.Core
                     aniTime = 0;
                     return res;
                 }
-                else
-                {
-                    var newWidth = oldWidth + (targetWidth - oldWidth) * (accumTime / aniTime);
-                    UpdateCameraPositionByWidth(newWidth);
-                    Width = newWidth;
-                    return true;
-                }
+
+                var newWidth = oldWidth + (targetWidth - oldWidth) * (accumTime / aniTime);
+                UpdateCameraPositionByWidth(newWidth);
+                Width = newWidth;
+                return true;
             }
 
             private void UpdateCameraPositionByWidth(double newWidth)
@@ -368,8 +321,8 @@ namespace HelixToolkit.SharpDX.Core
                 var dist = dir.Length;
                 var newDist = dist * ratio;
                 dir.Normalize();
-                var position = (target - dir * (float)newDist);
-                var lookDir = dir * (float)newDist;
+                var position = target - dir * (float) newDist;
+                var lookDir = dir * (float) newDist;
                 Position = position;
                 LookDirection = lookDir;
             }
@@ -378,10 +331,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public class PerspectiveCameraCore : ProjectionCameraCore
         {
-            public float FieldOfView
-            {
-                set; get;
-            } = 45;
+            public float FieldOfView { get; set; } = 45;
 
             public override Matrix CreateProjectionMatrix(float aspectRatio)
             {
@@ -390,20 +340,13 @@ namespace HelixToolkit.SharpDX.Core
 
             public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane)
             {
-                var fov = this.FieldOfView * Math.PI / 180;
+                var fov = FieldOfView * Math.PI / 180;
                 Matrix projM;
-                if (this.CreateLeftHandSystem)
-                {
-                    projM = SilkMath.PerspectiveFovLH((float)fov, aspectRatio, nearPlane, farPlane);
-                }
+                if (CreateLeftHandSystem)
+                    projM = SilkMath.PerspectiveFovLH((float) fov, aspectRatio, nearPlane, farPlane);
                 else
-                {
-                    projM = SilkMath.PerspectiveFovRH((float)fov, (float)aspectRatio, nearPlane, farPlane);
-                }
-                if (float.IsNaN(projM.M33) || float.IsNaN(projM.M43))
-                {
-                    projM.M33 = projM.M43 = -1;
-                }
+                    projM = SilkMath.PerspectiveFovRH((float) fov, aspectRatio, nearPlane, farPlane);
+                if (float.IsNaN(projM.M33) || float.IsNaN(projM.M43)) projM.M33 = projM.M43 = -1;
                 return projM;
             }
 
@@ -411,12 +354,13 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);
             }
+
             public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane)
             {
-                return new FrustumCameraParams()
+                return new FrustumCameraParams
                 {
                     AspectRatio = aspectRatio,
-                    FOV = FieldOfView / 180f * (float)(Math.PI),
+                    FOV = FieldOfView / 180f * (float) Math.PI,
                     LookAtDir = LookDirection,
                     UpDir = UpDirection,
                     Position = Position,
@@ -424,9 +368,11 @@ namespace HelixToolkit.SharpDX.Core
                     ZFar = farPlane
                 };
             }
+
             public override string ToString()
             {
-                return base.ToString() + "\n" + string.Format(CultureInfo.InvariantCulture, "FieldOfView:\t{0:0.#}°", FieldOfView);
+                return base.ToString() + "\n" +
+                       string.Format(CultureInfo.InvariantCulture, "FieldOfView:\t{0:0.#}°", FieldOfView);
             }
         }
     }

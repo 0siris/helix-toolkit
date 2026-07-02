@@ -4,22 +4,24 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
-using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Utilities;
         public struct ConstantBufferVariable
         {
             //
             // Summary:
             //     The variable name.
             public string Name;
+
             //
             // Summary:
             //     Offset from the start of the parent structure to the beginning of the variable.
             public int StartOffset;
+
             //
             // Summary:
             //     Size of the variable (in bytes).
@@ -28,41 +30,6 @@ namespace HelixToolkit.SharpDX.Core
 
         public sealed class ConstantBufferDescription
         {
-            public string Name
-            {
-                set; get;
-            }
-
-            public int StructSize
-            {
-                set; get;
-            }
-
-            public int StrideSize
-            {
-                set; get;
-            }
-
-            public BindFlags BindFlags { set; get; } = BindFlags.ConstantBuffer;
-
-            public CpuAccessFlags CpuAccessFlags { set; get; } = CpuAccessFlags.Write;
-
-            public ResourceOptionFlags OptionFlags { set; get; } = ResourceOptionFlags.None;
-
-            public ResourceUsage Usage { set; get; } = ResourceUsage.Dynamic;
-
-            public ShaderStage Stage
-            {
-                set; get;
-            }
-
-            public int Slot
-            {
-                set; get;
-            }
-
-            public List<ConstantBufferVariable> Variables { get; } = new List<ConstantBufferVariable>();
-
             public ConstantBufferDescription(string name, int structSize, int strideSize = 0)
             {
                 Name = name;
@@ -70,19 +37,34 @@ namespace HelixToolkit.SharpDX.Core
                 StrideSize = strideSize;
             }
 
-            public ConstantBufferDescription(string name, int structSize, IEnumerable<ConstantBufferVariable> variables, int strideSize = 0)
+            public ConstantBufferDescription(string name, int structSize, IEnumerable<ConstantBufferVariable> variables,
+                int strideSize = 0)
                 : this(name, structSize, strideSize)
             {
-                if (variables == null)
-                {
-                    return;
-                }
+                if (variables == null) return;
 
-                foreach (var variable in variables)
-                {
-                    Variables.Add(variable);
-                }
+                foreach (var variable in variables) Variables.Add(variable);
             }
+
+            public string Name { get; set; }
+
+            public int StructSize { get; set; }
+
+            public int StrideSize { get; set; }
+
+            public BindFlags BindFlags { get; set; } = BindFlags.ConstantBuffer;
+
+            public CpuAccessFlags CpuAccessFlags { get; set; } = CpuAccessFlags.Write;
+
+            public ResourceOptionFlags OptionFlags { get; set; } = ResourceOptionFlags.None;
+
+            public ResourceUsage Usage { get; set; } = ResourceUsage.Dynamic;
+
+            public ShaderStage Stage { get; set; }
+
+            public int Slot { get; set; }
+
+            public List<ConstantBufferVariable> Variables { get; } = new();
 
             public ConstantBufferProxy CreateBuffer()
             {
@@ -98,10 +80,10 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return new ConstantBufferDescription(Name, StructSize, StrideSize)
                 {
-                    BindFlags = this.BindFlags,
-                    CpuAccessFlags = this.CpuAccessFlags,
-                    OptionFlags = this.OptionFlags,
-                    Usage = this.Usage
+                    BindFlags = BindFlags,
+                    CpuAccessFlags = CpuAccessFlags,
+                    OptionFlags = OptionFlags,
+                    Usage = Usage
                 };
             }
         }
@@ -109,23 +91,15 @@ namespace HelixToolkit.SharpDX.Core
         [DataContract]
         public sealed class ConstantBufferMapping
         {
-            [DataMember]
-            public int Slot
-            {
-                set; get;
-            }
-
-            [DataMember]
-            public ConstantBufferDescription Description
-            {
-                set; get;
-            }
-
             public ConstantBufferMapping(int slot, ConstantBufferDescription description)
             {
                 Slot = slot;
                 Description = description;
             }
+
+            [DataMember] public int Slot { get; set; }
+
+            [DataMember] public ConstantBufferDescription Description { get; set; }
 
             public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description)
             {
@@ -134,7 +108,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public ConstantBufferMapping Clone()
             {
-                return new ConstantBufferMapping(this.Slot, this.Description.Clone());
+                return new ConstantBufferMapping(Slot, Description.Clone());
             }
         }
     }

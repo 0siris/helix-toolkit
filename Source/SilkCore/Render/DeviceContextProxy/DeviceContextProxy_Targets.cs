@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
@@ -62,15 +61,9 @@ namespace HelixToolkit.SharpDX.Core
                 float depth = 1,
                 byte stencil = 0)
             {
-                if (clearRTV && rtv != null)
-                {
-                    ClearRenderTargetView(rtv, color);
-                }
+                if (clearRTV && rtv != null) ClearRenderTargetView(rtv, color);
 
-                if (clearDSV && dsv != null)
-                {
-                    ClearDepthStencilView(dsv, flags, depth, stencil);
-                }
+                if (clearDSV && dsv != null) ClearDepthStencilView(dsv, flags, depth, stencil);
 
                 SetRenderTarget(dsv, rtv);
             }
@@ -78,10 +71,7 @@ namespace HelixToolkit.SharpDX.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetRenderTarget(RenderTargetView rtv, bool clearRTV, Color4 color)
             {
-                if (clearRTV && rtv != null)
-                {
-                    ClearRenderTargetView(rtv, color);
-                }
+                if (clearRTV && rtv != null) ClearRenderTargetView(rtv, color);
 
                 SetRenderTarget(null, rtv);
             }
@@ -117,7 +107,8 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ClearDepthStencilView(DepthStencilView view, DepthStencilClearFlags clearFlag, float depth = 1, byte stencil = 0)
+            public void ClearDepthStencilView(DepthStencilView view, DepthStencilClearFlags clearFlag, float depth = 1,
+                byte stencil = 0)
             {
                 NativeContext.ClearDepthStencilView(view, clearFlag, depth, stencil);
             }

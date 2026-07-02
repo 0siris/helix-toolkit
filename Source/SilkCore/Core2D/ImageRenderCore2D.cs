@@ -3,9 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
 {
@@ -14,14 +11,20 @@ namespace HelixToolkit.SharpDX.Core
         public class ImageRenderCore2D : RenderCore2DBase
         {
             private Bitmap bitmap;
+
+            private BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear;
+
+            private float opacity = 1;
+
             /// <summary>
-            /// Gets or sets the bitmap.
+            ///     Gets or sets the bitmap.
             /// </summary>
             /// <value>
-            /// The bitmap.
+            ///     The bitmap.
             /// </value>
             public Bitmap Bitmap
             {
+                get => bitmap;
                 set
                 {
                     var old = bitmap;
@@ -29,67 +32,43 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         RemoveAndDispose(ref old);
                         if (value != null)
-                        {
                             ImageSize = bitmap.Size;
-                        }
                         else
-                        {
                             ImageSize = new Size2F();
-                        }
                     }
                 }
-                get
-                {
-                    return bitmap;
-                }
-            }
-            /// <summary>
-            /// Gets or sets the size of the image.
-            /// </summary>
-            /// <value>
-            /// The size of the image.
-            /// </value>
-            public Size2F ImageSize
-            {
-                private set; get;
             }
 
-            private float opacity = 1;
             /// <summary>
-            /// Gets or sets the opacity.
+            ///     Gets or sets the size of the image.
             /// </summary>
             /// <value>
-            /// The opacity.
+            ///     The size of the image.
+            /// </value>
+            public Size2F ImageSize { get; private set; }
+
+            /// <summary>
+            ///     Gets or sets the opacity.
+            /// </summary>
+            /// <value>
+            ///     The opacity.
             /// </value>
             public float Opacity
             {
-                set
-                {
-                    SetAffectsRender(ref opacity, value);
-                }
-                get
-                {
-                    return opacity;
-                }
+                get => opacity;
+                set => SetAffectsRender(ref opacity, value);
             }
 
-            private BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear;
             /// <summary>
-            /// Gets or sets the interpolation mode.
+            ///     Gets or sets the interpolation mode.
             /// </summary>
             /// <value>
-            /// The interpolation mode.
+            ///     The interpolation mode.
             /// </value>
             public BitmapInterpolationMode InterpolationMode
             {
-                set
-                {
-                    Set(ref interpolationMode, value);
-                }
-                get
-                {
-                    return interpolationMode;
-                }
+                get => interpolationMode;
+                set => Set(ref interpolationMode, value);
             }
 
             protected override bool CanRender(RenderContext2D context)

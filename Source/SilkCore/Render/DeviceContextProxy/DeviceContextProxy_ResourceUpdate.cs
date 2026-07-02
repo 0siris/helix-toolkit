@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
@@ -26,7 +25,8 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags, out DataStream stream)
+            public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags,
+                out DataStream stream)
             {
                 return NativeContext.MapSubresource(resource, subresource, mode, flags, out stream);
             }
@@ -44,70 +44,86 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ResolveSubresource(Resource source, int sourceSubresource, Resource destination, int destinationSubresource, Format format)
+            public void ResolveSubresource(Resource source, int sourceSubresource, Resource destination,
+                int destinationSubresource, Format format)
             {
-                NativeContext.ResolveSubresource(source, sourceSubresource, destination, destinationSubresource, format);
+                NativeContext.ResolveSubresource(source, sourceSubresource, destination, destinationSubresource,
+                    format);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateSubresource(Resource dstResourceRef, int dstSubresource, ResourceRegion? dstBoxRef, IntPtr srcDataRef, int srcRowPitch, int srcDepthPitch)
+            public void UpdateSubresource(Resource dstResourceRef, int dstSubresource, ResourceRegion? dstBoxRef,
+                nint srcDataRef, int srcRowPitch, int srcDepthPitch)
             {
-                NativeContext.UpdateSubresource(dstResourceRef, dstSubresource, dstBoxRef, srcDataRef, srcRowPitch, srcDepthPitch);
+                NativeContext.UpdateSubresource(dstResourceRef, dstSubresource, dstBoxRef, srcDataRef, srcRowPitch,
+                    srcDepthPitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UpdateSubresource(DataBox source, Resource resource, int subresource, ref ResourceRegion region)
             {
-                NativeContext.UpdateSubresource(resource, subresource, region, source.DataPointer, source.RowPitch, source.SlicePitch);
+                NativeContext.UpdateSubresource(resource, subresource, region, source.DataPointer, source.RowPitch,
+                    source.SlicePitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UpdateSubresource(DataBox source, Resource resource, int subresource = 0)
             {
-                NativeContext.UpdateSubresource(resource, subresource, null, source.DataPointer, source.RowPitch, source.SlicePitch);
+                NativeContext.UpdateSubresource(resource, subresource, null, source.DataPointer, source.RowPitch,
+                    source.SlicePitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void UpdateSubresource<T>(T[] data, Resource resource, int subresource = 0, int rowPitch = 0, int depthPitch = 0, ResourceRegion? region = null)
+            public unsafe void UpdateSubresource<T>(T[] data, Resource resource, int subresource = 0, int rowPitch = 0,
+                int depthPitch = 0, ResourceRegion? region = null)
                 where T : unmanaged
             {
                 fixed (T* dataPtr = data)
                 {
-                    NativeContext.UpdateSubresource(resource, subresource, region, (IntPtr)dataPtr, rowPitch, depthPitch);
+                    NativeContext.UpdateSubresource(resource, subresource, region, (nint) dataPtr, rowPitch,
+                        depthPitch);
                 }
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void UpdateSubresource<T>(ref T data, Resource resource, int subresource = 0, int rowPitch = 0, int depthPitch = 0, ResourceRegion? region = null)
+            public unsafe void UpdateSubresource<T>(ref T data, Resource resource, int subresource = 0,
+                int rowPitch = 0, int depthPitch = 0, ResourceRegion? region = null)
                 where T : unmanaged
             {
                 fixed (T* dataPtr = &data)
                 {
-                    NativeContext.UpdateSubresource(resource, subresource, region, (IntPtr)dataPtr, rowPitch, depthPitch);
+                    NativeContext.UpdateSubresource(resource, subresource, region, (nint) dataPtr, rowPitch,
+                        depthPitch);
                 }
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateSubresourceSafe(ref DataBox source, Resource resource, int srcBytesPerElement, int subresource = 0, bool isCompressedResource = false)
+            public void UpdateSubresourceSafe(ref DataBox source, Resource resource, int srcBytesPerElement,
+                int subresource = 0, bool isCompressedResource = false)
             {
-                NativeContext.UpdateSubresource(resource, subresource, null, source.DataPointer, source.RowPitch, source.SlicePitch);
+                NativeContext.UpdateSubresource(resource, subresource, null, source.DataPointer, source.RowPitch,
+                    source.SlicePitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateSubresourceSafe(ref DataBox source, Resource resource, int srcBytesPerElement, int subresource, ResourceRegion region, bool isCompressedResource = false)
+            public void UpdateSubresourceSafe(ref DataBox source, Resource resource, int srcBytesPerElement,
+                int subresource, ResourceRegion region, bool isCompressedResource = false)
             {
-                NativeContext.UpdateSubresource(resource, subresource, region, source.DataPointer, source.RowPitch, source.SlicePitch);
+                NativeContext.UpdateSubresource(resource, subresource, region, source.DataPointer, source.RowPitch,
+                    source.SlicePitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateSubresourceSafe<T>(T[] data, Resource resource, int srcBytesPerElement, int subresource = 0, int rowPitch = 0, int depthPitch = 0, bool isCompressedResource = false)
+            public void UpdateSubresourceSafe<T>(T[] data, Resource resource, int srcBytesPerElement,
+                int subresource = 0, int rowPitch = 0, int depthPitch = 0, bool isCompressedResource = false)
                 where T : unmanaged
             {
                 UpdateSubresource(data, resource, subresource, rowPitch, depthPitch);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateSubresourceSafe<T>(ref T data, Resource resource, int srcBytesPerElement, int subresource = 0, int rowPitch = 0, int depthPitch = 0, bool isCompressedResource = false)
+            public void UpdateSubresourceSafe<T>(ref T data, Resource resource, int srcBytesPerElement,
+                int subresource = 0, int rowPitch = 0, int depthPitch = 0, bool isCompressedResource = false)
                 where T : unmanaged
             {
                 UpdateSubresource(ref data, resource, subresource, rowPitch, depthPitch);
@@ -120,15 +136,18 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void CopyStructureCount(Buffer dstBufferRef, int dstAlignedByteOffset, UnorderedAccessView srcViewRef)
+            public void CopyStructureCount(Buffer dstBufferRef, int dstAlignedByteOffset,
+                UnorderedAccessView srcViewRef)
             {
                 NativeContext.CopyStructureCount(dstBufferRef, dstAlignedByteOffset, srcViewRef);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion, Resource destination, int destinationSubResource, int dstX = 0, int dstY = 0, int dstZ = 0)
+            public void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion,
+                Resource destination, int destinationSubResource, int dstX = 0, int dstY = 0, int dstZ = 0)
             {
-                NativeContext.CopySubresourceRegion(source, sourceSubresource, sourceRegion, destination, destinationSubResource, dstX, dstY, dstZ);
+                NativeContext.CopySubresourceRegion(source, sourceSubresource, sourceRegion, destination,
+                    destinationSubResource, dstX, dstY, dstZ);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

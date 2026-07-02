@@ -4,17 +4,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using System;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
         /// <summary>
-        /// Mesh Geometry Buffer Model.
+        ///     Mesh Geometry Buffer Model.
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class MeshGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct
@@ -23,89 +21,99 @@ namespace HelixToolkit.SharpDX.Core
             protected static readonly int[] emptyIndices = new int[0];
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="structSize">Size of the structure.</param>
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public MeshGeometryBufferModel(int structSize, bool dynamic = false)
                 : base(PrimitiveTopology.TriangleList,
-                      dynamic ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer) : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer) as IElementsBufferProxy,
-                      dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    dynamic
+                        ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                        : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="structSize">Size of the structure.</param>
             /// <param name="topology">The topology.</param>
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public MeshGeometryBufferModel(int structSize, PrimitiveTopology topology, bool dynamic = false)
                 : base(topology,
-                      dynamic ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer) : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer) as IElementsBufferProxy,
-                      dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    dynamic
+                        ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                        : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="topology">The topology.</param>
             /// <param name="vertexBuffers"></param>
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
-            public MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy[] vertexBuffers, bool dynamic = false)
+            public MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy[] vertexBuffers,
+                bool dynamic = false)
                 : base(topology,
-                      vertexBuffers,
-                      dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    vertexBuffers,
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="topology">The topology.</param>
             /// <param name="vertexBuffer">The vertex buffer.</param>
             /// <param name="indexBuffer">The index buffer.</param>
-            protected MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy vertexBuffer, IElementsBufferProxy indexBuffer)
+            protected MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy vertexBuffer,
+                IElementsBufferProxy indexBuffer)
                 : base(topology, vertexBuffer, indexBuffer)
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="topology">The topology.</param>
             /// <param name="vertexBuffer">The vertex buffer.</param>
             /// <param name="indexBuffer">The index buffer.</param>
-            protected MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy[] vertexBuffer, IElementsBufferProxy indexBuffer)
+            protected MeshGeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy[] vertexBuffer,
+                IElementsBufferProxy indexBuffer)
                 : base(topology, vertexBuffer, indexBuffer)
             {
             }
 
 
             /// <summary>
-            /// Called when [create index buffer].
+            ///     Called when [create index buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                Geometry3D geometry, IDeviceResources deviceResources)
             {
                 if (geometry != null && geometry.Indices != null && geometry.Indices.Count > 0)
-                {
-                    buffer.UploadDataToBuffer(context, geometry.Indices, geometry.Indices.Count, 0, geometry.PreDefinedIndexCount);
-                }
+                    buffer.UploadDataToBuffer(context, geometry.Indices, geometry.Indices.Count, 0,
+                        geometry.PreDefinedIndexCount);
                 else
-                {
                     buffer.UploadDataToBuffer(context, emptyIndices, 0);
-                    //buffer.DisposeAndClear();
-                }
+                //buffer.DisposeAndClear();
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVertex>
         {
@@ -113,21 +121,21 @@ namespace HelixToolkit.SharpDX.Core
             private static readonly Vector4[] emptyColorArray = new Vector4[0];
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel" /> class.
             /// </summary>
             public DefaultMeshGeometryBufferModel()
                 : base(PrimitiveTopology.TriangleList,
-                      new[]
-                      {
-                          new ImmutableBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
-                          new ImmutableBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
-                          new ImmutableBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
-                      } as IElementsBufferProxy[])
+                    new[]
+                    {
+                        new ImmutableBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
+                        new ImmutableBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
+                        new ImmutableBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
+                    })
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel" /> class.
             /// </summary>
             /// <param name="buffers">The buffers.</param>
             /// <param name="isDynamic"></param>
@@ -135,13 +143,14 @@ namespace HelixToolkit.SharpDX.Core
                 : base(PrimitiveTopology.TriangleList, buffers, isDynamic)
             {
             }
+
             /// <summary>
-            /// Determines whether [is vertex buffer changed] [the specified property name].
+            ///     Determines whether [is vertex buffer changed] [the specified property name].
             /// </summary>
             /// <param name="propertyName">Name of the property.</param>
             /// <param name="bufferIndex"></param>
             /// <returns>
-            ///   <c>true</c> if [is vertex buffer changed] [the specified property name]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [is vertex buffer changed] [the specified property name]; otherwise, <c>false</c>.
             /// </returns>
             protected override bool IsVertexBufferChanged(string propertyName, int bufferIndex)
             {
@@ -157,18 +166,19 @@ namespace HelixToolkit.SharpDX.Core
                         return false;
                 }
             }
+
             /// <summary>
-            /// Called when [create vertex buffer].
+            ///     Called when [create vertex buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="bufferIndex">Index of the buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
             {
                 if (geometry is MeshGeometry3D mesh)
-                {
                     switch (bufferIndex)
                     {
                         case 0:
@@ -177,39 +187,35 @@ namespace HelixToolkit.SharpDX.Core
                             {
                                 // --- get geometry
                                 var data = BuildVertexArray(mesh);
-                                buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0, geometry.PreDefinedVertexCount);
+                                buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0,
+                                    geometry.PreDefinedVertexCount);
                             }
                             else
                             {
                                 //buffer.DisposeAndClear();
                                 buffer.UploadDataToBuffer(context, emptyVerts, 0);
                             }
+
                             break;
                         case 1:
                             if (mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0)
-                            {
-                                buffer.UploadDataToBuffer(context, mesh.TextureCoordinates, mesh.TextureCoordinates.Count, 0, geometry.PreDefinedVertexCount);
-                            }
+                                buffer.UploadDataToBuffer(context, mesh.TextureCoordinates,
+                                    mesh.TextureCoordinates.Count, 0, geometry.PreDefinedVertexCount);
                             else
-                            {
                                 buffer.UploadDataToBuffer(context, emptyTextureArray, 0);
-                            }
                             break;
                         case 2:
                             if (geometry.Colors != null && geometry.Colors.Count > 0)
-                            {
-                                buffer.UploadDataToBuffer(context, geometry.Colors, geometry.Colors.Count, 0, geometry.PreDefinedVertexCount);
-                            }
+                                buffer.UploadDataToBuffer(context, geometry.Colors, geometry.Colors.Count, 0,
+                                    geometry.PreDefinedVertexCount);
                             else
-                            {
                                 buffer.UploadDataToBuffer(context, emptyColorArray, 0);
-                            }
                             break;
                     }
-                }
             }
+
             /// <summary>
-            /// Builds the vertex array.
+            ///     Builds the vertex array.
             /// </summary>
             /// <param name="geometry">The geometry.</param>
             /// <returns></returns>
@@ -219,9 +225,15 @@ namespace HelixToolkit.SharpDX.Core
                 var positions = geometry.Positions.GetEnumerator();
                 var vertexCount = geometry.Positions.Count;
 
-                var normals = geometry.Normals != null ? geometry.Normals.GetEnumerator() : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
-                var tangents = geometry.Tangents != null ? geometry.Tangents.GetEnumerator() : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
-                var bitangents = geometry.BiTangents != null ? geometry.BiTangents.GetEnumerator() : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
+                var normals = geometry.Normals != null
+                    ? geometry.Normals.GetEnumerator()
+                    : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
+                var tangents = geometry.Tangents != null
+                    ? geometry.Tangents.GetEnumerator()
+                    : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
+                var bitangents = geometry.BiTangents != null
+                    ? geometry.BiTangents.GetEnumerator()
+                    : Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
 
                 var array = ThreadBufferManager<DefaultVertex>.GetBuffer(vertexCount);
                 for (var i = 0; i < vertexCount; i++)
@@ -235,6 +247,7 @@ namespace HelixToolkit.SharpDX.Core
                     array[i].Tangent = tangents.Current;
                     array[i].BiTangent = bitangents.Current;
                 }
+
                 normals.Dispose();
                 tangents.Dispose();
                 bitangents.Dispose();
@@ -244,20 +257,19 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public sealed class DynamicMeshGeometryBufferModel : DefaultMeshGeometryBufferModel
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DynamicMeshGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DynamicMeshGeometryBufferModel" /> class.
             /// </summary>
             public DynamicMeshGeometryBufferModel()
                 : base(new[]
-                      {
-                          new DynamicBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
-                          new DynamicBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
-                          new DynamicBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
-                      } as IElementsBufferProxy[], true)
+                {
+                    new DynamicBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
+                    new DynamicBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
+                    new DynamicBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
+                }, true)
             {
             }
         }

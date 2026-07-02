@@ -3,192 +3,124 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-
+using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Core2D;
-
         public class BorderNode2D : ContentNode2D
         {
+            private Thickness borderThickness;
+
+            private Thickness padding = new(0);
+
+            private CapStyle strokeDashCap = CapStyle.Flat;
+
+            private float strokeDashOffset;
+
+            private DashStyle strokeDashStyle = DashStyle.Solid;
+
+            private CapStyle strokeEndLineCap = CapStyle.Flat;
+
+            private LineJoin strokeLineJoin = LineJoin.Miter;
+
+            private float strokeMiterLimit = 1;
+
+            private CapStyle strokeStartLineCap = CapStyle.Flat;
+
+            private bool strokeStyleChanged = true;
+
             public float CornerRadius
             {
-                set
-                {
-                    (RenderCore as BorderRenderCore2D).CornerRadius = value;
-                }
-                get
-                {
-                    return (RenderCore as BorderRenderCore2D).CornerRadius;
-                }
+                get => (RenderCore as BorderRenderCore2D).CornerRadius;
+                set => (RenderCore as BorderRenderCore2D).CornerRadius = value;
             }
-
-            private Thickness padding = new Thickness(0);
 
             public Thickness Padding
             {
-                set
-                {
-                    SetAffectsMeasure(ref padding, value);
-                }
-                get
-                {
-                    return padding;
-                }
+                get => padding;
+                set => SetAffectsMeasure(ref padding, value);
             }
 
             public Brush BorderBrush
             {
-                set
-                {
-                    (RenderCore as BorderRenderCore2D).StrokeBrush = value;
-                }
-                get
-                {
-                    return (RenderCore as BorderRenderCore2D).StrokeBrush;
-                }
+                get => (RenderCore as BorderRenderCore2D).StrokeBrush;
+                set => (RenderCore as BorderRenderCore2D).StrokeBrush = value;
             }
-
-            private CapStyle strokeDashCap = CapStyle.Flat;
 
             public CapStyle StrokeDashCap
             {
+                get => strokeDashCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashCap;
+                    if (SetAffectsRender(ref strokeDashCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private CapStyle strokeStartLineCap = CapStyle.Flat;
 
             public CapStyle StrokeStartLineCap
             {
+                get => strokeStartLineCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeStartLineCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeStartLineCap;
+                    if (SetAffectsRender(ref strokeStartLineCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private CapStyle strokeEndLineCap = CapStyle.Flat;
 
             public CapStyle StrokeEndLineCap
             {
+                get => strokeEndLineCap;
                 set
                 {
-                    if (SetAffectsRender(ref strokeEndLineCap, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeEndLineCap;
+                    if (SetAffectsRender(ref strokeEndLineCap, value)) strokeStyleChanged = true;
                 }
             }
-
-            private DashStyle strokeDashStyle = DashStyle.Solid;
 
             public DashStyle StrokeDashStyle
             {
+                get => strokeDashStyle;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashStyle, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashStyle;
+                    if (SetAffectsRender(ref strokeDashStyle, value)) strokeStyleChanged = true;
                 }
             }
-
-            private float strokeDashOffset = 0;
 
             public float StrokeDashOffset
             {
+                get => strokeDashOffset;
                 set
                 {
-                    if (SetAffectsRender(ref strokeDashOffset, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeDashOffset;
+                    if (SetAffectsRender(ref strokeDashOffset, value)) strokeStyleChanged = true;
                 }
             }
-
-            private LineJoin strokeLineJoin = LineJoin.Miter;
 
             public LineJoin StrokeLineJoin
             {
+                get => strokeLineJoin;
                 set
                 {
-                    if (SetAffectsRender(ref strokeLineJoin, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeLineJoin;
+                    if (SetAffectsRender(ref strokeLineJoin, value)) strokeStyleChanged = true;
                 }
             }
-
-            private float strokeMiterLimit = 1;
 
             public float StrokeMiterLimit
             {
+                get => strokeMiterLimit;
                 set
                 {
-                    if (SetAffectsRender(ref strokeMiterLimit, value))
-                    {
-                        strokeStyleChanged = true;
-                    }
-                }
-                get
-                {
-                    return strokeMiterLimit;
+                    if (SetAffectsRender(ref strokeMiterLimit, value)) strokeStyleChanged = true;
                 }
             }
-
-            private Thickness borderThickness;
 
             public Thickness BorderThickness
             {
+                get => borderThickness;
                 set
                 {
                     if (SetAffectsMeasure(ref borderThickness, value))
-                    {
                         (RenderCore as BorderRenderCore2D).BorderThickness = value;
-                    }
-                }
-                get
-                {
-                    return borderThickness;
                 }
             }
-
-            private bool strokeStyleChanged = true;
 
             protected override bool OnAttach(IRenderHost host)
             {
@@ -197,10 +129,8 @@ namespace HelixToolkit.SharpDX.Core
                     strokeStyleChanged = true;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public override void Update(RenderContext2D context)
@@ -209,7 +139,7 @@ namespace HelixToolkit.SharpDX.Core
                 if (strokeStyleChanged)
                 {
                     (RenderCore as BorderRenderCore2D).StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
-                        new StrokeStyleProperties()
+                        new StrokeStyleProperties
                         {
                             DashCap = StrokeDashCap,
                             StartCap = StrokeStartLineCap,
@@ -227,34 +157,32 @@ namespace HelixToolkit.SharpDX.Core
             {
                 if (Content != null)
                 {
-                    var margin = new Size2F((BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 + Padding.Right),
-                        (BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom));
+                    var margin = new Size2F(
+                        BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 + Padding.Right,
+                        BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom);
                     margin.Width *= DpiScale;
                     margin.Height *= DpiScale;
-                    var childAvail = new Size2F(Math.Max(0, availableSize.Width - margin.Width), Math.Max(0, availableSize.Height - margin.Height));
+                    var childAvail = new Size2F(Math.Max(0, availableSize.Width - margin.Width),
+                        Math.Max(0, availableSize.Height - margin.Height));
 
                     var size = base.MeasureOverride(childAvail);
-                    if (Width != float.PositiveInfinity && Height != float.PositiveInfinity)
-                    {
-                        return availableSize;
-                    }
-                    else
-                    {
-                        if (Width != float.PositiveInfinity)
-                        {
-                            size.Width = Width * DpiScale;
-                        }
-                        if (Height != float.PositiveInfinity)
-                        {
-                            size.Height = Height * DpiScale;
-                        }
-                        return size;
-                    }
+                    if (Width != float.PositiveInfinity && Height != float.PositiveInfinity) return availableSize;
+
+                    if (Width != float.PositiveInfinity) size.Width = Width * DpiScale;
+                    if (Height != float.PositiveInfinity) size.Height = Height * DpiScale;
+                    return size;
                 }
                 else
                 {
-                    var size = new Size2F((float)(BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 + Padding.Right + MarginWidthHeight.X + Width == float.PositiveInfinity ? 0 : Width),
-                        (float)(BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom + MarginWidthHeight.Y) + Height == float.PositiveInfinity ? 0 : Height);
+                    var size = new Size2F(
+                        BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 + Padding.Right +
+                        MarginWidthHeight.X + Width == float.PositiveInfinity
+                            ? 0
+                            : Width,
+                        BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom +
+                        MarginWidthHeight.Y + Height == float.PositiveInfinity
+                            ? 0
+                            : Height);
                     size.Width *= DpiScale;
                     size.Height *= DpiScale;
                     return size;
@@ -264,10 +192,10 @@ namespace HelixToolkit.SharpDX.Core
             protected override RectangleF ArrangeOverride(RectangleF finalSize)
             {
                 var contentRect = new RectangleF(finalSize.Left, finalSize.Top, finalSize.Width, finalSize.Height);
-                contentRect.Left += (float)(BorderThickness.Left / 2 + Padding.Left) * DpiScale;
-                contentRect.Right -= (float)(BorderThickness.Right / 2 + Padding.Right) * DpiScale;
-                contentRect.Top += (float)(BorderThickness.Top / 2 + Padding.Top) * DpiScale;
-                contentRect.Bottom -= (float)(BorderThickness.Bottom / 2 + Padding.Bottom) * DpiScale;
+                contentRect.Left += (BorderThickness.Left / 2 + Padding.Left) * DpiScale;
+                contentRect.Right -= (BorderThickness.Right / 2 + Padding.Right) * DpiScale;
+                contentRect.Top += (BorderThickness.Top / 2 + Padding.Top) * DpiScale;
+                contentRect.Bottom -= (BorderThickness.Bottom / 2 + Padding.Bottom) * DpiScale;
                 base.ArrangeOverride(contentRect);
                 return finalSize;
             }

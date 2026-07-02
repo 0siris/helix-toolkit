@@ -10,22 +10,22 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <!-- SHARPDX keeps the legacy Core namespace surface until SilkToolkit is compile-ready. -->
-      <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
+        <!-- SHARPDX keeps the legacy Core namespace surface until SilkToolkit is compile-ready. -->
+        <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
+        <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.0" />
-        <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.DXGI" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+        <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.0"/>
+        <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.DXGI" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -40,18 +40,18 @@
     <ItemGroup>
         <ProjectReference Include="..\SilkToolkit.Native.ShaderBuilder\SilkToolkit.Native.ShaderBuilder.csproj"
                           ReferenceOutputAssembly="false"
-                          PrivateAssets="all" />
+                          PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Resources\*.cso" />
+        <None Remove="Resources\*.cso"/>
     </ItemGroup>
 
     <Target Name="PrepareGeneratedShaderResources"
             BeforeTargets="AssignTargetPaths"
             Condition="'$(DesignTimeBuild)' != 'true'">
         <ItemGroup>
-            <_GeneratedShaderResource Include="Resources\*.cso" />
+            <_GeneratedShaderResource Include="Resources\*.cso"/>
             <EmbeddedResource Include="@(_GeneratedShaderResource)">
                 <LogicalName>SilkCore.Resources.%(_GeneratedShaderResource.Filename)%(_GeneratedShaderResource.Extension)</LogicalName>
             </EmbeddedResource>

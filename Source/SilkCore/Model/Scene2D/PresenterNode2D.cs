@@ -3,19 +3,25 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
-        using Utilities;
         public class PresenterNode2D : SceneNode2D
         {
             private SceneNode2D content;
 
+            public PresenterNode2D()
+            {
+                ItemsInternal = new ObservableFastList<SceneNode2D>();
+                Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
+            }
+
             public SceneNode2D Content
             {
+                get => content;
                 set
                 {
                     if (content != value)
@@ -26,29 +32,18 @@ namespace HelixToolkit.SharpDX.Core
                             content.Parent = null;
                             ItemsInternal.Clear();
                         }
+
                         content = value;
                         if (content != null)
                         {
                             content.Parent = this;
-                            if (IsAttached)
-                            {
-                                content.Attach(RenderHost);
-                            }
+                            if (IsAttached) content.Attach(RenderHost);
                             ItemsInternal.Add(value);
                         }
+
                         InvalidateMeasure();
                     }
                 }
-                get
-                {
-                    return content;
-                }
-            }
-
-            public PresenterNode2D()
-            {
-                ItemsInternal = new ObservableFastList<SceneNode2D>();
-                Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
             }
 
             protected override bool OnAttach(IRenderHost host)
@@ -58,10 +53,8 @@ namespace HelixToolkit.SharpDX.Core
                     content?.Attach(host);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnDetach()
@@ -81,15 +74,10 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
             {
-                if (content != null)
-                {
-                    return content.HitTest(mousePoint, out hitResult);
-                }
-                else
-                {
-                    hitResult = null;
-                    return false;
-                }
+                if (content != null) return content.HitTest(mousePoint, out hitResult);
+
+                hitResult = null;
+                return false;
             }
 
             protected override Size2F MeasureOverride(Size2F availableSize)
@@ -99,10 +87,8 @@ namespace HelixToolkit.SharpDX.Core
                     content.Measure(availableSize);
                     return new Size2F(content.DesiredSize.X, content.DesiredSize.Y);
                 }
-                else
-                {
-                    return new Size2F();
-                }
+
+                return new Size2F();
             }
 
             protected override RectangleF ArrangeOverride(RectangleF finalSize)
@@ -112,10 +98,8 @@ namespace HelixToolkit.SharpDX.Core
                     content.Arrange(finalSize);
                     return new RectangleF(0, 0, content.DesiredSize.X, content.DesiredSize.Y);
                 }
-                else
-                {
-                    return finalSize;
-                }
+
+                return finalSize;
             }
         }
     }

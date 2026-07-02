@@ -2,10 +2,12 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
@@ -13,60 +15,48 @@ namespace HelixToolkit.SharpDX.Core
         public static class ThreadBufferManagerConfig
         {
             /// <summary>
-            /// Gets or sets the maximum size to retain the buffer in memory.
-            /// If requested size is larger than this value, buffer will be temporary instead of being retained for reuse.
-            /// 
+            ///     Gets or sets the maximum size to retain the buffer in memory.
+            ///     If requested size is larger than this value, buffer will be temporary instead of being retained for reuse.
             /// </summary>
             /// <value>
-            /// The maximum size to retain mb.
+            ///     The maximum size to retain mb.
             /// </value>
-            public static int MaximumSizeToRetainMb
-            {
-                set;
-                get;
-            } = 64;
-            /// <summary>
-            /// Gets or sets the minimum size to retain the buffer in memory.
-            /// If requested size is smaller than this value, buffer will always be retained for reuse.
-            /// </summary>
-            /// <value>
-            /// The minimum size to retain mb.
-            /// </value>
-            public static int MinimumSizeToRetainMb
-            {
-                set;
-                get;
-            } = 4;
-            /// <summary>
-            /// Gets or sets the minimum buffer release threshold by seconds.
-            /// Buffer will not be released automatically if it has been used within last N seconds.
-            /// </summary>
-            /// <value>
-            /// The minimum buffer release threshold by seconds.
-            /// </value>
-            public static int MinimumAutoReleaseThresholdSeconds
-            {
-                set; get;
-            } = 60;
+            public static int MaximumSizeToRetainMb { get; set; } = 64;
 
             /// <summary>
-            /// Gets or sets the size reduction multiplier.
-            /// If buffer is not being used more than <see cref="MinimumAutoReleaseThresholdSeconds"/> seconds,
-            /// and new request size is smaller than buffer size / <see cref="SizeReductionDividend"/> but larger than <see cref="MinimumSizeToRetainMb"/>,
-            /// buffer will be released after usage.
+            ///     Gets or sets the minimum size to retain the buffer in memory.
+            ///     If requested size is smaller than this value, buffer will always be retained for reuse.
             /// </summary>
             /// <value>
-            /// The size reduction multiplier.
+            ///     The minimum size to retain mb.
             /// </value>
-            public static float SizeReductionDividend
-            {
-                set; get;
-            } = 2;
+            public static int MinimumSizeToRetainMb { get; set; } = 4;
+
+            /// <summary>
+            ///     Gets or sets the minimum buffer release threshold by seconds.
+            ///     Buffer will not be released automatically if it has been used within last N seconds.
+            /// </summary>
+            /// <value>
+            ///     The minimum buffer release threshold by seconds.
+            /// </value>
+            public static int MinimumAutoReleaseThresholdSeconds { get; set; } = 60;
+
+            /// <summary>
+            ///     Gets or sets the size reduction multiplier.
+            ///     If buffer is not being used more than <see cref="MinimumAutoReleaseThresholdSeconds" /> seconds,
+            ///     and new request size is smaller than buffer size / <see cref="SizeReductionDividend" /> but larger than
+            ///     <see cref="MinimumSizeToRetainMb" />,
+            ///     buffer will be released after usage.
+            /// </summary>
+            /// <value>
+            ///     The size reduction multiplier.
+            /// </value>
+            public static float SizeReductionDividend { get; set; } = 2;
         }
 
         public static class ThreadBufferManager<T> where T : unmanaged
         {
-            static readonly ILogger logger = Logger.LogManager.Create(nameof(ThreadBufferManager<T>));
+            private static readonly ILogger logger = LogManager.Create(nameof(ThreadBufferManager<T>));
 #if !NETFX_CORE
             public static readonly int StructSize = Marshal.SizeOf(typeof(T));
 #else
@@ -74,20 +64,16 @@ namespace HelixToolkit.SharpDX.Core
 #endif
 
             private const int MByteToByte = 1024 * 1024;
-            public static int MaximumElementCount
-            {
-                get => ThreadBufferManagerConfig.MaximumSizeToRetainMb * MByteToByte / StructSize;
-            }
 
-            public static int MinimumElementCount
-            {
-                get => ThreadBufferManagerConfig.MinimumSizeToRetainMb * MByteToByte / StructSize;
-            }
+            public static int MaximumElementCount =>
+                ThreadBufferManagerConfig.MaximumSizeToRetainMb * MByteToByte / StructSize;
 
-            [ThreadStatic]
-            private static T[] buffer = null;
+            public static int MinimumElementCount =>
+                ThreadBufferManagerConfig.MinimumSizeToRetainMb * MByteToByte / StructSize;
 
-            private static long lastUsed = 0;
+            [ThreadStatic] private static T[] buffer;
+
+            private static long lastUsed;
 
             public static T[] GetBuffer(int requestCount)
             {
@@ -96,28 +82,21 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     float scale = 1;
                     if (requestCount < MinimumElementCount)
-                    {
                         scale = 2;
-                    }
-                    else if (requestCount < MaximumElementCount)
-                    {
-                        scale = 1.5f;
-                    }
-                    array = new T[(int)(requestCount * scale)];
+                    else if (requestCount < MaximumElementCount) scale = 1.5f;
+                    array = new T[(int) (requestCount * scale)];
                     if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug("Created new thread buffer. Type: {0}; Size: {1} kB.", typeof(T), array.Length * StructSize / 1024);
-                    }
+                        logger.LogDebug("Created new thread buffer. Type: {0}; Size: {1} kB.", typeof(T),
+                            array.Length * StructSize / 1024);
                 }
 
                 if (requestCount > MaximumElementCount)
                 {
                     if (logger.IsEnabled(LogLevel.Debug))
-                    {
                         logger.LogDebug("Requested buffer size is larger than max retain size. Type: {0}.", typeof(T));
-                    }
                     return array;
                 }
+
                 if (lastUsed == 0)
                 {
                     lastUsed = Stopwatch.GetTimestamp();
@@ -132,9 +111,7 @@ namespace HelixToolkit.SharpDX.Core
                     if (diff / Stopwatch.Frequency > ThreadBufferManagerConfig.MinimumAutoReleaseThresholdSeconds)
                     {
                         if (logger.IsEnabled(LogLevel.Debug))
-                        {
                             logger.LogDebug("Disposing thread buffer. Type: {0}.", typeof(T));
-                        }
                         buffer = null;
                         lastUsed = 0;
                         return array;

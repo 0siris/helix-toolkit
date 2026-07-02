@@ -2,43 +2,48 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using Shaders;
-        using Utilities;
         public class VolumeMaterialVariable<T> : MaterialVariable
         {
             private readonly VolumeTextureMaterialCoreBase<T> material;
-            private readonly ShaderPass volumePass;
-            private readonly int texSlot, gradientSlot;
             private readonly int samplerSlot;
-            private ShaderResourceViewProxy texture;
-            private ShaderResourceViewProxy transferMap;
-            private SamplerStateProxy sampler;
+            private readonly int texSlot, gradientSlot;
+            private readonly ShaderPass volumePass;
 
 
             public Func<VolumeTextureMaterialCoreBase<T>, IEffectsManager, ShaderResourceViewProxy> OnCreateTexture;
+            private SamplerStateProxy sampler;
+            private ShaderResourceViewProxy texture;
+            private ShaderResourceViewProxy transferMap;
 
-            public VolumeMaterialVariable(IEffectsManager manager, IRenderTechnique technique, VolumeTextureMaterialCoreBase<T> material,
+            public VolumeMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+                VolumeTextureMaterialCoreBase<T> material,
                 string volumePassName = DefaultPassNames.Default)
                 : base(manager, technique, DefaultVolumeConstantBufferDesc, material)
             {
                 this.material = material;
                 volumePass = technique[volumePassName];
                 texSlot = volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.VolumeTB);
-                gradientSlot = volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ColorStripe1DXTB);
-                samplerSlot = volumePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.VolumeSampler);
+                gradientSlot =
+                    volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
+                        .ColorStripe1DXTB);
+                samplerSlot =
+                    volumePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.VolumeSampler);
             }
 
             protected override void OnInitialPropertyBindings()
             {
                 base.OnInitialPropertyBindings();
-                AddPropertyBinding(nameof(VolumeTextureMaterialCoreBase<T>.VolumeTexture), () => { UpdateTexture(material); });
+                AddPropertyBinding(nameof(VolumeTextureMaterialCoreBase<T>.VolumeTexture),
+                    () => { UpdateTexture(material); });
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.Sampler), () =>
                 {
                     var newSampler = EffectsManager.StateManager.Register(material.Sampler);
@@ -52,7 +57,7 @@ namespace HelixToolkit.SharpDX.Core
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IterationOffset),
                     () => WriteValue(VolumeParamsStruct.IterationOffset, material.IterationOffset));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IsoValue),
-                    () => WriteValue(VolumeParamsStruct.IsoValue, (float)material.IsoValue));
+                    () => WriteValue(VolumeParamsStruct.IsoValue, (float) material.IsoValue));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.Color),
                     () => WriteValue(VolumeParamsStruct.Color, material.Color));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.TransferMap),
@@ -67,14 +72,15 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     var desc = texture3D.Description;
                     var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
-                    var steps = 1f / maxSize * (float)material.SampleDistance;
+                    var steps = 1f / maxSize * (float) material.SampleDistance;
                     WriteValue(VolumeParamsStruct.StepSize, steps);
                 }
                 else
                 {
                     WriteValue(VolumeParamsStruct.StepSize, 1);
                 }
-                WriteValue(VolumeParamsStruct.ActualSampleDistance, (float)material.SampleDistance);
+
+                WriteValue(VolumeParamsStruct.ActualSampleDistance, (float) material.SampleDistance);
                 WriteValue(VolumeParamsStruct.BaseSampleDistance, 1.0f);
             }
 
@@ -83,23 +89,20 @@ namespace HelixToolkit.SharpDX.Core
                 var newTexture = OnCreateTexture(material, EffectsManager);
                 RemoveAndDispose(ref texture);
                 texture = newTexture;
-                if (texture != null)
-                {
-                    UpdateStepSize();
-                }
+                if (texture != null) UpdateStepSize();
             }
 
             public void UpdateGradientMap()
             {
                 RemoveAndDispose(ref transferMap);
                 if (material.TransferMap != null)
-                {
-                    transferMap = ShaderResourceViewProxy.CreateViewFromColorArray(EffectsManager.NativeDeviceResources, material.TransferMap);
-                }
+                    transferMap = ShaderResourceViewProxy.CreateViewFromColorArray(EffectsManager.NativeDeviceResources,
+                        material.TransferMap);
                 WriteValue(VolumeParamsStruct.HasGradientMapX, material.TransferMap != null);
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 if (texture != null)
                 {
@@ -108,13 +111,12 @@ namespace HelixToolkit.SharpDX.Core
                     shaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }

@@ -4,16 +4,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
         /// <summary>
-        /// Do a depth prepass before rendering.
-        /// <para>Must customize the DefaultEffectsManager and set DepthStencilState to DefaultDepthStencilDescriptions.DSSDepthEqualNoWrite in default ShaderPass from EffectsManager to achieve best performance.</para>
+        ///     Do a depth prepass before rendering.
+        ///     <para>
+        ///         Must customize the DefaultEffectsManager and set DepthStencilState to
+        ///         DefaultDepthStencilDescriptions.DSSDepthEqualNoWrite in default ShaderPass from EffectsManager to achieve best
+        ///         performance.
+        ///     </para>
         /// </summary>
         public sealed class DepthPrepassNode : SceneNode
         {
@@ -22,12 +25,13 @@ namespace HelixToolkit.SharpDX.Core
                 return new DepthPrepassCore();
             }
 
-            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
+            public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
             {
                 return false;
             }
 
-            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return false;
             }

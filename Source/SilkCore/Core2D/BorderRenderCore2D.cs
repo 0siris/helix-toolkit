@@ -2,139 +2,109 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
-using System;
-
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core2D
     {
-
         /// <summary>
-        /// 
         /// </summary>
         public class BorderRenderCore2D : RenderCore2DBase
         {
-            private readonly PathRenderCore2D[] borderRenderCore = new PathRenderCore2D[4] { new PathRenderCore2D(), new PathRenderCore2D(), new PathRenderCore2D(), new PathRenderCore2D() };
-
-            private bool isBorderGeometryChanged = false;
+            private readonly PathRenderCore2D[] borderRenderCore = new PathRenderCore2D[4] {new(), new(), new(), new()};
 
             private Brush background;
+
+            private Vector4 borderThickness = Vector4.Zero;
+
+            private float cornerRadius;
+
+            private bool isBorderGeometryChanged;
+
+            private Brush strokeBrush;
+
+            private StrokeStyle strokeStyle;
+
             /// <summary>
-            /// Gets or sets the background.
+            ///     Gets or sets the background.
             /// </summary>
             /// <value>
-            /// The background.
+            ///     The background.
             /// </value>
             public Brush Background
             {
+                get => background;
                 set
                 {
                     var old = background;
-                    if (SetAffectsRender(ref background, value))
-                    {
-                        RemoveAndDispose(ref old);
-                    }
-                }
-                get
-                {
-                    return background;
+                    if (SetAffectsRender(ref background, value)) RemoveAndDispose(ref old);
                 }
             }
 
-            private Brush strokeBrush;
             /// <summary>
-            /// Gets or sets the stroke brush.
+            ///     Gets or sets the stroke brush.
             /// </summary>
             /// <value>
-            /// The stroke brush.
+            ///     The stroke brush.
             /// </value>
             public Brush StrokeBrush
             {
+                get => strokeBrush;
                 set
                 {
                     var old = strokeBrush;
                     if (SetAffectsRender(ref strokeBrush, value))
                     {
                         RemoveAndDispose(ref old);
-                        foreach (var core in borderRenderCore)
-                        {
-                            core.StrokeBrush = value.QueryInterface<Brush>();
-                        }
+                        foreach (var core in borderRenderCore) core.StrokeBrush = value.QueryInterface<Brush>();
                     }
-                }
-                get
-                {
-                    return strokeBrush;
                 }
             }
 
-            private Vector4 borderThickness = Vector4.Zero;
             /// <summary>
-            /// Gets or sets the stroke thickness.
+            ///     Gets or sets the stroke thickness.
             /// </summary>
             /// <value>
-            /// The stroke thickness.
+            ///     The stroke thickness.
             /// </value>
             public Vector4 BorderThickness
             {
-                set
-                {
-                    SetAffectsRender(ref borderThickness, value);
-                }
-                get
-                {
-                    return borderThickness;
-                }
+                get => borderThickness;
+                set => SetAffectsRender(ref borderThickness, value);
             }
 
-            private StrokeStyle strokeStyle;
             /// <summary>
-            /// Gets or sets the stroke style.
+            ///     Gets or sets the stroke style.
             /// </summary>
             /// <value>
-            /// The stroke style.
+            ///     The stroke style.
             /// </value>
             public StrokeStyle StrokeStyle
             {
+                get => strokeStyle;
                 set
                 {
                     var old = strokeStyle;
                     if (SetAffectsRender(ref strokeStyle, value))
                     {
                         RemoveAndDispose(ref old);
-                        foreach (var core in borderRenderCore)
-                        {
-                            core.StrokeStyle = value.QueryInterface<StrokeStyle>();
-                        }
+                        foreach (var core in borderRenderCore) core.StrokeStyle = value.QueryInterface<StrokeStyle>();
                     }
-                }
-                get
-                {
-                    return strokeStyle;
                 }
             }
 
-            private float cornerRadius = 0;
             /// <summary>
-            /// Gets or sets the corner radius.
+            ///     Gets or sets the corner radius.
             /// </summary>
             /// <value>
-            /// The corner radius.
+            ///     The corner radius.
             /// </value>
             public float CornerRadius
             {
+                get => cornerRadius;
                 set
                 {
-                    if (SetAffectsRender(ref cornerRadius, value))
-                    {
-                        isBorderGeometryChanged = true;
-                    }
-                }
-                get
-                {
-                    return cornerRadius;
+                    if (SetAffectsRender(ref cornerRadius, value)) isBorderGeometryChanged = true;
                 }
             }
 
@@ -143,24 +113,16 @@ namespace HelixToolkit.SharpDX.Core
                 if (base.OnAttach(host))
                 {
                     isBorderGeometryChanged = true;
-                    foreach (var core in borderRenderCore)
-                    {
-                        core.Attach(host);
-                    }
+                    foreach (var core in borderRenderCore) core.Attach(host);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             protected override void OnDetach()
             {
-                foreach (var core in borderRenderCore)
-                {
-                    core.Detach();
-                }
+                foreach (var core in borderRenderCore) core.Detach();
                 RemoveAndDispose(ref background);
                 RemoveAndDispose(ref strokeBrush);
                 RemoveAndDispose(ref strokeStyle);
@@ -174,16 +136,14 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Called when [render].
+            ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             protected override void OnRender(RenderContext2D context)
             {
-                var roundRect = new RoundedRectangle() { Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius };
-                if (Background != null)
-                {
-                    context.DeviceContext.FillRoundedRectangle(roundRect, Background);
-                }
+                var roundRect = new RoundedRectangle
+                    {Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius};
+                if (Background != null) context.DeviceContext.FillRoundedRectangle(roundRect, Background);
                 var thickness = BorderThickness * context.DpiScale;
                 if (thickness.LengthSquared() > 0 && StrokeBrush != null && StrokeStyle != null)
                 {
@@ -195,7 +155,6 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         if (isBorderGeometryChanged)
                         {
-
                             var topLeft = LayoutBound.TopLeft + new Vector2(0, CornerRadius);
                             var topRight = LayoutBound.TopRight - new Vector2(CornerRadius, 0);
                             var bottomRight = LayoutBound.BottomRight - new Vector2(0, CornerRadius);
@@ -206,10 +165,9 @@ namespace HelixToolkit.SharpDX.Core
                                 var figures = new List<Figure>();
                                 var figure = new Figure(topLeft, false, false);
                                 if (CornerRadius > 0)
-                                {
-                                    figure.AddSegment(new ArcSegment(LayoutBound.TopLeft + new Vector2(CornerRadius, 0), new Size2F(CornerRadius, CornerRadius), 0,
+                                    figure.AddSegment(new ArcSegment(LayoutBound.TopLeft + new Vector2(CornerRadius, 0),
+                                        new Size2F(CornerRadius, CornerRadius), 0,
                                         SweepDirection.Clockwise, ArcSize.Small));
-                                }
                                 figure.AddSegment(new LineSegment(topRight));
                                 figures.Add(figure);
                                 borderRenderCore[0].Figures = figures;
@@ -219,15 +177,16 @@ namespace HelixToolkit.SharpDX.Core
                             {
                                 borderRenderCore[0].Figures = null;
                             }
+
                             if (thickness.Y > 0)
                             {
                                 var figures = new List<Figure>();
                                 var figure = new Figure(topRight, false, false);
                                 if (CornerRadius > 0)
-                                {
-                                    figure.AddSegment(new ArcSegment(LayoutBound.TopRight + new Vector2(0, CornerRadius), new Size2F(CornerRadius, CornerRadius), 0,
+                                    figure.AddSegment(new ArcSegment(
+                                        LayoutBound.TopRight + new Vector2(0, CornerRadius),
+                                        new Size2F(CornerRadius, CornerRadius), 0,
                                         SweepDirection.Clockwise, ArcSize.Small));
-                                }
                                 figure.AddSegment(new LineSegment(bottomRight));
                                 figures.Add(figure);
                                 borderRenderCore[1].Figures = figures;
@@ -237,15 +196,16 @@ namespace HelixToolkit.SharpDX.Core
                             {
                                 borderRenderCore[1].Figures = null;
                             }
+
                             if (thickness.Z > 0)
                             {
                                 var figures = new List<Figure>();
                                 var figure = new Figure(bottomRight, false, false);
                                 if (CornerRadius > 0)
-                                {
-                                    figure.AddSegment(new ArcSegment(LayoutBound.BottomRight - new Vector2(CornerRadius, 0), new Size2F(CornerRadius, CornerRadius), 0,
+                                    figure.AddSegment(new ArcSegment(
+                                        LayoutBound.BottomRight - new Vector2(CornerRadius, 0),
+                                        new Size2F(CornerRadius, CornerRadius), 0,
                                         SweepDirection.Clockwise, ArcSize.Small));
-                                }
                                 figure.AddSegment(new LineSegment(bottomLeft));
                                 figures.Add(figure);
                                 borderRenderCore[2].Figures = figures;
@@ -255,15 +215,16 @@ namespace HelixToolkit.SharpDX.Core
                             {
                                 borderRenderCore[2].Figures = null;
                             }
+
                             if (thickness.W > 0)
                             {
                                 var figures = new List<Figure>();
                                 var figure = new Figure(bottomLeft, false, false);
                                 if (CornerRadius > 0)
-                                {
-                                    figure.AddSegment(new ArcSegment(LayoutBound.BottomLeft - new Vector2(0, CornerRadius), new Size2F(CornerRadius, CornerRadius), 0,
+                                    figure.AddSegment(new ArcSegment(
+                                        LayoutBound.BottomLeft - new Vector2(0, CornerRadius),
+                                        new Size2F(CornerRadius, CornerRadius), 0,
                                         SweepDirection.Clockwise, ArcSize.Small));
-                                }
                                 figure.AddSegment(new LineSegment(topLeft));
                                 figures.Add(figure);
                                 borderRenderCore[3].Figures = figures;
@@ -273,12 +234,14 @@ namespace HelixToolkit.SharpDX.Core
                             {
                                 borderRenderCore[3].Figures = null;
                             }
+
                             isBorderGeometryChanged = false;
                         }
+
                         foreach (var core in borderRenderCore)
                         {
-                            core.Transform = this.Transform;
-                            core.LocalTransform = this.LocalTransform;
+                            core.Transform = Transform;
+                            core.LocalTransform = LocalTransform;
                             core.Render(context);
                         }
                     }

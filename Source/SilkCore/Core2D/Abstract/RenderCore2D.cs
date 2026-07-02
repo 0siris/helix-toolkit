@@ -2,169 +2,130 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core2D
     {
         /// <summary>
-        /// 
         /// </summary>
         public abstract class RenderCore2D : DisposeObject
         {
-            /// <summary>
-            /// Occurs when [on invalidate renderer].
-            /// </summary>
-            public event EventHandler<EventArgs> InvalidateRender;
+            private RectangleF clippingBound;
+
+            private bool isMouseOver;
+
+            private Matrix3x2 localTransform = Matrix3x2.Identity;
+
+            private RectangleF rect;
+
+            private Matrix3x2 transform = Matrix3x2.Identity;
 
             /// <summary>
-            /// Gets a value indicating whether this instance is empty.
+            ///     Gets a value indicating whether this instance is empty.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is empty; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is empty; otherwise, <c>false</c>.
             /// </value>
             public bool IsEmpty { get; } = false;
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is rendering.
+            ///     Gets or sets a value indicating whether this instance is rendering.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is rendering; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is rendering; otherwise, <c>false</c>.
             /// </value>
-            public bool IsRendering
-            {
-                set; get;
-            } = true;
+            public bool IsRendering { get; set; } = true;
 
-            public IRenderHost RenderHost
-            {
-                private set; get;
-            } = null;
+            public IRenderHost RenderHost { get; private set; }
 
-            private RectangleF rect = new RectangleF();
             /// <summary>
-            /// Absolute layout rectangle cooridnate for renderable
+            ///     Absolute layout rectangle cooridnate for renderable
             /// </summary>
             public RectangleF LayoutBound
             {
+                get => rect;
                 set
                 {
-                    if (SetAffectsRender(ref rect, value))
-                    {
-                        OnLayoutBoundChanged(value);
-                    }
-                }
-                get
-                {
-                    return rect;
+                    if (SetAffectsRender(ref rect, value)) OnLayoutBoundChanged(value);
                 }
             }
 
-            private RectangleF clippingBound = new RectangleF();
             /// <summary>
-            /// Gets or sets the layout clipping bound, includes border.
+            ///     Gets or sets the layout clipping bound, includes border.
             /// </summary>
             /// <value>
-            /// The layout clipping bound.
+            ///     The layout clipping bound.
             /// </value>
             public RectangleF LayoutClippingBound
             {
-                set
-                {
-                    SetAffectsRender(ref clippingBound, value);
-                }
-                get
-                {
-                    return clippingBound;
-                }
+                get => clippingBound;
+                set => SetAffectsRender(ref clippingBound, value);
             }
 
-            private Matrix3x2 transform = Matrix3x2.Identity;
             /// <summary>
-            /// Gets or sets the transform. <see cref="RenderCore2D.Transform"/>
+            ///     Gets or sets the transform. <see cref="RenderCore2D.Transform" />
             /// </summary>
             /// <value>
-            /// The transform.
+            ///     The transform.
             /// </value>
             public Matrix3x2 Transform
             {
-                set
-                {
-                    SetAffectsRender(ref transform, value);
-                }
-                get
-                {
-                    return transform;
-                }
+                get => transform;
+                set => SetAffectsRender(ref transform, value);
             }
 
-            private Matrix3x2 localTransform = Matrix3x2.Identity;
             /// <summary>
-            /// Gets or sets the local transform. This only transform local position. Same as RenderTransform
+            ///     Gets or sets the local transform. This only transform local position. Same as RenderTransform
             /// </summary>
             /// <value>
-            /// The local transform.
+            ///     The local transform.
             /// </value>
             public Matrix3x2 LocalTransform
             {
-                set
-                {
-                    SetAffectsRender(ref localTransform, value);
-                }
-                get
-                {
-                    return localTransform;
-                }
+                get => localTransform;
+                set => SetAffectsRender(ref localTransform, value);
             }
 
-            private bool isMouseOver = false;
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is mouse over.
+            ///     Gets or sets a value indicating whether this instance is mouse over.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
             /// </value>
             public bool IsMouseOver
             {
-                set
-                {
-                    SetAffectsRender(ref isMouseOver, value);
-                }
-                get
-                {
-                    return isMouseOver;
-                }
+                get => isMouseOver;
+                set => SetAffectsRender(ref isMouseOver, value);
             }
 
             /// <summary>
-            /// Gets or sets a value indicating whether this instance is attached.
+            ///     Gets or sets a value indicating whether this instance is attached.
             /// </summary>
             /// <value>
-            ///   <c>true</c> if this instance is attached; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance is attached; otherwise, <c>false</c>.
             /// </value>
-            public bool IsAttached { private set; get; } = false;
+            public bool IsAttached { get; private set; }
+
             /// <summary>
-            /// Attaches the specified host.
+            ///     Occurs when [on invalidate renderer].
+            /// </summary>
+            public event EventHandler<EventArgs> InvalidateRender;
+
+            /// <summary>
+            ///     Attaches the specified host.
             /// </summary>
             /// <param name="host">The host.</param>
             public void Attach(IRenderHost host)
             {
-                if (IsAttached)
-                {
-                    return;
-                }
-                if (host == null)
-                {
-                    return;
-                }
+                if (IsAttached) return;
+                if (host == null) return;
                 RenderHost = host;
                 IsAttached = OnAttach(host);
             }
+
             /// <summary>
-            /// Called when [attach].
+            ///     Called when [attach].
             /// </summary>
             /// <param name="host">The target.</param>
             /// <returns></returns>
@@ -172,27 +133,25 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return true;
             }
+
             /// <summary>
-            /// Detaches this instance.
+            ///     Detaches this instance.
             /// </summary>
             public void Detach()
             {
-                if (!IsAttached)
-                {
-                    return;
-                }
+                if (!IsAttached) return;
                 OnDetach();
                 IsAttached = false;
             }
+
             /// <summary>
-            /// Called when [detach].
+            ///     Called when [detach].
             /// </summary>
             protected virtual void OnDetach()
             {
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="layoutBound"></param>
             protected virtual void OnLayoutBoundChanged(RectangleF layoutBound)
@@ -200,13 +159,13 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Renders the specified context.
+            ///     Renders the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
             public abstract void Render(RenderContext2D context);
 
             /// <summary>
-            /// Invalidates the renderer.
+            ///     Invalidates the renderer.
             /// </summary>
             protected void InvalidateRenderer()
             {
@@ -214,7 +173,6 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="backingField"></param>
@@ -222,10 +180,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns></returns>
             protected bool SetAffectsRender<T>(ref T backingField, T value)
             {
-                if (EqualityComparer<T>.Default.Equals(backingField, value))
-                {
-                    return false;
-                }
+                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
                 InvalidateRenderer();

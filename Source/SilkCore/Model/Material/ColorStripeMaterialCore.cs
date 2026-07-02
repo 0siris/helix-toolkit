@@ -3,131 +3,101 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
+using HelixToolkit.SharpDX.Core.Shaders;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Shaders;
         [DataContract]
         public class ColorStripeMaterialCore : MaterialCore
         {
+            private SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
+
+            private IList<Color4> colorStripeX;
+
+            private bool colorStripeXEnabled = true;
+
+            private IList<Color4> colorStripeY;
+
+            private bool colorStripeYEnabled = true;
             private Color4 diffuseColor = Color.White;
+
             /// <summary>
-            /// Gets or sets the color of the diffuse.
+            ///     Gets or sets the color of the diffuse.
             /// </summary>
             /// <value>
-            /// The color of the diffuse.
+            ///     The color of the diffuse.
             /// </value>
             public Color4 DiffuseColor
             {
-                set
-                {
-                    Set(ref diffuseColor, value);
-                }
-                get
-                {
-                    return diffuseColor;
-                }
+                get => diffuseColor;
+                set => Set(ref diffuseColor, value);
             }
 
-            private IList<Color4> colorStripeX = null;
             /// <summary>
-            /// Gets or sets the color stripe x. Use texture coordinate X for sampling
+            ///     Gets or sets the color stripe x. Use texture coordinate X for sampling
             /// </summary>
             /// <value>
-            /// The color stripe x.
+            ///     The color stripe x.
             /// </value>
             public IList<Color4> ColorStripeX
             {
-                set
-                {
-                    Set(ref colorStripeX, value);
-                }
-                get
-                {
-                    return colorStripeX;
-                }
+                get => colorStripeX;
+                set => Set(ref colorStripeX, value);
             }
 
-            private IList<Color4> colorStripeY = null;
             /// <summary>
-            /// Gets or sets the color stripe y. Use texture coordinate Y for sampling
+            ///     Gets or sets the color stripe y. Use texture coordinate Y for sampling
             /// </summary>
             /// <value>
-            /// The color stripe y.
+            ///     The color stripe y.
             /// </value>
             public IList<Color4> ColorStripeY
             {
-                set
-                {
-                    Set(ref colorStripeY, value);
-                }
-                get
-                {
-                    return colorStripeY;
-                }
+                get => colorStripeY;
+                set => Set(ref colorStripeY, value);
             }
 
-            private bool colorStripeXEnabled = true;
             /// <summary>
-            /// Gets or sets a value indicating whether [color stripe x enabled].
+            ///     Gets or sets a value indicating whether [color stripe x enabled].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [color stripe x enabled]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [color stripe x enabled]; otherwise, <c>false</c>.
             /// </value>
             public bool ColorStripeXEnabled
             {
-                set
-                {
-                    Set(ref colorStripeXEnabled, value);
-                }
-                get
-                {
-                    return colorStripeXEnabled;
-                }
+                get => colorStripeXEnabled;
+                set => Set(ref colorStripeXEnabled, value);
             }
 
-            private bool colorStripeYEnabled = true;
             /// <summary>
-            /// Gets or sets a value indicating whether [color stripe y enabled].
+            ///     Gets or sets a value indicating whether [color stripe y enabled].
             /// </summary>
             /// <value>
-            ///   <c>true</c> if [color stripe y enabled]; otherwise, <c>false</c>.
+            ///     <c>true</c> if [color stripe y enabled]; otherwise, <c>false</c>.
             /// </value>
             public bool ColorStripeYEnabled
             {
-                set
-                {
-                    Set(ref colorStripeYEnabled, value);
-                }
-                get
-                {
-                    return colorStripeYEnabled;
-                }
+                get => colorStripeYEnabled;
+                set => Set(ref colorStripeYEnabled, value);
             }
 
-            private SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
             /// <summary>
-            /// Gets or sets the DiffuseMapSampler.
+            ///     Gets or sets the DiffuseMapSampler.
             /// </summary>
             /// <value>
-            /// DiffuseMapSampler
+            ///     DiffuseMapSampler
             /// </value>
             public SamplerStateDescription ColorStripeSampler
             {
-                set
-                {
-                    Set(ref colorStripeSampler, value);
-                }
-                get
-                {
-                    return colorStripeSampler;
-                }
+                get => colorStripeSampler;
+                set => Set(ref colorStripeSampler, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager, IRenderTechnique technique)
+            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
+                IRenderTechnique technique)
             {
                 return new ColorStripeMaterialVariables(manager, technique, this);
             }

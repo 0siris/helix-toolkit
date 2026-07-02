@@ -9,14 +9,13 @@ namespace HelixToolkit.SharpDX.Core
     namespace Core2D
     {
         /// <summary>
-        /// 
         /// </summary>
         public class EllipseRenderCore2D : ShapeRenderCore2DBase
         {
-            private Ellipse ellipse = new Ellipse();
+            private Ellipse ellipse;
 
             /// <summary>
-            /// Called when [render].
+            ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             protected override void OnRender(RenderContext2D context)
@@ -24,14 +23,9 @@ namespace HelixToolkit.SharpDX.Core
                 ellipse.Point = LayoutBound.Center;
                 ellipse.RadiusX = LayoutBound.Width / 2;
                 ellipse.RadiusY = LayoutBound.Height / 2;
-                if (FillBrush != null)
-                {
-                    context.DeviceContext.FillEllipse(ellipse, FillBrush);
-                }
+                if (FillBrush != null) context.DeviceContext.FillEllipse(ellipse, FillBrush);
                 if (StrokeBrush != null && StrokeStyle != null)
-                {
                     context.DeviceContext.DrawEllipse(ellipse, StrokeBrush, StrokeWidth, StrokeStyle);
-                }
             }
         }
     }

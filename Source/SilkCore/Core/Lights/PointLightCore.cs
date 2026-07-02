@@ -4,83 +4,67 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Model;
-
         /// <summary>
-        ///
         /// </summary>
         public class PointLightCore : LightCoreBase
         {
+            private Vector3 attenuation = new(1, 0, 0);
             private Vector3 position;
-            /// <summary>
-            /// Gets or sets the position.
-            /// </summary>
-            /// <value>
-            /// The position.
-            /// </value>
-            public Vector3 Position
-            {
-                set
-                {
-                    SetAffectsRender(ref position, value);
-                }
-                get
-                {
-                    return position;
-                }
-            }
-
-            private Vector3 attenuation = new Vector3(1, 0, 0);
-            /// <summary>
-            /// Gets or sets the attenuation.
-            /// </summary>
-            /// <value>
-            /// The attenuation.
-            /// </value>
-            public Vector3 Attenuation
-            {
-                set
-                {
-                    SetAffectsRender(ref attenuation, value);
-                }
-                get
-                {
-                    return attenuation;
-                }
-            }
 
             private float range = 1000;
+
             /// <summary>
-            /// Gets or sets the range.
-            /// </summary>
-            /// <value>
-            /// The range.
-            /// </value>
-            public float Range
-            {
-                set
-                {
-                    SetAffectsRender(ref range, value);
-                }
-                get
-                {
-                    return range;
-                }
-            }
-            /// <summary>
-            /// Initializes a new instance of the <see cref="PointLightCore"/> class.
+            ///     Initializes a new instance of the <see cref="PointLightCore" /> class.
             /// </summary>
             public PointLightCore()
             {
                 LightType = LightType.Point;
             }
+
             /// <summary>
-            /// Called when [render].
+            ///     Gets or sets the position.
+            /// </summary>
+            /// <value>
+            ///     The position.
+            /// </value>
+            public Vector3 Position
+            {
+                get => position;
+                set => SetAffectsRender(ref position, value);
+            }
+
+            /// <summary>
+            ///     Gets or sets the attenuation.
+            /// </summary>
+            /// <value>
+            ///     The attenuation.
+            /// </value>
+            public Vector3 Attenuation
+            {
+                get => attenuation;
+                set => SetAffectsRender(ref attenuation, value);
+            }
+
+            /// <summary>
+            ///     Gets or sets the range.
+            /// </summary>
+            /// <value>
+            ///     The range.
+            /// </value>
+            public float Range
+            {
+                get => range;
+                set => SetAffectsRender(ref range, value);
+            }
+
+            /// <summary>
+            ///     Called when [render].
             /// </summary>
             /// <param name="lightScene">The light scene.</param>
             /// <param name="index">The index.</param>

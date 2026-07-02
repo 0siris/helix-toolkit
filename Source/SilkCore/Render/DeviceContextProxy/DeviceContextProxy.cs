@@ -1,72 +1,48 @@
 using System.Runtime.CompilerServices;
-using Silk.NET.Core.Native;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Native;
-        using Shaders;
-        using Utilities;
-
         /// <summary>
-        ///
         /// </summary>
         public sealed partial class DeviceContextProxy : DisposeObject
         {
             public static bool AutoSkipRedundantStateSetting = false;
-            private SilkD3DDeviceContext nativeDeviceContext;
-            private readonly SilkD3DDevice nativeDevice;
-            private RasterizerStateProxy currRasterState = null;
-            private DepthStencilStateProxy currDepthStencilState = null;
-            private int currStencilRef;
-            private BlendStateProxy currBlendState = null;
-            private Color4? currBlendFactor = null;
+            public readonly bool IsDeferred;
+            private Color4? currBlendFactor;
+            private BlendStateProxy currBlendState;
+            private DepthStencilStateProxy currDepthStencilState;
+            private RasterizerStateProxy currRasterState;
             private uint currSampleMask = uint.MaxValue;
-            public readonly bool IsDeferred = false;
-
-            #region Properties
-
-            /// <summary>
-            /// Gets or sets the last shader pass.
-            /// </summary>
-            /// <value>
-            /// The last shader pass.
-            /// </value>
-            public ShaderPass CurrShaderPass
-            {
-                private set; get;
-            }
-
-            /// <summary>
-            /// Gets the number of draw calls.
-            /// </summary>
-            /// <value>
-            /// The number of draw calls.
-            /// </value>
-            public int NumberOfDrawCalls { private set; get; } = 0;
-            #endregion Properties
+            private int currStencilRef;
+            private SilkD3DDeviceContext nativeDeviceContext;
 
             #region Constructor
+
             /// <summary>
-            /// Initializes a proxy for a native Silk.NET D3D11 context.
+            ///     Initializes a proxy for a native Silk.NET D3D11 context.
             /// </summary>
             /// <param name="context">The native context.</param>
             /// <param name="device">The native device.</param>
             internal DeviceContextProxy(SilkD3DDeviceContext context, SilkD3DDevice device)
             {
                 nativeDeviceContext = context;
-                nativeDevice = device;
+                NativeDevice = device;
                 IsDeferred = context.IsDeferred;
             }
+
             #endregion Constructor
 
             internal SilkD3DDeviceContext NativeContext => nativeDeviceContext;
 
-            internal SilkD3DDevice NativeDevice => nativeDevice;
+            internal SilkD3DDevice NativeDevice { get; }
 
             /// <summary>
-            /// Resets this instance.
+            ///     Resets this instance.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset()
@@ -80,18 +56,12 @@ namespace HelixToolkit.SharpDX.Core
                 currInputLayout = null;
                 PrimitiveTopology = PrimitiveTopology.Undefined;
                 CurrShaderPass = null;
-                for (var i = 0; i < ConstantBufferCheck.Length; ++i)
-                {
-                    ConstantBufferCheck[i] = null;
-                }
-                for (var i = 0; i < SamplerStateCheck.Length; ++i)
-                {
-                    SamplerStateCheck[i] = null;
-                }
+                for (var i = 0; i < ConstantBufferCheck.Length; ++i) ConstantBufferCheck[i] = null;
+                for (var i = 0; i < SamplerStateCheck.Length; ++i) SamplerStateCheck[i] = null;
             }
 
             /// <summary>
-            /// Restore all default settings.
+            ///     Restore all default settings.
             /// </summary>
             /// <remarks>
             ///     This method resets any device context to the default settings.
@@ -104,21 +74,34 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            ///
             /// </summary>
             /// <param name="disposeManagedResources"></param>
             protected override void OnDispose(bool disposeManagedResources)
             {
-                if (nativeDeviceContext != null && !nativeDeviceContext.IsDisposed)
-                {
-                    nativeDeviceContext.ClearState();
-                }
-                if (IsDeferred)
-                {
-                    RemoveAndDispose(ref nativeDeviceContext);
-                }
+                if (nativeDeviceContext != null && !nativeDeviceContext.IsDisposed) nativeDeviceContext.ClearState();
+                if (IsDeferred) RemoveAndDispose(ref nativeDeviceContext);
                 base.OnDispose(disposeManagedResources);
             }
+
+            #region Properties
+
+            /// <summary>
+            ///     Gets or sets the last shader pass.
+            /// </summary>
+            /// <value>
+            ///     The last shader pass.
+            /// </value>
+            public ShaderPass CurrShaderPass { get; private set; }
+
+            /// <summary>
+            ///     Gets the number of draw calls.
+            /// </summary>
+            /// <value>
+            ///     The number of draw calls.
+            /// </value>
+            public int NumberOfDrawCalls { get; private set; }
+
+            #endregion Properties
         }
     }
 }

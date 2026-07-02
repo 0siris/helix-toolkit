@@ -3,19 +3,19 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Core2D;
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DX11Texture2DRenderBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="DX11Texture2DRenderBufferProxy" /> class.
             /// </summary>
             /// <param name="deviceResources"></param>
             public DX11Texture2DRenderBufferProxy(IDeviceResources deviceResources) : base(deviceResources)
@@ -23,7 +23,6 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="width"></param>
             /// <param name="height"></param>
@@ -51,7 +50,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Presents this instance.
+            ///     Presents this instance.
             /// </summary>
             /// <returns></returns>
             public override bool Present()

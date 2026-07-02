@@ -3,13 +3,18 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
-using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct2D;
 using Silk.NET.DirectWrite;
 using Silk.NET.DXGI;
 using Silk.NET.Maths;
+using AlphaMode = Silk.NET.Direct2D.AlphaMode;
+using FactoryType = Silk.NET.DirectWrite.FactoryType;
+using IDWriteFactory = Silk.NET.DirectWrite.IDWriteFactory;
+using IDWriteTextFormat = Silk.NET.DirectWrite.IDWriteTextFormat;
+using IDWriteTextLayout = Silk.NET.DirectWrite.IDWriteTextLayout;
 using SilkD2DDevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Device>;
 using SilkD2DDeviceContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1DeviceContext>;
 using SilkD2DBitmapBasePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Bitmap>;
@@ -23,8 +28,6 @@ namespace HelixToolkit.SharpDX.Core
 {
     namespace Native
     {
-        using Utilities;
-
         public abstract class D2DNativeResource : IDisposable
         {
             protected D2DNativeResource(object nativeResource = null)
@@ -38,15 +41,9 @@ namespace HelixToolkit.SharpDX.Core
 
             public virtual void Dispose()
             {
-                if (IsDisposed)
-                {
-                    return;
-                }
+                if (IsDisposed) return;
 
-                if (NativeResource is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                if (NativeResource is IDisposable disposable) disposable.Dispose();
 
                 IsDisposed = true;
             }
@@ -60,19 +57,19 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public unsafe sealed class D2DDevice : D2DNativeResource
+        public sealed unsafe class D2DDevice : D2DNativeResource
         {
             private static readonly D2D D2DApi = D2D.GetApi();
-            private static readonly Guid DxgiDeviceGuid = new Guid("54ec77fa-1377-44e6-8c32-88fd5f44c84c");
+            private static readonly Guid DxgiDeviceGuid = new("54ec77fa-1377-44e6-8c32-88fd5f44c84c");
             private SilkD2DDevicePtr nativeDevice;
 
             public D2DDevice(object nativeResource = null)
             {
-                if (nativeResource is Native.SilkD3DDevice d3dDevice)
+                if (nativeResource is SilkD3DDevice d3dDevice)
                 {
                     IDXGIDevice* dxgiDevice = null;
                     var guid = DxgiDeviceGuid;
-                    SilkMarshal.ThrowHResult(d3dDevice.Handle->QueryInterface(&guid, (void**)&dxgiDevice));
+                    SilkMarshal.ThrowHResult(d3dDevice.Handle->QueryInterface(&guid, (void**) &dxgiDevice));
                     try
                     {
                         ID2D1Device* device = null;
@@ -96,9 +93,9 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public unsafe sealed class D2DDeviceContext : D2DNativeResource
+        public sealed unsafe class D2DDeviceContext : D2DNativeResource
         {
-            private static readonly Guid DxgiSurfaceGuid = new Guid("cafcb56c-6ac3-4889-bf47-9e23bbd260ec");
+            private static readonly Guid DxgiSurfaceGuid = new("cafcb56c-6ac3-4889-bf47-9e23bbd260ec");
             private SilkD2DDeviceContextPtr nativeContext;
             private BitmapProxy target;
             private Matrix3x2 transform = Matrix3x2.Identity;
@@ -121,13 +118,11 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     target = value;
                     if (nativeContext.Handle != null)
-                    {
-                        nativeContext.Handle->SetTarget((ID2D1Image*)value?.Bitmap?.Handle);
-                    }
+                        nativeContext.Handle->SetTarget((ID2D1Image*) value?.Bitmap?.Handle);
                 }
             }
 
-            public D2DSizeF DotsPerInch { get; set; } = new D2DSizeF(96, 96);
+            public D2DSizeF DotsPerInch { get; set; } = new(96, 96);
 
             public int MaximumBitmapSize { get; set; }
 
@@ -151,7 +146,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public D2DFactory Factory { get; set; } = new D2DFactory();
+            public D2DFactory Factory { get; set; } = new();
 
             internal ID2D1DeviceContext* NativeHandle => nativeContext.Handle;
 
@@ -159,18 +154,12 @@ namespace HelixToolkit.SharpDX.Core
 
             public void BeginDraw()
             {
-                if (nativeContext.Handle != null)
-                {
-                    nativeContext.Handle->BeginDraw();
-                }
+                if (nativeContext.Handle != null) nativeContext.Handle->BeginDraw();
             }
 
             public void EndDraw()
             {
-                if (nativeContext.Handle != null)
-                {
-                    SilkMarshal.ThrowHResult(nativeContext.Handle->EndDraw(null, null));
-                }
+                if (nativeContext.Handle != null) SilkMarshal.ThrowHResult(nativeContext.Handle->EndDraw(null, null));
             }
 
             public void Clear(Color4 color)
@@ -200,11 +189,12 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public void DrawRoundedRectangle(RoundedRectangle rect, Brush brush, float strokeWidth, StrokeStyle strokeStyle = null)
+            public void DrawRoundedRectangle(RoundedRectangle rect, Brush brush, float strokeWidth,
+                StrokeStyle strokeStyle = null)
             {
                 if (nativeContext.Handle != null && brush?.Handle != null)
                 {
-                    var value = new Silk.NET.Direct2D.RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
+                    var value = new RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
                     nativeContext.Handle->DrawRoundedRectangle(&value, brush.Handle, strokeWidth, null);
                 }
             }
@@ -213,7 +203,7 @@ namespace HelixToolkit.SharpDX.Core
             {
                 if (nativeContext.Handle != null && brush?.Handle != null)
                 {
-                    var value = new Silk.NET.Direct2D.RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
+                    var value = new RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
                     nativeContext.Handle->FillRoundedRectangle(&value, brush.Handle);
                 }
             }
@@ -236,7 +226,8 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public void DrawGeometry(PathGeometry geometry, Brush brush, float strokeWidth, StrokeStyle strokeStyle = null)
+            public void DrawGeometry(PathGeometry geometry, Brush brush, float strokeWidth,
+                StrokeStyle strokeStyle = null)
             {
             }
 
@@ -244,7 +235,9 @@ namespace HelixToolkit.SharpDX.Core
             {
             }
 
-            public void DrawImage(Utilities.BitmapProxy image, Vector2 targetOffset, RectangleF imageRectangle, BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear, CompositeMode compositeMode = CompositeMode.SourceOver)
+            public void DrawImage(BitmapProxy image, Vector2 targetOffset, RectangleF imageRectangle,
+                BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear,
+                CompositeMode compositeMode = CompositeMode.SourceOver)
             {
                 if (nativeContext.Handle != null && image?.Bitmap?.Handle != null)
                 {
@@ -255,15 +248,16 @@ namespace HelixToolkit.SharpDX.Core
                         targetOffset.Y + imageRectangle.Height);
                     var source = ToSilkRect(imageRectangle);
                     nativeContext.Handle->DrawBitmap(
-                        (ID2D1Bitmap*)image.Bitmap.Handle,
+                        (ID2D1Bitmap*) image.Bitmap.Handle,
                         &destination,
                         1,
-                        (Silk.NET.Direct2D.BitmapInterpolationMode)interpolationMode,
+                        (Silk.NET.Direct2D.BitmapInterpolationMode) interpolationMode,
                         &source);
                 }
             }
 
-            public void DrawBitmap(Bitmap bitmap, RectangleF destinationRectangle, float opacity, BitmapInterpolationMode interpolationMode)
+            public void DrawBitmap(Bitmap bitmap, RectangleF destinationRectangle, float opacity,
+                BitmapInterpolationMode interpolationMode)
             {
                 if (nativeContext.Handle != null && bitmap?.Handle != null)
                 {
@@ -272,41 +266,45 @@ namespace HelixToolkit.SharpDX.Core
                         bitmap.Handle,
                         &destination,
                         opacity,
-                        (Silk.NET.Direct2D.BitmapInterpolationMode)interpolationMode,
+                        (Silk.NET.Direct2D.BitmapInterpolationMode) interpolationMode,
                         null);
                 }
             }
 
-            public void DrawTextLayout(Vector2 origin, TextLayout textLayout, Brush brush, DrawTextOptions options = DrawTextOptions.None)
+            public void DrawTextLayout(Vector2 origin, TextLayout textLayout, Brush brush,
+                DrawTextOptions options = DrawTextOptions.None)
             {
                 if (nativeContext.Handle != null && textLayout?.Handle != null && brush?.Handle != null)
-                {
-                    nativeContext.Handle->DrawTextLayout(origin, (Silk.NET.Direct2D.IDWriteTextLayout*)textLayout.Handle, brush.Handle, Silk.NET.Direct2D.DrawTextOptions.None);
-                }
+                    nativeContext.Handle->DrawTextLayout(origin,
+                        (Silk.NET.Direct2D.IDWriteTextLayout*) textLayout.Handle, brush.Handle,
+                        Silk.NET.Direct2D.DrawTextOptions.None);
             }
 
             internal D2DBitmap CreateTargetBitmap(Texture2D texture, D2DBitmapProperties properties)
             {
                 if (nativeContext.Handle == null || texture == null)
-                {
-                    return new D2DBitmap(texture == null ? default : new Size2(texture.Description.Width, texture.Description.Height));
-                }
+                    return new D2DBitmap(texture == null
+                        ? default
+                        : new Size2(texture.Description.Width, texture.Description.Height));
 
                 IDXGISurface* surface = null;
                 var guid = DxgiSurfaceGuid;
-                SilkMarshal.ThrowHResult(texture.Handle->QueryInterface(&guid, (void**)&surface));
+                SilkMarshal.ThrowHResult(texture.Handle->QueryInterface(&guid, (void**) &surface));
                 try
                 {
                     var bitmapProperties = new BitmapProperties1
                     {
-                        PixelFormat = new Silk.NET.Direct2D.PixelFormat(properties.PixelFormat.Format, (Silk.NET.Direct2D.AlphaMode)properties.PixelFormat.AlphaMode),
+                        PixelFormat = new PixelFormat(properties.PixelFormat.Format,
+                            (AlphaMode) properties.PixelFormat.AlphaMode),
                         DpiX = properties.DpiX,
                         DpiY = properties.DpiY,
-                        BitmapOptions = (BitmapOptions)properties.Options
+                        BitmapOptions = (BitmapOptions) properties.Options
                     };
                     ID2D1Bitmap1* bitmap = null;
-                    SilkMarshal.ThrowHResult(nativeContext.Handle->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, &bitmap));
-                    var result = new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height), new SilkD2DBitmapPtr(bitmap));
+                    SilkMarshal.ThrowHResult(
+                        nativeContext.Handle->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, &bitmap));
+                    var result = new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height),
+                        new SilkD2DBitmapPtr(bitmap));
                     bitmap->Release();
                     return result;
                 }
@@ -319,23 +317,21 @@ namespace HelixToolkit.SharpDX.Core
             internal Bitmap CreateBitmap(byte[] pixels, int width, int height, int stride)
             {
                 if (nativeContext.Handle == null || pixels == null || pixels.Length == 0)
-                {
                     return new Bitmap(new Size2F(width, height));
-                }
 
                 fixed (byte* data = pixels)
                 {
-                    var properties = new Silk.NET.Direct2D.BitmapProperties
+                    var properties = new BitmapProperties
                     {
-                        PixelFormat = new Silk.NET.Direct2D.PixelFormat(Format.FormatB8G8R8A8Unorm, Silk.NET.Direct2D.AlphaMode.Premultiplied),
+                        PixelFormat = new PixelFormat(Format.FormatB8G8R8A8Unorm, AlphaMode.Premultiplied),
                         DpiX = DotsPerInch.Width,
                         DpiY = DotsPerInch.Height
                     };
                     ID2D1Bitmap* bitmap = null;
                     SilkMarshal.ThrowHResult(nativeContext.Handle->CreateBitmap(
-                        new Vector2D<uint>((uint)width, (uint)height),
+                        new Vector2D<uint>((uint) width, (uint) height),
                         data,
-                        (uint)stride,
+                        (uint) stride,
                         &properties,
                         &bitmap));
                     var result = new Bitmap(new Size2F(width, height), new SilkD2DBitmapBasePtr(bitmap));
@@ -370,22 +366,22 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public unsafe sealed class DirectWriteFactory : D2DNativeResource
+        public sealed unsafe class DirectWriteFactory : D2DNativeResource
         {
             private static readonly DWrite DWriteApi = DWrite.GetApi();
-            private static readonly Guid FactoryGuid = new Guid("b859ee5a-d838-4b5b-a2e8-1adc7d93db48");
+            private static readonly Guid FactoryGuid = new("b859ee5a-d838-4b5b-a2e8-1adc7d93db48");
             private SilkDWriteFactoryPtr nativeFactory;
 
             public DirectWriteFactory(object nativeResource = null)
             {
                 IUnknown* factory = null;
                 var guid = FactoryGuid;
-                SilkMarshal.ThrowHResult(DWriteApi.DWriteCreateFactory(Silk.NET.DirectWrite.FactoryType.Shared, &guid, &factory));
-                nativeFactory = new SilkDWriteFactoryPtr((Silk.NET.DirectWrite.IDWriteFactory*)factory);
+                SilkMarshal.ThrowHResult(DWriteApi.DWriteCreateFactory(FactoryType.Shared, &guid, &factory));
+                nativeFactory = new SilkDWriteFactoryPtr((IDWriteFactory*) factory);
                 factory->Release();
             }
 
-            internal Silk.NET.DirectWrite.IDWriteFactory* Handle => nativeFactory.Handle;
+            internal IDWriteFactory* Handle => nativeFactory.Handle;
 
             public override void Dispose()
             {
@@ -402,17 +398,14 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public unsafe sealed class D2DBitmap : D2DNativeResource
+        public sealed unsafe class D2DBitmap : D2DNativeResource
         {
             private SilkD2DBitmapPtr nativeBitmap;
 
             public D2DBitmap(Size2 size, object nativeResource = null)
             {
                 Size = new D2DSizeF(size.Width, size.Height);
-                if (nativeResource is SilkD2DBitmapPtr bitmap)
-                {
-                    nativeBitmap = bitmap;
-                }
+                if (nativeResource is SilkD2DBitmapPtr bitmap) nativeBitmap = bitmap;
             }
 
             public D2DSizeF Size { get; }
@@ -456,7 +449,8 @@ namespace HelixToolkit.SharpDX.Core
 
         public sealed class D2DBitmapProperties
         {
-            public D2DBitmapProperties(D2DPixelFormat pixelFormat, float dpiX, float dpiY, D2DBitmapOptions options, D2DColorContext colorContext = null)
+            public D2DBitmapProperties(D2DPixelFormat pixelFormat, float dpiX, float dpiY, D2DBitmapOptions options,
+                D2DColorContext colorContext = null)
             {
                 PixelFormat = pixelFormat;
                 DpiX = dpiX;
@@ -490,33 +484,33 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public unsafe class Brush : Native.D2DNativeResource
+    public unsafe class Brush : D2DNativeResource
     {
         public Brush(object nativeResource = null)
             : base(nativeResource)
         {
         }
 
+        internal virtual ID2D1Brush* Handle => null;
+
         public T QueryInterface<T>()
             where T : class
         {
             return this as T;
         }
-
-        internal virtual ID2D1Brush* Handle => null;
     }
 
-    public unsafe sealed class SolidColorBrush : Brush
+    public sealed unsafe class SolidColorBrush : Brush
     {
         private SilkD2DSolidBrushPtr nativeBrush;
 
-        public SolidColorBrush(Native.D2DDeviceContext context, Color4 color)
+        public SolidColorBrush(D2DDeviceContext context, Color4 color)
         {
             Color = color;
             Create(context, color, 1);
         }
 
-        public SolidColorBrush(Native.D2DDeviceContext context, Color4 color, BrushProperties properties)
+        public SolidColorBrush(D2DDeviceContext context, Color4 color, BrushProperties properties)
         {
             Color = color;
             Properties = properties;
@@ -527,7 +521,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public BrushProperties Properties { get; }
 
-        internal override ID2D1Brush* Handle => (ID2D1Brush*)nativeBrush.Handle;
+        internal override ID2D1Brush* Handle => (ID2D1Brush*) nativeBrush.Handle;
 
         public override void Dispose()
         {
@@ -535,15 +529,12 @@ namespace HelixToolkit.SharpDX.Core
             base.Dispose();
         }
 
-        private void Create(Native.D2DDeviceContext context, Color4 color, float opacity)
+        private void Create(D2DDeviceContext context, Color4 color, float opacity)
         {
-            if (context?.NativeHandle == null)
-            {
-                return;
-            }
+            if (context?.NativeHandle == null) return;
 
             var value = new D3Dcolorvalue(color.X, color.Y, color.Z, color.W);
-            var properties = new Silk.NET.Direct2D.BrushProperties { Opacity = opacity };
+            var properties = new Silk.NET.Direct2D.BrushProperties {Opacity = opacity};
             ID2D1SolidColorBrush* brush = null;
             SilkMarshal.ThrowHResult(context.NativeHandle->CreateSolidColorBrush(&value, &properties, &brush));
             nativeBrush = new SilkD2DSolidBrushPtr(brush);
@@ -556,9 +547,9 @@ namespace HelixToolkit.SharpDX.Core
         public float Opacity;
     }
 
-    public sealed class StrokeStyle : Native.D2DNativeResource
+    public sealed class StrokeStyle : D2DNativeResource
     {
-        public StrokeStyle(Native.D2DFactory factory, StrokeStyleProperties properties, float[] dashes = null)
+        public StrokeStyle(D2DFactory factory, StrokeStyleProperties properties, float[] dashes = null)
         {
             Properties = properties;
             Dashes = dashes ?? Array.Empty<float>();
@@ -586,47 +577,43 @@ namespace HelixToolkit.SharpDX.Core
         public DashStyle DashStyle;
     }
 
-    public unsafe sealed class Bitmap : Native.D2DNativeResource
+    public sealed unsafe class Bitmap : D2DNativeResource
     {
         private SilkD2DBitmapBasePtr nativeBitmap;
-        private Utilities.BitmapProxy target;
-        private Texture2D texture;
+        private BitmapProxy target;
 
         public Bitmap(Size2F size, object nativeResource = null)
         {
             Size = size;
-            if (nativeResource is SilkD2DBitmapBasePtr bitmap)
-            {
-                nativeBitmap = bitmap;
-            }
+            if (nativeResource is SilkD2DBitmapBasePtr bitmap) nativeBitmap = bitmap;
         }
 
-        internal Bitmap(Size2F size, Texture2D texture, Utilities.BitmapProxy target)
+        internal Bitmap(Size2F size, Texture2D texture, BitmapProxy target)
         {
             Size = size;
-            this.texture = texture;
+            this.Texture = texture;
             this.target = target;
         }
 
         public Size2F Size { get; }
 
-        public int Width => (int)Math.Ceiling(Size.Width);
+        public int Width => (int) Math.Ceiling(Size.Width);
 
-        public int Height => (int)Math.Ceiling(Size.Height);
+        public int Height => (int) Math.Ceiling(Size.Height);
 
         internal ID2D1Bitmap* Handle => target?.Bitmap?.Handle != null
-            ? (ID2D1Bitmap*)target.Bitmap.Handle
+            ? (ID2D1Bitmap*) target.Bitmap.Handle
             : nativeBitmap.Handle;
 
-        internal Texture2D Texture => texture;
+        internal Texture2D Texture { get; private set; }
 
         public override void Dispose()
         {
             nativeBitmap.Dispose();
             target?.Dispose();
             target = null;
-            texture?.Dispose();
-            texture = null;
+            Texture?.Dispose();
+            Texture = null;
             base.Dispose();
         }
     }
@@ -650,9 +637,10 @@ namespace HelixToolkit.SharpDX.Core
         Linear
     }
 
-    public sealed class GradientStopCollection : Native.D2DNativeResource
+    public sealed class GradientStopCollection : D2DNativeResource
     {
-        public GradientStopCollection(Native.D2DDeviceContext context, GradientStop[] gradients, Gamma gamma, ExtendMode extendMode)
+        public GradientStopCollection(D2DDeviceContext context, GradientStop[] gradients, Gamma gamma,
+            ExtendMode extendMode)
         {
             Gradients = gradients ?? Array.Empty<GradientStop>();
             Gamma = gamma;
@@ -674,7 +662,8 @@ namespace HelixToolkit.SharpDX.Core
 
     public sealed class LinearGradientBrush : Brush
     {
-        public LinearGradientBrush(Native.D2DDeviceContext context, LinearGradientBrushProperties properties, GradientStopCollection gradientStops)
+        public LinearGradientBrush(D2DDeviceContext context, LinearGradientBrushProperties properties,
+            GradientStopCollection gradientStops)
         {
             Properties = properties;
             GradientStops = gradientStops;
@@ -695,7 +684,8 @@ namespace HelixToolkit.SharpDX.Core
 
     public sealed class RadialGradientBrush : Brush
     {
-        public RadialGradientBrush(Native.D2DDeviceContext context, RadialGradientBrushProperties properties, GradientStopCollection gradientStops)
+        public RadialGradientBrush(D2DDeviceContext context, RadialGradientBrushProperties properties,
+            GradientStopCollection gradientStops)
         {
             Properties = properties;
             GradientStops = gradientStops;
@@ -720,14 +710,14 @@ namespace HelixToolkit.SharpDX.Core
         public float RadiusY;
     }
 
-    public sealed class PathGeometry : Native.D2DNativeResource
+    public sealed class PathGeometry : D2DNativeResource
     {
-        public PathGeometry(Native.D2DFactory factory)
+        public PathGeometry(D2DFactory factory)
         {
             Factory = factory;
         }
 
-        public Native.D2DFactory Factory { get; }
+        public D2DFactory Factory { get; }
 
         public GeometrySink Open()
         {
@@ -735,7 +725,7 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed class GeometrySink : Native.D2DNativeResource
+    public sealed class GeometrySink : D2DNativeResource
     {
         internal GeometrySink(PathGeometry geometry)
         {
@@ -796,11 +786,12 @@ namespace HelixToolkit.SharpDX.Core
         public ArcSize ArcSize;
     }
 
-    public unsafe sealed class TextFormat : Native.D2DNativeResource
+    public sealed unsafe class TextFormat : D2DNativeResource
     {
         private SilkDWriteTextFormatPtr nativeFormat;
 
-        public TextFormat(Native.DirectWriteFactory factory, string fontFamily, FontWeight fontWeight, FontStyle fontStyle, float fontSize)
+        public TextFormat(DirectWriteFactory factory, string fontFamily, FontWeight fontWeight, FontStyle fontStyle,
+            float fontSize)
         {
             Factory = factory;
             FontFamily = fontFamily;
@@ -809,7 +800,7 @@ namespace HelixToolkit.SharpDX.Core
             FontSize = fontSize;
             if (factory?.Handle != null)
             {
-                Silk.NET.DirectWrite.IDWriteTextFormat* format = null;
+                IDWriteTextFormat* format = null;
                 var family = fontFamily ?? "Arial";
                 var locale = string.Empty;
                 fixed (char* familyPtr = family)
@@ -818,8 +809,8 @@ namespace HelixToolkit.SharpDX.Core
                     SilkMarshal.ThrowHResult(factory.Handle->CreateTextFormat(
                         familyPtr,
                         null,
-                        (Silk.NET.DirectWrite.FontWeight)fontWeight,
-                        (Silk.NET.DirectWrite.FontStyle)fontStyle,
+                        (Silk.NET.DirectWrite.FontWeight) fontWeight,
+                        (Silk.NET.DirectWrite.FontStyle) fontStyle,
                         FontStretch.Normal,
                         fontSize,
                         localePtr,
@@ -830,7 +821,7 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public Native.DirectWriteFactory Factory { get; }
+        public DirectWriteFactory Factory { get; }
 
         public string FontFamily { get; }
 
@@ -840,7 +831,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public float FontSize { get; }
 
-        internal Silk.NET.DirectWrite.IDWriteTextFormat* Handle => nativeFormat.Handle;
+        internal IDWriteTextFormat* Handle => nativeFormat.Handle;
 
         public override void Dispose()
         {
@@ -849,12 +840,13 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public unsafe sealed class TextLayout : Native.D2DNativeResource
+    public sealed unsafe class TextLayout : D2DNativeResource
     {
         private SilkDWriteTextLayoutPtr nativeLayout;
         private TextAlignment textAlignment = TextAlignment.Leading;
 
-        public TextLayout(Native.DirectWriteFactory factory, string text, TextFormat textFormat, float maxWidth, float maxHeight)
+        public TextLayout(DirectWriteFactory factory, string text, TextFormat textFormat, float maxWidth,
+            float maxHeight)
         {
             Factory = factory;
             Text = text ?? string.Empty;
@@ -863,12 +855,12 @@ namespace HelixToolkit.SharpDX.Core
             MaxHeight = maxHeight;
             if (factory?.Handle != null && textFormat?.Handle != null)
             {
-                Silk.NET.DirectWrite.IDWriteTextLayout* layout = null;
+                IDWriteTextLayout* layout = null;
                 fixed (char* textPtr = Text)
                 {
                     SilkMarshal.ThrowHResult(factory.Handle->CreateTextLayout(
                         textPtr,
-                        (uint)Text.Length,
+                        (uint) Text.Length,
                         textFormat.Handle,
                         NormalizeSize(maxWidth),
                         NormalizeSize(maxHeight),
@@ -876,6 +868,7 @@ namespace HelixToolkit.SharpDX.Core
                     nativeLayout = new SilkDWriteTextLayoutPtr(layout);
                     layout->Release();
                 }
+
                 Silk.NET.DirectWrite.TextMetrics metrics = default;
                 SilkMarshal.ThrowHResult(nativeLayout.Handle->GetMetrics(&metrics));
                 Metrics = new TextMetrics
@@ -888,12 +881,13 @@ namespace HelixToolkit.SharpDX.Core
             else
             {
                 var height = Math.Max(1, textFormat?.FontSize ?? 12);
-                var width = Math.Min(float.IsInfinity(maxWidth) || maxWidth <= 0 ? float.MaxValue : maxWidth, Text.Length * height * 0.55f);
-                Metrics = new TextMetrics { Width = width, WidthIncludingTrailingWhitespace = width, Height = height };
+                var width = Math.Min(float.IsInfinity(maxWidth) || maxWidth <= 0 ? float.MaxValue : maxWidth,
+                    Text.Length * height * 0.55f);
+                Metrics = new TextMetrics {Width = width, WidthIncludingTrailingWhitespace = width, Height = height};
             }
         }
 
-        public Native.DirectWriteFactory Factory { get; }
+        public DirectWriteFactory Factory { get; }
 
         public string Text { get; }
 
@@ -910,15 +904,14 @@ namespace HelixToolkit.SharpDX.Core
             {
                 textAlignment = value;
                 if (nativeLayout.Handle != null)
-                {
-                    SilkMarshal.ThrowHResult(nativeLayout.Handle->SetTextAlignment((Silk.NET.DirectWrite.TextAlignment)value));
-                }
+                    SilkMarshal.ThrowHResult(
+                        nativeLayout.Handle->SetTextAlignment((Silk.NET.DirectWrite.TextAlignment) value));
             }
         }
 
         public TextMetrics Metrics { get; }
 
-        internal Silk.NET.DirectWrite.IDWriteTextLayout* Handle => nativeLayout.Handle;
+        internal IDWriteTextLayout* Handle => nativeLayout.Handle;
 
         public override void Dispose()
         {

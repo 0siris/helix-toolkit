@@ -2,26 +2,26 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-namespace HelixToolkit.SharpDX.Core
+
+namespace HelixToolkit.SharpDX.Core;
+
+/// <summary>
+///     Camera rotation modes.
+/// </summary>
+public enum CameraRotationMode
 {
     /// <summary>
-    /// Camera rotation modes.
+    ///     Turntable is constrained to two axes of rotation (model up and right direction)
     /// </summary>
-    public enum CameraRotationMode
-    {
-        /// <summary>
-        /// Turntable is constrained to two axes of rotation (model up and right direction)
-        /// </summary>
-        Turntable,
+    Turntable,
 
-        /// <summary>
-        /// Turnball using three axes (look direction, right direction and up direction (on the left/right edges)).
-        /// </summary>
-        Turnball,
+    /// <summary>
+    ///     Turnball using three axes (look direction, right direction and up direction (on the left/right edges)).
+    /// </summary>
+    Turnball,
 
-        /// <summary>
-        /// Using a virtual trackball.
-        /// </summary>
-        Trackball
-    }
+    /// <summary>
+    ///     Using a virtual trackball.
+    /// </summary>
+    Trackball
 }

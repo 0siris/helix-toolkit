@@ -9,17 +9,16 @@ namespace HelixToolkit.SharpDX.Core
     namespace Core2D
     {
         /// <summary>
-        /// <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/"/>
+        ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
         /// </summary>
         public class BezierSegment : Segment
         {
             /// <summary>
-            /// 
             /// </summary>
             public readonly Vector2 P1, P2, P3;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="BezierSegment"/> class.
+            ///     Initializes a new instance of the <see cref="BezierSegment" /> class.
             /// </summary>
             /// <param name="p1">The p1.</param>
             /// <param name="p2">The p2.</param>
@@ -32,12 +31,12 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Creates the specified sink.
+            ///     Creates the specified sink.
             /// </summary>
             /// <param name="sink">The sink.</param>
             public override void Create(GeometrySink sink)
             {
-                sink.AddBezier(new BezierSegmentData() { Point1 = P1, Point2 = P2, Point3 = P3 });
+                sink.AddBezier(new BezierSegmentData {Point1 = P1, Point2 = P2, Point3 = P3});
             }
         }
     }

@@ -6,350 +6,293 @@
 //   A Geomview Object File Format (OFF) reader.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
+
 using System.Globalization;
-using System.IO;
-namespace HelixToolkit.SharpDX.Core
+using HelixToolkit.SharpDX.Core.Model;
+
+namespace HelixToolkit.SharpDX.Core;
+
+using Object3DGroup = List<Object3D>;
+using Point3D = Vector3;
+
+/// <summary>
+///     A Geomview Object File Format (OFF) reader.
+/// </summary>
+/// <remarks>
+///     The reader does not parse colors, normals and texture coordinates.
+///     Only 3 dimensional vertices are supported.
+///     Homogeneous coordinates are not supported.
+///     See the following links for information about the file format:
+///     http://www.geomview.org/
+///     http://people.sc.fsu.edu/~jburkardt/data/off/off.html
+///     http://people.sc.fsu.edu/~jburkardt/html/off_format.html
+///     http://segeval.cs.princeton.edu/public/off_format.html
+///     http://paulbourke.net/dataformats/off/
+/// </remarks>
+[Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
+public class OffReader : IModelReader
 {
-    using Object3DGroup = System.Collections.Generic.List<Object3D>;
-    using Point = Vector2;
-    using Point3D = Vector3;
-    using Model;
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="OffReader" /> class.
+    /// </summary>
+    public OffReader()
+    {
+        Vertices = new List<Point3D>();
+
+        // this.VertexColors = new List<Color>();
+        // this.TexCoords = new PointCollection();
+        // this.Normals = new Vector3DCollection();
+        Faces = new List<int[]>();
+    }
 
     /// <summary>
-    /// A Geomview Object File Format (OFF) reader.
+    ///     Gets the faces.
     /// </summary>
-    /// <remarks>
-    /// The reader does not parse colors, normals and texture coordinates.
-    /// Only 3 dimensional vertices are supported.
-    /// Homogeneous coordinates are not supported.
-    /// See the following links for information about the file format:
-    /// http://www.geomview.org/
-    /// http://people.sc.fsu.edu/~jburkardt/data/off/off.html
-    /// http://people.sc.fsu.edu/~jburkardt/html/off_format.html
-    /// http://segeval.cs.princeton.edu/public/off_format.html
-    /// http://paulbourke.net/dataformats/off/
-    /// </remarks>
-    [Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
-    public class OffReader : IModelReader
+    public IList<int[]> Faces { get; }
+
+    // public IList<Color> FaceColors { get; set; }
+    // public IList<Color> VertexColors { get; set; }
+    // public IList<Vector3D> Normals { get; set; }
+    // public IList<Point> TexCoords { get; set; }
+
+    /// <summary>
+    ///     Gets the vertices.
+    /// </summary>
+    public IList<Point3D> Vertices { get; }
+
+    /// <summary>
+    ///     Reads the model from the specified stream.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="info">The model info.</param>
+    /// <returns>The model.</returns>
+    public Object3DGroup Read(string path, ModelInfo info = default)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OffReader" /> class.
-        /// </summary>
-        public OffReader()
+        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
-            this.Vertices = new List<Point3D>();
-
-            // this.VertexColors = new List<Color>();
-            // this.TexCoords = new PointCollection();
-            // this.Normals = new Vector3DCollection();
-            this.Faces = new List<int[]>();
+            return Read(s, info);
         }
+    }
 
-        /// <summary>
-        /// Gets the faces.
-        /// </summary>
-        public IList<int[]> Faces
+    /// <summary>
+    ///     Reads the model from the specified stream.
+    /// </summary>
+    /// <param name="s">The stream.</param>
+    /// <param name="info">The model info.</param>
+    /// <returns>The model.</returns>
+    public Object3DGroup Read(Stream s, ModelInfo info = default)
+    {
+        Load(s);
+        return BuildModel(info);
+    }
+
+    /// <summary>
+    ///     Creates a MeshGeometry3D object from the loaded file. Polygons are triangulated using triangle fans.
+    /// </summary>
+    /// <param name="info">
+    ///     The model info.
+    /// </param>
+    /// <returns>
+    ///     A MeshGeometry3D.
+    /// </returns>
+    public MeshGeometry3D CreateMeshGeometry3D(ModelInfo info = default)
+    {
+        var mb = new MeshBuilder(info.Normals, info.Tangents);
+        foreach (var p in Vertices) mb.Positions.Add(p);
+
+        foreach (var face in Faces) mb.AddTriangleFan(face);
+        mb.ComputeNormalsAndTangents(info.Faces);
+        return mb.ToMeshGeometry3D();
+    }
+
+    /// <summary>
+    ///     Creates a Model3D object from the loaded file.
+    /// </summary>
+    /// <param name="info">
+    ///     The model info.
+    /// </param>
+    /// <returns>A Model3D group.</returns>
+    public Object3DGroup BuildModel(ModelInfo info = default)
+    {
+        Object3DGroup modelGroup = null;
+
+        modelGroup = new Object3DGroup();
+        var g = CreateMeshGeometry3D(info);
+        var gm = new Object3D {Geometry = g, Transform = new List<Matrix>()};
+
+        gm.Material = new PhongMaterialCore
         {
-            get; private set;
-        }
+            Name = "DefaultVRML",
+            AmbientColor = new Color(0.2f, 0.2f, 0.2f),
+            DiffuseColor = new Color(0.8f, 0.8f, 0.8f),
+            SpecularColor = new Color(0.0f, 0.0f, 0.0f),
+            EmissiveColor = new Color(0.0f, 0.0f, 0.0f),
+            SpecularShininess = 25.6f
+        };
+        modelGroup.Add(gm);
+        return modelGroup;
+    }
 
-        // public IList<Color> FaceColors { get; set; }
-        // public IList<Color> VertexColors { get; set; }
-        // public IList<Vector3D> Normals { get; set; }
-        // public IList<Point> TexCoords { get; set; }
 
-        /// <summary>
-        /// Gets the vertices.
-        /// </summary>
-        public IList<Point3D> Vertices
+    /// <summary>
+    ///     Loads the model from the specified stream.
+    /// </summary>
+    /// <param name="s">
+    ///     The stream.
+    /// </param>
+    private void Load(Stream s)
+    {
+        using (var reader = new StreamReader(s))
         {
-            get; private set;
-        }
+            var containsNormals = false;
+            var containsTextureCoordinates = false;
+            var containsColors = false;
+            var containsHomogeneousCoordinates = false;
+            var vertexDimension = 3;
+            var nextLineContainsVertexDimension = false;
+            var nextLineContainsNumberOfVertices = false;
+            var numberOfVertices = 0;
+            var numberOfFaces = 0;
+            // int numberOfEdges = 0;
 
-        /// <summary>
-        /// Reads the model from the specified stream.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="info">The model info.</param>
-        /// <returns>The model.</returns>
-        public Object3DGroup Read(string path, ModelInfo info = default(ModelInfo))
-        {
-            using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            while (!reader.EndOfStream)
             {
-                return this.Read(s, info);
-            }
-        }
+                var line = reader.ReadLine();
+                if (line == null) break;
 
-        /// <summary>
-        /// Reads the model from the specified stream.
-        /// </summary>
-        /// <param name="s">The stream.</param>
-        /// <param name="info">The model info.</param>
-        /// <returns>The model.</returns>
-        public Object3DGroup Read(Stream s, ModelInfo info = default(ModelInfo))
-        {
-            this.Load(s);
-            return this.BuildModel(info);
-        }
+                line = line.Trim();
+                if (line.StartsWith("#") || line.Length == 0) continue;
 
-        /// <summary>
-        /// Creates a MeshGeometry3D object from the loaded file. Polygons are triangulated using triangle fans.
-        /// </summary>
-        /// <param name="info">
-        /// The model info.
-        /// </param>
-        /// <returns>
-        /// A MeshGeometry3D.
-        /// </returns>
-        public MeshGeometry3D CreateMeshGeometry3D(ModelInfo info = default(ModelInfo))
-        {
-            var mb = new MeshBuilder(info.Normals, info.Tangents);
-            foreach (var p in this.Vertices)
-            {
-                mb.Positions.Add(p);
-            }
-
-            foreach (var face in this.Faces)
-            {
-                mb.AddTriangleFan(face);
-            }
-            mb.ComputeNormalsAndTangents(info.Faces);
-            return mb.ToMeshGeometry3D();
-        }
-
-        /// <summary>
-        /// Creates a Model3D object from the loaded file.
-        /// </summary>
-        /// <param name="info">
-        /// The model info.
-        /// </param>
-        /// <returns>A Model3D group.</returns>
-        public Object3DGroup BuildModel(ModelInfo info = default(ModelInfo))
-        {
-            Object3DGroup modelGroup = null;
-
-            modelGroup = new Object3DGroup();
-            var g = this.CreateMeshGeometry3D(info);
-            var gm = new Object3D() { Geometry = g, Transform = new List<Matrix>() };
-
-            gm.Material = new PhongMaterialCore()
-            {
-                Name = "DefaultVRML",
-                AmbientColor = new Color(0.2f, 0.2f, 0.2f, 1.0f),
-                DiffuseColor = new Color(0.8f, 0.8f, 0.8f, 1.0f),
-                SpecularColor = new Color(0.0f, 0.0f, 0.0f, 1.0f),
-                EmissiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f),
-                SpecularShininess = 25.6f,
-            };
-            modelGroup.Add(gm);
-            return modelGroup;
-        }
-
-
-
-
-
-        /// <summary>
-        /// Loads the model from the specified stream.
-        /// </summary>
-        /// <param name="s">
-        /// The stream.
-        /// </param>
-        private void Load(Stream s)
-        {
-            using (var reader = new StreamReader(s))
-            {
-                var containsNormals = false;
-                var containsTextureCoordinates = false;
-                var containsColors = false;
-                var containsHomogeneousCoordinates = false;
-                var vertexDimension = 3;
-                var nextLineContainsVertexDimension = false;
-                var nextLineContainsNumberOfVertices = false;
-                var numberOfVertices = 0;
-                var numberOfFaces = 0;
-                // int numberOfEdges = 0;
-
-                while (!reader.EndOfStream)
+                if (nextLineContainsVertexDimension)
                 {
-                    var line = reader.ReadLine();
-                    if (line == null)
-                    {
-                        break;
-                    }
+                    var values = GetIntValues(line);
+                    vertexDimension = values[0];
+                    nextLineContainsVertexDimension = false;
+                    continue;
+                }
 
-                    line = line.Trim();
-                    if (line.StartsWith("#") || line.Length == 0)
-                    {
-                        continue;
-                    }
+                if (line.Contains("OFF"))
+                {
+                    containsNormals = line.Contains("N");
+                    containsColors = line.Contains("C");
+                    containsTextureCoordinates = line.Contains("ST");
+                    if (line.Contains("4")) containsHomogeneousCoordinates = true;
 
-                    if (nextLineContainsVertexDimension)
-                    {
-                        var values = GetIntValues(line);
-                        vertexDimension = values[0];
-                        nextLineContainsVertexDimension = false;
-                        continue;
-                    }
+                    if (line.Contains("n")) nextLineContainsVertexDimension = true;
 
-                    if (line.Contains("OFF"))
-                    {
-                        containsNormals = line.Contains("N");
-                        containsColors = line.Contains("C");
-                        containsTextureCoordinates = line.Contains("ST");
-                        if (line.Contains("4"))
-                        {
-                            containsHomogeneousCoordinates = true;
-                        }
+                    nextLineContainsNumberOfVertices = true;
+                    continue;
+                }
 
-                        if (line.Contains("n"))
-                        {
-                            nextLineContainsVertexDimension = true;
-                        }
+                if (nextLineContainsNumberOfVertices)
+                {
+                    var values = GetIntValues(line);
+                    numberOfVertices = values[0];
+                    numberOfFaces = values[1];
 
-                        nextLineContainsNumberOfVertices = true;
-                        continue;
-                    }
+                    /* numberOfEdges = values[2]; */
+                    nextLineContainsNumberOfVertices = false;
+                    continue;
+                }
 
-                    if (nextLineContainsNumberOfVertices)
-                    {
-                        var values = GetIntValues(line);
-                        numberOfVertices = values[0];
-                        numberOfFaces = values[1];
+                if (Vertices.Count < numberOfVertices)
+                {
+                    var x = new double[vertexDimension];
+                    var values = GetValues(line);
+                    var i = 0;
+                    for (var j = 0; j < vertexDimension; j++) x[j] = values[i++];
 
-                        /* numberOfEdges = values[2]; */
-                        nextLineContainsNumberOfVertices = false;
-                        continue;
-                    }
+                    var n = new double[vertexDimension];
+                    var uv = new double[2];
+                    double w = 0;
+                    if (containsHomogeneousCoordinates) w = values[i++];
 
-                    if (this.Vertices.Count < numberOfVertices)
-                    {
-                        var x = new double[vertexDimension];
-                        var values = GetValues(line);
-                        var i = 0;
+                    if (containsNormals)
                         for (var j = 0; j < vertexDimension; j++)
-                        {
-                            x[j] = values[i++];
-                        }
+                            n[j] = values[i++];
 
-                        var n = new double[vertexDimension];
-                        var uv = new double[2];
-                        double w = 0;
-                        if (containsHomogeneousCoordinates)
-                        {
-                            w = values[i++];
-                        }
-
-                        if (containsNormals)
-                        {
-                            for (var j = 0; j < vertexDimension; j++)
-                            {
-                                n[j] = values[i++];
-                            }
-                        }
-
-                        if (containsColors)
-                        {
-                            // read color
-                        }
-
-                        if (containsTextureCoordinates)
-                        {
-                            for (var j = 0; j < 2; j++)
-                            {
-                                uv[j] = values[i++];
-                            }
-                        }
-
-                        this.Vertices.Add(new Point3D((float)x[0], (float)x[1], (float)x[2]));
-
-                        continue;
-                    }
-
-                    if (this.Faces.Count < numberOfFaces)
+                    if (containsColors)
                     {
-                        var values = GetIntValues(line);
-                        var nv = values[0];
-                        var vertices = new int[nv];
-                        for (var i = 0; i < nv; i++)
-                        {
-                            vertices[i] = values[i + 1];
-                        }
-
-                        if (containsColors)
-                        {
-                            // read colorspec
-                        }
-
-                        this.Faces.Add(vertices);
-                        continue;
+                        // read color
                     }
+
+                    if (containsTextureCoordinates)
+                        for (var j = 0; j < 2; j++)
+                            uv[j] = values[i++];
+
+                    Vertices.Add(new Point3D((float) x[0], (float) x[1], (float) x[2]));
+
+                    continue;
+                }
+
+                if (Faces.Count < numberOfFaces)
+                {
+                    var values = GetIntValues(line);
+                    var nv = values[0];
+                    var vertices = new int[nv];
+                    for (var i = 0; i < nv; i++) vertices[i] = values[i + 1];
+
+                    if (containsColors)
+                    {
+                        // read colorspec
+                    }
+
+                    Faces.Add(vertices);
                 }
             }
         }
+    }
 
-        /// <summary>
-        /// Parses integer values from a string.
-        /// </summary>
-        /// <param name="input">
-        /// The input string.
-        /// </param>
-        /// <returns>
-        /// Array of integer values.
-        /// </returns>
-        private static int[] GetIntValues(string input)
-        {
-            var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            var result = new int[fields.Length];
-            for (var i = 0; i < fields.Length; i++)
-            {
-                result[i] = int.Parse(fields[i]);
-            }
+    /// <summary>
+    ///     Parses integer values from a string.
+    /// </summary>
+    /// <param name="input">
+    ///     The input string.
+    /// </param>
+    /// <returns>
+    ///     Array of integer values.
+    /// </returns>
+    private static int[] GetIntValues(string input)
+    {
+        var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var result = new int[fields.Length];
+        for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i]);
 
-            return result;
-        }
+        return result;
+    }
 
-        /// <summary>
-        /// Parses double values from a string.
-        /// </summary>
-        /// <param name="input">
-        /// The input string.
-        /// </param>
-        /// <returns>
-        /// Array of double values.
-        /// </returns>
-        private static double[] GetValues(string input)
-        {
-            var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            var result = new double[fields.Length];
-            for (var i = 0; i < fields.Length; i++)
-            {
-                result[i] = double.Parse(fields[i], CultureInfo.InvariantCulture);
-            }
+    /// <summary>
+    ///     Parses double values from a string.
+    /// </summary>
+    /// <param name="input">
+    ///     The input string.
+    /// </param>
+    /// <returns>
+    ///     Array of double values.
+    /// </returns>
+    private static double[] GetValues(string input)
+    {
+        var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var result = new double[fields.Length];
+        for (var i = 0; i < fields.Length; i++) result[i] = double.Parse(fields[i], CultureInfo.InvariantCulture);
 
-            return result;
-        }
+        return result;
+    }
 
-        /// <summary>
-        /// Removes comments from the line.
-        /// </summary>
-        /// <param name="input">
-        /// The line.
-        /// </param>
-        /// <returns>
-        /// A line without comments.
-        /// </returns>
-        private static string RemoveComments(string input)
-        {
-            var commentIndex = input.IndexOf('#');
-            if (commentIndex >= 0)
-            {
-                return input.Substring(0, commentIndex);
-            }
+    /// <summary>
+    ///     Removes comments from the line.
+    /// </summary>
+    /// <param name="input">
+    ///     The line.
+    /// </param>
+    /// <returns>
+    ///     A line without comments.
+    /// </returns>
+    private static string RemoveComments(string input)
+    {
+        var commentIndex = input.IndexOf('#');
+        if (commentIndex >= 0) return input.Substring(0, commentIndex);
 
-            return input;
-        }
+        return input;
     }
 }

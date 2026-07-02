@@ -3,43 +3,43 @@ The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Collections.Generic;
-
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
         /// <summary>
-        /// 
         /// </summary>
         public class LineNode : MaterialGeometryNode
         {
             private double hitTestThickness = 1;
+
             /// <summary>
-            /// Used only for point/line hit test
+            ///     Used only for point/line hit test
             /// </summary>
             public double HitTestThickness
             {
-                set => Set(ref hitTestThickness, value);
                 get => hitTestThickness;
+                set => Set(ref hitTestThickness, value);
             }
+
             /// <summary>
-            /// Called when [create buffer model].
+            ///     Called when [create buffer model].
             /// </summary>
             /// <param name="modelGuid"></param>
             /// <param name="geometry"></param>
             /// <returns></returns>
             protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry)
             {
-                return geometry != null && geometry.IsDynamic ? EffectsManager.GeometryBufferManager.Register<DynamicLineGeometryBufferModel>(modelGuid, geometry)
-                    : EffectsManager.GeometryBufferManager.Register<DefaultLineGeometryBufferModel>(modelGuid, geometry);
+                return geometry != null && geometry.IsDynamic
+                    ? EffectsManager.GeometryBufferManager.Register<DynamicLineGeometryBufferModel>(modelGuid, geometry)
+                    : EffectsManager.GeometryBufferManager
+                        .Register<DefaultLineGeometryBufferModel>(modelGuid, geometry);
             }
 
             /// <summary>
-            /// Called when [create render core].
+            ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore()
@@ -48,18 +48,18 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Create raster state description.
+            ///     Create raster state description.
             /// </summary>
             /// <returns></returns>
             protected override RasterizerStateDescription CreateRasterState()
             {
-                return new RasterizerStateDescription()
+                return new RasterizerStateDescription
                 {
                     FillMode = FillMode,
                     CullMode = CullMode.None,
                     DepthBias = DepthBias,
                     DepthBiasClamp = -1000,
-                    SlopeScaledDepthBias = (float)SlopeScaledDepthBias,
+                    SlopeScaledDepthBias = SlopeScaledDepthBias,
                     IsDepthClipEnabled = IsDepthClipEnabled,
                     IsFrontCounterClockwise = true,
 
@@ -76,14 +76,9 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool CanRender(RenderContext context)
             {
-                if (base.CanRender(context))
-                {
-                    return !context.RenderHost.IsDeferredLighting;
-                }
-                else
-                {
-                    return false;
-                }
+                if (base.CanRender(context)) return !context.RenderHost.IsDeferredLighting;
+
+                return false;
             }
 
             protected override bool OnCheckGeometry(Geometry3D geometry)
@@ -91,9 +86,11 @@ namespace HelixToolkit.SharpDX.Core
                 return base.OnCheckGeometry(geometry) && geometry is LineGeometry3D;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
-                return (Geometry as LineGeometry3D).HitTest(context, totalModelMatrix, ref hits, this.WrapperSource, (float)HitTestThickness);
+                return (Geometry as LineGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource,
+                    (float) HitTestThickness);
             }
 
             protected override bool PreHitTestOnBounds(HitTestContext context)

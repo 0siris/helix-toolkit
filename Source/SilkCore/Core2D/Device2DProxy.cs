@@ -3,36 +3,29 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core2D
     {
-        using Native;
-        using Utilities;
-
         /// <summary>
-        /// 
         /// </summary>
         public sealed class D2DTargetProxy : DisposeObject
         {
             private BitmapProxy d2DTarget;
+
             /// <summary>
-            /// Gets the d2d target. Which is bind to the 3D back buffer/texture
+            ///     Gets the d2d target. Which is bind to the 3D back buffer/texture
             /// </summary>
             /// <value>
-            /// The d2d target.
+            ///     The d2d target.
             /// </value>
-            public BitmapProxy D2DTarget
-            {
-                get
-                {
-                    return d2DTarget;
-                }
-            }
+            public BitmapProxy D2DTarget => d2DTarget;
 
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="swapChain"></param>
             /// <param name="deviceContext"></param>
@@ -41,8 +34,8 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref d2DTarget);
                 d2DTarget = BitmapProxy.Create("SwapChainTarget", deviceContext, swapChain);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="texture"></param>
             /// <param name="deviceContext"></param>

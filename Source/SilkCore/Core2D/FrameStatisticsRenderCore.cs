@@ -2,75 +2,63 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using HelixToolkit.SharpDX.Core.Native;
 
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core2D
     {
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public class FrameStatisticsRenderCore : RenderCore2DBase
         {
+            private Brush background;
+            private DirectWriteFactory factory;
+
+            private Brush foreground;
+            private TextFormat format;
+            private string previousStr = string.Empty;
+            private RectangleF renderBound = new(0, 0, 100, 0);
             private IRenderStatistics statistics;
 
-            private Brush foreground = null;
+            private TextLayout textLayout;
+
             /// <summary>
-            /// Gets or sets the foreground.
+            ///     Gets or sets the foreground.
             /// </summary>
             /// <value>
-            /// The foreground.
+            ///     The foreground.
             /// </value>
             public Brush Foreground
             {
+                get => foreground;
                 set
                 {
                     var old = foreground;
-                    if (SetAffectsRender(ref foreground, value))
-                    {
-                        RemoveAndDispose(ref old);
-                    }
-                }
-                get
-                {
-                    return foreground;
+                    if (SetAffectsRender(ref foreground, value)) RemoveAndDispose(ref old);
                 }
             }
 
-            private Brush background = null;
             /// <summary>
-            /// Gets or sets the background.
+            ///     Gets or sets the background.
             /// </summary>
             /// <value>
-            /// The background.
+            ///     The background.
             /// </value>
             public Brush Background
             {
+                get => background;
                 set
                 {
                     var old = background;
-                    if (SetAffectsRender(ref background, value))
-                    {
-                        RemoveAndDispose(ref old);
-                    }
-                }
-                get
-                {
-                    return background;
+                    if (SetAffectsRender(ref background, value)) RemoveAndDispose(ref old);
                 }
             }
 
-            private TextLayout textLayout;
-            private DirectWriteFactory factory;
-            private TextFormat format;
-            private RectangleF renderBound = new RectangleF(0, 0, 100, 0);
-            private string previousStr = string.Empty;
             /// <summary>
-            /// Called when [attach].
+            ///     Called when [attach].
             /// </summary>
             /// <param name="target">The target.</param>
             /// <returns></returns>
@@ -79,7 +67,7 @@ namespace HelixToolkit.SharpDX.Core
                 factory = new DirectWriteFactory();
                 format = new TextFormat(factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
                 previousStr = string.Empty;
-                this.statistics = target.RenderStatistics;
+                statistics = target.RenderStatistics;
                 return base.OnAttach(target);
             }
 
@@ -92,31 +80,28 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref factory);
                 base.OnDetach();
             }
+
             /// <summary>
-            /// Determines whether this instance can render the specified context.
+            ///     Determines whether this instance can render the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <returns>
-            ///   <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
+            ///     <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
             /// </returns>
             protected override bool CanRender(RenderContext2D context)
             {
                 return base.CanRender(context) && statistics != null && statistics.FrameDetail != RenderDetail.None;
             }
+
             /// <summary>
-            /// Called when [render].
+            ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             protected override void OnRender(RenderContext2D context)
             {
                 if (background == null)
-                {
                     Background = new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
-                }
-                if (foreground == null)
-                {
-                    Foreground = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
-                }
+                if (foreground == null) Foreground = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
                 var str = statistics.GetDetailString();
                 if (str != previousStr || textLayout == null)
                 {
@@ -124,10 +109,12 @@ namespace HelixToolkit.SharpDX.Core
                     RemoveAndDispose(ref textLayout);
                     textLayout = new TextLayout(factory, str, format, float.MaxValue, float.MaxValue);
                 }
+
                 var metrices = textLayout.Metrics;
                 renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
                 renderBound.Height = metrices.Height;
-                context.DeviceContext.Transform = Matrix3x2.Translation((float)context.ActualWidth - renderBound.Width, 0);
+                context.DeviceContext.Transform =
+                    Matrix3x2.Translation((float) context.ActualWidth - renderBound.Width, 0);
                 context.DeviceContext.FillRectangle(renderBound, background);
                 context.DeviceContext.DrawTextLayout(Vector2.Zero, textLayout, foreground);
             }

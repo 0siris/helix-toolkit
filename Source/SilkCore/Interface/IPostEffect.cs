@@ -2,13 +2,10 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-namespace HelixToolkit.SharpDX.Core
+
+namespace HelixToolkit.SharpDX.Core;
+
+public interface IPostEffect
 {
-    public interface IPostEffect
-    {
-        string EffectName
-        {
-            set; get;
-        }
-    }
+    string EffectName { get; set; }
 }

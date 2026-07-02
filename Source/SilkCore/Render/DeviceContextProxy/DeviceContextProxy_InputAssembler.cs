@@ -1,43 +1,30 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Shaders;
-
         public partial class DeviceContextProxy
         {
+            private InputLayoutProxy currInputLayout;
+
             public PrimitiveTopology PrimitiveTopology
             {
-                set
-                {
-                    nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology)value;
-                }
-                get
-                {
-                    return (PrimitiveTopology)nativeDeviceContext.PrimitiveTopology;
-                }
+                get => (PrimitiveTopology) nativeDeviceContext.PrimitiveTopology;
+                set => nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology) value;
             }
-
-            private InputLayoutProxy currInputLayout;
 
             public InputLayoutProxy InputLayout
             {
+                get => currInputLayout;
                 set
                 {
-                    if (currInputLayout == value)
-                    {
-                        return;
-                    }
+                    if (currInputLayout == value) return;
 
                     currInputLayout = value;
                     nativeDeviceContext.SetInputLayout(value?.Layout);
-                }
-                get
-                {
-                    return currInputLayout;
                 }
             }
 

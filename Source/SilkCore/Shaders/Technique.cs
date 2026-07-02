@@ -2,103 +2,20 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections.Generic;
+
+using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Native;
-        using ShaderManager;
         public sealed class Technique : DisposeObject, IRenderTechnique
         {
-            public static IRenderTechnique NullTechnique { get; } = new Technique(new TechniqueDescription() { IsNull = true }, null);
-            /// <summary>
-            /// Gets the unique identifier.
-            /// </summary>
-            /// <value>
-            /// The unique identifier.
-            /// </value>
-            public Guid GUID { get; } = Guid.NewGuid();
-            /// <summary>
-            /// Gets or sets the description.
-            /// </summary>
-            /// <value>
-            /// The description.
-            /// </value>
-            public TechniqueDescription Description
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Gets a value indicating whether this Technique is null.
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if this Technique is null; otherwise, <c>false</c>.
-            /// </value>
-            public bool IsNull
-            {
-                get
-                {
-                    return Description.IsNull;
-                }
-            }
-            private readonly Dictionary<string, Lazy<ShaderPass>> passDict = new Dictionary<string, Lazy<ShaderPass>>();
-            private readonly List<Lazy<ShaderPass>> passList = new List<Lazy<ShaderPass>>();
+            private readonly Dictionary<string, Lazy<ShaderPass>> passDict = new();
+            private readonly List<Lazy<ShaderPass>> passList = new();
             private InputLayoutProxy layout;
-            /// <summary>
-            /// <see cref="IRenderTechnique.Layout"/>
-            /// </summary>
-            public InputLayoutProxy Layout => layout;
-            /// <summary>
-            /// <see cref="IRenderTechnique.Device"/>
-            /// </summary>
-            public SilkD3DDevice Device
-            {
-                get
-                {
-                    return EffectsManager?.NativeDeviceResources?.Device;
-                }
-            }
-            /// <summary>
-            /// <see cref="IRenderTechnique.Name"/>
-            /// </summary>
-            public string Name
-            {
-                private set; get;
-            }
 
             /// <summary>
-            /// <see cref="IRenderTechnique.ShaderPassNames"/>
-            /// </summary>
-            public IEnumerable<string> ShaderPassNames
-            {
-                get
-                {
-                    return passDict.Keys;
-                }
-            }
-            /// <summary>
-            /// <see cref="IRenderTechnique.ConstantBufferPool"/>
-            /// </summary>
-            public IConstantBufferPool ConstantBufferPool
-            {
-                get
-                {
-                    return EffectsManager.ConstantBufferPool;
-                }
-            }
-            /// <summary>
-            /// <see cref="IRenderTechnique.EffectsManager"/>
-            /// </summary>
-            public IEffectsManager EffectsManager
-            {
-                private set; get;
-            }
-
-            /// <summary>
-            /// 
             /// </summary>
             /// <param name="description"></param>
             /// <param name="manager"></param>
@@ -108,35 +25,88 @@ namespace HelixToolkit.SharpDX.Core
                 Name = description.Name;
                 EffectsManager = manager;
                 if (description.InputLayoutDescription != null && description.PassDescriptions != null)
-                {
                     if (description.PassDescriptions != null)
-                    {
                         foreach (var desc in description.PassDescriptions)
                         {
                             if (desc.InputLayoutDescription == null)
-                            {
                                 desc.InputLayoutDescription = description.InputLayoutDescription;
-                            }
                             var pass = new Lazy<ShaderPass>(() => { return new ShaderPass(desc, manager); }, true);
                             passDict.Add(desc.Name, pass);
                             passList.Add(pass);
                         }
-                    }
-                }
             }
 
+            public static IRenderTechnique NullTechnique { get; } =
+                new Technique(new TechniqueDescription {IsNull = true}, null);
+
             /// <summary>
-            /// <see cref="IRenderTechnique.GetPass(string)"/>
+            ///     Gets the unique identifier.
+            /// </summary>
+            /// <value>
+            ///     The unique identifier.
+            /// </value>
+            public Guid GUID { get; } = Guid.NewGuid();
+
+            /// <summary>
+            ///     Gets or sets the description.
+            /// </summary>
+            /// <value>
+            ///     The description.
+            /// </value>
+            public TechniqueDescription Description { get; }
+
+            /// <summary>
+            ///     Gets a value indicating whether this Technique is null.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if this Technique is null; otherwise, <c>false</c>.
+            /// </value>
+            public bool IsNull => Description.IsNull;
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.Layout" />
+            /// </summary>
+            public InputLayoutProxy Layout => layout;
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.Device" />
+            /// </summary>
+            public NativeD3DDevice Device => EffectsManager?.NativeDeviceResources?.Device;
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.Name" />
+            /// </summary>
+            public string Name { get; }
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.ShaderPassNames" />
+            /// </summary>
+            public IEnumerable<string> ShaderPassNames => passDict.Keys;
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.ConstantBufferPool" />
+            /// </summary>
+            public IConstantBufferPool ConstantBufferPool => EffectsManager.ConstantBufferPool;
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.EffectsManager" />
+            /// </summary>
+            public IEffectsManager EffectsManager { get; private set; }
+
+            /// <summary>
+            ///     <see cref="IRenderTechnique.GetPass(string)" />
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
             public ShaderPass GetPass(string name)
             {
-                return !string.IsNullOrEmpty(name) && passDict.ContainsKey(name) ? passDict[name].Value : ShaderPass.NullPass;
+                return !string.IsNullOrEmpty(name) && passDict.ContainsKey(name)
+                    ? passDict[name].Value
+                    : ShaderPass.NullPass;
             }
 
             /// <summary>
-            /// <see cref="IRenderTechnique.GetPass(int)"/>
+            ///     <see cref="IRenderTechnique.GetPass(int)" />
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
@@ -146,16 +116,13 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Adds the pass.
+            ///     Adds the pass.
             /// </summary>
             /// <param name="description">The description.</param>
             /// <returns></returns>
             public bool AddPass(ShaderPassDescription description)
             {
-                if (passDict.ContainsKey(description.Name))
-                {
-                    return false;
-                }
+                if (passDict.ContainsKey(description.Name)) return false;
                 var pass = new Lazy<ShaderPass>(() => { return new ShaderPass(description, EffectsManager); }, true);
                 passDict.Add(description.Name, pass);
                 passList.Add(pass);
@@ -163,7 +130,6 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
@@ -178,41 +144,37 @@ namespace HelixToolkit.SharpDX.Core
                         var p = pass.Value;
                         RemoveAndDispose(ref p);
                     }
+
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
+
             /// <summary>
-            /// <see cref="IRenderTechnique.GetPass(int)"/>
+            ///     <see cref="IRenderTechnique.GetPass(int)" />
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
-            public ShaderPass this[int index] { get { return GetPass(index); } }
+            public ShaderPass this[int index] => GetPass(index);
 
             /// <summary>
-            /// <see cref="IRenderTechnique.GetPass(string)"/>
+            ///     <see cref="IRenderTechnique.GetPass(string)" />
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public ShaderPass this[string name] { get { return GetPass(name); } }
+            public ShaderPass this[string name] => GetPass(name);
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="disposeManagedResources"></param>
             protected override void OnDispose(bool disposeManagedResources)
             {
                 passDict.Clear();
                 foreach (var p in passList)
-                {
                     if (p.IsValueCreated)
-                    {
                         p.Value.Dispose();
-                    }
-                }
+
                 passList.Clear();
                 RemoveAndDispose(ref layout);
                 EffectsManager = null;

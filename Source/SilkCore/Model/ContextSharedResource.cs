@@ -2,38 +2,26 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using System.Collections.Generic;
-        using Utilities;
-
         public sealed class ContextSharedResource : IDisposable
         {
-            public ShaderResourceViewProxy ShadowView
-            {
-                set; get;
-            }
+            public ShaderResourceViewProxy ShadowView { get; set; }
 
-            public ShaderResourceViewProxy EnvironementMap
-            {
-                set; get;
-            }
+            public ShaderResourceViewProxy EnvironementMap { get; set; }
 
-            public ShaderResourceViewProxy SSAOMap
-            {
-                set; get;
-            }
+            public ShaderResourceViewProxy SSAOMap { get; set; }
 
-            public int EnvironmentMapMipLevels
-            {
-                set; get;
-            }
+            public int EnvironmentMapMipLevels { get; set; }
+
             #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
+
+            private bool disposedValue; // To detect redundant calls
 
             private void Dispose(bool disposing)
             {
@@ -68,6 +56,7 @@ namespace HelixToolkit.SharpDX.Core
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
+
             #endregion
         }
     }

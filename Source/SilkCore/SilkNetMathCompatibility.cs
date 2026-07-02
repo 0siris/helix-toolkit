@@ -1,5 +1,5 @@
 #if SILKNET
-using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 internal static class SilkMath
@@ -204,7 +204,7 @@ internal static class SilkMath
 
     public static Matrix RotationQuaternion(Quaternion value)
     {
-        return FromNumerics(System.Numerics.Matrix4x4.CreateFromQuaternion(
+        return FromNumerics(Matrix4x4.CreateFromQuaternion(
             new System.Numerics.Quaternion(value.X, value.Y, value.Z, value.W)));
     }
 
@@ -212,37 +212,37 @@ internal static class SilkMath
     {
         axis = Normalize(axis);
         var halfAngle = angle * 0.5f;
-        var scale = (float)global::System.Math.Sin(halfAngle);
-        return new Quaternion(axis.X * scale, axis.Y * scale, axis.Z * scale, (float)global::System.Math.Cos(halfAngle));
+        var scale = (float) Math.Sin(halfAngle);
+        return new Quaternion(axis.X * scale, axis.Y * scale, axis.Z * scale, (float) Math.Cos(halfAngle));
     }
 
     public static float QuaternionAngle(Quaternion value)
     {
-        var w = global::System.Math.Max(-1f, global::System.Math.Min(1f, value.W));
-        return 2f * (float)global::System.Math.Acos(w);
+        var w = Math.Max(-1f, Math.Min(1f, value.W));
+        return 2f * (float) Math.Acos(w);
     }
 
     public static Matrix RotationAxis(Vector3 axis, float angle)
     {
         axis = Normalize(axis);
-        return FromNumerics(System.Numerics.Matrix4x4.CreateFromAxisAngle(
+        return FromNumerics(Matrix4x4.CreateFromAxisAngle(
             new System.Numerics.Vector3(axis.X, axis.Y, axis.Z),
             angle));
     }
 
     public static Matrix RotationX(float angle)
     {
-        return FromNumerics(System.Numerics.Matrix4x4.CreateRotationX(angle));
+        return FromNumerics(Matrix4x4.CreateRotationX(angle));
     }
 
     public static Matrix RotationY(float angle)
     {
-        return FromNumerics(System.Numerics.Matrix4x4.CreateRotationY(angle));
+        return FromNumerics(Matrix4x4.CreateRotationY(angle));
     }
 
     public static Matrix RotationZ(float angle)
     {
-        return FromNumerics(System.Numerics.Matrix4x4.CreateRotationZ(angle));
+        return FromNumerics(Matrix4x4.CreateRotationZ(angle));
     }
 
     public static Matrix LookAtLH(Vector3 eye, Vector3 target, Vector3 up)
@@ -263,7 +263,7 @@ internal static class SilkMath
 
     public static Matrix PerspectiveFovLH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
     {
-        var yScale = 1f / (float)global::System.Math.Tan(fieldOfView * 0.5f);
+        var yScale = 1f / (float) Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(
             xScale, 0, 0, 0,
@@ -274,7 +274,7 @@ internal static class SilkMath
 
     public static Matrix PerspectiveFovRH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
     {
-        var yScale = 1f / (float)global::System.Math.Tan(fieldOfView * 0.5f);
+        var yScale = 1f / (float) Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(
             xScale, 0, 0, 0,
@@ -303,13 +303,13 @@ internal static class SilkMath
 
     public static bool Invert(Matrix value, out Matrix result)
     {
-        var source = new System.Numerics.Matrix4x4(
+        var source = new Matrix4x4(
             value.M11, value.M12, value.M13, value.M14,
             value.M21, value.M22, value.M23, value.M24,
             value.M31, value.M32, value.M33, value.M34,
             value.M41, value.M42, value.M43, value.M44);
 
-        if (!System.Numerics.Matrix4x4.Invert(source, out var inverted))
+        if (!Matrix4x4.Invert(source, out var inverted))
         {
             result = Matrix.Identity;
             return false;
@@ -332,7 +332,7 @@ internal static class SilkMath
             -Dot(xAxis, eye), -Dot(yAxis, eye), -Dot(zAxis, eye), 1);
     }
 
-    private static Matrix FromNumerics(System.Numerics.Matrix4x4 source)
+    private static Matrix FromNumerics(Matrix4x4 source)
     {
         return new Matrix(
             source.M11, source.M12, source.M13, source.M14,
@@ -347,7 +347,7 @@ internal static class SilkNetMathExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float NextFloat(this Random random, float minimum, float maximum)
     {
-        return minimum + (float)random.NextDouble() * (maximum - minimum);
+        return minimum + (float) random.NextDouble() * (maximum - minimum);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -402,13 +402,13 @@ internal static class SilkNetMathExtensions
 
     public static bool Decompose(this Matrix value, out Vector3 scale, out Quaternion rotation, out Vector3 translation)
     {
-        var source = new System.Numerics.Matrix4x4(
+        var source = new Matrix4x4(
             value.M11, value.M12, value.M13, value.M14,
             value.M21, value.M22, value.M23, value.M24,
             value.M31, value.M32, value.M33, value.M34,
             value.M41, value.M42, value.M43, value.M44);
 
-        var success = System.Numerics.Matrix4x4.Decompose(
+        var success = Matrix4x4.Decompose(
             source,
             out var numericsScale,
             out var numericsRotation,

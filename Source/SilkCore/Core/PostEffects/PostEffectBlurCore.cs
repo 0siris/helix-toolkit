@@ -2,40 +2,31 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Runtime.CompilerServices;
+
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-
-        using Render;
-        using Shaders;
-        using Utilities;
-        using Components;
         /// <summary>
-        ///
         /// </summary>
         public class PostEffectBlurCore : DisposeObject
         {
             public enum BlurDepth
             {
-                One = 1, Two = 3
+                One = 1,
+                Two = 3
             }
-            #region Variables
-            private const int NumPingPongBlurBuffer = 2;
-            private ShaderPass screenBlurPassVertical;
-            private ShaderPass screenBlurPassHorizontal;
-            private readonly int textureSlot;
-            private readonly int samplerSlot;
-            private ConstantBufferComponent modelCB;
-            private SamplerStateProxy sampler;
-            private static readonly Color4 Transparent = new Color4(0, 0, 0, 0);
-            #endregion
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore"/> class.
+            ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
             /// </summary>
-            public PostEffectBlurCore(ShaderPass blurVerticalPass, ShaderPass blurHorizontalPass, int textureSlot, int samplerSlot,
+            public PostEffectBlurCore(ShaderPass blurVerticalPass, ShaderPass blurHorizontalPass, int textureSlot,
+                int samplerSlot,
                 SamplerStateDescription sampler, IEffectsManager manager)
             {
                 screenBlurPassVertical = blurVerticalPass;
@@ -43,11 +34,12 @@ namespace HelixToolkit.SharpDX.Core
                 this.textureSlot = textureSlot;
                 this.samplerSlot = samplerSlot;
                 this.sampler = manager.StateManager.Register(sampler);
-                modelCB = new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes));
+                modelCB = new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB,
+                    BorderEffectStruct.SizeInBytes));
             }
 
             /// <summary>
-            /// Runs the blur procedure
+            ///     Runs the blur procedure
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
@@ -56,15 +48,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="sourceViewport"></param>
             /// <param name="modelStruct"></param>
             public virtual void Run(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderResourceViewProxy source, ref ViewportF sourceViewport, BlurDepth depth, ref BorderEffectStruct modelStruct)
+                ShaderResourceViewProxy source, ref ViewportF sourceViewport, BlurDepth depth,
+                ref BorderEffectStruct modelStruct)
             {
                 deviceContext.SetSampler(PixelShader.Type, samplerSlot, sampler);
                 if ((depth & BlurDepth.One) != 0)
-                {
                     using (var target1 = context.GetOffScreenRT(OffScreenTextureSize.Half,
-                        Format.FormatR8G8B8A8Unorm, out var width, out var height))
+                               Format.FormatR8G8B8A8Unorm, out var width, out var height))
                     {
-                        modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
+                        modelStruct.ViewportScale = (int) OffScreenTextureSize.Half;
                         modelCB.Upload(deviceContext, ref modelStruct);
                         //Full -> Half Vertical
                         deviceContext.SetRenderTarget(target1);
@@ -76,12 +68,11 @@ namespace HelixToolkit.SharpDX.Core
                         deviceContext.Draw(4, 0);
 
                         if ((depth & BlurDepth.Two) != 0)
-                        {
                             using (var target2 = context.GetOffScreenRT(OffScreenTextureSize.Quarter,
-                                Format.FormatR8G8B8A8Unorm, out var width2, out var height2))
+                                       Format.FormatR8G8B8A8Unorm, out var width2, out var height2))
                             {
                                 // Half to Quater Vertical
-                                modelStruct.ViewportScale = (int)OffScreenTextureSize.Quarter;
+                                modelStruct.ViewportScale = (int) OffScreenTextureSize.Quarter;
                                 modelCB.Upload(deviceContext, ref modelStruct);
                                 deviceContext.SetRenderTarget(target2);
                                 deviceContext.SetViewport(0, 0, width2, height2);
@@ -91,7 +82,7 @@ namespace HelixToolkit.SharpDX.Core
                                 deviceContext.Draw(4, 0);
 
                                 // Quater to Half Horizontal
-                                modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
+                                modelStruct.ViewportScale = (int) OffScreenTextureSize.Half;
                                 modelCB.Upload(deviceContext, ref modelStruct);
                                 deviceContext.SetRenderTarget(target1);
                                 deviceContext.SetViewport(0, 0, width, height);
@@ -100,9 +91,9 @@ namespace HelixToolkit.SharpDX.Core
                                 screenBlurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, target2);
                                 deviceContext.Draw(4, 0);
                             }
-                        }
+
                         // Half to Full Horizontal
-                        modelStruct.ViewportScale = (int)OffScreenTextureSize.Full;
+                        modelStruct.ViewportScale = (int) OffScreenTextureSize.Full;
                         modelCB.Upload(deviceContext, ref modelStruct);
                         deviceContext.SetRenderTarget(source);
                         deviceContext.SetViewport(ref sourceViewport);
@@ -111,14 +102,27 @@ namespace HelixToolkit.SharpDX.Core
                         screenBlurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, target1);
                         deviceContext.Draw(4, 0);
                     }
-                }
             }
+
             protected override void OnDispose(bool disposeManagedResources)
             {
                 RemoveAndDispose(ref sampler);
                 RemoveAndDispose(ref modelCB);
                 base.OnDispose(disposeManagedResources);
             }
+
+            #region Variables
+
+            private const int NumPingPongBlurBuffer = 2;
+            private readonly ShaderPass screenBlurPassVertical;
+            private readonly ShaderPass screenBlurPassHorizontal;
+            private readonly int textureSlot;
+            private readonly int samplerSlot;
+            private ConstantBufferComponent modelCB;
+            private SamplerStateProxy sampler;
+            private static readonly Color4 Transparent = new(0, 0, 0, 0);
+
+            #endregion
         }
     }
 }

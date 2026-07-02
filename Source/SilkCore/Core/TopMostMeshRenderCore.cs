@@ -2,15 +2,15 @@
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
+
+using HelixToolkit.SharpDX.Core.Render;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Shaders;
-        using Render;
-        using Components;
         /// <summary>
-        /// Clears the depth buffer and reset global transform.
+        ///     Clears the depth buffer and reset global transform.
         /// </summary>
         public class TopMostMeshRenderCore : RenderCore
         {
@@ -20,23 +20,18 @@ namespace HelixToolkit.SharpDX.Core
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                if (RenderType != RenderType.ScreenSpaced)
-                {
-                    return;
-                }
+                if (RenderType != RenderType.ScreenSpaced) return;
                 deviceContext.GetDepthStencilView(out var dsView);
-                if (dsView == null)
-                {
-                    return;
-                }
+                if (dsView == null) return;
 
-                deviceContext.ClearDepthStencilView(dsView, DepthStencilClearFlags.Depth, 1f, 0);
+                deviceContext.ClearDepthStencilView(dsView, DepthStencilClearFlags.Depth);
                 dsView.Dispose();
                 context.RestoreGlobalTransform();
                 context.UpdatePerFrameData(true, false, deviceContext);
-                deviceContext.SetViewport(context.Viewport.X, context.Viewport.Y, context.Viewport.Width, context.Viewport.Height);
-                deviceContext.SetScissorRectangle((int)context.Viewport.X, (int)context.Viewport.Y,
-                    (int)context.Viewport.Width, (int)context.Viewport.Height);
+                deviceContext.SetViewport(context.Viewport.X, context.Viewport.Y, context.Viewport.Width,
+                    context.Viewport.Height);
+                deviceContext.SetScissorRectangle((int) context.Viewport.X, (int) context.Viewport.Y,
+                    (int) context.Viewport.Width, (int) context.Viewport.Height);
             }
 
             protected override bool OnAttach(IRenderTechnique technique)

@@ -2,32 +2,32 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Render;
 using Microsoft.Extensions.Logging;
 using SharpDX.Toolkit.Graphics;
-using System;
-using System.IO;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
         public static class ScreenCapture
         {
-            static readonly ILogger logger = Logger.LogManager.Create(nameof(ScreenCapture));
+            private static readonly ILogger logger = LogManager.Create(nameof(ScreenCapture));
 
             /// <summary>
-            /// Captures the texture.
+            ///     Captures the texture.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="source">The source.</param>
             /// <param name="stagingTexture">The staging texture.</param>
             /// <returns></returns>
-            public static bool CaptureTexture(Render.DeviceContextProxy context, Texture2D source, out Texture2D stagingTexture)
+            public static bool CaptureTexture(DeviceContextProxy context, Texture2D source,
+                out Texture2D stagingTexture)
             {
                 stagingTexture = null;
-                if (context == null || source == null)
-                {
-                    return false;
-                }
+                if (context == null || source == null) return false;
 
                 var desc = source.Description;
                 if (source.Description.SampleDescription.Count > 1)
@@ -37,13 +37,12 @@ namespace HelixToolkit.SharpDX.Core
                     using (var texture = context.NativeDevice.CreateTexture2D(desc))
                     {
                         for (var i = 0; i < desc.ArraySize; ++i)
+                        for (var level = 0; level < desc.MipLevels; ++level)
                         {
-                            for (var level = 0; level < desc.MipLevels; ++level)
-                            {
-                                var index = level + i * desc.MipLevels;
-                                context.ResolveSubresource(source, index, texture, index, desc.Format);
-                            }
+                            var index = level + i * desc.MipLevels;
+                            context.ResolveSubresource(source, index, texture, index, desc.Format);
                         }
+
                         desc.BindFlags = BindFlags.None;
                         desc.Usage = ResourceUsage.Staging;
                         desc.CpuAccessFlags = CpuAccessFlags.Read;
@@ -65,25 +64,27 @@ namespace HelixToolkit.SharpDX.Core
                     stagingTexture = context.NativeDevice.CreateTexture2D(desc);
                     context.CopyResource(source, stagingTexture);
                 }
+
                 return true;
             }
 
             /// <summary>
-            /// Saves the wic texture to file.
+            ///     Saves the wic texture to file.
             /// </summary>
             /// <param name="deviceResource">The device resource.</param>
             /// <param name="source">The source.</param>
             /// <param name="file">The file.</param>
             /// <param name="format">The format.</param>
             /// <returns></returns>
-            public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string file, Direct2DImageFormat format)
+            public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string file,
+                Direct2DImageFormat format)
             {
-                return SaveWICTextureToFile(deviceResource, source, file, BitmapExtensions.ToWICImageFormat(format));
+                return SaveWICTextureToFile(deviceResource, source, file, format.ToWICImageFormat());
             }
 
 
             /// <summary>
-            /// Saves the wic texture to file.
+            ///     Saves the wic texture to file.
             /// </summary>
             /// <param name="deviceResource">The device resource.</param>
             /// <param name="source">The source.</param>
@@ -91,12 +92,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="containerFormat">The container format.</param>
             /// <returns></returns>
             /// <exception cref="System.NotSupportedException"></exception>
-            public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string fileName, Guid containerFormat)
+            public static bool SaveWICTextureToFile(IDeviceResources deviceResource, Texture2D source, string fileName,
+                Guid containerFormat)
             {
-                if (string.IsNullOrWhiteSpace(fileName))
-                {
-                    return false;
-                }
+                if (string.IsNullOrWhiteSpace(fileName)) return false;
                 using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     return SaveWICTexture(deviceResource, source, stream, ToImageFileType(containerFormat));
@@ -104,14 +103,15 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Saves the wic texture to bitmap stream.
+            ///     Saves the wic texture to bitmap stream.
             /// </summary>
             /// <param name="deviceResource">The device resource.</param>
             /// <param name="source">The source.</param>
             /// <param name="bitmapStream">The bitmap stream.</param>
             /// <returns></returns>
             /// <exception cref="System.NotSupportedException"></exception>
-            public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source, MemoryStream bitmapStream)
+            public static bool SaveWICTextureToBitmapStream(IDeviceResources deviceResource, Texture2D source,
+                MemoryStream bitmapStream)
             {
                 return SaveWICTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
             }
@@ -122,21 +122,18 @@ namespace HelixToolkit.SharpDX.Core
                 Stream stream,
                 Direct2DImageFormat format)
             {
-                return SaveWICTexture(deviceResource, source, stream, ToImageFileType(BitmapExtensions.ToWICImageFormat(format)));
+                return SaveWICTexture(deviceResource, source, stream, ToImageFileType(format.ToWICImageFormat()));
             }
 
-            private static bool SaveWICTexture(IDeviceResources deviceResource, Texture2D source, Stream stream, ImageFileType fileType)
+            private static bool SaveWICTexture(IDeviceResources deviceResource, Texture2D source, Stream stream,
+                ImageFileType fileType)
             {
-                if (deviceResource?.NativeDeviceResources?.ImmediateContext == null || source == null || stream == null)
-                {
-                    return false;
-                }
+                if (deviceResource?.NativeDeviceResources?.ImmediateContext == null || source == null ||
+                    stream == null) return false;
 
                 var context = deviceResource.NativeDeviceResources.ImmediateContext;
-                if (!CaptureTexture(new Render.DeviceContextProxy(context, deviceResource.NativeDeviceResources.Device), source, out var stagingTexture))
-                {
-                    return false;
-                }
+                if (!CaptureTexture(new DeviceContextProxy(context, deviceResource.NativeDeviceResources.Device),
+                        source, out var stagingTexture)) return false;
 
                 var disposeStaging = !ReferenceEquals(stagingTexture, source);
                 try
@@ -146,9 +143,11 @@ namespace HelixToolkit.SharpDX.Core
                     {
                         if (stagingTexture.Description.Format != Format.FormatB8G8R8A8Unorm)
                         {
-                            logger.LogWarning("Screen capture format {0} is not supported for WPF encoding.", stagingTexture.Description.Format);
+                            logger.LogWarning("Screen capture format {0} is not supported for WPF encoding.",
+                                stagingTexture.Description.Format);
                             return false;
                         }
+
                         WICHelper.SaveBgra32(
                             data.DataPointer,
                             stagingTexture.Description.Width,
@@ -166,20 +165,17 @@ namespace HelixToolkit.SharpDX.Core
                 }
                 finally
                 {
-                    if (disposeStaging)
-                    {
-                        stagingTexture.Dispose();
-                    }
+                    if (disposeStaging) stagingTexture.Dispose();
                 }
             }
 
             private static ImageFileType ToImageFileType(Guid containerFormat)
             {
-                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Png)) return ImageFileType.Png;
-                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Jpeg)) return ImageFileType.Jpg;
-                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Gif)) return ImageFileType.Gif;
-                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Tiff)) return ImageFileType.Tiff;
-                if (containerFormat == BitmapExtensions.ToWICImageFormat(Direct2DImageFormat.Wmp)) return ImageFileType.Wmp;
+                if (containerFormat == Direct2DImageFormat.Png.ToWICImageFormat()) return ImageFileType.Png;
+                if (containerFormat == Direct2DImageFormat.Jpeg.ToWICImageFormat()) return ImageFileType.Jpg;
+                if (containerFormat == Direct2DImageFormat.Gif.ToWICImageFormat()) return ImageFileType.Gif;
+                if (containerFormat == Direct2DImageFormat.Tiff.ToWICImageFormat()) return ImageFileType.Tiff;
+                if (containerFormat == Direct2DImageFormat.Wmp.ToWICImageFormat()) return ImageFileType.Wmp;
                 return ImageFileType.Bmp;
             }
         }

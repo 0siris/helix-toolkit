@@ -2,13 +2,14 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
         /// <summary>
-        /// Default buffer names from shader code. Name must match shader code to bind proper buffer
-        /// <para>Note: Constant buffer must match both name and struct size</para>
+        ///     Default buffer names from shader code. Name must match shader code to bind proper buffer
+        ///     <para>Note: Constant buffer must match both name and struct size</para>
         /// </summary>
         public static class DefaultBufferNames
         {
@@ -26,7 +27,9 @@ namespace HelixToolkit.SharpDX.Core
             public const string VolumeModelCB = "cbVolumeModel";
             public const string SSAOCB = "cbSSAO";
             public const string ScreenDuplicationCB = "cbScreenClone";
+
             public const string MorphTargetCB = "cbMorphTarget";
+
             //-----------Materials--------------------
             public const string DiffuseMapTB = "texDiffuseMap";
             public const string AlphaMapTB = "texAlphaMap";
@@ -41,20 +44,27 @@ namespace HelixToolkit.SharpDX.Core
             public const string RMMapTB = "texRMMap";
             public const string AOMapTB = "texAOMap";
             public const string EmissiveTB = "texEmissiveMap";
+
             public const string IrradianceMap = "texIrradianceMap";
+
             //----------Particle--------------
             public const string ParticleFrameCB = "cbParticleFrame";
             public const string ParticleCreateParameters = "cbParticleCreateParameters";
             public const string ParticleMapTB = "texParticle";
             public const string CurrentSimulationStateUB = "CurrentSimulationState";
             public const string NewSimulationStateUB = "NewSimulationState";
+
             public const string SimulationStateTB = "SimulationState";
+
             //----------ShadowMap---------------
             public const string ShadowParamCB = "cbShadow";
+
             //----------Order Independent Transparent-----------
             public const string OITColorTB = "texOITColor";
             public const string OITAlphaTB = "texOITAlpha";
+
             public const string OITSortCB = "cbOITSortRender";
+
             //----------Bone Skin--------------
             public const string BoneSkinSB = "skinMatrices"; // Structured Buffer
 

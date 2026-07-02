@@ -2,44 +2,29 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
+
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="MappingType"></typeparam>
         public sealed class MappingProxy<MappingType> : DisposeObject where MappingType : class
         {
-            private readonly MappingCollection<int, string, MappingType> mappingCollection = new MappingCollection<int, string, MappingType>();
+            private readonly MappingCollection<int, string, MappingType> mappingCollection = new();
+
             /// <summary>
-            /// 
             /// </summary>
-            public KeyValuePair<int, MappingType>[] Mappings
-            {
-                get
-                {
-                    return mappingCollection.MappingArray;
-                }
-            }
+            public KeyValuePair<int, MappingType>[] Mappings => mappingCollection.MappingArray;
+
             /// <summary>
-            /// 
             /// </summary>
-            public int Count
-            {
-                get
-                {
-                    return mappingCollection.Count;
-                }
-            }
+            public int Count => mappingCollection.Count;
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <param name="slot"></param>
@@ -48,31 +33,32 @@ namespace HelixToolkit.SharpDX.Core
             {
                 mappingCollection.Add(slot, name, mapping);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             public void RemoveMapping(string name)
             {
                 mappingCollection.Remove(name);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="slot"></param>
             public void RemoveMapping(int slot)
             {
                 mappingCollection.Remove(slot);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             public void ClearMapping()
             {
                 mappingCollection.Clear();
             }
+
             /// <summary>
-            /// Try get slot by name. If failed, return -1;
+            ///     Try get slot by name. If failed, return -1;
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
@@ -81,8 +67,9 @@ namespace HelixToolkit.SharpDX.Core
                 int item;
                 return mappingCollection.TryGetSlot(name, out item) ? item : -1;
             }
+
             /// <summary>
-            /// Try to get name by register slot. If failed, return empty string;
+            ///     Try to get name by register slot. If failed, return empty string;
             /// </summary>
             /// <param name="slot"></param>
             /// <returns></returns>
@@ -91,50 +78,37 @@ namespace HelixToolkit.SharpDX.Core
                 string item;
                 return mappingCollection.TryGetName(slot, out item) ? item : string.Empty;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
             public MappingType GetMapping(string name)
             {
                 MappingType item;
-                if (mappingCollection.TryGetItem(name, out item))
-                {
-                    return item;
-                }
-                else
-                {
-                    return null;
-                }
+                if (mappingCollection.TryGetItem(name, out item)) return item;
+
+                return null;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="slot"></param>
             /// <returns></returns>
             public MappingType GetMapping(int slot)
             {
                 MappingType item;
-                if (mappingCollection.TryGetItem(slot, out item))
-                {
-                    return item;
-                }
-                else
-                {
-                    return null;
-                }
+                if (mappingCollection.TryGetItem(slot, out item)) return item;
+
+                return null;
             }
 
             protected override void OnDispose(bool disposeManagedResources)
             {
                 foreach (var item in mappingCollection.Datas)
-                {
                     if (item is IDisposable toDispose)
-                    {
                         toDispose.Dispose();
-                    }
-                }
+
                 mappingCollection.Clear();
                 base.OnDispose(disposeManagedResources);
             }

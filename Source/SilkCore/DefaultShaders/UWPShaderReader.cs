@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Helper
     {
         /// <summary>
-        /// 
         /// </summary>
         public interface IShaderByteCodeReader
         {
@@ -14,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         /// <summary>
-        /// Used to read HelixToolkit internal default shader byte codes
+        ///     Used to read HelixToolkit internal default shader byte codes
         /// </summary>
         public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader
         {
@@ -22,11 +20,9 @@ namespace HelixToolkit.SharpDX.Core
             {
 #if CORE
                 var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
-                Stream shaderStream = assembly.GetManifestResourceStream($"SilkCore.Resources.{name}.cso");
+                var shaderStream = assembly.GetManifestResourceStream($"SilkCore.Resources.{name}.cso");
                 if (shaderStream == null)
-                {
                     throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");
-                }
                 using (var memory = new MemoryStream())
                 {
                     shaderStream.CopyTo(memory);
@@ -34,7 +30,8 @@ namespace HelixToolkit.SharpDX.Core
                 }
 #else
 #if NETFX_CORE
-                var filePath = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + $"\\HelixToolkit.UWP\\Resources\\{name}.cso";
+                var filePath =
+ Windows.ApplicationModel.Package.Current.InstalledLocation.Path + $"\\HelixToolkit.UWP\\Resources\\{name}.cso";
                 if (!File.Exists(filePath))
                 {
                     throw new FileNotFoundException($"Shader byte code was not found: {name}", filePath);
@@ -56,35 +53,32 @@ namespace HelixToolkit.SharpDX.Core
 #endif
             }
         }
+
         /// <summary>
-        /// Used to read shader bytecode
+        ///     Used to read shader bytecode
         /// </summary>
         public static class UWPShaderBytePool
         {
-            public static Dictionary<string, byte[]> Dict = new Dictionary<string, byte[]>();
+            public static Dictionary<string, byte[]> Dict = new();
             internal static readonly IShaderByteCodeReader InternalByteCodeReader = new HelixToolkitByteCodeReader();
+
             public static byte[] Read(string name, IShaderByteCodeReader reader = null)
             {
                 lock (Dict)
                 {
                     if (!Dict.TryGetValue(name, out var byteCode))
-                    {
                         lock (Dict)
                         {
                             if (!Dict.TryGetValue(name, out byteCode))
                             {
                                 if (reader == null)
-                                {
                                     byteCode = InternalByteCodeReader.Read(name);
-                                }
                                 else
-                                {
                                     byteCode = reader.Read(name);
-                                }
                                 Dict.Add(name, byteCode);
                             }
                         }
-                    }
+
                     return byteCode;
                 }
             }

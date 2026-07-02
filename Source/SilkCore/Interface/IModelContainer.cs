@@ -1,39 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+/// <summary>
+/// </summary>
+public interface IModelContainer : IRenderHost
 {
-    using Model.Scene;
     /// <summary>
-    /// 
     /// </summary>
-    public interface IModelContainer : IRenderHost
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        IEnumerable<SceneNode> Renderables
-        {
-            get;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="viewport"></param>
-        void AttachViewport3DX(IViewport3DX viewport);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="viewport"></param>
-        void DettachViewport3DX(IViewport3DX viewport);
-        /// <summary>
-        /// 
-        /// </summary>
-        IRenderHost CurrentRenderHost
-        {
-            set; get;
-        }
+    IEnumerable<SceneNode> Renderables { get; }
 
-        void Attach(IRenderHost host);
-        void Detach(IRenderHost host);
-    }
+    /// <summary>
+    /// </summary>
+    IRenderHost CurrentRenderHost { get; set; }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="viewport"></param>
+    void AttachViewport3DX(IViewport3DX viewport);
+
+    /// <summary>
+    /// </summary>
+    /// <param name="viewport"></param>
+    void DettachViewport3DX(IViewport3DX viewport);
+
+    void Attach(IRenderHost host);
+    void Detach(IRenderHost host);
 }

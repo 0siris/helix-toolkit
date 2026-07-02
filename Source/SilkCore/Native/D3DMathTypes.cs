@@ -3,314 +3,313 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
 using System.Runtime.InteropServices;
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Bool4
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Bool4
+    private int x;
+    private int y;
+    private int z;
+    private int w;
+
+    public bool X
     {
-        private int x;
-        private int y;
-        private int z;
-        private int w;
-
-        public bool X
-        {
-            get => x != 0;
-            set => x = value ? 1 : 0;
-        }
-
-        public bool Y
-        {
-            get => y != 0;
-            set => y = value ? 1 : 0;
-        }
-
-        public bool Z
-        {
-            get => z != 0;
-            set => z = value ? 1 : 0;
-        }
-
-        public bool W
-        {
-            get => w != 0;
-            set => w = value ? 1 : 0;
-        }
+        get => x != 0;
+        set => x = value ? 1 : 0;
     }
 
-    public struct FrustumCameraParams
+    public bool Y
     {
-        public Vector3 Position;
-        public Vector3 LookAtDir;
-        public Vector3 UpDir;
-        public float FOV;
-        public float AspectRatio;
-        public float ZNear;
-        public float ZFar;
+        get => y != 0;
+        set => y = value ? 1 : 0;
     }
 
-    public struct ViewportF
+    public bool Z
     {
-        public ViewportF(float x, float y, float width, float height, float minDepth = 0, float maxDepth = 1)
-        {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
-            MinDepth = minDepth;
-            MaxDepth = maxDepth;
-        }
-
-        public float X;
-        public float Y;
-        public float Width;
-        public float Height;
-        public float MinDepth;
-        public float MaxDepth;
+        get => z != 0;
+        set => z = value ? 1 : 0;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Size2
+    public bool W
     {
-        public Size2(int width, int height)
-        {
-            Width = width;
-            Height = height;
-        }
+        get => w != 0;
+        set => w = value ? 1 : 0;
+    }
+}
 
-        public int Width;
-        public int Height;
+public struct FrustumCameraParams
+{
+    public Vector3 Position;
+    public Vector3 LookAtDir;
+    public Vector3 UpDir;
+    public float FOV;
+    public float AspectRatio;
+    public float ZNear;
+    public float ZFar;
+}
+
+public struct ViewportF
+{
+    public ViewportF(float x, float y, float width, float height, float minDepth = 0, float maxDepth = 1)
+    {
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+        MinDepth = minDepth;
+        MaxDepth = maxDepth;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Size2F
+    public float X;
+    public float Y;
+    public float Width;
+    public float Height;
+    public float MinDepth;
+    public float MaxDepth;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Size2
+{
+    public Size2(int width, int height)
     {
-        public Size2F(float width, float height)
-        {
-            Width = width;
-            Height = height;
-        }
-
-        public float Width;
-        public float Height;
-
-        public static bool operator ==(Size2F left, Size2F right)
-        {
-            return left.Width == right.Width && left.Height == right.Height;
-        }
-
-        public static bool operator !=(Size2F left, Size2F right)
-        {
-            return !(left == right);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Size2F other && this == other;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Width, Height);
-        }
+        Width = width;
+        Height = height;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Rectangle
+    public int Width;
+    public int Height;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Size2F
+{
+    public Size2F(float width, float height)
     {
-        public Rectangle(int left, int top, int width, int height)
-        {
-            Left = left;
-            Top = top;
-            Width = width;
-            Height = height;
-        }
-
-        public int Left;
-        public int Top;
-        public int Width;
-        public int Height;
-
-        public int X
-        {
-            get => Left;
-            set => Left = value;
-        }
-
-        public int Y
-        {
-            get => Top;
-            set => Top = value;
-        }
-
-        public int Right => Left + Width;
-
-        public int Bottom => Top + Height;
-
-        public bool IsEmpty => Width <= 0 || Height <= 0;
-
-        public bool Intersects(Rectangle other)
-        {
-            return Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
-        }
+        Width = width;
+        Height = height;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct RectangleF
+    public float Width;
+    public float Height;
+
+    public static bool operator ==(Size2F left, Size2F right)
     {
-        public RectangleF(float left, float top, float width, float height)
-        {
-            Left = left;
-            Top = top;
-            Width = width;
-            Height = height;
-        }
-
-        public float Left;
-        public float Top;
-        public float Width;
-        public float Height;
-
-        public float Right
-        {
-            get => Left + Width;
-            set => Width = value - Left;
-        }
-
-        public float Bottom
-        {
-            get => Top + Height;
-            set => Height = value - Top;
-        }
-
-        public Size2F Size => new Size2F(Width, Height);
-
-        public Vector2 TopLeft => new Vector2(Left, Top);
-
-        public Vector2 TopRight => new Vector2(Right, Top);
-
-        public Vector2 BottomRight => new Vector2(Right, Bottom);
-
-        public Vector2 BottomLeft => new Vector2(Left, Bottom);
-
-        public Vector2 Center => new Vector2(Left + (Width / 2), Top + (Height / 2));
-
-        public bool Contains(Vector2 point)
-        {
-            return point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
-        }
-
-        public static bool operator ==(RectangleF left, RectangleF right)
-        {
-            return left.Left == right.Left && left.Top == right.Top && left.Width == right.Width && left.Height == right.Height;
-        }
-
-        public static bool operator !=(RectangleF left, RectangleF right)
-        {
-            return !(left == right);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is RectangleF other && this == other;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Left, Top, Width, Height);
-        }
+        return left.Width == right.Width && left.Height == right.Height;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Matrix3x2
+    public static bool operator !=(Size2F left, Size2F right)
     {
-        public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
-        {
-            M11 = m11;
-            M12 = m12;
-            M21 = m21;
-            M22 = m22;
-            M31 = m31;
-            M32 = m32;
-        }
-
-        public float M11;
-        public float M12;
-        public float M21;
-        public float M22;
-        public float M31;
-        public float M32;
-
-        public static Matrix3x2 Identity => new Matrix3x2(1, 0, 0, 1, 0, 0);
-
-        public Vector2 TranslationVector => new Vector2(M31, M32);
-
-        public static Matrix3x2 Translation(float x, float y)
-        {
-            return new Matrix3x2(1, 0, 0, 1, x, y);
-        }
-
-        public static Matrix3x2 Translation(Vector2 offset)
-        {
-            return Translation(offset.X, offset.Y);
-        }
-
-        public static Matrix3x2 Rotation(float angle)
-        {
-            var cosine = (float)Math.Cos(angle);
-            var sine = (float)Math.Sin(angle);
-            return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
-        }
-
-        public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point)
-        {
-            return new Vector2(
-                point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
-                point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
-        }
-
-        public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)
-        {
-            return new Matrix3x2(
-                (left.M11 * right.M11) + (left.M12 * right.M21),
-                (left.M11 * right.M12) + (left.M12 * right.M22),
-                (left.M21 * right.M11) + (left.M22 * right.M21),
-                (left.M21 * right.M12) + (left.M22 * right.M22),
-                (left.M31 * right.M11) + (left.M32 * right.M21) + right.M31,
-                (left.M31 * right.M12) + (left.M32 * right.M22) + right.M32);
-        }
+        return !(left == right);
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct Matrix3x3
+    public override bool Equals(object obj)
     {
-        public Matrix3x3(
-            float m11, float m12, float m13,
-            float m21, float m22, float m23,
-            float m31, float m32, float m33)
-        {
-            M11 = m11;
-            M12 = m12;
-            M13 = m13;
-            M21 = m21;
-            M22 = m22;
-            M23 = m23;
-            M31 = m31;
-            M32 = m32;
-            M33 = m33;
-        }
-
-        public float M11;
-        public float M12;
-        public float M13;
-        public float M21;
-        public float M22;
-        public float M23;
-        public float M31;
-        public float M32;
-        public float M33;
+        return obj is Size2F other && this == other;
     }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Width, Height);
+    }
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Rectangle
+{
+    public Rectangle(int left, int top, int width, int height)
+    {
+        Left = left;
+        Top = top;
+        Width = width;
+        Height = height;
+    }
+
+    public int Left;
+    public int Top;
+    public int Width;
+    public int Height;
+
+    public int X
+    {
+        get => Left;
+        set => Left = value;
+    }
+
+    public int Y
+    {
+        get => Top;
+        set => Top = value;
+    }
+
+    public int Right => Left + Width;
+
+    public int Bottom => Top + Height;
+
+    public bool IsEmpty => Width <= 0 || Height <= 0;
+
+    public bool Intersects(Rectangle other)
+    {
+        return Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
+    }
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct RectangleF
+{
+    public RectangleF(float left, float top, float width, float height)
+    {
+        Left = left;
+        Top = top;
+        Width = width;
+        Height = height;
+    }
+
+    public float Left;
+    public float Top;
+    public float Width;
+    public float Height;
+
+    public float Right
+    {
+        get => Left + Width;
+        set => Width = value - Left;
+    }
+
+    public float Bottom
+    {
+        get => Top + Height;
+        set => Height = value - Top;
+    }
+
+    public Size2F Size => new(Width, Height);
+
+    public Vector2 TopLeft => new(Left, Top);
+
+    public Vector2 TopRight => new(Right, Top);
+
+    public Vector2 BottomRight => new(Right, Bottom);
+
+    public Vector2 BottomLeft => new(Left, Bottom);
+
+    public Vector2 Center => new(Left + Width / 2, Top + Height / 2);
+
+    public bool Contains(Vector2 point)
+    {
+        return point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
+    }
+
+    public static bool operator ==(RectangleF left, RectangleF right)
+    {
+        return left.Left == right.Left && left.Top == right.Top && left.Width == right.Width &&
+               left.Height == right.Height;
+    }
+
+    public static bool operator !=(RectangleF left, RectangleF right)
+    {
+        return !(left == right);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is RectangleF other && this == other;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Left, Top, Width, Height);
+    }
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Matrix3x2
+{
+    public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
+    {
+        M11 = m11;
+        M12 = m12;
+        M21 = m21;
+        M22 = m22;
+        M31 = m31;
+        M32 = m32;
+    }
+
+    public float M11;
+    public float M12;
+    public float M21;
+    public float M22;
+    public float M31;
+    public float M32;
+
+    public static Matrix3x2 Identity => new(1, 0, 0, 1, 0, 0);
+
+    public Vector2 TranslationVector => new(M31, M32);
+
+    public static Matrix3x2 Translation(float x, float y)
+    {
+        return new Matrix3x2(1, 0, 0, 1, x, y);
+    }
+
+    public static Matrix3x2 Translation(Vector2 offset)
+    {
+        return Translation(offset.X, offset.Y);
+    }
+
+    public static Matrix3x2 Rotation(float angle)
+    {
+        var cosine = (float) Math.Cos(angle);
+        var sine = (float) Math.Sin(angle);
+        return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
+    }
+
+    public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point)
+    {
+        return new Vector2(
+            point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
+            point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
+    }
+
+    public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)
+    {
+        return new Matrix3x2(
+            left.M11 * right.M11 + left.M12 * right.M21,
+            left.M11 * right.M12 + left.M12 * right.M22,
+            left.M21 * right.M11 + left.M22 * right.M21,
+            left.M21 * right.M12 + left.M22 * right.M22,
+            left.M31 * right.M11 + left.M32 * right.M21 + right.M31,
+            left.M31 * right.M12 + left.M32 * right.M22 + right.M32);
+    }
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Matrix3x3
+{
+    public Matrix3x3(
+        float m11, float m12, float m13,
+        float m21, float m22, float m23,
+        float m31, float m32, float m33)
+    {
+        M11 = m11;
+        M12 = m12;
+        M13 = m13;
+        M21 = m21;
+        M22 = m22;
+        M23 = m23;
+        M31 = m31;
+        M32 = m32;
+        M33 = m33;
+    }
+
+    public float M11;
+    public float M12;
+    public float M13;
+    public float M21;
+    public float M22;
+    public float M23;
+    public float M31;
+    public float M32;
+    public float M33;
 }

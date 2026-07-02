@@ -2,29 +2,38 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
     {
         public enum HorizontalAlignment
         {
-            Left, Right, Center, Stretch
+            Left,
+            Right,
+            Center,
+            Stretch
         }
 
         public enum VerticalAlignment
         {
-            Top, Bottom, Center, Stretch
+            Top,
+            Bottom,
+            Center,
+            Stretch
         }
 
         public enum Visibility
         {
-            Visible, Collapsed, Hidden
+            Visible,
+            Collapsed,
+            Hidden
         }
 
         public enum Orientation
         {
-            Horizontal, Vertical
+            Horizontal,
+            Vertical
         }
 
         public struct Thickness : IEquatable<Thickness>
@@ -52,7 +61,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public bool Equals(Thickness other)
             {
-                return this.Left == other.Left && this.Right == other.Right && this.Top == other.Top && this.Bottom == other.Bottom;
+                return Left == other.Left && Right == other.Right && Top == other.Top && Bottom == other.Bottom;
             }
 
             public static implicit operator Vector4(Thickness t)

@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
@@ -143,7 +142,7 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public unsafe sealed class RenderTargetView : IDisposable
+    public sealed unsafe class RenderTargetView : IDisposable
     {
         private SilkD3D11RenderTargetViewPtr nativeView;
 
@@ -153,7 +152,7 @@ namespace HelixToolkit.SharpDX.Core
             Resource = resource;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeView.Handle;
+        public nint NativePointer => (nint) nativeView.Handle;
 
         public Resource Resource { get; }
 
@@ -163,17 +162,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
             nativeView.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class DepthStencilView : IDisposable
+    public sealed unsafe class DepthStencilView : IDisposable
     {
         private SilkD3D11DepthStencilViewPtr nativeView;
 
@@ -182,7 +178,7 @@ namespace HelixToolkit.SharpDX.Core
             this.nativeView = nativeView;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeView.Handle;
+        public nint NativePointer => (nint) nativeView.Handle;
 
         internal ID3D11DepthStencilView* Handle => nativeView.Handle;
 
@@ -190,17 +186,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
             nativeView.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class ShaderResourceView : IDisposable
+    public sealed unsafe class ShaderResourceView : IDisposable
     {
         private SilkD3D11ShaderResourceViewPtr nativeView;
 
@@ -209,13 +202,14 @@ namespace HelixToolkit.SharpDX.Core
             this.nativeView = nativeView;
         }
 
-        internal ShaderResourceView(SilkD3D11ShaderResourceViewPtr nativeView, ShaderResourceViewDescription description)
+        internal ShaderResourceView(SilkD3D11ShaderResourceViewPtr nativeView,
+            ShaderResourceViewDescription description)
             : this(nativeView)
         {
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeView.Handle;
+        public nint NativePointer => (nint) nativeView.Handle;
 
         internal ID3D11ShaderResourceView* Handle => nativeView.Handle;
 
@@ -225,17 +219,14 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
             nativeView.Dispose();
             IsDisposed = true;
         }
     }
 
-    public unsafe sealed class UnorderedAccessView : IDisposable
+    public sealed unsafe class UnorderedAccessView : IDisposable
     {
         private SilkD3D11UnorderedAccessViewPtr nativeView;
 
@@ -244,13 +235,14 @@ namespace HelixToolkit.SharpDX.Core
             this.nativeView = nativeView;
         }
 
-        internal UnorderedAccessView(SilkD3D11UnorderedAccessViewPtr nativeView, UnorderedAccessViewDescription description)
+        internal UnorderedAccessView(SilkD3D11UnorderedAccessViewPtr nativeView,
+            UnorderedAccessViewDescription description)
             : this(nativeView)
         {
             Description = description;
         }
 
-        public IntPtr NativePointer => (IntPtr)nativeView.Handle;
+        public nint NativePointer => (nint) nativeView.Handle;
 
         internal ID3D11UnorderedAccessView* Handle => nativeView.Handle;
 
@@ -260,10 +252,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
             nativeView.Dispose();
             IsDisposed = true;
@@ -274,9 +263,9 @@ namespace HelixToolkit.SharpDX.Core
     {
         internal static class D3DViewConversions
         {
-            public static Silk.NET.Direct3D11.RenderTargetViewDesc ToSilkDesc(this RenderTargetViewDescription description)
+            public static RenderTargetViewDesc ToSilkDesc(this RenderTargetViewDescription description)
             {
-                var desc = new Silk.NET.Direct3D11.RenderTargetViewDesc
+                var desc = new RenderTargetViewDesc
                 {
                     Format = description.Format,
                     ViewDimension = description.Dimension.ToSilkRtvDimension()
@@ -286,48 +275,52 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     case RenderTargetViewDimension.Texture2D:
                     case RenderTargetViewDimension.Texture2DMultisampled:
-                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint) description.Texture2D.MipSlice);
                         break;
                     case RenderTargetViewDimension.Texture2DArray:
                     case RenderTargetViewDimension.Texture2DMultisampledArray:
-                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
-                        desc.Anonymous.Texture2DArray.FirstArraySlice = unchecked((uint)description.Texture2DArray.FirstArraySlice);
-                        desc.Anonymous.Texture2DArray.ArraySize = unchecked((uint)description.Texture2DArray.ArraySize);
+                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint) description.Texture2DArray.MipSlice);
+                        desc.Anonymous.Texture2DArray.FirstArraySlice =
+                            unchecked((uint) description.Texture2DArray.FirstArraySlice);
+                        desc.Anonymous.Texture2DArray.ArraySize =
+                            unchecked((uint) description.Texture2DArray.ArraySize);
                         break;
                 }
 
                 return desc;
             }
 
-            public static Silk.NET.Direct3D11.DepthStencilViewDesc ToSilkDesc(this DepthStencilViewDescription description)
+            public static DepthStencilViewDesc ToSilkDesc(this DepthStencilViewDescription description)
             {
-                var desc = new Silk.NET.Direct3D11.DepthStencilViewDesc
+                var desc = new DepthStencilViewDesc
                 {
                     Format = description.Format,
                     ViewDimension = description.Dimension.ToSilkDsvDimension(),
-                    Flags = (uint)description.Flags
+                    Flags = (uint) description.Flags
                 };
 
                 switch (description.Dimension)
                 {
                     case DepthStencilViewDimension.Texture2D:
                     case DepthStencilViewDimension.Texture2DMultisampled:
-                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                        desc.Anonymous.Texture2D.MipSlice = unchecked((uint) description.Texture2D.MipSlice);
                         break;
                     case DepthStencilViewDimension.Texture2DArray:
                     case DepthStencilViewDimension.Texture2DMultisampledArray:
-                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
-                        desc.Anonymous.Texture2DArray.FirstArraySlice = unchecked((uint)description.Texture2DArray.FirstArraySlice);
-                        desc.Anonymous.Texture2DArray.ArraySize = unchecked((uint)description.Texture2DArray.ArraySize);
+                        desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint) description.Texture2DArray.MipSlice);
+                        desc.Anonymous.Texture2DArray.FirstArraySlice =
+                            unchecked((uint) description.Texture2DArray.FirstArraySlice);
+                        desc.Anonymous.Texture2DArray.ArraySize =
+                            unchecked((uint) description.Texture2DArray.ArraySize);
                         break;
                 }
 
                 return desc;
             }
 
-            public static Silk.NET.Direct3D11.ShaderResourceViewDesc ToSilkDesc(this ShaderResourceViewDescription description)
+            public static ShaderResourceViewDesc ToSilkDesc(this ShaderResourceViewDescription description)
             {
-                var desc = new Silk.NET.Direct3D11.ShaderResourceViewDesc
+                var desc = new ShaderResourceViewDesc
                 {
                     Format = description.Format,
                     ViewDimension = description.Dimension.ToSilkSrvDimension()
@@ -335,31 +328,32 @@ namespace HelixToolkit.SharpDX.Core
 
                 if (description.Dimension == ShaderResourceViewDimension.Buffer)
                 {
-                    desc.Anonymous.Buffer.Anonymous1.FirstElement = unchecked((uint)description.Buffer.FirstElement);
-                    desc.Anonymous.Buffer.Anonymous2.NumElements = unchecked((uint)description.Buffer.ElementCount);
+                    desc.Anonymous.Buffer.Anonymous1.FirstElement = unchecked((uint) description.Buffer.FirstElement);
+                    desc.Anonymous.Buffer.Anonymous2.NumElements = unchecked((uint) description.Buffer.ElementCount);
                 }
                 else if (description.Dimension == ShaderResourceViewDimension.Texture2D)
                 {
-                    desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint)description.Texture2D.MostDetailedMip);
-                    desc.Anonymous.Texture2D.MipLevels = unchecked((uint)description.Texture2D.MipLevels);
+                    desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint) description.Texture2D.MostDetailedMip);
+                    desc.Anonymous.Texture2D.MipLevels = unchecked((uint) description.Texture2D.MipLevels);
                 }
                 else if (description.Dimension == ShaderResourceViewDimension.Texture3D)
                 {
-                    desc.Anonymous.Texture3D.MostDetailedMip = unchecked((uint)description.Texture3D.MostDetailedMip);
-                    desc.Anonymous.Texture3D.MipLevels = unchecked((uint)description.Texture3D.MipLevels);
+                    desc.Anonymous.Texture3D.MostDetailedMip = unchecked((uint) description.Texture3D.MostDetailedMip);
+                    desc.Anonymous.Texture3D.MipLevels = unchecked((uint) description.Texture3D.MipLevels);
                 }
                 else if (description.Dimension == ShaderResourceViewDimension.TextureCube)
                 {
-                    desc.Anonymous.TextureCube.MostDetailedMip = unchecked((uint)description.TextureCube.MostDetailedMip);
-                    desc.Anonymous.TextureCube.MipLevels = unchecked((uint)description.TextureCube.MipLevels);
+                    desc.Anonymous.TextureCube.MostDetailedMip =
+                        unchecked((uint) description.TextureCube.MostDetailedMip);
+                    desc.Anonymous.TextureCube.MipLevels = unchecked((uint) description.TextureCube.MipLevels);
                 }
 
                 return desc;
             }
 
-            public static Silk.NET.Direct3D11.UnorderedAccessViewDesc ToSilkDesc(this UnorderedAccessViewDescription description)
+            public static UnorderedAccessViewDesc ToSilkDesc(this UnorderedAccessViewDescription description)
             {
-                var desc = new Silk.NET.Direct3D11.UnorderedAccessViewDesc
+                var desc = new UnorderedAccessViewDesc
                 {
                     Format = description.Format,
                     ViewDimension = description.Dimension.ToSilkUavDimension()
@@ -367,9 +361,9 @@ namespace HelixToolkit.SharpDX.Core
 
                 if (description.Dimension == UnorderedAccessViewDimension.Buffer)
                 {
-                    desc.Anonymous.Buffer.FirstElement = unchecked((uint)description.Buffer.FirstElement);
-                    desc.Anonymous.Buffer.NumElements = unchecked((uint)description.Buffer.ElementCount);
-                    desc.Anonymous.Buffer.Flags = (uint)description.Buffer.Flags;
+                    desc.Anonymous.Buffer.FirstElement = unchecked((uint) description.Buffer.FirstElement);
+                    desc.Anonymous.Buffer.NumElements = unchecked((uint) description.Buffer.ElementCount);
+                    desc.Anonymous.Buffer.Flags = (uint) description.Buffer.Flags;
                 }
 
                 return desc;
@@ -385,7 +379,8 @@ namespace HelixToolkit.SharpDX.Core
                     ShaderResourceViewDimension.Texture2D => D3DSrvDimension.D3D11SrvDimensionTexture2D,
                     ShaderResourceViewDimension.Texture2DArray => D3DSrvDimension.D3D11SrvDimensionTexture2Darray,
                     ShaderResourceViewDimension.Texture2DMultisampled => D3DSrvDimension.D3D11SrvDimensionTexture2Dms,
-                    ShaderResourceViewDimension.Texture2DMultisampledArray => D3DSrvDimension.D3D11SrvDimensionTexture2Dmsarray,
+                    ShaderResourceViewDimension.Texture2DMultisampledArray => D3DSrvDimension
+                        .D3D11SrvDimensionTexture2Dmsarray,
                     ShaderResourceViewDimension.Texture3D => D3DSrvDimension.D3D11SrvDimensionTexture3D,
                     ShaderResourceViewDimension.TextureCube => D3DSrvDimension.D3D11SrvDimensionTexturecube,
                     ShaderResourceViewDimension.TextureCubeArray => D3DSrvDimension.D3D11SrvDimensionTexturecubearray,

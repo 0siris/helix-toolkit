@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HelixToolkit.SharpDX.Core.Native;
-
+﻿using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core
 {
@@ -10,10 +6,11 @@ namespace HelixToolkit.SharpDX.Core
     {
         public sealed class TextLayoutInfo : IDisposable
         {
-            public readonly TextLayout TextLayout;
-            public readonly Color4 Foreground;
             public readonly Color4 Background;
+            public readonly Color4 Foreground;
             public readonly Vector4 Padding;
+            public readonly TextLayout TextLayout;
+
             public TextLayoutInfo(TextLayout layout, Color4 foreground, Color4 background, Vector4 padding)
             {
                 TextLayout = layout;
@@ -23,9 +20,10 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
 
-            void Dispose(bool disposing)
+            private bool disposedValue; // To detect redundant calls
+
+            private void Dispose(bool disposing)
             {
                 if (!disposedValue)
                 {
@@ -48,10 +46,12 @@ namespace HelixToolkit.SharpDX.Core
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
+
             #endregion
         }
+
         /// <summary>
-        /// Draw and pack a list of <see cref="TextInfoExt"/> into a single large bitmap
+        ///     Draw and pack a list of <see cref="TextInfoExt" /> into a single large bitmap
         /// </summary>
         public sealed class TextInfoExtPacker : SpritePackerBase<TextInfoExt, TextLayoutInfo>
         {
@@ -66,10 +66,16 @@ namespace HelixToolkit.SharpDX.Core
                     var location = ImagePlacement[text.Key];
                     var t = text.Value;
                     using (var brush = new SolidColorBrush(target, t.Background))
+                    {
                         target.FillRectangle(location, brush);
+                    }
+
                     using (var brush = new SolidColorBrush(target, t.Foreground))
-                        target.DrawTextLayout(new Vector2(location.Left + text.Value.Padding.X, location.Top + text.Value.Padding.Y),
-                            t.TextLayout, brush, DrawTextOptions.None);
+                    {
+                        target.DrawTextLayout(
+                            new Vector2(location.Left + text.Value.Padding.X, location.Top + text.Value.Padding.Y),
+                            t.TextLayout, brush);
+                    }
                 }
             }
 
@@ -77,9 +83,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return items.Select((x, i) =>
                 {
-                    var textLayout = BitmapExtensions
-                    .GetTextLayoutMetrices(x.Text, deviceRes2D, x.Size, x.FontFamily,
-                    x.FontWeight, x.FontStyle);
+                    var textLayout = x.Text
+                        .GetTextLayoutMetrices(deviceRes2D, x.Size, x.FontFamily,
+                            x.FontWeight, x.FontStyle);
                     return new KeyValuePair<int, TextLayoutInfo>(i,
                         new TextLayoutInfo(textLayout, x.Foreground, x.Background, x.Padding));
                 }).ToArray();

@@ -2,7 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
 using System.Runtime.Serialization;
 
 namespace HelixToolkit.SharpDX.Core
@@ -11,30 +11,17 @@ namespace HelixToolkit.SharpDX.Core
     {
         public enum TextureType
         {
-            Texture, Structured, TextureBuffer, ByteAddress
+            Texture,
+            Structured,
+            TextureBuffer,
+            ByteAddress
         }
+
         /// <summary>
-        /// 
         /// </summary>
         [DataContract]
         public sealed class TextureDescription
         {
-            [DataMember]
-            public string Name
-            {
-                set; get;
-            }
-            [DataMember]
-            public ShaderStage ShaderType
-            {
-                set; get;
-            }
-            [DataMember]
-            public TextureType Type
-            {
-                set; get;
-            }
-
             public TextureDescription()
             {
             }
@@ -46,6 +33,12 @@ namespace HelixToolkit.SharpDX.Core
                 Type = type;
             }
 
+            [DataMember] public string Name { get; set; }
+
+            [DataMember] public ShaderStage ShaderType { get; set; }
+
+            [DataMember] public TextureType Type { get; set; }
+
             public TextureMapping CreateMapping(int slot)
             {
                 return new TextureMapping(slot, this);
@@ -53,35 +46,28 @@ namespace HelixToolkit.SharpDX.Core
 
             public TextureDescription Clone()
             {
-                return new TextureDescription(this.Name, this.ShaderType, this.Type);
+                return new TextureDescription(Name, ShaderType, Type);
             }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         [DataContract]
         public sealed class TextureMapping
         {
-            [DataMember]
-            public int Slot
-            {
-                set; get;
-            }
-            [DataMember]
-            public TextureDescription Description
-            {
-                set; get;
-            }
-
             public TextureMapping(int slot, TextureDescription description)
             {
                 Slot = slot;
                 Description = description;
             }
 
+            [DataMember] public int Slot { get; set; }
+
+            [DataMember] public TextureDescription Description { get; set; }
+
             public TextureMapping Clone()
             {
-                return new TextureMapping(this.Slot, this.Description.Clone());
+                return new TextureMapping(Slot, Description.Clone());
             }
         }
     }

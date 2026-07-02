@@ -2,48 +2,44 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-#define MSAASEPARATE
-using System;
 
-using System.Runtime.InteropServices;
+#define MSAASEPARATE
+
+using System.Diagnostics;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Shaders;
-        using System.Diagnostics;
-        using Utilities;
-        using Components;
-
         public sealed class OITDepthPeeling : RenderCore
         {
-            private int currWidth = 0, currHeight = 0;
-            private ShaderResourceViewProxy minMaxZTarget0, minMaxZTarget1, frontBlendingTarget, backBlendingTarget;
+            private readonly ShaderResourceView[] finalSRVs = new ShaderResourceView[3];
             private readonly ShaderResourceViewProxy[] minMaxZTargets = new ShaderResourceViewProxy[2];
             private readonly RenderTargetView[] targets = new RenderTargetView[3];
-            private readonly ShaderResourceView[] finalSRVs = new ShaderResourceView[3];
+            private int currWidth, currHeight;
             private ShaderPass finalPass = ShaderPass.NullPass;
-            public RenderParameter ExternRenderParameter
+            private ShaderResourceViewProxy minMaxZTarget0, minMaxZTarget1, frontBlendingTarget, backBlendingTarget;
+
+            public OITDepthPeeling() : base(RenderType.Transparent)
             {
-                set; get;
             }
-            public int RenderCount { private set; get; }
 
-            public int PeelingIteration { set; get; } = 4;
+            public RenderParameter ExternRenderParameter { get; set; }
 
-            public OITDepthPeeling() : base(RenderType.Transparent) { }
+            public int RenderCount { get; private set; }
+
+            public int PeelingIteration { get; set; } = 4;
 
             private bool CreateRenderTargets(int width, int height)
             {
-                if (currWidth == width && currHeight == height)
-                {
-                    return false;
-                }
+                if (currWidth == width && currHeight == height) return false;
                 DisposeAllTargets();
                 currWidth = width;
                 currHeight = height;
-                var tex2DDesc = new Texture2DDescription()
+                var tex2DDesc = new Texture2DDescription
                 {
                     Width = width,
                     Height = height,
@@ -52,7 +48,7 @@ namespace HelixToolkit.SharpDX.Core
                     SampleDescription = new SampleDescription(1, 0),
                     BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
                     Usage = ResourceUsage.Default,
-                    CpuAccessFlags = CpuAccessFlags.None,
+                    CpuAccessFlags = CpuAccessFlags.None
                 };
                 tex2DDesc.Format = Format.FormatR32G32Float;
                 minMaxZTarget0 = new ShaderResourceViewProxy(Device, tex2DDesc);
@@ -91,15 +87,11 @@ namespace HelixToolkit.SharpDX.Core
                     backBlendingTarget.Resource != null)
                 {
                     if (ExternRenderParameter.IsMSAATexture)
-                    {
-
-                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource, 0, backBlendingTarget.Resource, 0, Format.FormatB8G8R8A8Unorm);
-                    }
+                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource, 0,
+                            backBlendingTarget.Resource, 0, Format.FormatB8G8R8A8Unorm);
                     else
-                    {
-
-                        deviceContext.CopyResource(ExternRenderParameter.RenderTargetView[0].Resource, backBlendingTarget.Resource);
-                    }
+                        deviceContext.CopyResource(ExternRenderParameter.RenderTargetView[0].Resource,
+                            backBlendingTarget.Resource);
                 }
                 else
                 {
@@ -116,8 +108,8 @@ namespace HelixToolkit.SharpDX.Core
                 var parameter = ExternRenderParameter;
                 if (!parameter.ScissorRegion.IsEmpty)
                 {
-                    RenderCount = context.RenderHost.Renderer.
-                        RenderOpaque(context, context.RenderHost.PerFrameTransparentNodes, ref parameter, context.EnableBoundingFrustum);
+                    RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
+                        context.RenderHost.PerFrameTransparentNodes, ref parameter, context.EnableBoundingFrustum);
                 }
                 else
                 {
@@ -133,11 +125,12 @@ namespace HelixToolkit.SharpDX.Core
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext)
             {
-                if (CreateRenderTargets((int)context.ActualWidth, (int)context.ActualHeight))
+                if (CreateRenderTargets((int) context.ActualWidth, (int) context.ActualHeight))
                 {
                     RaiseInvalidateRender();
                     return;
                 }
+
                 var buffer = context.RenderHost.RenderBuffer;
                 var hasMSAA = buffer.ColorBufferSampleDesc.Count > 1;
                 var nonMSAADepthBuffer = hasMSAA ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMSAA : null;
@@ -151,7 +144,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 context.OITRenderStage = OITRenderStage.DepthPeeling;
                 var currId = 0;
-                for(var layer = 1; layer < PeelingIteration; ++layer)
+                for (var layer = 1; layer < PeelingIteration; ++layer)
                 {
                     currId = layer % 2;
                     var prevId = 1 - currId;
@@ -165,6 +158,7 @@ namespace HelixToolkit.SharpDX.Core
                     DrawMesh(context, deviceContext);
                     deviceContext.SetShaderResource(new PixelShaderType(), 100, null);
                 }
+
                 context.OITRenderStage = OITRenderStage.None;
                 finalSRVs[0] = minMaxZTargets[currId];
                 finalSRVs[1] = frontBlendingTarget;

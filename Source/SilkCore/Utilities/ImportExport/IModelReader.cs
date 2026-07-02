@@ -6,59 +6,48 @@
 //   Interface for model readers.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using System.IO;
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+using Mesh3DGroup = List<Object3D>;
+
+public struct ModelInfo
 {
-    using Mesh3DGroup = System.Collections.Generic.List<Object3D>;
-    public struct ModelInfo
-    {
-        public MeshFaces Faces
-        {
-            get; set;
-        }
-        public bool Normals
-        {
-            get; set;
-        }
-        public bool Tangents
-        {
-            get; set;
-        }
-    }
+    public MeshFaces Faces { get; set; }
+    public bool Normals { get; set; }
+    public bool Tangents { get; set; }
+}
+
+/// <summary>
+///     Interface for model readers.
+/// </summary>
+public interface IModelReader
+{
+    /// <summary>
+    ///     Reads the model from the specified path.
+    /// </summary>
+    /// <param name="path">
+    ///     The path.
+    /// </param>
+    /// <param name="info">
+    ///     The model info.
+    /// </param>
+    /// <returns>
+    ///     The model.
+    /// </returns>
+    Mesh3DGroup Read(string path, ModelInfo info = default);
 
     /// <summary>
-    /// Interface for model readers.
+    ///     Reads the model from the specified stream.
     /// </summary>
-    public interface IModelReader
-    {
-        /// <summary>
-        /// Reads the model from the specified path.
-        /// </summary>
-        /// <param name="path">
-        /// The path.
-        /// </param>
-        /// <param name="info">
-        /// The model info.
-        /// </param>
-        /// <returns>
-        /// The model.
-        /// </returns>
-        Mesh3DGroup Read(string path, ModelInfo info = default(ModelInfo));
-
-        /// <summary>
-        /// Reads the model from the specified stream.
-        /// </summary>
-        /// <param name="s">
-        /// The stream.
-        /// </param>
-        /// <param name="info">
-        /// The model info.
-        /// </param>
-        /// <returns>
-        /// The model.
-        /// </returns>
-        Mesh3DGroup Read(Stream s, ModelInfo info = default(ModelInfo));
-
-    }
+    /// <param name="s">
+    ///     The stream.
+    /// </param>
+    /// <param name="info">
+    ///     The model info.
+    /// </param>
+    /// <returns>
+    ///     The model.
+    /// </returns>
+    Mesh3DGroup Read(Stream s, ModelInfo info = default);
 }

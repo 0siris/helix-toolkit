@@ -2,55 +2,18 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core2D
     {
         /// <summary>
-        /// <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/"/>
+        ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
         /// </summary>
         public class Figure
         {
-            private List<SegmentData> Segments { get; } = new List<SegmentData>();
-
             /// <summary>
-            /// Gets or sets a value indicating whether this <see cref="Figure"/> is closed.
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if closed; otherwise, <c>false</c>.
-            /// </value>
-            public bool Closed
-            {
-                private set; get;
-            }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether this <see cref="Figure"/> is filled.
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if filled; otherwise, <c>false</c>.
-            /// </value>
-            public bool Filled
-            {
-                private set; get;
-            }
-
-            /// <summary>
-            /// Gets or sets the start point.
-            /// </summary>
-            /// <value>
-            /// The start point.
-            /// </value>
-            public Vector2 StartPoint
-            {
-                private set; get;
-            }
-
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Figure"/> class.
+            ///     Initializes a new instance of the <see cref="Figure" /> class.
             /// </summary>
             /// <param name="startPoint">The start point.</param>
             /// <param name="filled">if set to <c>true</c> [filled].</param>
@@ -62,8 +25,34 @@ namespace HelixToolkit.SharpDX.Core
                 Closed = closed;
             }
 
+            private List<SegmentData> Segments { get; } = new();
+
             /// <summary>
-            /// Adds the segment.
+            ///     Gets or sets a value indicating whether this <see cref="Figure" /> is closed.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if closed; otherwise, <c>false</c>.
+            /// </value>
+            public bool Closed { get; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether this <see cref="Figure" /> is filled.
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if filled; otherwise, <c>false</c>.
+            /// </value>
+            public bool Filled { get; }
+
+            /// <summary>
+            ///     Gets or sets the start point.
+            /// </summary>
+            /// <value>
+            ///     The start point.
+            /// </value>
+            public Vector2 StartPoint { get; }
+
+            /// <summary>
+            ///     Adds the segment.
             /// </summary>
             /// <param name="segment">The segment.</param>
             /// <param name="isStroked">if set to <c>true</c> [is stroked].</param>
@@ -74,7 +63,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Creates the specified sink.
+            ///     Creates the specified sink.
             /// </summary>
             /// <param name="sink">The sink.</param>
             public void Create(GeometrySink sink)
@@ -84,28 +73,23 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     var flag = PathSegment.None;
                     var segment = Segments[i];
-                    if (!segment.IsStroked)
-                    {
-                        flag |= PathSegment.ForceUnstroked;
-                    }
-                    if (segment.IsSmoothJoined)
-                    {
-                        flag |= PathSegment.ForceRoundLineJoin;
-                    }
+                    if (!segment.IsStroked) flag |= PathSegment.ForceUnstroked;
+                    if (segment.IsSmoothJoined) flag |= PathSegment.ForceRoundLineJoin;
                     sink.SetSegmentFlags(flag);
                     segment.Segment.Create(sink);
                 }
+
                 sink.EndFigure(Closed ? FigureEnd.Closed : FigureEnd.Open);
             }
 
             /// <summary>
-            /// 
             /// </summary>
             private struct SegmentData
             {
-                public ISegment Segment;
-                public bool IsStroked;
-                public bool IsSmoothJoined;
+                public readonly ISegment Segment;
+                public readonly bool IsStroked;
+                public readonly bool IsSmoothJoined;
+
                 public SegmentData(ISegment segment, bool isStroked, bool isSmoothJoined)
                 {
                     Segment = segment;

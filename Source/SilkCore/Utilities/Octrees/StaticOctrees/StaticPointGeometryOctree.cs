@@ -4,35 +4,32 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
         /// <summary>
-        /// Static octree for points
+        ///     Static octree for points
         /// </summary>
         public class StaticPointGeometryOctree : StaticOctree<int>
         {
-            private static readonly Vector3 BoundOffset = new Vector3(0.001f);
+            private static readonly Vector3 BoundOffset = new(0.001f);
             protected readonly IList<Vector3> Positions;
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="positions"></param>
             /// <param name="parameter"></param>
             /// <param name="stackCache"></param>
             public StaticPointGeometryOctree(IList<Vector3> positions,
                 OctreeBuildParameter parameter, Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null)
-                   : base(parameter)
+                : base(parameter)
             {
                 Positions = positions;
             }
+
             /// <summary>
-            /// Gets the bounding box from item.
+            ///     Gets the bounding box from item.
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
@@ -40,8 +37,9 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return new BoundingBox(Positions[item] - BoundOffset, Positions[item] + BoundOffset);
             }
+
             /// <summary>
-            /// Gets the maximum bound.
+            ///     Gets the maximum bound.
             /// </summary>
             /// <returns></returns>
             protected override BoundingBox GetMaxBound()
@@ -50,7 +48,6 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="source"></param>
             /// <param name="target"></param>
@@ -61,35 +58,29 @@ namespace HelixToolkit.SharpDX.Core
                 var point = Positions[obj];
                 //Bound contains point.
                 return source.Minimum.X <= point.X && source.Maximum.X >= point.X &&
-                    source.Minimum.Y <= point.Y && source.Maximum.Y >= point.Y &&
-                    source.Minimum.Z <= point.Z && source.Maximum.Z >= point.Z;
+                       source.Minimum.Y <= point.Y && source.Maximum.Y >= point.Y &&
+                       source.Minimum.Z <= point.Z && source.Maximum.Z >= point.Z;
             }
 
             /// <summary>
-            /// Gets the objects.
+            ///     Gets the objects.
             /// </summary>
             /// <returns></returns>
             protected override int[] GetObjects()
             {
                 var objects = new int[Positions.Count];
-                for (var i = 0; i < Positions.Count; ++i)
-                {
-                    objects[i] = i;
-                }
+                for (var i = 0; i < Positions.Count; ++i) objects[i] = i;
                 return objects;
             }
 
-            #region Temp Variables for hittest
-            private bool needRecalculate = true;
-            private Matrix smvpm;
-            #endregion
-            public override bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix, ref List<HitTestResult> hits, float hitThickness)
+            public override bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
+                ref List<HitTestResult> hits, float hitThickness)
             {
                 needRecalculate = true;
                 return base.HitTest(context, model, geometry, modelMatrix, ref hits, hitThickness);
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="octant"></param>
             /// <param name="context"></param>
@@ -102,24 +93,19 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="isIntersect"></param>
             /// <param name="hitThickness"></param>
             /// <returns></returns>
-            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context, object model,
+            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context,
+                object model,
                 Geometry3D geometry, Matrix modelMatrix, ref Ray rayModel, bool returnMultiple,
                 ref List<HitTestResult> hits, ref bool isIntersect, float hitThickness)
             {
                 isIntersect = false;
-                if (!octant.IsBuilt || context == null)
-                {
-                    return false;
-                }
+                if (!octant.IsBuilt || context == null) return false;
                 var isHit = false;
                 var bound = octant.Bound;
                 if (rayModel.Intersects(ref bound))
                 {
                     isIntersect = true;
-                    if (octant.Count == 0)
-                    {
-                        return false;
-                    }
+                    if (octant.Count == 0) return false;
                     var result = new HitTestResult();
                     result.Distance = double.MaxValue;
                     if (needRecalculate)
@@ -128,6 +114,7 @@ namespace HelixToolkit.SharpDX.Core
                         smvpm = modelMatrix * svpm;
                         needRecalculate = false;
                     }
+
                     var clickPoint = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
                     isIntersect = true;
                     var dist = hitThickness;
@@ -138,10 +125,7 @@ namespace HelixToolkit.SharpDX.Core
                         var p0 = SilkMath.TransformCoordinate(v0, smvpm);
                         var pv = p0 - clickPoint;
                         var d = pv.Length / context.RenderMatrices.DpiScale;
-                        if (returnMultiple)
-                        {
-                            dist = hitThickness;
-                        }
+                        if (returnMultiple) dist = hitThickness;
                         if (d <= dist) // If d is NaN, the condition is false.
                         {
                             dist = d;
@@ -182,8 +166,8 @@ namespace HelixToolkit.SharpDX.Core
 
                 return isHit;
             }
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="octant"></param>
             /// <param name="context"></param>
@@ -216,6 +200,7 @@ namespace HelixToolkit.SharpDX.Core
                             }
                         }
                     }
+
                     if (isHit)
                     {
                         isHit = false;
@@ -238,8 +223,16 @@ namespace HelixToolkit.SharpDX.Core
                 {
                     isIntersect = false;
                 }
+
                 return isHit;
             }
+
+            #region Temp Variables for hittest
+
+            private bool needRecalculate = true;
+            private Matrix smvpm;
+
+            #endregion
         }
     }
 }

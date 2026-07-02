@@ -3,84 +3,28 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Utilities
     {
-        using Native;
-
         /// <summary>
-        /// 
         /// </summary>
         public class BitmapProxy : DisposeObject, IGUID
         {
-            /// <summary>
-            /// Gets the unique identifier.
-            /// </summary>
-            /// <value>
-            /// The unique identifier.
-            /// </value>
-            public Guid GUID { get; } = Guid.NewGuid();
-            /// <summary>
-            /// Gets the properties.
-            /// </summary>
-            /// <value>
-            /// The properties.
-            /// </value>
-            public D2DBitmapProperties Properties
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Gets the context.
-            /// </summary>
-            /// <value>
-            /// The context.
-            /// </value>
-            public D2DDeviceContext Context
-            {
-                private set; get;
-            }
             private D2DBitmap bitmap;
+
             /// <summary>
-            /// Gets the bitmap.
-            /// </summary>
-            /// <value>
-            /// The bitmap.
-            /// </value>
-            public D2DBitmap Bitmap => bitmap;
-            /// <summary>
-            /// Gets the name.
-            /// </summary>
-            /// <value>
-            /// The name.
-            /// </value>
-            public string Name
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Gets the bitmap size.
-            /// </summary>
-            /// <value>
-            /// The size.
-            /// </value>
-            public Size2 Size
-            {
-                private set; get;
-            }
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BitmapProxy"/> class.
+            ///     Initializes a new instance of the <see cref="BitmapProxy" /> class.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="context">The context.</param>
             /// <param name="size">The size.</param>
             /// <param name="properties">The properties.</param>
             /// <param name="nativeBitmap">Optional native bitmap object.</param>
-            public BitmapProxy(string name, D2DDeviceContext context, Size2 size, D2DBitmapProperties properties, object nativeBitmap = null)
+            public BitmapProxy(string name, D2DDeviceContext context, Size2 size, D2DBitmapProperties properties,
+                object nativeBitmap = null)
             {
                 Properties = properties;
                 Context = context;
@@ -90,7 +34,55 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Creates the description.
+            ///     Gets the properties.
+            /// </summary>
+            /// <value>
+            ///     The properties.
+            /// </value>
+            public D2DBitmapProperties Properties { get; private set; }
+
+            /// <summary>
+            ///     Gets the context.
+            /// </summary>
+            /// <value>
+            ///     The context.
+            /// </value>
+            public D2DDeviceContext Context { get; private set; }
+
+            /// <summary>
+            ///     Gets the bitmap.
+            /// </summary>
+            /// <value>
+            ///     The bitmap.
+            /// </value>
+            public D2DBitmap Bitmap => bitmap;
+
+            /// <summary>
+            ///     Gets the name.
+            /// </summary>
+            /// <value>
+            ///     The name.
+            /// </value>
+            public string Name { get; private set; }
+
+            /// <summary>
+            ///     Gets the bitmap size.
+            /// </summary>
+            /// <value>
+            ///     The size.
+            /// </value>
+            public Size2 Size { get; private set; }
+
+            /// <summary>
+            ///     Gets the unique identifier.
+            /// </summary>
+            /// <value>
+            ///     The unique identifier.
+            /// </value>
+            public Guid GUID { get; } = Guid.NewGuid();
+
+            /// <summary>
+            ///     Creates the description.
             /// </summary>
             /// <param name="dpiX">The dpi x.</param>
             /// <param name="dpiY">The dpi y.</param>
@@ -101,16 +93,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns></returns>
             public static D2DBitmapProperties CreateDescription(float dpiX, float dpiY, Format format,
                 D2DAlphaMode alphaMode = D2DAlphaMode.Premultiplied,
-                D2DBitmapOptions options = D2DBitmapOptions.Target | D2DBitmapOptions.CannotDraw, D2DColorContext colorContext = null)
+                D2DBitmapOptions options = D2DBitmapOptions.Target | D2DBitmapOptions.CannotDraw,
+                D2DColorContext colorContext = null)
             {
                 // Make sure that the texture to create is a render target.
                 options |= D2DBitmapOptions.Target;
-                var description = NewDescription(dpiX, dpiY, new D2DPixelFormat(format, alphaMode), options, colorContext);
+                var description = NewDescription(dpiX, dpiY, new D2DPixelFormat(format, alphaMode), options,
+                    colorContext);
                 return description;
             }
 
             /// <summary>
-            /// News the description.
+            ///     News the description.
             /// </summary>
             /// <param name="dpiX">The dpi x.</param>
             /// <param name="dpiY">The dpi y.</param>
@@ -125,7 +119,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Creates by native surface.
+            ///     Creates by native surface.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="context">The context.</param>
@@ -147,11 +141,13 @@ namespace HelixToolkit.SharpDX.Core
                         description,
                         bitmap);
                 }
-                return new BitmapProxy(name, context, default, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default), surface);
+
+                return new BitmapProxy(name, context, default,
+                    CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default), surface);
             }
 
             /// <summary>
-            /// Creates by size and format.
+            ///     Creates by size and format.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="context">The context.</param>
@@ -160,12 +156,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns></returns>
             public static BitmapProxy Create(string name, D2DDeviceContext context, Size2 size, Format format)
             {
-                return new BitmapProxy(name, context, size, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, format, D2DAlphaMode.Premultiplied, D2DBitmapOptions.Target));
+                return new BitmapProxy(name, context, size,
+                    CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, format,
+                        D2DAlphaMode.Premultiplied, D2DBitmapOptions.Target));
             }
 
             public static BitmapProxy CreateEmpty(string name, D2DDeviceContext context)
             {
-                return new BitmapProxy(name, context, default, CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default));
+                return new BitmapProxy(name, context, default,
+                    CreateDescription(context.DotsPerInch.Width, context.DotsPerInch.Height, default));
             }
 
             protected override void OnDispose(bool disposeManagedResources)

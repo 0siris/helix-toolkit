@@ -4,113 +4,18 @@ Copyright(c) 2018 Helix Toolkit contributors
 */
 
 
-using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
-
         /// <summary>
-        ///
         /// </summary>
         public class NodePostEffectMeshOutlineBlur : SceneNode
         {
-            #region Properties
             /// <summary>
-            /// Gets or sets the name of the effect.
-            /// </summary>
-            /// <value>
-            /// The name of the effect.
-            /// </value>
-            public string EffectName
-            {
-                set
-                {
-                    (RenderCore as IPostEffectOutlineBlur).EffectName = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectOutlineBlur).EffectName;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the color.
-            /// </summary>
-            /// <value>
-            /// The color.
-            /// </value>
-            public Color4 Color
-            {
-                set
-                {
-                    (RenderCore as IPostEffectOutlineBlur).Color = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectOutlineBlur).Color;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the scale x.
-            /// </summary>
-            /// <value>
-            /// The scale x.
-            /// </value>
-            public float ScaleX
-            {
-                set
-                {
-                    (RenderCore as IPostEffectOutlineBlur).ScaleX = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectOutlineBlur).ScaleX;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the scale y.
-            /// </summary>
-            /// <value>
-            /// The scale y.
-            /// </value>
-            public float ScaleY
-            {
-                set
-                {
-                    (RenderCore as IPostEffectOutlineBlur).ScaleY = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectOutlineBlur).ScaleY;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the number of blur pass.
-            /// </summary>
-            /// <value>
-            /// The number of blur pass.
-            /// </value>
-            public int NumberOfBlurPass
-            {
-                set
-                {
-                    (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass = value;
-                }
-                get
-                {
-                    return (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass;
-                }
-            }
-            #endregion
-
-            /// <summary>
-            /// Called when [create render core].
+            ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore()
@@ -128,10 +33,75 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return false;
             }
+
+            #region Properties
+
+            /// <summary>
+            ///     Gets or sets the name of the effect.
+            /// </summary>
+            /// <value>
+            ///     The name of the effect.
+            /// </value>
+            public string EffectName
+            {
+                get => (RenderCore as IPostEffectOutlineBlur).EffectName;
+                set => (RenderCore as IPostEffectOutlineBlur).EffectName = value;
+            }
+
+            /// <summary>
+            ///     Gets or sets the color.
+            /// </summary>
+            /// <value>
+            ///     The color.
+            /// </value>
+            public Color4 Color
+            {
+                get => (RenderCore as IPostEffectOutlineBlur).Color;
+                set => (RenderCore as IPostEffectOutlineBlur).Color = value;
+            }
+
+            /// <summary>
+            ///     Gets or sets the scale x.
+            /// </summary>
+            /// <value>
+            ///     The scale x.
+            /// </value>
+            public float ScaleX
+            {
+                get => (RenderCore as IPostEffectOutlineBlur).ScaleX;
+                set => (RenderCore as IPostEffectOutlineBlur).ScaleX = value;
+            }
+
+            /// <summary>
+            ///     Gets or sets the scale y.
+            /// </summary>
+            /// <value>
+            ///     The scale y.
+            /// </value>
+            public float ScaleY
+            {
+                get => (RenderCore as IPostEffectOutlineBlur).ScaleY;
+                set => (RenderCore as IPostEffectOutlineBlur).ScaleY = value;
+            }
+
+            /// <summary>
+            ///     Gets or sets the number of blur pass.
+            /// </summary>
+            /// <value>
+            ///     The number of blur pass.
+            /// </value>
+            public int NumberOfBlurPass
+            {
+                get => (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass;
+                set => (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass = value;
+            }
+
+            #endregion
         }
     }
 }

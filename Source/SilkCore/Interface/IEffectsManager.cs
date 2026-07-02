@@ -2,257 +2,213 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
 
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+/// <summary>
+/// </summary>
+public interface IDevice2DResources
 {
-    using HelixToolkit.Logger;
-    using ShaderManager;
-    using Shaders;
-    using System;
-    using Render;
-    using Native;
     /// <summary>
-    /// 
+    ///     Gets the factory2 d.
     /// </summary>
-    public interface IDevice2DResources
-    {
-        /// <summary>
-        /// Gets the factory2 d.
-        /// </summary>
-        /// <value>
-        /// The factory2 d.
-        /// </value>
-        D2DFactory Factory2D
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the device2d.
-        /// </summary>
-        /// <value>
-        /// The device2d.
-        /// </value>
-        D2DDevice Device2D
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the device context2d.
-        /// </summary>
-        /// <value>
-        /// The device context2d.
-        /// </value>
-        D2DDeviceContext DeviceContext2D
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the wic img factory.
-        /// </summary>
-        /// <value>
-        /// The wic img factory.
-        /// </value>
-        WICImagingFactory WICImgFactory
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the direct write factory.
-        /// </summary>
-        /// <value>
-        /// The direct write factory.
-        /// </value>
-        DirectWriteFactory DirectWriteFactory
-        {
-            get;
-        }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IDevice3DResources
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        int AdapterIndex
-        {
-            get;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        SilkD3DDevice Device
-        {
-            get;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        DriverType DriverType
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the native Silk.NET device resources used by the DirectX backend.
-        /// </summary>
-        INativeDeviceResources NativeDeviceResources
-        {
-            get;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        IStatePoolManager StateManager
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the geometry buffer manager.
-        /// </summary>
-        /// <value>
-        /// The geometry buffer manager.
-        /// </value>
-        IGeometryBufferManager GeometryBufferManager
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the material texture manager.
-        /// </summary>
-        /// <value>
-        /// The material texture manager.
-        /// </value>
-        ITextureResourceManager MaterialTextureManager
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the material variable manager.
-        /// </summary>
-        /// <value>
-        /// The material variable manager.
-        /// </value>
-        IMaterialVariablePool MaterialVariableManager
-        {
-            get;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        IConstantBufferPool ConstantBufferPool
-        {
-            get;
-        }
-        /// <summary>
-        /// Gets the device context pool.
-        /// </summary>
-        /// <value>
-        /// The device context pool.
-        /// </value>
-        IDeviceContextPool DeviceContextPool
-        {
-            get;
-        }
-    }
+    /// <value>
+    ///     The factory2 d.
+    /// </value>
+    D2DFactory Factory2D { get; }
 
     /// <summary>
-    /// 
+    ///     Gets the device2d.
     /// </summary>
-    public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDisposable
-    {
-        /// <summary>
-        /// Occurs when [on dispose resources].
-        /// </summary>
-        event EventHandler<EventArgs> DisposingResources;
-        /// <summary>
-        /// Occurs when [device created].
-        /// </summary>
-        event EventHandler<EventArgs> Reinitialized;
-    }
+    /// <value>
+    ///     The device2d.
+    /// </value>
+    D2DDevice Device2D { get; }
+
     /// <summary>
-    /// 
+    ///     Gets the device context2d.
     /// </summary>
-    public interface IEffectsManager : IDeviceResources
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        IShaderPoolManager ShaderManager
-        {
-            get;
-        }
+    /// <value>
+    ///     The device context2d.
+    /// </value>
+    D2DDeviceContext DeviceContext2D { get; }
 
-        IStructArrayPool StructArrayPool
-        {
-            get;
-        }
-        /// <summary>
-        /// Get list of existing technique names
-        /// </summary>
-        IEnumerable<string> RenderTechniques
-        {
-            get;
-        }
+    /// <summary>
+    ///     Gets the wic img factory.
+    /// </summary>
+    /// <value>
+    ///     The wic img factory.
+    /// </value>
+    WICImagingFactory WICImgFactory { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        IRenderTechnique GetTechnique(string name);
+    /// <summary>
+    ///     Gets the direct write factory.
+    /// </summary>
+    /// <value>
+    ///     The direct write factory.
+    /// </value>
+    DirectWriteFactory DirectWriteFactory { get; }
+}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        IRenderTechnique this[string name] { get; }
-        /// <summary>
-        /// Reinitializes all resources after calling <see cref="DisposeAllResources"/>.
-        /// </summary>
-        void Reinitialize();
-        /// <summary>
-        /// Disposes all resources. This is used to handle such as DeviceLost or DeviceRemoved Error
-        /// </summary>
-        void DisposeAllResources();
-        /// <summary>
-        /// Add a technique by description
-        /// </summary>
-        /// <param name="description"></param>
-        void AddTechnique(TechniqueDescription description);
-        /// <summary>
-        /// Remove a technique by its name.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        bool RemoveTechnique(string name);
-        /// <summary>
-        /// Removes all techniques.
-        /// </summary>
-        void RemoveAllTechniques();
-        /// <summary>
-        /// Determines whether the specified name has technique.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified name has technique; otherwise, <c>false</c>.
-        /// </returns>
-        bool HasTechnique(string name);
-        /// <summary>
-        /// Occurs when [on invalidate renderer].
-        /// </summary>
-        event EventHandler<EventArgs> InvalidateRender;
-        /// <summary>
-        /// Invalidates the renderer.
-        /// </summary>
-        void RaiseInvalidateRender();
-        /// <summary>
-        /// Outputs the resource count summary.
-        /// </summary>
-        /// <returns></returns>
-        string GetResourceCountSummary();
-    }
+/// <summary>
+/// </summary>
+public interface IDevice3DResources
+{
+    /// <summary>
+    /// </summary>
+    int AdapterIndex { get; }
+
+    /// <summary>
+    /// </summary>
+    SilkD3DDevice Device { get; }
+
+    /// <summary>
+    /// </summary>
+    DriverType DriverType { get; }
+
+    /// <summary>
+    ///     Gets the native Silk.NET device resources used by the DirectX backend.
+    /// </summary>
+    INativeDeviceResources NativeDeviceResources { get; }
+
+    /// <summary>
+    /// </summary>
+    IStatePoolManager StateManager { get; }
+
+    /// <summary>
+    ///     Gets the geometry buffer manager.
+    /// </summary>
+    /// <value>
+    ///     The geometry buffer manager.
+    /// </value>
+    IGeometryBufferManager GeometryBufferManager { get; }
+
+    /// <summary>
+    ///     Gets the material texture manager.
+    /// </summary>
+    /// <value>
+    ///     The material texture manager.
+    /// </value>
+    ITextureResourceManager MaterialTextureManager { get; }
+
+    /// <summary>
+    ///     Gets the material variable manager.
+    /// </summary>
+    /// <value>
+    ///     The material variable manager.
+    /// </value>
+    IMaterialVariablePool MaterialVariableManager { get; }
+
+    /// <summary>
+    /// </summary>
+    IConstantBufferPool ConstantBufferPool { get; }
+
+    /// <summary>
+    ///     Gets the device context pool.
+    /// </summary>
+    /// <value>
+    ///     The device context pool.
+    /// </value>
+    IDeviceContextPool DeviceContextPool { get; }
+}
+
+/// <summary>
+/// </summary>
+public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDisposable
+{
+    /// <summary>
+    ///     Occurs when [on dispose resources].
+    /// </summary>
+    event EventHandler<EventArgs> DisposingResources;
+
+    /// <summary>
+    ///     Occurs when [device created].
+    /// </summary>
+    event EventHandler<EventArgs> Reinitialized;
+}
+
+/// <summary>
+/// </summary>
+public interface IEffectsManager : IDeviceResources
+{
+    /// <summary>
+    /// </summary>
+    IShaderPoolManager ShaderManager { get; }
+
+    IStructArrayPool StructArrayPool { get; }
+
+    /// <summary>
+    ///     Get list of existing technique names
+    /// </summary>
+    IEnumerable<string> RenderTechniques { get; }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    IRenderTechnique this[string name] { get; }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    IRenderTechnique GetTechnique(string name);
+
+    /// <summary>
+    ///     Reinitializes all resources after calling <see cref="DisposeAllResources" />.
+    /// </summary>
+    void Reinitialize();
+
+    /// <summary>
+    ///     Disposes all resources. This is used to handle such as DeviceLost or DeviceRemoved Error
+    /// </summary>
+    void DisposeAllResources();
+
+    /// <summary>
+    ///     Add a technique by description
+    /// </summary>
+    /// <param name="description"></param>
+    void AddTechnique(TechniqueDescription description);
+
+    /// <summary>
+    ///     Remove a technique by its name.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    bool RemoveTechnique(string name);
+
+    /// <summary>
+    ///     Removes all techniques.
+    /// </summary>
+    void RemoveAllTechniques();
+
+    /// <summary>
+    ///     Determines whether the specified name has technique.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>
+    ///     <c>true</c> if the specified name has technique; otherwise, <c>false</c>.
+    /// </returns>
+    bool HasTechnique(string name);
+
+    /// <summary>
+    ///     Occurs when [on invalidate renderer].
+    /// </summary>
+    event EventHandler<EventArgs> InvalidateRender;
+
+    /// <summary>
+    ///     Invalidates the renderer.
+    /// </summary>
+    void RaiseInvalidateRender();
+
+    /// <summary>
+    ///     Outputs the resource count summary.
+    /// </summary>
+    /// <returns></returns>
+    string GetResourceCountSummary();
 }

@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Linq;
-
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene2D
@@ -15,27 +13,19 @@ namespace HelixToolkit.SharpDX.Core
             {
                 hitResult = null;
                 if (LayoutBoundWithTransform.Contains(mousePoint))
-                {
                     foreach (var item in Items.Reverse())
-                    {
                         if (item.HitTest(mousePoint, out hitResult))
-                        {
                             return true;
-                        }
-                    }
-                }
+
                 return false;
             }
 
             protected override Size2F MeasureOverride(Size2F availableSize)
             {
                 foreach (var item in Items)
-                {
                     if (item is SceneNode2D e)
-                    {
                         e.Measure(availableSize);
-                    }
-                }
+
                 return availableSize;
             }
         }

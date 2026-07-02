@@ -8,46 +8,39 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace HelixToolkit.SharpDX.Core {
-    using Int32Collection = System.Collections.Generic.List<int>;
-    using PointCollection = System.Collections.Generic.List<Silk.NET.Maths.Vector2D<float>>;
+namespace HelixToolkit.SharpDX.Core;
 
+using Int32Collection = List<int>;
+using PointCollection = List<Vector2>;
+
+/// <summary>
+///     Represents a 2D polygon.
+/// </summary>
+public class Polygon
+{
+    // http://softsurfer.com/Archive/algorithm_0101/algorithm_0101.htm
+    /// <summary>
+    ///     The points.
+    /// </summary>
+    internal PointCollection points;
 
     /// <summary>
-    /// Represents a 2D polygon.
+    ///     Gets or sets the points.
     /// </summary>
-    public class Polygon
+    /// <value>The points.</value>
+    public PointCollection Points
     {
-        // http://softsurfer.com/Archive/algorithm_0101/algorithm_0101.htm
-        /// <summary>
-        /// The points.
-        /// </summary>
-        internal PointCollection points;
+        get => points ?? (points = new PointCollection());
 
-        /// <summary>
-        /// Gets or sets the points.
-        /// </summary>
-        /// <value>The points.</value>
-        public PointCollection Points
-        {
-            get
-            {
-                return this.points ?? (this.points = new PointCollection());
-            }
+        set => points = value;
+    }
 
-            set
-            {
-                this.points = value;
-            }
-        }
-
-        /// <summary>
-        /// Triangulate the polygon by using the sweep line algorithm
-        /// </summary>
-        /// <returns>An index collection.</returns>
-        public Int32Collection Triangulate()
-        {
-            return SweepLinePolygonTriangulator.Triangulate(this.points);
-        }
+    /// <summary>
+    ///     Triangulate the polygon by using the sweep line algorithm
+    /// </summary>
+    /// <returns>An index collection.</returns>
+    public Int32Collection Triangulate()
+    {
+        return SweepLinePolygonTriangulator.Triangulate(points);
     }
 }

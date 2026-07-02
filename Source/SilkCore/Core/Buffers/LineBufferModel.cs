@@ -3,16 +3,15 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Utilities;
         /// <summary>
-        /// Line Geometry Buffer Model. Used for line rendering
+        ///     Line Geometry Buffer Model. Used for line rendering
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class LineGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct
@@ -21,93 +20,109 @@ namespace HelixToolkit.SharpDX.Core
             protected static readonly int[] emptyIndices = new int[0];
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="structSize">Size of the structure.</param>
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(int structSize, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                dynamic ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer) : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer) as IElementsBufferProxy,
-                dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    dynamic
+                        ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                        : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
-            /// <param name="dynamic">Create dynamic buffer or immutable buffer</param> 
+            /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(IElementsBufferProxy vertexBuffer, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                vertexBuffer,
-                dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    vertexBuffer,
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
-            /// <param name="dynamic">Create dynamic buffer or immutable buffer</param> 
+            /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(IElementsBufferProxy[] vertexBuffer, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                vertexBuffer,
-                dynamic ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer) : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer) as IElementsBufferProxy)
+                    vertexBuffer,
+                    dynamic
+                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
             {
             }
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
             /// <param name="indexBuffer"></param>
             public LineGeometryBufferModel(IElementsBufferProxy vertexBuffer, IElementsBufferProxy indexBuffer)
                 : base(PrimitiveTopology.LineList,
-                vertexBuffer, indexBuffer)
+                    vertexBuffer, indexBuffer)
             {
             }
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}"/> class.
+            ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
             /// </summary>
             /// <param name="vertexBuffer"></param>
             /// <param name="indexBuffer"></param>
             public LineGeometryBufferModel(IElementsBufferProxy[] vertexBuffer, IElementsBufferProxy indexBuffer)
                 : base(PrimitiveTopology.LineList,
-                vertexBuffer, indexBuffer)
+                    vertexBuffer, indexBuffer)
             {
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVertex>
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel" /> class.
             /// </summary>
-            public DefaultLineGeometryBufferModel() : base(LinesVertex.SizeInBytes) { }
-            /// <summary>
-            /// Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel"/> class.
-            /// </summary>
-            /// <param name="isDynamic"></param>
-            public DefaultLineGeometryBufferModel(bool isDynamic) : base(LinesVertex.SizeInBytes, isDynamic) { }
+            public DefaultLineGeometryBufferModel() : base(LinesVertex.SizeInBytes)
+            {
+            }
 
             /// <summary>
-            /// Called when [create vertex buffer].
+            ///     Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel" /> class.
+            /// </summary>
+            /// <param name="isDynamic"></param>
+            public DefaultLineGeometryBufferModel(bool isDynamic) : base(LinesVertex.SizeInBytes, isDynamic)
+            {
+            }
+
+            /// <summary>
+            ///     Called when [create vertex buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
             /// <param name="bufferIndex"></param>
-            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
             {
                 // -- set geometry if given
                 if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
                 {
                     // --- get geometry
                     var data = OnBuildVertexArray(geometry);
-                    buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0, geometry.PreDefinedVertexCount);
+                    buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0,
+                        geometry.PreDefinedVertexCount);
                 }
                 else
                 {
@@ -118,28 +133,29 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex)
             {
-                return base.IsVertexBufferChanged(propertyName, vertexBufferIndex) || propertyName.Equals(nameof(Geometry3D.Colors));
+                return base.IsVertexBufferChanged(propertyName, vertexBufferIndex) ||
+                       propertyName.Equals(nameof(Geometry3D.Colors));
             }
+
             /// <summary>
-            /// Called when [create index buffer].
+            ///     Called when [create index buffer].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer, Geometry3D geometry, IDeviceResources deviceResources)
+            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
+                Geometry3D geometry, IDeviceResources deviceResources)
             {
                 if (geometry != null && geometry.Indices != null && geometry.Indices.Count > 0)
-                {
-                    buffer.UploadDataToBuffer(context, geometry.Indices, geometry.Indices.Count, 0, geometry.PreDefinedIndexCount);
-                }
+                    buffer.UploadDataToBuffer(context, geometry.Indices, geometry.Indices.Count, 0,
+                        geometry.PreDefinedIndexCount);
                 else
-                {
                     buffer.UploadDataToBuffer(context, emptyIndices, 0);
-                }
             }
+
             /// <summary>
-            /// Called when [build vertex array].
+            ///     Called when [build vertex array].
             /// </summary>
             /// <param name="geometry">The geometry.</param>
             /// <returns></returns>
@@ -148,7 +164,9 @@ namespace HelixToolkit.SharpDX.Core
                 var positions = geometry.Positions;
                 var vertexCount = geometry.Positions.Count;
                 var array = ThreadBufferManager<LinesVertex>.GetBuffer(vertexCount);
-                var colors = geometry.Colors != null ? geometry.Colors.GetEnumerator() : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
+                var colors = geometry.Colors != null
+                    ? geometry.Colors.GetEnumerator()
+                    : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
 
                 for (var i = 0; i < vertexCount; i++)
                 {
@@ -156,20 +174,22 @@ namespace HelixToolkit.SharpDX.Core
                     array[i].Position = new Vector4(positions[i], 1f);
                     array[i].Color = colors.Current;
                 }
+
                 colors.Dispose();
                 return array;
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public sealed class DynamicLineGeometryBufferModel : DefaultLineGeometryBufferModel
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="DynamicLineGeometryBufferModel"/> class.
+            ///     Initializes a new instance of the <see cref="DynamicLineGeometryBufferModel" /> class.
             /// </summary>
-            public DynamicLineGeometryBufferModel() : base(true) { }
+            public DynamicLineGeometryBufferModel() : base(true)
+            {
+            }
         }
     }
 }

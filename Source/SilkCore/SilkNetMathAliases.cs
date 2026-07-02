@@ -6,7 +6,7 @@ global using Format = Silk.NET.DXGI.Format;
 global using Int3 = Silk.NET.Maths.Vector3D<int>;
 global using Int4 = Silk.NET.Maths.Vector4D<int>;
 global using Matrix = Silk.NET.Maths.Matrix4X4<float>;
-global using PointerSize = System.IntPtr;
+global using PointerSize = nint;
 global using Quaternion = Silk.NET.Maths.Quaternion<float>;
 global using Vector2 = Silk.NET.Maths.Vector2D<float>;
 global using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -50,6 +50,7 @@ global using DataBox = HelixToolkit.SharpDX.Core.DataBox;
 global using ResourceOptionFlags = HelixToolkit.SharpDX.Core.ResourceOptionFlags;
 global using ResourceUsage = HelixToolkit.SharpDX.Core.ResourceUsage;
 global using SampleDescription = HelixToolkit.SharpDX.Core.SampleDescription;
+
 #else
 global using BoundingBox = HelixToolkit.UWP.BoundingBox;
 global using BoundingFrustum = HelixToolkit.UWP.BoundingFrustum;

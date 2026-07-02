@@ -2,40 +2,34 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System;
+
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+public sealed class StreamToTextureModelConverter : TypeConverter
 {
-    public sealed class StreamToTextureModelConverter : TypeConverter
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(Stream);
-        }
+        return sourceType == typeof(Stream);
+    }
 
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            return destinationType == typeof(TextureModel);
-        }
+    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+    {
+        return destinationType == typeof(TextureModel);
+    }
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            if (value is Stream st)
-            {
-                return new TextureModel(st);
-            }
-            else
-            {
-                return null;
-            }
-        }
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is Stream st) return new TextureModel(st);
 
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-        {
-            return null;
-        }
+        return null;
+    }
+
+    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+        Type destinationType)
+    {
+        return null;
     }
 }

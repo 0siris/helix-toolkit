@@ -1,21 +1,19 @@
-using System;
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Native;
-
         public sealed class InputLayoutProxy : DisposeObject
         {
-            private Native.InputLayout layout;
-
-            internal Native.InputLayout Layout => layout;
+            private InputLayout layout;
 
             internal InputLayoutProxy(SilkD3DDevice device, byte[] vertexShaderByteCode, InputElement[] elements)
             {
                 layout = device.CreateInputLayout(vertexShaderByteCode, elements);
             }
+
+            internal InputLayout Layout => layout;
 
             protected override void OnDispose(bool disposeManagedResources)
             {

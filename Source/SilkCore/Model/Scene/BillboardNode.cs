@@ -3,22 +3,18 @@ The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
 
-using System;
-using System.Collections.Generic;
-
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
         /// <summary>
-        /// 
         /// </summary>
         public class BillboardNode : MaterialGeometryNode
         {
             /// <summary>
-            /// Called when [create render core].
+            ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore()
@@ -27,19 +23,17 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Called when [create buffer model].
+            ///     Called when [create buffer model].
             /// </summary>
             /// <param name="modelGuid"></param>
             /// <param name="geometry"></param>
             /// <returns></returns>
             protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry)
             {
-                var buffer = geometry != null && geometry.IsDynamic ? EffectsManager.GeometryBufferManager.Register<DynamicBillboardBufferModel>(modelGuid, geometry)
+                var buffer = geometry != null && geometry.IsDynamic
+                    ? EffectsManager.GeometryBufferManager.Register<DynamicBillboardBufferModel>(modelGuid, geometry)
                     : EffectsManager.GeometryBufferManager.Register<DefaultBillboardBufferModel>(modelGuid, geometry);
-                if (geometry is IBillboardText b && Material is IBillboardRenderParams m)
-                {
-                    m.Type = b.Type;
-                }
+                if (geometry is IBillboardText b && Material is IBillboardRenderParams m) m.Type = b.Type;
                 return buffer;
             }
 
@@ -50,19 +44,14 @@ namespace HelixToolkit.SharpDX.Core
 
             public override bool TestViewFrustum(ref BoundingFrustum viewFrustum)
             {
-                if (!EnableViewFrustumCheck)
-                {
-                    return true;
-                }
-                if (Geometry is IBillboardText billboard && !billboard.IsInitialized)
-                {
-                    return true;
-                }
-                return BoundingFrustumExtensions.Intersects(ref viewFrustum, ref BoundManager.BoundsSphereWithTransform);// viewFrustum.Intersects(ref sphere);
+                if (!EnableViewFrustumCheck) return true;
+                if (Geometry is IBillboardText billboard && !billboard.IsInitialized) return true;
+                return BoundingFrustumExtensions.Intersects(ref viewFrustum,
+                    ref BoundManager.BoundsSphereWithTransform); // viewFrustum.Intersects(ref sphere);
             }
 
             /// <summary>
-            /// Called when [check geometry].
+            ///     Called when [check geometry].
             /// </summary>
             /// <param name="geometry">The geometry.</param>
             /// <returns></returns>
@@ -70,45 +59,44 @@ namespace HelixToolkit.SharpDX.Core
             {
                 return geometry is IBillboardText;
             }
+
             /// <summary>
-            /// Create raster state description.
+            ///     Create raster state description.
             /// </summary>
             /// <returns></returns>
             protected override RasterizerStateDescription CreateRasterState()
             {
-                return new RasterizerStateDescription()
+                return new RasterizerStateDescription
                 {
                     FillMode = FillMode.Solid,
                     CullMode = CullMode.None,
                     DepthBias = DepthBias,
                     DepthBiasClamp = -1000,
-                    SlopeScaledDepthBias = (float)SlopeScaledDepthBias,
+                    SlopeScaledDepthBias = SlopeScaledDepthBias,
                     IsDepthClipEnabled = true,
                     IsFrontCounterClockwise = false,
 
                     IsMultisampleEnabled = false,
                     //IsAntialiasedLineEnabled = true,                    
-                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled,
+                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled
                 };
             }
 
             /// <summary>
-            /// Called when [hit test].
+            ///     Called when [hit test].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="totalModelMatrix">The total model matrix.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 if (Material is BillboardMaterialCore c)
-                {
-                    return (Geometry as BillboardBase).HitTest(context, totalModelMatrix, ref hits, this.WrapperSource, c.FixedSize);
-                }
-                else
-                {
-                    return false;
-                }
+                    return (Geometry as BillboardBase).HitTest(context, totalModelMatrix, ref hits, WrapperSource,
+                        c.FixedSize);
+
+                return false;
             }
 
             protected override bool PreHitTestOnBounds(HitTestContext context)

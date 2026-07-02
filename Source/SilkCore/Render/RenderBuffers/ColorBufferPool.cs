@@ -1,118 +1,22 @@
 ﻿using System.Collections.Concurrent;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public sealed class PingPongColorBuffers : DisposeObject
         {
-            static readonly ILogger logger = Logger.LogManager.Create<PingPongColorBuffers>();
-            /// <summary>
-            /// Gets the current ShaderResourceViewProxy.
-            /// </summary>
-            /// <value>
-            /// The current SRV.
-            /// </value>
-            public ShaderResourceViewProxy CurrentSRV
-            {
-                get
-                {
-                    return textures[0];
-                }
-            }
-
-            /// <summary>
-            /// Gets the next SRV.
-            /// </summary>
-            /// <value>
-            /// The next SRV.
-            /// </value>
-            public ShaderResourceViewProxy NextSRV
-            {
-                get
-                {
-                    return textures[1];
-                }
-            }
-
-            public int Width
-            {
-                get
-                {
-                    return texture2DDesc.Width;
-                }
-            }
-
-            public int Height
-            {
-                get
-                {
-                    return texture2DDesc.Height;
-                }
-            }
-
-            /// <summary>
-            /// Gets the current RenderTargetView.
-            /// </summary>
-            /// <value>
-            /// The current RTV.
-            /// </value>
-            public ShaderResourceViewProxy CurrentRTV
-            {
-                get
-                {
-                    return textures[0];
-                }
-            }
-
-            /// <summary>
-            /// Gets the next RTV.
-            /// </summary>
-            /// <value>
-            /// The next RTV.
-            /// </value>
-            public ShaderResourceViewProxy NextRTV
-            {
-                get
-                {
-                    return textures[1];
-                }
-            }
-
-            public Resource CurrentTexture
-            {
-                get
-                {
-                    return textures[0].Resource;
-                }
-            }
-            #region Texture Resources
-
-            private const int NumPingPongBlurBuffer = 2;
-
-            private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[NumPingPongBlurBuffer];
-
-            private Texture2DDescription texture2DDesc = new Texture2DDescription()
-            {
-                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                CpuAccessFlags = CpuAccessFlags.None,
-                Usage = ResourceUsage.Default,
-                ArraySize = 1,
-                MipLevels = 1,
-                OptionFlags = ResourceOptionFlags.None,
-                SampleDescription = new SampleDescription(1, 0)
-            };
-
-            #endregion Texture Resources
+            private static readonly ILogger logger = LogManager.Create<PingPongColorBuffers>();
             private readonly IDevice3DResources deviceResources;
-            public bool Initialized { private set; get; } = false;
-            private readonly object lockObj = new object();
+            private readonly object lockObj = new();
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="PingPongColorBuffers"/> class.
+            ///     Initializes a new instance of the <see cref="PingPongColorBuffers" /> class.
             /// </summary>
             /// <param name="textureFormat">The texture format.</param>
             /// <param name="width">The width.</param>
@@ -127,28 +31,65 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Initializes this instance.
+            ///     Gets the current ShaderResourceViewProxy.
+            /// </summary>
+            /// <value>
+            ///     The current SRV.
+            /// </value>
+            public ShaderResourceViewProxy CurrentSRV => textures[0];
+
+            /// <summary>
+            ///     Gets the next SRV.
+            /// </summary>
+            /// <value>
+            ///     The next SRV.
+            /// </value>
+            public ShaderResourceViewProxy NextSRV => textures[1];
+
+            public int Width => texture2DDesc.Width;
+
+            public int Height => texture2DDesc.Height;
+
+            /// <summary>
+            ///     Gets the current RenderTargetView.
+            /// </summary>
+            /// <value>
+            ///     The current RTV.
+            /// </value>
+            public ShaderResourceViewProxy CurrentRTV => textures[0];
+
+            /// <summary>
+            ///     Gets the next RTV.
+            /// </summary>
+            /// <value>
+            ///     The next RTV.
+            /// </value>
+            public ShaderResourceViewProxy NextRTV => textures[1];
+
+            public Resource CurrentTexture => textures[0].Resource;
+            public bool Initialized { get; private set; }
+
+            /// <summary>
+            ///     Initializes this instance.
             /// </summary>
             public void Initialize()
             {
                 lock (lockObj)
                 {
-                    if (Initialized)
-                    {
-                        return;
-                    }
+                    if (Initialized) return;
                     for (var i = 0; i < NumPingPongBlurBuffer; ++i)
                     {
                         textures[i] = new ShaderResourceViewProxy(deviceResources, texture2DDesc);
                         textures[i].CreateRenderTargetView();
                         textures[i].CreateTextureView();
                     }
+
                     Initialized = true;
                 }
             }
 
             /// <summary>
-            /// Swaps the targets.
+            ///     Swaps the targets.
             /// </summary>
             public void SwapTargets()
             {
@@ -163,123 +104,120 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override void OnDispose(bool disposeManagedResources)
             {
-                for (var i = 0; i < NumPingPongBlurBuffer; ++i)
-                {
-                    RemoveAndDispose(ref textures[i]);
-                }
+                for (var i = 0; i < NumPingPongBlurBuffer; ++i) RemoveAndDispose(ref textures[i]);
                 base.OnDispose(disposeManagedResources);
             }
+
+            #region Texture Resources
+
+            private const int NumPingPongBlurBuffer = 2;
+
+            private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[NumPingPongBlurBuffer];
+
+            private readonly Texture2DDescription texture2DDesc = new()
+            {
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                ArraySize = 1,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            };
+
+            #endregion Texture Resources
         }
 
 
         public sealed class TexturePool : DisposeObject
         {
-            private static readonly ILogger logger = Logger.LogManager.Create<TexturePool>();
-            private sealed class PooledShaderResourceViewProxy : ShaderResourceViewProxy
-            {
-                private readonly ConcurrentBag<ShaderResourceViewProxy> pool;
-
-                public PooledShaderResourceViewProxy(IDevice3DResources deviceResources, Texture2DDescription textureDesc, ConcurrentBag<ShaderResourceViewProxy> pool)
-                    : base(deviceResources, textureDesc)
-                {
-                    this.pool = pool;
-                    AddBackToPool = (o) => { pool.Add(this); };
-                }
-            }
-
-            private readonly ConcurrentDictionary<Format, ConcurrentBag<ShaderResourceViewProxy>> pool = new ConcurrentDictionary<Format, ConcurrentBag<ShaderResourceViewProxy>>();
+            private static readonly ILogger logger = LogManager.Create<TexturePool>();
+            private readonly Texture2DDescription description;
             private readonly IDevice3DResources deviceResourse;
-            private Texture2DDescription description;
-            public int Width
-            {
-                get => description.Width;
-            }
-            public int Height
-            {
-                get => description.Height;
-            }
+
+            private readonly ConcurrentDictionary<Format, ConcurrentBag<ShaderResourceViewProxy>> pool = new();
 
             public TexturePool(IDevice3DResources deviceResourse, Texture2DDescription desc)
             {
                 this.deviceResourse = deviceResourse;
                 description = desc;
             }
+
+            public int Width => description.Width;
+
+            public int Height => description.Height;
+
             /// <summary>
-            /// Gets the off screen texture with specified format. After using it, make sure to call Dispose() to return it back into the pool.
+            ///     Gets the off screen texture with specified format. After using it, make sure to call Dispose() to return it back
+            ///     into the pool.
             /// </summary>
             /// <param name="format">The format.</param>
             /// <returns></returns>
             public ShaderResourceViewProxy Get(Format format)
             {
-                if (IsDisposed)
-                {
-                    return ShaderResourceViewProxy.Empty;
-                }
+                if (IsDisposed) return ShaderResourceViewProxy.Empty;
                 if (pool.TryGetValue(format, out var bag) && bag.TryTake(out var proxy) && !proxy.IsDisposed)
                 {
                     proxy.IncRef();
                     return proxy;
                 }
-                else
-                {
-                    bag ??= pool.GetOrAdd(format, new System.Func<Format, ConcurrentBag<ShaderResourceViewProxy>>((d) =>
-                    {
-                        return new ConcurrentBag<ShaderResourceViewProxy>();
-                    }));
-                    var desc = description;
-                    desc.Format = format;
-                    ShaderResourceViewProxy texture = null;
 
-                    if ((desc.BindFlags & BindFlags.RenderTarget) != 0)
-                    {
-                        texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
-                        texture.CreateRenderTargetView();
-                        if ((desc.BindFlags & BindFlags.ShaderResource) != 0)
-                        {
-                            texture.CreateTextureView();
-                        }
-                    }
-                    else if ((desc.BindFlags & BindFlags.DepthStencil) != 0)
-                    {
-                        desc.Format = DepthStencilFormatHelper.ComputeTextureFormat(format, out var canUseAsShaderResource);
-                        if (canUseAsShaderResource)
-                        {
-                            desc.BindFlags |= BindFlags.ShaderResource;
-                        }
-                        texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
-                        texture.CreateView(new DepthStencilViewDescription() { Format = DepthStencilFormatHelper.ComputeDSVFormat(format),
-                            Dimension = DepthStencilViewDimension.Texture2D });
-                        if (canUseAsShaderResource)
-                        {
-                            texture.CreateView(new ShaderResourceViewDescription()
-                            {
-                                Format = DepthStencilFormatHelper.ComputeSRVFormat(format),
-                                Dimension = ShaderResourceViewDimension.Texture2D,
-                                Texture2D = new ShaderResourceViewDescription.Texture2DResource() { MipLevels = desc.MipLevels }
-                            });
-                        }
-                    }
-                    if (logger.IsEnabled(LogLevel.Trace))
-                    {
-                        logger.LogTrace("Create New Full Screen Texture");
-                    }
-                    texture.IncRef();
-                    return texture;
+                bag ??= pool.GetOrAdd(format, d => { return new ConcurrentBag<ShaderResourceViewProxy>(); });
+                var desc = description;
+                desc.Format = format;
+                ShaderResourceViewProxy texture = null;
+
+                if ((desc.BindFlags & BindFlags.RenderTarget) != 0)
+                {
+                    texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
+                    texture.CreateRenderTargetView();
+                    if ((desc.BindFlags & BindFlags.ShaderResource) != 0) texture.CreateTextureView();
                 }
+                else if ((desc.BindFlags & BindFlags.DepthStencil) != 0)
+                {
+                    desc.Format = format.ComputeTextureFormat(out var canUseAsShaderResource);
+                    if (canUseAsShaderResource) desc.BindFlags |= BindFlags.ShaderResource;
+                    texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
+                    texture.CreateView(new DepthStencilViewDescription
+                    {
+                        Format = format.ComputeDSVFormat(),
+                        Dimension = DepthStencilViewDimension.Texture2D
+                    });
+                    if (canUseAsShaderResource)
+                        texture.CreateView(new ShaderResourceViewDescription
+                        {
+                            Format = format.ComputeSRVFormat(),
+                            Dimension = ShaderResourceViewDimension.Texture2D,
+                            Texture2D = new ShaderResourceViewDescription.Texture2DResource {MipLevels = desc.MipLevels}
+                        });
+                }
+
+                if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Create New Full Screen Texture");
+                texture.IncRef();
+                return texture;
             }
 
             protected override void OnDispose(bool disposeManagedResources)
             {
                 foreach (var bag in pool.Values)
-                {
                     while (bag.TryTake(out var proxy))
-                    {
                         proxy.Dispose(); // Set flag to false so it can be disposed
-                        continue;
-                    }
-                }
+
                 pool.Clear();
                 base.OnDispose(disposeManagedResources);
+            }
+
+            private sealed class PooledShaderResourceViewProxy : ShaderResourceViewProxy
+            {
+                private readonly ConcurrentBag<ShaderResourceViewProxy> pool;
+
+                public PooledShaderResourceViewProxy(IDevice3DResources deviceResources,
+                    Texture2DDescription textureDesc, ConcurrentBag<ShaderResourceViewProxy> pool)
+                    : base(deviceResources, textureDesc)
+                {
+                    this.pool = pool;
+                    AddBackToPool = o => { pool.Add(this); };
+                }
             }
         }
     }

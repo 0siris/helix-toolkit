@@ -4,14 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core;
+
+public interface IHitable2D
 {
-    public interface IHitable2D
-    {
-        bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult);
-        bool IsHitTestVisible
-        {
-            set; get;
-        }
-    }
+    bool IsHitTestVisible { get; set; }
+
+    bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult);
 }

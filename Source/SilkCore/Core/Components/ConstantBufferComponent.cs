@@ -4,44 +4,39 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core.Components
     {
-        using Render;
-        using Shaders;
-        using System;
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public sealed class ConstantBufferComponent : CoreComponent
         {
-            static readonly ILogger logger = Logger.LogManager.Create<ConstantBufferComponent>();
-            private ConstantBufferProxy modelConstBuffer;
-            /// <summary>
-            /// Gets or sets the model constant buffer.
-            /// </summary>
-            /// <value>
-            /// The model constant buffer.
-            /// </value>
-            public ConstantBufferProxy ModelConstBuffer => modelConstBuffer;
+            private static readonly ILogger logger = LogManager.Create<ConstantBufferComponent>();
             private readonly ConstantBufferDescription bufferDesc;
-            private int storageId = -1;
+            private readonly object lck = new();
+            private bool IsValid;
+            private ConstantBufferProxy modelConstBuffer;
             private ArrayStorage storage;
-            private bool IsValid = false;
-            private readonly object lck = new object();
+            private int storageId = -1;
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="ConstantBufferComponent"/> class.
+            ///     Initializes a new instance of the <see cref="ConstantBufferComponent" /> class.
             /// </summary>
             /// <param name="desc">The desc.</param>
             public ConstantBufferComponent(ConstantBufferDescription desc)
             {
                 bufferDesc = desc;
             }
+
             /// <summary>
-            /// Initializes a new instance of the <see cref="ConstantBufferComponent"/> class.
+            ///     Initializes a new instance of the <see cref="ConstantBufferComponent" /> class.
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="structSize">Size of the structure.</param>
@@ -49,6 +44,14 @@ namespace HelixToolkit.SharpDX.Core
             {
                 bufferDesc = new ConstantBufferDescription(name, structSize);
             }
+
+            /// <summary>
+            ///     Gets or sets the model constant buffer.
+            /// </summary>
+            /// <value>
+            ///     The model constant buffer.
+            /// </value>
+            public ConstantBufferProxy ModelConstBuffer => modelConstBuffer;
 
             protected override void OnAttach(IRenderTechnique technique)
             {
@@ -60,6 +63,7 @@ namespace HelixToolkit.SharpDX.Core
                         storage = technique.EffectsManager.StructArrayPool.Register(bufferDesc.StructSize);
                         storageId = storage.GetId();
                     }
+
                     IsValid = bufferDesc != null && ModelConstBuffer != null;
                 }
             }
@@ -77,7 +81,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             /// <summary>
-            /// Uploads the specified device context. This uploads internal byte buffer only.
+            ///     Uploads the specified device context. This uploads internal byte buffer only.
             /// </summary>
             /// <param name="deviceContext">The device context.</param>
             public bool Upload(DeviceContextProxy deviceContext)
@@ -91,13 +95,14 @@ namespace HelixToolkit.SharpDX.Core
                         ModelConstBuffer.UploadDataToBuffer(deviceContext, array, ModelConstBuffer.StructureSize, off);
                         return true;
                     }
+
                     return false;
                 }
             }
 
             /// <summary>
-            /// Uploads the specified device context. This function writes a external struct and writes remains byte buffer 
-            /// by offset = input struct size/>
+            ///     Uploads the specified device context. This function writes a external struct and writes remains byte buffer
+            ///     by offset = input struct size/>
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="deviceContext">The device context.</param>
@@ -113,26 +118,31 @@ namespace HelixToolkit.SharpDX.Core
                         if (ModelConstBuffer.Buffer.Description.SizeInBytes < structSize)
                         {
 #if DEBUG
-                            throw new ArgumentOutOfRangeException($"Try to write value out of range. StructureSize {structSize}" +
+                            throw new ArgumentOutOfRangeException(
+                                $"Try to write value out of range. StructureSize {structSize}" +
                                 $" > Constant Buffer Size {ModelConstBuffer.StructureSize}");
 #else
                             return false;
 #endif
                         }
+
                         var box = ModelConstBuffer.Map(deviceContext);
                         unsafe
                         {
-                            var pBuf = (byte*)box.DataPointer.ToPointer();
-                            *(T*)pBuf = data;
+                            var pBuf = (byte*) box.DataPointer.ToPointer();
+                            *(T*) pBuf = data;
                         }
+
                         ModelConstBuffer.Unmap(deviceContext);
                         return true;
                     }
+
                     return false;
                 }
             }
+
             /// <summary>
-            /// Writes the value into internal byte buffer
+            ///     Writes the value into internal byte buffer
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="name">The variable name.</param>
@@ -141,7 +151,6 @@ namespace HelixToolkit.SharpDX.Core
             public void WriteValueByName<T>(string name, T value) where T : unmanaged
             {
                 if (IsValid && IsAttached)
-                {
                     lock (lck)
                     {
                         if (IsValid && IsAttached)
@@ -151,27 +160,28 @@ namespace HelixToolkit.SharpDX.Core
                                 if (UnsafeHelper.SizeOf<T>() > variable.Size)
                                 {
                                     var structSize = UnsafeHelper.SizeOf<T>();
-                                    throw new ArgumentException($"Input struct size {structSize} is larger than shader variable {variable.Name} size {variable.Size}");
+                                    throw new ArgumentException(
+                                        $"Input struct size {structSize} is larger than shader variable {variable.Name} size {variable.Size}");
                                 }
+
                                 if (!storage.Write(storageId, variable.StartOffset, ref value))
-                                {
                                     throw new ArgumentException($"Failed to write value on {name}");
-                                }
                             }
                             else
                             {
 #if DEBUG
-                                throw new ArgumentException($"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
+                                throw new ArgumentException(
+                                    $"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
 #else
                                 logger.LogWarning("Variable not found in constant buffer {0}. Variable = {1}", bufferDesc.Name, name);
 #endif
                             }
                         }
                     }
-                }
             }
+
             /// <summary>
-            /// Writes the value into internal byte buffer
+            ///     Writes the value into internal byte buffer
             /// </summary>
             /// <typeparam name="T"></typeparam>
             /// <param name="value">The value.</param>
@@ -179,43 +189,33 @@ namespace HelixToolkit.SharpDX.Core
             public void WriteValue<T>(T value, int offset) where T : unmanaged
             {
                 if (IsValid && IsAttached)
-                {
                     lock (lck)
                     {
-                        if (IsValid && IsAttached)
-                        {
-                            storage.Write(storageId, offset, ref value);
-                        }
+                        if (IsValid && IsAttached) storage.Write(storageId, offset, ref value);
                     }
-                }
             }
 
             public bool ReadValueByName<T>(string name, out T value) where T : unmanaged
             {
                 var v = default(T);
                 if (IsValid && IsAttached)
-                {
                     lock (lck)
                     {
                         if (IsValid && IsAttached)
                         {
                             if (ModelConstBuffer.TryGetVariableByName(name, out var variable))
-                            {                                
                                 return storage.Read(storageId, variable.StartOffset, out value);
-                            }
-                            else
-                            {
 #if DEBUG
-                                throw new ArgumentException($"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
+                            throw new ArgumentException(
+                                $"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
 #else
                                 logger.LogWarning("Variable not found in constant buffer {0}. Variable = {1}", bufferDesc.Name, name);
                                 value = v;
                                 return false;
 #endif
-                            }
                         }
                     }
-                }
+
                 value = v;
                 return false;
             }
@@ -224,15 +224,11 @@ namespace HelixToolkit.SharpDX.Core
             {
                 var v = default(T);
                 if (IsValid && IsAttached)
-                {
                     lock (lck)
                     {
-                        if (IsValid && IsAttached)
-                        {                           
-                            return storage.Read(storageId, offset, out value);
-                        }
+                        if (IsValid && IsAttached) return storage.Read(storageId, offset, out value);
                     }
-                }
+
                 value = v;
                 return false;
             }

@@ -2,28 +2,25 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Shaders
     {
-        using Native;
-        using Render;
-
-
         /// <summary>
-        /// 
         /// </summary>
         public sealed class HullShader : ShaderBase
         {
-            private HullShaderHandle shader;
-            internal HullShaderHandle Shader => shader;
-            internal override IShaderHandle NativeShader => shader;
-            public static readonly HullShader NullHullShader = new HullShader("NULL");
+            public static readonly HullShader NullHullShader = new("NULL");
             public static readonly HullShaderType Type;
+            private HullShaderHandle shader;
+
             /// <summary>
-            /// Vertex Shader
+            ///     Vertex Shader
             /// </summary>
             /// <param name="device"></param>
             /// <param name="name"></param>
@@ -37,11 +34,13 @@ namespace HelixToolkit.SharpDX.Core
             private HullShader(string name)
                 : base(name, ShaderStage.Hull, true)
             {
-
             }
 
+            internal HullShaderHandle Shader => shader;
+            internal override IShaderHandle NativeShader => shader;
+
             /// <summary>
-            /// Binds shader to pipeline
+            ///     Binds shader to pipeline
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="bindConstantBuffer"></param>

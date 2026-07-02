@@ -3,60 +3,61 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System;
+using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Core2D;
-        using Utilities;
         /// <summary>
-        /// 
         /// </summary>
         public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase
         {
-            private SwapChain1 swapChain;
+            private readonly PresentParameters presentParams = new();
+
+            /// <summary>
+            ///     The surface pointer
+            /// </summary>
+            protected readonly nint surfacePtr;
+
             private ShaderResourceViewProxy backBuffer;
+            private SwapChain1 swapChain;
+
             /// <summary>
-            /// Gets the swap chain.
-            /// </summary>
-            /// <value>
-            /// The swap chain.
-            /// </value>
-            public SwapChain1 SwapChain
-            {
-                get
-                {
-                    return swapChain;
-                }
-            }
-            /// <summary>
-            /// The surface pointer
-            /// </summary>
-            protected readonly System.IntPtr surfacePtr;
-            /// <summary>
-            /// Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy" /> class.
             /// </summary>
             /// <param name="surfacePointer">The surface pointer.</param>
             /// <param name="deviceResource"></param>
-            public DX11SwapChainRenderBufferProxy(System.IntPtr surfacePointer, IDeviceResources deviceResource) : base(deviceResource)
+            public DX11SwapChainRenderBufferProxy(nint surfacePointer, IDeviceResources deviceResource) : base(
+                deviceResource)
             {
                 surfacePtr = surfacePointer;
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy"/> class.
+            ///     Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy" /> class.
             /// </summary>
             /// <param name="surfacePointer">The surface pointer.</param>
             /// <param name="deviceResource"></param>
             /// <param name="useDepthStencilBuffer"></param>
-            public DX11SwapChainRenderBufferProxy(System.IntPtr surfacePointer, IDeviceResources deviceResource, bool useDepthStencilBuffer)
+            public DX11SwapChainRenderBufferProxy(nint surfacePointer, IDeviceResources deviceResource,
+                bool useDepthStencilBuffer)
                 : base(deviceResource, useDepthStencilBuffer)
             {
                 surfacePtr = surfacePointer;
             }
+
             /// <summary>
-            /// Called when [create render target and depth buffers].
+            ///     Gets the swap chain.
+            /// </summary>
+            /// <value>
+            ///     The swap chain.
+            /// </value>
+            public SwapChain1 SwapChain => swapChain;
+
+            /// <summary>
+            ///     Called when [create render target and depth buffers].
             /// </summary>
             /// <param name="width">The width.</param>
             /// <param name="height">The height.</param>
@@ -73,32 +74,34 @@ namespace HelixToolkit.SharpDX.Core
                     RemoveAndDispose(ref backBuffer);
                     DeviceResources.NativeDeviceResources.ImmediateContext.ClearState();
                     DeviceResources.NativeDeviceResources.ImmediateContext.Flush();
-                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount, width, height, swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
+                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount, width, height,
+                        swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
                 }
+
                 backBuffer = new ShaderResourceViewProxy(DeviceResources, swapChain.GetBackBuffer());
                 d2dTarget = new D2DTargetProxy();
                 d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
                 return backBuffer;
             }
 
-            private SwapChain1 CreateSwapChain(System.IntPtr surfacePointer)
+            private SwapChain1 CreateSwapChain(nint surfacePointer)
             {
                 var desc = CreateSwapChainDescription();
                 return new SwapChain1(desc, surfacePointer, DeviceResources.NativeDeviceResources.Device);
             }
 
             /// <summary>
-            /// Creates the swap chain description.
+            ///     Creates the swap chain description.
             /// </summary>
             /// <returns>A swap chain description</returns>
             /// <remarks>
-            /// This method can be overloaded in order to modify default parameters.
+            ///     This method can be overloaded in order to modify default parameters.
             /// </remarks>
             protected virtual SwapChainDescription1 CreateSwapChainDescription()
             {
                 var sampleCount = 1;
                 var sampleQuality = 0;
-                var desc = new SwapChainDescription1()
+                var desc = new SwapChainDescription1
                 {
                     Width = Math.Max(1, TargetWidth),
                     Height = Math.Max(1, TargetHeight),
@@ -115,18 +118,17 @@ namespace HelixToolkit.SharpDX.Core
                 return desc;
             }
 
-            private readonly PresentParameters presentParams = new PresentParameters();
-
             /// <summary>
-            /// Presents this instance.
+            ///     Presents this instance.
             /// </summary>
             /// <returns></returns>
             public override bool Present()
             {
                 return swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
             }
+
             /// <summary>
-            /// Must release swapchain at last after all its created resources have been released.
+            ///     Must release swapchain at last after all its created resources have been released.
             /// </summary>
             public void DisposeAndClear()
             {

@@ -3,111 +3,76 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Collections.Generic;
-using System.IO;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model.Scene
     {
-        using Core;
-        using Utilities;
-
         public class Sprite2DNode : SceneNode
         {
+            private Sprite2DBufferModel bufferModel;
+
+            private int indexCount;
+
+            private int[] indices;
+
+            private int spriteCount;
+
+            private SpriteStruct[] sprites;
             private TextureModel texture;
+
             public TextureModel Texture
             {
+                get => texture;
                 set
                 {
                     if (SetAffectsRender(ref texture, value) && IsAttached)
-                    {
                         (RenderCore as Sprite2DRenderCore).UpdateTexture(value, EffectsManager.MaterialTextureManager);
-                    }
-                }
-                get
-                {
-                    return texture;
                 }
             }
 
             public Matrix ProjectionMatrix
             {
-                set
-                {
-                    (RenderCore as Sprite2DRenderCore).ProjectionMatrix = value;
-                }
-                get
-                {
-                    return (RenderCore as Sprite2DRenderCore).ProjectionMatrix;
-                }
+                get => (RenderCore as Sprite2DRenderCore).ProjectionMatrix;
+                set => (RenderCore as Sprite2DRenderCore).ProjectionMatrix = value;
             }
 
-            private SpriteStruct[] sprites;
             public SpriteStruct[] Sprites
             {
+                get => sprites;
                 set
                 {
-                    if (Set(ref sprites, value) && IsAttached)
-                    {
-                        bufferModel.Sprites = value;
-                    }
-                }
-                get
-                {
-                    return sprites;
+                    if (Set(ref sprites, value) && IsAttached) bufferModel.Sprites = value;
                 }
             }
 
-            private int spriteCount;
             public int SpriteCount
             {
+                get => spriteCount;
                 set
                 {
-                    if (SetAffectsRender(ref spriteCount, value) && IsAttached)
-                    {
-                        bufferModel.SpriteCount = value;
-                    }
-                }
-                get
-                {
-                    return spriteCount;
+                    if (SetAffectsRender(ref spriteCount, value) && IsAttached) bufferModel.SpriteCount = value;
                 }
             }
 
-            private int[] indices;
             public int[] Indices
             {
+                get => indices;
                 set
                 {
-                    if (SetAffectsRender(ref indices, value) && IsAttached)
-                    {
-                        bufferModel.Indices = value;
-                    }
-                }
-                get
-                {
-                    return indices;
+                    if (SetAffectsRender(ref indices, value) && IsAttached) bufferModel.Indices = value;
                 }
             }
 
-            private int indexCount;
             public int IndexCount
             {
+                get => indexCount;
                 set
                 {
-                    if (SetAffectsRender(ref indexCount, value) && IsAttached)
-                    {
-                        bufferModel.IndexCount = value;
-                    }
-                }
-                get
-                {
-                    return indexCount;
+                    if (SetAffectsRender(ref indexCount, value) && IsAttached) bufferModel.IndexCount = value;
                 }
             }
-
-            private Sprite2DBufferModel bufferModel;
 
             protected override RenderCore OnCreateRenderCore()
             {
@@ -120,9 +85,8 @@ namespace HelixToolkit.SharpDX.Core
                 bufferModel.Sprites = Sprites;
                 bufferModel.SpriteCount = SpriteCount;
                 if (texture != null)
-                {
-                    (RenderCore as Sprite2DRenderCore).UpdateTexture(texture, EffectTechnique.EffectsManager.MaterialTextureManager);
-                }
+                    (RenderCore as Sprite2DRenderCore).UpdateTexture(texture,
+                        EffectTechnique.EffectsManager.MaterialTextureManager);
                 base.OnAttached();
             }
 
@@ -135,7 +99,7 @@ namespace HelixToolkit.SharpDX.Core
             protected override bool CanRender(RenderContext context)
             {
                 return base.CanRender(context) && sprites != null && indices != null
-                    && spriteCount != 0 && indexCount != 0;
+                       && spriteCount != 0 && indexCount != 0;
             }
 
             protected override bool CanHitTest(HitTestContext context)
@@ -143,7 +107,8 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits)
+            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
+                ref List<HitTestResult> hits)
             {
                 return false;
             }

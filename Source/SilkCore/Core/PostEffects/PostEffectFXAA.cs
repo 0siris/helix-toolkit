@@ -2,68 +2,62 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
+using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Core
     {
-        using Render;
-        using Shaders;
-        using Utilities;
-        using Components;
-
         public sealed class PostEffectFXAA : RenderCore, IPostEffect
         {
+            private readonly ConstantBufferComponent modelCB;
             private string effectName = DefaultRenderTechniqueNames.PostEffectFXAA;
-            public string EffectName
-            {
-                set
-                {
-                    SetAffectsCanRenderFlag(ref effectName, value);
-                }
-                get
-                {
-                    return effectName;
-                }
-            }
 
             private FXAALevel fxaaLevel = FXAALevel.None;
-            /// <summary>
-            /// Gets or sets the fxaa level.
-            /// </summary>
-            /// <value>
-            /// The fxaa level.
-            /// </value>
-            public FXAALevel FXAALevel
-            {
-                set
-                {
-                    SetAffectsCanRenderFlag(ref fxaaLevel, value);
-                }
-                get
-                {
-                    return fxaaLevel;
-                }
-            }
-
-            private int textureSlot;
-            private int samplerSlot;
-            private SamplerStateProxy sampler;
             private ShaderPass FXAAPass;
             private ShaderPass LUMAPass;
-            private readonly ConstantBufferComponent modelCB;
             private BorderEffectStruct modelStruct;
+            private SamplerStateProxy sampler;
+            private int samplerSlot;
+
+            private int textureSlot;
 
             public PostEffectFXAA() : base(RenderType.GlobalEffect)
             {
-                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
+                modelCB = AddComponent(new ConstantBufferComponent(
+                    new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
+            }
+
+            /// <summary>
+            ///     Gets or sets the fxaa level.
+            /// </summary>
+            /// <value>
+            ///     The fxaa level.
+            /// </value>
+            public FXAALevel FXAALevel
+            {
+                get => fxaaLevel;
+                set => SetAffectsCanRenderFlag(ref fxaaLevel, value);
+            }
+
+            public string EffectName
+            {
+                get => effectName;
+                set => SetAffectsCanRenderFlag(ref effectName, value);
             }
 
             protected override bool OnAttach(IRenderTechnique technique)
             {
                 FXAAPass = technique[DefaultPassNames.FXAAPass];
                 LUMAPass = technique[DefaultPassNames.LumaPass];
-                textureSlot = FXAAPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
-                samplerSlot = FXAAPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
+                textureSlot =
+                    FXAAPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+                samplerSlot =
+                    FXAAPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
                 sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
                 return true;
             }
@@ -103,8 +97,8 @@ namespace HelixToolkit.SharpDX.Core
             private void OnUpdatePerModelStruct(RenderContext context)
             {
                 modelStruct.Color = new Color4(
-                    (float)(1 / context.ActualWidth),
-                    (float)(1 / context.ActualHeight),
+                    1 / context.ActualWidth,
+                    1 / context.ActualHeight,
                     modelStruct.Color.GetBlue(),
                     modelStruct.Color.GetAlpha());
                 switch (FXAALevel)

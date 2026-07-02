@@ -1,98 +1,94 @@
-using System.Linq;
-using System;
 using System.Runtime.CompilerServices;
-namespace HelixToolkit.SharpDX.Core
+
+namespace HelixToolkit.SharpDX.Core;
+
+using Vector3D = Color3;
+using Point3D = Color3;
+using DoubleOrSingle = float;
+using Vector = Vector2;
+
+/// <summary>
+///     Functions for the Shared Projects to simplify the Code
+/// </summary>
+internal static class SharedFunctions
 {
-    
-    using Vector3D = Silk.NET.Maths.Vector3D<float>;
-    using Point3D = Silk.NET.Maths.Vector3D<float>;
-    using DoubleOrSingle = System.Single;
-    using Vector = Silk.NET.Maths.Vector2D<float>;
+    /// <summary>
+    /// </summary>
+    /// <param name="first"></param>
+    /// <param name="second"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second)
+    {
+#if SHARPDX || SILKNET
+        return SilkMath.Cross(first, second);
+#else
+            return Vector3D.CrossProduct(first, second);
+#endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3D CrossProduct(Vector3D first, Vector3D second)
+    {
+#if SHARPDX || SILKNET
+        return SilkMath.Cross(first, second);
+#else
+            return Vector3D.CrossProduct(first, second);
+#endif
+    }
 
     /// <summary>
-    /// Functions for the Shared Projects to simplify the Code
     /// </summary>
-    internal static class SharedFunctions
+    /// <param name="first"></param>
+    /// <param name="second"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DoubleOrSingle DotProduct(ref Vector3D first, ref Vector3D second)
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second)
-        {
-#if SHARPDX || SILKNET
-            return SilkMath.Cross(first, second);
-#else
-            return Vector3D.CrossProduct(first, second);
-#endif
-        }
+        return first.X * second.X + first.Y * second.Y + first.Z * second.Z;
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3D CrossProduct(Vector3D first, Vector3D second)
-        {
-#if SHARPDX || SILKNET
-            return SilkMath.Cross(first, second);
-#else
-            return Vector3D.CrossProduct(first, second);
-#endif
-        }
+    /// <summary>
+    /// </summary>
+    /// <param name="first"></param>
+    /// <param name="second"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DoubleOrSingle DotProduct(ref Vector first, ref Vector second)
+    {
+        return first.X * second.X + first.Y * second.Y;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DoubleOrSingle DotProduct(ref Vector3D first, ref Vector3D second)
-        {
-            return first.X * second.X + first.Y * second.Y + first.Z * second.Z;
-        }
+    /// <summary>
+    /// </summary>
+    /// <param name="vector"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DoubleOrSingle LengthSquared(ref Vector3D vector)
+    {
+        return vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DoubleOrSingle DotProduct(ref Vector first, ref Vector second)
-        {
-            return first.X * second.X + first.Y * second.Y;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DoubleOrSingle LengthSquared(ref Vector3D vector)
-        {
-            return vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z;
-        }
-        /// <summary>
-        /// Lengthes the squared.
-        /// </summary>
-        /// <param name="vector">The vector.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DoubleOrSingle LengthSquared(ref Vector vector)
-        {
-            return vector.X * vector.X + vector.Y * vector.Y;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DoubleOrSingle Length(ref Vector3D vector)
-        {
-            return (DoubleOrSingle)Math.Sqrt(LengthSquared(ref vector));
-        }
+    /// <summary>
+    ///     Lengthes the squared.
+    /// </summary>
+    /// <param name="vector">The vector.</param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DoubleOrSingle LengthSquared(ref Vector vector)
+    {
+        return vector.X * vector.X + vector.Y * vector.Y;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="vector"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DoubleOrSingle Length(ref Vector3D vector)
+    {
+        return (DoubleOrSingle) Math.Sqrt(LengthSquared(ref vector));
+    }
 
 #if !NETFX_CORE
         /// <summary>
@@ -116,16 +112,15 @@ namespace HelixToolkit.SharpDX.Core
             return new System.Windows.Media.Media3D.Vector3D(vector.X, vector.Y, vector.Z);
         }
 #endif
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3D ToVector3D(Point3D vector)
-        {
-            return new Vector3D(vector.X, vector.Y, vector.Z);
-        }
+    /// <summary>
+    /// </summary>
+    /// <param name="vector"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3D ToVector3D(Point3D vector)
+    {
+        return new Vector3D(vector.X, vector.Y, vector.Z);
+    }
 #if SHARPDX || SILKNET
 #if !NETFX_CORE
         /// <summary>
@@ -185,33 +180,29 @@ namespace HelixToolkit.SharpDX.Core
             };
         }
 #endif
-        /// <summary>
-        /// Finds the intersection between the plane and a line.
-        /// </summary>
-        /// <param name="plane">
-        /// The plane.
-        /// </param>
-        /// <param name="la">
-        /// The first point defining the line.
-        /// </param>
-        /// <param name="lb">
-        /// The second point defining the line.
-        /// </param>
-        /// <returns>
-        /// The intersection point.
-        /// </returns>
-        public static Point3D? LineIntersection(this Plane plane, Point3D la, Point3D lb)
-        {
-            // https://graphics.stanford.edu/~mdfisher/Code/Engine/Plane.cpp.html
-            var diff = la - lb;
-            var d = SilkMath.Dot(diff, plane.Normal);
-            if (d == 0)
-            {
-                return null;
-            }
-            var u = (SilkMath.Dot(la, plane.Normal) + plane.D) / d;
-            return (la + u * (lb - la));
-        }
-#endif
+    /// <summary>
+    ///     Finds the intersection between the plane and a line.
+    /// </summary>
+    /// <param name="plane">
+    ///     The plane.
+    /// </param>
+    /// <param name="la">
+    ///     The first point defining the line.
+    /// </param>
+    /// <param name="lb">
+    ///     The second point defining the line.
+    /// </param>
+    /// <returns>
+    ///     The intersection point.
+    /// </returns>
+    public static Point3D? LineIntersection(this Plane plane, Point3D la, Point3D lb)
+    {
+        // https://graphics.stanford.edu/~mdfisher/Code/Engine/Plane.cpp.html
+        var diff = la - lb;
+        var d = SilkMath.Dot(diff, plane.Normal);
+        if (d == 0) return null;
+        var u = (SilkMath.Dot(la, plane.Normal) + plane.D) / d;
+        return la + u * (lb - la);
     }
+#endif
 }

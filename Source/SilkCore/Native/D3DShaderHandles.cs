@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using System;
-using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using SilkD3D11ComputeShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ComputeShader>;
 using SilkD3D11DomainShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DomainShader>;
@@ -38,7 +36,8 @@ namespace HelixToolkit.SharpDX.Core
     {
         public const int AppendAligned = -1;
 
-        public InputElement(string semanticName, int semanticIndex, Format format, int alignedByteOffset, int slot, InputClassification classification = InputClassification.PerVertexData, int instanceDataStepRate = 0)
+        public InputElement(string semanticName, int semanticIndex, Format format, int alignedByteOffset, int slot,
+            InputClassification classification = InputClassification.PerVertexData, int instanceDataStepRate = 0)
         {
             SemanticName = semanticName;
             SemanticIndex = semanticIndex;
@@ -66,7 +65,8 @@ namespace HelixToolkit.SharpDX.Core
 
     public struct StreamOutputElement
     {
-        public StreamOutputElement(int stream, string semanticName, int semanticIndex, byte startComponent, byte componentCount, byte outputSlot)
+        public StreamOutputElement(int stream, string semanticName, int semanticIndex, byte startComponent,
+            byte componentCount, byte outputSlot)
         {
             Stream = stream;
             SemanticName = semanticName;
@@ -98,7 +98,7 @@ namespace HelixToolkit.SharpDX.Core
             void* NativeHandle { get; }
         }
 
-        internal unsafe sealed class VertexShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class VertexShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11VertexShaderPtr shader;
 
@@ -109,10 +109,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11VertexShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.VertexIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -121,9 +117,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.VertexIdx;
         }
 
-        internal unsafe sealed class PixelShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class PixelShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11PixelShaderPtr shader;
 
@@ -134,10 +134,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11PixelShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.PixelIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -146,9 +142,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.PixelIdx;
         }
 
-        internal unsafe sealed class ComputeShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class ComputeShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11ComputeShaderPtr shader;
 
@@ -159,10 +159,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11ComputeShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.ComputeIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -171,9 +167,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.ComputeIdx;
         }
 
-        internal unsafe sealed class DomainShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class DomainShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11DomainShaderPtr shader;
 
@@ -184,10 +184,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11DomainShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.DomainIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -196,9 +192,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.DomainIdx;
         }
 
-        internal unsafe sealed class HullShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class HullShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11HullShaderPtr shader;
 
@@ -209,10 +209,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11HullShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.HullIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -221,9 +217,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.HullIdx;
         }
 
-        internal unsafe sealed class GeometryShaderHandle : IDisposable, IShaderHandle
+        internal sealed unsafe class GeometryShaderHandle : IDisposable, IShaderHandle
         {
             private SilkD3D11GeometryShaderPtr shader;
 
@@ -234,10 +234,6 @@ namespace HelixToolkit.SharpDX.Core
 
             public ID3D11GeometryShader* Handle => shader.Handle;
 
-            public void* NativeHandle => shader.Handle;
-
-            public int StageIndex => Constants.GeometryIdx;
-
             public void Dispose()
             {
                 if (shader.Handle != null)
@@ -246,9 +242,13 @@ namespace HelixToolkit.SharpDX.Core
                     shader = default;
                 }
             }
+
+            public void* NativeHandle => shader.Handle;
+
+            public int StageIndex => Constants.GeometryIdx;
         }
 
-        internal unsafe sealed class InputLayout : IDisposable
+        internal sealed unsafe class InputLayout : IDisposable
         {
             private SilkD3D11InputLayoutPtr layout;
 
@@ -286,27 +286,29 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static InputElementDesc ToSilkDesc(this InputElement element, IntPtr semanticName)
+            public static InputElementDesc ToSilkDesc(this InputElement element, nint semanticName)
             {
                 return new InputElementDesc
                 {
-                    SemanticName = (byte*)semanticName,
-                    SemanticIndex = (uint)element.SemanticIndex,
+                    SemanticName = (byte*) semanticName,
+                    SemanticIndex = (uint) element.SemanticIndex,
                     Format = element.Format,
-                    InputSlot = (uint)element.Slot,
-                    AlignedByteOffset = element.AlignedByteOffset == InputElement.AppendAligned ? unchecked((uint)-1) : (uint)element.AlignedByteOffset,
-                    InputSlotClass = (Silk.NET.Direct3D11.InputClassification)element.Classification,
-                    InstanceDataStepRate = (uint)element.InstanceDataStepRate
+                    InputSlot = (uint) element.Slot,
+                    AlignedByteOffset = element.AlignedByteOffset == InputElement.AppendAligned
+                        ? unchecked((uint) -1)
+                        : (uint) element.AlignedByteOffset,
+                    InputSlotClass = (Silk.NET.Direct3D11.InputClassification) element.Classification,
+                    InstanceDataStepRate = (uint) element.InstanceDataStepRate
                 };
             }
 
-            public static SODeclarationEntry ToSilkDesc(this StreamOutputElement element, IntPtr semanticName)
+            public static SODeclarationEntry ToSilkDesc(this StreamOutputElement element, nint semanticName)
             {
                 return new SODeclarationEntry
                 {
-                    Stream = (uint)element.Stream,
-                    SemanticName = (byte*)semanticName,
-                    SemanticIndex = (uint)element.SemanticIndex,
+                    Stream = (uint) element.Stream,
+                    SemanticName = (byte*) semanticName,
+                    SemanticIndex = (uint) element.SemanticIndex,
                     StartComponent = element.StartComponent,
                     ComponentCount = element.ComponentCount,
                     OutputSlot = element.OutputSlot

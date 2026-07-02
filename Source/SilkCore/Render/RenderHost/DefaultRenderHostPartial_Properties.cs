@@ -2,8 +2,10 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
-using System.Linq;
+
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
 #if DX11_1
 #else
@@ -13,179 +15,158 @@ namespace HelixToolkit.SharpDX.Core
 {
     namespace Render
     {
-        using Core;
-        using Model.Scene;
-        using Model.Scene2D;
-
         public partial class DefaultRenderHost
         {
             #region Per frame render list
-            protected readonly FastList<SceneNode> viewportRenderables = new FastList<SceneNode>();
-            /// <summary>
-            /// The pending renderables
-            /// </summary>
-            protected readonly FastList<KeyValuePair<int, SceneNode>> perFrameFlattenedScene = new FastList<KeyValuePair<int, SceneNode>>();
-            /// <summary>
-            /// The light renderables
-            /// </summary>
-            protected readonly FastList<SceneNode> lightNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The pending render nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> opaqueNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The opaque nodes in frustum
-            /// </summary>
-            protected readonly FastList<SceneNode> opaqueNodesInFrustum = new FastList<SceneNode>();
-            /// <summary>
-            /// The transparent nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> transparentNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The transparent nodes in frustum
-            /// </summary>
-            protected readonly FastList<SceneNode> transparentNodesInFrustum = new FastList<SceneNode>();
-            /// <summary>
-            /// The particle nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> particleNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The pending render nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> preProcNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The post effect nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> postEffectNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The global effect nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> globalEffectNodes = new FastList<SceneNode>();
-            /// <summary>
-            /// The nodes have post effect
-            /// </summary>
-            protected readonly FastList<SceneNode> nodesWithPostEffect = new FastList<SceneNode>();
-            /// <summary>
-            /// The pending render nodes
-            /// </summary>
-            protected readonly FastList<SceneNode> screenSpacedNodes = new FastList<SceneNode>();
+
+            protected readonly FastList<SceneNode> viewportRenderables = new();
 
             /// <summary>
-            /// The viewport renderable2D
+            ///     The pending renderables
             /// </summary>
-            protected readonly FastList<SceneNode2D> viewportRenderable2D = new FastList<SceneNode2D>();
+            protected readonly FastList<KeyValuePair<int, SceneNode>> perFrameFlattenedScene = new();
+
             /// <summary>
-            /// The need update cores
+            ///     The light renderables
             /// </summary>
-            private readonly FastList<RenderCore> needUpdateCores = new FastList<RenderCore>();
+            protected readonly FastList<SceneNode> lightNodes = new();
+
             /// <summary>
-            /// Gets the current frame flattened scene graph. KeyValuePair.Key is the depth of the node.
+            ///     The pending render nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> opaqueNodes = new();
+
+            /// <summary>
+            ///     The opaque nodes in frustum
+            /// </summary>
+            protected readonly FastList<SceneNode> opaqueNodesInFrustum = new();
+
+            /// <summary>
+            ///     The transparent nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> transparentNodes = new();
+
+            /// <summary>
+            ///     The transparent nodes in frustum
+            /// </summary>
+            protected readonly FastList<SceneNode> transparentNodesInFrustum = new();
+
+            /// <summary>
+            ///     The particle nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> particleNodes = new();
+
+            /// <summary>
+            ///     The pending render nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> preProcNodes = new();
+
+            /// <summary>
+            ///     The post effect nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> postEffectNodes = new();
+
+            /// <summary>
+            ///     The global effect nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> globalEffectNodes = new();
+
+            /// <summary>
+            ///     The nodes have post effect
+            /// </summary>
+            protected readonly FastList<SceneNode> nodesWithPostEffect = new();
+
+            /// <summary>
+            ///     The pending render nodes
+            /// </summary>
+            protected readonly FastList<SceneNode> screenSpacedNodes = new();
+
+            /// <summary>
+            ///     The viewport renderable2D
+            /// </summary>
+            protected readonly FastList<SceneNode2D> viewportRenderable2D = new();
+
+            /// <summary>
+            ///     The need update cores
+            /// </summary>
+            private readonly FastList<RenderCore> needUpdateCores = new();
+
+            /// <summary>
+            ///     Gets the current frame flattened scene graph. KeyValuePair.Key is the depth of the node.
             /// </summary>
             /// <value>
-            /// Gets the current frame flattened scene graph
+            ///     Gets the current frame flattened scene graph
             /// </value>
-            public sealed override FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene
-            {
-                get
-                {
-                    return perFrameFlattenedScene;
-                }
-            }
+            public sealed override FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
+                perFrameFlattenedScene;
+
             /// <summary>
-            /// Gets the per frame lights.
+            ///     Gets the per frame lights.
             /// </summary>
             /// <value>
-            /// The per frame lights.
+            ///     The per frame lights.
             /// </value>
             public sealed override IEnumerable<LightNode> PerFrameLights
             {
-                get
-                {
-                    return lightNodes.Select(x => x as LightNode);
-                }
-            }
-            /// <summary>
-            /// Gets the per frame nodes for opaque rendering. <see cref="RenderType.Opaque"/>
-            /// <para>This does not include <see cref="RenderType.Transparent"/>, <see cref="RenderType.Particle"/>,
-            /// <see cref="RenderType.PreProc"/>, <see cref="RenderType.PostEffect"/>, <see cref="RenderType.GlobalEffect"/>, <see cref="RenderType.Light"/>, 
-            /// <see cref="RenderType.ScreenSpaced"/></para>
-            /// </summary>
-            public sealed override FastList<SceneNode> PerFrameOpaqueNodes
-            {
-                get
-                {
-                    return opaqueNodes;
-                }
-            }
-            /// <summary>
-            /// Gets the per frame opaque nodes in frustum.
-            /// </summary>
-            /// <value>
-            /// The per frame opaque nodes in frustum.
-            /// </value>
-            public sealed override FastList<SceneNode> PerFrameOpaqueNodesInFrustum
-            {
-                get
-                {
-                    return opaqueNodesInFrustum;
-                }
+                get { return lightNodes.Select(x => x as LightNode); }
             }
 
             /// <summary>
-            /// Gets the per frame transparent nodes in frustum.
+            ///     Gets the per frame nodes for opaque rendering. <see cref="RenderType.Opaque" />
+            ///     <para>
+            ///         This does not include <see cref="RenderType.Transparent" />, <see cref="RenderType.Particle" />,
+            ///         <see cref="RenderType.PreProc" />, <see cref="RenderType.PostEffect" />, <see cref="RenderType.GlobalEffect" />
+            ///         , <see cref="RenderType.Light" />,
+            ///         <see cref="RenderType.ScreenSpaced" />
+            ///     </para>
             /// </summary>
-            /// <value>
-            /// The per frame transparent nodes in frustum.
-            /// </value>
-            public sealed override FastList<SceneNode> PerFrameTransparentNodesInFrustum
-            {
-                get
-                {
-                    return transparentNodesInFrustum;
-                }
-            }
+            public sealed override FastList<SceneNode> PerFrameOpaqueNodes => opaqueNodes;
+
             /// <summary>
-            /// Gets the per frame transparent nodes. , <see cref="RenderType.Transparent"/>, <see cref="RenderType.Particle"/>
-            /// <para>This does not include <see cref="RenderType.Opaque"/>, <see cref="RenderType.PreProc"/>,
-            /// <see cref="RenderType.PostEffect"/>, <see cref="RenderType.GlobalEffect"/>, <see cref="RenderType.Light"/>, 
-            /// <see cref="RenderType.ScreenSpaced"/></para>
+            ///     Gets the per frame opaque nodes in frustum.
             /// </summary>
             /// <value>
-            /// The per frame transparent nodes.
+            ///     The per frame opaque nodes in frustum.
             /// </value>
-            public sealed override FastList<SceneNode> PerFrameTransparentNodes
-            {
-                get
-                {
-                    return transparentNodes;
-                }
-            }
+            public sealed override FastList<SceneNode> PerFrameOpaqueNodesInFrustum => opaqueNodesInFrustum;
+
             /// <summary>
-            /// Gets the per frame transparent nodes.
+            ///     Gets the per frame transparent nodes in frustum.
             /// </summary>
             /// <value>
-            /// The per frame transparent nodes.
+            ///     The per frame transparent nodes in frustum.
             /// </value>
-            public sealed override FastList<SceneNode> PerFrameParticleNodes
-            {
-                get
-                {
-                    return particleNodes;
-                }
-            }
+            public sealed override FastList<SceneNode> PerFrameTransparentNodesInFrustum => transparentNodesInFrustum;
+
             /// <summary>
-            /// Gets the per frame post effects cores. It is the subset of <see cref="PerFrameOpaqueNodes"/>
+            ///     Gets the per frame transparent nodes. , <see cref="RenderType.Transparent" />, <see cref="RenderType.Particle" />
+            ///     <para>
+            ///         This does not include <see cref="RenderType.Opaque" />, <see cref="RenderType.PreProc" />,
+            ///         <see cref="RenderType.PostEffect" />, <see cref="RenderType.GlobalEffect" />, <see cref="RenderType.Light" />,
+            ///         <see cref="RenderType.ScreenSpaced" />
+            ///     </para>
             /// </summary>
             /// <value>
-            /// The per frame post effects cores.
+            ///     The per frame transparent nodes.
             /// </value>
-            public sealed override FastList<SceneNode> PerFrameNodesWithPostEffect
-            {
-                get
-                {
-                    return nodesWithPostEffect;
-                }
-            }
+            public sealed override FastList<SceneNode> PerFrameTransparentNodes => transparentNodes;
+
+            /// <summary>
+            ///     Gets the per frame transparent nodes.
+            /// </summary>
+            /// <value>
+            ///     The per frame transparent nodes.
+            /// </value>
+            public sealed override FastList<SceneNode> PerFrameParticleNodes => particleNodes;
+
+            /// <summary>
+            ///     Gets the per frame post effects cores. It is the subset of <see cref="PerFrameOpaqueNodes" />
+            /// </summary>
+            /// <value>
+            ///     The per frame post effects cores.
+            /// </value>
+            public sealed override FastList<SceneNode> PerFrameNodesWithPostEffect => nodesWithPostEffect;
+
             #endregion
         }
     }

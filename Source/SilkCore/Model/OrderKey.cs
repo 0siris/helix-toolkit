@@ -1,19 +1,15 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
         /// <summary>
-        /// Render order key
+        ///     Render order key
         /// </summary>
         public struct OrderKey : IComparable<OrderKey>
         {
-            public uint Key
-            {
-                get;
-            }
+            public uint Key { get; }
 
             public OrderKey(uint key)
             {

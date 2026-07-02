@@ -2,30 +2,37 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using System.Collections.Generic;
+
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
+
 namespace HelixToolkit.SharpDX.Core
 {
     namespace Model
     {
-        using Render;
-        using Shaders;
-        using Utilities;
-
         public abstract class GenericMaterialVariable : MaterialVariable
         {
             public enum ResourceType
             {
-                Texture, Sampler, Float, Vector2, Vector3, Vector4, Matrix
+                Texture,
+                Sampler,
+                Float,
+                Vector2,
+                Vector3,
+                Vector4,
+                Matrix
             }
+
+            private readonly GenericMaterialCore materialCore;
             private readonly ShaderPass materialPass, shadowPass, wireframePass, depthPass;
+
+            private readonly Dictionary<string, int> resourceIdxDict = new();
+            private readonly Dictionary<string, int> samplerIdxDict = new();
+            private readonly KeyValuePair<int, SamplerStateProxy>[] samplerResources;
 
 
             private readonly KeyValuePair<int, ShaderResourceViewProxy>[] shaderResources;
-            private readonly KeyValuePair<int, SamplerStateProxy>[] samplerResources;
-
-            private readonly Dictionary<string, int> resourceIdxDict = new Dictionary<string, int>();
-            private readonly Dictionary<string, int> samplerIdxDict = new Dictionary<string, int>();
-            private readonly GenericMaterialCore materialCore;
 
             public GenericMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
                 GenericMaterialCore materialCore, ConstantBufferDescription constantBufferDescription,
@@ -40,7 +47,9 @@ namespace HelixToolkit.SharpDX.Core
                 shadowPass = technique[shadowShaderPassName];
                 wireframePass = technique[wireframePassName];
                 depthPass = technique[depthPassName];
-                shaderResources = new KeyValuePair<int, ShaderResourceViewProxy>[materialPass.PixelShader.ShaderResourceViewMapping.Count];
+                shaderResources =
+                    new KeyValuePair<int, ShaderResourceViewProxy>[materialPass.PixelShader.ShaderResourceViewMapping
+                        .Count];
 
                 for (var i = 0; i < materialPass.PixelShader.ShaderResourceViewMapping.Count; ++i)
                 {
@@ -49,7 +58,8 @@ namespace HelixToolkit.SharpDX.Core
                     shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy>(mapping.Key, null);
                 }
 
-                samplerResources = new KeyValuePair<int, SamplerStateProxy>[materialPass.PixelShader.SamplerMapping.Count];
+                samplerResources =
+                    new KeyValuePair<int, SamplerStateProxy>[materialPass.PixelShader.SamplerMapping.Count];
 
                 for (var i = 0; i < materialPass.PixelShader.SamplerMapping.Count; ++i)
                 {
@@ -65,35 +75,14 @@ namespace HelixToolkit.SharpDX.Core
             protected override void OnInitialPropertyBindings()
             {
                 base.OnInitialPropertyBindings();
-                foreach (var texture in materialCore.TextureDict)
-                {
-                    SetTexture(texture.Key, texture.Value);
-                }
-                foreach (var sampler in materialCore.SamplerDict)
-                {
-                    SetSampler(sampler.Key, sampler.Value);
-                }
+                foreach (var texture in materialCore.TextureDict) SetTexture(texture.Key, texture.Value);
+                foreach (var sampler in materialCore.SamplerDict) SetSampler(sampler.Key, sampler.Value);
 
-                foreach (var prop in materialCore.FloatDict)
-                {
-                    WriteValue(prop.Key, prop.Value);
-                }
-                foreach (var prop in materialCore.Vector2Dict)
-                {
-                    WriteValue(prop.Key, prop.Value);
-                }
-                foreach (var prop in materialCore.Vector3Dict)
-                {
-                    WriteValue(prop.Key, prop.Value);
-                }
-                foreach (var prop in materialCore.Vector4Dict)
-                {
-                    WriteValue(prop.Key, prop.Value);
-                }
-                foreach (var prop in materialCore.MatrixDict)
-                {
-                    WriteValue(prop.Key, prop.Value);
-                }
+                foreach (var prop in materialCore.FloatDict) WriteValue(prop.Key, prop.Value);
+                foreach (var prop in materialCore.Vector2Dict) WriteValue(prop.Key, prop.Value);
+                foreach (var prop in materialCore.Vector3Dict) WriteValue(prop.Key, prop.Value);
+                foreach (var prop in materialCore.Vector4Dict) WriteValue(prop.Key, prop.Value);
+                foreach (var prop in materialCore.MatrixDict) WriteValue(prop.Key, prop.Value);
             }
 
             private void MaterialCore_UpdatingResource(object sender, GenericMaterialCore.UpdateEvent e)
@@ -132,19 +121,20 @@ namespace HelixToolkit.SharpDX.Core
                     RemoveAndDispose(ref exist);
                     if (texture == null)
                     {
-                        shaderResources[idx] = new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, null);
+                        shaderResources[idx] =
+                            new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, null);
                     }
                     else
                     {
                         var res = EffectsManager.MaterialTextureManager.Register(texture);
-                        shaderResources[idx] = new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, res);
+                        shaderResources[idx] =
+                            new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, res);
                     }
+
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public bool SetSampler(string name, SamplerStateDescription sampler)
@@ -158,18 +148,15 @@ namespace HelixToolkit.SharpDX.Core
                     samplerResources[idx] = new KeyValuePair<int, SamplerStateProxy>(samplerResources[idx].Key, res);
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext, ShaderPass shaderPass)
+            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
+                ShaderPass shaderPass)
             {
                 foreach (var res in shaderResources)
-                {
                     deviceContext.SetShaderResource(PixelShader.Type, res.Key, res.Value);
-                }
                 return true;
             }
 
@@ -195,23 +182,21 @@ namespace HelixToolkit.SharpDX.Core
 
             protected override void OnDispose(bool disposeManagedResources)
             {
-                if (disposeManagedResources)
-                {
-                    materialCore.UpdatingResource -= MaterialCore_UpdatingResource;
-                }
+                if (disposeManagedResources) materialCore.UpdatingResource -= MaterialCore_UpdatingResource;
                 for (var i = 0; i < samplerResources.Length; ++i)
                 {
                     var res = samplerResources[i].Value;
                     RemoveAndDispose(ref res);
                     samplerResources[i] = new KeyValuePair<int, SamplerStateProxy>(samplerResources[i].Key, null);
                 }
+
                 for (var i = 0; i < shaderResources.Length; ++i)
                 {
                     var res = shaderResources[i].Value;
                     RemoveAndDispose(ref res);
                     shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[i].Key, null);
-
                 }
+
                 base.OnDispose(disposeManagedResources);
             }
         }
@@ -223,12 +208,13 @@ namespace HelixToolkit.SharpDX.Core
                 string materialShaderPassName = DefaultPassNames.Default,
                 string shadowShaderPassName = DefaultPassNames.ShadowPass,
                 string wireframePassName = DefaultPassNames.Wireframe)
-                : base(manager, technique, materialCore, constantBufferDescription, materialShaderPassName, shadowShaderPassName, wireframePassName)
+                : base(manager, technique, materialCore, constantBufferDescription, materialShaderPassName,
+                    shadowShaderPassName, wireframePassName)
             {
-
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }
@@ -240,12 +226,13 @@ namespace HelixToolkit.SharpDX.Core
                 GenericMaterialCore materialCore, ConstantBufferDescription constantBufferDescription,
                 string materialShaderPassName = DefaultPassNames.Default,
                 string shadowShaderPassName = DefaultPassNames.ShadowPass)
-                : base(manager, technique, materialCore, constantBufferDescription, materialShaderPassName, shadowShaderPassName, string.Empty)
+                : base(manager, technique, materialCore, constantBufferDescription, materialShaderPassName,
+                    shadowShaderPassName, string.Empty)
             {
-
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel, int instanceCount)
+            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
+                int instanceCount)
             {
                 DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
             }

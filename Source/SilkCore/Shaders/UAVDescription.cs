@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace HelixToolkit.SharpDX.Core
 {
@@ -15,18 +12,13 @@ namespace HelixToolkit.SharpDX.Core
             RWStructuredWithCounter,
             RWTyped,
             RWStructured
-        };
+        }
+
         public sealed class UAVDescription
         {
-            [DataMember]
-            public string Name
-            {
-                set; get;
-            }
-            [DataMember]
-            public ShaderStage ShaderType;
-            [DataMember]
-            public UnorderedAccessViewType Type;
+            [DataMember] public ShaderStage ShaderType;
+
+            [DataMember] public UnorderedAccessViewType Type;
 
             public UAVDescription()
             {
@@ -39,6 +31,8 @@ namespace HelixToolkit.SharpDX.Core
                 Type = type;
             }
 
+            [DataMember] public string Name { get; set; }
+
             public UAVMapping CreateMapping(int slot)
             {
                 return new UAVMapping(slot, this);
@@ -46,33 +40,26 @@ namespace HelixToolkit.SharpDX.Core
 
             public UAVDescription Clone()
             {
-                return new UAVDescription(this.Name, this.ShaderType, this.Type);
+                return new UAVDescription(Name, ShaderType, Type);
             }
         }
 
         [DataContract]
         public sealed class UAVMapping
         {
-            [DataMember]
-            public int Slot
-            {
-                set; get;
-            }
-            [DataMember]
-            public UAVDescription Description
-            {
-                set; get;
-            }
-
             public UAVMapping(int slot, UAVDescription description)
             {
                 Slot = slot;
                 Description = description;
             }
 
+            [DataMember] public int Slot { get; set; }
+
+            [DataMember] public UAVDescription Description { get; set; }
+
             public UAVMapping Clone()
             {
-                return new UAVMapping(this.Slot, this.Description.Clone());
+                return new UAVMapping(Slot, Description.Clone());
             }
         }
     }

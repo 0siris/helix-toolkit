@@ -3,67 +3,15 @@ image:
 
 pull_requests:
   do_not_increment_build_number: true
-  
+
 skip_commits:
   files:
     - '*.md'
-    
-install:
-  - choco install gitversion.portable --version=4.0.0 -y
 
 configuration: Release
-dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: '{version}'
-  package_version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{build}'
-  informational_version: '{version}'
-  
+
 before_build:
-  - appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-  - dotnet restore .\Source\HelixToolkit.SharpDX.sln
-  - gitversion /l console /output buildserver /updateAssemblyInfo
+  - dotnet restore .\Source\SilkToolkit.slnx
 
 build_script:
-  - dotnet build Source\HelixToolkit.SharpDX.sln --no-restore --configuration Release --no-incremental -m:1 -p:Version=%GitVersion_NuGetVersion% -p:SourceLinkCreate=true
-
-after_build:
-  - nuget pack Source\HelixToolkit.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.Wpf.Input.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.Core.Wpf.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.Wpf.Sharpdx.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.SharpDX.Core.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - nuget pack Source\HelixToolkit.SharpDX.Assimp.nuspec -version "%GitVersion_NuGetVersion%" -Symbols -SymbolPackageFormat snupkg
-  - if "%APPVEYOR_REPO_NAME%" == "helix-toolkit/helix-toolkit" if not defined APPVEYOR_PULL_REQUEST_NUMBER Source\build-dist-examples.cmd
-
-artifacts:
-  - path: '*.nupkg'
-    name: HelixToolkit-packages-$(GitVersion_SemVer)
-    type: zip
-  - path: '*.snupkg'
-    name: HelixToolkit-packages-symbols-$(GitVersion_SemVer)
-    type: zip
-  - path: Source\dist-examples\WPF
-    name: HelixToolkit-Examples-WPF-$(GitVersion_SemVer)
-    type: zip
-  - path: Source\dist-examples\WPF.SharpDX
-    name: HelixToolkit-Examples-WPF-SharpDX-$(GitVersion_SemVer)
-    type: zip
-  - path: Source\dist-examples\SharpDX.Core
-    name: HelixToolkit-Examples-SharpDX-Core-$(GitVersion_SemVer)
-    type: zip
-    
-deploy:
-  provider: NuGet
-  server: https://www.myget.org/F/helixtoolkit-nightly/api/v2/package
-  api_key:
-    secure: Ed/7hI7ap963N/sJk9GAj1FeaZ0ynQlG1sH2U7BtoW5ykGPKNr2q0ThLkBRY8JKh
-  skip_symbols: false
-  symbol_server: https://www.myget.org/F/helixtoolkit-nightly/api/v2/package
-  artifact: /.*(\.|\.s)nupkg/
-  on:
-    APPVEYOR_REPO_NAME: helix-toolkit/helix-toolkit
-    APPVEYOR_ACCOUNT_NAME: holance
+  - dotnet build Source\SilkToolkit.slnx --no-restore --configuration Release --no-incremental -m:1 -p:UseSharedCompilation=false -clp:ErrorsOnly

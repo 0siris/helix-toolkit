@@ -30,7 +30,7 @@ namespace HelixToolkit.UWP
             {
 #if CORE
                 var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
-                Stream shaderStream = assembly.GetManifestResourceStream($"HelixToolkit.SharpDX.Core.Resources.{name}.cso");
+                Stream shaderStream = assembly.GetManifestResourceStream($"SilkCore.Resources.{name}.cso");
                 if (shaderStream == null)
                 {
                     throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");

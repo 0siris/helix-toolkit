@@ -1283,9 +1283,7 @@ namespace HelixToolkit.UWP
             public UnorderedAccessView[] GetUnorderedAccessViews(int startSlot, int count)
             {
                 if (count <= 0)
-                {
-                    return Array.Empty<UnorderedAccessView>();
-                }
+                    return [];
 
                 var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[count];
                 nativeContext.OMGetRenderTargetsAndUnorderedAccessViews(

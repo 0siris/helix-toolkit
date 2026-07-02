@@ -45,8 +45,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Textures\arial.dds" />
-      <EmbeddedResource Include="Textures\arial.fnt" />
+      <EmbeddedResource Include="Textures\arial.dds">
+        <LogicalName>SilkToolkit.Textures.arial.dds</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="Textures\arial.fnt">
+        <LogicalName>SilkToolkit.Textures.arial.fnt</LogicalName>
+      </EmbeddedResource>
       <Page Update="Themes\Generic.xaml">
         <Generator>MSBuild:Compile</Generator>
         <SubType>Designer</SubType>

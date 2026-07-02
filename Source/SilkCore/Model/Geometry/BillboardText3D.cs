@@ -155,23 +155,23 @@ namespace HelixToolkit.UWP
         {
 #if CORE
             var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
-            Stream fontInfo = assembly.GetManifestResourceStream($"HelixToolkit.SharpDX.Core.Resources.{FontName}.fnt");
+            Stream fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt");
             bmpFont = new BitmapFont();
             bmpFont.Load(fontInfo);
-            Stream font = assembly.GetManifestResourceStream($"HelixToolkit.SharpDX.Core.Resources.{FontName}.dds");
+            Stream font = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.dds");
             TextureStatic = font;
 #else
 #if !NETFX_CORE
             var assembly = Assembly.GetExecutingAssembly();
 
             //Read the texture description           
-            var texDescriptionStream = assembly.GetManifestResourceStream($"HelixToolkit.Wpf.SharpDX.Textures.{FontName}.fnt");
+            var texDescriptionStream = assembly.GetManifestResourceStream($"SilkToolkit.Textures.{FontName}.fnt");
 
             bmpFont = new BitmapFont();
             bmpFont.Load(texDescriptionStream);// BitmapFontLoader.LoadFontFromFile(texDescriptionFilePath);
             texDescriptionStream.Dispose();
             //Read the texture          
-            var texImageStream = assembly.GetManifestResourceStream($"HelixToolkit.Wpf.SharpDX.Textures.{FontName}.dds");
+            var texImageStream = assembly.GetManifestResourceStream($"SilkToolkit.Textures.{FontName}.dds");
             TextureStatic = MemoryStream.Synchronized(texImageStream);
 #else
             var packageFolder = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;

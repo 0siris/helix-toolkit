@@ -37,19 +37,22 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\SilkToolkit.Native.ShaderBuilder\SilkToolkit.Native.ShaderBuilder.csproj"
+                          ReferenceOutputAssembly="false"
+                          PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Remove="Resources\*.cso" />
     </ItemGroup>
 
     <Target Name="PrepareGeneratedShaderResources"
             BeforeTargets="AssignTargetPaths"
             Condition="'$(DesignTimeBuild)' != 'true'">
-        <MSBuild Projects="..\HelixToolkit.Native.ShaderBuilder\HelixToolkit.Native.ShaderBuilder.csproj"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration)" />
         <ItemGroup>
             <_GeneratedShaderResource Include="Resources\*.cso" />
             <EmbeddedResource Include="@(_GeneratedShaderResource)">
-                <LogicalName>HelixToolkit.SharpDX.Core.Resources.%(_GeneratedShaderResource.Filename)%(_GeneratedShaderResource.Extension)</LogicalName>
+                <LogicalName>SilkCore.Resources.%(_GeneratedShaderResource.Filename)%(_GeneratedShaderResource.Extension)</LogicalName>
             </EmbeddedResource>
         </ItemGroup>
     </Target>

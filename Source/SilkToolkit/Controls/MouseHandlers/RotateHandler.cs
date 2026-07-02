@@ -9,15 +9,11 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Cameras;
-#endif
+
     /// <summary>
     /// Handles rotation.
     /// </summary>

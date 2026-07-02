@@ -3,32 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Runtime.Serialization;
-
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-
-namespace HelixToolkit.UWP
-#elif WINUI
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
-using System.ComponentModel;
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
-    using Model;
-
     [DataContract]
-#if NETFX_CORE || WINUI
-    public abstract class Material : DependencyObject
-#else
     public abstract class Material : Freezable
-#endif
     {
         private MaterialCore core;
 

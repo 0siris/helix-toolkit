@@ -2,25 +2,10 @@
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
-#if NETFX_CORE
-using  Windows.UI.Xaml;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
-#if COREWPF
-using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 using System.Windows;
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+namespace HelixToolkit.Wpf.SharpDX {
     using Model;
     /// <summary>
     /// Provides a way to render child elements always on top of other elements

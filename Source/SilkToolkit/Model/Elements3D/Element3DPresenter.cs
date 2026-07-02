@@ -1,17 +1,13 @@
 ﻿
-using SharpDX;
+
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Markup;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Render;
-#else
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Render;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
+
 {
     [ContentProperty("Content")]
     public class Element3DPresenter : Element3D

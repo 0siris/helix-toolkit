@@ -1,13 +1,11 @@
 ﻿#if DEBUG
 //#define DEBUGMOUSEEVENT
 #endif
-using SharpDX;
+
 using System.Windows;
 using System.Windows.Input;
 using Media = System.Windows.Media;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;

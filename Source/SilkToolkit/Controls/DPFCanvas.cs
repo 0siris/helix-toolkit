@@ -14,23 +14,15 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
-using global::SharpDX;
-#if DX11_1
-#else
-#endif
-#if COREWPF
+
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Controls;
     using Microsoft.Extensions.Logging;
-#if !COREWPF
-    using Render;
-    using Utilities;
-#endif
 
     // ---- BASED ON ORIGNAL CODE FROM -----
     // Copyright (c) 2010-2012 SharpDX - Alexandre Mutel

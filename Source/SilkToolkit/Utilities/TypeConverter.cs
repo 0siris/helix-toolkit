@@ -7,16 +7,11 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using global::SharpDX;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Core;
-#endif
 
     namespace Utilities
     {

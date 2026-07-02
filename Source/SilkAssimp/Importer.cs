@@ -13,16 +13,8 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+
+namespace HelixToolkit.SharpDX.Core {
     using Model;
     using HxAnimations = Animations;
     using HxScene = Model.Scene;

@@ -6,7 +6,7 @@
 //   Base class for renderable elements.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using SharpDX;
+
 using System.Windows;
 using Media = System.Windows.Media;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
@@ -14,17 +14,13 @@ using System;
 using System.Windows.Input;
 using Point = System.Windows.Point;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
 
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
 
     /// <summary>
     /// Base class for renderable elements.

@@ -6,14 +6,9 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene2D;
-#endif
 
     namespace Elements2D
     {

@@ -31,15 +31,7 @@ using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID
 using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
 using SilkD3D11VertexShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11VertexShader>;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Native
     {

@@ -2,24 +2,12 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-namespace HelixToolkit.UWP
-#elif WINUI
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core.Cameras;
-namespace HelixToolkit.WinUI
-#else
+
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Cameras;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Cameras;
-#endif
+
+namespace HelixToolkit.Wpf.SharpDX {
+
     public interface IOrthographicCameraModel : IProjectionCameraModel
     {
         double Width

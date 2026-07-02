@@ -1,24 +1,12 @@
-﻿#if NETFX_CORE || WINUI
-using Media = Windows.UI;
-#else
-using Media = System.Windows.Media;
+﻿using Media = System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Point = System.Windows.Point;
-#endif
-using global::SharpDX;
 using System.Runtime.CompilerServices;
 
-#if NETFX_CORE
-namespace HelixToolkit.UWP
-#elif WINUI
-namespace HelixToolkit.WinUI
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
+namespace HelixToolkit.Wpf.SharpDX {
     public static class Media3DExtension
     {
-#if !NETFX_CORE && !WINUI
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D ToVector3D(this Vector3 vector)
         {
@@ -33,8 +21,8 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return new Matrix3x2((float)m.M11, (float)m.M12, (float)m.M21, (float)m.M22, (float)m.OffsetX, (float)m.OffsetY);
         }
-#endif
-#if !NETFX_CORE && !WINUI
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D ToVector3D(this Transform3D trafo)
         {
@@ -56,8 +44,8 @@ namespace HelixToolkit.Wpf.SharpDX
             return new Size3D(vector.X, vector.Y, vector.Z);
         }
 
-#endif
-#if !NETFX_CORE && !WINUI
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix3D ToMatrix3D(this Matrix m)
         {
@@ -179,21 +167,9 @@ namespace HelixToolkit.Wpf.SharpDX
             g.Children.Add(t1);
             return g;
         }
-#endif
 
-#if NETFX_CORE || WINUI
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 ToVector2(this Windows.Foundation.Point p)
-        {
-            return new Vector2((float)p.X, (float)p.Y);
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Windows.Foundation.Point ToPoint(this Vector2 p)
-        {
-            return new Windows.Foundation.Point(p.X, p.Y);
-        }
-#else
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 ToVector2(this Point vector)
         {
@@ -205,7 +181,6 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return new Point(vector.X, vector.Y);
         }
-#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color4 ToColor4(this Media.Color color)

@@ -14,15 +14,7 @@ using SilkDXGIFactory2Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGIFacto
 using SilkDXGISwapChain1Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGISwapChain1>;
 using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     public enum Usage
     {

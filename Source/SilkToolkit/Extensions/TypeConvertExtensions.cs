@@ -1,12 +1,7 @@
 ﻿
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     namespace Extensions
     {
         public static class TypeConvertExtensions

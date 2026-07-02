@@ -4,17 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define TEST
 using System;
-using SharpDX;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
+
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Core
     {

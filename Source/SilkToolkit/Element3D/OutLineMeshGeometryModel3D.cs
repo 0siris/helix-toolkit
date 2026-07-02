@@ -2,32 +2,16 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Windows.UI.Colors;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Microsoft.UI.Colors;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+
 
     public class OutLineMeshGeometryModel3D : MeshGeometryModel3D
     {

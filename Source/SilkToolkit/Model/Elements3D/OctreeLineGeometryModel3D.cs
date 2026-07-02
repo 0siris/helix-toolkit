@@ -1,4 +1,4 @@
-﻿using SharpDX;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Media = System.Windows.Media;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {

@@ -10,9 +10,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Media3D;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     public interface ITraversable

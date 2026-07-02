@@ -5,39 +5,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Collections.Generic;
 using System.Linq;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using PlatformColor = Windows.UI.Color;
-using PlatformColors = Windows.UI.Colors;
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using PlatformColor = Windows.UI.Color;
-using PlatformColors = Microsoft.UI.Colors;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using PlatformColors = System.Windows.Media.Colors;
 using PlatformColor = System.Windows.Media.Color;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Core;
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// Static mesh batching. Supports multiple <see cref="BatchedMaterials"/>. All geometries are merged into single buffer for rendering. Indivisual material color infomations are encoded into vertex buffer.
     /// <para>

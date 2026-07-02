@@ -1,15 +1,7 @@
 using System.Runtime.CompilerServices;
 using Silk.NET.Core.Native;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Render
     {

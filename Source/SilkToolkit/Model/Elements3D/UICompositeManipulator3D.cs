@@ -9,7 +9,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Data;
-using global::SharpDX;
+
 
 
 namespace HelixToolkit.Wpf.SharpDX

@@ -2,35 +2,21 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
 
-namespace HelixToolkit.UWP
-#elif WINUI
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Core;
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// Provides a base class for a scene model which contains geometry
     /// </summary>

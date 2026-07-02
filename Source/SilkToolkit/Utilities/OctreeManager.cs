@@ -6,36 +6,14 @@
 using System;
 using System.Collections.Generic;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using System.ServiceModel.Dispatcher;
-using FrameworkContentElement = Windows.UI.Xaml.FrameworkElement;    
-using Windows.Foundation;
-using Windows.UI.Core;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-// using System.ServiceModel.Dispatcher;
-using FrameworkContentElement = Microsoft.UI.Xaml.FrameworkElement;    
-using Windows.Foundation;
-using Windows.UI.Core;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Utilities;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using System.Windows.Threading;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Utilities;
-#endif
+
+ namespace HelixToolkit.Wpf.SharpDX {
     /// <summary>
     /// 
     /// </summary>

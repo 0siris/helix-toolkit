@@ -2,16 +2,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using SharpDX;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
+
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     public static class PlaneExtensions
     {

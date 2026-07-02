@@ -3,24 +3,13 @@
 // </copyright>
 
 using System.Collections.Generic;
-using SharpDX;
-#if NETFX_CORE
-namespace HelixToolkit.UWP
-#elif WINUI
+
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
-#if COREWPF
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// Do a depth prepass before rendering.
     /// <para>Must customize the DefaultEffectsManager and set DepthStencilState to DefaultDepthStencilDescriptions.DSSDepthEqualNoWrite in default ShaderPass from EffectsManager to achieve best performance.</para>

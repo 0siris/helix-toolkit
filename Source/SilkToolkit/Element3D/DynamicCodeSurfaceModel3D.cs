@@ -1,27 +1,13 @@
 ﻿using System.Collections.Generic;
 
-#if !NETFX_CORE && !WINUI
-using System.CodeDom.Compiler;
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Media = Windows.UI;
 
-namespace HelixToolkit.UWP
-#elif WINUI
-using Microsoft.UI.Xaml;
-using Media = Windows.UI;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
+using System.CodeDom.Compiler;
+
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
 #if !WINDOWS_UWP && !WINUI
-    using Model.Scene;
 
     public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D
     {
@@ -145,4 +131,3 @@ namespace HelixToolkit.Wpf.SharpDX
     }
 #endif
 }
-#endif

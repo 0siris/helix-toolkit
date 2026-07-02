@@ -8,6 +8,7 @@
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IsPackable>false</IsPackable>
+        <RootNamespace>HelixToolkit.Wpf.SharpDX</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

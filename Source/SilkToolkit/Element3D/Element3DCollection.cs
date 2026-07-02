@@ -10,13 +10,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-#if NETFX_CORE
-namespace HelixToolkit.UWP
-#elif WINUI
-namespace HelixToolkit.WinUI
-#else
+
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
     using Elements2D;
 

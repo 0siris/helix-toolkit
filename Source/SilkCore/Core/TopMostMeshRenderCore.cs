@@ -2,15 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Core
     {

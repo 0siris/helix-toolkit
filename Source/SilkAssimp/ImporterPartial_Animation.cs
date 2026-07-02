@@ -10,16 +10,7 @@ using System.Threading.Tasks;
 using Animation = Assimp.Animation;
 using Microsoft.Extensions.Logging;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+namespace HelixToolkit.SharpDX.Core {
     using HxAnimations = Animations;
     using HxScene = Model.Scene;
     namespace Assimp

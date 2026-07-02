@@ -4,33 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 #if !CORE
 using System;
-#if NETFX_CORE 
-using Windows.UI.Text;
-using Media = Windows.UI.Xaml.Media;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
-using Windows.Foundation;
-#elif WINUI
-using Windows.UI.Text;
-using Microsoft.UI.Text;
-using Media = Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
-using Windows.Foundation;
-#else
+
 using Media = System.Windows.Media;
 using System.Windows;
-#endif
 using System.Linq;
 
-#if NETFX_CORE
-
-namespace HelixToolkit.UWP.Extensions
-#elif WINUI
-namespace HelixToolkit.WinUI.Extensions
-#else
 namespace HelixToolkit.Wpf.SharpDX.Extensions
-#endif
 {
     public static class CommonExtensions
     {

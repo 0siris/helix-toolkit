@@ -12,15 +12,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     /// <summary>
     ///     Represents a model that can be used to present a collection of items. supports generating child items by a
     ///     <see cref="DataTemplate" />.

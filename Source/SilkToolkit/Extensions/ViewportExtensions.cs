@@ -17,20 +17,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
 
-#if !COREWPF
-    using Cameras;
-    using Utilities;
-    using Model.Scene;
-#endif
 
     /// <summary>
     /// Provides extension methods for <see cref="Viewport3DX" />.

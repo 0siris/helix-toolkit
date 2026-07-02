@@ -6,14 +6,9 @@
 // Contains extension methods for geometry.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Core;
-#endif
     /// <summary>
     /// Contains extension methods for geometry.
     /// </summary>

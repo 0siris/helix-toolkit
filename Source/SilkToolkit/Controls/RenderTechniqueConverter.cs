@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Data;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     public class RenderTechniqueConverter : IValueConverter

@@ -1,35 +1,15 @@
-using SharpDX;
+
 using System.IO;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Model;
-#endif
 using HelixToolkit.Wpf.SharpDX.Utilities;
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Model;
-    using Shaders;
-#endif
-
-
+namespace HelixToolkit.Wpf.SharpDX {
     /// <summary>
     /// Implements a phong-material with its all properties
     /// Includes Diffuse, Normal, Displacement, Specular, etc. maps

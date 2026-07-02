@@ -3,15 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Core;
     using Core2D;

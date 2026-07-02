@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using SharpDX;
 
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#else
-using HelixToolkit.Wpf.SharpDX.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Elements2D

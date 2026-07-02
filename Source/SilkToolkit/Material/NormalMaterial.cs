@@ -1,19 +1,7 @@
-﻿#if NETFX_CORE
-using  Windows.UI.Xaml;
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
     using Model;
     /// <summary>
@@ -40,8 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return NormalMaterialCore.Core;
         }
-
-#if !NETFX_CORE && !WINUI
+        
         protected override Freezable CreateInstanceCore()
         {
             return new NormalMaterial()
@@ -49,6 +36,6 @@ namespace HelixToolkit.Wpf.SharpDX
                 Name = Name
             };
         }
-#endif
+
     }
 }

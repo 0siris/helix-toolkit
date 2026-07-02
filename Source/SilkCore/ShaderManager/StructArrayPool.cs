@@ -3,15 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 { 
     using Utilities;
     /// <summary>

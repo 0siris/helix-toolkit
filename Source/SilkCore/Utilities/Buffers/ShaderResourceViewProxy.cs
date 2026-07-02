@@ -7,15 +7,7 @@ using System;
 using System.IO;
 using SharpDX.Toolkit.Graphics;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Model;
     namespace Utilities

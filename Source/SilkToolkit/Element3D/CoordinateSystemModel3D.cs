@@ -3,35 +3,17 @@
 //   Author: Lunci Hua
 // </copyright>
 
-using SharpDX;
+
 using System.Collections.Generic;
-
-#if NETFX_CORE
-using  Media = Windows.UI;
-using Windows.UI.Xaml;
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Media = Windows.UI;
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Media = System.Windows.Media;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// 
     /// </summary>

@@ -1,13 +1,9 @@
 ﻿using System.Windows;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     public class SortingGroupModel3D : GroupModel3D
     {
         /// <summary>

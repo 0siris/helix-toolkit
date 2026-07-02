@@ -2,16 +2,8 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+
+namespace HelixToolkit.SharpDX.Core {
     public class DefaultTexturePathResolver : ITexturePathResolver
     {
         static readonly ILogger logger = Logger.LogManager.Create<DefaultTexturePathResolver>();

@@ -5,15 +5,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Native
     {

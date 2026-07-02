@@ -4,7 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using SharpDX;
+
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -13,15 +13,7 @@ using System.Threading;
 using Microsoft.Extensions.Logging;
 
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Render
     {

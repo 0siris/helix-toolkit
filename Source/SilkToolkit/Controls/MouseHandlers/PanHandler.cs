@@ -10,9 +10,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     /// <summary>

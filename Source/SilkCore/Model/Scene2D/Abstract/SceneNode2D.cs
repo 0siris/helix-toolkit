@@ -11,15 +11,7 @@ using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Model.Scene2D
     {

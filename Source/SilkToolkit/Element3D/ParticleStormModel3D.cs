@@ -9,46 +9,24 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 using System;
-using SharpDX;
+
 using System.Collections.Generic;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Media = Windows.UI;
-using Windows.Foundation;
-using Vector3D = SharpDX.Vector3;
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Media = Windows.UI;
-using Windows.Foundation;
-using Vector3D = SharpDX.Vector3;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Utilities;
-using static HelixToolkit.SharpDX.Core.Core.ParticleRenderCore;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
 using static HelixToolkit.SharpDX.Core.Core.ParticleRenderCore;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Model.Scene;
-    using Utilities;
-    using static Core.ParticleRenderCore;
-#endif
+
 
     public class ParticleStormModel3D : Element3D
     {

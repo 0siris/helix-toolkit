@@ -2,7 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,15 +10,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     /// <summary>
     /// Ref https://referencesource.microsoft.com/#System.Drawing/commonui/System/Drawing/ColorConverter.cs

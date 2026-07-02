@@ -8,7 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System;
 using System.IO;
-using SharpDX;
+
 
 #if !NETFX_CORE
 using System.Windows.Threading;

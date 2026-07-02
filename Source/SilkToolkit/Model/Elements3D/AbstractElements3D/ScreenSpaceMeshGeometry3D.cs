@@ -2,23 +2,19 @@
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
 // </copyright>
-using SharpDX;
+
 using System;
 using System.Windows;
 using System.Windows.Data;
 
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     using Elements2D;
     using Converters;
 

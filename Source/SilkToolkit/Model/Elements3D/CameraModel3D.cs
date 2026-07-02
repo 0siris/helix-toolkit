@@ -1,17 +1,13 @@
-using SharpDX;
+
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Media3D;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
-#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Cameras;
-#endif
+
     public class CameraModel3D : CompositeModel3D
     {
         public static readonly DependencyProperty CameraProperty =

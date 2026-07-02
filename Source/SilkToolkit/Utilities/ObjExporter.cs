@@ -7,21 +7,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Media.Media3D;
-using global::SharpDX;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-
-#if !COREWPF
-    using Model;
-    using Model.Scene;
-#endif
-
     /// <summary>
     /// Export the 3D visual tree to a Wavefront OBJ file
     /// </summary>

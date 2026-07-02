@@ -4,16 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+namespace HelixToolkit.SharpDX.Core {
     /// <summary>
     /// Custom Texture loading IO interface.
     /// </summary>

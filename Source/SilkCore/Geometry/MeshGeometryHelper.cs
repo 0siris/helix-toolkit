@@ -6,25 +6,12 @@
 //   Provides helper methods for mesh geometries.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
-{
+
+namespace HelixToolkit.SharpDX.Core {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
-#if SHARPDX || SILKNET
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using Point = Silk.NET.Maths.Vector2D<float>;
@@ -33,13 +20,7 @@ namespace HelixToolkit.Wpf
     using Point3DCollection = Vector3Collection;
     using PointCollection = Vector2Collection;
     using DoubleOrSingle = System.Single;
-#else
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Media3D;
-
-    using DoubleOrSingle = System.Double;
-#endif
+    
 
     /// <summary>
     /// Provides helper methods for mesh geometries.

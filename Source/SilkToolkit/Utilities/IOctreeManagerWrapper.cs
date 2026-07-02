@@ -1,15 +1,7 @@
-﻿#if NETFX_CORE
-namespace HelixToolkit.UWP
-#elif WINUI
+﻿
 using HelixToolkit.SharpDX.Core;
-namespace HelixToolkit.WinUI
-#else
-#if COREWPF
-using HelixToolkit.SharpDX.Core;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
+
+namespace HelixToolkit.Wpf.SharpDX {
     /// <summary>
     /// 
     /// </summary>

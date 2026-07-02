@@ -2,33 +2,17 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX;
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Media = Windows.UI;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Media = Windows.UI;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Media = System.Windows.Media;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
     using Model;
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// 
     /// </summary>

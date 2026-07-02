@@ -7,14 +7,10 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene;
-#endif
+
 
 
     /// <summary>

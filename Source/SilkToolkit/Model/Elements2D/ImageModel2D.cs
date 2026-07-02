@@ -1,15 +1,10 @@
 ﻿using System.IO;
 using System.Windows;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     namespace Elements2D
     {
         /// <summary>

@@ -6,38 +6,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGDRAWING
 //#define DISABLEBITMAPCACHE
 #endif
-#if !CORE
-using SharpDX;
-using System;
-#if NETFX_CORE
-using  Windows.UI.Xaml;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
-namespace HelixToolkit.WinUI.Core2D
-#else
+using System;
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX.Core2D
-#endif
 {
-#if !COREWPF && !WINUI
-    using Model.Scene2D;
-#endif
+
     /// <summary>
     /// External Wrapper core to be used for different platform
     /// </summary>
-#if NETFX_CORE || WINUI
-    public abstract partial class Element2DCore : FrameworkElement, IDisposable
-#else
+
     public abstract partial class Element2DCore : FrameworkContentElement, IDisposable
-#endif
     {
         public sealed class SceneNode2DCreatedEventArgs : EventArgs
         {
@@ -247,4 +228,3 @@ namespace HelixToolkit.Wpf.SharpDX.Core2D
         #endregion
     }
 }
-#endif

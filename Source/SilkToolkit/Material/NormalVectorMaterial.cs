@@ -1,20 +1,8 @@
-﻿#if NETFX_CORE
-using  Windows.UI.Xaml;
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
+﻿
 using System.ComponentModel;
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
+namespace HelixToolkit.Wpf.SharpDX {
     using Model;
     /// <summary>
     /// Render color by triangle normal
@@ -40,8 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             return NormalVectorMaterialCore.Core;
         }
-
-#if !NETFX_CORE && !WINUI
+        
         protected override Freezable CreateInstanceCore()
         {
             return new NormalVectorMaterial()
@@ -49,6 +36,6 @@ namespace HelixToolkit.Wpf.SharpDX
                 Name = Name
             };
         }
-#endif
+
     }
 }

@@ -2,7 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,15 +11,7 @@ using System.IO;
 #else
 using System.Windows.Media.Imaging;
 #endif
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     public class BillboardImage3D : BillboardBase
     {

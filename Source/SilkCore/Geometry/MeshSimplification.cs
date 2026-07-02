@@ -8,25 +8,11 @@
 // http://opensource.org/licenses/MIT
 /////////////////////////////////////////////
 
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
-{
+namespace HelixToolkit.SharpDX.Core {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-#if SHARPDX || SILKNET
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using Point = Silk.NET.Maths.Vector2D<float>;
@@ -37,13 +23,8 @@ namespace HelixToolkit.Wpf
     using DoubleOrSingle = System.Single;
     using Matrix3D = Silk.NET.Maths.Matrix4X4<float>;
     using HelixToolkit.Wpf;
-#else
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Media3D;
+    
 
-    using DoubleOrSingle = System.Double;
-#endif
     /// <summary>
     /// Fast-Quadric-Mesh-Simplification, port from https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
     /// </summary>

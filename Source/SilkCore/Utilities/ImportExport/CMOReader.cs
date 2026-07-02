@@ -146,7 +146,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using global::SharpDX;
+
 using System.Runtime.InteropServices;
 
 #if !NETFX_CORE

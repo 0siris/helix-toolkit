@@ -6,15 +6,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Core;
     using Core2D;

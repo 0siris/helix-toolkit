@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using SharpDX;
 
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
 
     /// <summary>
     /// Limitation: Under switchable graphics card setup(Laptop with integrated graphics card and external graphics card), 

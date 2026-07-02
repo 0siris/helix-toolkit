@@ -2,21 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
 {
-#if SHARPDX || SILKNET
     using System;
     using System.Collections.Generic;
 
@@ -25,13 +12,6 @@ namespace HelixToolkit.Wpf
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using PointCollection = System.Collections.Generic.List<Silk.NET.Maths.Vector2D<float>>;
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
-#else
-    using System;
-    using System.Collections.Generic;
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Media3D;
-#endif
 
     /// <summary>
     /// Represents a 3D polygon.

@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using Cyotek.Drawing.BitmapFont;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,15 +20,7 @@ using Media = System.Windows.Media;
 #endif
 #endif
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using System.Collections.ObjectModel;
 

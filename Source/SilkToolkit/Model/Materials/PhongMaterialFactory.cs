@@ -9,7 +9,7 @@
 using System.Linq;
 using System.Collections.ObjectModel;
 
-using global::SharpDX;
+
 using System;
 using Color = HelixToolkit.SharpDX.Core.Color;
 

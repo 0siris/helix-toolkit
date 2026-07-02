@@ -5,15 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Linq;
 using System.Runtime.Serialization;
 using Microsoft.Extensions.Logging;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Shaders
     {

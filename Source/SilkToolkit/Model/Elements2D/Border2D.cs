@@ -4,18 +4,13 @@ using WpfBrush = System.Windows.Media.Brush;
 using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;
     using Extensions;
-#if !COREWPF
-    using Model.Scene2D;
-#endif
-    using SharpDX;
+    
     using Thickness = System.Windows.Thickness;
     namespace Elements2D
     {

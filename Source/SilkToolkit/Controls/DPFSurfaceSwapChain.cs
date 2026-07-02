@@ -15,23 +15,16 @@ using System.Runtime.InteropServices;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Diagnostics.CodeAnalysis;  
-#if DX11_1
-#else
-#endif
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
 
     using Controls;
-#if !COREWPF
-    using Render;    
-    using Utilities;
-#endif
+
 
     /// <summary>
     /// 

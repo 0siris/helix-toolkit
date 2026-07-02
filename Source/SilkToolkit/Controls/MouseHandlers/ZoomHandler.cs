@@ -7,9 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using System;

@@ -4,9 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     public class GroupModel3D : GroupElement3D, IHitable, IVisible

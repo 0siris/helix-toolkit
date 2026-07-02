@@ -14,10 +14,8 @@ using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 using System.Windows.Media.Media3D;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Controls;

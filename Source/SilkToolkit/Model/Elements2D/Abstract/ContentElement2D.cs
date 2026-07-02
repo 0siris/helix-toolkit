@@ -5,17 +5,12 @@ using System.Windows.Media;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;
     using Extensions;
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     using System.Windows.Data;
 
     namespace Elements2D

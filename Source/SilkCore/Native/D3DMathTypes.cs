@@ -6,15 +6,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 using System;
 using System.Runtime.InteropServices;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct Bool4

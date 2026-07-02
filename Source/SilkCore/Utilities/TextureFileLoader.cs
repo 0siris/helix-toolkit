@@ -6,15 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Utilities
     {

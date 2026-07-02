@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Windows.Markup;
-using SharpDX;
+
 using System.Linq;
 using Media = System.Windows.Media;
 using WpfFontStyle = System.Windows.FontStyle;
@@ -11,12 +11,9 @@ using WpfFontWeight = System.Windows.FontWeight;
 using WpfFlowDirection = System.Windows.FlowDirection;
 using WpfTextAlignment = System.Windows.TextAlignment;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#else
-using HelixToolkit.Wpf.SharpDX.Model.Scene2D;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;

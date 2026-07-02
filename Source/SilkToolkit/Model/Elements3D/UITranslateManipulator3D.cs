@@ -8,10 +8,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System.ComponentModel;
 using System.Windows;
-using global::SharpDX;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
-#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {

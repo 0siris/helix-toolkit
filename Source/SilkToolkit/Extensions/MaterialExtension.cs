@@ -1,18 +1,7 @@
 ﻿using System;
-#if !NETFX_CORE && !WINUI
-#if COREWPF
-using HelixToolkit.SharpDX.Core.Model;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#elif WINUI
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
-namespace HelixToolkit.UWP
-#endif
-{
-    using Model;
 
+using HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.Wpf.SharpDX  {
     public static class MaterialExtension
     {
         public static PhongMaterial ConvertToPhongMaterial(this PhongMaterialCore core)

@@ -2,16 +2,11 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
-#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Render;
-#endif
 
     namespace Controls
     {

@@ -6,20 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define OUTPUTDEBUGGING
 //#endif
 using System;
-using SharpDX;
+
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Core
     {

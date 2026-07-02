@@ -7,26 +7,11 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
-{
-#if SHARPDX || SILKNET
+
+namespace HelixToolkit.SharpDX.Core {
     using Int32Collection = System.Collections.Generic.List<int>;
     using PointCollection = System.Collections.Generic.List<Silk.NET.Maths.Vector2D<float>>;
-#else
-    using System.Windows.Media;
-#endif
+
 
     /// <summary>
     /// Represents a 2D polygon.

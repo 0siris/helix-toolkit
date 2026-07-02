@@ -1,7 +1,5 @@
-﻿#if COREWPF
-using HelixToolkit.SharpDX.Core;
+﻿using HelixToolkit.SharpDX.Core;
 using RelayExceptionEventArgs = HelixToolkit.SharpDX.Core.Utilities.RelayExceptionEventArgs;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Controls

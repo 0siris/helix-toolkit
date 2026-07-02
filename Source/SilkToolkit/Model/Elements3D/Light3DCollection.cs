@@ -5,10 +5,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using SharpDX;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     public class Light3DCollection : GroupElement3D, ILight3D

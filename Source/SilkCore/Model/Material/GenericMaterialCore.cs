@@ -6,17 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.IO;
-using global::SharpDX;
+
 using System.Linq;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Model
     {

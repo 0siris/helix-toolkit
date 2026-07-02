@@ -6,15 +6,11 @@
 using System.Windows;
 using System.Windows.Media.Media3D;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     public sealed class DirectionalLight3D : Light3D
     {
         public static readonly DependencyProperty DirectionProperty =

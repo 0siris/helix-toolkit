@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 using System.IO;
-using global::SharpDX;
+
 #if DEFERRED
 using Direct3D11 = global::SharpDX.Direct3D11;
 #endif

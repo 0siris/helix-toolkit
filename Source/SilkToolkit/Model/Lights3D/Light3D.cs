@@ -9,17 +9,13 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-    using global::SharpDX;
+    
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     using System.Windows;
     using System.Windows.Media.Media3D;
     using Media = System.Windows.Media;

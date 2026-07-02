@@ -2,42 +2,21 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
+
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 
-#if NETFX_CORE
-using Windows.UI.Xaml;
-using Media = Windows.UI;
-
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Media = Windows.UI;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Media3D = System.Windows.Media.Media3D;
 using Media = System.Windows.Media;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 using HelixToolkit.Wpf.SharpDX.Utilities;
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif  
+namespace HelixToolkit.Wpf.SharpDX {
 
     public class TransformManipulator3D : GroupElement3D
     {

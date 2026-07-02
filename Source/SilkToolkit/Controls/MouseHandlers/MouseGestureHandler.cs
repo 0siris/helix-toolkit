@@ -10,16 +10,12 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.Generic;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
-
-#if !COREWPF
-    using Model.Scene;
-#endif
+    
     /// <summary>
     /// An abstract base class for the mouse gesture handlers.
     /// </summary>

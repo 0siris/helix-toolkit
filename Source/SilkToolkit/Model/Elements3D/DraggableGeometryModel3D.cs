@@ -12,8 +12,6 @@ using System.Windows.Media.Media3D;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
-
-
     /// <summary>
     /// Example class how to implement mouse dragging for objects.
     /// Probably it should be moved to a "Dragging Demo."

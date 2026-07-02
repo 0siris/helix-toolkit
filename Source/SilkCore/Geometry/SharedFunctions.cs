@@ -1,31 +1,14 @@
 using System.Linq;
 using System;
 using System.Runtime.CompilerServices;
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
 {
-#if SHARPDX || SILKNET
+    
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using DoubleOrSingle = System.Single;
     using Vector = Silk.NET.Maths.Vector2D<float>;
-#else
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Media3D;
-    using DoubleOrSingle = System.Double;
-#endif
+
     /// <summary>
     /// Functions for the Shared Projects to simplify the Code
     /// </summary>

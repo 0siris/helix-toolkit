@@ -15,9 +15,7 @@ using SilkD3D9Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3D9Ex>
 using SilkD3D9DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3DDevice9Ex>;
 using SilkD3D9SurfacePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3DSurface9>;
 using SilkD3D9TexturePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3DTexture9>;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
-#endif
 
 namespace HelixToolkit.Wpf.SharpDX
 {

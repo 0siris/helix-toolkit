@@ -6,40 +6,16 @@
 //   Builds MeshGeometry3D objects.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
+
+using HelixToolkit.Wpf;
+
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
-
-#if SHARPDX || SILKNET
     using System.Linq;
-#if NETFX_CORE
-#if CORE
-    using HelixToolkit.SharpDX.Core;
-#else
-    using HelixToolkit.UWP;
-#endif
-    using HelixToolkit.Wpf;
-#else
-#endif
-
-#if !NETFX_CORE
-    using Rect3D = System.Windows.Media.Media3D.Rect3D;
-#endif
     using Point = Silk.NET.Maths.Vector2D<float>;
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
@@ -48,13 +24,7 @@ namespace HelixToolkit.Wpf
     using PointCollection = Vector2Collection;
     using Int32Collection = IntCollection;
     using DoubleOrSingle = System.Single;
-#else
-    using System.Linq;
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Media3D;
-    using DoubleOrSingle = System.Double;
-#endif
+    
 #pragma warning disable 0436
     /// <summary>
     /// Box face enumeration.

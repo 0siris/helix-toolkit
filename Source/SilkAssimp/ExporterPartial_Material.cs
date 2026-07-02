@@ -5,16 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using Assimp;
 using Assimp.Unmanaged;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+namespace HelixToolkit.SharpDX.Core {
     using Model;
     using System.Threading;
     using HxScene = Model.Scene;

@@ -3,37 +3,19 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 using System;
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Windows.UI.Colors;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Color = Windows.UI.Color;
-using Colors = Microsoft.UI.Colors;
-using System.Runtime.Versioning;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
-#if !COREWPF && !WINUI
-    using Model.Scene;
-    using Shaders;
-#endif
+
 
     /// <summary>
     /// 

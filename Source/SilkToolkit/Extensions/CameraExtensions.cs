@@ -13,15 +13,10 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Cameras;
-#endif
 
     /// <summary>
     /// Provides extension methods for the cameras.

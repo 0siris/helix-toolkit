@@ -28,18 +28,10 @@
 
 using System;
 using System.Collections.Generic;
-using SharpDX;
+
 using Point = Silk.NET.Maths.Vector2D<int>;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Utilities.ImagePacker
     {

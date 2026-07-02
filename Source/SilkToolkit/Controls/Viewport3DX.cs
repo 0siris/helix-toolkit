@@ -20,26 +20,19 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using MouseButtons = System.Windows.Forms.MouseButtons;
 using System.Runtime.CompilerServices;
-#if COREWPF
+
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
-#else
-using HelixToolkit.Wpf.SharpDX.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model.Scene2D;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Controls;
     using Elements2D;
-#if !COREWPF
-    using Cameras;
-    using Utilities;
-    using Model;
-#endif
+
 
     /// <summary>
     /// Provides a Viewport control.

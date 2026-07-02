@@ -4,16 +4,11 @@ using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Extensions;
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     namespace Elements2D
     {
         public class FrameStatisticsModel2D : Element2D

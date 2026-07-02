@@ -2,19 +2,13 @@
 using System.Windows;
 using System.Windows.Controls;
 
-using SharpDX;
+
 using System.Linq;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#else
-using HelixToolkit.Wpf.SharpDX.Core2D;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     using Extensions;
     using Orientation = System.Windows.Controls.Orientation;
     namespace Elements2D

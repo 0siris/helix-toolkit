@@ -1,32 +1,15 @@
-﻿#if SHARPDX || SILKNET
-#if NETFX_CORE
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#else
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-#else
-namespace HelixToolkit.Wpf
-#endif
+﻿namespace HelixToolkit.SharpDX.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
-#if SHARPDX || SILKNET
+    
     using Vector3D = Silk.NET.Maths.Vector3D<float>;
     using Point3D = Silk.NET.Maths.Vector3D<float>;
     using Point = Silk.NET.Maths.Vector2D<float>;
     using DoubleOrSingle = System.Single;
-#else
-    using Vector2D = System.Windows.Vector;
-    using System.Windows.Media.Media3D;
-    using DoubleOrSingle = System.Double;
-    using System.Windows;
-#endif
+    
     /// <summary>
     /// Provides functionality to calculate a contour slice through a 3 vertex facet.(Modified from HelixToolkit.Wpf version)
     /// </summary>

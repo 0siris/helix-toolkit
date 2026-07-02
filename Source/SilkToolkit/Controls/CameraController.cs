@@ -12,20 +12,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.Generic;
-
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Cameras;
-#else
-using HelixToolkit.Wpf.SharpDX.Cameras;
-#endif
+
 namespace HelixToolkit.Wpf.SharpDX
 {
-
-#if !COREWPF
-    using Utilities;
-#endif
+    
     /// <summary>
     /// Provides a control that manipulates the camera by mouse and keyboard gestures.
     /// </summary>

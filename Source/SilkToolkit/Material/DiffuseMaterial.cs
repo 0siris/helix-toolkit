@@ -1,37 +1,17 @@
-using SharpDX;
+
 using System.IO;
 using System.Linq;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
 
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Model;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Model;
-#endif
 using HelixToolkit.Wpf.SharpDX.Utilities;
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Model;
-    using Shaders;
-#endif
-
-
+namespace HelixToolkit.Wpf.SharpDX {
 
     public class DiffuseMaterial : Material
     {
@@ -49,9 +29,8 @@ namespace HelixToolkit.Wpf.SharpDX
         /// Gets or sets the diffuse color for the material.
         /// For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
         /// </summary>
-#if !NETFX_CORE && !WINUI
+
         [TypeConverter(typeof(Color4Converter))]
-#endif
         public Color4 DiffuseColor
         {
             get

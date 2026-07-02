@@ -1,47 +1,23 @@
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.ComponentModel;
 using HelixToolkit.Logger;
-#if DX11_1
 using HelixToolkit.SharpDX.Core.Native;
-#endif
-
-#if NETFX_CORE
-using Windows.UI.Xaml;
-using HelixToolkit.UWP.Utilities;
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Render;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using System.Windows.Controls;
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Render;
-#endif
 using HelixToolkit.Wpf.SharpDX.Utilities;
 namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
 
-#if !COREWPF && !WINUI
-    using Render;
-    using Core2D;
-    using Model.Scene;
-#endif
+{
+    
     using Controls;
 
     /// <summary>

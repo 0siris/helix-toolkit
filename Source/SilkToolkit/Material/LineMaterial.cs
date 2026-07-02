@@ -2,36 +2,16 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using global::SharpDX;
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Media = Windows.UI;
 
-
-namespace HelixToolkit.UWP
-#elif WINUI 
-using Microsoft.UI.Xaml;
-using Media = Windows.UI;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Shaders;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using Media = System.Windows.Media;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
 {
-#if !COREWPF && !WINUI
-    using Model;
-    using Shaders;
-#endif
+
     public class LineMaterial : Material
     {
         #region Dependency Properties        

@@ -1,19 +1,14 @@
-﻿using SharpDX;
+﻿
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Core2D;
-#if !COREWPF
-    using Model.Scene2D;
-#endif
     namespace Elements2D
     {
         [ContentProperty("Content")]

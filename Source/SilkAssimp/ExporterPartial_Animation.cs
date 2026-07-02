@@ -6,16 +6,8 @@ using Assimp;
 using System.Linq;
 using Animation = Assimp.Animation;
 using Microsoft.Extensions.Logging;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
-namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
-{
+
+namespace HelixToolkit.SharpDX.Core {
     namespace Assimp
     {
         public partial class Exporter

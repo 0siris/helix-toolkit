@@ -2,22 +2,12 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-#if NETFX_CORE
 
-namespace HelixToolkit.UWP
-#elif WINUI
 using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.WinUI
-#else
-#if COREWPF
-using HelixToolkit.SharpDX.Core.Model.Scene;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
-#endif
+
 {
-#if !COREWPF && !WINUI
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// Used to hold scene nodes without WPF/UWP dependencies.
     /// Used for code behind only. Avoid performance penalty from Dependency Properties.

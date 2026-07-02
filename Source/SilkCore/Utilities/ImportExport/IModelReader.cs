@@ -8,15 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 using System.IO;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Mesh3DGroup = System.Collections.Generic.List<Object3D>;
     public struct ModelInfo

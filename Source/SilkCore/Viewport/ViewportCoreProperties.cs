@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpDX;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
+
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Model.Scene;
     using Model.Scene2D;

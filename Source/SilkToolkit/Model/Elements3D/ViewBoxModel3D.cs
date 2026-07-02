@@ -6,16 +6,12 @@ using System.IO;
 using System.Windows;
 using Media3D = System.Windows.Media.Media3D;
 
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core;
-#endif
 namespace HelixToolkit.Wpf.SharpDX
 {
     using Model;
-#if !COREWPF
-    using Model.Scene;
-#endif
+
     /// <summary>
     /// <para>Viewbox replacement for Viewport using swapchain rendering.</para>
     /// <para>To replace box texture (such as text, colors), bind to custom material with different diffuseMap. </para>

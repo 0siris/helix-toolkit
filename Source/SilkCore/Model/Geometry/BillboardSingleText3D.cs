@@ -2,7 +2,7 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using SharpDX;
+
 using System.Collections.Generic;
 
 #if CORE
@@ -31,15 +31,7 @@ using RenderFontWeight = HelixToolkit.UWP.FontWeight;
 #endif
 #endif
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Core;
 #if !CORE

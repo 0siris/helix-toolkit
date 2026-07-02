@@ -19,15 +19,7 @@ using SilkDWriteFactoryPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.ID
 using SilkDWriteTextFormatPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextFormat>;
 using SilkDWriteTextLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextLayout>;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     namespace Native
     {

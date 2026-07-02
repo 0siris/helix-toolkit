@@ -13,15 +13,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
 #if NETFX_CORE
     using FileFormatException = Exception;

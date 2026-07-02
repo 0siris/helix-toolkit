@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SharpDX;
+
 using System.Diagnostics;
 
 #if !NETFX_CORE

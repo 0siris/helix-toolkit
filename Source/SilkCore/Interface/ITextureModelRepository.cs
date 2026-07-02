@@ -4,16 +4,8 @@ Copyright (c) 2021 Helix Toolkit contributors
 */
 using System;
 using System.IO;
-using SharpDX;
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
+
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     /// <summary>
     /// Used to cache texture models. Reuse existing texture model to avoid duplicate texture loading.

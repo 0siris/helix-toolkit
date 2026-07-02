@@ -5,30 +5,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-#if NETFX_CORE
-using  Windows.UI.Xaml;
-using Vector3D = SharpDX.Vector3;
-using Point3D = SharpDX.Vector3;
-
-namespace HelixToolkit.UWP
-#elif WINUI
-using Microsoft.UI.Xaml;
-using Vector3D = SharpDX.Vector3;
-using Point3D = SharpDX.Vector3;
-using HelixToolkit.SharpDX.Core.Cameras;
-namespace HelixToolkit.WinUI
-#else
 using System.Windows;
 using System.Windows.Media.Media3D;
-#if COREWPF
 using HelixToolkit.SharpDX.Core.Cameras;
-#endif
-namespace HelixToolkit.Wpf.SharpDX
-#endif
-{
-#if !COREWPF && !WINUI
-    using Cameras;
-#endif
+namespace HelixToolkit.Wpf.SharpDX {
 
     public interface IProjectionCameraModel : ICameraModel
     {

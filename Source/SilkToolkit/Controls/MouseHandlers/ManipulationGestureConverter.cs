@@ -6,64 +6,56 @@
 //   Converts a <see cref="ManipulationGesture"/> object to and from other types.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+///     Converts a <see cref="ManipulationGesture" /> object to and from other types.
+/// </summary>
+public class ManipulationGestureConverter : TypeConverter
 {
-    /// <summary>
-    /// Converts a <see cref="ManipulationGesture"/> object to and from other types.
-    /// </summary>
-    public class ManipulationGestureConverter : TypeConverter
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        return sourceType == typeof(string);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is string)
         {
-            return sourceType == typeof(string);
+            var tc = TypeDescriptor.GetConverter(typeof(ManipulationAction));
+            if (tc.ConvertFrom(context, culture, value) is ManipulationAction manipulationAction)
+                return new ManipulationGesture(manipulationAction);
         }
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            if (value is string)
-            {
-                var tc = TypeDescriptor.GetConverter(typeof(ManipulationAction));
-                if (tc.ConvertFrom(context, culture, value) is ManipulationAction manipulationAction)
-                {
-                    return new ManipulationGesture(manipulationAction);
-                }
-            }
+        throw GetConvertFromException(value);
+    }
 
-            throw this.GetConvertFromException(value);
+    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+    {
+        if (destinationType == typeof(string))
+            if (context?.Instance is ManipulationGesture manipulationGesture)
+                return Enum.IsDefined(typeof(ManipulationAction), manipulationGesture.ManipulationAction);
+
+        return false;
+    }
+
+    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+        Type destinationType)
+    {
+        if (destinationType == null)
+            throw new ArgumentNullException(nameof(destinationType));
+        if (destinationType == typeof(string))
+        {
+            if (value == null)
+                return string.Empty;
+            if (value is ManipulationGesture manipulationGesture) return "ManipulationGesture";
         }
 
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            if (destinationType == typeof(string))
-            {
-                if (context?.Instance is ManipulationGesture manipulationGesture)
-                {
-                    return Enum.IsDefined(typeof(ManipulationAction), manipulationGesture.ManipulationAction);
-                }
-            }
-
-            return false;
-        }
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-        {
-            if (destinationType == null)
-                throw new ArgumentNullException(nameof(destinationType));
-            if (destinationType == typeof(string))
-            {
-                if (value == null)
-                    return string.Empty;
-                if (value is ManipulationGesture manipulationGesture)
-                {
-                    return "ManipulationGesture";
-                }
-            }
-
-            throw this.GetConvertToException(value, destinationType);
-        }
+        throw GetConvertToException(value, destinationType);
     }
 }

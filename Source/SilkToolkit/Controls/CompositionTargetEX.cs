@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Windows.Media;
 
-
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Controls
     {
         /// <summary>
-        /// https://evanl.wordpress.com/2009/12/06/efficient-optimal-per-frame-eventing-in-wpf/
+        ///     https://evanl.wordpress.com/2009/12/06/efficient-optimal-per-frame-eventing-in-wpf/
         /// </summary>
         public sealed class CompositionTargetEx : IDisposable
         {
             private TimeSpan _last = TimeSpan.Zero;
             private event EventHandler<RenderingEventArgs> _FrameUpdating;
+
             public event EventHandler<RenderingEventArgs> Rendering
             {
                 add
@@ -28,9 +28,10 @@ namespace HelixToolkit.Wpf.SharpDX
                         CompositionTarget.Rendering -= CompositionTarget_Rendering;
                 }
             }
+
             private void CompositionTarget_Rendering(object sender, EventArgs e)
             {
-                var args = (RenderingEventArgs)e;
+                var args = (RenderingEventArgs) e;
                 if (args.RenderingTime == _last)
                     return;
                 _last = args.RenderingTime;
@@ -38,9 +39,10 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
 
-            void Dispose(bool disposing)
+            private bool disposedValue; // To detect redundant calls
+
+            private void Dispose(bool disposing)
             {
                 CompositionTarget.Rendering -= CompositionTarget_Rendering;
                 if (!disposedValue)
@@ -72,6 +74,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 GC.SuppressFinalize(this);
             }
+
             #endregion
         }
     }

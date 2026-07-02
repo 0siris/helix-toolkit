@@ -1,50 +1,42 @@
-﻿using HelixToolkit.SharpDX.Core;
+﻿using System;
+using HelixToolkit.SharpDX.Core;
 using RelayExceptionEventArgs = HelixToolkit.SharpDX.Core.Utilities.RelayExceptionEventArgs;
+
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Controls
     {
-        using System;
-        using Utilities;
-
         /// <summary>
-        /// Canvas holds the RenderHost. Provide entry point or render surface for RenderHost to render to.
+        ///     Canvas holds the RenderHost. Provide entry point or render surface for RenderHost to render to.
         /// </summary>
         public interface IRenderCanvas
         {
             /// <summary>
-            /// Gets or sets the dpi scale.
+            ///     Gets or sets the dpi scale.
             /// </summary>
             /// <value>
-            /// The dpi scale.
+            ///     The dpi scale.
             /// </value>
-            double DpiScale
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets or sets a value indicating whether [enable dpi scale].
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if [enable dpi scale]; otherwise, <c>false</c>.
-            /// </value>
-            bool EnableDpiScale
-            {
-                set; get;
-            }
-            /// <summary>
-            /// Gets the render host.
-            /// </summary>
-            /// <value>
-            /// The render host.
-            /// </value>
-            IRenderHost RenderHost
-            {
-                get;
-            }
+            double DpiScale { get; set; }
 
             /// <summary>
-            /// Fired whenever an exception occurred on this object.
+            ///     Gets or sets a value indicating whether [enable dpi scale].
+            /// </summary>
+            /// <value>
+            ///     <c>true</c> if [enable dpi scale]; otherwise, <c>false</c>.
+            /// </value>
+            bool EnableDpiScale { get; set; }
+
+            /// <summary>
+            ///     Gets the render host.
+            /// </summary>
+            /// <value>
+            ///     The render host.
+            /// </value>
+            IRenderHost RenderHost { get; }
+
+            /// <summary>
+            ///     Fired whenever an exception occurred on this object.
             /// </summary>
             event EventHandler<RelayExceptionEventArgs> ExceptionOccurred;
         }

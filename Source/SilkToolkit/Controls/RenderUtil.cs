@@ -6,16 +6,15 @@
 //
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using System.IO;
 
 #if DEFERRED
 using Direct3D11 = global::SharpDX.Direct3D11;
 #endif
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
+
+public static class RenderUtil
 {
-    public static class RenderUtil
-    {
 #if SYSTEM_DRAWING
         /// <summary>
         /// 
@@ -30,7 +29,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 image.Save(ms, format);
                 return ms.ToArray();
             }
-        } 
+        }
 #endif
 
 #if DEFERRED
@@ -56,5 +55,4 @@ namespace HelixToolkit.Wpf.SharpDX
             return CreateBuffer<T>(device, flags, sizeofT, range, range.Length);
         }
 #endif
-    }
 }

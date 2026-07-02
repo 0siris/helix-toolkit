@@ -2,16 +2,16 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
 using Assimp;
-using System;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Model;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core {
-    using Model;
-    using System.Threading;
+namespace HelixToolkit.SharpDX.Core
+{
     using HxAnimations = Animations;
     using HxScene = Model.Scene;
+
     namespace Assimp
     {
         public partial class Importer
@@ -24,7 +24,8 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="transform"></param>
             /// <returns></returns>
             /// <exception cref="System.NotSupportedException">Mesh Type {mesh.Type}</exception>
-            protected virtual HxScene.SceneNode OnCreateHxMeshNode(MeshInfo mesh, HelixInternalScene scene, Matrix transform)
+            protected virtual HxScene.SceneNode OnCreateHxMeshNode(MeshInfo mesh, HelixInternalScene scene,
+                Matrix transform)
             {
                 switch (mesh.Type)
                 {
@@ -47,13 +48,18 @@ namespace HelixToolkit.SharpDX.Core {
 
                             //Bones
                             if (mesh.AssimpMesh.HasBones)
-                                mn.Bones = mesh.AssimpMesh.Bones.Select(x => new HxAnimations.Bone()
+                            {
+                                mn.Bones = mesh.AssimpMesh.Bones.Select(x => new HxAnimations.Bone
                                 {
                                     Name = x.Name,
-                                    BindPose = x.OffsetMatrix.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor).Inverted(),
+                                    BindPose = x.OffsetMatrix.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor)
+                                        .Inverted(),
                                     BoneLocalTransform = Matrix.Identity,
-                                    InvBindPose = x.OffsetMatrix.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor),//Documented at https://github.com/assimp/assimp/pull/1803
+                                    InvBindPose =
+                                        x.OffsetMatrix.ToSharpDXMatrix(configuration
+                                            .IsSourceMatrixColumnMajor) //Documented at https://github.com/assimp/assimp/pull/1803
                                 }).ToArray();
+                            }
                             else
                             {
                                 mn.Geometry = mesh.Mesh;
@@ -63,19 +69,23 @@ namespace HelixToolkit.SharpDX.Core {
                             //Morph targets
                             if (mesh.AssimpMesh.HasMeshAnimationAttachments)
                             {
-                                int attCount = mesh.AssimpMesh.MeshAnimationAttachmentCount;
+                                var attCount = mesh.AssimpMesh.MeshAnimationAttachmentCount;
                                 var mtv = new FastList<MorphTargetVertex>(attCount * mesh.AssimpMesh.VertexCount);
                                 foreach (var att in mesh.AssimpMesh.MeshAnimationAttachments)
-                                {
                                     //NOTE: It seems some files may have invalid normal/tangent data for morph targets.
                                     //May need to provide option in future to use 0 normal/tangent deltas or recalculate
-                                    mtv.AddRange(new MorphTargetVertex[mesh.AssimpMesh.VertexCount].Select((x, i) => 
-                                    new MorphTargetVertex() {
-                                        deltaPosition = (att.Vertices[i] - mesh.AssimpMesh.Vertices[i]).ToSharpDXVector3(),
-                                        deltaNormal = att.HasNormals ? (att.Normals[i] - mesh.AssimpMesh.Normals[i]).ToSharpDXVector3() : Vector3.Zero,
-                                        deltaTangent = att.HasTangentBasis ? (att.Tangents[i] - mesh.AssimpMesh.Tangents[i]).ToSharpDXVector3() : Vector3.Zero
-                                    }));
-                                }
+                                    mtv.AddRange(new MorphTargetVertex[mesh.AssimpMesh.VertexCount].Select((x, i) =>
+                                        new MorphTargetVertex
+                                        {
+                                            deltaPosition = (att.Vertices[i] - mesh.AssimpMesh.Vertices[i])
+                                                .ToSharpDXVector3(),
+                                            deltaNormal = att.HasNormals
+                                                ? (att.Normals[i] - mesh.AssimpMesh.Normals[i]).ToSharpDXVector3()
+                                                : Vector3.Zero,
+                                            deltaTangent = att.HasTangentBasis
+                                                ? (att.Tangents[i] - mesh.AssimpMesh.Tangents[i]).ToSharpDXVector3()
+                                                : Vector3.Zero
+                                        }));
 
                                 mn.MorphTargetWeights = new float[attCount];
                                 mn.InitializeMorphTargets(mtv.ToArray(), mesh.AssimpMesh.VertexCount);
@@ -84,9 +94,13 @@ namespace HelixToolkit.SharpDX.Core {
                             mnode = mn;
                         }
                         else
+                        {
                             mnode = new HxScene.MeshNode();
+                        }
 
-                        mnode.Name = string.IsNullOrEmpty(mesh.AssimpMesh.Name) ? $"{nameof(HxScene.MeshNode)}_{Interlocked.Increment(ref MeshIndexForNoName)}" : mesh.AssimpMesh.Name;
+                        mnode.Name = string.IsNullOrEmpty(mesh.AssimpMesh.Name)
+                            ? $"{nameof(HxScene.MeshNode)}_{Interlocked.Increment(ref MeshIndexForNoName)}"
+                            : mesh.AssimpMesh.Name;
                         mnode.Geometry = mesh.Mesh;
                         mnode.Material = material.Value;
                         mnode.ModelMatrix = transform;
@@ -138,41 +152,29 @@ namespace HelixToolkit.SharpDX.Core {
                 builder.Positions.AddRange(hVertices);
                 for (var i = 0; i < mesh.FaceCount; ++i)
                 {
-                    if (!mesh.Faces[i].HasIndices)
-                    { continue; }
+                    if (!mesh.Faces[i].HasIndices) continue;
                     if (mesh.Faces[i].IndexCount == 3)
-                    {
                         builder.AddTriangle(mesh.Faces[i].Indices);
-                    }
-                    else if (mesh.Faces[i].IndexCount == 4)
-                    {
-                        builder.AddTriangleFan(mesh.Faces[i].Indices);
-                    }
+                    else if (mesh.Faces[i].IndexCount == 4) builder.AddTriangleFan(mesh.Faces[i].Indices);
                 }
-                var hMesh = new MeshGeometry3D { Positions = hVertices, Indices = builder.TriangleIndices };
+
+                var hMesh = new MeshGeometry3D {Positions = hVertices, Indices = builder.TriangleIndices};
                 if (mesh.HasNormals && mesh.Normals.Count == hMesh.Positions.Count)
-                {
                     hMesh.Normals = new Vector3Collection(mesh.Normals.Select(x =>
                     {
                         var normal = x.ToSharpDXVector3();
                         return normal.Length > 0 ? normal / normal.Length : normal;
                     }));
-                }
                 else
-                {
                     hMesh.Normals = hMesh.CalculateNormals();
-                }
                 if (mesh.HasVertexColors(0))
-                {
                     hMesh.Colors =
-                       new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
-                }
+                        new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
                 if (mesh.HasTextureCoords(0))
-                {
                     hMesh.TextureCoordinates =
-                       new Vector2Collection(mesh.TextureCoordinateChannels[0].Select(x => x.ToSharpDXVector2()));
-                }
-                if (mesh.HasTangentBasis && mesh.Tangents.Count == hMesh.Positions.Count && mesh.BiTangents.Count == hMesh.Positions.Count)
+                        new Vector2Collection(mesh.TextureCoordinateChannels[0].Select(x => x.ToSharpDXVector2()));
+                if (mesh.HasTangentBasis && mesh.Tangents.Count == hMesh.Positions.Count &&
+                    mesh.BiTangents.Count == hMesh.Positions.Count)
                 {
                     hMesh.Tangents = new Vector3Collection(mesh.Tangents.Select(x => x.ToSharpDXVector3()));
                     hMesh.BiTangents = new Vector3Collection(mesh.BiTangents.Select(x => x.ToSharpDXVector3()));
@@ -187,14 +189,12 @@ namespace HelixToolkit.SharpDX.Core {
                 }
 
                 hMesh.UpdateBounds();
-                if (configuration.BuildOctree)
-                {
-                    hMesh.UpdateOctree();
-                }
+                if (configuration.BuildOctree) hMesh.UpdateOctree();
                 return hMesh;
             }
+
             /// <summary>
-            /// To the helix mesh with bones.
+            ///     To the helix mesh with bones.
             /// </summary>
             /// <param name="mesh">The mesh.</param>
             /// <returns></returns>
@@ -209,18 +209,18 @@ namespace HelixToolkit.SharpDX.Core {
                     VertexBoneIds = vertBoneIds
                 };
                 for (var j = 0; j < mesh.BoneCount; ++j)
-                {
                     if (mesh.Bones[j].HasVertexWeights)
-                    {
                         for (var i = 0; i < mesh.Bones[j].VertexWeightCount; ++i)
                         {
                             var vWeight = mesh.Bones[j].VertexWeights[i];
                             if (vWeight.VertexID >= accumArray.Length)
                             {
-                                logger.LogWarning("Bone weight index is out of range. Num verts: {0}; Bone vert index: {1}", 
+                                logger.LogWarning(
+                                    "Bone weight index is out of range. Num verts: {0}; Bone vert index: {1}",
                                     accumArray.Length, vWeight.VertexID);
                                 continue;
                             }
+
                             var currIdx = accumArray[vWeight.VertexID]++;
                             ref var id = ref vertBoneInternal[vWeight.VertexID];
                             switch (currIdx)
@@ -242,12 +242,12 @@ namespace HelixToolkit.SharpDX.Core {
                                     id.Weights.W = vWeight.Weight;
                                     break;
                                 default:
-                                    logger.LogWarning("Bone index count {0} is out of range. Maximum 4 bone indices per vertex are supported.", currIdx);
+                                    logger.LogWarning(
+                                        "Bone index count {0} is out of range. Maximum 4 bone indices per vertex are supported.",
+                                        currIdx);
                                     break;
                             }
                         }
-                    }
-                }
 
                 return boneMesh;
             }
@@ -260,11 +260,9 @@ namespace HelixToolkit.SharpDX.Core {
             protected virtual PointGeometry3D OnCreateHelixPoint(Mesh mesh)
             {
                 var hVertices = new Vector3Collection(mesh.Vertices.Select(x => x.ToSharpDXVector3()));
-                var hMesh = new PointGeometry3D { Positions = hVertices };
+                var hMesh = new PointGeometry3D {Positions = hVertices};
                 if (mesh.HasVertexColors(0))
-                {
                     hMesh.Colors = new Color4Collection(mesh.VertexColorChannels[0].Select(x => x.ToSharpDXColor4()));
-                }
                 return hMesh;
             }
 
@@ -277,12 +275,10 @@ namespace HelixToolkit.SharpDX.Core {
             {
                 var hVertices = new Vector3Collection(mesh.Vertices.Select(x => x.ToSharpDXVector3()));
                 var hIndices = new IntCollection(mesh.Faces.SelectMany(x => x.Indices));
-                var hMesh = new LineGeometry3D { Positions = hVertices, Indices = hIndices };
+                var hMesh = new LineGeometry3D {Positions = hVertices, Indices = hIndices};
                 if (mesh.HasVertexColors(0))
-                {
                     hMesh.Colors =
-                       new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
-                }
+                        new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
                 return hMesh;
             }
 
@@ -292,14 +288,10 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     case PrimitiveType.Triangle:
                         if (mesh.HasBones || mesh.HasMeshAnimationAttachments)
-                        {
                             return new MeshInfo(PrimitiveType.Triangle, mesh, OnCreateHelixMeshWithBones(mesh),
                                 mesh.MaterialIndex);
-                        }
-                        else
-                        {
-                            return new MeshInfo(PrimitiveType.Triangle, mesh, OnCreateHelixMesh(mesh), mesh.MaterialIndex);
-                        }
+
+                        return new MeshInfo(PrimitiveType.Triangle, mesh, OnCreateHelixMesh(mesh), mesh.MaterialIndex);
                     case PrimitiveType.Point:
                         return new MeshInfo(PrimitiveType.Point, mesh, OnCreateHelixPoint(mesh), mesh.MaterialIndex);
                     case PrimitiveType.Line:

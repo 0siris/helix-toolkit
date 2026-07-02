@@ -1,18 +1,19 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using VerticalAlignment = System.Windows.VerticalAlignment;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
 namespace HelixToolkit.Wpf.SharpDX
 {
-    using Core2D;
-    using Extensions;
-    using System.Windows.Data;
-
     namespace Elements2D
     {
         [ContentProperty("Content2D")]
@@ -20,7 +21,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public static readonly DependencyProperty Content2DProperty = DependencyProperty.Register("Content2D",
                 typeof(object), typeof(ContentElement2D), new PropertyMetadata(null,
-                    propertyChangedCallback: (d, e) =>
+                    (d, e) =>
                     {
                         if (!(d is ContentElement2D model))
                             return;
@@ -41,102 +42,75 @@ namespace HelixToolkit.Wpf.SharpDX
 
                         model.InvalidateMeasure();
                     },
-                    coerceValueCallback: (d, e) =>
-                    {
-                        return e is Element2D ? e : new TextModel2D() { Text = e?.ToString() };
-                    }));
-
-            [Bindable(true)]
-            public object Content2D
-            {
-                set
-                {
-                    SetValue(Content2DProperty, value);
-                }
-                get
-                {
-                    return GetValue(Content2DProperty);
-                }
-            }
+                    (d, e) => { return e is Element2D ? e : new TextModel2D {Text = e?.ToString()}; }));
 
             public static readonly DependencyProperty BackgroundProperty
                 = DependencyProperty.Register("Background", typeof(WpfBrush), typeof(ContentElement2D),
                     new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent),
-                    (d, e) =>
-                    {
-                        var m = d as ContentElement2D;
-                        m.backgroundChanged = true;
-                        m.InvalidateRender();
-                    }));
-
-            public WpfBrush Background
-            {
-                set
-                {
-                    SetValue(BackgroundProperty, value);
-                }
-                get
-                {
-                    return (WpfBrush)GetValue(BackgroundProperty);
-                }
-            }
+                        (d, e) =>
+                        {
+                            var m = d as ContentElement2D;
+                            m.backgroundChanged = true;
+                            m.InvalidateRender();
+                        }));
 
             public static readonly DependencyProperty ForegroundProperty
                 = DependencyProperty.Register("Foreground", typeof(WpfBrush), typeof(ContentElement2D),
-            new PropertyMetadata(new WpfSolidColorBrush(Colors.Black)));
+                    new PropertyMetadata(new WpfSolidColorBrush(Colors.Black)));
+
+            public static readonly DependencyProperty HorizontalContentAlignmentProperty =
+                DependencyProperty.Register("HorizontalContentAlignment", typeof(HorizontalAlignment),
+                    typeof(ContentElement2D),
+                    new PropertyMetadata(HorizontalAlignment.Center,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as ContentNode2D).HorizontalContentAlignment =
+                                ((HorizontalAlignment) e.NewValue).ToD2DHorizontalAlignment();
+                        }));
+
+            public static readonly DependencyProperty VerticalContentAlignmentProperty =
+                DependencyProperty.Register("VerticalContentAlignment", typeof(VerticalAlignment),
+                    typeof(ContentElement2D),
+                    new PropertyMetadata(VerticalAlignment.Center,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as ContentNode2D).VerticalContentAlignment =
+                                ((VerticalAlignment) e.NewValue).ToD2DVerticalAlignment();
+                        }));
+
+            private bool backgroundChanged = true;
+
+            [Bindable(true)]
+            public object Content2D
+            {
+                get => GetValue(Content2DProperty);
+                set => SetValue(Content2DProperty, value);
+            }
+
+            public WpfBrush Background
+            {
+                get => (WpfBrush) GetValue(BackgroundProperty);
+                set => SetValue(BackgroundProperty, value);
+            }
 
             public WpfBrush Foreground
             {
-                set
-                {
-                    SetValue(ForegroundProperty, value);
-                }
-                get
-                {
-                    return (WpfBrush)GetValue(ForegroundProperty);
-                }
+                get => (WpfBrush) GetValue(ForegroundProperty);
+                set => SetValue(ForegroundProperty, value);
             }
 
-            public System.Windows.HorizontalAlignment HorizontalContentAlignment
+            public HorizontalAlignment HorizontalContentAlignment
             {
-                get
-                {
-                    return (System.Windows.HorizontalAlignment)GetValue(HorizontalContentAlignmentProperty);
-                }
-                set
-                {
-                    SetValue(HorizontalContentAlignmentProperty, value);
-                }
+                get => (HorizontalAlignment) GetValue(HorizontalContentAlignmentProperty);
+                set => SetValue(HorizontalContentAlignmentProperty, value);
             }
 
-            public static readonly DependencyProperty HorizontalContentAlignmentProperty =
-                DependencyProperty.Register("HorizontalContentAlignment", typeof(System.Windows.HorizontalAlignment), typeof(ContentElement2D),
-                    new PropertyMetadata(System.Windows.HorizontalAlignment.Center, (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as ContentNode2D).HorizontalContentAlignment = ((System.Windows.HorizontalAlignment)e.NewValue).ToD2DHorizontalAlignment();
-                    }));
 
-
-            public System.Windows.VerticalAlignment VerticalContentAlignment
+            public VerticalAlignment VerticalContentAlignment
             {
-                get
-                {
-                    return (System.Windows.VerticalAlignment)GetValue(VerticalContentAlignmentProperty);
-                }
-                set
-                {
-                    SetValue(VerticalContentAlignmentProperty, value);
-                }
+                get => (VerticalAlignment) GetValue(VerticalContentAlignmentProperty);
+                set => SetValue(VerticalContentAlignmentProperty, value);
             }
-
-            public static readonly DependencyProperty VerticalContentAlignmentProperty =
-                DependencyProperty.Register("VerticalContentAlignment", typeof(System.Windows.VerticalAlignment), typeof(ContentElement2D),
-                    new PropertyMetadata(System.Windows.VerticalAlignment.Center, (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as ContentNode2D).VerticalContentAlignment = ((System.Windows.VerticalAlignment)e.NewValue).ToD2DVerticalAlignment();
-                    }));
-
-            private bool backgroundChanged = true;
 
             protected override void OnUpdate(RenderContext2D context)
             {

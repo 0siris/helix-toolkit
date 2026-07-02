@@ -6,34 +6,31 @@
 //   Provides data for the manipulation events.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Windows;
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+///     Provides data for the manipulation events.
+/// </summary>
+public sealed class ManipulationEventArgs : EventArgs
 {
     /// <summary>
-    /// Provides data for the manipulation events.
+    ///     Initializes a new instance of the <see cref="ManipulationEventArgs" /> class.
     /// </summary>
-    public sealed class ManipulationEventArgs : EventArgs
+    /// <param name="currentPosition">
+    ///     The current position.
+    /// </param>
+    public ManipulationEventArgs(Point currentPosition)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ManipulationEventArgs"/> class.
-        /// </summary>
-        /// <param name="currentPosition">
-        /// The current position.
-        /// </param>
-        public ManipulationEventArgs(Point currentPosition)
-        {
-            this.CurrentPosition = currentPosition;
-        }
-
-        /// <summary>
-        /// Gets the current position.
-        /// </summary>
-        /// <value>The current position.</value>
-        public Point CurrentPosition
-        {
-            get; private set;
-        }
+        CurrentPosition = currentPosition;
     }
+
+    /// <summary>
+    ///     Gets the current position.
+    /// </summary>
+    /// <value>The current position.</value>
+    public Point CurrentPosition { get; private set; }
 }

@@ -4,36 +4,20 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
+
 namespace HelixToolkit.Wpf.SharpDX
 {
-
     namespace Elements2D
     {
         [ContentProperty("Children")]
         public class Panel2D : Element2D
         {
-            public WpfBrush Background
-            {
-                get
-                {
-                    return (WpfBrush)GetValue(BackgroundProperty);
-                }
-                set
-                {
-                    SetValue(BackgroundProperty, value);
-                }
-            }
-
             public static readonly DependencyProperty BackgroundProperty =
-                DependencyProperty.Register("Background", typeof(WpfBrush), typeof(Panel2D), new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent)));
-
-            public ObservableCollection<Element2D> Children
-            {
-                get;
-            } = new ObservableCollection<Element2D>();
+                DependencyProperty.Register("Background", typeof(WpfBrush), typeof(Panel2D),
+                    new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent)));
 
             public Panel2D()
             {
@@ -41,29 +25,29 @@ namespace HelixToolkit.Wpf.SharpDX
                 EnableBitmapCache = false;
             }
 
+            public WpfBrush Background
+            {
+                get => (WpfBrush) GetValue(BackgroundProperty);
+                set => SetValue(BackgroundProperty, value);
+            }
+
+            public ObservableCollection<Element2D> Children { get; } = new();
+
             private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
-                if (e.OldItems != null)
-                {
-                    DetachChildren(e.OldItems);
-                }
+                if (e.OldItems != null) DetachChildren(e.OldItems);
 
                 if (e.Action == NotifyCollectionChangedAction.Reset)
                 {
-                    foreach (var item in SceneNode.Items)
-                    {
-                        this.RemoveLogicalChild(item.WrapperSource);
-                    }
+                    foreach (var item in SceneNode.Items) RemoveLogicalChild(item.WrapperSource);
                     (SceneNode as PanelNode2D).Clear();
-                    if (IsAttached)
-                    {
-                        AttachChildren(sender as IEnumerable);
-                    }
+                    if (IsAttached) AttachChildren(sender as IEnumerable);
                 }
                 else if (e.NewItems != null && IsAttached)
                 {
                     AttachChildren(e.NewItems);
                 }
+
                 InvalidateRender();
             }
 
@@ -72,10 +56,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 var s = SceneNode as PanelNode2D;
                 foreach (Element2D c in children)
                 {
-                    if (c.Parent == null)
-                    {
-                        this.AddLogicalChild(c);
-                    }
+                    if (c.Parent == null) AddLogicalChild(c);
                     s.AddChildNode(c);
                 }
             }
@@ -85,10 +66,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 var s = SceneNode as PanelNode2D;
                 foreach (Element2D c in children)
                 {
-                    if (c.Parent == this)
-                    {
-                        this.RemoveLogicalChild(c);
-                    }
+                    if (c.Parent == this) RemoveLogicalChild(c);
                     s.RemoveChildNode(c);
                 }
             }

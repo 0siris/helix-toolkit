@@ -8,18 +8,18 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
+        <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
+        <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SilkCore\SilkCore.csproj" />
+        <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
+        <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
     </ItemGroup>
 </Project>

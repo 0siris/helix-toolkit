@@ -1,8 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Media = System.Windows.Media;
+﻿using Media = System.Windows.Media;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
@@ -10,26 +6,17 @@ namespace HelixToolkit.Wpf.SharpDX
     {
         public interface ITransformable2D
         {
-            Media.Transform Transform
-            {
-                set; get;
-            }
+            Media.Transform Transform { get; set; }
         }
 
         public interface IBackground
         {
-            Media.Brush Background
-            {
-                set; get;
-            }
+            Media.Brush Background { get; set; }
         }
 
         public interface ITextBlock : IBackground
         {
-            Media.Brush Foreground
-            {
-                set; get;
-            }
+            Media.Brush Foreground { get; set; }
         }
     }
 }

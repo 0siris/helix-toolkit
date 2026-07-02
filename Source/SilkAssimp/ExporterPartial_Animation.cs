@@ -2,25 +2,24 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using Assimp;
-using System.Linq;
-using Animation = Assimp.Animation;
-using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core {
+using Assimp;
+using Microsoft.Extensions.Logging;
+using Animation = Assimp.Animation;
+
+namespace HelixToolkit.SharpDX.Core
+{
     namespace Assimp
     {
         public partial class Exporter
         {
             public static double DefaultTicksPerSecond = 30;
+
             private ErrorCode AddAnimationsToScene(Scene scene)
             {
-                if(animations == null || animations.Count == 0)
-                {
-                    return ErrorCode.Succeed;
-                }
+                if (animations == null || animations.Count == 0) return ErrorCode.Succeed;
 
-                for(int i = 0; i < animations.Count; ++i)
+                for (var i = 0; i < animations.Count; ++i)
                 {
                     var ani = new Animation
                     {
@@ -30,16 +29,17 @@ namespace HelixToolkit.SharpDX.Core {
                     };
                     foreach (var f in animations[i].NodeAnimationCollection)
                     {
-                        if(f.Node == null || string.IsNullOrEmpty(f.Node.Name))
+                        if (f.Node == null || string.IsNullOrEmpty(f.Node.Name))
                         {
                             logger.LogWarning("Node Animation NodeName is empty. AnimationName:{0}", ani.Name);
                             continue;
                         }
+
                         var ch = new NodeAnimationChannel
                         {
                             NodeName = f.Node.Name
                         };
-                        foreach(var kf in f.KeyFrames)
+                        foreach (var kf in f.KeyFrames)
                         {
                             var t = kf.Time * DefaultTicksPerSecond;
                             ch.PositionKeys.Add(new VectorKey(t, kf.Translation.ToAssimpVector3D()));
@@ -52,6 +52,7 @@ namespace HelixToolkit.SharpDX.Core {
 
                     scene.Animations.Add(ani);
                 }
+
                 return ErrorCode.Succeed;
             }
         }

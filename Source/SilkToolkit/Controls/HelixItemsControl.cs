@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Controls
@@ -18,7 +13,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 Visibility = Visibility.Collapsed;
 
                 IsHitTestVisible = false;
-                this.DefaultStyleKey = typeof(HelixItemsControl);
+                DefaultStyleKey = typeof(HelixItemsControl);
             }
 
             protected override Size ArrangeOverride(Size finalSize)

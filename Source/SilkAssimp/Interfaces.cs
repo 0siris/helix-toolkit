@@ -1,21 +1,15 @@
-﻿using HelixToolkit.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿namespace HelixToolkit.SharpDX.Core;
 
-namespace HelixToolkit.SharpDX.Core {
+/// <summary>
+///     Custom Texture loading IO interface.
+/// </summary>
+public interface ITexturePathResolver
+{
     /// <summary>
-    /// Custom Texture loading IO interface.
+    ///     Resolves the texture path.
     /// </summary>
-    public interface ITexturePathResolver
-    {
-        /// <summary>
-        /// Resolves the texture path.
-        /// </summary>
-        /// <param name="modelPath">The model path.</param>
-        /// <param name="texturePath">The texture path.</param>
-        /// <returns>Absolute file path for the texture</returns>
-        string Resolve(string modelPath, string texturePath);
-    }
+    /// <param name="modelPath">The model path.</param>
+    /// <param name="texturePath">The texture path.</param>
+    /// <returns>Absolute file path for the texture</returns>
+    string Resolve(string modelPath, string texturePath);
 }

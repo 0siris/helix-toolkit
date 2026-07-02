@@ -2,21 +2,15 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-using Assimp;
-using Assimp.Configs;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+
 using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+using Assimp;
+using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Model;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core {
-    using HelixToolkit.Logger;
-    using Model;
-    using System.Collections.ObjectModel;
+namespace HelixToolkit.SharpDX.Core
+{
     using HxAnimations = Animations;
     using HxScene = Model.Scene;
 
@@ -24,8 +18,15 @@ namespace HelixToolkit.SharpDX.Core {
     {
         public partial class Exporter : IDisposable
         {
-            static readonly ILogger logger = Logger.LogManager.Create<Exporter>();
             private const string ToUpperDictString = @"..\";
+            private static readonly ILogger logger = LogManager.Create<Exporter>();
+            protected readonly Dictionary<Geometry3D, int> geometryCollection = new();
+            protected readonly Dictionary<MaterialCore, int> materialCollection = new();
+            protected readonly Dictionary<ulong, MeshInfo> meshInfos = new();
+            private IList<HxAnimations.Animation> animations;
+
+            private int MaterialIndexForNoName;
+            private int MeshIndexForNoName;
 
             static Exporter()
             {
@@ -33,76 +34,25 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     SupportedFormats = temp.GetSupportedExportFormats().ToArray();
                 }
+
                 var builder = new StringBuilder();
                 foreach (var s in SupportedFormats)
-                {
-                    builder.Append($"{s.Description} (*.{s.FileExtension})|*.{ s.FileExtension }|");
-                }
+                    builder.Append($"{s.Description} (*.{s.FileExtension})|*.{s.FileExtension}|");
                 SupportedFormatsString = builder.ToString(0, builder.Length - 1);
             }
-            #region Properties
-            /// <summary>
-            ///     Gets the supported formats.
-            /// </summary>
-            /// <value>
-            ///     The supported formats.
-            /// </value>
-            public static ExportFormatDescription[] SupportedFormats { get; }
-
-            /// <summary>
-            ///     Gets the supported formats string.
-            /// </summary>
-            /// <value>
-            ///     The supported formats string.
-            /// </value>
-            public static string SupportedFormatsString { get; }
-
-            private ExportConfiguration configuration = new ExportConfiguration();
-            /// <summary>
-            /// Gets or sets the configuration.
-            /// </summary>
-            /// <value>
-            /// The configuration.
-            /// </value>
-            public ExportConfiguration Configuration
-            {
-                set
-                {
-                    configuration = value;
-                    if (value == null)
-                    {
-                        configuration = new ExportConfiguration();
-                    }
-                }
-                get
-                {
-                    return configuration;
-                }
-            }
-
-            #endregion
-            protected readonly Dictionary<Geometry3D, int> geometryCollection = new Dictionary<Geometry3D, int>();
-            protected readonly Dictionary<MaterialCore, int> materialCollection = new Dictionary<MaterialCore, int>();
-            protected readonly Dictionary<ulong, MeshInfo> meshInfos = new Dictionary<ulong, MeshInfo>();
-
-            private int MaterialIndexForNoName = 0;
-            private int MeshIndexForNoName = 0;
-            private IList<Animations.Animation> animations;
 
             public event EventHandler<Exception> AssimpExceptionOccurred;
+
             /// <summary>
-            /// Exports to file.
+            ///     Exports to file.
             /// </summary>
             /// <param name="filePath">The file path.</param>
             /// <param name="scene">The scene.</param>
-            /// <param name="formatId">The format identifier. <see cref="SupportedFormats"/></param>
+            /// <param name="formatId">The format identifier. <see cref="SupportedFormats" /></param>
             /// <returns></returns>
             public ErrorCode ExportToFile(string filePath, HelixToolkitScene scene, string formatId)
             {
-                if (scene == null)
-                {
-                    return ErrorCode.Failed;
-                }
+                if (scene == null) return ErrorCode.Failed;
                 animations = scene.Animations;
                 var code = ExportToFile(filePath, scene.Root, formatId);
                 animations = null;
@@ -110,11 +60,11 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// Exports to file.
+            ///     Exports to file.
             /// </summary>
             /// <param name="filePath">The file path.</param>
             /// <param name="root">The root.</param>
-            /// <param name="formatId">The format identifier. <see cref="SupportedFormats"/></param>
+            /// <param name="formatId">The format identifier. <see cref="SupportedFormats" /></param>
             /// <returns></returns>
             public ErrorCode ExportToFile(string filePath, HxScene.SceneNode root, string formatId)
             {
@@ -130,41 +80,37 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     exporter = new AssimpContext();
                 }
+
                 if (!exporter.IsExportFormatSupported(Path.GetExtension(filePath)))
-                {
                     return ErrorCode.Failed | ErrorCode.FileTypeNotSupported;
-                }
                 var scene = CreateScene(root);
                 var postProcessing = configuration.PostProcessing;
-                if (configuration.FlipWindingOrder)
-                {
-                    postProcessing |= PostProcessSteps.FlipWindingOrder;
-                }
+                if (configuration.FlipWindingOrder) postProcessing |= PostProcessSteps.FlipWindingOrder;
                 try
                 {
-                    if(!exporter.ExportFile(scene, filePath, formatId, postProcessing))
+                    if (!exporter.ExportFile(scene, filePath, formatId, postProcessing))
                     {
                         logger.LogError("Export failed. FilePath: {0}; Format: {1}", filePath, formatId);
                         return ErrorCode.Failed;
                     }
+
                     return ErrorCode.Succeed;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     logger.LogError(ex.Message);
                     AssimpExceptionOccurred?.Invoke(this, ex);
                 }
                 finally
                 {
-                    if (!useExtern)
-                    {
-                        exporter.Dispose();
-                    }
+                    if (!useExtern) exporter.Dispose();
                 }
+
                 return ErrorCode.Failed;
             }
+
             /// <summary>
-            /// Exports to BLOB.
+            ///     Exports to BLOB.
             /// </summary>
             /// <param name="root">The root.</param>
             /// <param name="formatId">The format identifier.</param>
@@ -184,12 +130,10 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     exporter = new AssimpContext();
                 }
+
                 var scene = CreateScene(root);
                 var postProcessing = configuration.PostProcessing;
-                if (configuration.FlipWindingOrder)
-                {
-                    postProcessing |= PostProcessSteps.FlipWindingOrder;
-                }
+                if (configuration.FlipWindingOrder) postProcessing |= PostProcessSteps.FlipWindingOrder;
                 blob = null;
                 try
                 {
@@ -203,17 +147,14 @@ namespace HelixToolkit.SharpDX.Core {
                 }
                 finally
                 {
-                    if (!useExtern)
-                    {
-                        exporter.Dispose();
-                    }
+                    if (!useExtern) exporter.Dispose();
                 }
-                
+
                 return ErrorCode.Failed;
             }
 
             /// <summary>
-            /// Convert a HelixToolkit scene graph to the assimp scene.
+            ///     Convert a HelixToolkit scene graph to the assimp scene.
             /// </summary>
             /// <param name="root">The HelixToolkit scene graph root node.</param>
             /// <param name="assimpScene">The assimp scene.</param>
@@ -230,10 +171,8 @@ namespace HelixToolkit.SharpDX.Core {
                 CollectAllGeometriesAndMaterials(root);
                 var scene = new Scene();
                 //Adds material and meshes into the assimp scene
-                foreach(var material in materialCollection.OrderBy(x=>x.Value))
-                {
+                foreach (var material in materialCollection.OrderBy(x => x.Value))
                     scene.Materials.Add(OnCreateAssimpMaterial(material.Key));
-                }
                 scene.RootNode = ConstructAssimpNode(root, null);
                 scene.Meshes.AddRange(meshInfos.Select(x => x.Value.AssimpMesh));
                 AddAnimationsToScene(scene);
@@ -246,19 +185,15 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     Transform = current.ModelMatrix.ToAssimpMatrix(configuration.ToSourceMatrixColumnMajor)
                 };
-                if(current is HxScene.GroupNodeBase group)
+                if (current is HxScene.GroupNodeBase group)
                 {
-                    foreach(var s in group.Items)
-                    {
-                        if(s is HxScene.GeometryNode geo)
+                    foreach (var s in group.Items)
+                        if (s is HxScene.GeometryNode geo)
                         {
                             var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
-                            if (meshInfos.TryGetValue(key, out var meshInfo))
-                            {
-                                node.MeshIndices.Add(meshInfo.MeshIndex);
-                            }                           
+                            if (meshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
                         }
-                        else if(s is HxScene.GroupNodeBase)
+                        else if (s is HxScene.GroupNodeBase)
                         {
                             node.Children.Add(ConstructAssimpNode(s, node));
                         }
@@ -266,46 +201,36 @@ namespace HelixToolkit.SharpDX.Core {
                         {
                             logger.LogWarning("Current node type does not support yet. Type: {0}", s.GetType().Name);
                         }
-                    }
-                    if(group.Metadata != null)
-                    {
-                        foreach(var metadata in group.Metadata.ToAssimpMetadata())
-                        {
+
+                    if (group.Metadata != null)
+                        foreach (var metadata in group.Metadata.ToAssimpMetadata())
                             node.Metadata.Add(metadata.Key, metadata.Value);
-                        }
-                    }
                 }
-                else if(current is HxScene.GeometryNode geo)
+                else if (current is HxScene.GeometryNode geo)
                 {
                     var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
-                    if (meshInfos.TryGetValue(key, out var meshInfo))
-                    {
-                        node.MeshIndices.Add(meshInfo.MeshIndex);
-                    }
+                    if (meshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
                 }
                 else
                 {
                     logger.LogWarning("Current node type does not support yet. Type: {0}", current.GetType().Name);
-                }                
+                }
+
                 return node;
             }
 
             private void CollectAllGeometriesAndMaterials(HxScene.SceneNode root)
             {
                 // Collect all geometries and materials
-                foreach(var node in root.Traverse())
-                {
-                    if(GetMaterialFromNode(node, out var material) && !materialCollection.ContainsKey(material))
-                    {
-                        materialCollection.Add(material, materialCollection.Count);
-                    }
-                    if (GetGeometryFromNode(node, out var geometry) && !geometryCollection.ContainsKey(geometry))
-                    {
-                        geometryCollection.Add(geometry, geometryCollection.Count);
-                    }
-                }
                 foreach (var node in root.Traverse())
                 {
+                    if (GetMaterialFromNode(node, out var material) && !materialCollection.ContainsKey(material))
+                        materialCollection.Add(material, materialCollection.Count);
+                    if (GetGeometryFromNode(node, out var geometry) && !geometryCollection.ContainsKey(geometry))
+                        geometryCollection.Add(geometry, geometryCollection.Count);
+                }
+
+                foreach (var node in root.Traverse())
                     if (node is HxScene.GeometryNode geo)
                     {
                         var info = OnCreateMeshInfo(geo);
@@ -314,27 +239,15 @@ namespace HelixToolkit.SharpDX.Core {
                             logger.LogWarning("Create Mesh info failed. Node Name: {0}", geo.Name);
                             continue;
                         }
-                        if (!meshInfos.ContainsKey(info.MaterialMeshKey))
-                        {
-                            meshInfos.Add(info.MaterialMeshKey, info);
-                        }
+
+                        if (!meshInfos.ContainsKey(info.MaterialMeshKey)) meshInfos.Add(info.MaterialMeshKey, info);
                     }
-                }
 
                 if (configuration.EnableParallelProcessing)
-                {
-                    Parallel.ForEach(meshInfos, (info) =>
-                    {
-                        info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value);
-                    });
-                }
+                    Parallel.ForEach(meshInfos, info => { info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value); });
                 else
-                {
-                    foreach(var info in meshInfos)
-                    {
+                    foreach (var info in meshInfos)
                         info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value);
-                    }
-                }
             }
 
             protected virtual void Clear()
@@ -352,19 +265,19 @@ namespace HelixToolkit.SharpDX.Core {
             protected sealed class HelixInternalScene
             {
                 /// <summary>
-                /// The animations
+                ///     The animations
                 /// </summary>
                 public List<HxAnimations.Animation> Animations;
 
                 /// <summary>
-                /// The assimp scene
+                ///     The assimp scene
                 /// </summary>
                 public Scene AssimpScene;
 
                 /// <summary>
                 ///     The materials
                 /// </summary>
-                public Tuple<global::Assimp.Material, MaterialCore>[] Materials;
+                public Tuple<Material, MaterialCore>[] Materials;
 
                 /// <summary>
                 ///     The meshes
@@ -374,18 +287,55 @@ namespace HelixToolkit.SharpDX.Core {
 
             #endregion
 
+            #region Properties
+
+            /// <summary>
+            ///     Gets the supported formats.
+            /// </summary>
+            /// <value>
+            ///     The supported formats.
+            /// </value>
+            public static ExportFormatDescription[] SupportedFormats { get; }
+
+            /// <summary>
+            ///     Gets the supported formats string.
+            /// </summary>
+            /// <value>
+            ///     The supported formats string.
+            /// </value>
+            public static string SupportedFormatsString { get; }
+
+            private ExportConfiguration configuration = new();
+
+            /// <summary>
+            ///     Gets or sets the configuration.
+            /// </summary>
+            /// <value>
+            ///     The configuration.
+            /// </value>
+            public ExportConfiguration Configuration
+            {
+                get => configuration;
+                set
+                {
+                    configuration = value;
+                    if (value == null) configuration = new ExportConfiguration();
+                }
+            }
+
+            #endregion
+
             #region IDisposable Support
-            private bool disposedValue = false; // To detect redundant calls
+
+            private bool disposedValue; // To detect redundant calls
 
             protected virtual void Dispose(bool disposing)
             {
                 if (!disposedValue)
                 {
                     if (disposing)
-                    {
                         // TODO: dispose managed state (managed objects).
                         Clear();
-                    }
 
                     // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                     // TODO: set large fields to null.
@@ -408,6 +358,7 @@ namespace HelixToolkit.SharpDX.Core {
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
+
             #endregion
         }
     }

@@ -5,65 +5,58 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Cameras;
-namespace HelixToolkit.Wpf.SharpDX {
-    public interface IPerspectiveCameraModel
-    {
-        double FieldOfView
-        {
-            set; get;
-        }
-    }
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+public interface IPerspectiveCameraModel
+{
+    double FieldOfView { get; set; }
+}
+
+/// <summary>
+///     Represents a perspective projection camera.
+/// </summary>
+public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel
+{
     /// <summary>
-    /// Represents a perspective projection camera.
+    ///     The field of view property
     /// </summary>
-    public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel
+    public static readonly DependencyProperty FieldOfViewProperty = DependencyProperty.Register(
+        "FieldOfView", typeof(double), typeof(PerspectiveCamera), new PropertyMetadata(45.0,
+            (d, e) =>
+            {
+                ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView = (float) (double) e.NewValue;
+            }));
+
+    /// <summary>
+    ///     Gets or sets the field of view.
+    /// </summary>
+    /// <value>
+    ///     The field of view.
+    /// </value>
+    public double FieldOfView
     {
-        /// <summary>
-        /// The field of view property
-        /// </summary>
-        public static readonly DependencyProperty FieldOfViewProperty = DependencyProperty.Register(
-            "FieldOfView", typeof(double), typeof(PerspectiveCamera), new PropertyMetadata(45.0,
-                (d, e) =>
-                {
-                    ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView = (float)(double)e.NewValue;
-                }));
+        get => (double) GetValue(FieldOfViewProperty);
+        set => SetValue(FieldOfViewProperty, value);
+    }
 
-        /// <summary>
-        /// Gets or sets the field of view.
-        /// </summary>
-        /// <value>
-        /// The field of view.
-        /// </value>
-        public double FieldOfView
-        {
-            get
-            {
-                return (double)this.GetValue(FieldOfViewProperty);
-            }
-            set
-            {
-                this.SetValue(FieldOfViewProperty, value);
-            }
-        }
+    protected override CameraCore CreatePortableCameraCore()
+    {
+        return new PerspectiveCameraCore();
+    }
 
-        protected override CameraCore CreatePortableCameraCore()
-        {
-            return new PerspectiveCameraCore();
-        }
-
-        protected override void OnCoreCreated(CameraCore core)
-        {
-            base.OnCoreCreated(core);
-            (core as PerspectiveCameraCore).FarPlaneDistance = (float)this.FarPlaneDistance;
-            (core as PerspectiveCameraCore).FieldOfView = (float)this.FieldOfView;
-            (core as PerspectiveCameraCore).NearPlaneDistance = (float)this.NearPlaneDistance;
-        }
+    protected override void OnCoreCreated(CameraCore core)
+    {
+        base.OnCoreCreated(core);
+        (core as PerspectiveCameraCore).FarPlaneDistance = (float) FarPlaneDistance;
+        (core as PerspectiveCameraCore).FieldOfView = (float) FieldOfView;
+        (core as PerspectiveCameraCore).NearPlaneDistance = (float) NearPlaneDistance;
+    }
 
 #if !NETFX_CORE && !WINUI
-        protected override Freezable CreateInstanceCore()
-        {
-            return new PerspectiveCamera();
-        }
-#endif
+    protected override Freezable CreateInstanceCore()
+    {
+        return new PerspectiveCamera();
     }
+#endif
 }

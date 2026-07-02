@@ -5,79 +5,68 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.Wpf.SharpDX
+using HelixToolkit.Wpf.SharpDX.Model;
 
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+/// </summary>
+/// <seealso cref="GeometryModel3D" />
+public abstract class MaterialGeometryModel3D : GeometryModel3D
 {
-    using Model;
+    /// <summary>
+    ///     Assigns the default values to scene node.
+    /// </summary>
+    /// <param name="node">The node.</param>
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
+    {
+        if (node is MaterialGeometryNode n) n.Material = Material;
+        base.AssignDefaultValuesToSceneNode(node);
+    }
+
+    #region Dependency Properties
 
     /// <summary>
-    /// 
     /// </summary>
-    /// <seealso cref="GeometryModel3D" />
-    public abstract class MaterialGeometryModel3D : GeometryModel3D
+    public static readonly DependencyProperty MaterialProperty =
+        DependencyProperty.Register("Material", typeof(Material), typeof(MaterialGeometryModel3D),
+            new PropertyMetadata(null,
+                (d, e) =>
+                {
+                    ((d as Element3DCore).SceneNode as MaterialGeometryNode).Material = e.NewValue as Material;
+                }));
+
+    /// <summary>
+    ///     Specifiy if model material is transparent.
+    ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
+    ///     are preserved.
+    /// </summary>
+    public static readonly DependencyProperty IsTransparentProperty =
+        DependencyProperty.Register("IsTransparent", typeof(bool), typeof(MaterialGeometryModel3D),
+            new PropertyMetadata(false,
+                (d, e) =>
+                {
+                    ((d as Element3DCore).SceneNode as MaterialGeometryNode).IsTransparent = (bool) e.NewValue;
+                }));
+
+    /// <summary>
+    /// </summary>
+    public Material Material
     {
-        #region Dependency Properties
-        /// <summary>
-        /// 
-        /// </summary>
-        public static readonly DependencyProperty MaterialProperty =
-            DependencyProperty.Register("Material", typeof(Material), typeof(MaterialGeometryModel3D), new PropertyMetadata(null, (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as MaterialGeometryNode).Material = e.NewValue as Material;
-            }));
-
-        /// <summary>
-        /// Specifiy if model material is transparent. 
-        /// During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph are preserved.
-        /// </summary>
-        public static readonly DependencyProperty IsTransparentProperty =
-            DependencyProperty.Register("IsTransparent", typeof(bool), typeof(MaterialGeometryModel3D), new PropertyMetadata(false, (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as MaterialGeometryNode).IsTransparent = (bool)e.NewValue;
-            }));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Material Material
-        {
-            get
-            {
-                return (Material)this.GetValue(MaterialProperty);
-            }
-            set
-            {
-                this.SetValue(MaterialProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// Specifiy if model material is transparent. 
-        /// During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph are preserved.
-        /// </summary>
-        public bool IsTransparent
-        {
-            get
-            {
-                return (bool)GetValue(IsTransparentProperty);
-            }
-            set
-            {
-                SetValue(IsTransparentProperty, value);
-            }
-        }
-        #endregion
-        /// <summary>
-        /// Assigns the default values to scene node.
-        /// </summary>
-        /// <param name="node">The node.</param>
-        protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-        {
-            if (node is MaterialGeometryNode n)
-            {
-                n.Material = this.Material;
-            }
-            base.AssignDefaultValuesToSceneNode(node);
-        }
+        get => (Material) GetValue(MaterialProperty);
+        set => SetValue(MaterialProperty, value);
     }
+
+    /// <summary>
+    ///     Specifiy if model material is transparent.
+    ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
+    ///     are preserved.
+    /// </summary>
+    public bool IsTransparent
+    {
+        get => (bool) GetValue(IsTransparentProperty);
+        set => SetValue(IsTransparentProperty, value);
+    }
+
+    #endregion
 }

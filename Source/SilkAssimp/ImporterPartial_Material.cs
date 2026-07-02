@@ -2,39 +2,44 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
+using System.Collections.Concurrent;
 using Assimp;
 using Assimp.Unmanaged;
-using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Shaders;
 using Microsoft.Extensions.Logging;
 using TextureType = Assimp.TextureType;
 
-namespace HelixToolkit.SharpDX.Core {
-    using Model;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Utilities;
+namespace HelixToolkit.SharpDX.Core
+{
     namespace Assimp
     {
         public partial class Importer
         {
-            private readonly ConcurrentDictionary<string, TextureModel> textureDict =
-                new ConcurrentDictionary<string, TextureModel>();
+            private readonly ConcurrentDictionary<string, TextureModel> textureDict = new();
+
             /// <summary>
             ///     To the phong material.
             /// </summary>
             /// <param name="material">The material.</param>
             /// <returns></returns>
-            protected virtual PhongMaterialCore OnCreatePhongMaterial(global::Assimp.Material material)
+            protected virtual PhongMaterialCore OnCreatePhongMaterial(Material material)
             {
                 var phong = new PhongMaterialCore
                 {
-                    AmbientColor = (material.HasColorAmbient && !configuration.IgnoreAmbientColor) ? material.ColorAmbient.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
-                    DiffuseColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : new Color4(1, 1, 1, 1),
-                    SpecularColor = material.HasColorSpecular ? material.ColorSpecular.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
-                    EmissiveColor = (material.HasColorEmissive && !configuration.IgnoreEmissiveColor) ? material.ColorEmissive.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
+                    AmbientColor = material.HasColorAmbient && !configuration.IgnoreAmbientColor
+                        ? material.ColorAmbient.ToSharpDXColor4()
+                        : new Color4(0, 0, 0, 1),
+                    DiffuseColor = material.HasColorDiffuse
+                        ? material.ColorDiffuse.ToSharpDXColor4()
+                        : new Color4(1, 1, 1, 1),
+                    SpecularColor = material.HasColorSpecular
+                        ? material.ColorSpecular.ToSharpDXColor4()
+                        : new Color4(0, 0, 0, 1),
+                    EmissiveColor = material.HasColorEmissive && !configuration.IgnoreEmissiveColor
+                        ? material.ColorEmissive.ToSharpDXColor4()
+                        : new Color4(0, 0, 0, 1),
                     ReflectiveColor = material.HasColorReflective
                         ? material.ColorReflective.ToSharpDXColor4()
                         : new Color4(0, 0, 0, 1),
@@ -51,7 +56,7 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     phong.DiffuseMap = LoadTexture(material.TextureDiffuse.FilePath);
                     phong.DiffuseMapFilePath = material.TextureDiffuse.FilePath;
-                    var desc = Shaders.DefaultSamplers.LinearSamplerClampAni1;
+                    var desc = DefaultSamplers.LinearSamplerClampAni1;
                     desc.AddressU = ToDXAddressMode(material.TextureDiffuse.WrapModeU);
                     desc.AddressV = ToDXAddressMode(material.TextureDiffuse.WrapModeV);
                     phong.DiffuseMapSampler = desc;
@@ -67,11 +72,13 @@ namespace HelixToolkit.SharpDX.Core {
                     phong.NormalMap = LoadTexture(material.TextureHeight.FilePath);
                     phong.NormalMapFilePath = material.TextureHeight.FilePath;
                 }
+
                 if (material.HasTextureSpecular)
                 {
                     phong.SpecularColorMap = LoadTexture(material.TextureSpecular.FilePath);
                     phong.SpecularColorMapFilePath = material.TextureSpecular.FilePath;
                 }
+
                 if (material.HasTextureDisplacement)
                 {
                     phong.DisplacementMap = LoadTexture(material.TextureDisplacement.FilePath);
@@ -83,6 +90,7 @@ namespace HelixToolkit.SharpDX.Core {
                     phong.DiffuseAlphaMap = LoadTexture(material.TextureOpacity.FilePath);
                     phong.DiffuseAlphaMapFilePath = material.TextureOpacity.FilePath;
                 }
+
                 if (material.HasTextureEmissive)
                 {
                     phong.EmissiveMap = LoadTexture(material.TextureEmissive.FilePath);
@@ -93,10 +101,10 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
                     if (values != null && values.Length == 5)
-                    {
-                        phong.UVTransform = new UVTransform(values[0], new Vector2(values[1], values[2]), new Vector2(values[3], values[4]));
-                    }
+                        phong.UVTransform = new UVTransform(values[0], new Vector2(values[1], values[2]),
+                            new Vector2(values[3], values[4]));
                 }
+
                 return phong;
             }
 
@@ -105,59 +113,55 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <param name="material">The material.</param>
             /// <returns></returns>
-            protected virtual PBRMaterialCore OnCreatePBRMaterial(global::Assimp.Material material)
+            protected virtual PBRMaterialCore OnCreatePBRMaterial(Material material)
             {
                 var pbr = new PBRMaterialCore
                 {
-                    AlbedoColor = material.HasColorDiffuse ? material.ColorDiffuse.ToSharpDXColor4() : new Color4(0, 0, 0, 1),
+                    AlbedoColor = material.HasColorDiffuse
+                        ? material.ColorDiffuse.ToSharpDXColor4()
+                        : new Color4(0, 0, 0, 1),
                     EmissiveColor = material.HasColorEmissive && !Configuration.IgnoreEmissiveColor
                         ? material.ColorEmissive.ToSharpDXColor4()
-                        : new Color4(0, 0, 0, 1),
+                        : new Color4(0, 0, 0, 1)
                 };
                 if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR))
-                {
                     pbr.AlbedoColor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR)
-                       .GetColor4DValue().ToSharpDXColor4();
-                }
+                        .GetColor4DValue().ToSharpDXColor4();
                 if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR))
-                {
                     pbr.MetallicFactor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
-                       .GetFloatValue();
-                }
-                if (material.HasColorAmbient)
-                {
-                    pbr.AmbientOcclusionFactor = material.ColorAmbient.R;
-                }
+                        .GetFloatValue();
+                if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.R;
                 if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_ROUGHNESS_FACTOR))
                 {
                     pbr.RoughnessFactor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
                         .GetFloatValue();
                 }
-                else if(material.HasColorSpecular && material.HasShininess)
+                else if (material.HasColorSpecular && material.HasShininess)
                 {
                     //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
-                    float specularIntensity = material.ColorSpecular.R * 0.2125f 
-                        + material.ColorSpecular.G * 0.7154f + material.ColorSpecular.B * 0.0721f;
-                    float normalizedShininess = (float)Math.Sqrt(material.Shininess / 1000);
+                    var specularIntensity = material.ColorSpecular.R * 0.2125f
+                                            + material.ColorSpecular.G * 0.7154f + material.ColorSpecular.B * 0.0721f;
+                    var normalizedShininess = (float) Math.Sqrt(material.Shininess / 1000);
                     normalizedShininess = Math.Min(Math.Max(normalizedShininess, 0), 1f);
                     normalizedShininess *= specularIntensity;
                     pbr.RoughnessFactor = 1 - normalizedShininess;
                 }
-                if(material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS))
+
+                if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS))
                 {
-                    var hasGlossiness = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS).GetBooleanValue();
+                    var hasGlossiness = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS)
+                        .GetBooleanValue();
                     if (hasGlossiness)
                     {
-                        if(material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR))
-                        {
-                            pbr.ReflectanceFactor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR).GetFloatValue();
-                        }
-                        else if(material.HasShininess)
-                        {
-                            pbr.ReflectanceFactor = material.Shininess / 1000;
-                        }
+                        if (material.HasNonTextureProperty(GLTFMatKeys
+                                .AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR))
+                            pbr.ReflectanceFactor = material
+                                .GetNonTextureProperty(GLTFMatKeys
+                                    .AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR).GetFloatValue();
+                        else if (material.HasShininess) pbr.ReflectanceFactor = material.Shininess / 1000;
                     }
                 }
+
                 if (material.HasOpacity)
                 {
                     var c = pbr.AlbedoColor;
@@ -169,7 +173,7 @@ namespace HelixToolkit.SharpDX.Core {
                 {
                     pbr.AlbedoMap = LoadTexture(material.TextureDiffuse.FilePath);
                     pbr.AlbedoMapFilePath = material.TextureDiffuse.FilePath;
-                    var desc = Shaders.DefaultSamplers.LinearSamplerClampAni1;
+                    var desc = DefaultSamplers.LinearSamplerClampAni1;
                     desc.AddressU = ToDXAddressMode(material.TextureDiffuse.WrapModeU);
                     desc.AddressV = ToDXAddressMode(material.TextureDiffuse.WrapModeV);
                     pbr.SurfaceMapSampler = desc;
@@ -185,7 +189,9 @@ namespace HelixToolkit.SharpDX.Core {
                     pbr.NormalMap = LoadTexture(material.TextureHeight.FilePath);
                     pbr.NormalMapFilePath = material.TextureHeight.FilePath;
                 }
-                if (material.HasProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE, TextureType.Unknown, 0))
+
+                if (material.HasProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE, TextureType.Unknown,
+                        0))
                 {
                     var t = material.GetProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE,
                         TextureType.Unknown, 0);
@@ -203,24 +209,27 @@ namespace HelixToolkit.SharpDX.Core {
                     pbr.DisplacementMap = LoadTexture(material.TextureDisplacement.FilePath);
                     pbr.DisplacementMapFilePath = material.TextureDisplacement.FilePath;
                 }
+
                 if (material.HasTextureLightMap)
                 {
                     pbr.AmbientOcculsionMap = LoadTexture(material.TextureLightMap.FilePath);
                     pbr.AmbientOcculsionMapFilePath = material.TextureLightMap.FilePath;
                 }
+
                 if (material.HasTextureEmissive)
                 {
                     pbr.EmissiveMap = LoadTexture(material.TextureEmissive.FilePath);
                     pbr.EmissiveMapFilePath = material.TextureEmissive.FilePath;
                 }
-                if(material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE))
+
+                if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE))
                 {
                     var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
-                    if(values != null && values.Length == 5)
-                    {
-                        pbr.UVTransform = new UVTransform(values[0], new Vector2(values[1], values[2]), new Vector2(values[3], values[4]));
-                    }
+                    if (values != null && values.Length == 5)
+                        pbr.UVTransform = new UVTransform(values[0], new Vector2(values[1], values[2]),
+                            new Vector2(values[3], values[4]));
                 }
+
                 return pbr;
             }
 
@@ -230,7 +239,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="material">The material.</param>
             /// <returns></returns>
             /// <exception cref="System.NotSupportedException">Shading Mode {material.ShadingMode}</exception>
-            protected virtual KeyValuePair<global::Assimp.Material, MaterialCore> OnCreateHelixMaterial(global::Assimp.Material material)
+            protected virtual KeyValuePair<Material, MaterialCore> OnCreateHelixMaterial(Material material)
             {
                 MaterialCore core = null;
                 if (!material.HasShadingMode)
@@ -238,22 +247,15 @@ namespace HelixToolkit.SharpDX.Core {
                     if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
                         || material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_ROUGHNESS_FACTOR)
                         || material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR))
-                    {
                         material.ShadingMode = ShadingMode.Fresnel;
-                    }
-                    else if(material.HasColorSpecular || material.HasColorDiffuse || material.HasTextureDiffuse)
-                    {
+                    else if (material.HasColorSpecular || material.HasColorDiffuse || material.HasTextureDiffuse)
                         material.ShadingMode = ShadingMode.Blinn;
-                    }
                     else
-                    {
                         material.ShadingMode = ShadingMode.Gouraud;
-                    }
                 }
 
                 var mode = material.ShadingMode;
                 if (Configuration.ImportMaterialType != MaterialType.Auto)
-                {
                     switch (Configuration.ImportMaterialType)
                     {
                         case MaterialType.BlinnPhong:
@@ -275,9 +277,8 @@ namespace HelixToolkit.SharpDX.Core {
                             core = new PositionMaterialCore();
                             break;
                     }
-                }
+
                 if (core == null)
-                {
                     switch (mode)
                     {
                         case ShadingMode.Blinn:
@@ -307,18 +308,13 @@ namespace HelixToolkit.SharpDX.Core {
                                 diffuse.DiffuseMap = LoadTexture(material.TextureDiffuse.FilePath);
                                 diffuse.DiffuseMapFilePath = material.TextureDiffuse.FilePath;
                             }
-                            if (material.ShadingMode == ShadingMode.Flat)
-                            {
-                                diffuse.EnableFlatShading = true;
-                            }
+
+                            if (material.ShadingMode == ShadingMode.Flat) diffuse.EnableFlatShading = true;
                             core = diffuse;
                             break;
                         case ShadingMode.Flat:
                             core = OnCreatePhongMaterial(material);
-                            if(core is PhongMaterialCore p)
-                            {
-                                p.EnableFlatShading = true;
-                            }
+                            if (core is PhongMaterialCore p) p.EnableFlatShading = true;
                             break;
                         default:
                             switch (Configuration.ImportMaterialType)
@@ -331,68 +327,69 @@ namespace HelixToolkit.SharpDX.Core {
                                     break;
                                 default:
                                     logger.LogWarning("Shading Mode is not supported: {0}", material.ShadingMode);
-                                    core = new DiffuseMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1), EnableUnLit = true };
+                                    core = new DiffuseMaterialCore
+                                        {DiffuseColor = new Color4(1, 0, 0, 1), EnableUnLit = true};
                                     break;
                             }
+
                             break;
                     }
-                }
 
                 if (core != null)
-                    core.Name = string.IsNullOrEmpty(material.Name) ? $"Material_{Interlocked.Increment(ref MaterialIndexForNoName)}" : material.Name;
-                return new KeyValuePair<global::Assimp.Material, MaterialCore>(material, core);
+                    core.Name = string.IsNullOrEmpty(material.Name)
+                        ? $"Material_{Interlocked.Increment(ref MaterialIndexForNoName)}"
+                        : material.Name;
+                return new KeyValuePair<Material, MaterialCore>(material, core);
             }
 
             protected virtual TextureModel OnLoadEmbeddedTexture(EmbeddedTexture texture)
-            {               
+            {
                 if (texture.HasCompressedData)
                 {
-                    logger.LogInformation("Loading Embedded Compressed Texture. Format: {0}", texture.CompressedFormatHint);
+                    logger.LogInformation("Loading Embedded Compressed Texture. Format: {0}",
+                        texture.CompressedFormatHint);
                     if (!SupportedTextureFormatDict.Contains(texture.CompressedFormatHint.ToLowerInvariant()))
                     {
-                        logger.LogInformation("Compressed Texture Format not supported. Format: {0}", texture.CompressedFormatHint);
+                        logger.LogInformation("Compressed Texture Format not supported. Format: {0}",
+                            texture.CompressedFormatHint);
                         return null;
                     }
+
                     var data = texture.CompressedData.ToArray();
                     var stream = new MemoryStream(data);
                     return new TextureModel(stream);
                 }
-                else if (texture.HasNonCompressedData)
+
+                if (texture.HasNonCompressedData)
                 {
                     logger.LogInformation("Loading Embedded NonCompressed Texture");
-                    var rawData = texture.NonCompressedData.Select(x => new Color4(x.R / 255f, x.G / 255f, x.B / 255f, x.A / 255f)).ToArray();
+                    var rawData = texture.NonCompressedData
+                        .Select(x => new Color4(x.R / 255f, x.G / 255f, x.B / 255f, x.A / 255f)).ToArray();
                     return new TextureModel(rawData, texture.Width, texture.Height);
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
 
 
             private TextureModel LoadTexture(string texturePath)
             {
-                if (textureDict.TryGetValue(texturePath, out var s))
-                {
-                    return s;
-                }
+                if (textureDict.TryGetValue(texturePath, out var s)) return s;
 
                 var texture = OnLoadTexture(texturePath, out var actualPath);
                 if (texture != null)
                 {
                     if (!string.IsNullOrEmpty(actualPath))
-                    {                    
+                    {
                         // If texture is a separate file, uses file path as key and recheck whether exists
-                        if (!textureDict.TryAdd(actualPath, texture))
-                        {
-                            texture = textureDict[actualPath];
-                        }
+                        if (!textureDict.TryAdd(actualPath, texture)) texture = textureDict[actualPath];
                     }
                     else
                     {
                         textureDict.TryAdd(texturePath, texture);
                     }
                 }
+
                 return texture;
             }
 
@@ -402,32 +399,32 @@ namespace HelixToolkit.SharpDX.Core {
                 try
                 {
                     //Check if is embedded material
-                    if (texturePath.StartsWith("*") && int.TryParse(texturePath.Substring(1, texturePath.Length - 1), out int idx)
-                        && embeddedTextures.Count > idx)
-                    {                       
+                    if (texturePath.StartsWith("*") && int.TryParse(texturePath.Substring(1, texturePath.Length - 1),
+                                                        out var idx)
+                                                    && embeddedTextures.Count > idx)
                         return OnLoadEmbeddedTexture(embeddedTextures[idx]);
-                    }
-                    else if(embeddedTextureDict.TryGetValue(texturePath, out var embeddedTex))
-                    {
-                        return OnLoadEmbeddedTexture(embeddedTex);
-                    }
-                    else
-                    {
-                        var ext = Path.GetExtension(texturePath);
-                        if (string.IsNullOrEmpty(ext) || !SupportedTextureFormats.Contains(ext.TrimStart('.').ToLowerInvariant()))
-                        {
-                            logger.LogWarning("Load Texture Failed. Texture Format not supported = {0}.", ext);
 
-                            return null;
-                        }
-                        actualPath = configuration?.TexturePathResolver?.Resolve(path, texturePath);
-                        return string.IsNullOrEmpty(actualPath) ? null : new TextureModel(actualPath);
+                    if (embeddedTextureDict.TryGetValue(texturePath, out var embeddedTex))
+                        return OnLoadEmbeddedTexture(embeddedTex);
+
+                    var ext = Path.GetExtension(texturePath);
+                    if (string.IsNullOrEmpty(ext) ||
+                        !SupportedTextureFormats.Contains(ext.TrimStart('.').ToLowerInvariant()))
+                    {
+                        logger.LogWarning("Load Texture Failed. Texture Format not supported = {0}.", ext);
+
+                        return null;
                     }
+
+                    actualPath = configuration?.TexturePathResolver?.Resolve(path, texturePath);
+                    return string.IsNullOrEmpty(actualPath) ? null : new TextureModel(actualPath);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning("Load Texture Exception. Texture Path = {0}. Exception: {1}", texturePath, ex.Message);
+                    logger.LogWarning("Load Texture Exception. Texture Path = {0}. Exception: {1}", texturePath,
+                        ex.Message);
                 }
+
                 return null;
             }
 

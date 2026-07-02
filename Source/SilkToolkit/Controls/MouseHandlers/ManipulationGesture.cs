@@ -6,44 +6,38 @@
 //   Defines a touch input gesture that can be used to invoke a command.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+///     Defines a touch input gesture that can be used to invoke a command.
+/// </summary>
+[TypeConverter(typeof(ManipulationGestureConverter))]
+public class ManipulationGesture : InputGesture
 {
-    /// <summary>
-    /// Defines a touch input gesture that can be used to invoke a command.
-    /// </summary>
-    [TypeConverter(typeof(ManipulationGestureConverter))]
-    public class ManipulationGesture : InputGesture
+    public ManipulationGesture(ManipulationAction manipulationAction)
     {
-        public ManipulationAction ManipulationAction
+        ManipulationAction = manipulationAction;
+        FingerCount = manipulationAction.FingerCount();
+    }
+
+    public ManipulationAction ManipulationAction { get; }
+
+    public int FingerCount { get; }
+
+    public override bool Matches(object targetElement, InputEventArgs inputEventArgs)
+    {
+        if (inputEventArgs is ManipulationDeltaEventArgs mdea)
         {
-            get;
+            // mdea.CumulativeManipulation.Translation.Length ...
+            var manipulatorsCount = mdea.Manipulators.Count();
+            return manipulatorsCount == FingerCount;
         }
 
-        public int FingerCount
-        {
-            get;
-        }
-
-        public ManipulationGesture(ManipulationAction manipulationAction)
-        {
-            this.ManipulationAction = manipulationAction;
-            this.FingerCount = manipulationAction.FingerCount();
-        }
-
-        public override bool Matches(object targetElement, InputEventArgs inputEventArgs)
-        {
-            if (inputEventArgs is ManipulationDeltaEventArgs mdea)
-            {
-                // mdea.CumulativeManipulation.Translation.Length ...
-                var manipulatorsCount = mdea.Manipulators.Count();
-                return manipulatorsCount == this.FingerCount;
-            }
-
-            return false;
-        }
+        return false;
     }
 }

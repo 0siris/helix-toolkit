@@ -3,52 +3,46 @@ The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Windows;
-namespace HelixToolkit.Wpf.SharpDX {
-    using Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Model;
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+///     Provides a way to render child elements always on top of other elements
+///     This is rendered at the same level of screen spaced group items.
+///     Child items do not support post effects.
+/// </summary>
+public class TopMostGroup3D : GroupModel3D
+{
+    // Using a DependencyProperty as the backing store for EnableTopMost.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty EnableTopMostProperty =
+        DependencyProperty.Register("EnableTopMost", typeof(bool), typeof(TopMostGroup3D),
+            new PropertyMetadata(true,
+                (d, e) => { ((d as Element3DCore).SceneNode as TopMostGroupNode).EnableTopMost = (bool) e.NewValue; }));
+
     /// <summary>
-    /// Provides a way to render child elements always on top of other elements
-    /// This is rendered at the same level of screen spaced group items.
-    /// Child items do not support post effects.
+    ///     Gets or sets a value indicating whether [enable top most mode].
     /// </summary>
-    public class TopMostGroup3D : GroupModel3D
+    /// <value>
+    ///     <c>true</c> if [enable top most mode]; otherwise, <c>false</c>.
+    /// </value>
+    public bool EnableTopMost
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether [enable top most mode].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [enable top most mode]; otherwise, <c>false</c>.
-        /// </value>
-        public bool EnableTopMost
-        {
-            get
-            {
-                return (bool)GetValue(EnableTopMostProperty);
-            }
-            set
-            {
-                SetValue(EnableTopMostProperty, value);
-            }
-        }
-
-        // Using a DependencyProperty as the backing store for EnableTopMost.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty EnableTopMostProperty =
-            DependencyProperty.Register("EnableTopMost", typeof(bool), typeof(TopMostGroup3D), new PropertyMetadata(true, (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as TopMostGroupNode).EnableTopMost = (bool)e.NewValue;
-            }));
+        get => (bool) GetValue(EnableTopMostProperty);
+        set => SetValue(EnableTopMostProperty, value);
+    }
 
 
-        protected override SceneNode OnCreateSceneNode()
-        {
-            return new TopMostGroupNode();
-        }
+    protected override SceneNode OnCreateSceneNode()
+    {
+        return new TopMostGroupNode();
+    }
 
-        protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-        {
-            (node as TopMostGroupNode).EnableTopMost = EnableTopMost;
-            base.AssignDefaultValuesToSceneNode(node);
-        }
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
+    {
+        (node as TopMostGroupNode).EnableTopMost = EnableTopMost;
+        base.AssignDefaultValuesToSceneNode(node);
     }
 }

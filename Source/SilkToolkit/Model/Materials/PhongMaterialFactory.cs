@@ -6,659 +6,472 @@
 //
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-using System.Linq;
+
+
 using System.Collections.ObjectModel;
-
-
-using System;
+using System.Linq;
 using Color = HelixToolkit.SharpDX.Core.Color;
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
+
+public class PhongMaterialCollection : ObservableCollection<PhongMaterial>
 {
-    public class PhongMaterialCollection : ObservableCollection<PhongMaterial>
+    public PhongMaterialCollection()
     {
-        public PhongMaterialCollection()
-        {
-            Add(PhongMaterials.Black);
-            Add(PhongMaterials.BlackPlastic);
-            Add(PhongMaterials.BlackRubber);
-            Add(PhongMaterials.Blue);
-            Add(PhongMaterials.Brass);
-            Add(PhongMaterials.Bronze);
-            Add(PhongMaterials.Chrome);
-            Add(PhongMaterials.Copper);
-            Add(PhongMaterials.DefaultVRML);
-            Add(PhongMaterials.Emerald);
-            Add(PhongMaterials.Glass);
-            Add(PhongMaterials.Gold);
-            Add(PhongMaterials.Green);
-            Add(PhongMaterials.Indigo);
-            Add(PhongMaterials.Jade);
-            Add(PhongMaterials.LightGray);
-            Add(PhongMaterials.MediumGray);
-            Add(PhongMaterials.Obsidian);
-            Add(PhongMaterials.Orange);
-            Add(PhongMaterials.Pearl);
-            Add(PhongMaterials.Pewter);
-            Add(PhongMaterials.PolishedBronze);
-            Add(PhongMaterials.PolishedCopper);
-            Add(PhongMaterials.PolishedGold);
-            Add(PhongMaterials.PolishedSilver);
-            Add(PhongMaterials.Red);
-            Add(PhongMaterials.Ruby);
-            Add(PhongMaterials.Silver);
-            Add(PhongMaterials.Turquoise);
-            Add(PhongMaterials.Violet);
-            Add(PhongMaterials.White);
-            Add(PhongMaterials.Yellow);
-        }
+        Add(PhongMaterials.Black);
+        Add(PhongMaterials.BlackPlastic);
+        Add(PhongMaterials.BlackRubber);
+        Add(PhongMaterials.Blue);
+        Add(PhongMaterials.Brass);
+        Add(PhongMaterials.Bronze);
+        Add(PhongMaterials.Chrome);
+        Add(PhongMaterials.Copper);
+        Add(PhongMaterials.DefaultVRML);
+        Add(PhongMaterials.Emerald);
+        Add(PhongMaterials.Glass);
+        Add(PhongMaterials.Gold);
+        Add(PhongMaterials.Green);
+        Add(PhongMaterials.Indigo);
+        Add(PhongMaterials.Jade);
+        Add(PhongMaterials.LightGray);
+        Add(PhongMaterials.MediumGray);
+        Add(PhongMaterials.Obsidian);
+        Add(PhongMaterials.Orange);
+        Add(PhongMaterials.Pearl);
+        Add(PhongMaterials.Pewter);
+        Add(PhongMaterials.PolishedBronze);
+        Add(PhongMaterials.PolishedCopper);
+        Add(PhongMaterials.PolishedGold);
+        Add(PhongMaterials.PolishedSilver);
+        Add(PhongMaterials.Red);
+        Add(PhongMaterials.Ruby);
+        Add(PhongMaterials.Silver);
+        Add(PhongMaterials.Turquoise);
+        Add(PhongMaterials.Violet);
+        Add(PhongMaterials.White);
+        Add(PhongMaterials.Yellow);
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    public static class PhongMaterials
+}
+
+/// <summary>
+/// </summary>
+public static class PhongMaterials
+{
+    static PhongMaterials()
     {
-        public static PhongMaterialCollection Materials
+        Materials = new PhongMaterialCollection();
+    }
+
+    public static PhongMaterialCollection Materials { get; }
+
+    // factory
+    public static PhongMaterial Red =>
+        new()
         {
-            get; private set;
-        }
+            Name = "Red",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = Color.Red,
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial GetMaterial(string materialName)
+    public static PhongMaterial Blue =>
+        new()
         {
-            var mat = Materials.FirstOrDefault(x => x.Name == materialName);
-            return mat != null ? mat : PhongMaterials.DefaultVRML;
-        }
+            Name = "Blue",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = Color.Blue,
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-
-
-        static PhongMaterials()
+    public static PhongMaterial Green =>
+        new()
         {
-            Materials = new PhongMaterialCollection();
-        }
+            Name = "Green",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = Color.Green,
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static Color4 ToColor(double r, double g, double b, double a = 1.0)
+    public static PhongMaterial Orange =>
+        new()
         {
-            //return new Color4((float)r, (float)g, (float)b, (float)a);
-            return System.Windows.Media.Color.FromScRgb((float)a, (float)r, (float)g, (float)b).ToColor4();
-        }
+            Name = "Orange",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.992157, 0.513726, 0.0),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        // factory
-        public static PhongMaterial Red
+    public static PhongMaterial BlanchedAlmond =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Red",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = Color.Red,
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "BlanchedAlmond",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = Color.BlanchedAlmond,
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Blue
+    public static PhongMaterial Bisque =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Blue",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = Color.Blue,
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Bisque",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = Color.Bisque,
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Green
+    public static PhongMaterial Yellow =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Green",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = Color.Green,
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Yellow",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(1.0, 0.964706, 0.0),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Orange
+    public static PhongMaterial Indigo =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Orange",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.992157, 0.513726, 0.0, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Indigo",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.0980392, 0.0, 0.458824),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial BlanchedAlmond
+    public static PhongMaterial Violet =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "BlanchedAlmond",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = Color.BlanchedAlmond,
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Violet",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.635294, 0.0, 1.0),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Bisque
+    public static PhongMaterial White =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Bisque",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = Color.Bisque,
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "White",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.992157, 0.992157, 0.992157),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Yellow
+    public static PhongMaterial PureWhite =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Yellow",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(1.0, 0.964706, 0.0, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "PureWhite",
+            AmbientColor = ToColor(1, 1, 1),
+            DiffuseColor = ToColor(1, 1, 1),
+            SpecularColor = ToColor(0.0, 0.0, 0.0),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 1000000f
+        };
 
-        public static PhongMaterial Indigo
+    public static PhongMaterial Black =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Indigo",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.0980392, 0.0, 0.458824, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Black",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.0, 0.0, 0.0),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Violet
+    public static PhongMaterial Gray =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Violet",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.635294, 0.0, 1.0, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Gray",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.254902, 0.254902, 0.254902),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial White
+    public static PhongMaterial MediumGray =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "White",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.992157, 0.992157, 0.992157, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "MediumGray",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.454902, 0.454902, 0.454902),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial PureWhite
+    public static PhongMaterial LightGray =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "PureWhite",
-                    AmbientColor = ToColor(1, 1, 1, 1.0),
-                    DiffuseColor = ToColor(1, 1, 1, 1.0),
-                    SpecularColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 1000000f,
-                };
-            }
-        }
+            Name = "LightGray",
+            AmbientColor = ToColor(0.1, 0.1, 0.1),
+            DiffuseColor = ToColor(0.682353, 0.682353, 0.682353),
+            SpecularColor = ToColor(0.0225, 0.0225, 0.0225),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Black
+    // Materials from: http://globe3d.sourceforge.net/g3d_html/gl-materials__ads.htm
+    public static PhongMaterial Glass =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Black",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Glass",
+            AmbientColor = ToColor(0.0, 0.0, 0.0),
+            DiffuseColor = ToColor(0.588235, 0.670588, 0.729412),
+            SpecularColor = ToColor(0.9, 0.9, 0.9),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 96.0f
+        };
 
-        public static PhongMaterial Gray
+    public static PhongMaterial Brass =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Gray",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.254902, 0.254902, 0.254902, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Brass",
+            AmbientColor = ToColor(0.329412, 0.223529, 0.027451),
+            DiffuseColor = ToColor(0.780392, 0.568627, 0.113725),
+            SpecularColor = ToColor(0.992157, 0.941176, 0.807843),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 27.8974f
+        };
 
-        public static PhongMaterial MediumGray
+    public static PhongMaterial Bronze =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "MediumGray",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.454902, 0.454902, 0.454902, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Bronze",
+            AmbientColor = ToColor(0.2125, 0.1275, 0.054),
+            DiffuseColor = ToColor(0.714, 0.4284, 0.18144),
+            SpecularColor = ToColor(0.393548, 0.271906, 0.166721),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 25.6f
+        };
 
-        public static PhongMaterial LightGray
+    public static PhongMaterial PolishedBronze =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "LightGray",
-                    AmbientColor = ToColor(0.1, 0.1, 0.1, 1.0),
-                    DiffuseColor = ToColor(0.682353, 0.682353, 0.682353, 1.0),
-                    SpecularColor = ToColor(0.0225, 0.0225, 0.0225, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "PolishedBronze",
+            AmbientColor = ToColor(0.25, 0.148, 0.06475),
+            DiffuseColor = ToColor(0.4, 0.2368, 0.1036),
+            SpecularColor = ToColor(0.774597, 0.458561, 0.200621),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 76.8f
+        };
 
-        // Materials from: http://globe3d.sourceforge.net/g3d_html/gl-materials__ads.htm
-        public static PhongMaterial Glass
+    public static PhongMaterial Chrome =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Glass",
-                    AmbientColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    DiffuseColor = ToColor(0.588235, 0.670588, 0.729412, 1.0),
-                    SpecularColor = ToColor(0.9, 0.9, 0.9, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 96.0f,
-                };
-            }
-        }
+            Name = "Chrome",
+            AmbientColor = ToColor(0.25f, 0.25f, 0.25f),
+            DiffuseColor = ToColor(0.4f, 0.4f, 0.4f),
+            SpecularColor = ToColor(0.774597f, 0.774597f, 0.774597f),
+            EmissiveColor = ToColor(0f, 0f, 0f, 0f),
+            SpecularShininess = 76.8f
+        };
 
-        public static PhongMaterial Brass
+    public static PhongMaterial Copper =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Brass",
-                    AmbientColor = ToColor(0.329412, 0.223529, 0.027451, 1.0),
-                    DiffuseColor = ToColor(0.780392, 0.568627, 0.113725, 1.0),
-                    SpecularColor = ToColor(0.992157, 0.941176, 0.807843, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 27.8974f,
-                };
-            }
-        }
+            Name = "Copper",
+            AmbientColor = ToColor(0.19125, 0.0735, 0.0225),
+            DiffuseColor = ToColor(0.7038, 0.27048, 0.0828),
+            SpecularColor = ToColor(0.256777, 0.137622, 0.086014),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Bronze
+    public static PhongMaterial PolishedCopper =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Bronze",
-                    AmbientColor = ToColor(0.2125, 0.1275, 0.054, 1.0),
-                    DiffuseColor = ToColor(0.714, 0.4284, 0.18144, 1.0),
-                    SpecularColor = ToColor(0.393548, 0.271906, 0.166721, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 25.6f,
-                };
-            }
-        }
+            Name = "PolishedCopper",
+            AmbientColor = ToColor(0.2295, 0.08825, 0.0275),
+            DiffuseColor = ToColor(0.5508, 0.2118, 0.066),
+            SpecularColor = ToColor(0.580594, 0.223257, 0.0695701),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 51.2f
+        };
 
-        public static PhongMaterial PolishedBronze
+    public static PhongMaterial Gold =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "PolishedBronze",
-                    AmbientColor = ToColor(0.25, 0.148, 0.06475, 1.0),
-                    DiffuseColor = ToColor(0.4, 0.2368, 0.1036, 1.0),
-                    SpecularColor = ToColor(0.774597, 0.458561, 0.200621, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 76.8f,
-                };
-            }
-        }
+            Name = "Gold",
+            AmbientColor = ToColor(0.24725, 0.1995, 0.0745),
+            DiffuseColor = ToColor(0.75164, 0.60648, 0.22648),
+            SpecularColor = ToColor(0.628281, 0.555802, 0.366065),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 51.2f
+        };
 
-        public static PhongMaterial Chrome
+    public static PhongMaterial PolishedGold =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Chrome",
-                    AmbientColor = ToColor(0.25f, 0.25f, 0.25f, 1.0f),
-                    DiffuseColor = ToColor(0.4f, 0.4f, 0.4f, 1.0f),
-                    SpecularColor = ToColor(0.774597f, 0.774597f, 0.774597f, 1.0f),
-                    EmissiveColor = ToColor(0f, 0f, 0f, 0f),
-                    SpecularShininess = 76.8f,
-                };
-            }
-        }
+            Name = "PolishedGold",
+            AmbientColor = ToColor(0.24725, 0.2245, 0.0645),
+            DiffuseColor = ToColor(0.34615, 0.3143, 0.0903),
+            SpecularColor = ToColor(0.797357, 0.723991, 0.208006),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 83.2f
+        };
 
-        public static PhongMaterial Copper
+
+    public static PhongMaterial Pewter =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Copper",
-                    AmbientColor = ToColor(0.19125, 0.0735, 0.0225, 1.0),
-                    DiffuseColor = ToColor(0.7038, 0.27048, 0.0828, 1.0),
-                    SpecularColor = ToColor(0.256777, 0.137622, 0.086014, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Pewter",
+            AmbientColor = ToColor(0.105882, 0.058824, 0.113725),
+            DiffuseColor = ToColor(0.427451, 0.470588, 0.541176),
+            SpecularColor = ToColor(0.333333, 0.333333, 0.521569),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 9.84615f
+        };
 
-        public static PhongMaterial PolishedCopper
+    public static PhongMaterial Silver =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "PolishedCopper",
-                    AmbientColor = ToColor(0.2295, 0.08825, 0.0275, 1.0),
-                    DiffuseColor = ToColor(0.5508, 0.2118, 0.066, 1.0),
-                    SpecularColor = ToColor(0.580594, 0.223257, 0.0695701, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 51.2f,
-                };
-            }
-        }
+            Name = "Silver",
+            AmbientColor = ToColor(0.19225, 0.19225, 0.19225),
+            DiffuseColor = ToColor(0.50754, 0.50754, 0.50754),
+            SpecularColor = ToColor(0.508273, 0.508273, 0.508273),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 51.2f
+        };
 
-        public static PhongMaterial Gold
+    public static PhongMaterial PolishedSilver =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Gold",
-                    AmbientColor = ToColor(0.24725, 0.1995, 0.0745, 1.0),
-                    DiffuseColor = ToColor(0.75164, 0.60648, 0.22648, 1.0),
-                    SpecularColor = ToColor(0.628281, 0.555802, 0.366065, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 51.2f,
-                };
-            }
-        }
+            Name = "PolishedSilver",
+            AmbientColor = ToColor(0.23125, 0.23125, 0.23125),
+            DiffuseColor = ToColor(0.2775, 0.2775, 0.2775),
+            SpecularColor = ToColor(0.773911, 0.773911, 0.773911),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 89.6f
+        };
 
-        public static PhongMaterial PolishedGold
+    public static PhongMaterial Emerald =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "PolishedGold",
-                    AmbientColor = ToColor(0.24725, 0.2245, 0.0645, 1.0),
-                    DiffuseColor = ToColor(0.34615, 0.3143, 0.0903, 1.0),
-                    SpecularColor = ToColor(0.797357, 0.723991, 0.208006, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 83.2f,
-                };
-            }
-        }
+            Name = "Emerald",
+            AmbientColor = ToColor(0.0215, 0.1745, 0.0215, 0.55),
+            DiffuseColor = ToColor(0.07568, 0.61424, 0.07568, 0.55),
+            SpecularColor = ToColor(0.633, 0.727811, 0.633, 0.55),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 76.8f
+        };
 
-
-        public static PhongMaterial Pewter
+    public static PhongMaterial Jade =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Pewter",
-                    AmbientColor = ToColor(0.105882, 0.058824, 0.113725, 1.0),
-                    DiffuseColor = ToColor(0.427451, 0.470588, 0.541176, 1.0),
-                    SpecularColor = ToColor(0.333333, 0.333333, 0.521569, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 9.84615f,
-                };
-            }
-        }
+            Name = "Jade",
+            AmbientColor = ToColor(0.135, 0.2225, 0.1575, 0.95),
+            DiffuseColor = ToColor(0.54, 0.89, 0.63, 0.95),
+            SpecularColor = ToColor(0.316228, 0.316228, 0.316228, 0.95),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Silver
+    public static PhongMaterial Obsidian =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Silver",
-                    AmbientColor = ToColor(0.19225, 0.19225, 0.19225, 1.0),
-                    DiffuseColor = ToColor(0.50754, 0.50754, 0.50754, 1.0),
-                    SpecularColor = ToColor(0.508273, 0.508273, 0.508273, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 51.2f,
-                };
-            }
-        }
+            Name = "Obsidian",
+            AmbientColor = ToColor(0.05375, 0.05, 0.06625, 0.82),
+            DiffuseColor = ToColor(0.18275, 0.17, 0.22525, 0.82),
+            SpecularColor = ToColor(0.332741, 0.328634, 0.346435, 0.82),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 38.4f
+        };
 
-        public static PhongMaterial PolishedSilver
+    public static PhongMaterial Pearl =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "PolishedSilver",
-                    AmbientColor = ToColor(0.23125, 0.23125, 0.23125, 1.0),
-                    DiffuseColor = ToColor(0.2775, 0.2775, 0.2775, 1.0),
-                    SpecularColor = ToColor(0.773911, 0.773911, 0.773911, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 89.6f,
-                };
-            }
-        }
+            Name = "Pearl",
+            AmbientColor = ToColor(0.25, 0.20725, 0.20725, 0.922),
+            DiffuseColor = ToColor(1.0, 0.829, 0.829, 0.922),
+            SpecularColor = ToColor(0.296648, 0.296648, 0.296648, 0.922),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 11.264f
+        };
 
-        public static PhongMaterial Emerald
+    public static PhongMaterial Ruby =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Emerald",
-                    AmbientColor = ToColor(0.0215, 0.1745, 0.0215, 0.55),
-                    DiffuseColor = ToColor(0.07568, 0.61424, 0.07568, 0.55),
-                    SpecularColor = ToColor(0.633, 0.727811, 0.633, 0.55),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 76.8f,
-                };
-            }
-        }
+            Name = "Ruby",
+            AmbientColor = ToColor(0.1745, 0.01175, 0.01175, 0.55),
+            DiffuseColor = ToColor(0.61424, 0.04136, 0.04136, 0.55),
+            SpecularColor = ToColor(0.727811, 0.626959, 0.626959, 0.55),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 76.8f
+        };
 
-        public static PhongMaterial Jade
+    public static PhongMaterial Turquoise =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Jade",
-                    AmbientColor = ToColor(0.135, 0.2225, 0.1575, 0.95),
-                    DiffuseColor = ToColor(0.54, 0.89, 0.63, 0.95),
-                    SpecularColor = ToColor(0.316228, 0.316228, 0.316228, 0.95),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+            Name = "Turquoise",
+            AmbientColor = ToColor(0.1, 0.18725, 0.1745, 0.8),
+            DiffuseColor = ToColor(0.396, 0.74151, 0.69102, 0.8),
+            SpecularColor = ToColor(0.297254, 0.30829, 0.306678, 0.8),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 12.8f
+        };
 
-        public static PhongMaterial Obsidian
+    public static PhongMaterial BlackPlastic =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Obsidian",
-                    AmbientColor = ToColor(0.05375, 0.05, 0.06625, 0.82),
-                    DiffuseColor = ToColor(0.18275, 0.17, 0.22525, 0.82),
-                    SpecularColor = ToColor(0.332741, 0.328634, 0.346435, 0.82),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 38.4f,
-                };
-            }
-        }
+            Name = "BlackPlastic",
+            AmbientColor = ToColor(0.0, 0.0, 0.0),
+            DiffuseColor = ToColor(0.01, 0.01, 0.01),
+            SpecularColor = ToColor(0.50, 0.50, 0.50),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 32f
+        };
 
-        public static PhongMaterial Pearl
+    public static PhongMaterial BlackRubber =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Pearl",
-                    AmbientColor = ToColor(0.25, 0.20725, 0.20725, 0.922),
-                    DiffuseColor = ToColor(1.0, 0.829, 0.829, 0.922),
-                    SpecularColor = ToColor(0.296648, 0.296648, 0.296648, 0.922),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 11.264f,
-                };
-            }
-        }
+            Name = "BlackRubber",
+            AmbientColor = ToColor(0.02, 0.02, 0.02),
+            DiffuseColor = ToColor(0.01, 0.01, 0.01),
+            SpecularColor = ToColor(0.4, 0.4, 0.4),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
+            SpecularShininess = 10f
+        };
 
-        public static PhongMaterial Ruby
+    public static PhongMaterial DefaultVRML =>
+        new()
         {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Ruby",
-                    AmbientColor = ToColor(0.1745, 0.01175, 0.01175, 0.55),
-                    DiffuseColor = ToColor(0.61424, 0.04136, 0.04136, 0.55),
-                    SpecularColor = ToColor(0.727811, 0.626959, 0.626959, 0.55),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 76.8f,
-                };
-            }
-        }
+            Name = "DefaultVRML",
+            AmbientColor = ToColor(0.2, 0.2, 0.2),
+            DiffuseColor = ToColor(0.8, 0.8, 0.8),
+            SpecularColor = ToColor(0.0, 0.0, 0.0),
+            EmissiveColor = ToColor(0.0, 0.0, 0.0),
+            SpecularShininess = 25.6f
+        };
 
-        public static PhongMaterial Turquoise
-        {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "Turquoise",
-                    AmbientColor = ToColor(0.1, 0.18725, 0.1745, 0.8),
-                    DiffuseColor = ToColor(0.396, 0.74151, 0.69102, 0.8),
-                    SpecularColor = ToColor(0.297254, 0.30829, 0.306678, 0.8),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 12.8f,
-                };
-            }
-        }
+    public static PhongMaterial GetMaterial(string materialName)
+    {
+        var mat = Materials.FirstOrDefault(x => x.Name == materialName);
+        return mat != null ? mat : DefaultVRML;
+    }
 
-        public static PhongMaterial BlackPlastic
-        {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "BlackPlastic",
-                    AmbientColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    DiffuseColor = ToColor(0.01, 0.01, 0.01, 1.0),
-                    SpecularColor = ToColor(0.50, 0.50, 0.50, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 32f,
-                };
-            }
-        }
-
-        public static PhongMaterial BlackRubber
-        {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "BlackRubber",
-                    AmbientColor = ToColor(0.02, 0.02, 0.02, 1.0),
-                    DiffuseColor = ToColor(0.01, 0.01, 0.01, 1.0),
-                    SpecularColor = ToColor(0.4, 0.4, 0.4, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
-                    SpecularShininess = 10f,
-                };
-            }
-        }
-
-        public static PhongMaterial DefaultVRML
-        {
-            get
-            {
-                return new PhongMaterial
-                {
-                    Name = "DefaultVRML",
-                    AmbientColor = ToColor(0.2, 0.2, 0.2, 1.0),
-                    DiffuseColor = ToColor(0.8, 0.8, 0.8, 1.0),
-                    SpecularColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    EmissiveColor = ToColor(0.0, 0.0, 0.0, 1.0),
-                    SpecularShininess = 25.6f,
-                };
-            }
-        }
+    public static Color4 ToColor(double r, double g, double b, double a = 1.0)
+    {
+        //return new Color4((float)r, (float)g, (float)b, (float)a);
+        return System.Windows.Media.Color.FromScRgb((float) a, (float) r, (float) g, (float) b).ToColor4();
     }
 }

@@ -7,32 +7,28 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-
+using System.Windows;
+using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
+using Color = System.Windows.Media.Color;
+
 namespace HelixToolkit.Wpf.SharpDX
 {
-
     namespace Utilities
     {
         public abstract class FromToStringTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
-                if (sourceType == typeof(string))
-                {
-                    return true;
-                }
+                if (sourceType == typeof(string)) return true;
 
                 return base.CanConvertFrom(context, sourceType);
             }
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-                if (destinationType == typeof(string))
-                {
-                    return true;
-                }
+                if (destinationType == typeof(string)) return true;
 
                 return base.CanConvertTo(context, destinationType);
             }
@@ -42,30 +38,21 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
-                if (source != null)
-                {
-                    return Vector2Collection.Parse(source);
-                }
+                if (source != null) return Vector2Collection.Parse(source);
 
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType != null && value is Vector2Collection instance)
-                {
                     if (destinationType == typeof(string))
-                    {
                         return instance.ConvertToString(null, culture);
-                    }
-                }
 
                 return base.ConvertTo(context, culture, value, destinationType);
             }
@@ -75,30 +62,21 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
-                if (source != null)
-                {
-                    return Vector3Collection.Parse(source);
-                }
+                if (source != null) return Vector3Collection.Parse(source);
 
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType != null && value is Vector3Collection instance)
-                {
                     if (destinationType == typeof(string))
-                    {
                         return instance.ConvertToString(null, culture);
-                    }
-                }
 
                 return base.ConvertTo(context, culture, value, destinationType);
             }
@@ -108,30 +86,21 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
-                if (source != null)
-                {
-                    return IntCollection.Parse(source);
-                }
+                if (source != null) return IntCollection.Parse(source);
 
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType != null && value is IntCollection instance)
-                {
                     if (destinationType == typeof(string))
-                    {
                         return instance.ConvertToString(null, culture);
-                    }
-                }
 
                 return base.ConvertTo(context, culture, value, destinationType);
             }
@@ -141,30 +110,21 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
-                if (source != null)
-                {
-                    return Color4Collection.Parse(source);
-                }
+                if (source != null) return Color4Collection.Parse(source);
 
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType != null && value is Color4Collection instance)
-                {
                     if (destinationType == typeof(string))
-                    {
                         return instance.ConvertToString(null, culture);
-                    }
-                }
 
                 return base.ConvertTo(context, culture, value, destinationType);
             }
@@ -174,10 +134,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
                 if (value is string source)
                 {
                     try
@@ -185,42 +142,42 @@ namespace HelixToolkit.Wpf.SharpDX
                         var c = System.Windows.Media.ColorConverter.ConvertFromString(source);
                         if (c != null)
                         {
-                            var color = (System.Windows.Media.Color)c;
-                            return new Color(color.R, color.G, color.B, color.A);
+                            var color = (Color) c;
+                            return new HelixToolkit.SharpDX.Core.Color(color.R, color.G, color.B, color.A);
                         }
                     }
-                    catch (FormatException) { }
+                    catch (FormatException)
+                    {
+                    }
+
                     var th = new TokenizerHelper(source, CultureInfo.InvariantCulture);
-                    var result = new Color(
+                    var result = new HelixToolkit.SharpDX.Core.Color(
                         Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
                         Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
                         Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
                         Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture));
                     return result;
                 }
-                else if (value is System.Windows.Media.Color)
-                {
-                    return (Color)((System.Windows.Media.Color)value).ToColor4();
-                }
+
+                if (value is Color) return (HelixToolkit.SharpDX.Core.Color) ((Color) value).ToColor4();
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
-                if (value is Color)
+                if (value is HelixToolkit.SharpDX.Core.Color)
                 {
-                    var val = (Color)value;
+                    var val = (HelixToolkit.SharpDX.Core.Color) value;
                     if (destinationType == typeof(string))
                     {
-
                         var str = string.Format("{0},{1},{2},{3}", val.R, val.G, val.B, val.A);
                         return str;
                     }
-                    else if (destinationType == typeof(System.Windows.Media.Color))
-                    {
-                        return System.Windows.Media.Color.FromArgb(val.A, val.R, val.G, val.B);
-                    }
+
+                    if (destinationType == typeof(Color)) return Color.FromArgb(val.A, val.R, val.G, val.B);
                 }
+
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }
@@ -229,78 +186,65 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
-                if (sourceType == typeof(System.Windows.Media.Color))
-                {
-                    return true;
-                }
+                if (sourceType == typeof(Color)) return true;
                 return base.CanConvertFrom(context, sourceType);
             }
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-                if (destinationType == typeof(System.Windows.Media.Color))
-                {
-                    return true;
-                }
+                if (destinationType == typeof(Color)) return true;
                 return base.CanConvertTo(context, destinationType);
             }
+
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
-                if (value is System.Windows.Media.Color)
-                {
-                    return ((System.Windows.Media.Color)value).ToColor4();
-                }
-                else
-                {
-                    var source = value as string;
+                if (value == null) throw GetConvertFromException(value);
+                if (value is Color) return ((Color) value).ToColor4();
 
-                    if (source != null)
+                var source = value as string;
+
+                if (source != null)
+                {
+                    var sepChar = TokenizerHelper.GetNumericListSeparator(CultureInfo.InvariantCulture);
+                    if (source.Contains(sepChar.ToString()))
                     {
-                        var sepChar = TokenizerHelper.GetNumericListSeparator(CultureInfo.InvariantCulture);
-                        if (source.Contains(sepChar.ToString()))
-                        {
-                            var th = new TokenizerHelper(source, CultureInfo.InvariantCulture);
-                            var result = new Color4(
-                                Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
-                                Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
-                                Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
-                                Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture));
-                            return result;
-                        }
+                        var th = new TokenizerHelper(source, CultureInfo.InvariantCulture);
+                        var result = new Color4(
+                            Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
+                            Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
+                            Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture),
+                            Convert.ToSingle(th.NextTokenRequired(), CultureInfo.InvariantCulture));
+                        return result;
+                    }
 
-                        try
-                        {
-                            var obj = System.Windows.Media.ColorConverter.ConvertFromString(source);
-                            if (obj is System.Windows.Media.Color color)
-                            {
-                                return color.ToColor4();
-                            }
-                        }
-                        catch (Exception) { }
+                    try
+                    {
+                        var obj = System.Windows.Media.ColorConverter.ConvertFromString(source);
+                        if (obj is Color color) return color.ToColor4();
+                    }
+                    catch (Exception)
+                    {
                     }
                 }
+
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (value is Color4)
                 {
-                    var val = (Color4)value;
-                    if (destinationType == typeof(System.Windows.Media.Color))
-                    {
-                        return val.ToColor();
-                    }
-                    else if (destinationType == typeof(string))
+                    var val = (Color4) value;
+                    if (destinationType == typeof(Color)) return val.ToColor();
+
+                    if (destinationType == typeof(string))
                     {
                         var str = string.Format("{0},{1},{2},{3}", val.X, val.Y, val.Z, val.W);
                         return str;
                     }
                 }
+
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }
@@ -309,36 +253,29 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
-                if (sourceType == typeof(System.Windows.Vector) || sourceType == typeof(System.Windows.Point))
-                {
-                    return true;
-                }
+                if (sourceType == typeof(Vector) || sourceType == typeof(Point)) return true;
                 return base.CanConvertFrom(context, sourceType);
             }
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-                if (destinationType == typeof(System.Windows.Vector) || destinationType == typeof(System.Windows.Point))
-                {
-                    return true;
-                }
+                if (destinationType == typeof(Vector) || destinationType == typeof(Point)) return true;
                 return base.CanConvertTo(context, destinationType);
             }
+
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
+                if (value == null) throw GetConvertFromException(value);
+                if (value is Vector)
                 {
-                    throw GetConvertFromException(value);
+                    var source = (Vector) value;
+                    return new Vector2((float) source.X, (float) source.Y);
                 }
-                if (value is System.Windows.Vector)
+
+                if (value is Point3D)
                 {
-                    var source = (System.Windows.Vector)value;
-                    return new Vector2((float)source.X, (float)source.Y);
-                }
-                else if (value is System.Windows.Media.Media3D.Point3D)
-                {
-                    var source = (System.Windows.Media.Media3D.Point3D)value;
-                    return new Vector2((float)source.X, (float)source.Y);
+                    var source = (Point3D) value;
+                    return new Vector2((float) source.X, (float) source.Y);
                 }
                 else
                 {
@@ -353,28 +290,27 @@ namespace HelixToolkit.Wpf.SharpDX
                         return result;
                     }
                 }
+
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (value is Vector2)
                 {
-                    var val = (Vector2)value;
-                    if (destinationType == typeof(System.Windows.Vector))
-                    {
-                        return new System.Windows.Vector(val.X, val.Y);
-                    }
-                    else if (destinationType == typeof(System.Windows.Point))
-                    {
-                        return new System.Windows.Point(val.X, val.Y);
-                    }
-                    else if (destinationType == typeof(string))
+                    var val = (Vector2) value;
+                    if (destinationType == typeof(Vector)) return new Vector(val.X, val.Y);
+
+                    if (destinationType == typeof(Point)) return new Point(val.X, val.Y);
+
+                    if (destinationType == typeof(string))
                     {
                         var str = string.Format("{0},{1}", val.X, val.Y);
                         return str;
                     }
                 }
+
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }
@@ -383,37 +319,29 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
-                if (sourceType == typeof(System.Windows.Media.Media3D.Vector3D) || sourceType == typeof(System.Windows.Media.Media3D.Point3D))
-                {
-                    return true;
-                }
+                if (sourceType == typeof(Vector3D) || sourceType == typeof(Point3D)) return true;
                 return base.CanConvertFrom(context, sourceType);
             }
 
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-                if (destinationType == typeof(System.Windows.Media.Media3D.Vector3D) || destinationType == typeof(System.Windows.Media.Media3D.Point3D))
-                {
-                    return true;
-                }
+                if (destinationType == typeof(Vector3D) || destinationType == typeof(Point3D)) return true;
                 return base.CanConvertTo(context, destinationType);
             }
 
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
+                if (value == null) throw GetConvertFromException(value);
+                if (value is Vector3D)
                 {
-                    throw GetConvertFromException(value);
+                    var source = (Vector3D) value;
+                    return new Vector3((float) source.X, (float) source.Y, (float) source.Z);
                 }
-                if (value is System.Windows.Media.Media3D.Vector3D)
+
+                if (value is Point3D)
                 {
-                    var source = (System.Windows.Media.Media3D.Vector3D)value;
-                    return new Vector3((float)source.X, (float)source.Y, (float)source.Z);
-                }
-                else if (value is System.Windows.Media.Media3D.Point3D)
-                {
-                    var source = (System.Windows.Media.Media3D.Point3D)value;
-                    return new Vector3((float)source.X, (float)source.Y, (float)source.Z);
+                    var source = (Point3D) value;
+                    return new Vector3((float) source.X, (float) source.Y, (float) source.Z);
                 }
                 else
                 {
@@ -434,25 +362,23 @@ namespace HelixToolkit.Wpf.SharpDX
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (value is Vector3)
                 {
-                    var val = (Vector3)value;
-                    if (destinationType == typeof(System.Windows.Media.Media3D.Vector3D))
-                    {
-                        return new System.Windows.Media.Media3D.Vector3D(val.X, val.Y, val.Z);
-                    }
-                    else if (destinationType == typeof(System.Windows.Media.Media3D.Point3D))
-                    {
-                        return new System.Windows.Media.Media3D.Point3D(val.X, val.Y, val.Z);
-                    }
-                    else if (destinationType == typeof(string))
+                    var val = (Vector3) value;
+                    if (destinationType == typeof(Vector3D)) return new Vector3D(val.X, val.Y, val.Z);
+
+                    if (destinationType == typeof(Point3D)) return new Point3D(val.X, val.Y, val.Z);
+
+                    if (destinationType == typeof(string))
                     {
                         var str = string.Format("{0},{1},{2}", val.X, val.Y, val.Z);
                         return str;
                     }
                 }
+
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }
@@ -461,10 +387,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
@@ -482,11 +405,12 @@ namespace HelixToolkit.Wpf.SharpDX
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType == typeof(string) && value is Vector4)
                 {
-                    var val = (Vector4)value;
+                    var val = (Vector4) value;
                     var str = string.Format("{0},{1},{2},{3}", val.X, val.Y, val.Z, val.W);
                     return str;
                 }
@@ -499,10 +423,7 @@ namespace HelixToolkit.Wpf.SharpDX
         {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                if (value == null)
-                {
-                    throw GetConvertFromException(value);
-                }
+                if (value == null) throw GetConvertFromException(value);
 
                 var source = value as string;
 
@@ -520,7 +441,8 @@ namespace HelixToolkit.Wpf.SharpDX
                 return base.ConvertFrom(context, culture, value);
             }
 
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+                Type destinationType)
             {
                 if (destinationType == typeof(string) && value is Quaternion val)
                 {

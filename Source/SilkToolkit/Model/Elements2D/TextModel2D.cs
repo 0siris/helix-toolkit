@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Media;
-using System.ComponentModel;
 using System.Windows.Markup;
-
-using System.Linq;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 using WpfFontStyle = System.Windows.FontStyle;
 using WpfFontWeight = System.Windows.FontWeight;
 using WpfFlowDirection = System.Windows.FlowDirection;
 using WpfTextAlignment = System.Windows.TextAlignment;
 
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
-
 namespace HelixToolkit.Wpf.SharpDX
 {
-    using Core2D;
-    using Utilities;
-    using Extensions;
-
     namespace Elements2D
     {
         [ContentProperty("Text")]
@@ -29,205 +22,169 @@ namespace HelixToolkit.Wpf.SharpDX
 
             public static readonly DependencyProperty TextProperty
                 = DependencyProperty.Register("Text", typeof(string), typeof(TextModel2D),
-                    new PropertyMetadata("Text", (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as TextNode2D).Text = e.NewValue == null ? string.Empty : (string)e.NewValue;
-                    }));
-
-            public string Text
-            {
-                set
-                {
-                    SetValue(TextProperty, value);
-                }
-                get
-                {
-                    return (string)GetValue(TextProperty);
-                }
-            }
+                    new PropertyMetadata("Text",
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).Text =
+                                e.NewValue == null ? string.Empty : (string) e.NewValue;
+                        }));
 
 
             public static readonly DependencyProperty ForegroundProperty
                 = DependencyProperty.Register("Foreground", typeof(Media.Brush), typeof(TextModel2D),
-                    new PropertyMetadata(new Media.SolidColorBrush(Colors.Black), (d, e) =>
+                    new PropertyMetadata(new Media.SolidColorBrush(Media.Colors.Black), (d, e) =>
                     {
-                        var model = (d as TextModel2D);
+                        var model = d as TextModel2D;
                         model.foregroundChanged = true;
                     }));
-
-            public Media.Brush Foreground
-            {
-                set
-                {
-                    SetValue(ForegroundProperty, value);
-                }
-                get
-                {
-                    return (Media.Brush)GetValue(ForegroundProperty);
-                }
-            }
 
             public static readonly DependencyProperty BackgroundProperty
                 = DependencyProperty.Register("Background", typeof(Media.Brush), typeof(TextModel2D),
                     new PropertyMetadata(null, (d, e) =>
-                {
-                    var model = (d as TextModel2D);
-                    model.backgroundChanged = true;
-                }));
-
-            public Media.Brush Background
-            {
-                set
-                {
-                    SetValue(BackgroundProperty, value);
-                }
-                get
-                {
-                    return (Media.Brush)GetValue(BackgroundProperty);
-                }
-            }
+                    {
+                        var model = d as TextModel2D;
+                        model.backgroundChanged = true;
+                    }));
 
             public static readonly DependencyProperty FontSizeProperty
                 = DependencyProperty.Register("FontSize", typeof(int), typeof(TextModel2D),
-                    new PropertyMetadata(12, (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as TextNode2D).FontSize = Math.Max(1, (int)e.NewValue);
-                    }));
-
-            public int FontSize
-            {
-                set
-                {
-                    SetValue(FontSizeProperty, value);
-                }
-                get
-                {
-                    return (int)GetValue(FontSizeProperty);
-                }
-            }
+                    new PropertyMetadata(12,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).FontSize = Math.Max(1, (int) e.NewValue);
+                        }));
 
             public static readonly DependencyProperty FontWeightProperty
                 = DependencyProperty.Register("FontWeight", typeof(WpfFontWeight), typeof(TextModel2D),
-                    new PropertyMetadata(FontWeights.Normal, (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as TextNode2D).FontWeight = ((WpfFontWeight)e.NewValue).ToDXFontWeight();
-                    }));
-
-            public WpfFontWeight FontWeight
-            {
-                set
-                {
-                    SetValue(FontWeightProperty, value);
-                }
-                get
-                {
-                    return (WpfFontWeight)GetValue(FontWeightProperty);
-                }
-            }
+                    new PropertyMetadata(FontWeights.Normal,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).FontWeight =
+                                ((WpfFontWeight) e.NewValue).ToDXFontWeight();
+                        }));
 
             public static readonly DependencyProperty FontStyleProperty
                 = DependencyProperty.Register("FontStyle", typeof(WpfFontStyle), typeof(TextModel2D),
-                    new PropertyMetadata(FontStyles.Normal, (d, e) =>
-                    {
-                        ((d as Element2DCore).SceneNode as TextNode2D).FontStyle = ((WpfFontStyle)e.NewValue).ToDXFontStyle();
-                    }));
+                    new PropertyMetadata(FontStyles.Normal,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).FontStyle =
+                                ((WpfFontStyle) e.NewValue).ToDXFontStyle();
+                        }));
+
+            /// <summary>
+            ///     The text alignment property
+            /// </summary>
+            public static readonly DependencyProperty TextAlignmentProperty =
+                DependencyProperty.Register("TextAlignment", typeof(WpfTextAlignment), typeof(TextModel2D),
+                    new PropertyMetadata(WpfTextAlignment.Left,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).TextAlignment =
+                                ((WpfTextAlignment) e.NewValue).ToD2DTextAlignment();
+                        }));
+
+            /// <summary>
+            ///     The text alignment property
+            /// </summary>
+            public static readonly DependencyProperty FlowDirectionProperty =
+                DependencyProperty.Register("FlowDirection", typeof(WpfFlowDirection), typeof(TextModel2D),
+                    new PropertyMetadata(WpfFlowDirection.LeftToRight,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).FlowDirection =
+                                ((WpfFlowDirection) e.NewValue).ToD2DFlowDir();
+                        }));
+
+            /// <summary>
+            ///     The font family property
+            /// </summary>
+            public static readonly DependencyProperty FontFamilyProperty =
+                DependencyProperty.Register("FontFamily", typeof(string), typeof(TextModel2D),
+                    new PropertyMetadata(DefaultFont,
+                        (d, e) =>
+                        {
+                            ((d as Element2DCore).SceneNode as TextNode2D).FontFamily =
+                                e.NewValue == null ? "Arial" : (string) e.NewValue;
+                        }));
+
+            private bool backgroundChanged = true;
+
+            private bool foregroundChanged = true;
+
+            public string Text
+            {
+                get => (string) GetValue(TextProperty);
+                set => SetValue(TextProperty, value);
+            }
+
+            public int FontSize
+            {
+                get => (int) GetValue(FontSizeProperty);
+                set => SetValue(FontSizeProperty, value);
+            }
+
+            public WpfFontWeight FontWeight
+            {
+                get => (WpfFontWeight) GetValue(FontWeightProperty);
+                set => SetValue(FontWeightProperty, value);
+            }
 
             public WpfFontStyle FontStyle
             {
-                set
-                {
-                    SetValue(FontStyleProperty, value);
-                }
-                get
-                {
-                    return (WpfFontStyle)GetValue(FontStyleProperty);
-                }
+                get => (WpfFontStyle) GetValue(FontStyleProperty);
+                set => SetValue(FontStyleProperty, value);
             }
 
 
             /// <summary>
-            /// Gets or sets the text alignment.
+            ///     Gets or sets the text alignment.
             /// </summary>
             /// <value>
-            /// The text alignment.
+            ///     The text alignment.
             /// </value>
             public WpfTextAlignment TextAlignment
             {
-                get
-                {
-                    return (WpfTextAlignment)GetValue(TextAlignmentProperty);
-                }
-                set
-                {
-                    SetValue(TextAlignmentProperty, value);
-                }
+                get => (WpfTextAlignment) GetValue(TextAlignmentProperty);
+                set => SetValue(TextAlignmentProperty, value);
             }
 
             /// <summary>
-            /// The text alignment property
-            /// </summary>
-            public static readonly DependencyProperty TextAlignmentProperty =
-                DependencyProperty.Register("TextAlignment", typeof(WpfTextAlignment), typeof(TextModel2D), new PropertyMetadata(WpfTextAlignment.Left, (d, e) =>
-                {
-                    ((d as Element2DCore).SceneNode as TextNode2D).TextAlignment = ((WpfTextAlignment)e.NewValue).ToD2DTextAlignment();
-                }));
-
-            /// <summary>
-            /// Gets or sets the text alignment.
+            ///     Gets or sets the text alignment.
             /// </summary>
             /// <value>
-            /// The text alignment.
+            ///     The text alignment.
             /// </value>
             public WpfFlowDirection FlowDirection
             {
-                get
-                {
-                    return (WpfFlowDirection)GetValue(FlowDirectionProperty);
-                }
-                set
-                {
-                    SetValue(FlowDirectionProperty, value);
-                }
+                get => (WpfFlowDirection) GetValue(FlowDirectionProperty);
+                set => SetValue(FlowDirectionProperty, value);
             }
 
-            /// <summary>
-            /// The text alignment property
-            /// </summary>
-            public static readonly DependencyProperty FlowDirectionProperty =
-                DependencyProperty.Register("FlowDirection", typeof(WpfFlowDirection), typeof(TextModel2D), new PropertyMetadata(WpfFlowDirection.LeftToRight, (d, e) =>
-                {
-                    ((d as Element2DCore).SceneNode as TextNode2D).FlowDirection = ((WpfFlowDirection)e.NewValue).ToD2DFlowDir();
-                }));
-
 
             /// <summary>
-            /// Gets or sets the font family.
+            ///     Gets or sets the font family.
             /// </summary>
             /// <value>
-            /// The font family.
+            ///     The font family.
             /// </value>
             public string FontFamily
             {
-                get
-                {
-                    return (string)GetValue(FontFamilyProperty);
-                }
-                set
-                {
-                    SetValue(FontFamilyProperty, value);
-                }
+                get => (string) GetValue(FontFamilyProperty);
+                set => SetValue(FontFamilyProperty, value);
             }
-            /// <summary>
-            /// The font family property
-            /// </summary>
-            public static readonly DependencyProperty FontFamilyProperty =
-                DependencyProperty.Register("FontFamily", typeof(string), typeof(TextModel2D), new PropertyMetadata(DefaultFont, (d, e) =>
-                {
-                    ((d as Element2DCore).SceneNode as TextNode2D).FontFamily = e.NewValue == null ? "Arial" : (string)e.NewValue;
-                }));
 
-            private bool foregroundChanged = true;
-            private bool backgroundChanged = true;
+            public Media.Brush Foreground
+            {
+                get => (Media.Brush) GetValue(ForegroundProperty);
+                set => SetValue(ForegroundProperty, value);
+            }
+
+            public Media.Brush Background
+            {
+                get => (Media.Brush) GetValue(BackgroundProperty);
+                set => SetValue(BackgroundProperty, value);
+            }
 
             protected override SceneNode2D OnCreateSceneNode()
             {
@@ -246,12 +203,15 @@ namespace HelixToolkit.Wpf.SharpDX
                 base.OnUpdate(context);
                 if (foregroundChanged)
                 {
-                    (SceneNode as TextNode2D).Foreground = Foreground != null ? Foreground.ToD2DBrush(context.DeviceContext) : null;
+                    (SceneNode as TextNode2D).Foreground =
+                        Foreground != null ? Foreground.ToD2DBrush(context.DeviceContext) : null;
                     foregroundChanged = false;
                 }
+
                 if (backgroundChanged)
                 {
-                    (SceneNode as TextNode2D).Background = Background != null ? Background.ToD2DBrush(context.DeviceContext) : null;
+                    (SceneNode as TextNode2D).Background =
+                        Background != null ? Background.ToD2DBrush(context.DeviceContext) : null;
                     backgroundChanged = false;
                 }
             }

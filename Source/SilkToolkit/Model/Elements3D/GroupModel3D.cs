@@ -5,9 +5,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using HelixToolkit.SharpDX.Core;
-namespace HelixToolkit.Wpf.SharpDX
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+public class GroupModel3D : GroupElement3D, IHitable, IVisible
 {
-    public class GroupModel3D : GroupElement3D, IHitable, IVisible
-    {
-    }
 }

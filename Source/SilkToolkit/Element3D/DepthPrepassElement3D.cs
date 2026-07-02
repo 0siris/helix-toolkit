@@ -2,37 +2,40 @@
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
 
+
 using System.Collections.Generic;
-
-
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-namespace HelixToolkit.Wpf.SharpDX
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+/// <summary>
+///     Do a depth prepass before rendering.
+///     <para>
+///         Must customize the DefaultEffectsManager and set DepthStencilState to
+///         DefaultDepthStencilDescriptions.DSSDepthEqualNoWrite in default ShaderPass from EffectsManager to achieve best
+///         performance.
+///     </para>
+/// </summary>
+public sealed class DepthPrepassElement3D : Element3D
 {
+    /// <summary>
+    ///     Called when [create scene node].
+    /// </summary>
+    /// <returns></returns>
+    protected override SceneNode OnCreateSceneNode()
+    {
+        return new DepthPrepassNode();
+    }
 
     /// <summary>
-    /// Do a depth prepass before rendering.
-    /// <para>Must customize the DefaultEffectsManager and set DepthStencilState to DefaultDepthStencilDescriptions.DSSDepthEqualNoWrite in default ShaderPass from EffectsManager to achieve best performance.</para>
+    ///     Hits the test.
     /// </summary>
-    public sealed class DepthPrepassElement3D : Element3D
+    /// <param name="context">The context.</param>
+    /// <param name="hits">The hits.</param>
+    /// <returns></returns>
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
     {
-        /// <summary>
-        /// Called when [create scene node].
-        /// </summary>
-        /// <returns></returns>
-        protected override SceneNode OnCreateSceneNode()
-        {
-            return new DepthPrepassNode();
-        }
-        /// <summary>
-        /// Hits the test.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="hits">The hits.</param>
-        /// <returns></returns>
-        public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-        {
-            return false;
-        }
+        return false;
     }
 }

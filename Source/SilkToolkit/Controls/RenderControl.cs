@@ -18,18 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System;
 using System.Windows.Media;
-
+using Color = System.Drawing.Color;
+using FontFamily = System.Drawing.FontFamily;
 
 namespace HelixToolkit.Wpf.SharpDX
 {
     namespace Controls
     {
         /// <summary>
-        /// A Renderable UserControl.
+        ///     A Renderable UserControl.
         /// </summary>
         public class RenderControl : UserControl
         {
@@ -38,7 +39,7 @@ namespace HelixToolkit.Wpf.SharpDX
             private Font fontForDesignMode;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="RenderControl"/> class.
+            ///     Initializes a new instance of the <see cref="RenderControl" /> class.
             /// </summary>
             public RenderControl(Visual hostVisual = null)
             {
@@ -48,9 +49,9 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             /// <summary>
-            /// Paints the background of the control.
+            ///     Paints the background of the control.
             /// </summary>
-            /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs"/> that contains the event data.</param>
+            /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data.</param>
             protected override void OnPaintBackground(PaintEventArgs e)
             {
                 if (DesignMode)
@@ -58,47 +59,41 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             /// <summary>
-            /// Raises the <see cref="E:System.Windows.Forms.Control.Paint"/> event.
+            ///     Raises the <see cref="E:System.Windows.Forms.Control.Paint" /> event.
             /// </summary>
-            /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs"/> that contains the event data.</param>
+            /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data.</param>
             protected override void OnPaint(PaintEventArgs e)
             {
                 base.OnPaint(e);
                 if (DesignMode)
                 {
                     if (fontForDesignMode == null)
-                        fontForDesignMode = new System.Drawing.Font(
-                            new System.Drawing.FontFamily("Calibri"),
+                        fontForDesignMode = new Font(
+                            new FontFamily("Calibri"),
                             24,
                             System.Drawing.FontStyle.Regular);
 
-                    e.Graphics.Clear(System.Drawing.Color.WhiteSmoke);
+                    e.Graphics.Clear(Color.WhiteSmoke);
                     var text = "SharpDX RenderControl";
                     var sizeText = e.Graphics.MeasureString(text, fontForDesignMode);
 
-                    e.Graphics.DrawString(text, fontForDesignMode, new SolidBrush(System.Drawing.Color.Black), (Width - sizeText.Width) / 2, (Height - sizeText.Height) / 2);
+                    e.Graphics.DrawString(text, fontForDesignMode, new SolidBrush(Color.Black),
+                        (Width - sizeText.Width) / 2, (Height - sizeText.Height) / 2);
                 }
             }
 
             protected override void OnHandleCreated(EventArgs e)
             {
                 base.OnHandleCreated(e);
-                if (this.hostVisual != null)
-                {
-                    VirtualTouchDevice.RegisterTouchWindow(this.Handle, 0);
-                }
+                if (hostVisual != null) VirtualTouchDevice.RegisterTouchWindow(Handle, 0);
             }
 
             protected override void WndProc(ref Message m)
             {
-                if (VirtualTouchDevice.WndProc(this.hostVisual, ref m))
-                {
-                    this.DefWndProc(ref m);
-                }
+                if (VirtualTouchDevice.WndProc(hostVisual, ref m))
+                    DefWndProc(ref m);
                 else
-                {
                     base.WndProc(ref m);
-                }
             }
         }
     }

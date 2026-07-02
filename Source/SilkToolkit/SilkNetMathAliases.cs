@@ -56,6 +56,7 @@ global using Size2 = HelixToolkit.SharpDX.Core.Size2;
 global using Size2F = HelixToolkit.SharpDX.Core.Size2F;
 global using SolidColorBrush = HelixToolkit.SharpDX.Core.SolidColorBrush;
 global using TextAlignment = HelixToolkit.SharpDX.Core.TextAlignment;
+
 #else
 #if CORE
 global using BoundingBox = HelixToolkit.SharpDX.Core.BoundingBox;

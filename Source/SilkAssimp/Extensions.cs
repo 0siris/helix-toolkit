@@ -1,17 +1,17 @@
 ﻿using Assimp;
-using System;
-using System.Collections.Generic;
+using Metadata = HelixToolkit.SharpDX.Core.Model.Metadata;
+using MetaDataType = HelixToolkit.SharpDX.Core.Model.MetaDataType;
 
-namespace HelixToolkit.SharpDX.Core {
+namespace HelixToolkit.SharpDX.Core
+{
     namespace Assimp
     {
         /// <summary>
-        /// 
         /// </summary>
         public static class Extensions
         {
             /// <summary>
-            /// To the sharp dx matrix. Already transposed after this function
+            ///     To the sharp dx matrix. Already transposed after this function
             /// </summary>
             /// <param name="m">The m.</param>
             /// <param name="isColumnMajor"></param>
@@ -19,26 +19,28 @@ namespace HelixToolkit.SharpDX.Core {
             public static Matrix ToSharpDXMatrix(this Matrix4x4 m, bool isColumnMajor)
             {
                 return isColumnMajor
-                    ? new Matrix(m.A1, m.B1, m.C1, m.D1, m.A2, m.B2, m.C2, m.D2, m.A3, m.B3, m.C3, m.D3, m.A4, m.B4, m.C4, m.D4)
-                    : new Matrix(m.A1, m.A2, m.A3, m.A4, m.B1, m.B2, m.B3, m.B4, m.C1, m.C2, m.C3, m.C4, m.D1, m.D2, m.D3, m.D4);
+                    ? new Matrix(m.A1, m.B1, m.C1, m.D1, m.A2, m.B2, m.C2, m.D2, m.A3, m.B3, m.C3, m.D3, m.A4, m.B4,
+                        m.C4, m.D4)
+                    : new Matrix(m.A1, m.A2, m.A3, m.A4, m.B1, m.B2, m.B3, m.B4, m.C1, m.C2, m.C3, m.C4, m.D1, m.D2,
+                        m.D3, m.D4);
             }
+
             /// <summary>
-            /// To the assimp matrix. Already transposed after this function
+            ///     To the assimp matrix. Already transposed after this function
             /// </summary>
             /// <param name="m">The m.</param>
             /// <param name="toColumnMajor"></param>
             /// <returns></returns>
             public static Matrix4x4 ToAssimpMatrix(this Matrix m, bool toColumnMajor)
             {
-                var matrix = new Matrix4x4(m.M11, m.M12, m.M13, m.M14, m.M21, m.M22, m.M23, m.M24, m.M31, m.M32, m.M33, m.M34, m.M41, m.M42, m.M43, m.M44);
-                if (toColumnMajor)
-                {
-                    matrix.Transpose();
-                }
+                var matrix = new Matrix4x4(m.M11, m.M12, m.M13, m.M14, m.M21, m.M22, m.M23, m.M24, m.M31, m.M32, m.M33,
+                    m.M34, m.M41, m.M42, m.M43, m.M44);
+                if (toColumnMajor) matrix.Transpose();
                 return matrix;
             }
+
             /// <summary>
-            /// To the sharp dx vector3.
+            ///     To the sharp dx vector3.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -48,7 +50,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the assimp vector3d.
+            ///     To the assimp vector3d.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -56,8 +58,9 @@ namespace HelixToolkit.SharpDX.Core {
             {
                 return new Vector3D(v.X, v.Y, v.Z);
             }
+
             /// <summary>
-            /// To the sharp dx vector2.
+            ///     To the sharp dx vector2.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -67,7 +70,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the assimp vector2d.
+            ///     To the assimp vector2d.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -75,8 +78,9 @@ namespace HelixToolkit.SharpDX.Core {
             {
                 return new Vector2D(v.X, v.Y);
             }
+
             /// <summary>
-            /// To the assimp vector3d.
+            ///     To the assimp vector3d.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -84,8 +88,9 @@ namespace HelixToolkit.SharpDX.Core {
             {
                 return new Vector3D(v.X, v.Y, 0);
             }
+
             /// <summary>
-            /// To the sharp dx vector2.
+            ///     To the sharp dx vector2.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -93,8 +98,9 @@ namespace HelixToolkit.SharpDX.Core {
             {
                 return new Vector2(v.X, v.Y);
             }
+
             /// <summary>
-            /// To the sharp dx color4.
+            ///     To the sharp dx color4.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <returns></returns>
@@ -104,7 +110,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the assimp color4d.
+            ///     To the assimp color4d.
             /// </summary>
             /// <param name="v">The v.</param>
             /// <param name="alpha"></param>
@@ -115,7 +121,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the sharp dx quaternion.
+            ///     To the sharp dx quaternion.
             /// </summary>
             /// <param name="q">The q.</param>
             /// <returns></returns>
@@ -125,7 +131,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the assimp quaternion.
+            ///     To the assimp quaternion.
             /// </summary>
             /// <param name="q">The q.</param>
             /// <returns></returns>
@@ -135,67 +141,39 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the Helix UVTransform.
+            ///     To the Helix UVTransform.
             /// </summary>
             /// <param name="transform">The transform.</param>
             /// <returns></returns>
             public static UVTransform ToHelixUVTransform(this global::Assimp.UVTransform transform)
             {
-                return new UVTransform(transform.Rotation, transform.Scaling.ToSharpDXVector2(), transform.Translation.ToSharpDXVector2());
+                return new UVTransform(transform.Rotation, transform.Scaling.ToSharpDXVector2(),
+                    transform.Translation.ToSharpDXVector2());
             }
 
             /// <summary>
-            /// To the type of the helix metadata.
+            ///     To the type of the helix metadata.
             /// </summary>
             /// <param name="type">The type.</param>
             /// <returns></returns>
             /// <exception cref="NotSupportedException">Type {type} is not supported.</exception>
-            public static Model.MetaDataType ToHelixMetadataType(this global::Assimp.MetaDataType type)
-            {
-                switch(type)
-                {
-                    case MetaDataType.Bool:
-                        return Model.MetaDataType.Bool;
-                    case MetaDataType.Double:
-                        return Model.MetaDataType.Double;
-                    case MetaDataType.Float:
-                        return Model.MetaDataType.Float;
-                    case MetaDataType.Int32:
-                        return Model.MetaDataType.Int32;
-                    case MetaDataType.String:
-                        return Model.MetaDataType.String;
-                    case MetaDataType.UInt64:
-                        return Model.MetaDataType.UInt64;
-                    case MetaDataType.Vector3D:
-                        return Model.MetaDataType.Vector3D;
-                    default:
-                        throw new NotSupportedException($"Type {type} is not supported.");
-                }
-            }
-
-            /// <summary>
-            /// To the type of the assimp metadata.
-            /// </summary>
-            /// <param name="type">The type.</param>
-            /// <returns></returns>
-            /// <exception cref="NotSupportedException">Type {type} is not supported.</exception>
-            public static MetaDataType ToAssimpMetadataType(this Model.MetaDataType type)
+            public static MetaDataType ToHelixMetadataType(this global::Assimp.MetaDataType type)
             {
                 switch (type)
                 {
-                    case Model.MetaDataType.Bool:
+                    case global::Assimp.MetaDataType.Bool:
                         return MetaDataType.Bool;
-                    case Model.MetaDataType.Double:
+                    case global::Assimp.MetaDataType.Double:
                         return MetaDataType.Double;
-                    case Model.MetaDataType.Float:
+                    case global::Assimp.MetaDataType.Float:
                         return MetaDataType.Float;
-                    case Model.MetaDataType.Int32:
+                    case global::Assimp.MetaDataType.Int32:
                         return MetaDataType.Int32;
-                    case Model.MetaDataType.String:
+                    case global::Assimp.MetaDataType.String:
                         return MetaDataType.String;
-                    case Model.MetaDataType.UInt64:
+                    case global::Assimp.MetaDataType.UInt64:
                         return MetaDataType.UInt64;
-                    case Model.MetaDataType.Vector3D:
+                    case global::Assimp.MetaDataType.Vector3D:
                         return MetaDataType.Vector3D;
                     default:
                         throw new NotSupportedException($"Type {type} is not supported.");
@@ -203,29 +181,58 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             /// <summary>
-            /// To the helix metadata.
+            ///     To the type of the assimp metadata.
             /// </summary>
-            /// <param name="m">The m.</param>
+            /// <param name="type">The type.</param>
             /// <returns></returns>
-            public static IEnumerable<KeyValuePair<string, Model.Metadata.Entry>> ToHelixMetadata(this Metadata m)
+            /// <exception cref="NotSupportedException">Type {type} is not supported.</exception>
+            public static global::Assimp.MetaDataType ToAssimpMetadataType(this MetaDataType type)
             {
-                foreach(var d in m)
+                switch (type)
                 {
-                    yield return new KeyValuePair<string, Model.Metadata.Entry>(d.Key, new Model.Metadata.Entry(d.Value.DataType.ToHelixMetadataType(), d.Value.Data));
+                    case MetaDataType.Bool:
+                        return global::Assimp.MetaDataType.Bool;
+                    case MetaDataType.Double:
+                        return global::Assimp.MetaDataType.Double;
+                    case MetaDataType.Float:
+                        return global::Assimp.MetaDataType.Float;
+                    case MetaDataType.Int32:
+                        return global::Assimp.MetaDataType.Int32;
+                    case MetaDataType.String:
+                        return global::Assimp.MetaDataType.String;
+                    case MetaDataType.UInt64:
+                        return global::Assimp.MetaDataType.UInt64;
+                    case MetaDataType.Vector3D:
+                        return global::Assimp.MetaDataType.Vector3D;
+                    default:
+                        throw new NotSupportedException($"Type {type} is not supported.");
                 }
             }
 
             /// <summary>
-            /// To the assimp metadata.
+            ///     To the helix metadata.
             /// </summary>
             /// <param name="m">The m.</param>
             /// <returns></returns>
-            public static IEnumerable<KeyValuePair<string, Metadata.Entry>> ToAssimpMetadata(this Model.Metadata m)
+            public static IEnumerable<KeyValuePair<string, Metadata.Entry>> ToHelixMetadata(
+                this global::Assimp.Metadata m)
             {
                 foreach (var d in m)
-                {
-                    yield return new KeyValuePair<string, Metadata.Entry>(d.Key, new Metadata.Entry(d.Value.DataType.ToAssimpMetadataType(), d.Value.Data));
-                }
+                    yield return new KeyValuePair<string, Metadata.Entry>(d.Key,
+                        new Metadata.Entry(d.Value.DataType.ToHelixMetadataType(), d.Value.Data));
+            }
+
+            /// <summary>
+            ///     To the assimp metadata.
+            /// </summary>
+            /// <param name="m">The m.</param>
+            /// <returns></returns>
+            public static IEnumerable<KeyValuePair<string, global::Assimp.Metadata.Entry>> ToAssimpMetadata(
+                this Metadata m)
+            {
+                foreach (var d in m)
+                    yield return new KeyValuePair<string, global::Assimp.Metadata.Entry>(d.Key,
+                        new global::Assimp.Metadata.Entry(d.Value.DataType.ToAssimpMetadataType(), d.Value.Data));
             }
         }
     }

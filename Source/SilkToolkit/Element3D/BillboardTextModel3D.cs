@@ -7,128 +7,112 @@ using System.Windows;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.Wpf.SharpDX.Model;
 
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX;
 
+/// <summary>
+/// </summary>
+/// <seealso cref="GeometryModel3D" />
+public class BillboardTextModel3D : GeometryModel3D
 {
-    using Model;
-
+    #region Dependency Properties
 
     /// <summary>
-    /// 
+    ///     Fixed sized billboard. Default = true.
+    ///     <para>When FixedSize = true, the billboard render size will be scale to normalized device coordinates(screen) size</para>
+    ///     <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
     /// </summary>
-    /// <seealso cref="GeometryModel3D" />
-    public class BillboardTextModel3D : GeometryModel3D
+    public static readonly DependencyProperty FixedSizeProperty = DependencyProperty.Register("FixedSize", typeof(bool),
+        typeof(BillboardTextModel3D),
+        new PropertyMetadata(true,
+            (d, e) => { (d as BillboardTextModel3D).material.FixedSize = (bool) e.NewValue; }));
+
+    /// <summary>
+    ///     Fixed sized billboard. Default = true.
+    ///     <para>When FixedSize = true, the billboard render size will be scale to normalized device coordinates(screen) size</para>
+    ///     <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
+    /// </summary>
+    public bool FixedSize
     {
-        #region Dependency Properties
-        /// <summary>
-        /// Fixed sized billboard. Default = true. 
-        /// <para>When FixedSize = true, the billboard render size will be scale to normalized device coordinates(screen) size</para>
-        /// <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
-        /// </summary>
-        public static readonly DependencyProperty FixedSizeProperty = DependencyProperty.Register("FixedSize", typeof(bool), typeof(BillboardTextModel3D),
-            new PropertyMetadata(true,
+        get => (bool) GetValue(FixedSizeProperty);
+        set => SetValue(FixedSizeProperty, value);
+    }
+
+    /// <summary>
+    ///     Specifiy if billboard texture is transparent.
+    ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
+    ///     are preserved.
+    /// </summary>
+    public static readonly DependencyProperty IsTransparentProperty =
+        DependencyProperty.Register("IsTransparent", typeof(bool), typeof(BillboardTextModel3D),
+            new PropertyMetadata(false,
+                (d, e) => { ((d as Element3DCore).SceneNode as BillboardNode).IsTransparent = (bool) e.NewValue; }));
+
+    /// <summary>
+    ///     Specifiy if  billboard texture is transparent.
+    ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
+    ///     are preserved.
+    /// </summary>
+    public bool IsTransparent
+    {
+        get => (bool) GetValue(IsTransparentProperty);
+        set => SetValue(IsTransparentProperty, value);
+    }
+
+    /// <summary>
+    ///     Gets or sets the sampler description.
+    /// </summary>
+    /// <value>
+    ///     The sampler description.
+    /// </value>
+    public SamplerStateDescription SamplerDescription
+    {
+        get => (SamplerStateDescription) GetValue(SamplerDescriptionProperty);
+        set => SetValue(SamplerDescriptionProperty, value);
+    }
+
+    /// <summary>
+    ///     The sampler description property
+    /// </summary>
+    public static readonly DependencyProperty SamplerDescriptionProperty =
+        DependencyProperty.Register("SamplerDescription", typeof(SamplerStateDescription), typeof(BillboardTextModel3D),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
                 (d, e) =>
                 {
-                    (d as BillboardTextModel3D).material.FixedSize = (bool)e.NewValue;
+                    (d as BillboardTextModel3D).material.SamplerDescription = (SamplerStateDescription) e.NewValue;
                 }));
 
-        /// <summary>
-        /// Fixed sized billboard. Default = true. 
-        /// <para>When FixedSize = true, the billboard render size will be scale to normalized device coordinates(screen) size</para>
-        /// <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
-        /// </summary>
-        public bool FixedSize
-        {
-            set
-            {
-                SetValue(FixedSizeProperty, value);
-            }
-            get
-            {
-                return (bool)GetValue(FixedSizeProperty);
-            }
-        }
+    #endregion
 
-        /// <summary>
-        /// Specifiy if billboard texture is transparent. 
-        /// During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph are preserved.
-        /// </summary>
-        public static readonly DependencyProperty IsTransparentProperty =
-            DependencyProperty.Register("IsTransparent", typeof(bool), typeof(BillboardTextModel3D), new PropertyMetadata(false, (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as BillboardNode).IsTransparent = (bool)e.NewValue;
-            }));
+    #region Overridable Methods
 
-        /// <summary>
-        /// Specifiy if  billboard texture is transparent. 
-        /// During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph are preserved.
-        /// </summary>
-        public bool IsTransparent
-        {
-            get
-            {
-                return (bool)GetValue(IsTransparentProperty);
-            }
-            set
-            {
-                SetValue(IsTransparentProperty, value);
-            }
-        }
+    protected readonly BillboardMaterialCore material = new();
 
-        /// <summary>
-        /// Gets or sets the sampler description.
-        /// </summary>
-        /// <value>
-        /// The sampler description.
-        /// </value>
-        public SamplerStateDescription SamplerDescription
-        {
-            get
-            {
-                return (SamplerStateDescription)GetValue(SamplerDescriptionProperty);
-            }
-            set
-            {
-                SetValue(SamplerDescriptionProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// The sampler description property
-        /// </summary>
-        public static readonly DependencyProperty SamplerDescriptionProperty =
-            DependencyProperty.Register("SamplerDescription", typeof(SamplerStateDescription), typeof(BillboardTextModel3D), new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1, (d, e) =>
-            {
-                (d as BillboardTextModel3D).material.SamplerDescription = (SamplerStateDescription)e.NewValue;
-            }));
-        #endregion
-
-        #region Overridable Methods        
-
-        protected readonly BillboardMaterialCore material = new BillboardMaterialCore();
-        /// <summary>
-        /// Called when [create scene node].
-        /// </summary>
-        /// <returns></returns>
-        protected override SceneNode OnCreateSceneNode()
-        {
-            return new BillboardNode() { Material = material };
-        }
-        /// <summary>
-        /// Assigns the default values to core.
-        /// </summary>
-        /// <param name="core">The core.</param>
-        protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-        {
-            if (core is BillboardNode n)
-            {
-                material.FixedSize = FixedSize;
-                n.IsTransparent = IsTransparent;
-                material.SamplerDescription = SamplerDescription;
-            }
-            base.AssignDefaultValuesToSceneNode(core);
-        }
-        #endregion
+    /// <summary>
+    ///     Called when [create scene node].
+    /// </summary>
+    /// <returns></returns>
+    protected override SceneNode OnCreateSceneNode()
+    {
+        return new BillboardNode {Material = material};
     }
+
+    /// <summary>
+    ///     Assigns the default values to core.
+    /// </summary>
+    /// <param name="core">The core.</param>
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
+    {
+        if (core is BillboardNode n)
+        {
+            material.FixedSize = FixedSize;
+            n.IsTransparent = IsTransparent;
+            material.SamplerDescription = SamplerDescription;
+        }
+
+        base.AssignDefaultValuesToSceneNode(core);
+    }
+
+    #endregion
 }

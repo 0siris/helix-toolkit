@@ -7,49 +7,37 @@
 //   default is true
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core;
-namespace HelixToolkit.Wpf.SharpDX
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+public interface ITraversable
 {
-    public interface ITraversable
-    {
-        IList<ITraversable> Items
-        {
-            get;
-        }
-    }
+    IList<ITraversable> Items { get; }
+}
 
-    public interface IVisible
-    {
-        Visibility Visibility
-        {
-            get; set;
-        }
-    }
+public interface IVisible
+{
+    Visibility Visibility { get; set; }
+}
 
-    public interface ITransformable : ITransform
-    {
-        Transform3D Transform
-        {
-            get; set;
-        }
-    }
+public interface ITransformable : ITransform
+{
+    Transform3D Transform { get; set; }
+}
 
-    public interface ISelectable
-    {
+public interface ISelectable
+{
+    bool IsSelected { get; set; }
+}
 
-        bool IsSelected
-        {
-            get; set;
-        }
-    }
-
-    public interface IMouse3D
-    {
-        event RoutedEventHandler MouseDown3D;
-        event RoutedEventHandler MouseUp3D;
-        event RoutedEventHandler MouseMove3D;
-    }
+public interface IMouse3D
+{
+    event RoutedEventHandler MouseDown3D;
+    event RoutedEventHandler MouseUp3D;
+    event RoutedEventHandler MouseMove3D;
 }

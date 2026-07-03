@@ -6,21 +6,17 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
-        public abstract class ShaderBase : DisposeObject
-        {
+        public abstract class ShaderBase : DisposeObject {
             /// <summary>
             /// </summary>
             /// <param name="name"></param>
             /// <param name="type"></param>
             /// <param name="isNull"></param>
-            public ShaderBase(string name, ShaderStage type, bool isNull = false)
-            {
+            public ShaderBase(string name, ShaderStage type, bool isNull = false) {
                 ShaderType = type;
                 ShaderStageIndex = type.ToIndex();
                 Name = name;
@@ -71,8 +67,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public string Name { get; private set; }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 ConstantBufferMapping.Dispose();
                 ShaderResourceViewMapping.Dispose();
                 UnorderedAccessViewMapping.Dispose();

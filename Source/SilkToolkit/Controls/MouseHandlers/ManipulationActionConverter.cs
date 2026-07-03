@@ -16,15 +16,12 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Converts a <see cref="ManipulationAction" /> object to and from other types.
 /// </summary>
-public class ManipulationActionConverter : TypeConverter
-{
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-    {
+public class ManipulationActionConverter : TypeConverter {
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
         return sourceType == typeof(string);
     }
 
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-    {
+    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
         if (destinationType == typeof(string) &&
             context?.Instance is ManipulationAction manipulationAction)
             return Enum.IsDefined(typeof(ManipulationAction), manipulationAction);
@@ -32,10 +29,8 @@ public class ManipulationActionConverter : TypeConverter
         return false;
     }
 
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-    {
-        if (value is string manipulationActionToken)
-        {
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+        if (value is string manipulationActionToken) {
             manipulationActionToken = manipulationActionToken.Trim();
             var result = ManipulationAction.None;
             if (manipulationActionToken != string.Empty &&
@@ -48,9 +43,12 @@ public class ManipulationActionConverter : TypeConverter
         return GetConvertFromException(value);
     }
 
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
-        Type destinationType)
-    {
+    public override object ConvertTo(
+        ITypeDescriptorContext context,
+        CultureInfo culture,
+        object value,
+        Type destinationType
+    ) {
         if (destinationType == null)
             throw new ArgumentNullException(nameof(destinationType));
         if (destinationType == typeof(string) && value is ManipulationAction manipulationAction)
@@ -60,12 +58,9 @@ public class ManipulationActionConverter : TypeConverter
     }
 }
 
-public static class ManipulationActionExtensions
-{
-    public static int FingerCount(this ManipulationAction manipulationAction)
-    {
-        switch (manipulationAction)
-        {
+public static class ManipulationActionExtensions {
+    public static int FingerCount(this ManipulationAction manipulationAction) {
+        switch (manipulationAction) {
             case ManipulationAction.Pan:
                 return 1;
             case ManipulationAction.Pinch:

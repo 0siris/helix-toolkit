@@ -6,20 +6,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class NodePostEffectBloom : SceneNode
-        {
+        public class NodePostEffectBloom : SceneNode {
             /// <summary>
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new PostEffectBloomCore();
             }
 
@@ -34,23 +30,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     Return RenderTechnique
             /// </returns>
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.PostEffectBloom];
             }
 
-            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
+            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
                 return false;
             }
 
-            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected sealed override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             ///     Gets or sets the name of the effect.
@@ -58,8 +54,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The name of the effect.
             /// </value>
-            public string EffectName
-            {
+            public string EffectName {
                 get => (RenderCore as IPostEffectBloom).EffectName;
                 set => (RenderCore as IPostEffectBloom).EffectName = value;
             }
@@ -70,8 +65,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the threshold.
             /// </value>
-            public Color4 ThresholdColor
-            {
+            public Color4 ThresholdColor {
                 get => (RenderCore as IPostEffectBloom).ThresholdColor;
                 set => (RenderCore as IPostEffectBloom).ThresholdColor = value;
             }
@@ -82,8 +76,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The number of blur pass.
             /// </value>
-            public int NumberOfBlurPass
-            {
+            public int NumberOfBlurPass {
                 get => (RenderCore as IPostEffectBloom).NumberOfBlurPass;
                 set => (RenderCore as IPostEffectBloom).NumberOfBlurPass = value;
             }
@@ -94,8 +87,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bloom extract intensity.
             /// </value>
-            public float BloomExtractIntensity
-            {
+            public float BloomExtractIntensity {
                 get => (RenderCore as IPostEffectBloom).BloomExtractIntensity;
                 set => (RenderCore as IPostEffectBloom).BloomExtractIntensity = value;
             }
@@ -106,8 +98,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bloom pass intensity.
             /// </value>
-            public float BloomPassIntensity
-            {
+            public float BloomPassIntensity {
                 get => (RenderCore as IPostEffectBloom).BloomPassIntensity;
                 set => (RenderCore as IPostEffectBloom).BloomPassIntensity = value;
             }
@@ -118,8 +109,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bloom combine intensity.
             /// </value>
-            public float BloomCombineIntensity
-            {
+            public float BloomCombineIntensity {
                 get => (RenderCore as IPostEffectBloom).BloomCombineIntensity;
                 set => (RenderCore as IPostEffectBloom).BloomCombineIntensity = value;
             }
@@ -130,13 +120,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bloom combine saturation.
             /// </value>
-            public float BloomCombineSaturation
-            {
+            public float BloomCombineSaturation {
                 get => (RenderCore as IPostEffectBloom).BloomCombineSaturation;
                 set => (RenderCore as IPostEffectBloom).BloomCombineSaturation = value;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

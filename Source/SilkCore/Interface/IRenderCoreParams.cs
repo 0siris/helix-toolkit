@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public interface IGeometryRenderCore
-        {
+        public interface IGeometryRenderCore {
             /// <summary>
             ///     Gets or sets the instance buffer.
             /// </summary>
@@ -41,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IMaterialRenderParams
-        {
+        public interface IMaterialRenderParams {
             /// <summary>
             ///     Gets or sets the material variables used for rendering.
             /// </summary>
@@ -54,8 +50,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IMeshRenderParams : IInvertNormal, IMaterialRenderParams
-        {
+        public interface IMeshRenderParams : IInvertNormal, IMaterialRenderParams {
             bool RenderWireframe { get; set; }
 
             Color4 WireframeColor { get; set; }
@@ -63,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IDynamicReflector
-        {
+        public interface IDynamicReflector {
             bool IsDynamicScene { get; set; }
 
             bool EnableReflector { get; set; }
@@ -85,15 +79,13 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IDynamicReflectable
-        {
+        public interface IDynamicReflectable {
             IDynamicReflector DynamicReflector { get; set; }
         }
 
         /// <summary>
         /// </summary>
-        public interface IInvertNormal
-        {
+        public interface IInvertNormal {
             /// <summary>
             ///     Gets or sets a value indicating whether [invert normal].
             /// </summary>
@@ -105,8 +97,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IBillboardRenderParams
-        {
+        public interface IBillboardRenderParams {
             /// <summary>
             ///     Gets or sets the type.
             /// </summary>
@@ -134,8 +125,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface ICrossSectionRenderParams
-        {
+        public interface ICrossSectionRenderParams {
             /// <summary>
             ///     Cutting operation, intersects or substract
             /// </summary>
@@ -229,8 +219,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IMeshOutlineParams
-        {
+        public interface IMeshOutlineParams {
             /// <summary>
             ///     Gets or sets the color.
             /// </summary>
@@ -262,18 +251,15 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public static class MeshTopologies
-        {
+        public static class MeshTopologies {
             /// <summary>
             ///     Gets the topologies.
             /// </summary>
             /// <value>
             ///     The topologies.
             /// </value>
-            public static IEnumerable<MeshTopologyEnum> Topologies
-            {
-                get
-                {
+            public static IEnumerable<MeshTopologyEnum> Topologies {
+                get {
                     yield return MeshTopologyEnum.PNTriangles;
                     yield return MeshTopologyEnum.PNQuads;
                 }
@@ -283,8 +269,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IPointRenderParams
-        {
+        public interface IPointRenderParams {
             /// <summary>
             /// </summary>
             Color4 PointColor { get; set; }
@@ -308,8 +293,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IShadowMapRenderParams
-        {
+        public interface IShadowMapRenderParams {
             /// <summary>
             /// </summary>
             int Width { get; set; }
@@ -342,8 +326,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface ISkyboxRenderParams
-        {
+        public interface ISkyboxRenderParams {
             /// <summary>
             ///     Gets or sets the cube texture.
             /// </summary>
@@ -360,8 +343,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IThrowingShadow
-        {
+        public interface IThrowingShadow {
             /// <summary>
             ///     Gets or sets a value indicating whether this instance is throwing shadow.
             /// </summary>
@@ -373,8 +355,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface ILineRenderParams
-        {
+        public interface ILineRenderParams {
             /// <summary>
             /// </summary>
             float Thickness { get; set; }

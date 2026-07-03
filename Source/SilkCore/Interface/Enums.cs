@@ -11,8 +11,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Used for render ordering. Order is the same as render type defined.
 /// </summary>
-public enum RenderType
-{
+public enum RenderType {
     None,
     Light,
     PreProc,
@@ -26,8 +25,7 @@ public enum RenderType
 
 /// <summary>
 /// </summary>
-public enum MSAALevel
-{
+public enum MSAALevel {
     Disable = 0,
     Maximum = 1,
     Two = 2,
@@ -37,8 +35,7 @@ public enum MSAALevel
 
 /// <summary>
 /// </summary>
-public enum FXAALevel
-{
+public enum FXAALevel {
     None = 0,
     Low = 1,
     Medium = 2,
@@ -48,8 +45,7 @@ public enum FXAALevel
 
 /// <summary>
 /// </summary>
-public enum LightType
-{
+public enum LightType {
     Ambient = 0,
     Directional = 1,
     Point = 2,
@@ -60,8 +56,7 @@ public enum LightType
 
 /// <summary>
 /// </summary>
-public enum PointFigure
-{
+public enum PointFigure {
     Rect,
     Ellipse,
     Cross
@@ -69,8 +64,7 @@ public enum PointFigure
 
 /// <summary>
 /// </summary>
-public enum MeshTopologyEnum
-{
+public enum MeshTopologyEnum {
     PNTriangles,
     PNQuads
 }
@@ -79,8 +73,7 @@ public enum MeshTopologyEnum
 /// </summary>
 [Flags]
 [DataContract]
-public enum ShaderStage
-{
+public enum ShaderStage {
     [EnumMember] None = 0,
     [EnumMember] Vertex = 1,
     [EnumMember] Hull = 1 << 2,
@@ -93,8 +86,7 @@ public enum ShaderStage
 /// <summary>
 /// </summary>
 [Flags]
-public enum StateType
-{
+public enum StateType {
     None = 0,
     RasterState = 1,
     DepthStencilState = 1 << 2,
@@ -103,8 +95,7 @@ public enum StateType
 }
 
 [Flags]
-public enum RenderDetail
-{
+public enum RenderDetail {
     None = 0,
     FPS = 1,
     Statistics = 2,
@@ -120,8 +111,7 @@ public enum RenderDetail
 /// <value>
 ///     The oit weight mode.
 /// </value>
-public enum OITWeightMode
-{
+public enum OITWeightMode {
     Linear0 = 0,
     Linear1 = 1,
     Linear2 = 2,
@@ -130,23 +120,19 @@ public enum OITWeightMode
 
 /// <summary>
 /// </summary>
-public struct EnumHelper
-{
+public struct EnumHelper {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(ShaderStage option, ShaderStage flag)
-    {
+    public static bool HasFlag(ShaderStage option, ShaderStage flag) {
         return (option & flag) != 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(StateType option, StateType flag)
-    {
+    public static bool HasFlag(StateType option, StateType flag) {
         return (option & flag) != 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(RenderDetail option, RenderDetail flag)
-    {
+    public static bool HasFlag(RenderDetail option, RenderDetail flag) {
         return (option & flag) != 0;
     }
 }
@@ -154,8 +140,7 @@ public struct EnumHelper
 /// <summary>
 ///     Defines the cutting operation.
 /// </summary>
-public enum CuttingOperation
-{
+public enum CuttingOperation {
     /// <summary>
     ///     The intersect operation.
     /// </summary>
@@ -169,16 +154,14 @@ public enum CuttingOperation
 
 /// <summary>
 /// </summary>
-public enum OutlineMode
-{
+public enum OutlineMode {
     Merged = 0,
     Separated = 1
 }
 
 /// <summary>
 /// </summary>
-public enum Axis
-{
+public enum Axis {
     X = 0,
     Y = 1,
     Z = 2
@@ -186,39 +169,33 @@ public enum Axis
 
 /// <summary>
 /// </summary>
-public enum GridPattern
-{
+public enum GridPattern {
     Tile = 0,
     Grid = 1
 }
 
-public enum OffScreenTextureSize
-{
+public enum OffScreenTextureSize {
     Full = 1,
     Half = 2,
     Quarter = 4
 }
 
-public enum OffScreenTextureType
-{
+public enum OffScreenTextureType {
     RenderTarget,
     DepthStencil
 }
 
-public enum SSAOQuality
-{
+public enum SSAOQuality {
     High,
     Low
 }
 
-public enum ScreenSpacedMode
-{
+public enum ScreenSpacedMode {
     RelativeScreenSpaced,
     AbsolutePosition3D
 }
 
-public enum ScreenSpacedCameraType
-{
+public enum ScreenSpacedCameraType {
     Auto,
     Perspective,
     Orthographic

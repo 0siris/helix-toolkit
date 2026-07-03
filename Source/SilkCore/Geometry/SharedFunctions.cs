@@ -10,16 +10,14 @@ using Vector = Vector2;
 /// <summary>
 ///     Functions for the Shared Projects to simplify the Code
 /// </summary>
-internal static class SharedFunctions
-{
+internal static class SharedFunctions {
     /// <summary>
     /// </summary>
     /// <param name="first"></param>
     /// <param name="second"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second)
-    {
+    public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second) {
 #if SHARPDX || SILKNET
         return SilkMath.Cross(first, second);
 #else
@@ -28,8 +26,7 @@ internal static class SharedFunctions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3D CrossProduct(Vector3D first, Vector3D second)
-    {
+    public static Vector3D CrossProduct(Vector3D first, Vector3D second) {
 #if SHARPDX || SILKNET
         return SilkMath.Cross(first, second);
 #else
@@ -43,8 +40,7 @@ internal static class SharedFunctions
     /// <param name="second"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DoubleOrSingle DotProduct(ref Vector3D first, ref Vector3D second)
-    {
+    public static DoubleOrSingle DotProduct(ref Vector3D first, ref Vector3D second) {
         return first.X * second.X + first.Y * second.Y + first.Z * second.Z;
     }
 
@@ -54,8 +50,7 @@ internal static class SharedFunctions
     /// <param name="second"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DoubleOrSingle DotProduct(ref Vector first, ref Vector second)
-    {
+    public static DoubleOrSingle DotProduct(ref Vector first, ref Vector second) {
         return first.X * second.X + first.Y * second.Y;
     }
 
@@ -64,8 +59,7 @@ internal static class SharedFunctions
     /// <param name="vector"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DoubleOrSingle LengthSquared(ref Vector3D vector)
-    {
+    public static DoubleOrSingle LengthSquared(ref Vector3D vector) {
         return vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z;
     }
 
@@ -75,8 +69,7 @@ internal static class SharedFunctions
     /// <param name="vector">The vector.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DoubleOrSingle LengthSquared(ref Vector vector)
-    {
+    public static DoubleOrSingle LengthSquared(ref Vector vector) {
         return vector.X * vector.X + vector.Y * vector.Y;
     }
 
@@ -85,8 +78,7 @@ internal static class SharedFunctions
     /// <param name="vector"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DoubleOrSingle Length(ref Vector3D vector)
-    {
+    public static DoubleOrSingle Length(ref Vector3D vector) {
         return (DoubleOrSingle) Math.Sqrt(LengthSquared(ref vector));
     }
 
@@ -117,8 +109,7 @@ internal static class SharedFunctions
     /// <param name="vector"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3D ToVector3D(Point3D vector)
-    {
+    public static Vector3D ToVector3D(Point3D vector) {
         return new Vector3D(vector.X, vector.Y, vector.Z);
     }
 #if SHARPDX || SILKNET
@@ -195,8 +186,7 @@ internal static class SharedFunctions
     /// <returns>
     ///     The intersection point.
     /// </returns>
-    public static Point3D? LineIntersection(this Plane plane, Point3D la, Point3D lb)
-    {
+    public static Point3D? LineIntersection(this Plane plane, Point3D la, Point3D lb) {
         // https://graphics.stanford.edu/~mdfisher/Code/Engine/Plane.cpp.html
         var diff = la - lb;
         var d = SilkMath.Dot(diff, plane.Normal);

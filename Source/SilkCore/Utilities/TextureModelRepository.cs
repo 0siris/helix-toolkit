@@ -7,27 +7,20 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
-        public sealed class TextureModelRepository : ITextureModelRepository
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
+        public sealed class TextureModelRepository : ITextureModelRepository {
             private static readonly ILogger logger = LogManager.Create<TextureModelRepository>();
 
             private readonly ConditionalWeakTable<string, WeakReference<TextureModel>> fileDict = new();
 
             private readonly ConditionalWeakTable<Stream, WeakReference<TextureModel>> streamDict = new();
 
-            public TextureModel Create(Stream stream)
-            {
+            public TextureModel Create(Stream stream) {
                 if (stream == null) return null;
-                lock (streamDict)
-                {
-                    if (streamDict.TryGetValue(stream, out var tex))
-                    {
-                        if (tex.TryGetTarget(out var target))
-                        {
+                lock (streamDict) {
+                    if (streamDict.TryGetValue(stream, out var tex)) {
+                        if (tex.TryGetTarget(out var target)) {
                             if (logger.IsEnabled(LogLevel.Debug))
                                 logger.LogDebug("Reuse existing TextureModel. Guid: {0}", target.Guid);
                             return target;
@@ -44,15 +37,11 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public TextureModel Create(string texturePath)
-            {
+            public TextureModel Create(string texturePath) {
                 if (string.IsNullOrEmpty(texturePath)) return null;
-                lock (fileDict)
-                {
-                    if (fileDict.TryGetValue(texturePath, out var tex))
-                    {
-                        if (tex.TryGetTarget(out var target))
-                        {
+                lock (fileDict) {
+                    if (fileDict.TryGetValue(texturePath, out var tex)) {
+                        if (tex.TryGetTarget(out var target)) {
                             if (logger.IsEnabled(LogLevel.Debug))
                                 logger.LogDebug("Reuse existing TextureModel. Guid: {0}", target.Guid);
                             return target;

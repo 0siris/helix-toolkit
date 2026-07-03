@@ -8,8 +8,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public interface IAttachableBufferModel : IGUID, IDisposable
-{
+public interface IAttachableBufferModel : IGUID, IDisposable {
     /// <summary>
     ///     Gets or sets the topology.
     /// </summary>
@@ -62,8 +61,7 @@ public interface IAttachableBufferModel : IGUID, IDisposable
 
 /// <summary>
 /// </summary>
-public interface IGeometryBufferModel : IAttachableBufferModel
-{
+public interface IGeometryBufferModel : IAttachableBufferModel {
     /// <summary>
     ///     Gets or sets the effects manager.
     /// </summary>
@@ -86,8 +84,7 @@ public interface IGeometryBufferModel : IAttachableBufferModel
 
 /// <summary>
 /// </summary>
-public interface IBillboardBufferModel : IDisposable
-{
+public interface IBillboardBufferModel : IDisposable {
     /// <summary>
     ///     Gets the texture view.
     /// </summary>
@@ -107,8 +104,7 @@ public interface IBillboardBufferModel : IDisposable
 
 /// <summary>
 /// </summary>
-public interface IBoneSkinMeshBufferModel : IGeometryBufferModel
-{
+public interface IBoneSkinMeshBufferModel : IGeometryBufferModel {
     IElementsBufferProxy BoneIdBuffer { get; }
 
     event EventHandler BoneIdBufferUpdated;
@@ -116,8 +112,7 @@ public interface IBoneSkinMeshBufferModel : IGeometryBufferModel
 
 /// <summary>
 /// </summary>
-public interface IBoneSkinPreComputehBufferModel
-{
+public interface IBoneSkinPreComputehBufferModel {
     bool CanPreCompute { get; }
 
     /// <summary>

@@ -7,8 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface ILight3D
-{
+public interface ILight3D {
     /// <summary>
     ///     Gets the type of the light.
     /// </summary>

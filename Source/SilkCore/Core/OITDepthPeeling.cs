@@ -10,12 +10,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public sealed class OITDepthPeeling : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public sealed class OITDepthPeeling : RenderCore {
             private readonly ShaderResourceView[] finalSRVs = new ShaderResourceView[3];
             private readonly ShaderResourceViewProxy[] minMaxZTargets = new ShaderResourceViewProxy[2];
             private readonly RenderTargetView[] targets = new RenderTargetView[3];
@@ -23,9 +20,7 @@ namespace HelixToolkit.SharpDX.Core
             private ShaderPass finalPass = ShaderPass.NullPass;
             private ShaderResourceViewProxy minMaxZTarget0, minMaxZTarget1, frontBlendingTarget, backBlendingTarget;
 
-            public OITDepthPeeling() : base(RenderType.Transparent)
-            {
-            }
+            public OITDepthPeeling() : base(RenderType.Transparent) { }
 
             public RenderParameter ExternRenderParameter { get; set; }
 
@@ -33,14 +28,12 @@ namespace HelixToolkit.SharpDX.Core
 
             public int PeelingIteration { get; set; } = 4;
 
-            private bool CreateRenderTargets(int width, int height)
-            {
+            private bool CreateRenderTargets(int width, int height) {
                 if (currWidth == width && currHeight == height) return false;
                 DisposeAllTargets();
                 currWidth = width;
                 currHeight = height;
-                var tex2DDesc = new Texture2DDescription
-                {
+                var tex2DDesc = new Texture2DDescription {
                     Width = width,
                     Height = height,
                     ArraySize = 1,
@@ -69,32 +62,30 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            private void DisposeAllTargets()
-            {
+            private void DisposeAllTargets() {
                 RemoveAndDispose(ref minMaxZTarget0);
                 RemoveAndDispose(ref minMaxZTarget1);
                 RemoveAndDispose(ref frontBlendingTarget);
                 RemoveAndDispose(ref backBlendingTarget);
             }
 
-            private void InitializeMinMaxRenderTarget(DeviceContextProxy deviceContext)
-            {
+            private void InitializeMinMaxRenderTarget(DeviceContextProxy deviceContext) {
                 var color = new Color4(0, 0, 0, 1);
                 deviceContext.ClearRenderTargetView(frontBlendingTarget, color);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
                 if (ExternRenderParameter.RenderTargetView != null &&
                     ExternRenderParameter.RenderTargetView.Length > 0 &&
-                    backBlendingTarget.Resource != null)
-                {
+                    backBlendingTarget.Resource != null) {
                     if (ExternRenderParameter.IsMSAATexture)
-                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource, 0,
-                            backBlendingTarget.Resource, 0, Format.FormatB8G8R8A8Unorm);
+                        deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource,
+                                                         0,
+                                                         backBlendingTarget.Resource,
+                                                         0,
+                                                         Format.FormatB8G8R8A8Unorm);
                     else
                         deviceContext.CopyResource(ExternRenderParameter.RenderTargetView[0].Resource,
-                            backBlendingTarget.Resource);
-                }
-                else
-                {
+                                                   backBlendingTarget.Resource);
+                } else {
                     color = new Color4(0, 0, 0, 0);
                     deviceContext.ClearRenderTargetView(backBlendingTarget, color);
                 }
@@ -103,19 +94,16 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.ClearRenderTargetView(minMaxZTargets[0], color);
             }
 
-            private void DrawMesh(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void DrawMesh(RenderContext context, DeviceContextProxy deviceContext) {
                 var parameter = ExternRenderParameter;
-                if (!parameter.ScissorRegion.IsEmpty)
-                {
+                if (!parameter.ScissorRegion.IsEmpty) {
                     RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
-                        context.RenderHost.PerFrameTransparentNodes, ref parameter, context.EnableBoundingFrustum);
-                }
-                else
-                {
+                                                                           context.RenderHost.PerFrameTransparentNodes,
+                                                                           ref parameter,
+                                                                           context.EnableBoundingFrustum);
+                } else {
                     var count = context.RenderHost.PerFrameTransparentNodes.Count;
-                    for (var i = 0; i < count; ++i)
-                    {
+                    for (var i = 0; i < count; ++i) {
                         var renderable = context.RenderHost.PerFrameTransparentNodes[i];
                         renderable.RenderCore.Render(context, deviceContext);
                         ++RenderCount;
@@ -123,10 +111,8 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
-                if (CreateRenderTargets((int) context.ActualWidth, (int) context.ActualHeight))
-                {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+                if (CreateRenderTargets((int) context.ActualWidth, (int) context.ActualHeight)) {
                     RaiseInvalidateRender();
                     return;
                 }
@@ -144,8 +130,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 context.OITRenderStage = OITRenderStage.DepthPeeling;
                 var currId = 0;
-                for (var layer = 1; layer < PeelingIteration; ++layer)
-                {
+                for (var layer = 1; layer < PeelingIteration; ++layer) {
                     currId = layer % 2;
                     var prevId = 1 - currId;
                     var color = new Color4(-1, -1, 0, 0);
@@ -170,15 +155,13 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.Draw(4, 0);
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 finalPass = technique[DefaultPassNames.OITDepthPeelingFinal];
                 Debug.Assert(!finalPass.IsNULL);
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 DisposeAllTargets();
                 currWidth = currHeight = 0;
                 finalPass = ShaderPass.NullPass;

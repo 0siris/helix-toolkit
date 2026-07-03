@@ -8,8 +8,7 @@
 #include "psOITDepthPeelingCommon.hlsl"
 #include"psDiffuseMap.hlsl"
 
-DDPOutputMRT diffuseOITDP(PSInput input)
-{
+DDPOutputMRT diffuseOITDP(PSInput input) {
     return depthPeelPS(input.p, main(input));
 }
 #endif

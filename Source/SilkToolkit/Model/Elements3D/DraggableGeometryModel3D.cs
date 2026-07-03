@@ -17,19 +17,24 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Example class how to implement mouse dragging for objects.
 ///     Probably it should be moved to a "Dragging Demo."
 /// </summary>
-public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable
-{
+public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
     public static readonly DependencyProperty DragXProperty =
-        DependencyProperty.Register("DragX", typeof(bool), typeof(DraggableGeometryModel3D),
-            new PropertyMetadata(true));
+        DependencyProperty.Register("DragX",
+                                    typeof(bool),
+                                    typeof(DraggableGeometryModel3D),
+                                    new PropertyMetadata(true));
 
     public static readonly DependencyProperty DragYProperty =
-        DependencyProperty.Register("DragY", typeof(bool), typeof(DraggableGeometryModel3D),
-            new PropertyMetadata(true));
+        DependencyProperty.Register("DragY",
+                                    typeof(bool),
+                                    typeof(DraggableGeometryModel3D),
+                                    new PropertyMetadata(true));
 
     public static readonly DependencyProperty DragZProperty =
-        DependencyProperty.Register("DragZ", typeof(bool), typeof(DraggableGeometryModel3D),
-            new PropertyMetadata(true));
+        DependencyProperty.Register("DragZ",
+                                    typeof(bool),
+                                    typeof(DraggableGeometryModel3D),
+                                    new PropertyMetadata(true));
 
     protected Camera camera;
     protected bool isCaptured;
@@ -37,28 +42,24 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable
     protected Viewport3DX viewport;
 
 
-    public bool DragX
-    {
+    public bool DragX {
         get => (bool) GetValue(DragXProperty);
         set => SetValue(DragXProperty, value);
     }
 
-    public bool DragY
-    {
+    public bool DragY {
         get => (bool) GetValue(DragYProperty);
         set => SetValue(DragYProperty, value);
     }
 
-    public bool DragZ
-    {
+    public bool DragZ {
         get => (bool) GetValue(DragZProperty);
         set => SetValue(DragZProperty, value);
     }
 
     public Point3D LastHitPosition => lastHitPos;
 
-    protected override void OnMouse3DDown(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DDown(object sender, RoutedEventArgs e) {
         base.OnMouse3DDown(sender, e);
 
         var args = e as Mouse3DEventArgs;
@@ -73,43 +74,36 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable
         lastHitPos = args.HitTestResult.PointHit.ToPoint3D();
     }
 
-    protected override void OnMouse3DUp(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
         base.OnMouse3DUp(sender, e);
-        if (isCaptured)
-        {
+        if (isCaptured) {
             isCaptured = false;
             camera = null;
             viewport = null;
         }
     }
 
-    protected override void OnMouse3DMove(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
-        if (isCaptured)
-        {
+        if (isCaptured) {
             var args = e as Mouse3DEventArgs;
             // move dragmodel                         
             var normal = camera.LookDirection;
 
             // hit position                        
             var newHit = viewport.UnProjectOnPlane(args.Position, lastHitPos, normal);
-            if (newHit.HasValue)
-            {
+            if (newHit.HasValue) {
                 var delta = newHit.Value - lastHitPos;
-                var offset = new Vector3D(
-                    DragX ? delta.X : 0,
-                    DragY ? delta.Y : 0,
-                    DragZ ? delta.Z : 0
-                );
+                var offset = new Vector3D(DragX ? delta.X : 0,
+                                          DragY ? delta.Y : 0,
+                                          DragZ ? delta.Z : 0);
 
                 lastHitPos = newHit.Value;
                 if (Transform == null)
                     Transform = new TranslateTransform3D(offset);
                 else
                     Transform = new MatrixTransform3D(Transform.AppendTransform(new TranslateTransform3D(offset))
-                        .Value);
+                                                               .Value);
             }
         }
     }

@@ -2,15 +2,12 @@
 using HelixToolkit.SharpDX.Core;
 using RelayExceptionEventArgs = HelixToolkit.SharpDX.Core.Utilities.RelayExceptionEventArgs;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Controls
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Controls {
         /// <summary>
         ///     Canvas holds the RenderHost. Provide entry point or render surface for RenderHost to render to.
         /// </summary>
-        public interface IRenderCanvas
-        {
+        public interface IRenderCanvas {
             /// <summary>
             ///     Gets or sets the dpi scale.
             /// </summary>

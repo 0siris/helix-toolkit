@@ -6,19 +6,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public abstract class LightCoreBase : RenderCore, ILight3D
-        {
+        public abstract class LightCoreBase : RenderCore, ILight3D {
             private Color4 color = new(0.2f, 0.2f, 0.2f, 1.0f);
 
-            protected LightCoreBase() : base(RenderType.Light)
-            {
-            }
+            protected LightCoreBase() : base(RenderType.Light) { }
 
             /// <summary>
             ///     Gets a value indicating whether this instance is empty.
@@ -34,8 +29,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color.
             /// </value>
-            public Color4 Color
-            {
+            public Color4 Color {
                 get => color;
                 set => SetAffectsRender(ref color, value);
             }
@@ -48,27 +42,21 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public LightType LightType { get; protected set; }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 return true;
             }
 
-            protected override void OnDetach()
-            {
-            }
+            protected override void OnDetach() { }
 
             /// <summary>
             ///     Renders the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
-                if (CanRender(context.LightScene))
-                {
+            public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+                if (CanRender(context.LightScene)) {
                     OnRender(context.LightScene, context.LightScene.LightModels.LightCount);
-                    switch (LightType)
-                    {
+                    switch (LightType) {
                         case LightType.Ambient:
                             break;
                         default:
@@ -85,8 +73,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance can render the specified light scene; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool CanRender(Light3DSceneShared lightScene)
-            {
+            protected virtual bool CanRender(Light3DSceneShared lightScene) {
                 return IsAttached && lightScene.LightModels.LightCount < Constants.MaxLights;
             }
 
@@ -95,8 +82,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="lightScene">The light scene.</param>
             /// <param name="idx">The index.</param>
-            protected virtual void OnRender(Light3DSceneShared lightScene, int idx)
-            {
+            protected virtual void OnRender(Light3DSceneShared lightScene, int idx) {
                 lightScene.LightModels.Lights[idx].LightColor = Color;
                 lightScene.LightModels.Lights[idx].LightType = (int) LightType;
             }
@@ -104,13 +90,11 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public class AmbientLightCore : LightCoreBase
-        {
+        public class AmbientLightCore : LightCoreBase {
             /// <summary>
             ///     Initializes a new instance of the <see cref="AmbientLightCore" /> class.
             /// </summary>
-            public AmbientLightCore()
-            {
+            public AmbientLightCore() {
                 LightType = LightType.Ambient;
             }
 
@@ -119,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="lightScene">The light scene.</param>
             /// <param name="idx">The index.</param>
-            protected override void OnRender(Light3DSceneShared lightScene, int idx)
-            {
+            protected override void OnRender(Light3DSceneShared lightScene, int idx) {
                 lightScene.LightModels.AmbientLight = Color;
             }
         }

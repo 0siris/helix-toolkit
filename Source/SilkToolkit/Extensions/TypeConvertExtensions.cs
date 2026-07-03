@@ -1,15 +1,10 @@
 ﻿using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Extensions
-    {
-        public static class TypeConvertExtensions
-        {
-            public static Visibility ToD2DVisibility(this System.Windows.Visibility v)
-            {
-                switch (v)
-                {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Extensions {
+        public static class TypeConvertExtensions {
+            public static Visibility ToD2DVisibility(this System.Windows.Visibility v) {
+                switch (v) {
                     case System.Windows.Visibility.Collapsed:
                         return Visibility.Collapsed;
                     case System.Windows.Visibility.Hidden:
@@ -21,10 +16,8 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            public static HorizontalAlignment ToD2DHorizontalAlignment(this System.Windows.HorizontalAlignment v)
-            {
-                switch (v)
-                {
+            public static HorizontalAlignment ToD2DHorizontalAlignment(this System.Windows.HorizontalAlignment v) {
+                switch (v) {
                     case System.Windows.HorizontalAlignment.Center:
                         return HorizontalAlignment.Center;
                     case System.Windows.HorizontalAlignment.Left:
@@ -38,10 +31,8 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            public static VerticalAlignment ToD2DVerticalAlignment(this System.Windows.VerticalAlignment v)
-            {
-                switch (v)
-                {
+            public static VerticalAlignment ToD2DVerticalAlignment(this System.Windows.VerticalAlignment v) {
+                switch (v) {
                     case System.Windows.VerticalAlignment.Center:
                         return VerticalAlignment.Center;
                     case System.Windows.VerticalAlignment.Top:
@@ -55,16 +46,14 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            public static Thickness ToD2DThickness(this System.Windows.Thickness t)
-            {
+            public static Thickness ToD2DThickness(this System.Windows.Thickness t) {
                 return new Thickness((float) t.Left, (float) t.Right, (float) t.Top, (float) t.Bottom);
             }
 
-            public static Orientation ToD2DOrientation(this System.Windows.Controls.Orientation o)
-            {
+            public static Orientation ToD2DOrientation(this System.Windows.Controls.Orientation o) {
                 return o == System.Windows.Controls.Orientation.Horizontal
-                    ? Orientation.Horizontal
-                    : Orientation.Vertical;
+                           ? Orientation.Horizontal
+                           : Orientation.Vertical;
             }
         }
     }

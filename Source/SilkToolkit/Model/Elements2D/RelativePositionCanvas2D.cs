@@ -2,10 +2,8 @@
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Core2D;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Elements2D
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Elements2D {
         /// <summary>
         ///     Position content using relative position.
         ///     <para>
@@ -14,23 +12,19 @@ namespace HelixToolkit.Wpf.SharpDX
         ///     </para>
         /// </summary>
         /// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Panel2D" />
-        public class RelativePositionCanvas2D : Panel2D
-        {
-            protected override SceneNode2D OnCreateSceneNode()
-            {
+        public class RelativePositionCanvas2D : Panel2D {
+            protected override SceneNode2D OnCreateSceneNode() {
                 return new Node2DRelativePositionCanvas();
             }
 
 
-            protected class Node2DRelativePositionCanvas : PanelNode2D
-            {
+            protected class Node2DRelativePositionCanvas : PanelNode2D {
                 /// <summary>
                 ///     Measures the override.
                 /// </summary>
                 /// <param name="availableSize">Size of the available.</param>
                 /// <returns></returns>
-                protected override Size2F MeasureOverride(Size2F availableSize)
-                {
+                protected override Size2F MeasureOverride(Size2F availableSize) {
                     var childConstraint = new Size2F(float.PositiveInfinity, float.PositiveInfinity);
                     foreach (var child in Items) child.Measure(childConstraint);
                     return new Size2F();
@@ -41,11 +35,9 @@ namespace HelixToolkit.Wpf.SharpDX
                 /// </summary>
                 /// <param name="finalSize">The final size.</param>
                 /// <returns></returns>
-                protected override RectangleF ArrangeOverride(RectangleF finalSize)
-                {
+                protected override RectangleF ArrangeOverride(RectangleF finalSize) {
                     foreach (var child in Items)
-                        if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D)
-                        {
+                        if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D) {
                             var xPos = finalSize.Width / 2 * (1 + (float) GetRelativeX(element2D));
                             var yPos = finalSize.Height / 2 * (1 - (float) GetRelativeY(element2D));
                             var desired = c.DesiredSize;
@@ -56,13 +48,15 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            #region Attached Properties
+        #region Attached Properties
 
             /// <summary>
             ///     The relative x property
             /// </summary>
             public static readonly DependencyProperty RelativeXProperty = DependencyProperty.RegisterAttached(
-                "RelativeX", typeof(double), typeof(RelativePositionCanvas2D),
+                "RelativeX",
+                typeof(double),
+                typeof(RelativePositionCanvas2D),
                 new PropertyMetadata(0.0, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -70,8 +64,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetRelativeX(Element2DCore element, double value)
-            {
+            public static void SetRelativeX(Element2DCore element, double value) {
                 element.SetValue(RelativeXProperty, value);
             }
 
@@ -80,8 +73,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetRelativeX(Element2DCore element)
-            {
+            public static double GetRelativeX(Element2DCore element) {
                 return (double) element.GetValue(RelativeXProperty);
             }
 
@@ -89,7 +81,9 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     The relative y property
             /// </summary>
             public static readonly DependencyProperty RelativeYProperty = DependencyProperty.RegisterAttached(
-                "RelativeY", typeof(double), typeof(RelativePositionCanvas2D),
+                "RelativeY",
+                typeof(double),
+                typeof(RelativePositionCanvas2D),
                 new PropertyMetadata(0.0, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -97,8 +91,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetRelativeY(Element2DCore element, double value)
-            {
+            public static void SetRelativeY(Element2DCore element, double value) {
                 element.SetValue(RelativeYProperty, value);
             }
 
@@ -107,12 +100,11 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetRelativeY(Element2DCore element)
-            {
+            public static double GetRelativeY(Element2DCore element) {
                 return (double) element.GetValue(RelativeYProperty);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

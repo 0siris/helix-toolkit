@@ -21,8 +21,7 @@ using WpfSweepDirection = SweepDirection;
 /// <summary>
 ///     Extension methods for DrawingContext.
 /// </summary>
-public static class DrawingContextExtensions
-{
+public static class DrawingContextExtensions {
     /// <summary>
     ///     Draws the arc.
     /// </summary>
@@ -42,8 +41,8 @@ public static class DrawingContextExtensions
         Point end,
         WpfSweepDirection direction,
         double radiusX,
-        double radiusY)
-    {
+        double radiusY
+    ) {
         // http://blogs.vertigo.com/personal/ralph/Blog/archive/2007/02/09/wpf-drawing-arcs.aspx
         // setup the geometry object
         var geometry = new WpfPathGeometry();
@@ -97,8 +96,8 @@ public static class DrawingContextExtensions
         double endAngle,
         WpfSweepDirection direction,
         double radiusX,
-        double radiusY)
-    {
+        double radiusY
+    ) {
         var startRadians = startAngle / 180 * Math.PI;
         var endRadians = endAngle / 180 * Math.PI;
         var start = position + new Vector(Math.Cos(startRadians) * radiusX, -Math.Sin(startRadians) * radiusY);
@@ -141,8 +140,8 @@ public static class DrawingContextExtensions
         double startAngle,
         double endAngle,
         double radiusX,
-        double radiusY)
-    {
+        double radiusY
+    ) {
         dc.DrawArc(brush, pen, position, startAngle, endAngle, WpfSweepDirection.Counterclockwise, radiusX, radiusY);
     }
 }

@@ -8,8 +8,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public interface IOrthographicCameraModel : IProjectionCameraModel
-{
+public interface IOrthographicCameraModel : IProjectionCameraModel {
     double Width { get; set; }
 
     void AnimateWidth(double newWidth, double animationTime);
@@ -18,18 +17,18 @@ public interface IOrthographicCameraModel : IProjectionCameraModel
 /// <summary>
 ///     Represents an orthographic projection camera.
 /// </summary>
-public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
-{
+public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
     /// <summary>
     ///     The width property
     /// </summary>
-    public static readonly DependencyProperty WidthProperty = DependencyProperty.Register(
-        "Width", typeof(double), typeof(OrthographicCamera),
+    public static readonly DependencyProperty WidthProperty = DependencyProperty.Register("Width",
+        typeof(double),
+        typeof(OrthographicCamera),
         new PropertyMetadata(10.0,
-            (d, e) =>
-            {
-                ((d as Camera).CameraInternal as OrthographicCameraCore).Width = (float) (double) e.NewValue;
-            }));
+                             (d, e) => {
+                                 ((d as Camera).CameraInternal as OrthographicCameraCore).Width =
+                                     (float) (double) e.NewValue;
+                             }));
 
     private double accumTime;
     private double aniTime;
@@ -37,8 +36,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
     private double oldWidth;
     private double targetWidth;
 
-    public OrthographicCamera()
-    {
+    public OrthographicCamera() {
         // default values for near-far must be different for ortho:
         NearPlaneDistance = 0.001;
         FarPlaneDistance = 100.0;
@@ -50,21 +48,16 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
     /// <value>
     ///     The width.
     /// </value>
-    public double Width
-    {
+    public double Width {
         get => (double) GetValue(WidthProperty);
         set => SetValue(WidthProperty, value);
     }
 
-    public void AnimateWidth(double newWidth, double animationTime)
-    {
-        if (animationTime == 0)
-        {
+    public void AnimateWidth(double newWidth, double animationTime) {
+        if (animationTime == 0) {
             UpdateCameraPositionByWidth(newWidth);
             Width = newWidth;
-        }
-        else
-        {
+        } else {
             oldWidth = Width;
             targetWidth = newWidth;
             accumTime = 1;
@@ -73,26 +66,22 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
         }
     }
 
-    protected override CameraCore CreatePortableCameraCore()
-    {
+    protected override CameraCore CreatePortableCameraCore() {
         return new OrthographicCameraCore();
     }
 
-    protected override void OnCoreCreated(CameraCore core)
-    {
+    protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
         (core as OrthographicCameraCore).FarPlaneDistance = (float) FarPlaneDistance;
         (core as OrthographicCameraCore).NearPlaneDistance = (float) NearPlaneDistance;
         (core as OrthographicCameraCore).Width = (float) Width;
     }
 
-    protected override bool OnUpdateAnimation(float ellapsed)
-    {
+    protected override bool OnUpdateAnimation(float ellapsed) {
         var res = base.OnUpdateAnimation(ellapsed);
         if (aniTime == 0) return res;
         accumTime += ellapsed;
-        if (accumTime > aniTime)
-        {
+        if (accumTime > aniTime) {
             UpdateCameraPositionByWidth(targetWidth);
             Width = targetWidth;
             aniTime = 0;
@@ -105,8 +94,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
         return true;
     }
 
-    private void UpdateCameraPositionByWidth(double newWidth)
-    {
+    private void UpdateCameraPositionByWidth(double newWidth) {
         var ratio = newWidth / Width;
 #if !NETFX_CORE && !WINUI
         var dir = LookDirection.ToVector3();
@@ -130,8 +118,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
+    protected override Freezable CreateInstanceCore() {
         return new OrthographicCamera();
     }
 #endif

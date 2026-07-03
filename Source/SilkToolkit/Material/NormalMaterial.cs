@@ -6,33 +6,25 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Render color by triangle normal
 /// </summary>
-public sealed class NormalMaterial : Material
-{
-    public NormalMaterial()
-    {
-    }
+public sealed class NormalMaterial : Material {
+    public NormalMaterial() { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="NormalMaterial" /> class.
     /// </summary>
     /// <param name="core">The core.</param>
-    public NormalMaterial(NormalMaterialCore core) : base(core)
-    {
-    }
+    public NormalMaterial(NormalMaterialCore core) : base(core) { }
 
     /// <summary>
     ///     Called when [create core].
     /// </summary>
     /// <returns></returns>
-    protected override MaterialCore OnCreateCore()
-    {
+    protected override MaterialCore OnCreateCore() {
         return NormalMaterialCore.Core;
     }
 
-    protected override Freezable CreateInstanceCore()
-    {
-        return new NormalMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new NormalMaterial {
             Name = Name
         };
     }

@@ -3,14 +3,14 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Native
-    {
-        internal sealed class SilkD3DDeviceResources : INativeDeviceResources
-        {
-            public SilkD3DDeviceResources(int adapterIndex, SilkD3DDevice device, SilkD3DDeviceContext immediateContext)
-            {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Native {
+        internal sealed class SilkD3DDeviceResources : INativeDeviceResources {
+            public SilkD3DDeviceResources(
+                int adapterIndex,
+                SilkD3DDevice device,
+                SilkD3DDeviceContext immediateContext
+            ) {
                 AdapterIndex = adapterIndex;
                 Device = device ?? throw new ArgumentNullException(nameof(device));
                 ImmediateContext = immediateContext ?? throw new ArgumentNullException(nameof(immediateContext));
@@ -26,8 +26,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public SilkFeatureLevel FeatureLevel => Device.FeatureLevel;
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 ImmediateContext.Dispose();
                 Device.Dispose();
             }

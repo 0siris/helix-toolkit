@@ -5,8 +5,7 @@
 #include "psOITDepthPeelingCommon.hlsl"
 #include "psWireframe.hlsl"
 
-DDPOutputMRT wireframeOITDP(PSWireframeInput input)
-{
+DDPOutputMRT wireframeOITDP(PSWireframeInput input) {
     return depthPeelPS(input.p, main(input.p));
 }
 #endif

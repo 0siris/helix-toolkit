@@ -5,8 +5,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public partial class ViewportCore
-{
+public partial class ViewportCore {
     private readonly FrameStatisticsNode2D frameStatisticsNode = new();
 
     private SceneNode currentNode;
@@ -17,7 +16,7 @@ public partial class ViewportCore
 
     internal CoordinateSystemNode CoordinateSystem { get; } = new();
 
-    #region Properties
+#region Properties
 
     /// <summary>
     ///     Gets the render host.
@@ -43,13 +42,10 @@ public partial class ViewportCore
     /// <value>
     ///     The effects manager.
     /// </value>
-    public IEffectsManager EffectsManager
-    {
+    public IEffectsManager EffectsManager {
         get => effectsManager;
-        set
-        {
-            if (effectsManager != value)
-            {
+        set {
+            if (effectsManager != value) {
                 effectsManager = value;
                 if (RenderHost != null) RenderHost.EffectsManager = value;
             }
@@ -70,10 +66,8 @@ public partial class ViewportCore
     /// <value>
     ///     The renderables.
     /// </value>
-    public IEnumerable<SceneNode> Renderables
-    {
-        get
-        {
+    public IEnumerable<SceneNode> Renderables {
+        get {
             foreach (var node in Items.ItemsInternal) yield return node;
             if (ViewCube.Visible) yield return ViewCube;
             yield return CoordinateSystem;
@@ -86,8 +80,7 @@ public partial class ViewportCore
     /// <value>
     ///     The d2 d renderables.
     /// </value>
-    public IEnumerable<SceneNode2D> D2DRenderables
-    {
+    public IEnumerable<SceneNode2D> D2DRenderables {
         get { yield return Items2D; }
     }
 
@@ -113,11 +106,9 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [show FPS]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowFPS
-    {
+    public bool ShowFPS {
         get => (RenderHost.ShowRenderDetail & ~RenderDetail.FPS) != 0;
-        set
-        {
+        set {
             if (value)
                 RenderHost.ShowRenderDetail |= RenderDetail.FPS;
             else
@@ -131,11 +122,9 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [show render detail]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowRenderDetail
-    {
+    public bool ShowRenderDetail {
         get => (RenderHost.ShowRenderDetail & ~RenderDetail.Statistics) != 0;
-        set
-        {
+        set {
             if (value)
                 RenderHost.ShowRenderDetail |= RenderDetail.Statistics;
             else
@@ -149,8 +138,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [render d2d]; otherwise, <c>false</c>.
     /// </value>
-    public bool RenderD2D
-    {
+    public bool RenderD2D {
         get => RenderHost.RenderConfiguration.RenderD2D;
         set => RenderHost.RenderConfiguration.RenderD2D = value;
     }
@@ -161,8 +149,7 @@ public partial class ViewportCore
     /// <value>
     ///     The color of the background.
     /// </value>
-    public Color4 BackgroundColor
-    {
+    public Color4 BackgroundColor {
         get => RenderHost.ClearColor;
         set => RenderHost.ClearColor = value;
     }
@@ -173,8 +160,7 @@ public partial class ViewportCore
     /// <value>
     ///     The FXAA level.
     /// </value>
-    public FXAALevel FXAALevel
-    {
+    public FXAALevel FXAALevel {
         get => RenderHost.RenderConfiguration.FXAALevel;
         set => RenderHost.RenderConfiguration.FXAALevel = value;
     }
@@ -185,8 +171,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [enable render frustum]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableRenderFrustum
-    {
+    public bool EnableRenderFrustum {
         get => RenderHost.EnableRenderFrustum;
         set => RenderHost.EnableRenderFrustum = value;
     }
@@ -197,8 +182,11 @@ public partial class ViewportCore
     /// <value>
     ///     The viewport rectangle.
     /// </value>
-    public Rectangle ViewportRectangle => new(0, 0, (int) (RenderHost.ActualWidth / DpiScale),
-        (int) (RenderHost.ActualHeight / DpiScale));
+    public Rectangle ViewportRectangle =>
+        new(0,
+            0,
+            (int) (RenderHost.ActualWidth / DpiScale),
+            (int) (RenderHost.ActualHeight / DpiScale));
 
     /// <summary>
     ///     Gets the render context.
@@ -222,8 +210,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [enable vertical synchronize]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableVSync
-    {
+    public bool EnableVSync {
         get => RenderHost.RenderConfiguration.EnableVSync;
         set => RenderHost.RenderConfiguration.EnableVSync = value;
     }
@@ -234,8 +221,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [enable ssao]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableSSAO
-    {
+    public bool EnableSSAO {
         get => RenderHost.RenderConfiguration.EnableSSAO;
         set => RenderHost.RenderConfiguration.EnableSSAO = value;
     }
@@ -246,8 +232,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [enable render order]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableRenderOrder
-    {
+    public bool EnableRenderOrder {
         get => RenderHost.RenderConfiguration.EnableRenderOrder;
         set => RenderHost.RenderConfiguration.EnableRenderOrder = value;
     }
@@ -270,11 +255,9 @@ public partial class ViewportCore
 
     private double dpiScale = 1;
 
-    public double DpiScale
-    {
+    public double DpiScale {
         get => dpiScale;
-        set
-        {
+        set {
             dpiScale = value;
             if (RenderHost != null) RenderHost.DpiScale = (float) value;
         }
@@ -288,11 +271,9 @@ public partial class ViewportCore
     /// <value>
     ///     The model up direction.
     /// </value>
-    internal Vector3 ModelUpDirection
-    {
+    internal Vector3 ModelUpDirection {
         get => modelUpDirection;
-        set
-        {
+        set {
             if (Set(ref modelUpDirection, value)) ViewCube.UpDirection = value;
         }
     }
@@ -303,8 +284,7 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [show coordinate system]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowCoordinateSystem
-    {
+    public bool ShowCoordinateSystem {
         get => CoordinateSystem.Visible;
         set => CoordinateSystem.Visible = value;
     }
@@ -315,8 +295,7 @@ public partial class ViewportCore
     /// <value>
     ///     The color of the coordinate system label.
     /// </value>
-    public Color4 CoordinateSystemLabelColor
-    {
+    public Color4 CoordinateSystemLabelColor {
         get => CoordinateSystem.LabelColor;
         set => CoordinateSystem.LabelColor = value;
     }
@@ -327,8 +306,7 @@ public partial class ViewportCore
     /// <value>
     ///     The coordinate system axis x label.
     /// </value>
-    public string CoordinateSystemAxisXLabel
-    {
+    public string CoordinateSystemAxisXLabel {
         get => CoordinateSystem.LabelX;
         set => CoordinateSystem.LabelX = value;
     }
@@ -339,8 +317,7 @@ public partial class ViewportCore
     /// <value>
     ///     The coordinate system axis y label.
     /// </value>
-    public string CoordinateSystemAxisYLabel
-    {
+    public string CoordinateSystemAxisYLabel {
         get => CoordinateSystem.LabelY;
         set => CoordinateSystem.LabelY = value;
     }
@@ -351,8 +328,7 @@ public partial class ViewportCore
     /// <value>
     ///     The coordinate system axis z label.
     /// </value>
-    public string CoordinateSystemAxisZLabel
-    {
+    public string CoordinateSystemAxisZLabel {
         get => CoordinateSystem.LabelZ;
         set => CoordinateSystem.LabelZ = value;
     }
@@ -363,15 +339,14 @@ public partial class ViewportCore
     /// <value>
     ///     <c>true</c> if [show view cube]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowViewCube
-    {
+    public bool ShowViewCube {
         get => ViewCube.Visible;
         set => ViewCube.Visible = value;
     }
 
-    #endregion
+#endregion
 
-    #region Events
+#region Events
 
     /// <summary>
     ///     Occurs when [on start rendering].
@@ -392,5 +367,5 @@ public partial class ViewportCore
     public event EventHandler<SceneNodeMouseUpArgs> NodeHitOnMouseUp;
     public event EventHandler<SceneNodeMouseMoveArgs> NodeHitOnMouseMove;
 
-    #endregion
+#endregion
 }

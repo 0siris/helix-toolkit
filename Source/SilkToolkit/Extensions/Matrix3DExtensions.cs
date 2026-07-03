@@ -15,8 +15,7 @@ using System.Windows.Media.Media3D;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public static class Matrix3DExtensions
-{
+public static class Matrix3DExtensions {
     //private static MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider mklSolver = new MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider();
 
     /// <summary>
@@ -25,26 +24,23 @@ public static class Matrix3DExtensions
     /// <param name="m2"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D AddMatrix(this Matrix3D m1, Matrix3D m2)
-    {
-        return new Matrix3D(
-            m1.M11 + m2.M11,
-            m1.M12 + m2.M12,
-            m1.M13 + m2.M13,
-            m1.M14 + m2.M14,
-            m1.M21 + m2.M21,
-            m1.M22 + m2.M22,
-            m1.M23 + m2.M23,
-            m1.M24 + m2.M24,
-            m1.M31 + m2.M31,
-            m1.M32 + m2.M32,
-            m1.M33 + m2.M33,
-            m1.M34 + m2.M34,
-            m1.M44 + m2.M44,
-            m1.OffsetX + m2.OffsetX,
-            m1.OffsetY + m2.OffsetY,
-            m1.OffsetZ + m2.OffsetZ
-        );
+    public static Matrix3D AddMatrix(this Matrix3D m1, Matrix3D m2) {
+        return new Matrix3D(m1.M11 + m2.M11,
+                            m1.M12 + m2.M12,
+                            m1.M13 + m2.M13,
+                            m1.M14 + m2.M14,
+                            m1.M21 + m2.M21,
+                            m1.M22 + m2.M22,
+                            m1.M23 + m2.M23,
+                            m1.M24 + m2.M24,
+                            m1.M31 + m2.M31,
+                            m1.M32 + m2.M32,
+                            m1.M33 + m2.M33,
+                            m1.M34 + m2.M34,
+                            m1.M44 + m2.M44,
+                            m1.OffsetX + m2.OffsetX,
+                            m1.OffsetY + m2.OffsetY,
+                            m1.OffsetZ + m2.OffsetZ);
     }
 
     /// <summary>
@@ -53,31 +49,27 @@ public static class Matrix3DExtensions
     /// <param name="m"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D MultiplyMatrix(this Matrix3D m, double scalar)
-    {
-        return new Matrix3D(
-            scalar * m.M11,
-            scalar * m.M12,
-            scalar * m.M13,
-            scalar * m.M14,
-            scalar * m.M21,
-            scalar * m.M22,
-            scalar * m.M23,
-            scalar * m.M24,
-            scalar * m.M31,
-            scalar * m.M32,
-            scalar * m.M33,
-            scalar * m.M34,
-            scalar * m.M44,
-            scalar * m.OffsetX,
-            scalar * m.OffsetY,
-            scalar * m.OffsetZ
-        );
+    public static Matrix3D MultiplyMatrix(this Matrix3D m, double scalar) {
+        return new Matrix3D(scalar * m.M11,
+                            scalar * m.M12,
+                            scalar * m.M13,
+                            scalar * m.M14,
+                            scalar * m.M21,
+                            scalar * m.M22,
+                            scalar * m.M23,
+                            scalar * m.M24,
+                            scalar * m.M31,
+                            scalar * m.M32,
+                            scalar * m.M33,
+                            scalar * m.M34,
+                            scalar * m.M44,
+                            scalar * m.OffsetX,
+                            scalar * m.OffsetY,
+                            scalar * m.OffsetZ);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Translate3D(Vector3 v)
-    {
+    public static Matrix3D Translate3D(Vector3 v) {
         var m = Matrix3D.Identity;
         m.OffsetX = v.X;
         m.OffsetY = v.Y;
@@ -86,8 +78,7 @@ public static class Matrix3DExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Translate3D(Vector3D v)
-    {
+    public static Matrix3D Translate3D(Vector3D v) {
         var m = Matrix3D.Identity;
         m.OffsetX = v.X;
         m.OffsetY = v.Y;
@@ -96,8 +87,7 @@ public static class Matrix3DExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Translate3D(double x, double y, double z)
-    {
+    public static Matrix3D Translate3D(double x, double y, double z) {
         var m = Matrix3D.Identity;
         m.OffsetX = x;
         m.OffsetY = y;
@@ -114,14 +104,12 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A similarity transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Similarity2D(IList<Point3D> p, IList<Point3D> q)
-    {
+    public static Matrix3D Similarity2D(IList<Point3D> p, IList<Point3D> q) {
         double a = 0;
         double b = 0;
         double c = 0;
         var n = p.Count;
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             a += p[i].X * p[i].X + p[i].Y * p[i].Y;
             b += p[i].X * q[i].X + p[i].Y * q[i].Y;
             c += p[i].Y * q[i].X - p[i].X * q[i].Y;
@@ -129,11 +117,22 @@ public static class Matrix3DExtensions
 
         var r1 = b / a;
         var r2 = c / a;
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -147,14 +146,12 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A rigid transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Rigid2D(IList<Point3D> p, IList<Point3D> q)
-    {
+    public static Matrix3D Rigid2D(IList<Point3D> p, IList<Point3D> q) {
         var n = p.Count;
         double b = 0;
         double c = 0;
 
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             b += p[i].X * q[i].X + p[i].Y * q[i].Y;
             c += p[i].Y * q[i].X - p[i].X * q[i].Y;
         }
@@ -164,11 +161,22 @@ public static class Matrix3DExtensions
         var r2 = c / d;
 
 
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -182,14 +190,12 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A rigid transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Rigid2D(IList<Vector3D> p, IList<Vector3D> q)
-    {
+    public static Matrix3D Rigid2D(IList<Vector3D> p, IList<Vector3D> q) {
         var n = p.Count;
         double b = 0;
         double c = 0;
 
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             b += p[i].X * q[i].X + p[i].Y * q[i].Y;
             c += p[i].Y * q[i].X - p[i].X * q[i].Y;
         }
@@ -199,11 +205,22 @@ public static class Matrix3DExtensions
         var r2 = c / d;
 
 
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -218,15 +235,13 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A similarity transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Similarity2D(IList<double> w, IList<Point3D> p, IList<Point3D> q)
-    {
+    public static Matrix3D Similarity2D(IList<double> w, IList<Point3D> p, IList<Point3D> q) {
         var n = w.Count;
         double a = 0;
         double b = 0;
         double c = 0;
 
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             a += w[i] * (p[i].X * p[i].X + p[i].Y * p[i].Y);
             b += w[i] * (p[i].X * q[i].X + p[i].Y * q[i].Y);
             c += w[i] * (p[i].Y * q[i].X - p[i].X * q[i].Y);
@@ -234,11 +249,22 @@ public static class Matrix3DExtensions
 
         var r1 = b / a;
         var r2 = c / a;
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -253,14 +279,12 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A rigid transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Rigid2D(IList<double> w, IList<Point3D> p, IList<Point3D> q)
-    {
+    public static Matrix3D Rigid2D(IList<double> w, IList<Point3D> p, IList<Point3D> q) {
         var n = w.Count;
         double b = 0;
         double c = 0;
 
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             b += w[i] * (p[i].X * q[i].X + p[i].Y * q[i].Y);
             c += w[i] * (p[i].Y * q[i].X - p[i].X * q[i].Y);
         }
@@ -269,11 +293,22 @@ public static class Matrix3DExtensions
         var r1 = b / d;
         var r2 = c / d;
 
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -288,15 +323,13 @@ public static class Matrix3DExtensions
     /// <param name="q">transformed points</param>
     /// <returns>A affine transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D Affine2D(IList<double> w, IList<Point3D> p, IList<Point3D> q)
-    {
+    public static Matrix3D Affine2D(IList<double> w, IList<Point3D> p, IList<Point3D> q) {
         var n = w.Count;
         double b1, b2, b3, b4;
         b1 = b2 = b3 = b4 = 0;
         double m11 = 0, m12 = 0, m22 = 0;
 
-        for (var i = 0; i < n; i++)
-        {
+        for (var i = 0; i < n; i++) {
             m11 += w[i] * p[i].X * p[i].X;
             m12 += w[i] * p[i].X * p[i].Y;
             m22 += w[i] * p[i].Y * p[i].Y;
@@ -340,11 +373,22 @@ public static class Matrix3DExtensions
         var t3 = m22 * b3 - m12 * b4;
         var t4 = -m12 * b3 + m11 * b4;
 
-        return new Matrix3D(
-            t1, t2, 0, 0,
-            t3, t1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        return new Matrix3D(t1,
+                            t2,
+                            0,
+                            0,
+                            t3,
+                            t1,
+                            0,
+                            0,
+                            0,
+                            0,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0,
+                            1);
     }
 
     /// <summary>
@@ -357,8 +401,7 @@ public static class Matrix3DExtensions
     /// <param name="q2"></param>
     /// <returns>A ansiotropic similarty transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D AnisotropicSimilarityX2D(Point3D p1, Point3D p2, Point3D q1, Point3D q2)
-    {
+    public static Matrix3D AnisotropicSimilarityX2D(Point3D p1, Point3D p2, Point3D q1, Point3D q2) {
         // rotation
         var b = p1.X * q1.X + p1.Y * q1.Y + (p2.X * q2.X + p2.Y * q2.Y);
         var c = p1.Y * q1.X - p1.X * q1.Y + (p2.Y * q2.X - p2.X * q2.Y);
@@ -369,11 +412,22 @@ public static class Matrix3DExtensions
         // anisortropic scale
         var s = Math.Sqrt(q1.X * q1.X + q1.Y * q1.Y) / Math.Sqrt(p1.X * p1.X + p1.Y * p1.Y);
 
-        var m = new Matrix3D(
-            +s * r1, -s * r2, 0, 0,
-            +r2, +r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+s * r1,
+                             -s * r2,
+                             0,
+                             0,
+                             +r2,
+                             +r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -388,8 +442,7 @@ public static class Matrix3DExtensions
     /// <param name="q2"></param>
     /// <returns>A ansiotropic similarty transform T: p = Tq</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D AnisotropicSimilarityY2D(Point3D p1, Point3D p2, Point3D q1, Point3D q2)
-    {
+    public static Matrix3D AnisotropicSimilarityY2D(Point3D p1, Point3D p2, Point3D q1, Point3D q2) {
         // rotation
         var b = p1.X * q1.X + p1.Y * q1.Y + (p2.X * q2.X + p2.Y * q2.Y);
         var c = p1.Y * q1.X - p1.X * q1.Y + (p2.Y * q2.X - p2.X * q2.Y);
@@ -400,11 +453,22 @@ public static class Matrix3DExtensions
         // anisortropic scale
         var s = Math.Sqrt(q1.X * q1.X + q1.Y * q1.Y) / Math.Sqrt(p1.X * p1.X + p1.Y * p1.Y);
 
-        var m = new Matrix3D(
-            +r1, -r2, 0, 0,
-            +s * r2, +s * r1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        var m = new Matrix3D(+r1,
+                             -r2,
+                             0,
+                             0,
+                             +s * r2,
+                             +s * r1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         return m;
     }
@@ -491,8 +555,7 @@ public static class Matrix3DExtensions
     /// <param name="v2"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D OuterProduct(this Vector3D v1, Vector3D v2)
-    {
+    public static Matrix3D OuterProduct(this Vector3D v1, Vector3D v2) {
         var m11 = v1.X * v2.X;
         var m12 = v1.X * v2.Y;
         var m13 = v1.X * v2.Z;
@@ -510,14 +573,12 @@ public static class Matrix3DExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point ToPoint(this Vector v)
-    {
+    public static Point ToPoint(this Vector v) {
         return new Point(v.X, v.Y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToVector2(this Vector v)
-    {
+    public static Vector2 ToVector2(this Vector v) {
         return new Vector2((float) v.X, (float) v.Y);
     }
 }

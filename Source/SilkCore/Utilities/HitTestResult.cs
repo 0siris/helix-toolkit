@@ -8,8 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Provides a hit test result.
 /// </summary>
-public class HitTestResult : IComparable<HitTestResult>
-{
+public class HitTestResult : IComparable<HitTestResult> {
     /// <summary>
     ///     Gets or sets the distance from the hit ray origin to the <see cref="PointHit" />
     /// </summary>
@@ -59,8 +58,7 @@ public class HitTestResult : IComparable<HitTestResult>
     /// </summary>
     public Tuple<int, int, int> TriangleIndices { get; set; }
 
-    public int CompareTo(HitTestResult other)
-    {
+    public int CompareTo(HitTestResult other) {
         if (other == null) return 1;
 
         return Distance.CompareTo(other.Distance);
@@ -70,8 +68,7 @@ public class HitTestResult : IComparable<HitTestResult>
     ///     Shallow copy all the properties from another result.
     /// </summary>
     /// <param name="result">The result.</param>
-    public void ShallowCopy(HitTestResult result)
-    {
+    public void ShallowCopy(HitTestResult result) {
         Distance = result.Distance;
         ModelHit = result.ModelHit;
         PointHit = result.PointHit;
@@ -85,8 +82,7 @@ public class HitTestResult : IComparable<HitTestResult>
     /// <summary>
     ///     Get a descirption of the HitTestResult
     /// </summary>
-    public override string ToString()
-    {
+    public override string ToString() {
         return
             $"{nameof(HitTestResult)} {nameof(ModelHit)}: {ModelHit}, {nameof(Distance)}: {Distance}, {nameof(IsValid)}: {IsValid}, {nameof(PointHit)}: {PointHit}, {nameof(NormalAtHit)}: {NormalAtHit}";
     }
@@ -95,8 +91,7 @@ public class HitTestResult : IComparable<HitTestResult>
 /// <summary>
 ///     A specialized line hit test result.
 /// </summary>
-public class LineHitTestResult : HitTestResult
-{
+public class LineHitTestResult : HitTestResult {
     /// <summary>
     ///     Gets or sets the index of the line segment that was hit.
     /// </summary>
@@ -118,18 +113,15 @@ public class LineHitTestResult : HitTestResult
     public double LineHitPointScalar { get; set; }
 }
 
-public class BillboardHitResult : HitTestResult
-{
+public class BillboardHitResult : HitTestResult {
     public int TextInfoIndex { get; set; } = -1;
     public TextInfo TextInfo { get; set; } = null;
 
     public BillboardType Type { get; set; }
 }
 
-public class BatchedMeshHitTestResult : HitTestResult
-{
-    public BatchedMeshHitTestResult(int idx, ref BatchedMeshGeometryConfig config, HitTestResult result)
-    {
+public class BatchedMeshHitTestResult : HitTestResult {
+    public BatchedMeshHitTestResult(int idx, ref BatchedMeshGeometryConfig config, HitTestResult result) {
         MeshConfigIndex = idx;
         Config = config;
         ShallowCopy(result);
@@ -142,14 +134,12 @@ public class BatchedMeshHitTestResult : HitTestResult
 
 /// <summary>
 /// </summary>
-public class HitTest2DResult
-{
+public class HitTest2DResult {
     /// <summary>
     ///     Initializes a new instance of the <see cref="HitTest2DResult" /> class.
     /// </summary>
     /// <param name="model">The model.</param>
-    public HitTest2DResult(object model)
-    {
+    public HitTest2DResult(object model) {
         ModelHit = model;
     }
 

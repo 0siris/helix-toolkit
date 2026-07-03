@@ -5,14 +5,11 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class InstancingBillboardNode : BillboardNode
-        {
+        public class InstancingBillboardNode : BillboardNode {
             /// <summary>
             ///     The instance parameter buffer
             /// </summary>
@@ -25,30 +22,26 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The instance parameter array.
             /// </value>
-            public IList<BillboardInstanceParameter> InstanceParamArray
-            {
+            public IList<BillboardInstanceParameter> InstanceParamArray {
                 get => instanceParamBuffer.Elements;
                 set => instanceParamBuffer.Elements = value;
             }
 
-            #region Overridable Methods
+        #region Overridable Methods
 
             /// <summary>
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new InstancingBillboardRenderCore {ParameterBuffer = instanceParamBuffer};
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.BillboardInstancing];
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
                 // --- attach
                 if (!base.OnAttach(effectsManager)) return false;
                 instanceParamBuffer.Initialize();
@@ -58,13 +51,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Used to override Detach
             /// </summary>
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 instanceParamBuffer.DisposeAndClear();
                 base.OnDetach();
             }
 
-            #endregion
+        #endregion
         }
     }
 }

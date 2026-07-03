@@ -100,10 +100,12 @@
                     <SolidColorBrush Opacity="0.25" Color="WhiteSmoke" />
                 </Expander.Background>
                 <StackPanel Orientation="Vertical">
-                    <CheckBox Margin="{StaticResource MarginSmall}" IsChecked="{Binding ModelMaterial.RenderEnvironmentMap}">
+                    <CheckBox Margin="{StaticResource MarginSmall}"
+                              IsChecked="{Binding ModelMaterial.RenderEnvironmentMap}">
                         Reflect Environment Map
                     </CheckBox>
-                    <CheckBox Margin="{StaticResource MarginSmall}" IsChecked="{Binding IsRendering, ElementName=envMap}">
+                    <CheckBox Margin="{StaticResource MarginSmall}"
+                              IsChecked="{Binding IsRendering, ElementName=envMap}">
                         Render Environment Map
                     </CheckBox>
                     <CheckBox IsChecked="{Binding ElementName=dynReflector, Path=EnableReflector}">Render Dynamic CubeMap</CheckBox>

@@ -10,15 +10,12 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class ShaderDescription
-        {
+        public sealed class ShaderDescription {
             private static readonly ILogger logger = LogManager.Create<ShaderDescription>();
 
             private readonly IShaderByteCodeReader byteCodeReader;
@@ -28,8 +25,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Create a empty description
             /// </summary>
-            public ShaderDescription()
-            {
+            public ShaderDescription() {
                 ShaderReflector = new ShaderReflector();
             }
 
@@ -38,8 +34,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name"></param>
             /// <param name="type"></param>
             /// <param name="byteCode"></param>
-            public ShaderDescription(string name, ShaderStage type, byte[] byteCode)
-            {
+            public ShaderDescription(string name, ShaderStage type, byte[] byteCode) {
                 Name = name;
                 ShaderType = type;
                 ByteCode = byteCode;
@@ -56,11 +51,16 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="constantBuffers"></param>
             /// <param name="textures"></param>
             /// <param name="samplers"></param>
-            public ShaderDescription(string name, ShaderStage type, FeatureLevel featureLevel, byte[] byteCode,
-                ConstantBufferMapping[] constantBuffers = null, TextureMapping[] textures = null,
-                SamplerMapping[] samplers = null)
-                : this(name, type, byteCode)
-            {
+            public ShaderDescription(
+                string name,
+                ShaderStage type,
+                FeatureLevel featureLevel,
+                byte[] byteCode,
+                ConstantBufferMapping[] constantBuffers = null,
+                TextureMapping[] textures = null,
+                SamplerMapping[] samplers = null
+            )
+                : this(name, type, byteCode) {
                 Level = featureLevel;
                 ConstantBufferMappings = constantBuffers;
                 TextureMappings = textures;
@@ -75,8 +75,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type"></param>
             /// <param name="reflector"></param>
             /// <param name="byteCode"></param>
-            public ShaderDescription(string name, ShaderStage type, IShaderReflector reflector, byte[] byteCode)
-            {
+            public ShaderDescription(string name, ShaderStage type, IShaderReflector reflector, byte[] byteCode) {
                 Name = name;
                 ShaderType = type;
                 ByteCode = byteCode;
@@ -92,9 +91,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="reflector">The reflector.</param>
             /// <param name="byteCodeName">Name of the byte code.</param>
             /// <param name="byteCodeReader">Used to read external custom shader byte codes</param>
-            public ShaderDescription(string name, ShaderStage type, IShaderReflector reflector, string byteCodeName,
-                IShaderByteCodeReader byteCodeReader = null)
-            {
+            public ShaderDescription(
+                string name,
+                ShaderStage type,
+                IShaderReflector reflector,
+                string byteCodeName,
+                IShaderByteCodeReader byteCodeReader = null
+            ) {
                 Name = name;
                 ShaderType = type;
                 ByteCodeName = byteCodeName;
@@ -136,10 +139,8 @@ namespace HelixToolkit.SharpDX.Core
             ///     The byte code.
             /// </value>
             [DataMember]
-            public byte[] ByteCode
-            {
-                get
-                {
+            public byte[] ByteCode {
+                get {
                     if (byteCode == null && !string.IsNullOrEmpty(ByteCodeName))
                         byteCode = UWPShaderBytePool.Read(ByteCodeName, byteCodeReader);
                     return byteCode;
@@ -208,18 +209,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="device"></param>
             /// <param name="pool"></param>
             /// <returns></returns>
-            internal ShaderBase CreateShader(SilkD3DDevice device, IConstantBufferPool pool)
-            {
+            internal ShaderBase CreateShader(SilkD3DDevice device, IConstantBufferPool pool) {
                 if (ByteCode == null) return null;
                 ShaderReflector = ShaderReflector ?? new ShaderReflector();
                 ShaderReflector.Parse(ByteCode, ShaderType);
                 Level = ShaderReflector.FeatureLevel;
                 var deviceFeatureLevel = device.FeatureLevel.ToFeatureLevel();
-                if (Level > deviceFeatureLevel)
-                {
+                if (Level > deviceFeatureLevel) {
                     logger.LogWarning(
                         "Shader {0} requires FeatureLevel {1}. Current device only supports FeatureLevel {2} and below.",
-                        Name, Level, deviceFeatureLevel);
+                        Name,
+                        Level,
+                        deviceFeatureLevel);
                     return null;
                 }
 
@@ -229,8 +230,7 @@ namespace HelixToolkit.SharpDX.Core
                 SamplerMappings = ShaderReflector.SamplerMappings.Values.ToArray();
 
                 ShaderBase shader = null;
-                switch (ShaderType)
-                {
+                switch (ShaderType) {
                     case ShaderStage.Vertex:
                         shader = new VertexShader(device, Name, ByteCode);
                         break;
@@ -248,8 +248,12 @@ namespace HelixToolkit.SharpDX.Core
                         break;
                     case ShaderStage.Geometry:
                         if (IsGSStreamOut)
-                            shader = new GeometryShader(device, Name, ByteCode, GSSOElement, GSSOStrides,
-                                GSSORasterized);
+                            shader = new GeometryShader(device,
+                                                        Name,
+                                                        ByteCode,
+                                                        GSSOElement,
+                                                        GSSOStrides,
+                                                        GSSORasterized);
                         else
                             shader = new GeometryShader(device, Name, ByteCode);
                         break;
@@ -257,8 +261,9 @@ namespace HelixToolkit.SharpDX.Core
 
                 if (ConstantBufferMappings != null)
                     foreach (var mapping in ConstantBufferMappings)
-                        shader.ConstantBufferMapping.AddMapping(mapping.Description.Name, mapping.Slot,
-                            pool.Register(mapping.Description));
+                        shader.ConstantBufferMapping.AddMapping(mapping.Description.Name,
+                                                                mapping.Slot,
+                                                                pool.Register(mapping.Description));
 
                 if (TextureMappings != null)
                     foreach (var mapping in TextureMappings)
@@ -279,14 +284,16 @@ namespace HelixToolkit.SharpDX.Core
             ///     Clones this instance.
             /// </summary>
             /// <returns></returns>
-            public ShaderDescription Clone()
-            {
-                return new ShaderDescription(Name, ShaderType, Level, ByteCode,
-                    ConstantBufferMappings.Select(x => x.Clone()).ToArray(),
-                    TextureMappings.Select(x => x.Clone()).ToArray());
+            public ShaderDescription Clone() {
+                return new ShaderDescription(Name,
+                                             ShaderType,
+                                             Level,
+                                             ByteCode,
+                                             ConstantBufferMappings.Select(x => x.Clone()).ToArray(),
+                                             TextureMappings.Select(x => x.Clone()).ToArray());
             }
 
-            #region GS Stream output Only
+        #region GS Stream output Only
 
             /// <summary>
             ///     Gets or sets a value indicating whether this instance is gs stream out.
@@ -324,7 +331,7 @@ namespace HelixToolkit.SharpDX.Core
             [DataMember]
             public int GSSORasterized { get; set; } = -1;
 
-            #endregion
+        #endregion
         }
     }
 }

@@ -12,16 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace MaterialDemo
-{
-    /// <summary>
-    /// Interaction logic for PBRWindow.xaml
-    /// </summary>
-    public partial class PBRWindow : Window
-    {
-        public PBRWindow()
-        {
-            InitializeComponent();
-        }
+namespace MaterialDemo;
+
+/// <summary>
+/// Interaction logic for PBRWindow.xaml
+/// </summary>
+public partial class PBRWindow : Window {
+    public PBRWindow() {
+        InitializeComponent();
     }
 }

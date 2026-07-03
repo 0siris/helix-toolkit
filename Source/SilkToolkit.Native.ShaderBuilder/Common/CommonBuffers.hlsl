@@ -8,20 +8,19 @@
 //--------------------------------------------------------------------------------------
 // Perframe Buffers
 //--------------------------------------------------------------------------------------
-cbuffer cbTransforms : register(b0)
-{
+cbuffer cbTransforms : register(b0) {
     float4x4 mView;
     float4x4 mProjection;
     float4x4 mViewProjection;
-	// camera frustum: 
-	// [fov,asepct-ratio,near,far]
+    // camera frustum: 
+    // [fov,asepct-ratio,near,far]
     float4 vFrustum;
-	// viewport:
-	// [w,h,1/w,1/h]
+    // viewport:
+    // [w,h,1/w,1/h]
     float4 vViewport;
     // [x, y, w, h]
     float4 vResolution;
-	// camera position
+    // camera position
     float3 vEyePos;
     bool SSAOEnabled;
     float SSAOBias;
@@ -35,9 +34,8 @@ cbuffer cbTransforms : register(b0)
 };
 
 #if defined(MESHSIMPLE)
-cbuffer cbMeshSimple : register(b1)
-{
-// Common Parameters
+cbuffer cbMeshSimple : register(b1) {
+    // Common Parameters
     float4x4 mWorld;
     bool bHasInstances = false;
     float3 padding1;
@@ -46,88 +44,86 @@ cbuffer cbMeshSimple : register(b1)
 
 #if defined(MESH)
 //Per model shares between Phong material and PBR material
-cbuffer cbMesh : register(b1) 
-{
-// Common Parameters
+cbuffer cbMesh : register(b1) {
+    // Common Parameters
     float4x4 mWorld;
     bool bInvertNormal = false;
     bool bHasInstances = false;
     bool bHasInstanceParams = false;
     bool bHasBones = false;
     float4 vParams = float4(0, 0, 0, 0); //Shared with models
-    float4 vColor = float4(1, 1, 1, 1); //Shared with models
+    float4 vColor = float4(1, 1, 1, 1);  //Shared with models
     float4 wireframeColor;
     bool3 bParams; // Shared with models for enable/disable features
     bool bBatched = false;
 
-// Material Parameters changable
-	float minTessDistance = 1;
-	float maxTessDistance = 100;
-	float minTessFactor = 4;
-	float maxTessFactor = 1;
+    // Material Parameters changable
+    float minTessDistance = 1;
+    float maxTessDistance = 100;
+    float minTessFactor = 4;
+    float maxTessFactor = 1;
 
-    float4 vMaterialDiffuse = 0.5f; //Kd := surface material's diffuse coefficient
+    float4 vMaterialDiffuse = 0.5f;  //Kd := surface material's diffuse coefficient
     float4 vMaterialAmbient = 0.25f; //Ka := surface material's ambient coefficient.
     float4 vMaterialEmissive = 0.0f; //Ke := surface material's emissive coefficient
 #if !defined(PBR)
-    float4 vMaterialSpecular = 0.0f; //Ks := surface material's specular coefficient. If using PBR, vMaterialReflect = float4(ConstantAO, ConstantRoughness, ConstantMetallic, ConstantReflectance);
-    float4 vMaterialReflect = 0.0f; //Kr := surface material's reflectivity coefficient. If using PBR, vMaterialSpecular = float4(ClearCoat, ClearCoatRoughness, 0, 0)
+float4 vMaterialSpecular = 0.0f;
+//Ks := surface material's specular coefficient. If using PBR, vMaterialReflect = float4(ConstantAO, ConstantRoughness, ConstantMetallic, ConstantReflectance);
+float4 vMaterialReflect = 0.0f;
+//Kr := surface material's reflectivity coefficient. If using PBR, vMaterialSpecular = float4(ClearCoat, ClearCoatRoughness, 0, 0)
 #endif
 #if defined(PBR)
-    float ConstantAO;
-    float ConstantRoughness;
-    float ConstantMetallic;
-    float ConstantReflectance;
-    float ClearCoat;
-    float ClearCoatRoughness;
-    float padding1;
-    bool bHasAOMap;
+float ConstantAO;
+float ConstantRoughness;
+float ConstantMetallic;
+float ConstantReflectance;
+float ClearCoat;
+float ClearCoatRoughness;
+float padding1;
+bool bHasAOMap;
 #endif
-    bool bHasDiffuseMap = false;
-    bool bHasNormalMap = false;
-    bool bHasCubeMap = false;
-    bool bRenderShadowMap = false;
-    bool bHasEmissiveMap = false;
+bool bHasDiffuseMap = false;
+bool bHasNormalMap = false;
+bool bHasCubeMap = false;
+bool bRenderShadowMap = false;
+bool bHasEmissiveMap = false;
 #if !defined(PBR)
-    bool bHasAlphaMap = false; // If using PBR, this is used as HasRMAMap.
-    bool bHasSpecularMap;    
+bool bHasAlphaMap = false; // If using PBR, this is used as HasRMAMap.
+bool bHasSpecularMap;
 #endif
 #if defined(PBR)
-    bool bHasRMMap;    
-    bool bHasIrradianceMap; 
+bool bHasRMMap;
+bool bHasIrradianceMap;
 #endif
-    bool bAutoTengent;
-    bool bHasDisplacementMap = false;
-    bool bRenderPBR = false;  
-    bool bRenderFlat = false; //Enable flat normal rendering
-    float sMaterialShininess = 1.0f; //Ps := surface material's shininess
+bool bAutoTengent;
+bool bHasDisplacementMap = false;
+bool bRenderPBR = false;
+bool bRenderFlat = false;        //Enable flat normal rendering
+float sMaterialShininess = 1.0f; //Ps := surface material's shininess
 
-    float4 displacementMapScaleMask = float4(0, 0, 0, 1);
-    float4 uvTransformR1;
-    float4 uvTransformR2;
-    float vertColorBlending;
-    float3 padding4;
+float4 displacementMapScaleMask = float4(0, 0, 0, 1);
+float4 uvTransformR1;
+float4 uvTransformR2;
+float vertColorBlending;
+float3 padding4;
 };
 #endif
 
 #if defined(SCREENDUPLICATION)
-    cbuffer cbScreenClone : register(b9)
-    {
-        float4 VertCoord[4];
-        float4 TextureCoord[4];
-        float4 CursorVertCoord[4];
-    };
+cbuffer cbScreenClone : register(b9) {
+    float4 VertCoord[4];
+    float4 TextureCoord[4];
+    float4 CursorVertCoord[4];
+};
 #endif
 #if defined(SCREENQUAD)
-    cbuffer cbScreenQuad : register(b9)
-    {
-        float4x4 mWorld;
-        float4 VertCoord[4];
-        float4 TextureCoord[4];
-    };
+cbuffer cbScreenQuad : register(b9) {
+    float4x4 mWorld;
+    float4 VertCoord[4];
+    float4 TextureCoord[4];
+};
 #endif
-cbuffer cbLights : register(b3)
-{
+cbuffer cbLights : register(b3) {
     LightStruct Lights[LIGHTS];
     float4 vLightAmbient = float4(0.2f, 0.2f, 0.2f, 1.0f);
     int NumLights;
@@ -138,16 +134,15 @@ cbuffer cbLights : register(b3)
 
 #if defined(POINTLINE) // model for line, point and billboard
 //Per model
-cbuffer cbPointLineModel : register(b4)
-{
+cbuffer cbPointLineModel : register(b4) {
     float4x4 mWorld;
     bool bHasInstances = false;
     bool bHasInstanceParams = false;
-	float2 padding1;
+    float2 padding1;
     float4 pfParams = float4(0, 0, 0, 0); //Shared with line, points and billboard
-    float4 pColor = float4(1, 1, 1, 1); //Shared with line, points and billboard
+    float4 pColor = float4(1, 1, 1, 1);   //Shared with line, points and billboard
     bool fixedSize;
-	bool3 pbParams;
+    bool3 pbParams;
     bool enableDistanceFading;
     float fadeNearDistance;
     float fadeFarDistance;
@@ -160,8 +155,7 @@ cbuffer cbPointLineModel : register(b4)
 #endif
 #if defined(VOLUME) // model for line, point and billboard
 //Per model
-cbuffer cbVolumeModel : register(b4)
-{
+cbuffer cbVolumeModel : register(b4) {
     float4x4 mWorld;
     float4x4 mWorldInv;
     float4 pColor;
@@ -177,20 +171,18 @@ cbuffer cbVolumeModel : register(b4)
 #endif
 #if defined(PARTICLE) // model for line, point and billboard
 //Per model
-cbuffer cbParticleModel : register(b4)
-{
+cbuffer cbParticleModel : register(b4) {
     float4x4 mWorld;
     bool bHasInstances = false;
     bool bHasInstanceParams = false;
     bool bHasTexture = false;
-	float padding1;
+    float padding1;
 };
 #endif
-#if defined(PLANEGRID) 
-cbuffer cbPlaneGridModel : register(b4)
-{
+#if defined(PLANEGRID)
+cbuffer cbPlaneGridModel : register(b4) {
     float4x4 mWorld;
-    float gridSpacing; 
+    float gridSpacing;
     float gridThickness;
     float fadingFactor;
     float planeD;
@@ -202,8 +194,7 @@ cbuffer cbPlaneGridModel : register(b4)
     float padding3;
 };
 #endif
-cbuffer cbShadow : register(b5)
-{
+cbuffer cbShadow : register(b5) {
     float2 vShadowMapSize;
     bool bHasShadowMap;
     float paddingShadow0;
@@ -212,8 +203,7 @@ cbuffer cbShadow : register(b5)
     float4x4 vLightProjection;
 };
 #if defined(CLIPPLANE)
-cbuffer cbClipping : register(b6)
-{
+cbuffer cbClipping : register(b6) {
     bool4 EnableCrossPlane;
     bool4 EnableCrossPlane5To8;
     float4 CrossSectionColors;
@@ -232,18 +222,17 @@ cbuffer cbClipping : register(b6)
 
 #if defined(BORDEREFFECTS)
 
-cbuffer cbBorderEffect : register(b6)
-{
+cbuffer cbBorderEffect : register(b6) {
     float4 Color;
     float4x4 Param;
-    float viewportScale; // Used to handle if using lower resolution render target for bluring. Scale = Full Res / Low Res;
+    float viewportScale;
+    // Used to handle if using lower resolution render target for bluring. Scale = Full Res / Low Res;
     float3 padding9;
 };
 #endif
 
 #if defined(PARTICLE)
-cbuffer cbParticleFrame : register(b7)
-{
+cbuffer cbParticleFrame : register(b7) {
     uint NumParticles;
     float3 ExtraAccelation;
 
@@ -268,8 +257,7 @@ cbuffer cbParticleFrame : register(b7)
     float pad0;
 };
 
-cbuffer cbParticleCreateParameters : register(b8)
-{
+cbuffer cbParticleCreateParameters : register(b8) {
     float3 EmitterLocation;
     float InitialEnergy;
 
@@ -286,20 +274,18 @@ cbuffer cbParticleCreateParameters : register(b8)
 
 #if defined(SSAO)
 static const uint SSAOKernalSize = 32;
-cbuffer cbSSAO : register(b1)
-{
+cbuffer cbSSAO : register(b1) {
     float4 kernel[SSAOKernalSize];
     float2 noiseScale;
     int texScale; // Used when viewport size does not match texture size
-    float radius;    
+    float radius;
     float4x4 invProjection;
 }
 #endif
 
-cbuffer cbMorphTarget : register(b9)
-{
-	int mtCount; //Number of targets
-	int mtPitch; //Pitch between targets for deltas buffer
+cbuffer cbMorphTarget : register(b9) {
+    int mtCount; //Number of targets
+    int mtPitch; //Pitch between targets for deltas buffer
 }
 
 ///------------------Textures---------------------
@@ -312,7 +298,7 @@ Texture2D texSpecularMap : register(t3);
 Texture2D<float3> texEmissiveMap : register(t5);
 #endif
 #if defined(PBR)
-Texture2D<float3> texRMMap    : register(t2);
+Texture2D<float3> texRMMap : register(t2);
 Texture2D<float> texAOMap : register(t3);
 Texture2D<float3> texEmissiveMap : register(t5);
 TextureCube<float3> texIrradianceMap : register(t21);

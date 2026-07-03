@@ -4,14 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
-        public static class DefaultGSShaderByteCodes
-        {
+        public static class DefaultGSShaderByteCodes {
             /// <summary>
             /// </summary>
             public static string GSPoint { get; } = "gsPoint";
@@ -59,68 +56,74 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         ///     Default Geometry Shaders
         /// </summary>
-        public static class DefaultGSShaderDescriptions
-        {
+        public static class DefaultGSShaderDescriptions {
             /// <summary>
             /// </summary>
-            public static readonly ShaderDescription GSPoint = new(nameof(GSPoint), ShaderStage.Geometry,
-                new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSPoint);
+            public static readonly ShaderDescription GSPoint = new(nameof(GSPoint),
+                                                                   ShaderStage.Geometry,
+                                                                   new ShaderReflector(),
+                                                                   DefaultGSShaderByteCodes.GSPoint);
 
             /// <summary>
             /// </summary>
-            public static readonly ShaderDescription GSLine = new(nameof(GSLine), ShaderStage.Geometry,
-                new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSLine);
+            public static readonly ShaderDescription GSLine = new(nameof(GSLine),
+                                                                  ShaderStage.Geometry,
+                                                                  new ShaderReflector(),
+                                                                  DefaultGSShaderByteCodes.GSLine);
 
             /// <summary>
             /// </summary>
             public static readonly ShaderDescription GSLineArrowHead = new(nameof(GSLineArrowHead),
-                ShaderStage.Geometry, new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSLineArrowHead);
+                                                                           ShaderStage.Geometry,
+                                                                           new ShaderReflector(),
+                                                                           DefaultGSShaderByteCodes.GSLineArrowHead);
 
             /// <summary>
             /// </summary>
             public static readonly ShaderDescription GSLineArrowHeadTail = new(nameof(GSLineArrowHeadTail),
-                ShaderStage.Geometry, new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSLineArrowHeadTail);
+                                                                               ShaderStage.Geometry,
+                                                                               new ShaderReflector(),
+                                                                               DefaultGSShaderByteCodes
+                                                                                   .GSLineArrowHeadTail);
 
             /// <summary>
             /// </summary>
-            public static readonly ShaderDescription GSBillboard = new(nameof(GSBillboard), ShaderStage.Geometry,
-                new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSBillboard);
+            public static readonly ShaderDescription GSBillboard = new(nameof(GSBillboard),
+                                                                       ShaderStage.Geometry,
+                                                                       new ShaderReflector(),
+                                                                       DefaultGSShaderByteCodes.GSBillboard);
 
             /// <summary>
             /// </summary>
-            public static readonly ShaderDescription GSParticle = new(nameof(GSParticle), ShaderStage.Geometry,
-                new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSParticle);
+            public static readonly ShaderDescription GSParticle = new(nameof(GSParticle),
+                                                                      ShaderStage.Geometry,
+                                                                      new ShaderReflector(),
+                                                                      DefaultGSShaderByteCodes.GSParticle);
 
             /// <summary>
             ///     The gs mesh normal vector
             /// </summary>
             public static readonly ShaderDescription GSMeshNormalVector = new(nameof(GSMeshNormalVector),
-                ShaderStage.Geometry, new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSMeshNormalVector);
+                                                                              ShaderStage.Geometry,
+                                                                              new ShaderReflector(),
+                                                                              DefaultGSShaderByteCodes
+                                                                                  .GSMeshNormalVector);
 
             /// <summary>
             ///     The gs mesh bone skinned out
             /// </summary>
             public static readonly ShaderDescription GSMeshBoneSkinnedOut = new(nameof(GSMeshBoneSkinnedOut),
-                ShaderStage.Geometry, new ShaderReflector(),
-                DefaultGSShaderByteCodes.GSMeshBoneSkinnedOut)
-            {
+                ShaderStage.Geometry,
+                new ShaderReflector(),
+                DefaultGSShaderByteCodes.GSMeshBoneSkinnedOut) {
                 IsGSStreamOut = true,
-                GSSOElement = new[]
-                {
+                GSSOElement = new[] {
                     new StreamOutputElement(0, "POSITION", 0, 0, 4, 0),
                     new StreamOutputElement(0, "NORMAL", 0, 0, 3, 0),
                     new StreamOutputElement(0, "TANGENT", 0, 0, 3, 0),
                     new StreamOutputElement(0, "BINORMAL", 0, 0, 3, 0)
                 },
-                GSSOStrides = new[]
-                {
+                GSSOStrides = new[] {
                     DefaultVertex.SizeInBytes
                 }
             };

@@ -14,8 +14,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     An abstract base class providing common functionality for exporters.
 /// </summary>
-public abstract class Exporter : IExporter, IDisposable
-{
+public abstract class Exporter : IExporter, IDisposable {
     /// <summary>
     ///     The disposed flag.
     /// </summary>
@@ -24,8 +23,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <summary>
     ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
-    {
+    public void Dispose() {
         Dispose(true);
         //GC.SuppressFinalize(this);
     }
@@ -37,8 +35,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="viewport">
     ///     The viewport.
     /// </param>
-    public void Export(Viewport3DX viewport)
-    {
+    public void Export(Viewport3DX viewport) {
         ExportHeader();
         ExportViewport(viewport);
 
@@ -58,8 +55,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="model">
     ///     The model.
     /// </param>
-    public void Export(SceneNode model)
-    {
+    public void Export(SceneNode model) {
         ExportHeader();
         Traverse<MeshNode>(model, ExportModel);
     }
@@ -76,8 +72,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="action">
     ///     The action.
     /// </param>
-    private static void Traverse<T>(Viewport3DX viewport, Action<T, Transform3D> action) where T : SceneNode
-    {
+    private static void Traverse<T>(Viewport3DX viewport, Action<T, Transform3D> action) where T : SceneNode {
         //foreach (var element in viewport.Renderables)
         //{
         //    if (element is T node)
@@ -106,8 +101,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="action">
     ///     The action.
     /// </param>
-    private static void Traverse<T>(SceneNode model, Action<T, Transform3D> action) where T : SceneNode
-    {
+    private static void Traverse<T>(SceneNode model, Action<T, Transform3D> action) where T : SceneNode {
         if (model is T)
             if (model.WrapperSource is Element3D m)
                 action((T) model, m.Transform);
@@ -122,8 +116,7 @@ public abstract class Exporter : IExporter, IDisposable
     ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
     ///     unmanaged resources.
     /// </param>
-    protected virtual void Dispose(bool disposing)
-    {
+    protected virtual void Dispose(bool disposing) {
         if (!disposed)
             if (disposing)
                 Close();
@@ -134,9 +127,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <summary>
     ///     Closes this exporter.
     /// </summary>
-    public virtual void Close()
-    {
-    }
+    public virtual void Close() { }
 
     /// <summary>
     ///     Renders the brush.
@@ -147,13 +138,11 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="brush">
     ///     The brush.
     /// </param>
-    public static void RenderBrush(string path, Stream brush)
-    {
+    public static void RenderBrush(string path, Stream brush) {
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(brush));
 
-        using (Stream stm = File.Create(path))
-        {
+        using (Stream stm = File.Create(path)) {
             encoder.Save(stm);
         }
     }
@@ -161,9 +150,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <summary>
     ///     Exports the header.
     /// </summary>
-    protected virtual void ExportHeader()
-    {
-    }
+    protected virtual void ExportHeader() { }
 
     /// <summary>
     ///     Exports the viewport.
@@ -171,9 +158,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="viewport">
     ///     The viewport.
     /// </param>
-    protected virtual void ExportViewport(Viewport3DX viewport)
-    {
-    }
+    protected virtual void ExportViewport(Viewport3DX viewport) { }
 
     /// <summary>
     ///     Exports the model.
@@ -184,9 +169,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="transform">
     ///     The transform.
     /// </param>
-    protected virtual void ExportModel(MeshNode model, Transform3D transform)
-    {
-    }
+    protected virtual void ExportModel(MeshNode model, Transform3D transform) { }
 
     /// <summary>
     ///     Exports the camera.
@@ -194,9 +177,7 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    protected virtual void ExportCamera(Camera camera)
-    {
-    }
+    protected virtual void ExportCamera(Camera camera) { }
 
     /// <summary>
     ///     Exports the light.
@@ -207,7 +188,5 @@ public abstract class Exporter : IExporter, IDisposable
     /// <param name="transform">
     ///     The transform.
     /// </param>
-    protected virtual void ExportLight(LightNode light, Transform3D transform)
-    {
-    }
+    protected virtual void ExportLight(LightNode light, Transform3D transform) { }
 }

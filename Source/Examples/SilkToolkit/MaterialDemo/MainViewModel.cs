@@ -18,237 +18,232 @@ using System.Windows.Input;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
-namespace MaterialDemo
-{
-    /// <summary>
-    /// Model used in this demo is from: https://github.com/derkreature/IBLBaker
-    /// </summary>
-    /// <seealso cref="DemoCore.BaseViewModel" />
-    public class MainViewModel : BaseViewModel
-    {
-        public ObservableElement3DCollection Model1 { get; } = new ObservableElement3DCollection();
-        public ObservableElement3DCollection Model2 { get; } = new ObservableElement3DCollection();
-        public ObservableElement3DCollection Model3 { get; } = new ObservableElement3DCollection();
-        public ObservableElement3DCollection Model4 { get; } = new ObservableElement3DCollection();
-        public ObservableElement3DCollection Model5 { get; } = new ObservableElement3DCollection();
-        public ObservableElement3DCollection Model6 { get; } = new ObservableElement3DCollection();
+namespace MaterialDemo;
 
-        public ObservableElement3DCollection Model7 { get; } = new ObservableElement3DCollection();
+/// <summary>
+/// Model used in this demo is from: https://github.com/derkreature/IBLBaker
+/// </summary>
+/// <seealso cref="DemoCore.BaseViewModel" />
+public class MainViewModel : BaseViewModel {
+    public ObservableElement3DCollection Model1 { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model2 { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model3 { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model4 { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model5 { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model6 { get; } = new ObservableElement3DCollection();
 
-        public ObservableElement3DCollection ModelNormalVector { get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection Model7 { get; } = new ObservableElement3DCollection();
 
-        public MeshGeometry3D Floor { get; private set; }
+    public ObservableElement3DCollection ModelNormalVector { get; } = new ObservableElement3DCollection();
 
-        public BillboardText3D MeshTitles { private set; get; }
+    public MeshGeometry3D Floor { get; private set; }
 
-        public Material FloorMaterial { get; } = PhongMaterials.Gray;
+    public BillboardText3D MeshTitles { private set; get; }
 
-        public Material NormalMaterial { get; } = new NormalMaterial();
+    public Material FloorMaterial { get; } = PhongMaterials.Gray;
 
-        public Material PositionMaterial { get; } = new PositionColorMaterial();
+    public Material NormalMaterial { get; } = new NormalMaterial();
 
-        public Material VertMaterial { get; } = new VertColorMaterial();
+    public Material PositionMaterial { get; } = new PositionColorMaterial();
 
-        public Material NormalVectorMaterial { get; } = new NormalVectorMaterial();
+    public Material VertMaterial { get; } = new VertColorMaterial();
 
-        public ColorStripeMaterial ColorStripeMaterial { get; } = new ColorStripeMaterial();
+    public Material NormalVectorMaterial { get; } = new NormalVectorMaterial();
 
-        public TextureModel EnvironmentMap { private set; get; }
+    public ColorStripeMaterial ColorStripeMaterial { get; } = new ColorStripeMaterial();
 
-        public Transform3D Transform1 { get; } = new Media3D.TranslateTransform3D(-30, 0, 0);
-        public Transform3D Transform2 { get; } = new Media3D.TranslateTransform3D(-15, 0, 0);
-        public Transform3D Transform3 { get; } = new Media3D.TranslateTransform3D(0, 0, 0);
-        public Transform3D Transform4 { get; } = new Media3D.TranslateTransform3D(15, 0, 0);
-        public Transform3D Transform5 { get; } = new Media3D.TranslateTransform3D(30, 0, 0);
+    public TextureModel EnvironmentMap { private set; get; }
 
-        public Transform3D Transform6 { get; } = new Media3D.TranslateTransform3D(45, 0, 0);
-        public Transform3D Transform7 { get; } = new Media3D.TranslateTransform3D(-45, 0, 0);
-        public Transform3D TitleTransform { get; } = new Media3D.TranslateTransform3D(0, 10, 0);
+    public Transform3D Transform1 { get; } = new Media3D.TranslateTransform3D(-30, 0, 0);
+    public Transform3D Transform2 { get; } = new Media3D.TranslateTransform3D(-15, 0, 0);
+    public Transform3D Transform3 { get; } = new Media3D.TranslateTransform3D(0, 0, 0);
+    public Transform3D Transform4 { get; } = new Media3D.TranslateTransform3D(15, 0, 0);
+    public Transform3D Transform5 { get; } = new Media3D.TranslateTransform3D(30, 0, 0);
 
-        public ICommand OpenPBRSampleCommand { get; }
+    public Transform3D Transform6 { get; } = new Media3D.TranslateTransform3D(45, 0, 0);
+    public Transform3D Transform7 { get; } = new Media3D.TranslateTransform3D(-45, 0, 0);
+    public Transform3D TitleTransform { get; } = new Media3D.TranslateTransform3D(0, 10, 0);
 
-        private Random rnd = new Random();
-        private SynchronizationContext context = SynchronizationContext.Current;
-        public MainViewModel()
-        {
-            EffectsManager = new DefaultEffectsManager();
-            Title = "Material Demo";
-            this.Camera = new PerspectiveCamera { Position = new Point3D(-30, 30, -30), LookDirection = new Vector3D(30, -30, 30), UpDirection = new Vector3D(0, 1, 0) };
+    public ICommand OpenPBRSampleCommand { get; }
 
-            var builder = new MeshBuilder();
-            builder.AddBox(new Vector3(0, -6, 0), 200, 2, 100);
+    private Random rnd = new Random();
+    private SynchronizationContext context = SynchronizationContext.Current;
 
-            Floor = builder.ToMesh();
+    public MainViewModel() {
+        EffectsManager = new DefaultEffectsManager();
+        Title = "Material Demo";
+        this.Camera = new PerspectiveCamera {
+            Position = new Point3D(-30, 30, -30), LookDirection = new Vector3D(30, -30, 30),
+            UpDirection = new Vector3D(0, 1, 0)
+        };
 
-            builder = new MeshBuilder();
-            builder.AddSphere(Vector3.Zero, 2);
+        var builder = new MeshBuilder();
+        builder.AddBox(new Vector3(0, -6, 0), 200, 2, 100);
 
-            LoadObj(@"shaderBall\shaderBall.obj");
+        Floor = builder.ToMesh();
 
-            EnvironmentMap = TextureModel.Create("Cubemap_Grandcanyon.dds");
+        builder = new MeshBuilder();
+        builder.AddSphere(Vector3.Zero, 2);
 
-            ColorStripeMaterial.ColorStripeX = GetGradients(new Color4(1, 0, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 0, 1, 1), 48).ToList();
-            ColorStripeMaterial.ColorStripeY = GetGradients(new Color4(1, 1, 0, 1), new Color4(0, 1, 1, 1), new Color4(1, 0, 1, 1), 48).ToList();
+        LoadObj(@"shaderBall\shaderBall.obj");
 
-            MeshTitles = new BillboardText3D();
-            MeshTitles.TextInfo.Add(new TextInfo("Blinn", Transform1.ToVector3()) { Scale = 0.08f, Background = new Color4(1,1,1,1) });
-            MeshTitles.TextInfo.Add(new TextInfo("Normal", Transform2.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            MeshTitles.TextInfo.Add(new TextInfo("Diffuse", Transform3.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            MeshTitles.TextInfo.Add(new TextInfo("Position", Transform4.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            MeshTitles.TextInfo.Add(new TextInfo("VertexColor", Transform5.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            MeshTitles.TextInfo.Add(new TextInfo("ColorStripe", Transform6.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            MeshTitles.TextInfo.Add(new TextInfo("PBR", Transform7.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
-            (FloorMaterial as PhongMaterial).RenderShadowMap = true;
+        EnvironmentMap = TextureModel.Create("Cubemap_Grandcanyon.dds");
 
-            OpenPBRSampleCommand = new RelayCommand((o) => 
-            {
-                PBRWindow w = new PBRWindow() { DataContext = new PBRViewModel(this.EffectsManager) { EnvironmentMap = this.EnvironmentMap } };
-                w.Show();
-            });
+        ColorStripeMaterial.ColorStripeX =
+            GetGradients(new Color4(1, 0, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 0, 1, 1), 48).ToList();
+        ColorStripeMaterial.ColorStripeY =
+            GetGradients(new Color4(1, 1, 0, 1), new Color4(0, 1, 1, 1), new Color4(1, 0, 1, 1), 48).ToList();
+
+        MeshTitles = new BillboardText3D();
+        MeshTitles.TextInfo.Add(new TextInfo("Blinn", Transform1.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("Normal", Transform2.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("Diffuse", Transform3.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("Position", Transform4.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("VertexColor", Transform5.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("ColorStripe", Transform6.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        MeshTitles.TextInfo.Add(new TextInfo("PBR", Transform7.ToVector3())
+                                    {Scale = 0.08f, Background = new Color4(1, 1, 1, 1)});
+        (FloorMaterial as PhongMaterial).RenderShadowMap = true;
+
+        OpenPBRSampleCommand = new RelayCommand((o) => {
+            PBRWindow w = new PBRWindow()
+                {DataContext = new PBRViewModel(this.EffectsManager) {EnvironmentMap = this.EnvironmentMap}};
+            w.Show();
+        });
+    }
+
+    public void LoadObj(string path) {
+        var reader = new ObjReader();
+        var objCol = reader.Read(path);
+        AttachModelList(objCol);
+    }
+
+    public void AttachModelList(List<Object3D> objs) {
+        for (int i = 0; i < objs.Count; ++i) {
+            var ob = objs[i];
+            var vertColor = new Color4((float) i / objs.Count, 0, 1 - (float) i / objs.Count, 1);
+            ob.Geometry.Colors = new Color4Collection(Enumerable.Repeat(vertColor, ob.Geometry.Positions.Count));
+            ob.Geometry.UpdateOctree();
+            ob.Geometry.UpdateBounds();
+
+            context.Post((o) => {
+                             var scaleTransform = new Media3D.ScaleTransform3D(15, 15, 15);
+                             var s = new MeshGeometryModel3D {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Transform = scaleTransform
+                             };
+
+                             var diffuseMaterial = new DiffuseMaterial();
+                             PBRMaterial pbrMaterial = null;
+                             if (ob.Material is PhongMaterialCore p) {
+                                 var phong = p.ConvertToPhongMaterial();
+                                 phong.RenderEnvironmentMap = true;
+                                 phong.RenderShadowMap = true;
+                                 phong.RenderSpecularColorMap = false;
+                                 s.Material = phong;
+                                 diffuseMaterial.DiffuseColor = p.DiffuseColor;
+                                 diffuseMaterial.DiffuseMap = p.DiffuseMap;
+                                 pbrMaterial = new PBRMaterial() {
+                                     AlbedoColor = p.DiffuseColor,
+                                     AlbedoMap = p.DiffuseMap,
+                                     NormalMap = p.NormalMap,
+                                     RoughnessMetallicMap = p.SpecularColorMap,
+                                     AmbientOcculsionMap = p.SpecularColorMap,
+                                     RenderShadowMap = true,
+                                     RenderEnvironmentMap = true,
+                                     MetallicFactor = 1, // Set to 1 if using RMA Map
+                                     RoughnessFactor = 1 // Set to 1 if using RMA Map
+                                 };
+                             }
+
+                             //if (ob.Transform != null && ob.Transform.Count > 0)
+                             //{
+                             //    s.Instances = ob.Transform;
+                             //}
+                             this.Model1.Add(s);
+
+                             Model2.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = NormalMaterial,
+                                 Transform = scaleTransform
+                             });
+
+                             ModelNormalVector.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = NormalVectorMaterial,
+                                 Transform = scaleTransform
+                             });
+                             Model3.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = diffuseMaterial,
+                                 Transform = scaleTransform
+                             });
+
+                             Model4.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = PositionMaterial,
+                                 Transform = scaleTransform
+                             });
+
+                             Model5.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = VertMaterial,
+                                 Transform = scaleTransform
+                             });
+
+                             Model6.Add(new MeshGeometryModel3D() {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Material = ColorStripeMaterial,
+                                 Transform = scaleTransform
+                             });
+
+                             Model7.Add(new MeshGeometryModel3D {
+                                 Geometry = ob.Geometry,
+                                 CullMode = CullMode.Back,
+                                 IsThrowingShadow = true,
+                                 Transform = scaleTransform,
+                                 Material = pbrMaterial
+                             });
+                         },
+                         null);
         }
+    }
 
-        public void LoadObj(string path)
-        {
-            var reader = new ObjReader();
-            var objCol = reader.Read(path);
-            AttachModelList(objCol);
-        }
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) {
+        return GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
+    }
 
-        public void AttachModelList(List<Object3D> objs)
-        {
-            for(int i=0; i < objs.Count; ++i)
-            {
-                var ob = objs[i];
-                var vertColor = new Color4((float)i / objs.Count, 0, 1 - (float)i / objs.Count, 1);
-                ob.Geometry.Colors = new Color4Collection(Enumerable.Repeat(vertColor, ob.Geometry.Positions.Count));
-                ob.Geometry.UpdateOctree();
-                ob.Geometry.UpdateBounds();
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
+        float stepA = ((end.W - start.W) / (steps - 1));
+        float stepR = ((end.X - start.X) / (steps - 1));
+        float stepG = ((end.Y - start.Y) / (steps - 1));
+        float stepB = ((end.Z - start.Z) / (steps - 1));
 
-                context.Post((o) =>
-                {
-                    var scaleTransform = new Media3D.ScaleTransform3D(15, 15, 15);
-                    var s = new MeshGeometryModel3D
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Transform = scaleTransform
-                    };
-
-                    var diffuseMaterial = new DiffuseMaterial();
-                    PBRMaterial pbrMaterial = null;
-                    if (ob.Material is PhongMaterialCore p)
-                    {
-                        var phong = p.ConvertToPhongMaterial();
-                        phong.RenderEnvironmentMap = true;
-                        phong.RenderShadowMap = true;
-                        phong.RenderSpecularColorMap = false;
-                        s.Material = phong;
-                        diffuseMaterial.DiffuseColor = p.DiffuseColor;
-                        diffuseMaterial.DiffuseMap = p.DiffuseMap;
-                        pbrMaterial = new PBRMaterial()
-                        {
-                            AlbedoColor = p.DiffuseColor,
-                            AlbedoMap = p.DiffuseMap,
-                            NormalMap = p.NormalMap,
-                            RoughnessMetallicMap = p.SpecularColorMap,
-                            AmbientOcculsionMap = p.SpecularColorMap,
-                            RenderShadowMap = true,
-                            RenderEnvironmentMap=true,
-                            MetallicFactor = 1, // Set to 1 if using RMA Map
-                            RoughnessFactor = 1 // Set to 1 if using RMA Map
-                        };                      
-                    }
-                    //if (ob.Transform != null && ob.Transform.Count > 0)
-                    //{
-                    //    s.Instances = ob.Transform;
-                    //}
-                    this.Model1.Add(s);
-
-                    Model2.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = NormalMaterial,
-                        Transform = scaleTransform
-                    });
-
-                    ModelNormalVector.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = NormalVectorMaterial,
-                        Transform = scaleTransform
-                    });
-                    Model3.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = diffuseMaterial,
-                        Transform = scaleTransform
-                    });
-
-                    Model4.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = PositionMaterial,
-                        Transform = scaleTransform
-                    });
-
-                    Model5.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = VertMaterial,
-                        Transform = scaleTransform
-                    });
-
-                    Model6.Add(new MeshGeometryModel3D()
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Material = ColorStripeMaterial,
-                        Transform = scaleTransform
-                    });
-
-                    Model7.Add(new MeshGeometryModel3D
-                    {
-                        Geometry = ob.Geometry,
-                        CullMode = CullMode.Back,
-                        IsThrowingShadow = true,
-                        Transform = scaleTransform,
-                        Material = pbrMaterial
-                    });
-                }, null);
-            }
-        }
-
-        public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps)
-        {
-            return GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
-        }
-
-        public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps)
-        {
-            float stepA = ((end.W - start.W) / (steps - 1));
-            float stepR = ((end.X - start.X) / (steps - 1));
-            float stepG = ((end.Y - start.Y) / (steps - 1));
-            float stepB = ((end.Z - start.Z) / (steps - 1));
-
-            for (int i = 0; i < steps; i++)
-            {
-                yield return new Color4((start.X + (stepR * i)),
-                                            (start.Y + (stepG * i)),
-                                            (start.Z + (stepB * i)),
-                                            (start.W + (stepA * i)));
-            }
+        for (int i = 0; i < steps; i++) {
+            yield return new Color4((start.X + (stepR * i)),
+                                    (start.Y + (stepG * i)),
+                                    (start.Z + (stepB * i)),
+                                    (start.W + (stepA * i)));
         }
     }
 }

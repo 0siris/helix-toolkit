@@ -4,8 +4,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public static class MathHelper
-{
+public static class MathHelper {
     /// <summary>
     ///     Generates the noise map.
     ///     From https://stackoverflow.com/questions/8659351/2d-perlin-noise
@@ -14,8 +13,7 @@ public static class MathHelper
     /// <param name="height">The height.</param>
     /// <param name="result">The result.</param>
     /// <param name="octaves">The octaves.</param>
-    public static void GenerateNoiseMap(int width, int height, int octaves, out DoubleOrSingle[] result)
-    {
+    public static void GenerateNoiseMap(int width, int height, int octaves, out DoubleOrSingle[] result) {
         var data = new DoubleOrSingle[width * height];
 
         // track min and max noise value. Used to normalize the result to the 0 to 1.0 range.
@@ -31,22 +29,19 @@ public static class MathHelper
         var amplitude = 1f;
         //var persistence = 0.25f;
 
-        for (var octave = 0; octave < octaves; octave++)
-        {
+        for (var octave = 0; octave < octaves; octave++) {
             // parallel loop - easy and fast.
-            Parallel.For(0
-                , width * height
-                , offset =>
-                {
-                    var i = offset % width;
-                    var j = offset / width;
-                    var noise = Noise2d.Noise(i * frequency * 1f / width, j * frequency * 1f / height);
-                    noise = data[j * width + i] += noise * amplitude;
+            Parallel.For(0,
+                         width * height,
+                         offset => {
+                             var i = offset % width;
+                             var j = offset / width;
+                             var noise = Noise2d.Noise(i * frequency * 1f / width, j * frequency * 1f / height);
+                             noise = data[j * width + i] += noise * amplitude;
 
-                    min = Math.Min(min, noise);
-                    max = Math.Max(max, noise);
-                }
-            );
+                             min = Math.Min(min, noise);
+                             max = Math.Max(max, noise);
+                         });
 
             frequency *= 2;
             amplitude /= 2;
@@ -63,26 +58,22 @@ public static class MathHelper
 ///     Transcribed from http://www.siafoo.net/snippet/144?nolinenos#perlin2003
 ///     From StackOverflow: https://stackoverflow.com/questions/8659351/2d-perlin-noise
 /// </summary>
-public static class Noise2d
-{
+public static class Noise2d {
     private static readonly Random _random = new();
     private static int[] _permutation;
 
     private static readonly Vector2[] _gradients;
 
-    static Noise2d()
-    {
+    static Noise2d() {
         CalculatePermutation(out _permutation);
         CalculateGradients(out _gradients);
     }
 
-    private static void CalculatePermutation(out int[] p)
-    {
+    private static void CalculatePermutation(out int[] p) {
         p = Enumerable.Range(0, 256).ToArray();
 
         // shuffle the array
-        for (var i = 0; i < p.Length; i++)
-        {
+        for (var i = 0; i < p.Length; i++) {
             var source = _random.Next(p.Length);
 
             var t = p[i];
@@ -94,21 +85,17 @@ public static class Noise2d
     /// <summary>
     ///     generate a new permutation.
     /// </summary>
-    public static void Reseed()
-    {
+    public static void Reseed() {
         CalculatePermutation(out _permutation);
     }
 
-    private static void CalculateGradients(out Vector2[] grad)
-    {
+    private static void CalculateGradients(out Vector2[] grad) {
         grad = new Vector2[256];
 
-        for (var i = 0; i < grad.Length; i++)
-        {
+        for (var i = 0; i < grad.Length; i++) {
             Vector2 gradient;
 
-            do
-            {
+            do {
                 gradient = new Vector2((float) (_random.NextDouble() * 2 - 1), (float) (_random.NextDouble() * 2 - 1));
             } while (SharedFunctions.LengthSquared(ref gradient) >= 1);
 
@@ -118,14 +105,12 @@ public static class Noise2d
         }
     }
 
-    private static DoubleOrSingle Drop(DoubleOrSingle t)
-    {
+    private static DoubleOrSingle Drop(DoubleOrSingle t) {
         t = Math.Abs(t);
         return 1f - t * t * t * (t * (t * 6 - 15) + 10);
     }
 
-    private static DoubleOrSingle Q(DoubleOrSingle u, DoubleOrSingle v)
-    {
+    private static DoubleOrSingle Q(DoubleOrSingle u, DoubleOrSingle v) {
         return Drop(u) * Drop(v);
     }
 
@@ -135,16 +120,14 @@ public static class Noise2d
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     /// <returns></returns>
-    public static DoubleOrSingle Noise(DoubleOrSingle x, DoubleOrSingle y)
-    {
+    public static DoubleOrSingle Noise(DoubleOrSingle x, DoubleOrSingle y) {
         var cell = new Vector2((DoubleOrSingle) Math.Floor(x), (DoubleOrSingle) Math.Floor(y));
 
         DoubleOrSingle total = 0;
 
         var corners = new[] {new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1)};
 
-        foreach (var n in corners)
-        {
+        foreach (var n in corners) {
             var ij = cell + n;
             var uv = new Vector2(x - ij.X, y - ij.Y);
 

@@ -4,8 +4,7 @@ namespace HelixToolkit.Logger;
 
 /// <summary>
 /// </summary>
-public static class LogManager
-{
+public static class LogManager {
     /// <summary>
     ///     Replace factory at app start up to use custom logger.
     /// </summary>
@@ -15,8 +14,7 @@ public static class LogManager
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static ILogger Create<T>()
-    {
+    public static ILogger Create<T>() {
         return Factory.CreateLogger<T>();
     }
 
@@ -24,8 +22,7 @@ public static class LogManager
     /// </summary>
     /// <param name="categoryName"></param>
     /// <returns></returns>
-    public static ILogger Create(string categoryName)
-    {
+    public static ILogger Create(string categoryName) {
         return Factory.CreateLogger(categoryName);
     }
 }

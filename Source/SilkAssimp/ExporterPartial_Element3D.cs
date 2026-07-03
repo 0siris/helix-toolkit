@@ -13,8 +13,7 @@ namespace HelixToolkit.UWP
 #endif
 #endif
 {
-    namespace Assimp
-    {
+    namespace Assimp {
 #if !CORE
         public partial class Exporter
         {

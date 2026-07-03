@@ -10,10 +10,8 @@ using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direc
 using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
 using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    public enum BlendOperation
-    {
+namespace HelixToolkit.SharpDX.Core {
+    public enum BlendOperation {
         Add = 1,
         Subtract = 2,
         ReverseSubtract = 3,
@@ -21,8 +19,7 @@ namespace HelixToolkit.SharpDX.Core
         Maximum = 5
     }
 
-    public enum BlendOption
-    {
+    public enum BlendOption {
         Zero = 1,
         One = 2,
         SourceColor = 3,
@@ -43,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
     }
 
     [Flags]
-    public enum ColorWriteMaskFlags
-    {
+    public enum ColorWriteMaskFlags {
         None = 0,
         Red = 1,
         Green = 2,
@@ -53,8 +49,7 @@ namespace HelixToolkit.SharpDX.Core
         All = Red | Green | Blue | Alpha
     }
 
-    public enum Comparison
-    {
+    public enum Comparison {
         Never = 1,
         Less = 2,
         Equal = 3,
@@ -65,14 +60,12 @@ namespace HelixToolkit.SharpDX.Core
         Always = 8
     }
 
-    public enum DepthWriteMask
-    {
+    public enum DepthWriteMask {
         Zero = 0,
         All = 1
     }
 
-    public enum StencilOperation
-    {
+    public enum StencilOperation {
         Keep = 1,
         Zero = 2,
         Replace = 3,
@@ -83,21 +76,18 @@ namespace HelixToolkit.SharpDX.Core
         Decrement = 8
     }
 
-    public enum FillMode
-    {
+    public enum FillMode {
         Wireframe = 2,
         Solid = 3
     }
 
-    public enum CullMode
-    {
+    public enum CullMode {
         None = 1,
         Front = 2,
         Back = 3
     }
 
-    public enum Filter
-    {
+    public enum Filter {
         MinMagMipPoint = 0,
         MinMagPointMipLinear = 0x1,
         MinPointMagLinearMipPoint = 0x4,
@@ -118,8 +108,7 @@ namespace HelixToolkit.SharpDX.Core
         ComparisonAnisotropic = 0xd5
     }
 
-    public enum TextureAddressMode
-    {
+    public enum TextureAddressMode {
         Wrap = 1,
         Mirror = 2,
         Clamp = 3,
@@ -127,8 +116,7 @@ namespace HelixToolkit.SharpDX.Core
         MirrorOnce = 5
     }
 
-    public enum PrimitiveTopology
-    {
+    public enum PrimitiveTopology {
         Undefined = 0,
         PointList = 1,
         LineList = 2,
@@ -173,8 +161,7 @@ namespace HelixToolkit.SharpDX.Core
         PatchListWith32ControlPoints = 64
     }
 
-    public struct RenderTargetBlendDescription
-    {
+    public struct RenderTargetBlendDescription {
         public bool IsBlendEnabled;
         public BlendOption SourceBlend;
         public BlendOption DestinationBlend;
@@ -185,23 +172,18 @@ namespace HelixToolkit.SharpDX.Core
         public ColorWriteMaskFlags RenderTargetWriteMask;
     }
 
-    public struct BlendStateDescription
-    {
+    public struct BlendStateDescription {
         private RenderTargetBlendDescription[] renderTarget;
 
         public bool AlphaToCoverageEnable;
         public bool IndependentBlendEnable;
 
-        public RenderTargetBlendDescription[] RenderTarget
-        {
-            get
-            {
-                if (renderTarget == null)
-                {
+        public RenderTargetBlendDescription[] RenderTarget {
+            get {
+                if (renderTarget == null) {
                     renderTarget = new RenderTargetBlendDescription[8];
                     for (var i = 0; i < renderTarget.Length; i++)
-                        renderTarget[i] = new RenderTargetBlendDescription
-                        {
+                        renderTarget[i] = new RenderTargetBlendDescription {
                             SourceBlend = BlendOption.One,
                             DestinationBlend = BlendOption.Zero,
                             BlendOperation = BlendOperation.Add,
@@ -218,16 +200,14 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public struct DepthStencilOperationDescription
-    {
+    public struct DepthStencilOperationDescription {
         public StencilOperation FailOperation;
         public StencilOperation DepthFailOperation;
         public StencilOperation PassOperation;
         public Comparison Comparison;
     }
 
-    public struct DepthStencilStateDescription
-    {
+    public struct DepthStencilStateDescription {
         public bool IsDepthEnabled;
         public DepthWriteMask DepthWriteMask;
         public Comparison DepthComparison;
@@ -238,8 +218,7 @@ namespace HelixToolkit.SharpDX.Core
         public DepthStencilOperationDescription BackFace;
     }
 
-    public struct RasterizerStateDescription
-    {
+    public struct RasterizerStateDescription {
         public FillMode FillMode;
         public CullMode CullMode;
         public bool IsFrontCounterClockwise;
@@ -252,8 +231,7 @@ namespace HelixToolkit.SharpDX.Core
         public bool IsAntialiasedLineEnabled;
     }
 
-    public struct SamplerStateDescription
-    {
+    public struct SamplerStateDescription {
         public Filter Filter;
         public TextureAddressMode AddressU;
         public TextureAddressMode AddressV;
@@ -266,12 +244,10 @@ namespace HelixToolkit.SharpDX.Core
         public float MaximumLod;
     }
 
-    public sealed unsafe class BlendState : IDisposable
-    {
+    public sealed unsafe class BlendState : IDisposable {
         private SilkD3D11BlendStatePtr nativeState;
 
-        internal BlendState(SilkD3D11BlendStatePtr nativeState, BlendStateDescription description)
-        {
+        internal BlendState(SilkD3D11BlendStatePtr nativeState, BlendStateDescription description) {
             this.nativeState = nativeState;
             Description = description;
         }
@@ -284,8 +260,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             if (IsDisposed) return;
 
             if (nativeState.Handle != null) nativeState.Dispose();
@@ -293,12 +268,13 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class DepthStencilState : IDisposable
-    {
+    public sealed unsafe class DepthStencilState : IDisposable {
         private SilkD3D11DepthStencilStatePtr nativeState;
 
-        internal DepthStencilState(SilkD3D11DepthStencilStatePtr nativeState, DepthStencilStateDescription description)
-        {
+        internal DepthStencilState(
+            SilkD3D11DepthStencilStatePtr nativeState,
+            DepthStencilStateDescription description
+        ) {
             this.nativeState = nativeState;
             Description = description;
         }
@@ -311,8 +287,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             if (IsDisposed) return;
 
             if (nativeState.Handle != null) nativeState.Dispose();
@@ -320,12 +295,10 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class RasterizerState : IDisposable
-    {
+    public sealed unsafe class RasterizerState : IDisposable {
         private SilkD3D11RasterizerStatePtr nativeState;
 
-        internal RasterizerState(SilkD3D11RasterizerStatePtr nativeState, RasterizerStateDescription description)
-        {
+        internal RasterizerState(SilkD3D11RasterizerStatePtr nativeState, RasterizerStateDescription description) {
             this.nativeState = nativeState;
             Description = description;
         }
@@ -338,8 +311,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             if (IsDisposed) return;
 
             if (nativeState.Handle != null) nativeState.Dispose();
@@ -347,12 +319,10 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class SamplerState : IDisposable
-    {
+    public sealed unsafe class SamplerState : IDisposable {
         private SilkD3D11SamplerStatePtr nativeState;
 
-        internal SamplerState(SilkD3D11SamplerStatePtr nativeState, SamplerStateDescription description)
-        {
+        internal SamplerState(SilkD3D11SamplerStatePtr nativeState, SamplerStateDescription description) {
             this.nativeState = nativeState;
             Description = description;
         }
@@ -365,8 +335,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             if (IsDisposed) return;
 
             if (nativeState.Handle != null) nativeState.Dispose();
@@ -374,24 +343,18 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    namespace Native
-    {
-        internal static class D3DStateConversions
-        {
-            public static BlendDesc ToSilkDesc(this BlendStateDescription description)
-            {
-                var desc = new BlendDesc
-                {
+    namespace Native {
+        internal static class D3DStateConversions {
+            public static BlendDesc ToSilkDesc(this BlendStateDescription description) {
+                var desc = new BlendDesc {
                     AlphaToCoverageEnable = new Bool32(description.AlphaToCoverageEnable),
                     IndependentBlendEnable = new Bool32(description.IndependentBlendEnable)
                 };
 
                 var renderTargets = description.RenderTarget;
-                for (var i = 0; i < 8; i++)
-                {
+                for (var i = 0; i < 8; i++) {
                     var renderTarget = i < renderTargets.Length ? renderTargets[i] : default;
-                    desc.RenderTarget[i] = new RenderTargetBlendDesc
-                    {
+                    desc.RenderTarget[i] = new RenderTargetBlendDesc {
                         BlendEnable = new Bool32(renderTarget.IsBlendEnabled),
                         SrcBlend = (Blend) renderTarget.SourceBlend,
                         DestBlend = (Blend) renderTarget.DestinationBlend,
@@ -406,10 +369,8 @@ namespace HelixToolkit.SharpDX.Core
                 return desc;
             }
 
-            public static DepthStencilDesc ToSilkDesc(this DepthStencilStateDescription description)
-            {
-                return new DepthStencilDesc
-                {
+            public static DepthStencilDesc ToSilkDesc(this DepthStencilStateDescription description) {
+                return new DepthStencilDesc {
                     DepthEnable = new Bool32(description.IsDepthEnabled),
                     DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask) description.DepthWriteMask,
                     DepthFunc = (ComparisonFunc) description.DepthComparison,
@@ -421,10 +382,8 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static DepthStencilopDesc ToSilkDesc(this DepthStencilOperationDescription description)
-            {
-                return new DepthStencilopDesc
-                {
+            public static DepthStencilopDesc ToSilkDesc(this DepthStencilOperationDescription description) {
+                return new DepthStencilopDesc {
                     StencilFailOp = (StencilOp) description.FailOperation,
                     StencilDepthFailOp = (StencilOp) description.DepthFailOperation,
                     StencilPassOp = (StencilOp) description.PassOperation,
@@ -432,10 +391,8 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static RasterizerDesc ToSilkDesc(this RasterizerStateDescription description)
-            {
-                return new RasterizerDesc
-                {
+            public static RasterizerDesc ToSilkDesc(this RasterizerStateDescription description) {
+                return new RasterizerDesc {
                     FillMode = (Silk.NET.Direct3D11.FillMode) description.FillMode,
                     CullMode = (Silk.NET.Direct3D11.CullMode) description.CullMode,
                     FrontCounterClockwise = new Bool32(description.IsFrontCounterClockwise),
@@ -449,10 +406,8 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static unsafe SamplerDesc ToSilkDesc(this SamplerStateDescription description)
-            {
-                var desc = new SamplerDesc
-                {
+            public static unsafe SamplerDesc ToSilkDesc(this SamplerStateDescription description) {
+                var desc = new SamplerDesc {
                     Filter = (Silk.NET.Direct3D11.Filter) description.Filter,
                     AddressU = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressU,
                     AddressV = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressV,

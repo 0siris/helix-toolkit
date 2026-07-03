@@ -18,33 +18,23 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Binds a <see cref="ManipulationGesture" /> to a <see cref="RoutedCommand" /> (or another <see cref="ICommand" />
 ///     implementation).
 /// </summary>
-public class ManipulationBinding : InputBinding
-{
-    public ManipulationBinding()
-    {
-    }
+public class ManipulationBinding : InputBinding {
+    public ManipulationBinding() { }
 
     public ManipulationBinding(ICommand command, ManipulationGesture gesture)
-        : base(command, gesture)
-    {
-    }
+        : base(command, gesture) { }
 
     public int FingerCount => ((ManipulationGesture) Gesture).FingerCount;
 
     [TypeConverter(typeof(ManipulationGestureConverter))]
-    public override InputGesture Gesture
-    {
+    public override InputGesture Gesture {
         get => base.Gesture;
 
-        set
-        {
+        set {
             var oldGesture = Gesture;
-            if (value is ManipulationGesture newGesture)
-            {
+            if (value is ManipulationGesture newGesture) {
                 if (oldGesture != newGesture) base.Gesture = newGesture;
-            }
-            else
-            {
+            } else {
                 throw new ArgumentException(nameof(value));
             }
         }

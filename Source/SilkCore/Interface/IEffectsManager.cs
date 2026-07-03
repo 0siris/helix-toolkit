@@ -12,8 +12,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IDevice2DResources
-{
+public interface IDevice2DResources {
     /// <summary>
     ///     Gets the factory2 d.
     /// </summary>
@@ -57,8 +56,7 @@ public interface IDevice2DResources
 
 /// <summary>
 /// </summary>
-public interface IDevice3DResources
-{
+public interface IDevice3DResources {
     /// <summary>
     /// </summary>
     int AdapterIndex { get; }
@@ -119,8 +117,7 @@ public interface IDevice3DResources
 
 /// <summary>
 /// </summary>
-public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDisposable
-{
+public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDisposable {
     /// <summary>
     ///     Occurs when [on dispose resources].
     /// </summary>
@@ -134,8 +131,7 @@ public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDis
 
 /// <summary>
 /// </summary>
-public interface IEffectsManager : IDeviceResources
-{
+public interface IEffectsManager : IDeviceResources {
     /// <summary>
     /// </summary>
     IShaderPoolManager ShaderManager { get; }

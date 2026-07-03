@@ -20,8 +20,7 @@ namespace HelixToolkit.Wpf
 #if !NETFX_CORE
     [Serializable]
 #endif
-    public class HelixToolkitException : Exception
-    {
+    public class HelixToolkitException : Exception {
         /// <summary>
         ///     Initializes a new instance of the <see cref="HelixToolkitException" /> class.
         /// </summary>
@@ -32,9 +31,7 @@ namespace HelixToolkit.Wpf
         ///     The args.
         /// </param>
         public HelixToolkitException(string formatString, params object[] args)
-            : base(string.Format(formatString, args))
-        {
-        }
+            : base(string.Format(formatString, args)) { }
     }
 #pragma warning restore 0436
 }

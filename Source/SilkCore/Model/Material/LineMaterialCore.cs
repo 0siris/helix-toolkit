@@ -7,27 +7,24 @@ using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         [DataContract]
-        public class LineMaterialCore : MaterialCore, ILineRenderParams
-        {
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+        public class LineMaterialCore : MaterialCore, ILineRenderParams {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new LineMaterialVariable(manager, technique, this);
             }
 
-            #region Properties
+        #region Properties
 
             private float thickness = 0.5f;
 
             /// <summary>
             /// </summary>
-            public float Thickness
-            {
+            public float Thickness {
                 get => thickness;
                 set => Set(ref thickness, value);
             }
@@ -36,8 +33,7 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public float Smoothness
-            {
+            public float Smoothness {
                 get => smoothness;
                 set => Set(ref smoothness, value);
             }
@@ -47,32 +43,28 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Final Line Color = LineColor * PerVertexLineColor
             /// </summary>
-            public Color4 LineColor
-            {
+            public Color4 LineColor {
                 get => lineColor;
                 set => Set(ref lineColor, value);
             }
 
             private bool enableDistanceFading;
 
-            public bool EnableDistanceFading
-            {
+            public bool EnableDistanceFading {
                 get => enableDistanceFading;
                 set => Set(ref enableDistanceFading, value);
             }
 
             private float fadingNearDistance = 100;
 
-            public float FadingNearDistance
-            {
+            public float FadingNearDistance {
                 get => fadingNearDistance;
                 set => Set(ref fadingNearDistance, value);
             }
 
             private float fadingFarDistance;
 
-            public float FadingFarDistance
-            {
+            public float FadingFarDistance {
                 get => fadingFarDistance;
                 set => Set(ref fadingFarDistance, value);
             }
@@ -85,8 +77,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [fixed size]; otherwise, <c>false</c>.
             /// </value>
-            public bool FixedSize
-            {
+            public bool FixedSize {
                 get => fixedSize;
                 set => Set(ref fixedSize, value);
             }
@@ -99,8 +90,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The texture.
             /// </value>
-            public TextureModel Texture
-            {
+            public TextureModel Texture {
                 get => texture;
                 set => Set(ref texture, value);
             }
@@ -113,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The texture scale.
             /// </value>
-            public float TextureScale
-            {
+            public float TextureScale {
                 get => textureScale;
                 set => Set(ref textureScale, value);
             }
@@ -128,8 +117,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The alpha threshold
             /// </value>
-            public float AlphaThreshold
-            {
+            public float AlphaThreshold {
                 get => alphaThreshold;
                 set => Set(ref alphaThreshold, value);
             }
@@ -140,13 +128,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Billboard texture sampler description
             /// </summary>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
                 set => Set(ref samplerDescription, value);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

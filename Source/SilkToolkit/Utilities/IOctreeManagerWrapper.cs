@@ -4,8 +4,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>
-public interface IOctreeManagerWrapper
-{
+public interface IOctreeManagerWrapper {
     /// <summary>
     ///     Gets the octree.
     /// </summary>

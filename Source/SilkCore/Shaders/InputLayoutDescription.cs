@@ -6,15 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Helper;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class InputLayoutDescription
-        {
+        public sealed class InputLayoutDescription {
             /// <summary>
             ///     The empty input layout
             /// </summary>
@@ -29,8 +26,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="byteCode">The byte code.</param>
             /// <param name="elements">The elements.</param>
-            public InputLayoutDescription(byte[] byteCode, InputElement[] elements)
-            {
+            public InputLayoutDescription(byte[] byteCode, InputElement[] elements) {
                 ShaderByteCode = byteCode;
                 InputElements = elements;
             }
@@ -42,9 +38,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="byteCodeName">The byte code name.</param>
             /// <param name="elements">The elements.</param>
             /// <param name="byteCodeReader"></param>
-            public InputLayoutDescription(string byteCodeName, InputElement[] elements,
-                IShaderByteCodeReader byteCodeReader = null)
-            {
+            public InputLayoutDescription(
+                string byteCodeName,
+                InputElement[] elements,
+                IShaderByteCodeReader byteCodeReader = null
+            ) {
                 ShaderByteCodeName = byteCodeName;
                 InputElements = elements;
                 this.byteCodeReader = byteCodeReader ?? UWPShaderBytePool.InternalByteCodeReader;
@@ -53,9 +51,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="InputLayoutDescription" /> class.
             /// </summary>
-            public InputLayoutDescription()
-            {
-            }
+            public InputLayoutDescription() { }
 
             /// <summary>
             ///     Gets or sets the shader byte code.
@@ -64,10 +60,8 @@ namespace HelixToolkit.SharpDX.Core
             ///     The shader byte code.
             /// </value>
             [DataMember]
-            public byte[] ShaderByteCode
-            {
-                get
-                {
+            public byte[] ShaderByteCode {
+                get {
                     if (shaderByteCode == null && !string.IsNullOrEmpty(ShaderByteCodeName))
                         shaderByteCode = UWPShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
                     return shaderByteCode;
@@ -75,7 +69,8 @@ namespace HelixToolkit.SharpDX.Core
                 set => shaderByteCode = value;
             }
 
-            [IgnoreDataMember] public string ShaderByteCodeName { get; }
+            [IgnoreDataMember]
+            public string ShaderByteCodeName { get; }
 
             /// <summary>
             ///     Gets or sets the input elements.

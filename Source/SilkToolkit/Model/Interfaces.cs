@@ -15,28 +15,23 @@ using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public interface ITraversable
-{
+public interface ITraversable {
     IList<ITraversable> Items { get; }
 }
 
-public interface IVisible
-{
+public interface IVisible {
     Visibility Visibility { get; set; }
 }
 
-public interface ITransformable : ITransform
-{
+public interface ITransformable : ITransform {
     Transform3D Transform { get; set; }
 }
 
-public interface ISelectable
-{
+public interface ISelectable {
     bool IsSelected { get; set; }
 }
 
-public interface IMouse3D
-{
+public interface IMouse3D {
     event RoutedEventHandler MouseDown3D;
     event RoutedEventHandler MouseUp3D;
     event RoutedEventHandler MouseMove3D;

@@ -8,12 +8,10 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Used by <see cref="Image" /> to provide a selector to a <see cref="PixelBuffer" />.
 /// </summary>
-public sealed class PixelBufferArray
-{
+public sealed class PixelBufferArray {
     private readonly Image image;
 
-    internal PixelBufferArray(Image image)
-    {
+    internal PixelBufferArray(Image image) {
         this.image = image;
     }
 

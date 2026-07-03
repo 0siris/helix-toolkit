@@ -1,16 +1,12 @@
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         /// </summary>
         /// <typeparam name="StateType">The type of the tate type.</typeparam>
-        public abstract class StateProxy<StateType> : DisposeObject where StateType : class, IDisposable
-        {
+        public abstract class StateProxy<StateType> : DisposeObject where StateType : class, IDisposable {
             private StateType state;
 
-            public StateProxy(StateType state)
-            {
+            public StateProxy(StateType state) {
                 this.state = state;
             }
 
@@ -22,8 +18,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public StateType State => state;
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref state);
                 base.OnDispose(disposeManagedResources);
             }
@@ -35,54 +30,41 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     The result of the conversion.
             /// </returns>
-            public static implicit operator StateType(StateProxy<StateType> proxy)
-            {
+            public static implicit operator StateType(StateProxy<StateType> proxy) {
                 return proxy.State;
             }
         }
 
         /// <summary>
         /// </summary>
-        public sealed class RasterizerStateProxy : StateProxy<RasterizerState>
-        {
+        public sealed class RasterizerStateProxy : StateProxy<RasterizerState> {
             public static readonly RasterizerStateProxy Empty = new(null);
 
-            internal RasterizerStateProxy(RasterizerState state) : base(state)
-            {
-            }
+            internal RasterizerStateProxy(RasterizerState state) : base(state) { }
         }
 
         /// <summary>
         /// </summary>
-        public sealed class BlendStateProxy : StateProxy<BlendState>
-        {
+        public sealed class BlendStateProxy : StateProxy<BlendState> {
             public static readonly BlendStateProxy Empty = new(null);
 
-            internal BlendStateProxy(BlendState state) : base(state)
-            {
-            }
+            internal BlendStateProxy(BlendState state) : base(state) { }
         }
 
         /// <summary>
         /// </summary>
-        public sealed class DepthStencilStateProxy : StateProxy<DepthStencilState>
-        {
+        public sealed class DepthStencilStateProxy : StateProxy<DepthStencilState> {
             public static readonly DepthStencilStateProxy Empty = new(null);
 
-            internal DepthStencilStateProxy(DepthStencilState state) : base(state)
-            {
-            }
+            internal DepthStencilStateProxy(DepthStencilState state) : base(state) { }
         }
 
         /// <summary>
         /// </summary>
-        public sealed class SamplerStateProxy : StateProxy<SamplerState>
-        {
+        public sealed class SamplerStateProxy : StateProxy<SamplerState> {
             public static readonly SamplerStateProxy Empty = new(null);
 
-            internal SamplerStateProxy(SamplerState state) : base(state)
-            {
-            }
+            internal SamplerStateProxy(SamplerState state) : base(state) { }
         }
     }
 }

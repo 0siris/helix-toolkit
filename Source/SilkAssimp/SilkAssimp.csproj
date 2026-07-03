@@ -1,25 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>HelixToolkit.SharpDX.Core</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>HelixToolkit.SharpDX.Core</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>TRACE;NETFX_CORE;CORE;SILKNET</DefineConstants>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
+  </ItemGroup>
 </Project>

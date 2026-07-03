@@ -130,15 +130,18 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.Position, StringFormat=Position: \{0:0.0\}}" />
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.Position, StringFormat=Position: \{0:0.0\}}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>

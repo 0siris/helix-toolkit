@@ -15,16 +15,14 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Provides data for the manipulation events.
 /// </summary>
-public sealed class ManipulationEventArgs : EventArgs
-{
+public sealed class ManipulationEventArgs : EventArgs {
     /// <summary>
     ///     Initializes a new instance of the <see cref="ManipulationEventArgs" /> class.
     /// </summary>
     /// <param name="currentPosition">
     ///     The current position.
     /// </param>
-    public ManipulationEventArgs(Point currentPosition)
-    {
+    public ManipulationEventArgs(Point currentPosition) {
         CurrentPosition = currentPosition;
     }
 

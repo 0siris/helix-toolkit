@@ -6,34 +6,30 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace ShaderManager
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace ShaderManager {
         /// <summary>
         /// </summary>
         public sealed class BlendStatePool : ReferenceCountedDictionaryPool<BlendStateDescription, BlendStateProxy,
-            BlendStateDescription>
-        {
+            BlendStateDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="BlendStatePool" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal BlendStatePool(NativeD3DDevice device) : base(true)
-            {
+            internal BlendStatePool(NativeD3DDevice device) : base(true) {
                 this.device = device;
             }
 
-            protected override bool CanCreate(ref BlendStateDescription key, ref BlendStateDescription argument)
-            {
+            protected override bool CanCreate(ref BlendStateDescription key, ref BlendStateDescription argument) {
                 return !IsDisposed;
             }
 
-            protected override BlendStateProxy OnCreate(ref BlendStateDescription key,
-                ref BlendStateDescription description)
-            {
+            protected override BlendStateProxy OnCreate(
+                ref BlendStateDescription key,
+                ref BlendStateDescription description
+            ) {
                 if (device.FeatureLevel < SilkFeatureLevel.Level_11_0 && description.IndependentBlendEnable)
                     description.IndependentBlendEnable = false;
                 return new BlendStateProxy(device.CreateBlendState(description));
@@ -43,28 +39,28 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         public sealed class DepthStencilStatePool : ReferenceCountedDictionaryPool<DepthStencilStateDescription,
-            DepthStencilStateProxy, DepthStencilStateDescription>
-        {
+            DepthStencilStateProxy, DepthStencilStateDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DepthStencilStatePool" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal DepthStencilStatePool(NativeD3DDevice device) : base(true)
-            {
+            internal DepthStencilStatePool(NativeD3DDevice device) : base(true) {
                 this.device = device;
             }
 
-            protected override bool CanCreate(ref DepthStencilStateDescription key,
-                ref DepthStencilStateDescription argument)
-            {
+            protected override bool CanCreate(
+                ref DepthStencilStateDescription key,
+                ref DepthStencilStateDescription argument
+            ) {
                 return !IsDisposed;
             }
 
-            protected override DepthStencilStateProxy OnCreate(ref DepthStencilStateDescription key,
-                ref DepthStencilStateDescription description)
-            {
+            protected override DepthStencilStateProxy OnCreate(
+                ref DepthStencilStateDescription key,
+                ref DepthStencilStateDescription description
+            ) {
                 return new DepthStencilStateProxy(device.CreateDepthStencilState(description));
             }
         }
@@ -72,28 +68,28 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         public sealed class RasterStatePool : ReferenceCountedDictionaryPool<RasterizerStateDescription,
-            RasterizerStateProxy, RasterizerStateDescription>
-        {
+            RasterizerStateProxy, RasterizerStateDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="RasterStatePool" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal RasterStatePool(NativeD3DDevice device) : base(true)
-            {
+            internal RasterStatePool(NativeD3DDevice device) : base(true) {
                 this.device = device;
             }
 
-            protected override bool CanCreate(ref RasterizerStateDescription key,
-                ref RasterizerStateDescription argument)
-            {
+            protected override bool CanCreate(
+                ref RasterizerStateDescription key,
+                ref RasterizerStateDescription argument
+            ) {
                 return !IsDisposed;
             }
 
-            protected override RasterizerStateProxy OnCreate(ref RasterizerStateDescription key,
-                ref RasterizerStateDescription description)
-            {
+            protected override RasterizerStateProxy OnCreate(
+                ref RasterizerStateDescription key,
+                ref RasterizerStateDescription description
+            ) {
                 return new RasterizerStateProxy(device.CreateRasterizerState(description));
             }
         }
@@ -101,41 +97,37 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         public sealed class SamplerStatePool : ReferenceCountedDictionaryPool<SamplerStateDescription, SamplerStateProxy
-            , SamplerStateDescription>
-        {
+          , SamplerStateDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="SamplerStatePool" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal SamplerStatePool(NativeD3DDevice device) : base(true)
-            {
+            internal SamplerStatePool(NativeD3DDevice device) : base(true) {
                 this.device = device;
             }
 
-            protected override bool CanCreate(ref SamplerStateDescription key, ref SamplerStateDescription argument)
-            {
+            protected override bool CanCreate(ref SamplerStateDescription key, ref SamplerStateDescription argument) {
                 return !IsDisposed;
             }
 
-            protected override SamplerStateProxy OnCreate(ref SamplerStateDescription key,
-                ref SamplerStateDescription description)
-            {
+            protected override SamplerStateProxy OnCreate(
+                ref SamplerStateDescription key,
+                ref SamplerStateDescription description
+            ) {
                 return new SamplerStateProxy(device.CreateSamplerState(description));
             }
         }
 
         /// <summary>
         /// </summary>
-        public sealed class StatePoolManager : DisposeObject, IStatePoolManager
-        {
+        public sealed class StatePoolManager : DisposeObject, IStatePoolManager {
             /// <summary>
             ///     Initializes a new instance of the <see cref="StatePoolManager" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal StatePoolManager(NativeD3DDevice device)
-            {
+            internal StatePoolManager(NativeD3DDevice device) {
                 BlendStatePool = new BlendStatePool(device);
                 RasterStatePool = new RasterStatePool(device);
                 DepthStencilStatePool = new DepthStencilStatePool(device);
@@ -179,8 +171,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="desc">The desc.</param>
             /// <returns></returns>
-            public BlendStateProxy Register(BlendStateDescription desc)
-            {
+            public BlendStateProxy Register(BlendStateDescription desc) {
                 return BlendStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
             }
 
@@ -189,8 +180,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="desc">The desc.</param>
             /// <returns></returns>
-            public RasterizerStateProxy Register(RasterizerStateDescription desc)
-            {
+            public RasterizerStateProxy Register(RasterizerStateDescription desc) {
                 return RasterStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
             }
 
@@ -199,8 +189,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="desc">The desc.</param>
             /// <returns></returns>
-            public DepthStencilStateProxy Register(DepthStencilStateDescription desc)
-            {
+            public DepthStencilStateProxy Register(DepthStencilStateDescription desc) {
                 return DepthStencilStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
             }
 
@@ -209,13 +198,11 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="desc">The desc.</param>
             /// <returns></returns>
-            public SamplerStateProxy Register(SamplerStateDescription desc)
-            {
+            public SamplerStateProxy Register(SamplerStateDescription desc) {
                 return SamplerStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 BlendStatePool.Dispose();
                 RasterStatePool.Dispose();
                 DepthStencilStatePool.Dispose();

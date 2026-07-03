@@ -4,27 +4,22 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace TemplateDemo
-{
-    using HelixToolkit.Wpf;
-    using HelixToolkit.Wpf.SharpDX;
+namespace TemplateDemo;
 
-    using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
-    public class Sphere : Shape
-    {
-        private static Geometry3D geometry;
+public class Sphere : Shape {
+    private static Geometry3D geometry;
 
-        static Sphere()
-        {
-            var b1 = new MeshBuilder();
-            b1.AddSphere(new Vector3(0, 0, 0), 0.5);
-            geometry = b1.ToMeshGeometry3D();
-        }
+    static Sphere() {
+        var b1 = new MeshBuilder();
+        b1.AddSphere(new Vector3(0, 0, 0), 0.5);
+        geometry = b1.ToMeshGeometry3D();
+    }
 
-        protected override Geometry3D GetGeometry()
-        {
-            return geometry;
-        }
+    protected override Geometry3D GetGeometry() {
+        return geometry;
     }
 }

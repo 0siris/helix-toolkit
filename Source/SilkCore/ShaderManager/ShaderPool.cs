@@ -6,15 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace ShaderManager
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace ShaderManager {
         /// <summary>
         ///     Pool to store and share shaders. Do not dispose shader object externally.
         /// </summary>
-        public sealed class ShaderPool : ReferenceCountedDictionaryPool<byte[], ShaderBase, ShaderDescription>
-        {
+        public sealed class ShaderPool : ReferenceCountedDictionaryPool<byte[], ShaderBase, ShaderDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
@@ -23,8 +20,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="device">The device.</param>
             /// <param name="cbPool">The cb pool.</param>
             internal ShaderPool(NativeD3DDevice device, IConstantBufferPool cbPool)
-                : base(false)
-            {
+                : base(false) {
                 ConstantBufferPool = cbPool;
                 this.device = device;
             }
@@ -37,16 +33,14 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public IConstantBufferPool ConstantBufferPool { get; }
 
-            protected override bool CanCreate(ref byte[] key, ref ShaderDescription argument)
-            {
+            protected override bool CanCreate(ref byte[] key, ref ShaderDescription argument) {
                 return key != null && key.Length > 0;
             }
 
-            protected override ShaderBase OnCreate(ref byte[] key, ref ShaderDescription description)
-            {
+            protected override ShaderBase OnCreate(ref byte[] key, ref ShaderDescription description) {
                 return description.ByteCode == null
-                    ? Constants.GetNullShader(description.ShaderType)
-                    : description.CreateShader(device, ConstantBufferPool);
+                           ? Constants.GetNullShader(description.ShaderType)
+                           : description.CreateShader(device, ConstantBufferPool);
             }
         }
 
@@ -54,8 +48,7 @@ namespace HelixToolkit.SharpDX.Core
         ///     Pool to store and share shader layouts. Do not dispose layout object externally.
         /// </summary>
         public sealed class
-            LayoutPool : ReferenceCountedDictionaryPool<byte[], InputLayoutProxy, InputLayoutDescription>
-        {
+            LayoutPool : ReferenceCountedDictionaryPool<byte[], InputLayoutProxy, InputLayoutDescription> {
             private readonly NativeD3DDevice device;
 
             /// <summary>
@@ -63,26 +56,22 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="device">The device.</param>
             internal LayoutPool(NativeD3DDevice device)
-                : base(false)
-            {
+                : base(false) {
                 this.device = device;
             }
 
-            protected override bool CanCreate(ref byte[] key, ref InputLayoutDescription argument)
-            {
+            protected override bool CanCreate(ref byte[] key, ref InputLayoutDescription argument) {
                 return key != null && key.Length > 0;
             }
 
-            protected override InputLayoutProxy OnCreate(ref byte[] key, ref InputLayoutDescription description)
-            {
+            protected override InputLayoutProxy OnCreate(ref byte[] key, ref InputLayoutDescription description) {
                 return new InputLayoutProxy(device, description.ShaderByteCode, description.InputElements);
             }
         }
 
         /// <summary>
         /// </summary>
-        public class ShaderPoolManager : DisposeObject, IShaderPoolManager
-        {
+        public class ShaderPoolManager : DisposeObject, IShaderPoolManager {
             private readonly ShaderPool[] shaderPools = new ShaderPool[Constants.NumShaderStages];
             private LayoutPool layoutPool;
 
@@ -91,8 +80,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="device">The device.</param>
             /// <param name="cbPool">The cb pool.</param>
-            internal ShaderPoolManager(NativeD3DDevice device, IConstantBufferPool cbPool)
-            {
+            internal ShaderPoolManager(NativeD3DDevice device, IConstantBufferPool cbPool) {
                 shaderPools[Constants.VertexIdx] = new ShaderPool(device, cbPool);
                 shaderPools[Constants.DomainIdx] = new ShaderPool(device, cbPool);
                 shaderPools[Constants.HullIdx] = new ShaderPool(device, cbPool);
@@ -107,13 +95,12 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="description">The description.</param>
             /// <returns></returns>
-            public ShaderBase RegisterShader(ShaderDescription description)
-            {
+            public ShaderBase RegisterShader(ShaderDescription description) {
                 if (description == null) return null;
                 return shaderPools[description.ShaderType.ToIndex()]
-                    .TryCreateOrGet(description.ByteCode, description, out var shader)
-                    ? shader
-                    : null;
+                           .TryCreateOrGet(description.ByteCode, description, out var shader)
+                           ? shader
+                           : null;
             }
 
             /// <summary>
@@ -121,20 +108,18 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="description">The description.</param>
             /// <returns></returns>
-            public InputLayoutProxy RegisterInputLayout(InputLayoutDescription description)
-            {
+            public InputLayoutProxy RegisterInputLayout(InputLayoutDescription description) {
                 if (description == null) return null;
                 return layoutPool.TryCreateOrGet(description.ShaderByteCode, description, out var inputLayout)
-                    ? inputLayout
-                    : null;
+                           ? inputLayout
+                           : null;
             }
 
             /// <summary>
             ///     Called when [dispose].
             /// </summary>
             /// <param name="disposeManagedResources">if set to <c>true</c> [dispose managed resources].</param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 for (var i = 0; i < shaderPools.Length; ++i) RemoveAndDispose(ref shaderPools[i]);
                 RemoveAndDispose(ref layoutPool);
                 base.OnDispose(disposeManagedResources);

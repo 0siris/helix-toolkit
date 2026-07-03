@@ -1,62 +1,62 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
-        <UseWindowsForms>true</UseWindowsForms>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
 
-        <RootNamespace>ExampleBrowser</RootNamespace>
-        <AssemblyName>ExampleBrowser</AssemblyName>
+    <RootNamespace>ExampleBrowser</RootNamespace>
+    <AssemblyName>ExampleBrowser</AssemblyName>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
 
-        <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
-        <PackageReference Include="MicrosoftExpressionInteractions" Version="3.0.40218" />
-        <PackageReference Include="NAudio" Version="1.10.0" />
-        <PackageReference Include="PropertyTools.Wpf" Version="3.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2"/>
+    <PackageReference Include="MicrosoftExpressionInteractions" Version="3.0.40218"/>
+    <PackageReference Include="NAudio" Version="1.10.0"/>
+    <PackageReference Include="PropertyTools.Wpf" Version="3.0.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
 
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Page Remove="Workitems\Workitem10051\Resources.xaml" />
-        <Resource Include="Workitems\Workitem10051\Resources.xaml" />
-        <Resource Include="Images\Workitem10043_small.png" />
-        <Resource Include="Images\Workitem10045_small.png" />
-        <Resource Include="ReadMe.txt" />
-        <Resource Include="Images\Workitem10044_small.png" />
-        <Resource Include="Images\Workitem10048_small.png" />
-        <Resource Include="Images\Workitem10051_small.png" />
-        <Resource Include="Images\Workitem10053_small.png" />
-        <Resource Include="Images\Workitem1349_small.png" />
-        <Resource Include="Images\CursorPosition_small.png" />
-    </ItemGroup>
+  <ItemGroup>
+    <Page Remove="Workitems\Workitem10051\Resources.xaml"/>
+    <Resource Include="Workitems\Workitem10051\Resources.xaml"/>
+    <Resource Include="Images\Workitem10043_small.png"/>
+    <Resource Include="Images\Workitem10045_small.png"/>
+    <Resource Include="ReadMe.txt"/>
+    <Resource Include="Images\Workitem10044_small.png"/>
+    <Resource Include="Images\Workitem10048_small.png"/>
+    <Resource Include="Images\Workitem10051_small.png"/>
+    <Resource Include="Images\Workitem10053_small.png"/>
+    <Resource Include="Images\Workitem1349_small.png"/>
+    <Resource Include="Images\CursorPosition_small.png"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs"/>
+  </ItemGroup>
 
 </Project>

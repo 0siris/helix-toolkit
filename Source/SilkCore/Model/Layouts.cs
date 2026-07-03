@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct DefaultVertex
-{
+public struct DefaultVertex {
     public Vector4 Position;
     public Vector3 Normal;
     public Vector3 Tangent;
@@ -22,14 +21,13 @@ public struct DefaultVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct BatchedMeshVertex
-{
+public struct BatchedMeshVertex {
     public Vector4 Position;
     public Vector3 Normal;
     public Vector3 Tangent;
     public Vector3 BiTangent;
     public Vector2 TexCoord;
-    public Vector4 Color; //Diffuse, Emissive, Specular, Reflect
+    public Vector4 Color;  //Diffuse, Emissive, Specular, Reflect
     public Vector4 Color2; //Ambient, sMaterialShininess, diffuseAlpha
     public const int SizeInBytes = 4 * (4 + 3 + 3 + 3 + 2 + 4 + 4);
 }
@@ -37,8 +35,7 @@ public struct BatchedMeshVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct LinesVertex
-{
+public struct LinesVertex {
     public Vector4 Position;
     public Color4 Color;
     public const int SizeInBytes = 4 * (4 + 4);
@@ -47,8 +44,7 @@ public struct LinesVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PointsVertex
-{
+public struct PointsVertex {
     public Vector4 Position;
     public Color4 Color;
     public const int SizeInBytes = 4 * (4 + 4);
@@ -57,8 +53,7 @@ public struct PointsVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct CubeVertex
-{
+public struct CubeVertex {
     public Vector4 Position;
     public const int SizeInBytes = 4 * 4;
 }
@@ -66,8 +61,7 @@ public struct CubeVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct BillboardVertex
-{
+public struct BillboardVertex {
     public Vector4 Position;
     public Color4 Foreground;
     public Color4 Background;
@@ -83,8 +77,7 @@ public struct BillboardVertex
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct BillboardInstanceParameter
-{
+public struct BillboardInstanceParameter {
     public Color4 DiffuseColor;
     public Vector2 TexCoordScale;
     public Vector2 TexCoordOffset;
@@ -94,8 +87,7 @@ public struct BillboardInstanceParameter
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct InstanceParameter
-{
+public struct InstanceParameter {
     public Color4 DiffuseColor;
     public Color4 EmissiveColor;
     public Vector2 TexCoordOffset;
@@ -105,8 +97,7 @@ public struct InstanceParameter
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct BoneIds
-{
+public struct BoneIds {
     public int Bone1;
     public int Bone2;
     public int Bone3;
@@ -119,8 +110,7 @@ public struct BoneIds
 /// <summary>
 /// </summary>
 //[StructLayout(LayoutKind.Sequential, Pack = 4)]
-public static class BoneMatricesStruct
-{
+public static class BoneMatricesStruct {
     //public const int NumberOfBones = 128;
     //[MarshalAs(UnmanagedType.ByValArray, SizeConst = NumberOfBones)]
     //public Matrix[] Bones;
@@ -131,8 +121,7 @@ public static class BoneMatricesStruct
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Particle
-{
+public struct Particle {
     private Vector3 position;
     private float initEnergy;
     private Vector3 velocity;
@@ -148,8 +137,7 @@ public struct Particle
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ParticlePerFrame
-{
+public struct ParticlePerFrame {
     public uint NumParticles;
     public Vector3 ExtraAcceleration;
 
@@ -181,8 +169,7 @@ public struct ParticlePerFrame
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ParticleInsertParameters
-{
+public struct ParticleInsertParameters {
     public Vector3 EmitterLocation;
     public float InitialEnergy;
 
@@ -202,8 +189,7 @@ public struct ParticleInsertParameters
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ParticleCountIndirectArgs
-{
+public struct ParticleCountIndirectArgs {
     public uint VertexCount;
     public uint InstanceCount;
     public uint StartVertexLocation;
@@ -214,8 +200,7 @@ public struct ParticleCountIndirectArgs
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ShadowMapParamStruct
-{
+public struct ShadowMapParamStruct {
     public Vector2 ShadowMapSize;
     public int HasShadowMap;
     private float paddingShadow0;
@@ -228,8 +213,7 @@ public struct ShadowMapParamStruct
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct GlobalTransformStruct
-{
+public struct GlobalTransformStruct {
     /// <summary>
     ///     The view matrix
     /// </summary>
@@ -281,8 +265,7 @@ public struct GlobalTransformStruct
 ///     Used for simple mesh rendering without materials. Such as ShadowPass
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct SimpleMeshStruct
-{
+public struct SimpleMeshStruct {
     public Matrix World;
     public int HasInstances;
     private Vector3 padding;
@@ -293,8 +276,7 @@ public struct SimpleMeshStruct
 ///     Used combine with <see cref="PhongPBRMaterialStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ModelStruct
-{
+public struct ModelStruct {
     public Matrix World;
     public int InvertNormal;
     public int HasInstances;
@@ -324,23 +306,22 @@ public struct ModelStruct
 ///     Used combine with <see cref="ModelStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PhongPBRMaterialStruct
-{
+public struct PhongPBRMaterialStruct {
     public const int SizeInBytes = 4 * (4 + 4 * 5 + 4 + 4 + 4 + 4 * 3 + 4) + ModelStruct.SizeInBytes;
 
     public const string MinTessDistanceStr = "minTessDistance"; //float
     public const string MaxTessDistanceStr = "maxTessDistance"; //float
     public const string MinDistTessFactorStr = "minTessFactor"; //float
     public const string MaxDistTessFactorStr = "maxTessFactor"; //float
-    public const string DiffuseStr = "vMaterialDiffuse"; //float4
-    public const string AmbientStr = "vMaterialAmbient"; //float4
-    public const string EmissiveStr = "vMaterialEmissive"; //float4
-    public const string SpecularStr = "vMaterialSpecular"; //float4
-    public const string ReflectStr = "vMaterialReflect"; //float4
+    public const string DiffuseStr = "vMaterialDiffuse";        //float4
+    public const string AmbientStr = "vMaterialAmbient";        //float4
+    public const string EmissiveStr = "vMaterialEmissive";      //float4
+    public const string SpecularStr = "vMaterialSpecular";      //float4
+    public const string ReflectStr = "vMaterialReflect";        //float4
 
-    public const string HasDiffuseMapStr = "bHasDiffuseMap"; //bool
-    public const string HasNormalMapStr = "bHasNormalMap"; //bool
-    public const string HasCubeMapStr = "bHasCubeMap"; //bool
+    public const string HasDiffuseMapStr = "bHasDiffuseMap";     //bool
+    public const string HasNormalMapStr = "bHasNormalMap";       //bool
+    public const string HasCubeMapStr = "bHasCubeMap";           //bool
     public const string RenderShadowMapStr = "bRenderShadowMap"; //bool
     public const string HasSpecularColorMap = "bHasSpecularMap";
     public const string HasDiffuseAlphaMapStr = "bHasAlphaMap"; //bool
@@ -352,16 +333,16 @@ public struct PhongPBRMaterialStruct
     public const string ClearCoatStr = "ClearCoat";
     public const string ClearCoatRoughnessStr = "ClearCoatRoughness";
 
-    public const string HasRMMapStr = "bHasRMMap"; //bool
-    public const string HasAOMapStr = "bHasAOMap"; //bool
-    public const string HasEmissiveMapStr = "bHasEmissiveMap"; //bool
+    public const string HasRMMapStr = "bHasRMMap";                 //bool
+    public const string HasAOMapStr = "bHasAOMap";                 //bool
+    public const string HasEmissiveMapStr = "bHasEmissiveMap";     //bool
     public const string HasIrradianceMapStr = "bHasIrradianceMap"; //bool
-    public const string EnableAutoTangent = "bAutoTengent"; //bool
+    public const string EnableAutoTangent = "bAutoTengent";        //bool
 
     public const string HasDisplacementMapStr = "bHasDisplacementMap"; //bool
-    public const string RenderPBR = "bRenderPBR"; //bool
-    public const string RenderFlat = "bRenderFlat"; //bool
-    public const string ShininessStr = "sMaterialShininess"; //float
+    public const string RenderPBR = "bRenderPBR";                      //bool
+    public const string RenderFlat = "bRenderFlat";                    //bool
+    public const string ShininessStr = "sMaterialShininess";           //float
 
     public const string DisplacementMapScaleMaskStr = "displacementMapScaleMask"; //float4
 
@@ -375,8 +356,7 @@ public struct PhongPBRMaterialStruct
 ///     Used combine with <see cref="PointLineMaterialStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PointLineModelStruct
-{
+public struct PointLineModelStruct {
     public Matrix World;
     public int HasInstances;
     public int HasInstanceParams;
@@ -388,33 +368,31 @@ public struct PointLineModelStruct
 ///     Used combine with <see cref="PointLineModelStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PointLineMaterialStruct
-{
+public struct PointLineMaterialStruct {
     //public Vector4 Params;
     //public Vector4 Color;
     //public Bool4 BoolParams;
 
     public const int SizeInBytes = 4 * 4 * 5 + PointLineModelStruct.SizeInBytes;
-    public const string FadeNearDistance = "fadeNearDistance"; //float
-    public const string FadeFarDistance = "fadeFarDistance"; //float
+    public const string FadeNearDistance = "fadeNearDistance";         //float
+    public const string FadeFarDistance = "fadeFarDistance";           //float
     public const string EnableDistanceFading = "enableDistanceFading"; //bool
-    public const string ParamsStr = "pfParams"; //vector4
-    public const string ColorStr = "pColor"; //vector4
-    public const string FixedSize = "fixedSize"; //bool
-    public const string BoolParamsStr = "pbParams"; //bool3
-    public const string HasTextureStr = "bHasTexture"; //bool
-    public const string TextureScaleStr = "pTextureScale"; //float;
-    public const string AlphaThresholdStr = "pAlphaThreshold"; // float; 
-    public const string EnableBlendingStr = "pEnableBlending"; //bool
-    public const string BlendingFactorStr = "pBlendingFactor"; //float
+    public const string ParamsStr = "pfParams";                        //vector4
+    public const string ColorStr = "pColor";                           //vector4
+    public const string FixedSize = "fixedSize";                       //bool
+    public const string BoolParamsStr = "pbParams";                    //bool3
+    public const string HasTextureStr = "bHasTexture";                 //bool
+    public const string TextureScaleStr = "pTextureScale";             //float;
+    public const string AlphaThresholdStr = "pAlphaThreshold";         // float; 
+    public const string EnableBlendingStr = "pEnableBlending";         //bool
+    public const string BlendingFactorStr = "pBlendingFactor";         //float
 }
 
 /// <summary>
 ///     Used combine with <see cref="PointLineMaterialStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ParticleModelStruct
-{
+public struct ParticleModelStruct {
     public Matrix World;
     public int HasInstances;
     public int HasInstanceParams;
@@ -424,8 +402,7 @@ public struct ParticleModelStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PlaneGridModelStruct
-{
+public struct PlaneGridModelStruct {
     public Matrix World;
     public float GridSpacing;
     public float GridThickenss;
@@ -443,8 +420,7 @@ public struct PlaneGridModelStruct
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct LightStruct
-{
+public struct LightStruct {
     public int LightType;
     private Vector3 padding;
     public Vector4 LightDir;
@@ -460,8 +436,7 @@ public struct LightStruct
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ClipPlaneStruct
-{
+public struct ClipPlaneStruct {
     //public Matrix CrossPlaneParams;
     public const int SizeInBytes = 4 * (4 * 4 + 4 * 8);
 
@@ -480,8 +455,7 @@ public struct ClipPlaneStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct BorderEffectStruct
-{
+public struct BorderEffectStruct {
     public Color4 Color;
     public Matrix Param;
 
@@ -494,16 +468,14 @@ public struct BorderEffectStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct CubeFaceCamera
-{
+public struct CubeFaceCamera {
     public Matrix View;
     public Matrix Projection;
     public const int SizeInBytes = 4 * 4 * 4;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct CubeFaceCamerasStruct
-{
+public struct CubeFaceCamerasStruct {
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
     public CubeFaceCamera[] Cameras;
 
@@ -511,8 +483,7 @@ public struct CubeFaceCamerasStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-internal struct SSAOParamStruct
-{
+internal struct SSAOParamStruct {
     //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     //public Vector4[] Kernels;
     public Vector2 NoiseScale;
@@ -523,8 +494,7 @@ internal struct SSAOParamStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ScreenQuadModelStruct
-{
+public struct ScreenQuadModelStruct {
     public Matrix mWorld;
     public Vector4 BottomLeft;
     public Vector4 BottomRight;
@@ -544,8 +514,7 @@ public struct ScreenQuadModelStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct SpriteStruct
-{
+public struct SpriteStruct {
     public Vector2 Position;
     public Vector2 UV;
     public Vector4 Color;
@@ -554,25 +523,23 @@ public struct SpriteStruct
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct VolumeParamsStruct
-{
-    public const string World = "mWorld"; //Separated from the struct in material
-    public const string WorldInv = "mWorldInv"; // Inverse of world matrix
-    public const string Color = "pColor"; // Vector4
-    public const string StepSize = "stepSize"; // Vector3
-    public const string MaxIterations = "maxIterations"; // int or uint
-    public const string HasGradientMapX = "bHasGradientMapX"; // bool
-    public const string IsoValue = "isoValue"; // float
-    public const string BaseSampleDistance = "baseSampleDist"; //float
-    public const string ActualSampleDistance = "actualSampleDist"; //float
-    public const string IterationOffset = "iterationOffset"; // int or uint
+public struct VolumeParamsStruct {
+    public const string World = "mWorld";                              //Separated from the struct in material
+    public const string WorldInv = "mWorldInv";                        // Inverse of world matrix
+    public const string Color = "pColor";                              // Vector4
+    public const string StepSize = "stepSize";                         // Vector3
+    public const string MaxIterations = "maxIterations";               // int or uint
+    public const string HasGradientMapX = "bHasGradientMapX";          // bool
+    public const string IsoValue = "isoValue";                         // float
+    public const string BaseSampleDistance = "baseSampleDist";         //float
+    public const string ActualSampleDistance = "actualSampleDist";     //float
+    public const string IterationOffset = "iterationOffset";           // int or uint
     public const string EnablePlaneAlignment = "enablePlaneAlignment"; // bool
     public const int SizeInBytes = 4 * (4 * 4 + 4 * 4 + 4 + 4 + 4);
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct MorphTargetVertex
-{
+public struct MorphTargetVertex {
     public Vector3 deltaPosition;
     public Vector3 deltaNormal;
     public Vector3 deltaTangent;
@@ -581,8 +548,7 @@ public struct MorphTargetVertex
 /// <summary>
 ///     2D UV Transform
 /// </summary>
-public struct UVTransform
-{
+public struct UVTransform {
     /// <summary>
     ///     The rotation by radian
     /// </summary>
@@ -611,8 +577,7 @@ public struct UVTransform
     ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
     /// </summary>
     /// <param name="rotation">The rotation.</param>
-    public UVTransform(float rotation)
-    {
+    public UVTransform(float rotation) {
         Rotation = rotation;
         Scaling = Vector2.One;
         Translation = Vector2.Zero;
@@ -622,8 +587,7 @@ public struct UVTransform
     ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
     /// </summary>
     /// <param name="translation">The translation.</param>
-    public UVTransform(Vector2 translation)
-    {
+    public UVTransform(Vector2 translation) {
         Rotation = 0;
         Scaling = Vector2.One;
         Translation = translation;
@@ -635,8 +599,7 @@ public struct UVTransform
     /// <param name="rotation">The rotation.</param>
     /// <param name="scaling">The scaling.</param>
     /// <param name="translation">The translation.</param>
-    public UVTransform(float rotation, Vector2 scaling, Vector2 translation)
-    {
+    public UVTransform(float rotation, Vector2 scaling, Vector2 translation) {
         Rotation = rotation;
         Scaling = scaling;
         Translation = translation;
@@ -650,9 +613,13 @@ public struct UVTransform
     /// <param name="scalingY">The scaling y.</param>
     /// <param name="translationX">The translation x.</param>
     /// <param name="translationY">The translation y.</param>
-    public UVTransform(float rotation, float scalingX = 1, float scalingY = 1, float translationX = 0,
-        float translationY = 0)
-    {
+    public UVTransform(
+        float rotation,
+        float scalingX = 1,
+        float scalingY = 1,
+        float translationX = 0,
+        float translationY = 0
+    ) {
         Rotation = rotation;
         Scaling = new Vector2(scalingX, scalingY);
         Translation = new Vector2(translationX, translationY);
@@ -665,13 +632,25 @@ public struct UVTransform
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Matrix(UVTransform uvTransform)
-    {
+    public static implicit operator Matrix(UVTransform uvTransform) {
         var cos = (float) Math.Cos(uvTransform.Rotation);
         var sine = (float) Math.Sin(uvTransform.Rotation);
-        return new Matrix(cos * uvTransform.Scaling.X, sine, 0, 0,
-            -sine, cos * uvTransform.Scaling.Y, 0, 0,
-            0, 0, 1, 0, uvTransform.Translation.X, uvTransform.Translation.Y, 0, 1);
+        return new Matrix(cos * uvTransform.Scaling.X,
+                          sine,
+                          0,
+                          0,
+                          -sine,
+                          cos * uvTransform.Scaling.Y,
+                          0,
+                          0,
+                          0,
+                          0,
+                          1,
+                          0,
+                          uvTransform.Translation.X,
+                          uvTransform.Translation.Y,
+                          0,
+                          1);
     }
 
     /// <summary>
@@ -681,16 +660,14 @@ public struct UVTransform
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator UVTransform(Matrix matrix)
-    {
+    public static implicit operator UVTransform(Matrix matrix) {
         matrix.Decompose(out var s, out var r, out var t);
         return new UVTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
     }
 
     public static readonly UVTransform Identity = new(0, Vector2.One, Vector2.Zero);
 
-    public float[] ToArray()
-    {
+    public float[] ToArray() {
         return new[] {Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y};
     }
 }
@@ -698,8 +675,7 @@ public struct UVTransform
 /// <summary>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ScreenDuplicationModelStruct
-{
+public struct ScreenDuplicationModelStruct {
     public Vector4 TopRight;
     public Vector4 TopLeft;
     public Vector4 BottomRight;

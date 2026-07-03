@@ -5,37 +5,28 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public class PresenterNode2D : SceneNode2D
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public class PresenterNode2D : SceneNode2D {
             private SceneNode2D content;
 
-            public PresenterNode2D()
-            {
+            public PresenterNode2D() {
                 ItemsInternal = new ObservableFastList<SceneNode2D>();
                 Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
             }
 
-            public SceneNode2D Content
-            {
+            public SceneNode2D Content {
                 get => content;
-                set
-                {
-                    if (content != value)
-                    {
-                        if (content != null)
-                        {
+                set {
+                    if (content != value) {
+                        if (content != null) {
                             content.Detach();
                             content.Parent = null;
                             ItemsInternal.Clear();
                         }
 
                         content = value;
-                        if (content != null)
-                        {
+                        if (content != null) {
                             content.Parent = this;
                             if (IsAttached) content.Attach(RenderHost);
                             ItemsInternal.Add(value);
@@ -46,10 +37,8 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override bool OnAttach(IRenderHost host)
-            {
-                if (base.OnAttach(host))
-                {
+            protected override bool OnAttach(IRenderHost host) {
+                if (base.OnAttach(host)) {
                     content?.Attach(host);
                     return true;
                 }
@@ -57,8 +46,7 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 content?.Detach();
                 base.OnDetach();
             }
@@ -72,18 +60,15 @@ namespace HelixToolkit.SharpDX.Core
             //    }
             //}
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
+            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
                 if (content != null) return content.HitTest(mousePoint, out hitResult);
 
                 hitResult = null;
                 return false;
             }
 
-            protected override Size2F MeasureOverride(Size2F availableSize)
-            {
-                if (content != null)
-                {
+            protected override Size2F MeasureOverride(Size2F availableSize) {
+                if (content != null) {
                     content.Measure(availableSize);
                     return new Size2F(content.DesiredSize.X, content.DesiredSize.Y);
                 }
@@ -91,10 +76,8 @@ namespace HelixToolkit.SharpDX.Core
                 return new Size2F();
             }
 
-            protected override RectangleF ArrangeOverride(RectangleF finalSize)
-            {
-                if (content != null)
-                {
+            protected override RectangleF ArrangeOverride(RectangleF finalSize) {
+                if (content != null) {
                     content.Arrange(finalSize);
                     return new RectangleF(0, 0, content.DesiredSize.X, content.DesiredSize.Y);
                 }

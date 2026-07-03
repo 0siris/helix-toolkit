@@ -18,30 +18,29 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 using Media = System.Windows.Media;
 
-public abstract class Light3D : Element3D
-{
+public abstract class Light3D : Element3D {
     public static readonly DependencyProperty ColorProperty =
-        DependencyProperty.Register("Color", typeof(Media.Color), typeof(Light3D),
-            new PropertyMetadata(Media.Colors.Gray,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as LightNode).Color = ((Media.Color) e.NewValue).ToColor4();
-                }));
+        DependencyProperty.Register("Color",
+                                    typeof(Media.Color),
+                                    typeof(Light3D),
+                                    new PropertyMetadata(Media.Colors.Gray,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as LightNode).Color =
+                                                                 ((Media.Color) e.NewValue).ToColor4();
+                                                         }));
 
     /// <summary>
     ///     Color of the light.
     ///     For simplicity, this color applies to the diffuse and specular properties of the light.
     /// </summary>
-    public Media.Color Color
-    {
+    public Media.Color Color {
         get => (Media.Color) GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
     public LightType LightType => (SceneNode as LightNode).LightType;
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         (core as LightNode).Color = Color.ToColor4();
         base.AssignDefaultValuesToSceneNode(core);
     }

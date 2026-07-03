@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Model;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public class SpotLightCore : PointLightCore
-        {
+        public class SpotLightCore : PointLightCore {
             private Vector3 direction;
 
             private float fallOff = 1;
@@ -25,8 +22,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="SpotLightCore" /> class.
             /// </summary>
-            public SpotLightCore()
-            {
+            public SpotLightCore() {
                 LightType = LightType.Spot;
             }
 
@@ -36,8 +32,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The direction.
             /// </value>
-            public Vector3 Direction
-            {
+            public Vector3 Direction {
                 get => direction;
                 set => SetAffectsRender(ref direction, value);
             }
@@ -48,8 +43,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fall off.
             /// </value>
-            public float FallOff
-            {
+            public float FallOff {
                 get => fallOff;
                 set => SetAffectsRender(ref fallOff, value);
             }
@@ -60,8 +54,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The inner angle.
             /// </value>
-            public float InnerAngle
-            {
+            public float InnerAngle {
                 get => innerAngle;
                 set => SetAffectsRender(ref innerAngle, value);
             }
@@ -72,8 +65,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The outer angle.
             /// </value>
-            public float OuterAngle
-            {
+            public float OuterAngle {
                 get => outerAngle;
                 set => SetAffectsRender(ref outerAngle, value);
             }
@@ -83,14 +75,15 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="lightScene">The light scene.</param>
             /// <param name="index">The index.</param>
-            protected override void OnRender(Light3DSceneShared lightScene, int index)
-            {
+            protected override void OnRender(Light3DSceneShared lightScene, int index) {
                 base.OnRender(lightScene, index);
                 lightScene.LightModels.Lights[index].LightDir =
                     SilkMath.TransformNormal(direction, ModelMatrix).Normalized().ToVector4(0);
                 lightScene.LightModels.Lights[index].LightSpot = new Vector4(
-                    (float) Math.Cos(outerAngle / 360.0f * Math.PI), (float) Math.Cos(innerAngle / 360.0f * Math.PI),
-                    fallOff, 0);
+                    (float) Math.Cos(outerAngle / 360.0f * Math.PI),
+                    (float) Math.Cos(innerAngle / 360.0f * Math.PI),
+                    fallOff,
+                    0);
             }
         }
     }

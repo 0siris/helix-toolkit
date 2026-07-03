@@ -25,15 +25,12 @@ namespace HelixToolkit.UWP
     /// <summary>
     ///     Class ModelReader.
     /// </summary>
-    public abstract class ModelReader : IModelReader
-    {
+    public abstract class ModelReader : IModelReader {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelReader" /> class.
         /// </summary>
-        protected ModelReader()
-        {
-            DefaultMaterial = new PhongMaterialCore
-            {
+        protected ModelReader() {
+            DefaultMaterial = new PhongMaterialCore {
                 Name = "Gold",
                 AmbientColor = new Color4(0.24725f, 0.1995f, 0.0745f, 1.0f),
                 DiffuseColor = new Color4(0.75164f, 0.60648f, 0.22648f, 1.0f),
@@ -61,8 +58,7 @@ namespace HelixToolkit.UWP
         ///     Gets or sets the texture path.
         /// </summary>
         /// <value>The texture path.</value>
-        public string TexturePath
-        {
+        public string TexturePath {
             get => Directory;
 
             set => Directory = value;
@@ -74,11 +70,9 @@ namespace HelixToolkit.UWP
         /// <param name="path">The path.</param>
         /// <param name="info"></param>
         /// <returns>The model.</returns>
-        public virtual Mesh3DGroup Read(string path, ModelInfo info = default)
-        {
+        public virtual Mesh3DGroup Read(string path, ModelInfo info = default) {
             Directory = Path.GetDirectoryName(path);
-            using (var s = File.OpenRead(path))
-            {
+            using (var s = File.OpenRead(path)) {
                 return Read(s, info);
             }
         }

@@ -1,65 +1,65 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>DeferredShadingDemo</RootNamespace>
-        <AssemblyName>DeferredShadingDemo</AssemblyName>
+    <RootNamespace>DeferredShadingDemo</RootNamespace>
+    <AssemblyName>DeferredShadingDemo</AssemblyName>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>disable</Nullable>
-        <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
 
-        <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Fody" Version="6.2.1" />
-        <PackageReference Include="PropertyChanged.Fody" Version="3.2.8" />
-        <PackageReference Include="PropertyTools.Wpf" Version="3.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="6.2.1"/>
+    <PackageReference Include="PropertyChanged.Fody" Version="3.2.8"/>
+    <PackageReference Include="PropertyTools.Wpf" Version="3.0.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
 
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="..\..\..\..\Models\obj\bunny\TextureCheckerboard2.jpg">
-            <Link>Media\TextureCheckerboard2.jpg</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\..\..\..\Models\obj\bunny\TextureCheckerboard2_dot3.jpg">
-            <Link>Media\TextureCheckerboard2_dot3.jpg</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\..\..\..\Models\obj\bunny\bunny.mtl">
-            <Link>Media\bunny.mtl</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\..\..\..\Models\obj\bunny\bunny.obj">
-            <Link>Media\bunny.obj</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\..\Models\obj\bunny\TextureCheckerboard2.jpg">
+      <Link>Media\TextureCheckerboard2.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\Models\obj\bunny\TextureCheckerboard2_dot3.jpg">
+      <Link>Media\TextureCheckerboard2_dot3.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\Models\obj\bunny\bunny.mtl">
+      <Link>Media\bunny.mtl</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\Models\obj\bunny\bunny.obj">
+      <Link>Media\bunny.obj</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs"/>
+  </ItemGroup>
 
 </Project>

@@ -22,56 +22,65 @@ namespace HelixToolkit.Wpf.SharpDX;
 [DefaultProperty("Children")]
 [ContentProperty("Items")]
 [TemplatePart(Name = "PART_Canvas", Type = typeof(ContentPresenter))]
-public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
-{
+public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     private static readonly ILogger logger = LogManager.Create<ScreenDuplicationViewport3DX>();
 
     /// <summary>
     ///     The EffectsManager property.
     /// </summary>
-    public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register(
-        "EffectsManager", typeof(IEffectsManager), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(
-            null,
-            (s, e) => ((ScreenDuplicationViewport3DX) s).EffectsManagerPropertyChanged()));
+    public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register("EffectsManager",
+        typeof(IEffectsManager),
+        typeof(ScreenDuplicationViewport3DX),
+        new PropertyMetadata(null,
+                             (s, e) => ((ScreenDuplicationViewport3DX) s).EffectsManagerPropertyChanged()));
 
     /// <summary>
     ///     The Render Technique property
     /// </summary>
-    public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register(
-        "RenderTechnique", typeof(IRenderTechnique), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(null,
-            (s, e) => ((ScreenDuplicationViewport3DX) s).RenderTechniquePropertyChanged()));
+    public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register("RenderTechnique",
+        typeof(IRenderTechnique),
+        typeof(ScreenDuplicationViewport3DX),
+        new PropertyMetadata(null,
+                             (s, e) => ((ScreenDuplicationViewport3DX) s).RenderTechniquePropertyChanged()));
 
     /// <summary>
     ///     The render exception property.
     /// </summary>
     public static DependencyProperty RenderExceptionProperty = DependencyProperty.Register(
-        "RenderException", typeof(Exception), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(null));
+        "RenderException",
+        typeof(Exception),
+        typeof(ScreenDuplicationViewport3DX),
+        new PropertyMetadata(null));
 
     /// <summary>
     ///     The message text property.
     /// </summary>
     public static readonly DependencyProperty MessageTextProperty = DependencyProperty.Register(
-        "MessageText", typeof(string), typeof(ScreenDuplicationViewport3DX), new PropertyMetadata(null));
+        "MessageText",
+        typeof(string),
+        typeof(ScreenDuplicationViewport3DX),
+        new PropertyMetadata(null));
 
     /// <summary>
     ///     Background Color property.this.RenderHost
     /// </summary>
-    public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
-        "BackgroundColor", typeof(Color), typeof(ScreenDuplicationViewport3DX),
-        new PropertyMetadata(Colors.White, (s, e) =>
-        {
-            if (((ScreenDuplicationViewport3DX) s).RenderHost != null)
-                ((ScreenDuplicationViewport3DX) s).RenderHost.ClearColor = ((Color) e.NewValue).ToColor4();
-        }));
+    public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register("BackgroundColor",
+        typeof(Color),
+        typeof(ScreenDuplicationViewport3DX),
+        new PropertyMetadata(Colors.White,
+                             (s, e) => {
+                                 if (((ScreenDuplicationViewport3DX) s).RenderHost != null)
+                                     ((ScreenDuplicationViewport3DX) s).RenderHost.ClearColor =
+                                         ((Color) e.NewValue).ToColor4();
+                             }));
 
     private bool disposedValue;
 
     private bool IsAttached;
 
-    static ScreenDuplicationViewport3DX()
-    {
-        DefaultStyleKeyProperty.OverrideMetadata(
-            typeof(ScreenDuplicationViewport3DX), new FrameworkPropertyMetadata(typeof(ScreenDuplicationViewport3DX)));
+    static ScreenDuplicationViewport3DX() {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(ScreenDuplicationViewport3DX),
+                                                 new FrameworkPropertyMetadata(typeof(ScreenDuplicationViewport3DX)));
     }
 
     /// <summary>
@@ -80,8 +89,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// <value>
     ///     <c>true</c> if deferred shading is enabled; otherwise, <c>false</c>.
     /// </value>
-    public IRenderTechnique RenderTechnique
-    {
+    public IRenderTechnique RenderTechnique {
         get => (IRenderTechnique) GetValue(RenderTechniqueProperty);
         set => SetValue(RenderTechniqueProperty, value);
     }
@@ -89,8 +97,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// <summary>
     ///     Gets or sets the <see cref="System.Exception" /> that occured at rendering subsystem.
     /// </summary>
-    public Exception RenderException
-    {
+    public Exception RenderException {
         get => (Exception) GetValue(RenderExceptionProperty);
         set => SetValue(RenderExceptionProperty, value);
     }
@@ -101,8 +108,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// <value>
     ///     The message text.
     /// </value>
-    public string MessageText
-    {
+    public string MessageText {
         get => (string) GetValue(MessageTextProperty);
 
         set => SetValue(MessageTextProperty, value);
@@ -111,29 +117,25 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// <summary>
     ///     Background Color
     /// </summary>
-    public Color BackgroundColor
-    {
+    public Color BackgroundColor {
         get => (Color) GetValue(BackgroundColorProperty);
         set => SetValue(BackgroundColorProperty, value);
     }
 
     public Matrix WorldMatrix { get; } = Matrix.Identity;
 
-    public static bool IsInDesignMode
-    {
-        get
-        {
+    public static bool IsInDesignMode {
+        get {
             var prop = DesignerProperties.IsInDesignModeProperty;
             return (bool) DependencyPropertyDescriptor.FromProperty(prop, typeof(FrameworkElement)).Metadata
-                .DefaultValue;
+                                                      .DefaultValue;
         }
     }
 
     /// <summary>
     ///     Gets or sets the <see cref="IEffectsManager" />.
     /// </summary>
-    public IEffectsManager EffectsManager
-    {
+    public IEffectsManager EffectsManager {
         get => (IEffectsManager) GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
@@ -141,10 +143,8 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
 
     public CameraCore CameraCore { get; } = new PerspectiveCameraCore();
 
-    public IEnumerable<SceneNode> Renderables
-    {
-        get
-        {
+    public IEnumerable<SceneNode> Renderables {
+        get {
             if (RenderHost != null)
                 foreach (Element3D item in Items)
                     yield return item.SceneNode;
@@ -159,40 +159,31 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
 
     public Rectangle ViewportRectangle => new();
 
-    public void Attach(IRenderHost host)
-    {
-        if (!IsAttached)
-        {
+    public void Attach(IRenderHost host) {
+        if (!IsAttached) {
             foreach (var e in Renderables) e.Attach(EffectsManager);
             IsAttached = true;
         }
     }
 
-    public void Detach()
-    {
-        if (IsAttached)
-        {
+    public void Detach() {
+        if (IsAttached) {
             IsAttached = false;
             foreach (var e in Renderables) e.Detach();
         }
     }
 
-    public void InvalidateRender()
-    {
+    public void InvalidateRender() {
         RenderHost?.InvalidateRender();
     }
 
-    public void InvalidateSceneGraph()
-    {
+    public void InvalidateSceneGraph() {
         RenderHost?.InvalidateSceneGraph();
     }
 
-    public void Update(TimeSpan timeStamp)
-    {
-    }
+    public void Update(TimeSpan timeStamp) { }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(true);
     }
@@ -205,18 +196,15 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// <summary>
     ///     Handles the change of the effects manager.
     /// </summary>
-    private void EffectsManagerPropertyChanged()
-    {
+    private void EffectsManagerPropertyChanged() {
         if (RenderHost != null) RenderHost.EffectsManager = EffectsManager;
     }
 
     /// <summary>
     ///     Handles the change of the render technique
     /// </summary>
-    private void RenderTechniquePropertyChanged()
-    {
-        if (RenderHost != null)
-        {
+    private void RenderTechniquePropertyChanged() {
+        if (RenderHost != null) {
             // remove the scene
             RenderHost.Viewport = null;
 
@@ -225,13 +213,12 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
         }
     }
 
-    public override void OnApplyTemplate()
-    {
+    public override void OnApplyTemplate() {
         base.OnApplyTemplate();
         if (IsInDesignMode) return;
         if (RenderHost != null) RenderHost.ExceptionOccurred -= HandleRenderException;
         var hostPresenter = GetTemplateChild("PART_Canvas") as ContentPresenter;
-        hostPresenter.Content = new DPFSurfaceSwapChain(surface => { return new ScreenCloneRenderHost(surface); });
+        hostPresenter.Content = new DPFSurfaceSwapChain(surface => new ScreenCloneRenderHost(surface));
         RenderHost = (hostPresenter.Content as IRenderCanvas).RenderHost;
         RenderHost.ExceptionOccurred += HandleRenderException;
         RenderHost.Viewport = this;
@@ -244,11 +231,9 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    private void HandleRenderException(object sender, RelayExceptionEventArgs e)
-    {
+    private void HandleRenderException(object sender, RelayExceptionEventArgs e) {
         var bindingExpression = GetBindingExpression(RenderExceptionProperty);
-        if (bindingExpression != null)
-        {
+        if (bindingExpression != null) {
             // If RenderExceptionProperty is bound, we assume the exception will be handled.
             RenderException = e.Exception;
             e.Handled = true;
@@ -258,20 +243,16 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
         RenderExceptionOccurred(sender, e);
 
         // If the Exception is still unhandled...
-        if (!e.Handled)
-        {
+        if (!e.Handled) {
             // ... prevent a MessageBox.Show().
             MessageText = e.Exception.ToString();
             e.Handled = true;
         }
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
+    protected virtual void Dispose(bool disposing) {
+        if (!disposedValue) {
+            if (disposing) {
                 EffectsManager = null;
                 RenderHost?.Dispose();
             }
@@ -282,12 +263,9 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
         }
     }
 
-    private class ScreenCloneRenderHost : SwapChainRenderHost
-    {
-        public ScreenCloneRenderHost(IntPtr surface) : base(surface)
-        {
-            RenderConfiguration = new DX11RenderHostConfiguration
-            {
+    private class ScreenCloneRenderHost : SwapChainRenderHost {
+        public ScreenCloneRenderHost(IntPtr surface) : base(surface) {
+            RenderConfiguration = new DX11RenderHostConfiguration {
                 ClearEachFrame = false,
                 RenderD2D = false,
                 RenderLights = false,
@@ -295,8 +273,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX
             };
         }
 
-        protected override DX11RenderBufferProxyBase CreateRenderBuffer()
-        {
+        protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
             logger.LogInformation("DX11SwapChainRenderBufferProxy");
             return new DX11SwapChainRenderBufferProxy(surface, EffectsManager, false);
         }

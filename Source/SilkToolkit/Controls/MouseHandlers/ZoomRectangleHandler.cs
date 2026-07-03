@@ -17,8 +17,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Handles rectangle zooming.
 /// </summary>
-internal class ZoomRectangleHandler : MouseGestureHandler
-{
+internal class ZoomRectangleHandler : MouseGestureHandler {
     /// <summary>
     ///     The zoom rectangle.
     /// </summary>
@@ -31,16 +30,13 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     ///     The camera controller.
     /// </param>
     public ZoomRectangleHandler(CameraController controller)
-        : base(controller)
-    {
-    }
+        : base(controller) { }
 
     /// <summary>
     ///     Occurs when the manipulation is completed.
     /// </summary>
     /// <param name="e">The <see cref="Point" /> instance containing the event data.</param>
-    public override void Completed(Point e)
-    {
+    public override void Completed(Point e) {
         base.Completed(e);
         Viewport.HideZoomRectangle();
         ZoomRectangle(zoomRectangle);
@@ -50,8 +46,7 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     ///     Occurs when the position is changed during a manipulation.
     /// </summary>
     /// <param name="e">The <see cref="Point" /> instance containing the event data.</param>
-    public override void Delta(Point e)
-    {
+    public override void Delta(Point e) {
         base.Delta(e);
 
         var ar = Viewport.ActualHeight / Viewport.ActualWidth;
@@ -71,8 +66,7 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     ///     Occurs when the manipulation is started.
     /// </summary>
     /// <param name="e">The <see cref="Point" /> instance containing the event data.</param>
-    public override void Started(Point e)
-    {
+    public override void Started(Point e) {
         base.Started(e);
     }
 
@@ -82,8 +76,7 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     /// <param name="rectangle">
     ///     The zoom rectangle.
     /// </param>
-    public void ZoomRectangle(Rect rectangle)
-    {
+    public void ZoomRectangle(Rect rectangle) {
         if (!Viewport.IsZoomEnabled) return;
 
         if (rectangle.Width < 10 || rectangle.Height < 10) return;
@@ -95,8 +88,7 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     ///     executed on the command target.
     /// </summary>
     /// <returns>True if the execution can continue.</returns>
-    protected override bool CanExecute()
-    {
+    protected override bool CanExecute() {
         return Viewport.IsZoomEnabled;
     }
 
@@ -104,8 +96,7 @@ internal class ZoomRectangleHandler : MouseGestureHandler
     ///     Gets the cursor for the gesture.
     /// </summary>
     /// <returns>A cursor.</returns>
-    protected override Cursor GetCursor()
-    {
+    protected override Cursor GetCursor() {
         return Viewport.ZoomRectangleCursor;
     }
 }

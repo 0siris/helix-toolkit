@@ -1,61 +1,61 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>BoneSkinDemo</RootNamespace>
-        <AssemblyName>BoneSkinDemo</AssemblyName>
+    <RootNamespace>BoneSkinDemo</RootNamespace>
+    <AssemblyName>BoneSkinDemo</AssemblyName>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkAssimp\SilkAssimp.csproj" />
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkAssimp\SilkAssimp.csproj"/>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
 
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Include="..\..\..\..\Models\FBX\Solus The Knight\Solus_The_Knight.fbx"
-              Link="Solus The Knight\Solus_The_Knight.fbx"
-              CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup>
+    <None Include="..\..\..\..\Models\FBX\Solus The Knight\Solus_The_Knight.fbx"
+          Link="Solus The Knight\Solus_The_Knight.fbx"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <None Include="..\..\..\..\Models\FBX\Solus The Knight\temp_normal_map.png"
-              Link="Solus The Knight\temp_normal_map.png"
-              CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\..\Models\FBX\Solus The Knight\temp_normal_map.png"
+          Link="Solus The Knight\temp_normal_map.png"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_knight_color_map_1024.png"
-              Link="Solus The Knight\tex_knight_color_map_1024.png"
-              CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_knight_color_map_1024.png"
+          Link="Solus The Knight\tex_knight_color_map_1024.png"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_knight_metalness_map_1024.png"
-              Link="Solus The Knight\tex_knight_metalness_map_1024.png"
-              CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_knight_metalness_map_1024.png"
+          Link="Solus The Knight\tex_knight_metalness_map_1024.png"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_occlusion_map_1024.png"
-              Link="Solus The Knight\tex_occlusion_map_1024.png"
-              CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+    <None Include="..\..\..\..\Models\FBX\Solus The Knight\tex_occlusion_map_1024.png"
+          Link="Solus The Knight\tex_occlusion_map_1024.png"
+          CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
 </Project>

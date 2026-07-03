@@ -7,10 +7,8 @@ using System.Runtime.InteropServices;
 
 namespace SharpDX.Toolkit.Graphics;
 
-public readonly struct DataPointer
-{
-    public DataPointer(nint pointer, int size)
-    {
+public readonly struct DataPointer {
+    public DataPointer(nint pointer, int size) {
         Pointer = pointer;
         Size = size;
     }
@@ -24,8 +22,7 @@ public readonly struct DataPointer
 ///     Provides method to instantiate an image 1D/2D/3D supporting TextureArray and mipmaps on the CPU or to load/save an
 ///     image from the disk.
 /// </summary>
-public sealed class Image : Component
-{
+public sealed class Image : Component {
     /// <summary>
     /// </summary>
     /// <param name="dataPointer"></param>
@@ -35,8 +32,12 @@ public sealed class Image : Component
     /// <returns></returns>
     public delegate Image ImageLoadDelegate(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle);
 
-    public delegate void ImageSaveDelegate(PixelBuffer[] pixelBuffers, int count, ImageDescription description,
-        Stream imageStream);
+    public delegate void ImageSaveDelegate(
+        PixelBuffer[] pixelBuffers,
+        int count,
+        ImageDescription description,
+        Stream imageStream
+    );
 
     private static readonly List<LoadSaveDelegate> loadSaveDelegates = new();
 
@@ -86,8 +87,7 @@ public sealed class Image : Component
 
     private int zBufferCountPerArraySlice;
 
-    static Image()
-    {
+    static Image() {
         Register(ImageFileType.Dds, DDSHelper.LoadFromDDSMemory, DDSHelper.SaveToDDSStream);
         Register(ImageFileType.Gif, WICHelper.LoadFromWICMemory, WICHelper.SaveGifToWICMemory);
         Register(ImageFileType.Tiff, WICHelper.LoadFromWICMemory, WICHelper.SaveTiffToWICMemory);
@@ -97,9 +97,7 @@ public sealed class Image : Component
         Register(ImageFileType.Wmp, WICHelper.LoadFromWICMemory, WICHelper.SaveWmpToWICMemory);
     }
 
-    private Image()
-    {
-    }
+    private Image() { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Image" /> class.
@@ -114,9 +112,14 @@ public sealed class Image : Component
     ///     If the format is invalid, or width/height/depth/arraysize is invalid
     ///     with respect to the dimension.
     /// </exception>
-    internal Image(ImageDescription description, nint dataPointer, int offset, GCHandle? handle,
-        bool bufferIsDisposable, PitchFlags pitchFlags = PitchFlags.None)
-    {
+    internal Image(
+        ImageDescription description,
+        nint dataPointer,
+        int offset,
+        GCHandle? handle,
+        bool bufferIsDisposable,
+        PitchFlags pitchFlags = PitchFlags.None
+    ) {
         Initialize(description, dataPointer, offset, handle, bufferIsDisposable, pitchFlags);
     }
 
@@ -144,8 +147,7 @@ public sealed class Image : Component
     /// <summary>
     /// </summary>
     /// <param name="disposeManagedResources"></param>
-    protected override void Dispose(bool disposeManagedResources)
-    {
+    protected override void Dispose(bool disposeManagedResources) {
         if (handle.HasValue) handle.Value.Free();
 
         if (bufferIsDisposable) Utilities.FreeMemory(buffer);
@@ -158,8 +160,7 @@ public sealed class Image : Component
     /// </summary>
     /// <param name="mipmap">The mipmap.</param>
     /// <returns>A description of a particular mipmap for this texture.</returns>
-    public MipMapDescription GetMipMapDescription(int mipmap)
-    {
+    public MipMapDescription GetMipMapDescription(int mipmap) {
         return mipmapDescriptions[mipmap];
     }
 
@@ -173,14 +174,12 @@ public sealed class Image : Component
     /// <param name="mipmap">The mipmap.</param>
     /// <returns>A <see cref="pixelBufferArray" />.</returns>
     /// <exception cref="System.ArgumentException">If arrayOrZSliceIndex or mipmap are out of range.</exception>
-    public PixelBuffer GetPixelBuffer(int arrayOrZSliceIndex, int mipmap)
-    {
+    public PixelBuffer GetPixelBuffer(int arrayOrZSliceIndex, int mipmap) {
         // Check for parameters, as it is easy to mess up things...
         if (mipmap > Description.MipLevels)
             throw new ArgumentException("Invalid mipmap level", "mipmap");
 
-        if (Description.Dimension == TextureDimension.Texture3D)
-        {
+        if (Description.Dimension == TextureDimension.Texture3D) {
             if (arrayOrZSliceIndex > Description.Depth)
                 throw new ArgumentException("Invalid z slice index", "arrayOrZSliceIndex");
 
@@ -203,8 +202,7 @@ public sealed class Image : Component
     /// <param name="mipmap">The mipmap.</param>
     /// <returns>A <see cref="pixelBufferArray" />.</returns>
     /// <exception cref="System.ArgumentException">If arrayIndex, zIndex or mipmap are out of range.</exception>
-    public PixelBuffer GetPixelBuffer(int arrayIndex, int zIndex, int mipmap)
-    {
+    public PixelBuffer GetPixelBuffer(int arrayIndex, int zIndex, int mipmap) {
         // Check for parameters, as it is easy to mess up things...
         if (mipmap > Description.MipLevels)
             throw new ArgumentException("Invalid mipmap level", "mipmap");
@@ -229,18 +227,15 @@ public sealed class Image : Component
     /// <param name="loader">The loader delegate (can be null).</param>
     /// <param name="saver">The saver delegate (can be null).</param>
     /// <exception cref="System.ArgumentException"></exception>
-    public static void Register(ImageFileType type, ImageLoadDelegate loader, ImageSaveDelegate saver)
-    {
+    public static void Register(ImageFileType type, ImageLoadDelegate loader, ImageSaveDelegate saver) {
         // If reference equals, then it is null
         if (ReferenceEquals(loader, saver))
             throw new ArgumentNullException("loader/saver", "Can set both loader and saver to null");
 
         var newDelegate = new LoadSaveDelegate(type, loader, saver);
-        for (var i = 0; i < loadSaveDelegates.Count; i++)
-        {
+        for (var i = 0; i < loadSaveDelegates.Count; i++) {
             var loadSaveDelegate = loadSaveDelegates[i];
-            if (loadSaveDelegate.FileType == type)
-            {
+            if (loadSaveDelegate.FileType == type) {
                 loadSaveDelegates[i] = newDelegate;
                 return;
             }
@@ -253,8 +248,7 @@ public sealed class Image : Component
     ///     Gets the databox from this image.
     /// </summary>
     /// <returns>The databox of this image.</returns>
-    public DataBox[] ToDataBox()
-    {
+    public DataBox[] ToDataBox() {
         return (DataBox[]) dataBoxArray.Clone();
     }
 
@@ -262,13 +256,11 @@ public sealed class Image : Component
     ///     Gets the databox from this image.
     /// </summary>
     /// <returns>The databox of this image.</returns>
-    private DataBox[] ComputeDataBox()
-    {
+    private DataBox[] ComputeDataBox() {
         dataBoxArray = new DataBox[Description.ArraySize * Description.MipLevels];
         var i = 0;
         for (var arrayIndex = 0; arrayIndex < Description.ArraySize; arrayIndex++)
-        for (var mipIndex = 0; mipIndex < Description.MipLevels; mipIndex++)
-        {
+        for (var mipIndex = 0; mipIndex < Description.MipLevels; mipIndex++) {
             // Get the first z-slice (A DataBox for a Texture3D is pointing to the whole texture).
             var pixelBuffer = GetPixelBufferUnsafe(arrayIndex, 0, mipIndex);
 
@@ -286,8 +278,7 @@ public sealed class Image : Component
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>A new image.</returns>
-    public static Image New(ImageDescription description)
-    {
+    public static Image New(ImageDescription description) {
         return New(description, nint.Zero);
     }
 
@@ -299,8 +290,7 @@ public sealed class Image : Component
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1)
-    {
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) {
         return New1D(width, mipMapCount, format, arraySize, nint.Zero);
     }
 
@@ -313,8 +303,7 @@ public sealed class Image : Component
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1)
-    {
+    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) {
         return New2D(width, height, mipMapCount, format, arraySize, nint.Zero);
     }
 
@@ -325,8 +314,7 @@ public sealed class Image : Component
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format)
-    {
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format) {
         return NewCube(width, mipMapCount, format, nint.Zero);
     }
 
@@ -339,8 +327,7 @@ public sealed class Image : Component
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format)
-    {
+    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format) {
         return New3D(width, height, depth, mipMapCount, format, nint.Zero);
     }
 
@@ -350,8 +337,7 @@ public sealed class Image : Component
     /// <param name="description">The image description.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New(ImageDescription description, nint dataPointer)
-    {
+    public static Image New(ImageDescription description, nint dataPointer) {
         return new Image(description, dataPointer, 0, null, false);
     }
 
@@ -364,10 +350,12 @@ public sealed class Image : Component
     /// <param name="arraySize">Size of the array.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer)
-    {
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer) {
         return new Image(CreateDescription(TextureDimension.Texture1D, width, 1, 1, mipMapCount, format, arraySize),
-            dataPointer, 0, null, false);
+                         dataPointer,
+                         0,
+                         null,
+                         false);
     }
 
     /// <summary>
@@ -380,12 +368,20 @@ public sealed class Image : Component
     /// <param name="arraySize">Size of the array.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize,
-        nint dataPointer)
-    {
+    public static Image New2D(
+        int width,
+        int height,
+        MipMapCount mipMapCount,
+        PixelFormat format,
+        int arraySize,
+        nint dataPointer
+    ) {
         return new Image(
             CreateDescription(TextureDimension.Texture2D, width, height, 1, mipMapCount, format, arraySize),
-            dataPointer, 0, null, false);
+            dataPointer,
+            0,
+            null,
+            false);
     }
 
     /// <summary>
@@ -396,10 +392,12 @@ public sealed class Image : Component
     /// <param name="format">The format.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer)
-    {
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer) {
         return new Image(CreateDescription(TextureDimension.TextureCube, width, width, 1, mipMapCount, format, 6),
-            dataPointer, 0, null, false);
+                         dataPointer,
+                         0,
+                         null,
+                         false);
     }
 
     /// <summary>
@@ -412,11 +410,19 @@ public sealed class Image : Component
     /// <param name="format">The format.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format,
-        nint dataPointer)
-    {
+    public static Image New3D(
+        int width,
+        int height,
+        int depth,
+        MipMapCount mipMapCount,
+        PixelFormat format,
+        nint dataPointer
+    ) {
         return new Image(CreateDescription(TextureDimension.Texture3D, width, width, depth, mipMapCount, format, 1),
-            dataPointer, 0, null, false);
+                         dataPointer,
+                         0,
+                         null,
+                         false);
     }
 
     /// <summary>
@@ -432,8 +438,7 @@ public sealed class Image : Component
     ///     If <paramref name="makeACopy" /> is set to false, the returned image is now the holder of the unmanaged
     ///     pointer and will release it on Dispose.
     /// </remarks>
-    public static Image Load(DataPointer dataBuffer, bool makeACopy = false)
-    {
+    public static Image Load(DataPointer dataBuffer, bool makeACopy = false) {
         return Load(dataBuffer.Pointer, dataBuffer.Size, makeACopy);
     }
 
@@ -451,8 +456,7 @@ public sealed class Image : Component
     ///     If <paramref name="makeACopy" /> is set to false, the returned image is now the holder of the unmanaged
     ///     pointer and will release it on Dispose.
     /// </remarks>
-    public static Image Load(nint dataPointer, int dataSize, bool makeACopy = false)
-    {
+    public static Image Load(nint dataPointer, int dataSize, bool makeACopy = false) {
         return Load(dataPointer, dataSize, makeACopy, null);
     }
 
@@ -462,22 +466,19 @@ public sealed class Image : Component
     /// <param name="buffer">Reference to a managed buffer.</param>
     /// <returns>An new image.</returns>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    public static unsafe Image Load(byte[] buffer)
-    {
+    public static unsafe Image Load(byte[] buffer) {
         if (buffer == null)
             throw new ArgumentNullException("buffer");
 
         var size = buffer.Length;
 
         // If buffer is allocated on Large Object Heap, then we are going to pin it instead of making a copy.
-        if (size > 85 * 1024)
-        {
+        if (size > 85 * 1024) {
             var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             return Load(handle.AddrOfPinnedObject(), size, false, handle);
         }
 
-        fixed (void* pbuffer = buffer)
-        {
+        fixed (void* pbuffer = buffer) {
             return Load((nint) pbuffer, size, true);
         }
     }
@@ -488,8 +489,7 @@ public sealed class Image : Component
     /// <param name="imageStream">The image stream.</param>
     /// <returns>An new image.</returns>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    public static Image Load(Stream imageStream)
-    {
+    public static Image Load(Stream imageStream) {
         return Load(Utilities.ReadStream(imageStream));
     }
 
@@ -499,10 +499,8 @@ public sealed class Image : Component
     /// <param name="fileName">The filename.</param>
     /// <returns>An new image.</returns>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    public static Image Load(string fileName)
-    {
-        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public static Image Load(string fileName) {
+        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(stream);
         }
     }
@@ -516,11 +514,9 @@ public sealed class Image : Component
     /// <param name="handle">The handle.</param>
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException"></exception>
-    private static Image Load(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle)
-    {
+    private static Image Load(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle) {
         foreach (var loadSaveDelegate in loadSaveDelegates)
-            if (loadSaveDelegate.Load != null)
-            {
+            if (loadSaveDelegate.Load != null) {
                 var image = loadSaveDelegate.Load(dataPointer, dataSize, makeACopy, handle);
                 if (image != null) return image;
             }
@@ -528,16 +524,20 @@ public sealed class Image : Component
         return null;
     }
 
-    internal unsafe void Initialize(ImageDescription description, nint dataPointer, int offset, GCHandle? handle,
-        bool bufferIsDisposable, PitchFlags pitchFlags = PitchFlags.None)
-    {
+    internal unsafe void Initialize(
+        ImageDescription description,
+        nint dataPointer,
+        int offset,
+        GCHandle? handle,
+        bool bufferIsDisposable,
+        PitchFlags pitchFlags = PitchFlags.None
+    ) {
         if (!FormatHelper.IsValid(description.Format) || FormatHelper.IsVideo(description.Format))
             throw new InvalidOperationException("Unsupported DXGI Format");
 
         this.handle = handle;
 
-        switch (description.Dimension)
-        {
+        switch (description.Dimension) {
             case TextureDimension.Texture1D:
                 if (description.Width <= 0 || description.Height != 1 || description.Depth != 1 ||
                     description.ArraySize == 0)
@@ -568,8 +568,10 @@ public sealed class Image : Component
                     throw new InvalidOperationException("Invalid Width/Height/Depth/ArraySize for Image 3D");
 
                 // Check that miplevels are fine
-                description.MipLevels = Texture.CalculateMipLevels(description.Width, description.Height,
-                    description.Depth, description.MipLevels);
+                description.MipLevels = Texture.CalculateMipLevels(description.Width,
+                                                                   description.Height,
+                                                                   description.Depth,
+                                                                   description.MipLevels);
                 break;
         }
 
@@ -588,8 +590,7 @@ public sealed class Image : Component
         this.bufferIsDisposable = !handle.HasValue && bufferIsDisposable;
         buffer = dataPointer;
 
-        if (dataPointer == nint.Zero)
-        {
+        if (dataPointer == nint.Zero) {
             buffer = Utilities.AllocateMemory(totalSizeInBytes);
             offset = 0;
             this.bufferIsDisposable = true;
@@ -603,18 +604,22 @@ public sealed class Image : Component
         dataBoxArray = ComputeDataBox();
     }
 
-    private PixelBuffer GetPixelBufferUnsafe(int arrayIndex, int zIndex, int mipmap)
-    {
+    private PixelBuffer GetPixelBufferUnsafe(int arrayIndex, int zIndex, int mipmap) {
         var depthIndex = mipMapToZIndex[mipmap];
         var pixelBufferIndex = arrayIndex * zBufferCountPerArraySlice + depthIndex + zIndex;
         return pixelBuffers[pixelBufferIndex];
     }
 
-    private static ImageDescription CreateDescription(TextureDimension dimension, int width, int height, int depth,
-        MipMapCount mipMapCount, PixelFormat format, int arraySize)
-    {
-        return new ImageDescription
-        {
+    private static ImageDescription CreateDescription(
+        TextureDimension dimension,
+        int width,
+        int height,
+        int depth,
+        MipMapCount mipMapCount,
+        PixelFormat format,
+        int arraySize
+    ) {
+        return new ImageDescription {
             Width = width,
             Height = height,
             Depth = depth,
@@ -625,36 +630,38 @@ public sealed class Image : Component
         };
     }
 
-    internal static void ComputePitch(Format fmt, int width, int height, out int rowPitch, out int slicePitch,
-        out int widthCount, out int heightCount, PitchFlags flags = PitchFlags.None)
-    {
+    internal static void ComputePitch(
+        Format fmt,
+        int width,
+        int height,
+        out int rowPitch,
+        out int slicePitch,
+        out int widthCount,
+        out int heightCount,
+        PitchFlags flags = PitchFlags.None
+    ) {
         widthCount = width;
         heightCount = height;
 
-        if (FormatHelper.IsCompressed(fmt))
-        {
+        if (FormatHelper.IsCompressed(fmt)) {
             var bpb = fmt == Format.BC1_Typeless
                       || fmt == Format.BC1_UNorm
                       || fmt == Format.BC1_UNorm_SRgb
                       || fmt == Format.BC4_Typeless
                       || fmt == Format.BC4_UNorm
                       || fmt == Format.BC4_SNorm
-                ? 8
-                : 16;
+                          ? 8
+                          : 16;
             widthCount = Math.Max(1, (width + 3) / 4);
             heightCount = Math.Max(1, (height + 3) / 4);
             rowPitch = widthCount * bpb;
 
             slicePitch = rowPitch * heightCount;
-        }
-        else if (FormatHelper.IsPacked(fmt))
-        {
+        } else if (FormatHelper.IsPacked(fmt)) {
             rowPitch = ((width + 1) >> 1) * 4;
 
             slicePitch = rowPitch * height;
-        }
-        else
-        {
+        } else {
             int bpp;
 
             if ((flags & PitchFlags.Bpp24) != 0)
@@ -666,32 +673,33 @@ public sealed class Image : Component
             else
                 bpp = FormatHelper.SizeOfInBits(fmt);
 
-            if ((flags & PitchFlags.LegacyDword) != 0)
-            {
+            if ((flags & PitchFlags.LegacyDword) != 0) {
                 // Special computation for some incorrectly created DDS files based on
                 // legacy DirectDraw assumptions about pitch alignment
                 rowPitch = (width * bpp + 31) / 32 * sizeof(int);
                 slicePitch = rowPitch * height;
-            }
-            else
-            {
+            } else {
                 rowPitch = (width * bpp + 7) / 8;
                 slicePitch = rowPitch * height;
             }
         }
     }
 
-    internal static MipMapDescription[] CalculateMipMapDescription(ImageDescription metadata,
-        PitchFlags cpFlags = PitchFlags.None)
-    {
+    internal static MipMapDescription[] CalculateMipMapDescription(
+        ImageDescription metadata,
+        PitchFlags cpFlags = PitchFlags.None
+    ) {
         int nImages;
         int pixelSize;
         return CalculateMipMapDescription(metadata, cpFlags, out nImages, out pixelSize);
     }
 
-    internal static MipMapDescription[] CalculateMipMapDescription(ImageDescription metadata, PitchFlags cpFlags,
-        out int nImages, out int pixelSize)
-    {
+    internal static MipMapDescription[] CalculateMipMapDescription(
+        ImageDescription metadata,
+        PitchFlags cpFlags,
+        out int nImages,
+        out int pixelSize
+    ) {
         pixelSize = 0;
         nImages = 0;
 
@@ -701,22 +709,19 @@ public sealed class Image : Component
 
         var mipmaps = new MipMapDescription[metadata.MipLevels];
 
-        for (var level = 0; level < metadata.MipLevels; ++level)
-        {
+        for (var level = 0; level < metadata.MipLevels; ++level) {
             int rowPitch, slicePitch;
             int widthPacked;
             int heightPacked;
             ComputePitch(metadata.Format, w, h, out rowPitch, out slicePitch, out widthPacked, out heightPacked);
 
-            mipmaps[level] = new MipMapDescription(
-                w,
-                h,
-                d,
-                rowPitch,
-                slicePitch,
-                widthPacked,
-                heightPacked
-            );
+            mipmaps[level] = new MipMapDescription(w,
+                                                   h,
+                                                   d,
+                                                   rowPitch,
+                                                   slicePitch,
+                                                   widthPacked,
+                                                   heightPacked);
 
             pixelSize += d * slicePitch;
             nImages += d;
@@ -741,27 +746,34 @@ public sealed class Image : Component
     /// <param name="pitchFlags">Pitch flags.</param>
     /// <param name="bufferCount">Output number of mipmap.</param>
     /// <param name="pixelSizeInBytes">Output total size to allocate pixel buffers for all images.</param>
-    private static List<int> CalculateImageArray(ImageDescription imageDesc, PitchFlags pitchFlags, out int bufferCount,
-        out int pixelSizeInBytes)
-    {
+    private static List<int> CalculateImageArray(
+        ImageDescription imageDesc,
+        PitchFlags pitchFlags,
+        out int bufferCount,
+        out int pixelSizeInBytes
+    ) {
         pixelSizeInBytes = 0;
         bufferCount = 0;
 
         var mipmapToZIndex = new List<int>();
 
-        for (var j = 0; j < imageDesc.ArraySize; j++)
-        {
+        for (var j = 0; j < imageDesc.ArraySize; j++) {
             var w = imageDesc.Width;
             var h = imageDesc.Height;
             var d = imageDesc.Depth;
 
-            for (var i = 0; i < imageDesc.MipLevels; i++)
-            {
+            for (var i = 0; i < imageDesc.MipLevels; i++) {
                 int rowPitch, slicePitch;
                 int widthPacked;
                 int heightPacked;
-                ComputePitch(imageDesc.Format, w, h, out rowPitch, out slicePitch, out widthPacked, out heightPacked,
-                    pitchFlags);
+                ComputePitch(imageDesc.Format,
+                             w,
+                             h,
+                             out rowPitch,
+                             out slicePitch,
+                             out widthPacked,
+                             out heightPacked,
+                             pitchFlags);
 
                 // Store the number of z-slices per miplevel
                 if (j == 0)
@@ -797,27 +809,34 @@ public sealed class Image : Component
     /// <param name="imageDesc"></param>
     /// <param name="pitchFlags"></param>
     /// <param name="output"></param>
-    private static unsafe void SetupImageArray(nint buffer, int pixelSize, ImageDescription imageDesc,
-        PitchFlags pitchFlags, PixelBuffer[] output)
-    {
+    private static unsafe void SetupImageArray(
+        nint buffer,
+        int pixelSize,
+        ImageDescription imageDesc,
+        PitchFlags pitchFlags,
+        PixelBuffer[] output
+    ) {
         var index = 0;
         var pixels = (byte*) buffer;
-        for (uint item = 0; item < imageDesc.ArraySize; ++item)
-        {
+        for (uint item = 0; item < imageDesc.ArraySize; ++item) {
             var w = imageDesc.Width;
             var h = imageDesc.Height;
             var d = imageDesc.Depth;
 
-            for (uint level = 0; level < imageDesc.MipLevels; ++level)
-            {
+            for (uint level = 0; level < imageDesc.MipLevels; ++level) {
                 int rowPitch, slicePitch;
                 int widthPacked;
                 int heightPacked;
-                ComputePitch(imageDesc.Format, w, h, out rowPitch, out slicePitch, out widthPacked, out heightPacked,
-                    pitchFlags);
+                ComputePitch(imageDesc.Format,
+                             w,
+                             h,
+                             out rowPitch,
+                             out slicePitch,
+                             out widthPacked,
+                             out heightPacked,
+                             pitchFlags);
 
-                for (uint zSlice = 0; zSlice < d; ++zSlice)
-                {
+                for (uint zSlice = 0; zSlice < d; ++zSlice) {
                     // We use the same memory organization that Direct3D 11 needs for D3D11_SUBRESOURCE_DATA
                     // with all slices of a given miplevel being continuous in memory
                     output[index] = new PixelBuffer(w, h, imageDesc.Format, rowPitch, slicePitch, (nint) pixels);
@@ -845,15 +864,13 @@ public sealed class Image : Component
     ///     The destination file. Filename must end with a known extension (dds, bmp, jpg, png, gif, tiff,
     ///     wmp, tga)
     /// </param>
-    public void Save(string fileName)
-    {
+    public void Save(string fileName) {
         var extension = Path.GetExtension(fileName);
         extension = extension ?? string.Empty;
 
         ImageFileType fileType;
         extension = extension.TrimStart('.').ToLower();
-        switch (extension)
-        {
+        switch (extension) {
             case "jpg":
                 fileType = ImageFileType.Jpg;
                 break;
@@ -895,10 +912,8 @@ public sealed class Image : Component
     /// <param name="fileName">The destination file.</param>
     /// <param name="fileType">Specify the output format.</param>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    public void Save(string fileName, ImageFileType fileType)
-    {
-        using (var imageStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
-        {
+    public void Save(string fileName, ImageFileType fileType) {
+        using (var imageStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
             Save(imageStream, fileType);
         }
     }
@@ -909,8 +924,7 @@ public sealed class Image : Component
     /// <param name="imageStream">The destination stream.</param>
     /// <param name="fileType">Specify the output format.</param>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    public void Save(Stream imageStream, ImageFileType fileType)
-    {
+    public void Save(Stream imageStream, ImageFileType fileType) {
         Save(pixelBuffers, pixelBuffers.Length, Description, imageStream, fileType);
     }
 
@@ -923,12 +937,15 @@ public sealed class Image : Component
     /// <param name="imageStream">The destination stream.</param>
     /// <param name="fileType">Specify the output format.</param>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
-    internal static void Save(PixelBuffer[] pixelBuffers, int count, ImageDescription description, Stream imageStream,
-        ImageFileType fileType)
-    {
+    internal static void Save(
+        PixelBuffer[] pixelBuffers,
+        int count,
+        ImageDescription description,
+        Stream imageStream,
+        ImageFileType fileType
+    ) {
         foreach (var loadSaveDelegate in loadSaveDelegates)
-            if (loadSaveDelegate.FileType == fileType)
-            {
+            if (loadSaveDelegate.FileType == fileType) {
                 loadSaveDelegate.Save(pixelBuffers, count, description, imageStream);
                 return;
             }
@@ -937,25 +954,22 @@ public sealed class Image : Component
     }
 
     [Flags]
-    internal enum PitchFlags
-    {
-        None = 0x0, // Normal operation
+    internal enum PitchFlags {
+        None = 0x0,        // Normal operation
         LegacyDword = 0x1, // Assume pitch is DWORD aligned instead of BYTE aligned
-        Bpp24 = 0x10000, // Override with a legacy 24 bits-per-pixel format size
-        Bpp16 = 0x20000, // Override with a legacy 16 bits-per-pixel format size
-        Bpp8 = 0x40000 // Override with a legacy 8 bits-per-pixel format size
+        Bpp24 = 0x10000,   // Override with a legacy 24 bits-per-pixel format size
+        Bpp16 = 0x20000,   // Override with a legacy 16 bits-per-pixel format size
+        Bpp8 = 0x40000     // Override with a legacy 8 bits-per-pixel format size
     }
 
-    private class LoadSaveDelegate
-    {
+    private class LoadSaveDelegate {
         public readonly ImageFileType FileType;
 
         public readonly ImageLoadDelegate Load;
 
         public readonly ImageSaveDelegate Save;
 
-        public LoadSaveDelegate(ImageFileType fileType, ImageLoadDelegate load, ImageSaveDelegate save)
-        {
+        public LoadSaveDelegate(ImageFileType fileType, ImageLoadDelegate load, ImageSaveDelegate save) {
             FileType = fileType;
             Load = load;
             Save = save;

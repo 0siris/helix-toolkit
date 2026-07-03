@@ -19,8 +19,7 @@ using Media = System.Windows.Media;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public class TextInfoExt : TextInfo
-{
+public class TextInfoExt : TextInfo {
     public Vector4 Padding = Vector4.Zero;
     public string FontFamily { get; set; } = "Arial";
     public FontWeight FontWeight { get; set; } = FontWeight.Normal;
@@ -28,14 +27,10 @@ public class TextInfoExt : TextInfo
     public int Size { get; set; } = 12;
 }
 
-public class TextInfo
-{
-    public TextInfo()
-    {
-    }
+public class TextInfo {
+    public TextInfo() { }
 
-    public TextInfo(string text, Vector3 origin)
-    {
+    public TextInfo(string text, Vector3 origin) {
         Text = text;
         Origin = origin;
     }
@@ -95,8 +90,7 @@ public class TextInfo
 
     public BoundingSphere BoundSphere { get; private set; }
 
-    public virtual void UpdateTextInfo(float actualWidth, float actualHeight)
-    {
+    public virtual void UpdateTextInfo(float actualWidth, float actualHeight) {
         ActualWidth = actualWidth;
         ActualHeight = actualHeight;
         BoundSphere = new BoundingSphere(Origin, Math.Max(actualWidth, actualHeight) / 2);
@@ -106,16 +100,14 @@ public class TextInfo
 #if !NETFX_CORE
     [Serializable]
 #endif
-public class BillboardText3D : BillboardBase
-{
+public class BillboardText3D : BillboardBase {
     private const float textureScale = 0.66f;
     private const string FontName = "arial";
     private static readonly BitmapFont bmpFont;
 
     private ObservableCollection<TextInfo> textInfo = new();
 
-    static BillboardText3D()
-    {
+    static BillboardText3D() {
 #if CORE
         var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
         var fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt");
@@ -151,22 +143,19 @@ public class BillboardText3D : BillboardBase
 #endif
     }
 
-    public BillboardText3D()
-    {
+    public BillboardText3D() {
         textInfo.CollectionChanged += CollectionChanged;
         Texture = TextureStatic;
         BitmapFont = bmpFont;
     }
 
-    public BillboardText3D(BitmapFont bitmapFont, Stream fontTexture)
-    {
+    public BillboardText3D(BitmapFont bitmapFont, Stream fontTexture) {
         textInfo.CollectionChanged += CollectionChanged;
         Texture = fontTexture;
         BitmapFont = bitmapFont;
     }
 
-    public BillboardText3D(BitmapFont bitmapFont, TextureModel fontTexture)
-    {
+    public BillboardText3D(BitmapFont bitmapFont, TextureModel fontTexture) {
         textInfo.CollectionChanged += CollectionChanged;
         Texture = fontTexture;
         BitmapFont = bitmapFont;
@@ -178,14 +167,11 @@ public class BillboardText3D : BillboardBase
 
     public BitmapFont BitmapFont { get; }
 
-    public ObservableCollection<TextInfo> TextInfo
-    {
+    public ObservableCollection<TextInfo> TextInfo {
         get => textInfo;
-        set
-        {
+        set {
             var old = textInfo;
-            if (Set(ref textInfo, value))
-            {
+            if (Set(ref textInfo, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
                 if (value != null) value.CollectionChanged += CollectionChanged;
@@ -193,26 +179,22 @@ public class BillboardText3D : BillboardBase
         }
     }
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
         if (target is BillboardText3D billboard) billboard.TextInfo = TextInfo;
     }
 
-    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
+    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
         IsInitialized = false;
     }
 
-    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources)
-    {
+    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
         Width = 0;
         Height = 0;
         // http://www.cyotek.com/blog/angelcode-bitmap-font-parsing-using-csharp
         var tempList = new List<BillboardVertex>(100);
 
-        foreach (var textInfo in TextInfo)
-        {
+        foreach (var textInfo in TextInfo) {
             var tempPrevCount = tempList.Count;
             var x = 0;
             var y = 0;
@@ -223,10 +205,8 @@ public class BillboardText3D : BillboardBase
             previousCharacter = ' ';
             var normalizedText = textInfo.Text;
             var rect = new RectangleF(textInfo.Origin.X, textInfo.Origin.Y, 0, 0);
-            foreach (var character in normalizedText)
-            {
-                switch (character)
-                {
+            foreach (var character in normalizedText) {
+                switch (character) {
                     case '\n':
                         x = 0;
                         y -= BitmapFont.LineHeight;
@@ -234,29 +214,35 @@ public class BillboardText3D : BillboardBase
                     default:
                         var data = BitmapFont[character];
                         var kerning = BitmapFont.GetKerning(previousCharacter, character);
-                        tempList.Add(DrawCharacter(data, new Vector3(x + data.XOffset, y - data.YOffset, 0), w, h,
-                            kerning, textInfo));
+                        tempList.Add(DrawCharacter(data,
+                                                   new Vector3(x + data.XOffset, y - data.YOffset, 0),
+                                                   w,
+                                                   h,
+                                                   kerning,
+                                                   textInfo));
 
                         x += data.XAdvance + kerning;
                         break;
                 }
 
                 previousCharacter = character;
-                if (tempList.Count > 0)
-                {
+                if (tempList.Count > 0) {
                     rect.Width = Math.Max(rect.Width, x * textInfo.Scale * textureScale);
                     rect.Height = Math.Max(rect.Height, Math.Abs(tempList.Last().OffBR.Y));
                 }
             }
 
             var transform = textInfo.Angle != 0 ? Matrix3x2.Rotation(textInfo.Angle) : Matrix3x2.Identity;
-            GetQuadOffset(rect.Width, rect.Height, textInfo.HorizontalAlignment, textInfo.VerticalAlignment, out var tl,
-                out var br);
+            GetQuadOffset(rect.Width,
+                          rect.Height,
+                          textInfo.HorizontalAlignment,
+                          textInfo.VerticalAlignment,
+                          out var tl,
+                          out var br);
             var tr = new Vector2(br.X, tl.Y);
             var bl = new Vector2(tl.X, br.Y);
             //Add backbround vertex first. This is also used for hit test
-            BillboardVertices.Add(new BillboardVertex
-            {
+            BillboardVertices.Add(new BillboardVertex {
                 Position = textInfo.Origin.ToVector4(),
                 Background = textInfo.Background,
                 TexTL = Vector2.Zero,
@@ -270,8 +256,7 @@ public class BillboardText3D : BillboardBase
             textInfo.UpdateTextInfo(rect.Width, rect.Height);
             var halfW = rect.Width / 2;
             var halfH = rect.Height / 2;
-            for (var k = tempPrevCount; k < tempList.Count; ++k)
-            {
+            for (var k = tempPrevCount; k < tempList.Count; ++k) {
                 var v = tempList[k];
                 v.OffTL = Matrix3x2.TransformPoint(transform, v.OffTL + tl) + textInfo.Offset;
                 v.OffBR = Matrix3x2.TransformPoint(transform, v.OffBR + tl) + textInfo.Offset;
@@ -287,19 +272,14 @@ public class BillboardText3D : BillboardBase
         foreach (var v in tempList) BillboardVertices.Add(v);
     }
 
-    public override void UpdateBounds()
-    {
-        if (TextInfo.Count == 0)
-        {
+    public override void UpdateBounds() {
+        if (TextInfo.Count == 0) {
             Bound = new BoundingBox();
             BoundingSphere = new BoundingSphere();
-        }
-        else
-        {
+        } else {
             var sphere = TextInfo[0].BoundSphere;
             var bound = BoundingBox.FromSphere(sphere);
-            foreach (var info in TextInfo)
-            {
+            foreach (var info in TextInfo) {
                 sphere = BoundingSphereExtensions.Merge(sphere, info.BoundSphere);
                 bound = BoundingBox.Merge(bound, BoundingBox.FromSphere(info.BoundSphere));
             }
@@ -309,9 +289,14 @@ public class BillboardText3D : BillboardBase
         }
     }
 
-    private BillboardVertex DrawCharacter(Character character, Vector3 origin, float w, float h, float kerning,
-        TextInfo info)
-    {
+    private BillboardVertex DrawCharacter(
+        Character character,
+        Vector3 origin,
+        float w,
+        float h,
+        float kerning,
+        TextInfo info
+    ) {
         var cw = character.Width;
         var ch = character.Height;
         var cu = character.X;
@@ -325,8 +310,7 @@ public class BillboardText3D : BillboardBase
         var uv_tl = new Vector2(cu / w, cv / h);
         var uv_br = new Vector2((cu + cw) / w, (cv + ch) / h);
 
-        return new BillboardVertex
-        {
+        return new BillboardVertex {
             Position = info.Origin.ToVector4(),
             Foreground = info.Foreground,
             Background = Color.Transparent,
@@ -339,21 +323,24 @@ public class BillboardText3D : BillboardBase
         };
     }
 
-    public override bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, bool fixedSize)
-    {
+    public override bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        bool fixedSize
+    ) {
         var rayWS = context.RayWS;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
             return false;
 
         return fixedSize
-            ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, textInfo.Count)
-            : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, textInfo.Count);
+                   ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, textInfo.Count)
+                   : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, textInfo.Count);
     }
 
-    protected override void AssignResultAdditional(BillboardHitResult result, int index)
-    {
+    protected override void AssignResultAdditional(BillboardHitResult result, int index) {
         base.AssignResultAdditional(result, index);
         result.TextInfo = textInfo[index];
         result.TextInfoIndex = index;

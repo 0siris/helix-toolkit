@@ -6,22 +6,17 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public sealed class BoneGroupNode : GroupNodeBase, IBoneMatricesNode
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public sealed class BoneGroupNode : GroupNodeBase, IBoneMatricesNode {
             private readonly BoneUploaderCore core = new();
 
-            public BoneGroupNode()
-            {
+            public BoneGroupNode() {
                 ChildNodeAdded += NodeGroup_OnAddChildNode;
                 ChildNodeRemoved += NodeGroup_OnRemoveChildNode;
             }
 
-            public Matrix[] BoneMatrices
-            {
+            public Matrix[] BoneMatrices {
                 get => core.BoneMatrices;
                 set => core.BoneMatrices = value;
             }
@@ -44,24 +39,19 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public bool HasBoneGroup { get; } = false;
 
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return core;
             }
 
-            private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e)
-            {
-                if (e.Node is BoneSkinMeshNode b)
-                {
+            private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
+                if (e.Node is BoneSkinMeshNode b) {
                     b.HasBoneGroup = false;
                     (b.RenderCore as BoneSkinRenderCore).SharedBoneBuffer = null;
                 }
             }
 
-            private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e)
-            {
-                if (e.Node is BoneSkinMeshNode b)
-                {
+            private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e) {
+                if (e.Node is BoneSkinMeshNode b) {
                     b.HasBoneGroup = true;
                     (b.RenderCore as BoneSkinRenderCore).SharedBoneBuffer = core;
                 }

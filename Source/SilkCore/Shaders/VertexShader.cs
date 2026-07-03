@@ -8,15 +8,12 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         ///     Vertex Shader
         /// </summary>
-        public sealed class VertexShader : ShaderBase
-        {
+        public sealed class VertexShader : ShaderBase {
             public static readonly VertexShader NullVertexShader = new("NULL");
             public static readonly VertexShaderType Type;
             private VertexShaderHandle shader;
@@ -28,8 +25,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name"></param>
             /// <param name="byteCode"></param>
             internal VertexShader(SilkD3DDevice device, string name, byte[] byteCode)
-                : base(name, ShaderStage.Vertex)
-            {
+                : base(name, ShaderStage.Vertex) {
                 shader = device.CreateVertexShader(byteCode);
             }
 
@@ -38,9 +34,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name">The name.</param>
             private VertexShader(string name)
-                : base(name, ShaderStage.Vertex, true)
-            {
-            }
+                : base(name, ShaderStage.Vertex, true) { }
 
             internal VertexShaderHandle Shader => shader;
             internal override IShaderHandle NativeShader => shader;
@@ -51,8 +45,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="bindConstantBuffer"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Bind(DeviceContextProxy context, bool bindConstantBuffer = true)
-            {
+            public void Bind(DeviceContextProxy context, bool bindConstantBuffer = true) {
                 context.SetShader(this, bindConstantBuffer);
             }
 
@@ -63,8 +56,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="slot">The slot.</param>
             /// <param name="texture">The texture.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy texture)
-            {
+            public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy texture) {
                 context.SetShaderResource(Type, slot, texture);
             }
 
@@ -75,8 +67,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="texture">The texture.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy texture)
-            {
+            public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy texture) {
                 var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
                 context.SetShaderResource(Type, slot, texture);
             }
@@ -87,9 +78,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="textures">The textures.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindTextures(DeviceContextProxy context,
-                IList<KeyValuePair<int, ShaderResourceViewProxy>> textures)
-            {
+            public void BindTextures(
+                DeviceContextProxy context,
+                IList<KeyValuePair<int, ShaderResourceViewProxy>> textures
+            ) {
                 foreach (var texture in textures) context.SetShaderResource(Type, texture.Key, texture.Value);
             }
 
@@ -100,8 +92,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="slot">The slot.</param>
             /// <param name="sampler">The sampler.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy sampler)
-            {
+            public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy sampler) {
                 context.SetSampler(Type, slot, sampler);
             }
 
@@ -112,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="sampler">The sampler.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy sampler)
-            {
+            public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy sampler) {
                 var slot = SamplerMapping.TryGetBindSlot(name);
                 context.SetSampler(Type, slot, sampler);
             }
@@ -124,20 +114,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="samplers">The samplers.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers)
-            {
+            public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers) {
                 foreach (var sampler in samplers) context.SetSampler(Type, sampler.Key, sampler.Value);
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref shader);
                 base.OnDispose(disposeManagedResources);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static implicit operator VertexShaderType(VertexShader s)
-            {
+            public static implicit operator VertexShaderType(VertexShader s) {
                 return Type;
             }
         }

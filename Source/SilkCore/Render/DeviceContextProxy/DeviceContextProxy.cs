@@ -3,14 +3,11 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public sealed partial class DeviceContextProxy : DisposeObject
-        {
+        public sealed partial class DeviceContextProxy : DisposeObject {
             public static bool AutoSkipRedundantStateSetting = false;
             public readonly bool IsDeferred;
             private Color4? currBlendFactor;
@@ -21,21 +18,20 @@ namespace HelixToolkit.SharpDX.Core
             private int currStencilRef;
             private SilkD3DDeviceContext nativeDeviceContext;
 
-            #region Constructor
+        #region Constructor
 
             /// <summary>
             ///     Initializes a proxy for a native Silk.NET D3D11 context.
             /// </summary>
             /// <param name="context">The native context.</param>
             /// <param name="device">The native device.</param>
-            internal DeviceContextProxy(SilkD3DDeviceContext context, SilkD3DDevice device)
-            {
+            internal DeviceContextProxy(SilkD3DDeviceContext context, SilkD3DDevice device) {
                 nativeDeviceContext = context;
                 NativeDevice = device;
                 IsDeferred = context.IsDeferred;
             }
 
-            #endregion Constructor
+        #endregion Constructor
 
             internal SilkD3DDeviceContext NativeContext => nativeDeviceContext;
 
@@ -45,8 +41,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Resets this instance.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Reset()
-            {
+            public void Reset() {
                 currRasterState = null;
                 currBlendState = null;
                 currDepthStencilState = null;
@@ -67,8 +62,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     This method resets any device context to the default settings.
             /// </remarks>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ClearState()
-            {
+            public void ClearState() {
                 nativeDeviceContext.ClearState();
                 Reset();
             }
@@ -76,14 +70,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             /// </summary>
             /// <param name="disposeManagedResources"></param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 if (nativeDeviceContext != null && !nativeDeviceContext.IsDisposed) nativeDeviceContext.ClearState();
                 if (IsDeferred) RemoveAndDispose(ref nativeDeviceContext);
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             ///     Gets or sets the last shader pass.
@@ -101,7 +94,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public int NumberOfDrawCalls { get; private set; }
 
-            #endregion Properties
+        #endregion Properties
         }
     }
 }

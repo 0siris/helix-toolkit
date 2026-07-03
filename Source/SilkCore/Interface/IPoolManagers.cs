@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace ShaderManager
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace ShaderManager {
         /// <summary>
         /// </summary>
-        public interface IShaderPoolManager : IDisposable
-        {
+        public interface IShaderPoolManager : IDisposable {
             /// <summary>
             ///     Registers the shader. Shader object live time is managed by ShaderPoolManager. Shader should not be disposed
             ///     manually.
@@ -33,8 +30,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IStatePoolManager : IDisposable
-        {
+        public interface IStatePoolManager : IDisposable {
             /// <summary>
             ///     Gets the blend state pool.
             /// </summary>

@@ -5,22 +5,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class PointLightNode : LightNode
-        {
+        public class PointLightNode : LightNode {
             /// <summary>
             ///     Gets or sets the position.
             /// </summary>
             /// <value>
             ///     The position.
             /// </value>
-            public Vector3 Position
-            {
+            public Vector3 Position {
                 get => (RenderCore as PointLightCore).Position;
                 set => (RenderCore as PointLightCore).Position = value;
             }
@@ -31,8 +27,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The attenuation.
             /// </value>
-            public Vector3 Attenuation
-            {
+            public Vector3 Attenuation {
                 get => (RenderCore as PointLightCore).Attenuation;
                 set => (RenderCore as PointLightCore).Attenuation = value;
             }
@@ -43,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The range.
             /// </value>
-            public float Range
-            {
+            public float Range {
                 get => (RenderCore as PointLightCore).Range;
                 set => (RenderCore as PointLightCore).Range = value;
             }
@@ -53,8 +47,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new PointLightCore();
             }
         }

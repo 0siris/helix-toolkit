@@ -9,12 +9,10 @@ using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public class Light3DCollection : GroupElement3D, ILight3D
-{
+public class Light3DCollection : GroupElement3D, ILight3D {
     public LightType LightType => LightType.None;
 
-    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-    {
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         return false;
     }
 }

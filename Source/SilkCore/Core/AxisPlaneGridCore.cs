@@ -8,12 +8,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class AxisPlaneGridCore : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class AxisPlaneGridCore : RenderCore {
             private readonly ConstantBufferComponent modelCB;
             private bool autoSpacing = true;
 
@@ -34,13 +31,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="AxisPlaneGridCore" /> class.
             /// </summary>
-            public AxisPlaneGridCore() : base(RenderType.Particle)
-            {
-                modelCB = AddComponent(new ConstantBufferComponent(
-                    new ConstantBufferDescription(DefaultBufferNames.PlaneGridModelCB,
-                        PlaneGridModelStruct.SizeInBytes)));
-                modelStruct = new PlaneGridModelStruct
-                {
+            public AxisPlaneGridCore() : base(RenderType.Particle) {
+                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+                                                                       DefaultBufferNames.PlaneGridModelCB,
+                                                                       PlaneGridModelStruct.SizeInBytes)));
+                modelStruct = new PlaneGridModelStruct {
                     World = Matrix.Identity,
                     Axis = 1
                 };
@@ -57,11 +52,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [automatic spacing]; otherwise, <c>false</c>.
             /// </value>
-            public bool AutoSpacing
-            {
+            public bool AutoSpacing {
                 get => autoSpacing;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref autoSpacing, value))
                         if (!value)
                             modelStruct.GridSpacing = GridSpacing;
@@ -75,8 +68,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The automatic spacing rate.
             /// </value>
-            public float AutoSpacingRate
-            {
+            public float AutoSpacingRate {
                 get => autoSpacingChangeRate;
                 set => SetAffectsRender(ref autoSpacingChangeRate, value);
             }
@@ -95,11 +87,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The grid spacing.
             /// </value>
-            public float GridSpacing
-            {
+            public float GridSpacing {
                 get => gridSpacing;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref gridSpacing, value)) modelStruct.GridSpacing = value;
                 }
             }
@@ -110,8 +100,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The grid thickness.
             /// </value>
-            public float GridThickness
-            {
+            public float GridThickness {
                 get => modelStruct.GridThickenss;
                 set => SetAffectsRender(ref modelStruct.GridThickenss, value);
             }
@@ -122,8 +111,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fading factor.
             /// </value>
-            public float FadingFactor
-            {
+            public float FadingFactor {
                 get => modelStruct.FadingFactor;
                 set => SetAffectsRender(ref modelStruct.FadingFactor, value);
             }
@@ -134,8 +122,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the plane.
             /// </value>
-            public Color4 PlaneColor
-            {
+            public Color4 PlaneColor {
                 get => modelStruct.PlaneColor.ToColor4();
                 set => SetAffectsRender(ref modelStruct.PlaneColor, value);
             }
@@ -146,8 +133,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the grid.
             /// </value>
-            public Color4 GridColor
-            {
+            public Color4 GridColor {
                 get => modelStruct.GridColor.ToColor4();
                 set => SetAffectsRender(ref modelStruct.GridColor, value);
             }
@@ -158,8 +144,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderShadowMap
-            {
+            public bool RenderShadowMap {
                 get => modelStruct.HasShadowMap;
                 set => SetAffectsRender(ref modelStruct.HasShadowMap, value);
             }
@@ -170,16 +155,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane.
             /// </value>
-            public Axis UpAxis
-            {
+            public Axis UpAxis {
                 get => upAxis;
-                set
-                {
-                    if (SetAffectsRender(ref upAxis, value))
-                    {
+                set {
+                    if (SetAffectsRender(ref upAxis, value)) {
                         modelStruct.Axis = (int) value;
-                        switch (value)
-                        {
+                        switch (value) {
                             case Axis.X:
                                 upDirection = Vector3.UnitX;
                                 break;
@@ -200,8 +181,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The offset.
             /// </value>
-            public float Offset
-            {
+            public float Offset {
                 get => modelStruct.PlaneD;
                 set => SetAffectsRender(ref modelStruct.PlaneD, value);
             }
@@ -212,17 +192,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The grid pattern.
             /// </value>
-            public GridPattern GridPattern
-            {
+            public GridPattern GridPattern {
                 get => gridType;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref gridType, value)) modelStruct.Type = (int) value;
                 }
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 DefaultShaderPass = technique[DefaultPassNames.Default];
                 samplerSlot =
                     DefaultShaderPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames
@@ -234,42 +211,37 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 OnUpdatePerModelStruct(context);
                 modelCB.Upload(deviceContext, ref modelStruct);
                 DefaultShaderPass.BindShader(deviceContext);
                 DefaultShaderPass.BindStates(deviceContext,
-                    StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
-                if (RenderShadowMap && context.SharedResource.ShadowView != null)
-                {
-                    DefaultShaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot,
-                        context.SharedResource.ShadowView);
+                                             StateType.BlendState | StateType.DepthStencilState |
+                                             StateType.RasterState);
+                if (RenderShadowMap && context.SharedResource.ShadowView != null) {
+                    DefaultShaderPass.PixelShader.BindTexture(deviceContext,
+                                                              shadowMapSlot,
+                                                              context.SharedResource.ShadowView);
                     DefaultShaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, shadowSampler);
                 }
 
                 deviceContext.Draw(4, 0);
             }
 
-            private void OnUpdatePerModelStruct(RenderContext context)
-            {
+            private void OnUpdatePerModelStruct(RenderContext context) {
                 modelStruct.World = ModelMatrix;
-                if (autoSpacing)
-                {
+                if (autoSpacing) {
                     //Disable auto spacing if view angle larger than 60 degree of plane normal
                     var lookDir = SilkMath.Normalize(context.Camera.LookDirection);
                     var angle = Math.Acos(Math.Abs(SilkMath.Dot(upDirection, lookDir)));
                     if (angle > Math.PI / 3) return;
                     var r = new Ray(context.Camera.Position, SilkMath.Normalize(context.Camera.LookDirection));
                     var plane = new Plane(upDirection, modelStruct.PlaneD);
-                    if (plane.Intersects(ref r, out var l))
-                    {
+                    if (plane.Intersects(ref r, out var l)) {
                         l /= autoSpacingChangeRate;
                         var n = 1;
-                        while (n < 1e6)
-                        {
-                            if (n > l)
-                            {
+                        while (n < 1e6) {
+                            if (n > l) {
                                 n /= 10;
                                 break;
                             }
@@ -282,8 +254,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref shadowSampler);
             }
         }

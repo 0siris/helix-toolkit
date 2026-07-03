@@ -11,8 +11,7 @@ namespace SharpDX.Toolkit.Graphics;
 ///     A description for <see cref="Image" />.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct ImageDescription : IEquatable<ImageDescription>
-{
+public struct ImageDescription : IEquatable<ImageDescription> {
     /// <summary>
     ///     The dimension of a texture.
     /// </summary>
@@ -87,8 +86,7 @@ public struct ImageDescription : IEquatable<ImageDescription>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(ImageDescription other)
-    {
+    public bool Equals(ImageDescription other) {
         return Dimension.Equals(other.Dimension) && Width == other.Width && Height == other.Height &&
                Depth == other.Depth && ArraySize == other.ArraySize && MipLevels == other.MipLevels &&
                Format.Equals(other.Format);
@@ -98,8 +96,7 @@ public struct ImageDescription : IEquatable<ImageDescription>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         if (obj is ImageDescription o) return Equals(o);
 
         return false;
@@ -110,10 +107,8 @@ public struct ImageDescription : IEquatable<ImageDescription>
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode()
-    {
-        unchecked
-        {
+    public override int GetHashCode() {
+        unchecked {
             var hashCode = Dimension.GetHashCode();
             hashCode = (hashCode * 397) ^ Width;
             hashCode = (hashCode * 397) ^ Height;
@@ -130,8 +125,7 @@ public struct ImageDescription : IEquatable<ImageDescription>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(ImageDescription left, ImageDescription right)
-    {
+    public static bool operator ==(ImageDescription left, ImageDescription right) {
         return left.Equals(right);
     }
 
@@ -140,18 +134,22 @@ public struct ImageDescription : IEquatable<ImageDescription>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(ImageDescription left, ImageDescription right)
-    {
+    public static bool operator !=(ImageDescription left, ImageDescription right) {
         return !left.Equals(right);
     }
 
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override string ToString()
-    {
+    public override string ToString() {
         return string.Format(
             "Dimension: {0}, Width: {1}, Height: {2}, Depth: {3}, Format: {4}, ArraySize: {5}, MipLevels: {6}",
-            Dimension, Width, Height, Depth, Format, ArraySize, MipLevels);
+            Dimension,
+            Width,
+            Height,
+            Depth,
+            Format,
+            ArraySize,
+            MipLevels);
     }
 }

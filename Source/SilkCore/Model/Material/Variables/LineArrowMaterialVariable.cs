@@ -3,12 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public class LineArrowMaterialVariable : LineMaterialVariable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public class LineArrowMaterialVariable : LineMaterialVariable {
             private readonly LineArrowHeadMaterialCore material;
 
             /// <summary>
@@ -18,23 +15,25 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The material core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public LineArrowMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public LineArrowMaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 LineArrowHeadMaterialCore materialCore,
-                string defaultPassName = DefaultPassNames.Default)
-                : base(manager, technique, materialCore, defaultPassName)
-            {
+                string defaultPassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, materialCore, defaultPassName) {
                 material = materialCore;
             }
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 base.OnInitialPropertyBindings();
                 AddPropertyBinding(nameof(LineArrowHeadMaterialCore.ArrowSize),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector3(material.Thickness, material.Smoothness, material.ArrowSize));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector3(material.Thickness,
+                                                              material.Smoothness,
+                                                              material.ArrowSize));
+                                   });
             }
         }
     }

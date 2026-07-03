@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <OutputType>Library</OutputType>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>DemoCore</RootNamespace>
-        <AssemblyName>DemoCore</AssemblyName>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>DemoCore</RootNamespace>
+    <AssemblyName>DemoCore</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+  </ItemGroup>
 
 </Project>

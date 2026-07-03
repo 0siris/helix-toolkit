@@ -7,15 +7,12 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         ///     Default Light Model
         /// </summary>
-        public sealed class LightsBufferModel : ILightsBufferProxy<LightStruct>
-        {
+        public sealed class LightsBufferModel : ILightsBufferProxy<LightStruct> {
             public const int SizeInBytes = LightStruct.SizeInBytes * Constants.MaxLights + 4 * 4 * 2;
 
             /// <summary>
@@ -41,22 +38,18 @@ namespace HelixToolkit.SharpDX.Core
 
             public LightStruct[] Lights { get; } = new LightStruct[Constants.MaxLights];
 
-            public void IncrementLightCount()
-            {
+            public void IncrementLightCount() {
                 ++LightCount;
             }
 
-            public void ResetLightCount()
-            {
+            public void ResetLightCount() {
                 LightCount = 0;
                 AmbientLight = new Color4(0, 0, 0, 1);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UploadToBuffer(IBufferProxy buffer, DeviceContextProxy context)
-            {
-                if (buffer.StructureSize == SizeInBytes)
-                {
+            public void UploadToBuffer(IBufferProxy buffer, DeviceContextProxy context) {
+                if (buffer.StructureSize == SizeInBytes) {
                     var dataBox = context.MapSubresource(buffer.Buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                     if (dataBox.IsEmpty) return;
                     var ptr = UnsafeHelper.Write(dataBox.DataPointer, Lights, 0, Lights.Length);
@@ -65,9 +58,7 @@ namespace HelixToolkit.SharpDX.Core
                     ptr = UnsafeHelper.Write(ptr, HasEnvironmentMap ? 1 : 0);
                     ptr = UnsafeHelper.Write(ptr, EnvironmentMapMipLevels);
                     context.UnmapSubresource(buffer.Buffer, 0);
-                }
-                else
-                {
+                } else {
 #if DEBUG
                     throw new ArgumentException("Buffer type or size do not match the model requirement");
 #endif

@@ -13,8 +13,7 @@
 // http://casual-effects.blogspot.com/2014/03/weighted-blended-order-independent.html
 //--------------------------------------------------------------------------------------
 
-PSOITOutput meshDiffuseOIT(PSInput input)
-{
+PSOITOutput meshDiffuseOIT(PSInput input) {
     float4 color = main(input);
     return calculateOIT(color, input.vEye.w, input.p.z);
 }

@@ -7,8 +7,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public sealed class RotateHandler : MouseGestureHandler
-{
+public sealed class RotateHandler : MouseGestureHandler {
     /// <summary>
     ///     The change look at.
     /// </summary>
@@ -37,8 +36,7 @@ public sealed class RotateHandler : MouseGestureHandler
     private Vector3 rotationPoint3D;
 
     public RotateHandler(CameraController controller, bool changeLookAt = false)
-        : base(controller)
-    {
+        : base(controller) {
         this.changeLookAt = changeLookAt;
     }
 
@@ -54,8 +52,7 @@ public sealed class RotateHandler : MouseGestureHandler
     ///     Occurs when the position is changed during a manipulation.
     /// </summary>
     /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
-    public override void Delta(Vector2 e)
-    {
+    public override void Delta(Vector2 e) {
         base.Delta(e);
         Rotate(LastPoint, e, rotationPoint3D);
         LastPoint = e;
@@ -70,8 +67,7 @@ public sealed class RotateHandler : MouseGestureHandler
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public void LookAt(Vector3 target, float animationTime)
-    {
+    public void LookAt(Vector3 target, float animationTime) {
         if (!Controller.IsPanEnabled) return;
 
         Camera.LookAt(target, animationTime);
@@ -90,11 +86,9 @@ public sealed class RotateHandler : MouseGestureHandler
     ///     The rotate around.
     /// </param>
     /// <param name="stopOther">Stop other manipulation</param>
-    public void Rotate(Vector2 p0, Vector2 p1, Vector3 rotateAround, bool stopOther = true)
-    {
+    public void Rotate(Vector2 p0, Vector2 p1, Vector3 rotateAround, bool stopOther = true) {
         if (!Controller.IsRotationEnabled) return;
-        if (stopOther)
-        {
+        if (stopOther) {
             Controller.StopZooming();
             Controller.StopPanning();
         }
@@ -104,21 +98,49 @@ public sealed class RotateHandler : MouseGestureHandler
         var newPos = Camera.Position;
         var newLook = Camera.LookDirection;
         var newUp = SilkMath.Normalize(Camera.UpDirection);
-        switch (Controller.CameraRotationMode)
-        {
+        switch (Controller.CameraRotationMode) {
             case CameraRotationMode.Trackball:
-                CameraMath.RotateTrackball(CameraMode, ref p0, ref p1, ref rotateAround, (float) RotationSensitivity,
-                    Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
+                CameraMath.RotateTrackball(CameraMode,
+                                           ref p0,
+                                           ref p1,
+                                           ref rotateAround,
+                                           (float) RotationSensitivity,
+                                           Controller.Width,
+                                           Controller.Height,
+                                           Camera,
+                                           inv,
+                                           out newPos,
+                                           out newLook,
+                                           out newUp);
                 break;
             case CameraRotationMode.Turntable:
                 var p = p1 - p0;
-                CameraMath.RotateTurntable(CameraMode, ref p, ref rotateAround, (float) RotationSensitivity,
-                    Controller.Width, Controller.Height, Camera, inv,
-                    invertUpDir ? -ModelUpDirection : ModelUpDirection, out newPos, out newLook, out newUp);
+                CameraMath.RotateTurntable(CameraMode,
+                                           ref p,
+                                           ref rotateAround,
+                                           (float) RotationSensitivity,
+                                           Controller.Width,
+                                           Controller.Height,
+                                           Camera,
+                                           inv,
+                                           invertUpDir ? -ModelUpDirection : ModelUpDirection,
+                                           out newPos,
+                                           out newLook,
+                                           out newUp);
                 break;
             case CameraRotationMode.Turnball:
-                CameraMath.RotateTurnball(CameraMode, ref p0, ref p1, ref rotateAround, (float) RotationSensitivity,
-                    Controller.Width, Controller.Height, Camera, inv, out newPos, out newLook, out newUp);
+                CameraMath.RotateTurnball(CameraMode,
+                                          ref p0,
+                                          ref p1,
+                                          ref rotateAround,
+                                          (float) RotationSensitivity,
+                                          Controller.Width,
+                                          Controller.Height,
+                                          Camera,
+                                          inv,
+                                          out newPos,
+                                          out newLook,
+                                          out newUp);
                 break;
         }
 
@@ -131,32 +153,24 @@ public sealed class RotateHandler : MouseGestureHandler
     ///     Occurs when the manipulation is started.
     /// </summary>
     /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
-    protected override void Started(Vector2 e)
-    {
+    protected override void Started(Vector2 e) {
         base.Started(e);
-        rotationPoint = new Vector2(
-            Controller.Width / 2, Controller.Height / 2);
+        rotationPoint = new Vector2(Controller.Width / 2, Controller.Height / 2);
         rotationPoint3D = Camera.Target;
         invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
 
-        switch (CameraMode)
-        {
+        switch (CameraMode) {
             case CameraMode.WalkAround:
                 rotationPoint = MouseDownPoint;
                 rotationPoint3D = Camera.Position;
                 break;
             default:
-                if (Controller.FixedRotationPointEnabled)
-                {
+                if (Controller.FixedRotationPointEnabled) {
                     rotationPoint3D = Controller.FixedRotationPoint;
-                }
-                else if (changeLookAt && MouseDownNearestPoint3D != null)
-                {
+                } else if (changeLookAt && MouseDownNearestPoint3D != null) {
                     LookAt(MouseDownNearestPoint3D.Value, 0);
                     rotationPoint3D = Camera.Target;
-                }
-                else if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D != null)
-                {
+                } else if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D != null) {
                     rotationPoint = MouseDownPoint;
                     rotationPoint3D = MouseDownNearestPoint3D.Value;
                 }
@@ -164,15 +178,18 @@ public sealed class RotateHandler : MouseGestureHandler
                 break;
         }
 
-        switch (CameraRotationMode)
-        {
+        switch (CameraRotationMode) {
             case CameraRotationMode.Trackball:
                 break;
             case CameraRotationMode.Turntable:
                 break;
             case CameraRotationMode.Turnball:
-                CameraMath.InitTurnballRotationAxes(e, Controller.Width, Controller.Height, Camera,
-                    out rotationAxisX, out rotationAxisY);
+                CameraMath.InitTurnballRotationAxes(e,
+                                                    Controller.Width,
+                                                    Controller.Height,
+                                                    Camera,
+                                                    out rotationAxisX,
+                                                    out rotationAxisY);
                 break;
         }
 
@@ -185,14 +202,12 @@ public sealed class RotateHandler : MouseGestureHandler
     /// <param name="elapsedTime">
     ///     The elapsed time.
     /// </param>
-    protected override void OnInertiaStarting(double elapsedTime)
-    {
+    protected override void OnInertiaStarting(double elapsedTime) {
         var delta = LastPoint - MouseDownPoint;
         var deltaV = new Vector2(delta.X, delta.Y);
         // Debug.WriteLine("SpinInertiaStarting: " + elapsedTime + "ms " + delta.Length + "px");
-        Controller.StartSpin(
-            4 * deltaV * (float) (Controller.SpinReleaseTime / elapsedTime),
-            MouseDownPoint,
-            rotationPoint3D);
+        Controller.StartSpin(4 * deltaV * (float) (Controller.SpinReleaseTime / elapsedTime),
+                             MouseDownPoint,
+                             rotationPoint3D);
     }
 }

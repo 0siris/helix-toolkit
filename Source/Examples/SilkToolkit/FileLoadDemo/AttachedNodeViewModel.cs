@@ -7,54 +7,50 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FileLoadDemo
-{
-    /// <summary>
-    /// Provide your own view model to manipulate the scene nodes
-    /// </summary>
-    /// <seealso cref="DemoCore.ObservableObject" />
-    public class AttachedNodeViewModel : DemoCore.ObservableObject
-    {
-        private bool selected = false;
-        public bool Selected
-        {
-            set
-            {
-                if (SetValue(ref selected, value))
-                {
-                    if(node is MeshNode m)
-                    {
-                        m.PostEffects = value ? $"highlight[color:#FFFF00]" : "";
-                        foreach (var n in node.TraverseUp())
-                        {
-                            if (n.Tag is AttachedNodeViewModel vm)
-                            {
-                                vm.Expanded = true;
-                            }
+namespace FileLoadDemo;
+
+/// <summary>
+/// Provide your own view model to manipulate the scene nodes
+/// </summary>
+/// <seealso cref="DemoCore.ObservableObject" />
+public class AttachedNodeViewModel : DemoCore.ObservableObject {
+    private bool selected = false;
+
+    public bool Selected {
+        set {
+            if (SetValue(ref selected, value)) {
+                if (node is MeshNode m) {
+                    m.PostEffects = value ? $"highlight[color:#FFFF00]" : "";
+                    foreach (var n in node.TraverseUp()) {
+                        if (n.Tag is AttachedNodeViewModel vm) {
+                            vm.Expanded = true;
                         }
                     }
                 }
             }
-            get => selected;
         }
+        get => selected;
+    }
 
-        private bool expanded = false;
-        public bool Expanded
-        {
-            set => SetValue(ref expanded, value);
-            get => expanded;
-        }
+    private bool expanded = false;
 
-        public bool IsAnimationNode { get => node.IsAnimationNode; }
+    public bool Expanded {
+        set => SetValue(ref expanded, value);
+        get => expanded;
+    }
 
-        public string Name { get => node.Name; }
+    public bool IsAnimationNode {
+        get => node.IsAnimationNode;
+    }
 
-        private SceneNode node;
+    public string Name {
+        get => node.Name;
+    }
 
-        public AttachedNodeViewModel(SceneNode node)
-        {
-            this.node = node;
-            node.Tag = this;
-        }
+    private SceneNode node;
+
+    public AttachedNodeViewModel(SceneNode node) {
+        this.node = node;
+        node.Tag = this;
     }
 }

@@ -5,14 +5,12 @@
 #include"..\Common\Common.hlsl"
 const static float d = 1.0 / tan(3.1415926 / 4);
 
-PSInputCube main(float3 input : SV_Position)
-{
-    PSInputCube output = (PSInputCube) 0;
+PSInputCube main(float3 input : SV_Position) {
+    PSInputCube output = (PSInputCube)0;
     float4x4 viewNoTranslate = mView;
     viewNoTranslate._m30_m31_m32 = 0;
     float4x4 proj = mProjection;
-    if (!IsPerspective)
-    {
+    if (!IsPerspective) {
         float aspect = vViewport.x / vViewport.y;
         proj = float4x4(d / aspect, 0, 0, 0, 0, d, 0, 0, 0, 0, -1, -1, 0, 0, -1, 0);
     }

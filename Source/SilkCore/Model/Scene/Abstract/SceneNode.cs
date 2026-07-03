@@ -11,12 +11,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public enum InvalidateTypes
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public enum InvalidateTypes {
             /// <summary>
             ///     Notify if scene needs re-rendered.
             /// </summary>
@@ -35,35 +32,31 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimationNode
-        {
+        public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimationNode {
             private RenderCore core;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="SceneNode" /> class.
             /// </summary>
-            public SceneNode()
-            {
+            public SceneNode() {
                 WrapperSource = this;
-                renderCore = new Lazy<RenderCore>(() =>
-                {
-                    core = OnCreateRenderCore();
-                    core.InvalidateRender += RenderCore_OnInvalidateRenderer;
-                    return core;
-                }, true);
+                renderCore = new Lazy<RenderCore>(() => {
+                                                      core = OnCreateRenderCore();
+                                                      core.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                                                      return core;
+                                                  },
+                                                  true);
             }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="SceneNode" /> class.
             /// </summary>
             /// <param name="name">The name.</param>
-            public SceneNode(string name) : this()
-            {
+            public SceneNode(string name) : this() {
                 Name = name;
             }
 
-            public int CompareTo(SceneNode other)
-            {
+            public int CompareTo(SceneNode other) {
                 return other == null ? 1 : RenderOrderKey.CompareTo(other.RenderOrderKey);
             }
 
@@ -80,25 +73,22 @@ namespace HelixToolkit.SharpDX.Core
             ///     </para>
             /// </summary>
             /// <param name="effectsManager">The effectsManager.</param>
-            public void Attach(IEffectsManager effectsManager)
-            {
+            public void Attach(IEffectsManager effectsManager) {
                 if (IsAttached && effectsManager != EffectsManager)
                     throw new InvalidOperationException("EffectsManager instances must be the same during attaching.");
                 if (IsAttached || effectsManager == null) return;
                 EffectsManager = effectsManager;
                 EffectTechnique = OnSetRenderTechnique != null
-                    ? OnSetRenderTechnique(effectsManager)
-                    : OnCreateRenderTechnique(effectsManager);
-                if (EffectTechnique == null)
-                {
+                                      ? OnSetRenderTechnique(effectsManager)
+                                      : OnCreateRenderTechnique(effectsManager);
+                if (EffectTechnique == null) {
                     var techniqueName = EffectsManager.RenderTechniques.FirstOrDefault();
                     if (string.IsNullOrEmpty(techniqueName)) return;
                     EffectTechnique = EffectsManager[techniqueName];
                 }
 
                 IsAttached = OnAttach(effectsManager);
-                if (IsAttached)
-                {
+                if (IsAttached) {
                     NeedMatrixUpdate = true;
                     OnAttached();
                     Attached?.Invoke(this, EventArgs.Empty);
@@ -112,8 +102,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="effectsManager"></param>
             /// <returns>Return true if attached</returns>
-            protected virtual bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected virtual bool OnAttach(IEffectsManager effectsManager) {
                 RenderCore.Attach(EffectTechnique);
                 AssignDefaultValuesToCore(RenderCore);
                 return RenderCore != null && RenderCore.IsAttached;
@@ -122,17 +111,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [attached] and <see cref="IsAttached" /> = true.
             /// </summary>
-            protected virtual void OnAttached()
-            {
-            }
+            protected virtual void OnAttached() { }
 
             /// <summary>
             ///     Detaches the element from the effectsManager and release all graphics resources. Override <see cref="OnDetach" />
             /// </summary>
-            public void Detach()
-            {
-                if (IsAttached)
-                {
+            public void Detach() {
+                if (IsAttached) {
                     IsAttached = false;
                     InvalidateSceneGraph();
                     RenderCore.Detach();
@@ -146,13 +131,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Used to override Detach
             /// </summary>
-            protected virtual void OnDetach()
-            {
+            protected virtual void OnDetach() {
                 EffectsManager = null;
             }
 
-            protected void InvalidateRenderEvent(object sender, EventArgs arg)
-            {
+            protected void InvalidateRenderEvent(object sender, EventArgs arg) {
                 Invalidate(InvalidateTypes.Render);
             }
 
@@ -160,8 +143,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Tries to invalidate the current render, causes re-render
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void InvalidateRender()
-            {
+            public void InvalidateRender() {
                 Invalidate(InvalidateTypes.Render);
             }
 
@@ -169,8 +151,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Invalidates the scene graph. Use this if scene graph has been changed.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void InvalidateSceneGraph()
-            {
+            protected void InvalidateSceneGraph() {
                 Invalidate(InvalidateTypes.SceneGraph);
             }
 
@@ -178,8 +159,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Invalidates the per frame renderables.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void InvalidatePerFrameRenderables()
-            {
+            protected void InvalidatePerFrameRenderables() {
                 Invalidate(InvalidateTypes.PerFrameRenderables);
             }
 
@@ -188,8 +168,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="type"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void Invalidate(InvalidateTypes type)
-            {
+            protected void Invalidate(InvalidateTypes type) {
                 Invalidated?.Invoke(this, type);
                 if (parent.TryGetTarget(out var target))
                     foreach (var node in target.TraverseUp())
@@ -200,8 +179,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the element total transforms, determine renderability, etc. by the specified time span.
             /// </summary>
             /// <param name="context">The time since last update.</param>
-            public virtual void Update(RenderContext context)
-            {
+            public virtual void Update(RenderContext context) {
                 IsRenderable = CanRender(context) && core.CanRenderFlag;
                 IsInFrustum = true; //Reset during update
                 if (!IsRenderable) return;
@@ -209,10 +187,8 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ComputeTransformMatrix()
-            {
-                if (NeedMatrixUpdate)
-                {
+            public void ComputeTransformMatrix() {
+                if (NeedMatrixUpdate) {
                     parent.TryGetTarget(out var target);
                     TotalModelMatrixInternal =
                         modelMatrix * (target == null ? Matrix.Identity : target.TotalModelMatrixInternal);
@@ -226,24 +202,19 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Updates the render order key.
             /// </summary>
-            public void UpdateRenderOrderKey()
-            {
+            public void UpdateRenderOrderKey() {
                 RenderOrderKey = OnUpdateRenderOrderKey();
             }
 
-            protected virtual OrderKey OnUpdateRenderOrderKey()
-            {
+            protected virtual OrderKey OnUpdateRenderOrderKey() {
                 return OrderKey.Create(RenderOrder, 0);
             }
 
             /// <summary>
             /// </summary>
-            public virtual void UpdateNotRender(RenderContext context)
-            {
-            }
+            public virtual void UpdateNotRender(RenderContext context) { }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Detach();
                 RenderCore.Dispose();
                 Invalidated = null;
@@ -268,27 +239,35 @@ namespace HelixToolkit.SharpDX.Core
             ///     Removes self from scene graph.
             /// </summary>
             /// <returns></returns>
-            public bool RemoveSelf()
-            {
+            public bool RemoveSelf() {
                 return parent.TryGetTarget(out var target) && target is GroupNodeBase group &&
                        group.RemoveChildNode(this);
             }
 
-            public void RaiseMouseDownEvent(IViewport3DX viewport, Vector2 pos, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
+            public void RaiseMouseDownEvent(
+                IViewport3DX viewport,
+                Vector2 pos,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
                 MouseDown?.Invoke(this, new SceneNodeMouseDownArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
 
-            public void RaiseMouseMoveEvent(IViewport3DX viewport, Vector2 pos, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
+            public void RaiseMouseMoveEvent(
+                IViewport3DX viewport,
+                Vector2 pos,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
                 MouseMove?.Invoke(this, new SceneNodeMouseMoveArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
 
-            public void RaiseMouseUpEvent(IViewport3DX viewport, Vector2 pos, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
+            public void RaiseMouseUpEvent(
+                IViewport3DX viewport,
+                Vector2 pos,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
                 MouseUp?.Invoke(this, new SceneNodeMouseUpArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
 
@@ -299,8 +278,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="backingField"></param>
             /// <param name="value"></param>
             /// <returns></returns>
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsRender<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -315,8 +293,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="backingField">The backing field.</param>
             /// <param name="value">The value.</param>
             /// <returns></returns>
-            protected bool SetAffectsSceneGraph<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsSceneGraph<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -324,7 +301,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            #region Properties
+        #region Properties
 
             private static readonly string NodeStr = "Node";
 
@@ -340,11 +317,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The name.
             /// </value>
-            public string Name
-            {
+            public string Name {
                 get => name;
-                set
-                {
+                set {
                     if (Set(ref name, value)) NameChanged?.Invoke(this, new StringArgs(value));
                 }
             }
@@ -379,11 +354,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The render order.
             /// </value>
-            public ushort RenderOrder
-            {
+            public ushort RenderOrder {
                 get => renderOrder;
-                set
-                {
+                set {
                     if (Set(ref renderOrder, value)) InvalidatePerFrameRenderables();
                 }
             }
@@ -405,13 +378,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The model matrix.
             /// </value>
-            public Matrix ModelMatrix
-            {
+            public Matrix ModelMatrix {
                 get => modelMatrix;
-                set
-                {
-                    if (SetAffectsRender(ref modelMatrix, value))
-                    {
+                set {
+                    if (SetAffectsRender(ref modelMatrix, value)) {
                         if (IsModelMatrixLocked)
                             throw new InvalidOperationException("Model matrix is locked and can not be changed.");
                         NeedMatrixUpdate = true;
@@ -428,14 +398,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The parent.
             /// </value>
-            public SceneNode Parent
-            {
+            public SceneNode Parent {
                 get => parent.TryGetTarget(out var target) ? target : null;
-                internal set
-                {
+                internal set {
                     parent.TryGetTarget(out var target);
-                    if (Set(ref target, value))
-                    {
+                    if (Set(ref target, value)) {
                         parent.SetTarget(value);
                         NeedMatrixUpdate = true;
                     }
@@ -450,11 +417,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if visible; otherwise, <c>false</c>.
             /// </value>
-            public bool Visible
-            {
+            public bool Visible {
                 get => visible;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref visible, value))
                         VisibleChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
                 }
@@ -468,11 +433,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is renderable; otherwise, <c>false</c>.
             /// </value>
-            public bool IsRenderable
-            {
+            public bool IsRenderable {
                 get => isRenderable;
-                private set
-                {
+                private set {
                     if (Set(ref isRenderable, value)) InvalidatePerFrameRenderables();
                 }
             }
@@ -523,8 +486,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is hit test visible; otherwise, <c>false</c>.
             /// </value>
-            public bool IsHitTestVisible
-            {
+            public bool IsHitTestVisible {
                 get => isHitTestVisible | AlwaysHittable;
                 set => isHitTestVisible = value;
             }
@@ -543,13 +505,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The type of the render.
             /// </value>
-            public RenderType RenderType
-            {
+            public RenderType RenderType {
                 get => RenderCore.RenderType;
-                set
-                {
-                    if (RenderCore.RenderType != value)
-                    {
+                set {
+                    if (RenderCore.RenderType != value) {
                         RenderCore.RenderType = value;
                         InvalidatePerFrameRenderables();
                     }
@@ -578,10 +537,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this node is animation node root; otherwise, <c>false</c>.
             /// </value>
-            public bool IsAnimationNodeRoot
-            {
-                get
-                {
+            public bool IsAnimationNodeRoot {
+                get {
                     if (IsAnimationNode)
                         if (Parent is IAnimationNode n)
                             return !n.IsAnimationNode;
@@ -596,15 +553,13 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public bool AffectsGlobalVariable { get; protected set; } = false;
 
-            #region Handling Transforms
+        #region Handling Transforms
 
             /// <summary>
             ///     Transforms the changed.
             /// </summary>
             /// <param name="totalTransform">The total transform.</param>
-            protected virtual void OnTransformChanged(ref Matrix totalTransform)
-            {
-            }
+            protected virtual void OnTransformChanged(ref Matrix totalTransform) { }
 
             /// <summary>
             ///     Occurs when [on transform changed].
@@ -616,9 +571,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public event EventHandler<TransformArgs> ModelTransformChanged;
 
-            #endregion Handling Transforms
+        #endregion Handling Transforms
 
-            #region RenderCore
+        #region RenderCore
 
             private readonly Lazy<RenderCore> renderCore;
             public RenderCore RenderCore => renderCore.Value;
@@ -651,8 +606,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="effectsManager"></param>
             /// <returns>Return RenderTechnique</returns>
-            protected virtual IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected virtual IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.Mesh];
             }
 
@@ -660,8 +614,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected virtual RenderCore OnCreateRenderCore()
-            {
+            protected virtual RenderCore OnCreateRenderCore() {
                 return new EmptyRenderCore();
             }
 
@@ -669,16 +622,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Assigns the default values to core.
             /// </summary>
             /// <param name="core">The core.</param>
-            protected virtual void AssignDefaultValuesToCore(RenderCore core)
-            {
-            }
+            protected virtual void AssignDefaultValuesToCore(RenderCore core) { }
 
-            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e)
-            {
+            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e) {
                 InvalidateRender();
             }
 
-            #endregion RenderCore
+        #endregion RenderCore
 
             /// <summary>
             ///     Gets or sets the wrapper source used for such as hit test model, etc. The wrapper must set this so the
@@ -697,8 +647,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The tag.
             /// </value>
-            public object Tag
-            {
+            public object Tag {
                 get => tag;
                 set => Set(ref tag, value);
             }
@@ -711,9 +660,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public bool IsInFrustum { get; internal set; }
 
-            #endregion Properties
+        #endregion Properties
 
-            #region Events
+        #region Events
 
             public event EventHandler<StringArgs> NameChanged;
 
@@ -753,16 +702,15 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public event EventHandler<InvalidateTypes> Invalidated;
 
-            #endregion Events
+        #endregion Events
 
-            #region Rendering
+        #region Rendering
 
             /// <summary>
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
-            protected virtual bool CanRender(RenderContext context)
-            {
+            protected virtual bool CanRender(RenderContext context) {
                 return visible && IsAttached;
             }
 
@@ -772,8 +720,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 core.ModelMatrix = TotalModelMatrixInternal;
                 core.Render(context, deviceContext);
             }
@@ -784,8 +731,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void RenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
                 core.ModelMatrix = TotalModelMatrixInternal;
                 core.RenderShadow(context, deviceContext);
             }
@@ -796,8 +742,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void RenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
                 core.ModelMatrix = TotalModelMatrixInternal;
                 core.RenderCustom(context, deviceContext);
             }
@@ -809,8 +754,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="pass"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass pass)
-            {
+            public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass pass) {
                 core.ModelMatrix = TotalModelMatrixInternal;
                 core.RenderDepth(context, deviceContext, pass);
             }
@@ -820,14 +764,13 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="viewFrustum">The frustum.</param>
             /// <returns></returns>
-            public virtual bool TestViewFrustum(ref BoundingFrustum viewFrustum)
-            {
+            public virtual bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
                 return true;
             }
 
-            #endregion Rendering
+        #endregion Rendering
 
-            #region Hit Test
+        #region Hit Test
 
             /// <summary>
             ///     Hits the test.
@@ -835,8 +778,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
+            public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
                 if (CanHitTest(context)) return OnHitTest(context, TotalModelMatrixInternal, ref hits);
 
                 return false;
@@ -849,8 +791,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance [can hit test] the specified context; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool CanHitTest(HitTestContext context)
-            {
+            protected virtual bool CanHitTest(HitTestContext context) {
                 return context != null && (AlwaysHittable || (IsHitTestVisible && IsRenderable));
             }
 
@@ -861,12 +802,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="totalModelMatrix">The total model matrix.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            protected abstract bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits);
+            protected abstract bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            );
 
-            #endregion Hit Test
+        #endregion Hit Test
 
-            #region IBoundable
+        #region IBoundable
 
             /// <summary>
             ///     The maximum bound
@@ -958,8 +902,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Raises the on transform bound changed.
             /// </summary>
             /// <param name="args">The arguments.</param>
-            protected void RaiseOnTransformBoundChanged(BoundChangeArgs<BoundingBox> args)
-            {
+            protected void RaiseOnTransformBoundChanged(BoundChangeArgs<BoundingBox> args) {
                 TransformBoundChanged?.Invoke(this, args);
             }
 
@@ -967,8 +910,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Raises the on bound changed.
             /// </summary>
             /// <param name="args">The arguments.</param>
-            protected void RaiseOnBoundChanged(BoundChangeArgs<BoundingBox> args)
-            {
+            protected void RaiseOnBoundChanged(BoundChangeArgs<BoundingBox> args) {
                 BoundChanged?.Invoke(this, args);
             }
 
@@ -976,8 +918,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Raises the on transform bound sphere changed.
             /// </summary>
             /// <param name="args">The arguments.</param>
-            protected void RaiseOnTransformBoundSphereChanged(BoundChangeArgs<BoundingSphere> args)
-            {
+            protected void RaiseOnTransformBoundSphereChanged(BoundChangeArgs<BoundingSphere> args) {
                 TransformBoundSphereChanged?.Invoke(this, args);
             }
 
@@ -985,14 +926,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Raises the on bound sphere changed.
             /// </summary>
             /// <param name="args">The arguments.</param>
-            protected void RaiseOnBoundSphereChanged(BoundChangeArgs<BoundingSphere> args)
-            {
+            protected void RaiseOnBoundSphereChanged(BoundChangeArgs<BoundingSphere> args) {
                 BoundSphereChanged?.Invoke(this, args);
             }
 
-            #endregion IBoundable
+        #endregion IBoundable
 
-            #region POST EFFECT
+        #region POST EFFECT
 
             /// <summary>
             ///     Gets or sets the post effects.
@@ -1024,8 +964,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Adds the post effect.
             /// </summary>
             /// <param name="effect">The effect.</param>
-            public void AddPostEffect(IEffectAttributes effect)
-            {
+            public void AddPostEffect(IEffectAttributes effect) {
                 if (postEffectNames.ContainsKey(effect.EffectName)) return;
                 postEffectNames.Add(effect.EffectName, effect);
                 InvalidateRender();
@@ -1035,8 +974,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Removes the post effect.
             /// </summary>
             /// <param name="effectName">Name of the effect.</param>
-            public void RemovePostEffect(string effectName)
-            {
+            public void RemovePostEffect(string effectName) {
                 if (postEffectNames.Remove(effectName)) InvalidateRender();
             }
 
@@ -1047,8 +985,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if [has post effect] [the specified effect name]; otherwise, <c>false</c>.
             /// </returns>
-            public bool HasPostEffect(string effectName)
-            {
+            public bool HasPostEffect(string effectName) {
                 return postEffectNames.ContainsKey(effectName);
             }
 
@@ -1058,30 +995,27 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="effectName">Name of the effect.</param>
             /// <param name="effect">The effect.</param>
             /// <returns></returns>
-            public bool TryGetPostEffect(string effectName, out IEffectAttributes effect)
-            {
+            public bool TryGetPostEffect(string effectName, out IEffectAttributes effect) {
                 return postEffectNames.TryGetValue(effectName, out effect);
             }
 
             /// <summary>
             ///     Clears the post effect.
             /// </summary>
-            public void ClearPostEffect()
-            {
+            public void ClearPostEffect() {
                 postEffectNames.Clear();
                 InvalidateRender();
             }
 
-            #endregion
+        #endregion
 
-            #region ModeMatrixLock
+        #region ModeMatrixLock
 
             public bool IsModelMatrixLocked => modelMatrixKey is not null;
 
             private LockKey? modelMatrixKey;
 
-            public LockKey LockModelMatrix()
-            {
+            public LockKey LockModelMatrix() {
                 if (IsModelMatrixLocked)
                     throw new InvalidOperationException("Model matrix is already locked. Unlock first.");
 
@@ -1089,8 +1023,7 @@ namespace HelixToolkit.SharpDX.Core
                 return modelMatrixKey.Value;
             }
 
-            public void UnlockModelMatrix(LockKey key)
-            {
+            public void UnlockModelMatrix(LockKey key) {
                 //check if locked
                 if (modelMatrixKey is null)
                     return;
@@ -1101,90 +1034,97 @@ namespace HelixToolkit.SharpDX.Core
                 modelMatrixKey = null;
             }
 
-            public struct LockKey
-            {
-                public LockKey(Guid key)
-                {
+            public struct LockKey {
+                public LockKey(Guid key) {
                     Key = key;
                 }
 
                 public Guid Key { get; }
             }
 
-            #endregion
-        }
-
-        #region Mouse Events Args
-
-        public class SceneNodeMouseDownArgs : EventArgs
-        {
-            public SceneNodeMouseDownArgs(IViewport3DX viewport, Vector2 pos, SceneNode node, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
-                Viewport = viewport;
-                Position = pos;
-                Source = node;
-                HitResult = hit;
-                OriginalInputEventArgs = originalInputEventArgs;
-            }
-
-            public HitTestResult HitResult { get; }
-
-            public SceneNode Source { get; }
-
-            public IViewport3DX Viewport { get; }
-
-            public Vector2 Position { get; }
-
-            public object OriginalInputEventArgs { get; }
-        }
-
-        public class SceneNodeMouseMoveArgs : EventArgs
-        {
-            public SceneNodeMouseMoveArgs(IViewport3DX viewport, Vector2 pos, SceneNode node, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
-                Viewport = viewport;
-                Position = pos;
-                Source = node;
-                HitResult = hit;
-                OriginalInputEventArgs = originalInputEventArgs;
-            }
-
-            public HitTestResult HitResult { get; }
-
-            public SceneNode Source { get; }
-
-            public IViewport3DX Viewport { get; }
-
-            public Vector2 Position { get; }
-
-            public object OriginalInputEventArgs { get; }
-        }
-
-        public class SceneNodeMouseUpArgs : EventArgs
-        {
-            public SceneNodeMouseUpArgs(IViewport3DX viewport, Vector2 pos, SceneNode node, HitTestResult hit,
-                object originalInputEventArgs = null)
-            {
-                Viewport = viewport;
-                Position = pos;
-                Source = node;
-                HitResult = hit;
-                OriginalInputEventArgs = originalInputEventArgs;
-            }
-
-            public HitTestResult HitResult { get; }
-
-            public SceneNode Source { get; }
-
-            public IViewport3DX Viewport { get; }
-
-            public Vector2 Position { get; }
-
-            public object OriginalInputEventArgs { get; }
-        }
-
         #endregion
+        }
+
+    #region Mouse Events Args
+
+        public class SceneNodeMouseDownArgs : EventArgs {
+            public SceneNodeMouseDownArgs(
+                IViewport3DX viewport,
+                Vector2 pos,
+                SceneNode node,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
+                Viewport = viewport;
+                Position = pos;
+                Source = node;
+                HitResult = hit;
+                OriginalInputEventArgs = originalInputEventArgs;
+            }
+
+            public HitTestResult HitResult { get; }
+
+            public SceneNode Source { get; }
+
+            public IViewport3DX Viewport { get; }
+
+            public Vector2 Position { get; }
+
+            public object OriginalInputEventArgs { get; }
+        }
+
+        public class SceneNodeMouseMoveArgs : EventArgs {
+            public SceneNodeMouseMoveArgs(
+                IViewport3DX viewport,
+                Vector2 pos,
+                SceneNode node,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
+                Viewport = viewport;
+                Position = pos;
+                Source = node;
+                HitResult = hit;
+                OriginalInputEventArgs = originalInputEventArgs;
+            }
+
+            public HitTestResult HitResult { get; }
+
+            public SceneNode Source { get; }
+
+            public IViewport3DX Viewport { get; }
+
+            public Vector2 Position { get; }
+
+            public object OriginalInputEventArgs { get; }
+        }
+
+        public class SceneNodeMouseUpArgs : EventArgs {
+            public SceneNodeMouseUpArgs(
+                IViewport3DX viewport,
+                Vector2 pos,
+                SceneNode node,
+                HitTestResult hit,
+                object originalInputEventArgs = null
+            ) {
+                Viewport = viewport;
+                Position = pos;
+                Source = node;
+                HitResult = hit;
+                OriginalInputEventArgs = originalInputEventArgs;
+            }
+
+            public HitTestResult HitResult { get; }
+
+            public SceneNode Source { get; }
+
+            public IViewport3DX Viewport { get; }
+
+            public Vector2 Position { get; }
+
+            public object OriginalInputEventArgs { get; }
+        }
+
+    #endregion
     }
 }

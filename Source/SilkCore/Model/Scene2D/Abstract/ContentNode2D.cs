@@ -5,47 +5,37 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core2D;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public abstract class ContentNode2D : PresenterNode2D
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public abstract class ContentNode2D : PresenterNode2D {
             private HorizontalAlignment horizontalContentAlignment = HorizontalAlignment.Center;
 
             private VerticalAlignment verticalContentAlignment = VerticalAlignment.Center;
 
-            public HorizontalAlignment HorizontalContentAlignment
-            {
+            public HorizontalAlignment HorizontalContentAlignment {
                 get => horizontalContentAlignment;
-                set
-                {
+                set {
                     if (Set(ref horizontalContentAlignment, value)) InvalidateMeasure();
                 }
             }
 
-            public VerticalAlignment VerticalContentAlignment
-            {
+            public VerticalAlignment VerticalContentAlignment {
                 get => verticalContentAlignment;
-                set
-                {
+                set {
                     if (Set(ref verticalContentAlignment, value)) InvalidateMeasure();
                 }
             }
 
-            public Brush Background
-            {
+            public Brush Background {
                 get => (RenderCore as BorderRenderCore2D).Background;
                 set => (RenderCore as BorderRenderCore2D).Background = value;
             }
 
-            protected override RenderCore2D CreateRenderCore()
-            {
+            protected override RenderCore2D CreateRenderCore() {
                 return new BorderRenderCore2D();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
+            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
                 if (Content != null && LayoutBoundWithTransform.Contains(mousePoint))
                     return Content.HitTest(mousePoint, out hitResult);
 
@@ -53,12 +43,10 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override Size2F MeasureOverride(Size2F availableSize)
-            {
+            protected override Size2F MeasureOverride(Size2F availableSize) {
                 var maxContentSize = new Size2F();
                 foreach (var item in Items)
-                    if (item is SceneNode2D e)
-                    {
+                    if (item is SceneNode2D e) {
                         e.HorizontalAlignment = HorizontalContentAlignment;
                         e.VerticalAlignment = VerticalContentAlignment;
                         e.Measure(availableSize);
@@ -66,14 +54,10 @@ namespace HelixToolkit.SharpDX.Core
                         maxContentSize.Height = Math.Max(maxContentSize.Height, e.DesiredSize.Y);
                     }
 
-                if (HorizontalAlignment == HorizontalAlignment.Center)
-                {
+                if (HorizontalAlignment == HorizontalAlignment.Center) {
                     availableSize.Width = Math.Min(availableSize.Width, maxContentSize.Width);
-                }
-                else
-                {
-                    if (float.IsInfinity(availableSize.Width))
-                    {
+                } else {
+                    if (float.IsInfinity(availableSize.Width)) {
                         if (float.IsInfinity(Width))
                             availableSize.Width = maxContentSize.Width;
                         else
@@ -81,14 +65,10 @@ namespace HelixToolkit.SharpDX.Core
                     }
                 }
 
-                if (VerticalAlignment == VerticalAlignment.Center)
-                {
+                if (VerticalAlignment == VerticalAlignment.Center) {
                     availableSize.Height = Math.Min(availableSize.Height, maxContentSize.Height);
-                }
-                else
-                {
-                    if (float.IsInfinity(availableSize.Height))
-                    {
+                } else {
+                    if (float.IsInfinity(availableSize.Height)) {
                         if (float.IsInfinity(Height))
                             availableSize.Height = maxContentSize.Height;
                         else

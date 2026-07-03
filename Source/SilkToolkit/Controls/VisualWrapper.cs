@@ -11,16 +11,13 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     https://blogs.msdn.microsoft.com/dwayneneed/2007/04/26/multithreaded-ui-hostvisual/
 /// </summary>
 [ContentProperty("Child")]
-public class VisualWrapper<T> : FrameworkElement where T : Visual
-{
+public class VisualWrapper<T> : FrameworkElement where T : Visual {
     private T _child;
 
-    public T Child
-    {
+    public T Child {
         get => _child;
 
-        set
-        {
+        set {
             if (_child != null) RemoveVisualChild(_child);
 
             _child = value;
@@ -31,8 +28,7 @@ public class VisualWrapper<T> : FrameworkElement where T : Visual
 
     protected override int VisualChildrenCount => _child != null ? 1 : 0;
 
-    protected override Visual GetVisualChild(int index)
-    {
+    protected override Visual GetVisualChild(int index) {
         if (_child != null && index == 0) return _child;
 
         throw new ArgumentOutOfRangeException("index");
@@ -43,6 +39,4 @@ public class VisualWrapper<T> : FrameworkElement where T : Visual
 ///     The VisualWrapper simply integrates a raw Visual child into a tree
 ///     of FrameworkElements.
 /// </summary>
-public class VisualWrapper : VisualWrapper<Visual>
-{
-}
+public class VisualWrapper : VisualWrapper<Visual> { }

@@ -5,8 +5,7 @@
 #include"DataStructs.hlsl"
 #pragma pack_matrix( row_major )
 
-PSInput main(VSInput input)
-{
+PSInput main(VSInput input) {
     PSInput output = (PSInput)0;
     float4 inputp = input.p;
     float3 inputn = input.n;
@@ -17,9 +16,9 @@ PSInput main(VSInput input)
     output.p = mul(inputp, mWorld);
 
     //set normal for interpolation
-    output.n = normalize(mul(inputn, (float3x3) mWorld));
+    output.n = normalize(mul(inputn, (float3x3)mWorld));
 
-    output.p.xyz += input.t.x* vParams.y * output.n;
+    output.p.xyz += input.t.x * vParams.y * output.n;
 
     output.wp = output.p;
     //set position into clip space	

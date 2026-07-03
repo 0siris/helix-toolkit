@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Defines the format of data in a depth-stencil buffer.
 /// </summary>
-public enum DepthFormat
-{
+public enum DepthFormat {
     /// <summary>
     ///     No depth stencil buffer.
     /// </summary>

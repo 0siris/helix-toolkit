@@ -7,12 +7,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public class VolumeMaterialVariable<T> : MaterialVariable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public class VolumeMaterialVariable<T> : MaterialVariable {
             private readonly VolumeTextureMaterialCoreBase<T> material;
             private readonly int samplerSlot;
             private readonly int texSlot, gradientSlot;
@@ -24,11 +21,13 @@ namespace HelixToolkit.SharpDX.Core
             private ShaderResourceViewProxy texture;
             private ShaderResourceViewProxy transferMap;
 
-            public VolumeMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public VolumeMaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 VolumeTextureMaterialCoreBase<T> material,
-                string volumePassName = DefaultPassNames.Default)
-                : base(manager, technique, DefaultVolumeConstantBufferDesc, material)
-            {
+                string volumePassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, DefaultVolumeConstantBufferDesc, material) {
                 this.material = material;
                 volumePass = technique[volumePassName];
                 texSlot = volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.VolumeTB);
@@ -39,44 +38,40 @@ namespace HelixToolkit.SharpDX.Core
                     volumePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.VolumeSampler);
             }
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 base.OnInitialPropertyBindings();
                 AddPropertyBinding(nameof(VolumeTextureMaterialCoreBase<T>.VolumeTexture),
-                    () => { UpdateTexture(material); });
-                AddPropertyBinding(nameof(IVolumeTextureMaterial.Sampler), () =>
-                {
-                    var newSampler = EffectsManager.StateManager.Register(material.Sampler);
-                    RemoveAndDispose(ref sampler);
-                    sampler = newSampler;
-                });
+                                   () => { UpdateTexture(material); });
+                AddPropertyBinding(nameof(IVolumeTextureMaterial.Sampler),
+                                   () => {
+                                       var newSampler = EffectsManager.StateManager.Register(material.Sampler);
+                                       RemoveAndDispose(ref sampler);
+                                       sampler = newSampler;
+                                   });
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.SampleDistance),
-                    () => UpdateStepSize());
+                                   () => UpdateStepSize());
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.MaxIterations),
-                    () => WriteValue(VolumeParamsStruct.MaxIterations, material.MaxIterations));
+                                   () => WriteValue(VolumeParamsStruct.MaxIterations, material.MaxIterations));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IterationOffset),
-                    () => WriteValue(VolumeParamsStruct.IterationOffset, material.IterationOffset));
+                                   () => WriteValue(VolumeParamsStruct.IterationOffset, material.IterationOffset));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IsoValue),
-                    () => WriteValue(VolumeParamsStruct.IsoValue, (float) material.IsoValue));
+                                   () => WriteValue(VolumeParamsStruct.IsoValue, (float) material.IsoValue));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.Color),
-                    () => WriteValue(VolumeParamsStruct.Color, material.Color));
+                                   () => WriteValue(VolumeParamsStruct.Color, material.Color));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.TransferMap),
-                    () => UpdateGradientMap());
+                                   () => UpdateGradientMap());
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.EnablePlaneAlignment),
-                    () => WriteValue(VolumeParamsStruct.EnablePlaneAlignment, material.EnablePlaneAlignment));
+                                   () => WriteValue(VolumeParamsStruct.EnablePlaneAlignment,
+                                                    material.EnablePlaneAlignment));
             }
 
-            private void UpdateStepSize()
-            {
-                if (texture?.Resource is Texture3D texture3D)
-                {
+            private void UpdateStepSize() {
+                if (texture?.Resource is Texture3D texture3D) {
                     var desc = texture3D.Description;
                     var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
                     var steps = 1f / maxSize * (float) material.SampleDistance;
                     WriteValue(VolumeParamsStruct.StepSize, steps);
-                }
-                else
-                {
+                } else {
                     WriteValue(VolumeParamsStruct.StepSize, 1);
                 }
 
@@ -84,16 +79,14 @@ namespace HelixToolkit.SharpDX.Core
                 WriteValue(VolumeParamsStruct.BaseSampleDistance, 1.0f);
             }
 
-            private void UpdateTexture(VolumeTextureMaterialCoreBase<T> material)
-            {
+            private void UpdateTexture(VolumeTextureMaterialCoreBase<T> material) {
                 var newTexture = OnCreateTexture(material, EffectsManager);
                 RemoveAndDispose(ref texture);
                 texture = newTexture;
                 if (texture != null) UpdateStepSize();
             }
 
-            public void UpdateGradientMap()
-            {
+            public void UpdateGradientMap() {
                 RemoveAndDispose(ref transferMap);
                 if (material.TransferMap != null)
                     transferMap = ShaderResourceViewProxy.CreateViewFromColorArray(EffectsManager.NativeDeviceResources,
@@ -101,11 +94,12 @@ namespace HelixToolkit.SharpDX.Core
                 WriteValue(VolumeParamsStruct.HasGradientMapX, material.TransferMap != null);
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
-                if (texture != null)
-                {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
+                if (texture != null) {
                     shaderPass.PixelShader.BindTexture(deviceContext, texSlot, texture);
                     shaderPass.PixelShader.BindTexture(deviceContext, gradientSlot, transferMap);
                     shaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
@@ -115,34 +109,31 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 return volumePass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref texture);
                 RemoveAndDispose(ref transferMap);
                 RemoveAndDispose(ref sampler);

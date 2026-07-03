@@ -15,9 +15,8 @@ static const float2 quadtexcoords[4] =
 };
 
 
-ScreenDupVS_INPUT main(uint vI : SV_VERTEXID)
-{
-    ScreenDupVS_INPUT output = (ScreenDupVS_INPUT) 0;
+ScreenDupVS_INPUT main(uint vI : SV_VERTEXID) {
+    ScreenDupVS_INPUT output = (ScreenDupVS_INPUT)0;
     //float2 vertCoord = quadtexcoords[vI];
     //output.Pos = float4((vertCoord.x - 0.5f) * 2, -(vertCoord.y - 0.5f) * 2, 0, 1);
     //output.Tex = quadtexcoords[vI];
@@ -25,4 +24,3 @@ ScreenDupVS_INPUT main(uint vI : SV_VERTEXID)
     output.Pos = VertCoord[vI];
     return output;
 }
-

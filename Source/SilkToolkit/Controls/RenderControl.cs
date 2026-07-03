@@ -25,15 +25,12 @@ using System.Windows.Media;
 using Color = System.Drawing.Color;
 using FontFamily = System.Drawing.FontFamily;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Controls
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Controls {
         /// <summary>
         ///     A Renderable UserControl.
         /// </summary>
-        public class RenderControl : UserControl
-        {
+        public class RenderControl : UserControl {
             private readonly Visual hostVisual;
 
             private Font fontForDesignMode;
@@ -41,8 +38,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <summary>
             ///     Initializes a new instance of the <see cref="RenderControl" /> class.
             /// </summary>
-            public RenderControl(Visual hostVisual = null)
-            {
+            public RenderControl(Visual hostVisual = null) {
                 this.hostVisual = hostVisual;
                 SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque | ControlStyles.UserPaint, true);
                 UpdateStyles();
@@ -52,8 +48,7 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     Paints the background of the control.
             /// </summary>
             /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data.</param>
-            protected override void OnPaintBackground(PaintEventArgs e)
-            {
+            protected override void OnPaintBackground(PaintEventArgs e) {
                 if (DesignMode)
                     base.OnPaintBackground(e);
             }
@@ -62,34 +57,32 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     Raises the <see cref="E:System.Windows.Forms.Control.Paint" /> event.
             /// </summary>
             /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data.</param>
-            protected override void OnPaint(PaintEventArgs e)
-            {
+            protected override void OnPaint(PaintEventArgs e) {
                 base.OnPaint(e);
-                if (DesignMode)
-                {
+                if (DesignMode) {
                     if (fontForDesignMode == null)
-                        fontForDesignMode = new Font(
-                            new FontFamily("Calibri"),
-                            24,
-                            System.Drawing.FontStyle.Regular);
+                        fontForDesignMode = new Font(new FontFamily("Calibri"),
+                                                     24,
+                                                     System.Drawing.FontStyle.Regular);
 
                     e.Graphics.Clear(Color.WhiteSmoke);
                     var text = "SharpDX RenderControl";
                     var sizeText = e.Graphics.MeasureString(text, fontForDesignMode);
 
-                    e.Graphics.DrawString(text, fontForDesignMode, new SolidBrush(Color.Black),
-                        (Width - sizeText.Width) / 2, (Height - sizeText.Height) / 2);
+                    e.Graphics.DrawString(text,
+                                          fontForDesignMode,
+                                          new SolidBrush(Color.Black),
+                                          (Width - sizeText.Width) / 2,
+                                          (Height - sizeText.Height) / 2);
                 }
             }
 
-            protected override void OnHandleCreated(EventArgs e)
-            {
+            protected override void OnHandleCreated(EventArgs e) {
                 base.OnHandleCreated(e);
                 if (hostVisual != null) VirtualTouchDevice.RegisterTouchWindow(Handle, 0);
             }
 
-            protected override void WndProc(ref Message m)
-            {
+            protected override void WndProc(ref Message m) {
                 if (VirtualTouchDevice.WndProc(hostVisual, ref m))
                     DefWndProc(ref m);
                 else

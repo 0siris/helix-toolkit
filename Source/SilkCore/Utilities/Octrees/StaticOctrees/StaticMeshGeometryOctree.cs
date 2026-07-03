@@ -6,15 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     Static octree for mesh
         /// </summary>
-        public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingBox>>
-        {
+        public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingBox>> {
             /// <summary>
             /// </summary>
             protected readonly IList<int> Indices;
@@ -29,10 +26,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="positions">The positions.</param>
             /// <param name="indices">The indices.</param>
             /// <param name="parameter">The parameter.</param>
-            public StaticMeshGeometryOctree(IList<Vector3> positions, IList<int> indices,
-                OctreeBuildParameter parameter)
-                : base(parameter)
-            {
+            public StaticMeshGeometryOctree(
+                IList<Vector3> positions,
+                IList<int> indices,
+                OctreeBuildParameter parameter
+            )
+                : base(parameter) {
                 Positions = positions;
                 Indices = indices;
             }
@@ -41,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Gets the objects.
             /// </summary>
             /// <returns></returns>
-            protected override KeyValuePair<int, BoundingBox>[] GetObjects()
-            {
+            protected override KeyValuePair<int, BoundingBox>[] GetObjects() {
                 var objects = new KeyValuePair<int, BoundingBox>[Indices.Count / 3];
                 // Construct triangle index and its bounding box KeyValuePair
                 for (var i = 0; i < Indices.Count / 3; ++i)
@@ -50,19 +48,16 @@ namespace HelixToolkit.SharpDX.Core
                 return objects;
             }
 
-            protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item)
-            {
+            protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) {
                 return item.Value;
             }
 
-            protected override BoundingBox GetMaxBound()
-            {
+            protected override BoundingBox GetMaxBound() {
                 return BoundingBoxExtensions.FromPoints(Positions);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private BoundingBox GetBoundingBox(int triangleIndex)
-            {
+            private BoundingBox GetBoundingBox(int triangleIndex) {
                 var actual = triangleIndex * 3;
                 var v1 = Positions[Indices[actual++]];
                 var v2 = Positions[Indices[actual++]];
@@ -91,26 +86,31 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="isIntersect"></param>
             /// <param name="hitThickness"></param>
             /// <returns></returns>
-            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant,
-                HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                ref Ray rayModel, bool returnMultiple, ref List<HitTestResult> hits,
-                ref bool isIntersect, float hitThickness)
-            {
+            protected override bool HitTestCurrentNodeExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref Ray rayModel,
+                bool returnMultiple,
+                ref List<HitTestResult> hits,
+                ref bool isIntersect,
+                float hitThickness
+            ) {
                 isIntersect = false;
                 if (!octant.IsBuilt) return false;
                 var isHit = false;
                 var bound = octant.Bound;
                 //Hit test in local space.
-                if (rayModel.Intersects(ref bound))
-                {
+                if (rayModel.Intersects(ref bound)) {
                     isIntersect = true;
                     if (octant.Count == 0) return false;
                     var result = new HitTestResult();
                     result.Distance = double.MaxValue;
                     var minDistance = float.MaxValue;
                     var rayWS = context.RayWS;
-                    for (var i = octant.Start; i < octant.End; ++i)
-                    {
+                    for (var i = octant.Start; i < octant.End; ++i) {
                         var idx = Objects[i].Key * 3;
                         var t1 = Indices[idx];
                         var t2 = Indices[idx + 1];
@@ -124,8 +124,7 @@ namespace HelixToolkit.SharpDX.Core
                         if (MeshGeometry3D.EnableSmallTriangleHitTestScaling)
                             if ((v0 - v1).LengthSquared() < MeshGeometry3D.SmallTriangleEdgeLengthSquare
                                 || (v1 - v2).LengthSquared() < MeshGeometry3D.SmallTriangleEdgeLengthSquare
-                                || (v2 - v0).LengthSquared() < MeshGeometry3D.SmallTriangleEdgeLengthSquare)
-                            {
+                                || (v2 - v0).LengthSquared() < MeshGeometry3D.SmallTriangleEdgeLengthSquare) {
                                 scaling = MeshGeometry3D.SmallTriangleHitTestScaling;
                                 rayScaled = new Ray(rayModel.Position * scaling, rayModel.Direction);
                             }
@@ -133,8 +132,7 @@ namespace HelixToolkit.SharpDX.Core
                         v0 *= scaling;
                         v1 *= scaling;
                         v2 *= scaling;
-                        if (Collision.RayIntersectsTriangle(ref rayScaled, ref v0, ref v1, ref v2, out float d))
-                        {
+                        if (Collision.RayIntersectsTriangle(ref rayScaled, ref v0, ref v1, ref v2, out float d)) {
                             d /= scaling;
                             if (returnMultiple) minDistance = float.MaxValue;
                             if (d >= 0 && d < minDistance) // If d is NaN, the condition is false.
@@ -145,7 +143,7 @@ namespace HelixToolkit.SharpDX.Core
                                 // transform hit-info to world space now:
                                 var pointWorld =
                                     SilkMath.TransformCoordinate(rayModel.Position + rayModel.Direction * d,
-                                        modelMatrix);
+                                                                 modelMatrix);
                                 result.PointHit = pointWorld;
                                 result.Distance = (rayWS.Position - pointWorld).Length;
 
@@ -160,8 +158,7 @@ namespace HelixToolkit.SharpDX.Core
                                 result.Tag = idx;
                                 result.Geometry = geometry;
                                 isHit = true;
-                                if (returnMultiple)
-                                {
+                                if (returnMultiple) {
                                     hits.Add(result);
                                     result = new HitTestResult();
                                 }
@@ -169,19 +166,14 @@ namespace HelixToolkit.SharpDX.Core
                         }
                     }
 
-                    if (isHit && !returnMultiple)
-                    {
+                    if (isHit && !returnMultiple) {
                         isHit = false;
-                        if (hits.Count > 0)
-                        {
-                            if (hits[0].Distance > result.Distance)
-                            {
+                        if (hits.Count > 0) {
+                            if (hits[0].Distance > result.Distance) {
                                 hits[0] = result;
                                 isHit = true;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             hits.Add(result);
                             isHit = true;
                         }
@@ -199,18 +191,20 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="result"></param>
             /// <param name="isIntersect"></param>
             /// <returns></returns>
-            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context,
-                ref BoundingSphere sphere, ref List<HitTestResult> result, ref bool isIntersect)
-            {
+            protected override bool FindNearestPointBySphereExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
+                ref BoundingSphere sphere,
+                ref List<HitTestResult> result,
+                ref bool isIntersect
+            ) {
                 var isHit = false;
                 var tempResult = new HitTestResult();
                 tempResult.Distance = float.MaxValue;
-                if (!BoxDisjointSphere(octant.Bound, ref sphere))
-                {
+                if (!BoxDisjointSphere(octant.Bound, ref sphere)) {
                     isIntersect = true;
                     for (var i = octant.Start; i < octant.End; ++i)
-                        if (!BoxDisjointSphere(Objects[i].Value, ref sphere))
-                        {
+                        if (!BoxDisjointSphere(Objects[i].Value, ref sphere)) {
                             Vector3 cloestPoint;
 
                             var idx = Objects[i].Key * 3;
@@ -220,11 +214,13 @@ namespace HelixToolkit.SharpDX.Core
                             var v0 = Positions[t1];
                             var v1 = Positions[t2];
                             var v2 = Positions[t3];
-                            Collision.ClosestPointPointTriangle(ref sphere.Center, ref v0, ref v1, ref v2,
-                                out cloestPoint);
+                            Collision.ClosestPointPointTriangle(ref sphere.Center,
+                                                                ref v0,
+                                                                ref v1,
+                                                                ref v2,
+                                                                out cloestPoint);
                             var d = (cloestPoint - sphere.Center).Length;
-                            if (tempResult.Distance > d)
-                            {
+                            if (tempResult.Distance > d) {
                                 var n = SilkMath.Normalize(SilkMath.Cross(v1 - v0, v2 - v0));
                                 tempResult.NormalAtHit = n;
                                 tempResult.Distance = d;
@@ -236,26 +232,19 @@ namespace HelixToolkit.SharpDX.Core
                             }
                         }
 
-                    if (isHit)
-                    {
+                    if (isHit) {
                         isHit = false;
-                        if (result.Count > 0)
-                        {
-                            if (result[0].Distance > tempResult.Distance)
-                            {
+                        if (result.Count > 0) {
+                            if (result[0].Distance > tempResult.Distance) {
                                 result[0] = tempResult;
                                 isHit = true;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             result.Add(tempResult);
                             isHit = true;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     isIntersect = false;
                 }
 

@@ -8,27 +8,22 @@ using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow
-        {
+        public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
             private readonly List<CoreComponent> components = new();
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="RenderCore" /> class.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
-            public RenderCore(RenderType renderType)
-            {
+            public RenderCore(RenderType renderType) {
                 RenderType = renderType;
             }
 
-            protected T AddComponent<T>(T component) where T : CoreComponent
-            {
+            protected T AddComponent<T>(T component) where T : CoreComponent {
                 components.Add(component);
                 component.InvalidateRender += (s, e) => { RaiseInvalidateRender(); };
                 return component;
@@ -38,8 +33,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Call to attach the render core.
             /// </summary>
             /// <param name="technique"></param>
-            public void Attach(IRenderTechnique technique)
-            {
+            public void Attach(IRenderTechnique technique) {
                 if (IsAttached) return;
                 EffectTechnique = technique;
                 foreach (var comp in components) comp.Attach(technique);
@@ -58,8 +52,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Detach render core. Release all resources
             /// </summary>
-            public void Detach()
-            {
+            public void Detach() {
                 if (!IsAttached) return;
                 OnDetach();
 
@@ -85,18 +78,14 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public virtual void RenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            public virtual void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
 
             /// <summary>
             ///     Renders the custom pass. Must apply render pass externally. Usually used during PostEffect rendering.
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public virtual void RenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            public virtual void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
 
             /// <summary>
             ///     Renders the depth pass.
@@ -104,10 +93,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             /// <param name="customPass"></param>
-            public virtual void RenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
-            }
+            public virtual void RenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) { }
 
             /// <summary>
             ///     Update routine. Only used to run update computation such as compute shader in particle system.
@@ -118,8 +108,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <param name="deviceContext"></param>
-            public void Update(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public void Update(RenderContext context, DeviceContextProxy deviceContext) {
                 if (CanRenderFlag) OnUpdate(context, deviceContext);
             }
 
@@ -128,18 +117,14 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <param name="deviceContext"></param>
-            protected virtual void OnUpdate(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            protected virtual void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) { }
 
             /// <summary>
             ///     Updates the can render flag.
             /// </summary>
-            public void UpdateCanRenderFlag()
-            {
+            public void UpdateCanRenderFlag() {
                 var flag = OnUpdateCanRenderFlag();
-                if (CanRenderFlag != flag)
-                {
+                if (CanRenderFlag != flag) {
                     CanRenderFlag = flag;
                     RaiseInvalidateRender();
                 }
@@ -149,16 +134,14 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [update can render flag].
             /// </summary>
             /// <returns></returns>
-            protected virtual bool OnUpdateCanRenderFlag()
-            {
+            protected virtual bool OnUpdateCanRenderFlag() {
                 return IsAttached;
             }
 
             /// <summary>
             ///     Resets the invalidate handler.
             /// </summary>
-            public void ResetInvalidateHandler()
-            {
+            public void ResetInvalidateHandler() {
                 InvalidateRender = null;
             }
 
@@ -166,8 +149,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Invalidates the renderer.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void RaiseInvalidateRender()
-            {
+            protected void RaiseInvalidateRender() {
                 InvalidateRender?.Invoke(this, EventArgs.Empty);
             }
 
@@ -178,8 +160,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="value"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsRender<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -195,8 +176,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="value">The value.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsCanRenderFlag<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsCanRenderFlag<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -205,8 +185,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 if (disposeManagedResources)
                     foreach (var comp in components)
                         comp.Dispose();
@@ -214,7 +193,7 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             /// </summary>
@@ -233,8 +212,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The type of the render.
             /// </value>
-            public RenderType RenderType
-            {
+            public RenderType RenderType {
                 get => renderType;
                 set => SetAffectsRender(ref renderType, value);
             }
@@ -267,8 +245,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     <see cref="IThrowingShadow.IsThrowingShadow" />
             /// </summary>
-            public bool IsThrowingShadow
-            {
+            public bool IsThrowingShadow {
                 get => isThrowingShadow;
                 set => SetAffectsRender(ref isThrowingShadow, value);
             }
@@ -307,7 +284,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public bool IsAttached { get; private set; }
 
-            #endregion
+        #endregion
         }
     }
 }

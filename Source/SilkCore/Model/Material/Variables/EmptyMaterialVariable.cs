@@ -6,22 +6,17 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public sealed class EmptyMaterialVariable : MaterialVariable
-        {
+        public sealed class EmptyMaterialVariable : MaterialVariable {
             public static readonly EmptyMaterialVariable EmptyVariable = new();
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="EmptyMaterialVariable" /> class.
             /// </summary>
-            public EmptyMaterialVariable() : base(null, null, null, null)
-            {
-            }
+            public EmptyMaterialVariable() : base(null, null, null, null) { }
 
             /// <summary>
             ///     Binds the material resources.
@@ -30,9 +25,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="shaderPass">The shader pass.</param>
             /// <returns></returns>
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
                 return false;
             }
 
@@ -42,14 +39,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
             /// <returns></returns>
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            protected override void UpdateInternalVariables(DeviceContextProxy context)
-            {
-            }
+            protected override void UpdateInternalVariables(DeviceContextProxy context) { }
 
             /// <summary>
             ///     Draws the specified device context.
@@ -57,10 +51,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="bufferModel">The buffer model.</param>
             /// <param name="instanceCount">The instance count.</param>
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
-            }
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) { }
 
             /// <summary>
             ///     Gets the shadow pass.
@@ -68,8 +63,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
             /// <returns></returns>
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
@@ -79,8 +73,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
             /// <returns></returns>
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
@@ -90,8 +83,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderType">Type of the render.</param>
             /// <param name="context">The context.</param>
             /// <returns></returns>
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
         }

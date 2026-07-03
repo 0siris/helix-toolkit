@@ -3,14 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public abstract class RenderCore2D : DisposeObject
-        {
+        public abstract class RenderCore2D : DisposeObject {
             private RectangleF clippingBound;
 
             private bool isMouseOver;
@@ -42,11 +39,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Absolute layout rectangle cooridnate for renderable
             /// </summary>
-            public RectangleF LayoutBound
-            {
+            public RectangleF LayoutBound {
                 get => rect;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref rect, value)) OnLayoutBoundChanged(value);
                 }
             }
@@ -57,8 +52,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The layout clipping bound.
             /// </value>
-            public RectangleF LayoutClippingBound
-            {
+            public RectangleF LayoutClippingBound {
                 get => clippingBound;
                 set => SetAffectsRender(ref clippingBound, value);
             }
@@ -69,8 +63,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The transform.
             /// </value>
-            public Matrix3x2 Transform
-            {
+            public Matrix3x2 Transform {
                 get => transform;
                 set => SetAffectsRender(ref transform, value);
             }
@@ -81,8 +74,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The local transform.
             /// </value>
-            public Matrix3x2 LocalTransform
-            {
+            public Matrix3x2 LocalTransform {
                 get => localTransform;
                 set => SetAffectsRender(ref localTransform, value);
             }
@@ -93,8 +85,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
             /// </value>
-            public bool IsMouseOver
-            {
+            public bool IsMouseOver {
                 get => isMouseOver;
                 set => SetAffectsRender(ref isMouseOver, value);
             }
@@ -116,8 +107,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Attaches the specified host.
             /// </summary>
             /// <param name="host">The host.</param>
-            public void Attach(IRenderHost host)
-            {
+            public void Attach(IRenderHost host) {
                 if (IsAttached) return;
                 if (host == null) return;
                 RenderHost = host;
@@ -129,16 +119,14 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="host">The target.</param>
             /// <returns></returns>
-            protected virtual bool OnAttach(IRenderHost host)
-            {
+            protected virtual bool OnAttach(IRenderHost host) {
                 return true;
             }
 
             /// <summary>
             ///     Detaches this instance.
             /// </summary>
-            public void Detach()
-            {
+            public void Detach() {
                 if (!IsAttached) return;
                 OnDetach();
                 IsAttached = false;
@@ -147,16 +135,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [detach].
             /// </summary>
-            protected virtual void OnDetach()
-            {
-            }
+            protected virtual void OnDetach() { }
 
             /// <summary>
             /// </summary>
             /// <param name="layoutBound"></param>
-            protected virtual void OnLayoutBoundChanged(RectangleF layoutBound)
-            {
-            }
+            protected virtual void OnLayoutBoundChanged(RectangleF layoutBound) { }
 
             /// <summary>
             ///     Renders the specified context.
@@ -167,8 +151,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Invalidates the renderer.
             /// </summary>
-            protected void InvalidateRenderer()
-            {
+            protected void InvalidateRenderer() {
                 InvalidateRender?.Invoke(this, EventArgs.Empty);
             }
 
@@ -178,8 +161,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="backingField"></param>
             /// <param name="value"></param>
             /// <returns></returns>
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsRender<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -187,8 +169,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Detach();
                 base.OnDispose(disposeManagedResources);
             }

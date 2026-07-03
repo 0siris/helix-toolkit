@@ -9,8 +9,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public abstract class MouseGestureHandler
-{
+public abstract class MouseGestureHandler {
     private List<HitTestResult> hits = new();
 
     /// <summary>
@@ -54,18 +53,15 @@ public abstract class MouseGestureHandler
     /// <param name="cameraController">
     ///     The viewport.
     /// </param>
-    protected MouseGestureHandler(CameraController cameraController)
-    {
+    protected MouseGestureHandler(CameraController cameraController) {
         Controller = cameraController;
     }
 
     /// <summary>
     ///     Gets the origin.
     /// </summary>
-    public Vector3 Origin
-    {
-        get
-        {
+    public Vector3 Origin {
+        get {
             if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D.HasValue)
                 return MouseDownNearestPoint3D.Value;
 
@@ -129,9 +125,7 @@ public abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="Vector2" /> instance containing the event data.
     /// </param>
-    public virtual void Delta(Vector2 e)
-    {
-    }
+    public virtual void Delta(Vector2 e) { }
 
 
     /// <summary>
@@ -140,8 +134,7 @@ public abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="Vector2" /> instance containing the event data.
     /// </param>
-    protected virtual void Started(Vector2 e)
-    {
+    protected virtual void Started(Vector2 e) {
         SetMouseDownPoint(e);
         LastPoint = MouseDownPoint;
         LastPoint3D = MouseDownPoint3D;
@@ -166,8 +159,7 @@ public abstract class MouseGestureHandler
     /// <returns>
     ///     A 3D Vector2.
     /// </returns>
-    public Vector3? UnProject(Vector2 p, Vector3 position, Vector3 normal)
-    {
+    public Vector3? UnProject(Vector2 p, Vector3 position, Vector3 normal) {
         var ray = GetRay(p);
         var plane = new Plane(position, normal);
         if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point)) return point;
@@ -184,8 +176,7 @@ public abstract class MouseGestureHandler
     /// <returns>
     ///     A 3D Vector2.
     /// </returns>
-    public Vector3? UnProject(Vector2 p)
-    {
+    public Vector3? UnProject(Vector2 p) {
         return UnProject(p, Camera.Target, Camera.LookDirection);
     }
 
@@ -198,8 +189,7 @@ public abstract class MouseGestureHandler
     /// <returns>
     ///     A ray
     /// </returns>
-    protected Ray GetRay(Vector2 position)
-    {
+    protected Ray GetRay(Vector2 position) {
         if (Controller.Viewport.UnProject(position, out var ray)) return ray;
         return new Ray();
     }
@@ -210,19 +200,15 @@ public abstract class MouseGestureHandler
     /// <param name="elapsedTime">
     ///     The elapsed time (milliseconds).
     /// </param>
-    protected virtual void OnInertiaStarting(double elapsedTime)
-    {
-    }
+    protected virtual void OnInertiaStarting(double elapsedTime) { }
 
     /// <summary>
     ///     Mouses down.
     /// </summary>
     /// <param name="e">The e.</param>
     /// <returns></returns>
-    public virtual bool Start(Vector2 e)
-    {
-        if (CanStart())
-        {
+    public virtual bool Start(Vector2 e) {
+        if (CanStart()) {
             MouseCaptureRequested?.Invoke(this, EventArgs.Empty);
             Started(e);
             return true;
@@ -231,8 +217,7 @@ public abstract class MouseGestureHandler
         return false;
     }
 
-    protected virtual bool CanStart()
-    {
+    protected virtual bool CanStart() {
         return true;
     }
 
@@ -240,8 +225,7 @@ public abstract class MouseGestureHandler
     ///     Mouses the move.
     /// </summary>
     /// <param name="e">The e.</param>
-    public virtual void MouseMove(Vector2 e)
-    {
+    public virtual void MouseMove(Vector2 e) {
         Delta(e);
         Controller.Viewport.InvalidateRender();
     }
@@ -250,14 +234,12 @@ public abstract class MouseGestureHandler
     ///     Mouses up.
     /// </summary>
     /// <param name="e">The e.</param>
-    public virtual void End(Vector2 e)
-    {
+    public virtual void End(Vector2 e) {
         MouseReleaseRequested?.Invoke(this, EventArgs.Empty);
         Completed(e);
     }
 
-    protected virtual void Completed(Vector2 e)
-    {
+    protected virtual void Completed(Vector2 e) {
         var elapsed =
             (double) (Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
             1000; //this.ManipulationWatch.ElapsedMilliseconds;
@@ -274,8 +256,7 @@ public abstract class MouseGestureHandler
     /// <returns>
     ///     The 2D Vector2.
     /// </returns>
-    protected Vector2 Project(Vector3 p)
-    {
+    protected Vector2 Project(Vector3 p) {
         return Controller.Viewport.Project(p);
     }
 
@@ -285,21 +266,16 @@ public abstract class MouseGestureHandler
     /// <param name="position">
     ///     The position.
     /// </param>
-    private void SetMouseDownPoint(Vector2 position)
-    {
+    private void SetMouseDownPoint(Vector2 position) {
         MouseDownPoint = position;
 
-        if (!Controller.FixedRotationPointEnabled && Controller.Viewport.FindHitsInFrustum(MouseDownPoint, ref hits))
-        {
-            if (hits.Count > 0)
-            {
+        if (!Controller.FixedRotationPointEnabled && Controller.Viewport.FindHitsInFrustum(MouseDownPoint, ref hits)) {
+            if (hits.Count > 0) {
                 MouseDownNearestPoint3D = hits[0].PointHit;
                 if (hits[0].ModelHit is SceneNode node)
                     MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
             }
-        }
-        else
-        {
+        } else {
             MouseDownNearestModelBoundCenter = null;
             MouseDownNearestPoint3D = null;
         }

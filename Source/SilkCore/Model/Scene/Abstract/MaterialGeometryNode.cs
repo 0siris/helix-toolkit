@@ -5,12 +5,9 @@ Copyright(c) 2020 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public abstract class MaterialGeometryNode : GeometryNode
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public abstract class MaterialGeometryNode : GeometryNode {
             private bool isTransparent;
             private MaterialCore material;
             private MaterialVariable materialVariable;
@@ -20,11 +17,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
             ///     are preserved.
             /// </summary>
-            public bool IsTransparent
-            {
+            public bool IsTransparent {
                 get => isTransparent;
-                set
-                {
+                set {
                     if (Set(ref isTransparent, value))
                         if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
                             RenderType = value ? RenderType.Transparent : RenderType.Opaque;
@@ -33,21 +28,15 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public MaterialCore Material
-            {
+            public MaterialCore Material {
                 get => material;
-                set
-                {
+                set {
                     if (Set(ref material, value))
-                        if (EffectsManager != null)
-                        {
-                            if (IsAttached)
-                            {
+                        if (EffectsManager != null) {
+                            if (IsAttached) {
                                 AttachMaterial();
                                 InvalidateRender();
-                            }
-                            else
-                            {
+                            } else {
                                 Detach();
                                 Attach(EffectsManager);
                             }
@@ -55,30 +44,25 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected virtual void AttachMaterial()
-            {
+            protected virtual void AttachMaterial() {
                 var newVar = material != null && RenderCore is IMaterialRenderParams
-                    ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
-                    : null;
+                                 ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+                                 : null;
                 RemoveAndDispose(ref materialVariable);
                 materialVariable = newVar;
                 if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
             }
 
-            protected override OrderKey OnUpdateRenderOrderKey()
-            {
+            protected override OrderKey OnUpdateRenderOrderKey() {
                 return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
             }
 
-            protected override bool CanRender(RenderContext context)
-            {
+            protected override bool CanRender(RenderContext context) {
                 return base.CanRender(context) && materialVariable != null;
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
-                if (base.OnAttach(effectsManager))
-                {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
+                if (base.OnAttach(effectsManager)) {
                     AttachMaterial();
                     return true;
                 }
@@ -86,8 +70,7 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref materialVariable);
                 if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
                 base.OnDetach();

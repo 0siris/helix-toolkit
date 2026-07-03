@@ -7,8 +7,7 @@
 #include"psCommon.hlsl"
 
 
-PSOITOutput particleOIT(in ParticlePS_INPUT input)
-{
+PSOITOutput particleOIT(in ParticlePS_INPUT input) {
     float4 color = main(input);
     return calculateOIT(color, input.z, input.position.z);
 }

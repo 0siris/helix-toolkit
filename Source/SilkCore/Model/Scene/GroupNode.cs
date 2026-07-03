@@ -7,33 +7,26 @@ using System.Diagnostics;
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
         [DebuggerDisplay("Name={" + nameof(Name) + "}; Child Count={" + nameof(ItemsCount) + "};")]
-        public class GroupNode : GroupNodeBase, IHitable
-        {
+        public class GroupNode : GroupNodeBase, IHitable {
             private static readonly ILogger logger = LogManager.Create<GroupNode>();
             private IOctreeManager octreeManager;
 
-            public GroupNode()
-            {
+            public GroupNode() {
                 ChildNodeAdded += NodeGroup_OnAddChildNode;
                 ChildNodeRemoved += NodeGroup_OnRemoveChildNode;
                 Cleared += NodeGroup_OnClear;
             }
 
-            public IOctreeManager OctreeManager
-            {
+            public IOctreeManager OctreeManager {
                 get => octreeManager;
-                set
-                {
+                set {
                     var old = octreeManager;
-                    if (Set(ref octreeManager, value))
-                    {
+                    if (Set(ref octreeManager, value)) {
                         old?.Clear();
                         if (octreeManager != null)
                             foreach (var item in ItemsInternal)
@@ -50,19 +43,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public IOctreeBasic Octree => OctreeManager != null ? OctreeManager.Octree : null;
 
-            private void NodeGroup_OnClear(object sender, OnChildNodeChangedArgs e)
-            {
+            private void NodeGroup_OnClear(object sender, OnChildNodeChangedArgs e) {
                 OctreeManager?.Clear();
                 OctreeManager?.RequestRebuild();
             }
 
-            private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e)
-            {
+            private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
                 OctreeManager?.RemoveItem(e);
             }
 
-            private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e)
-            {
+            private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e) {
                 OctreeManager?.AddPendingItem(e);
             }
 
@@ -70,11 +60,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the not render.
             /// </summary>
             /// <param name="context">The context.</param>
-            public override void UpdateNotRender(RenderContext context)
-            {
+            public override void UpdateNotRender(RenderContext context) {
                 base.UpdateNotRender(context);
-                if (OctreeManager != null)
-                {
+                if (OctreeManager != null) {
                     OctreeManager.ProcessPendingItems();
                     if (OctreeManager.RequestUpdateOctree) OctreeManager?.RebuildTree(ItemsInternal);
                 }
@@ -87,18 +75,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="totalModelMatrix">The total model matrix.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 var isHit = false;
-                if (octreeManager != null)
-                {
+                if (octreeManager != null) {
                     isHit = octreeManager.HitTest(context, WrapperSource, totalModelMatrix, ref hits);
                     if (isHit && logger.IsEnabled(LogLevel.Trace))
                         logger.LogTrace("Octree hit test, hit at {0}", hits[0].PointHit);
-                }
-                else
-                {
+                } else {
                     isHit = base.OnHitTest(context, totalModelMatrix, ref hits);
                 }
 

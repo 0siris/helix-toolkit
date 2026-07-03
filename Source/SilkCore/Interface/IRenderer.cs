@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public struct RenderParameter
-        {
+        public struct RenderParameter {
             /// <summary>
             ///     The render target view
             /// </summary>
@@ -54,15 +51,13 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public struct RenderParameter2D
-        {
+        public struct RenderParameter2D {
             public Bitmap RenderTarget;
         }
 
         /// <summary>
         /// </summary>
-        public interface IRenderer : IDisposable
-        {
+        public interface IRenderer : IDisposable {
             /// <summary>
             ///     Default ImmediateContext. Same as Device.ImmediateContext.
             ///     <para>Used for update global variables</para>
@@ -85,8 +80,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderables"></param>
             /// <param name="results"></param>
             /// <returns></returns>
-            void UpdateSceneGraph(RenderContext context, FastList<SceneNode> renderables,
-                FastList<KeyValuePair<int, SceneNode>> results);
+            void UpdateSceneGraph(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                FastList<KeyValuePair<int, SceneNode>> results
+            );
 
             /// <summary>
             ///     Update scene graph, return the 2D renderables which will be rendered in this frame
@@ -101,8 +99,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="renderables"></param>
             /// <param name="parameter"></param>
-            void UpdateGlobalVariables(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter);
+            void UpdateGlobalVariables(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter
+            );
 
             /// <summary>
             /// </summary>
@@ -133,8 +134,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="parameter"></param>
             /// <param name="testFrustum"></param>
             /// <returns>Number of node has been rendered</returns>
-            int RenderOpaque(RenderContext context, FastList<SceneNode> renderables, ref RenderParameter parameter,
-                bool testFrustum);
+            int RenderOpaque(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter,
+                bool testFrustum
+            );
 
             /// <summary>
             ///     Renders the transparent.
@@ -143,8 +148,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderables">The renderables.</param>
             /// <param name="parameter">The parameter.</param>
             /// <returns></returns>
-            int RenderTransparent(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter);
+            int RenderTransparent(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter
+            );
 
             /// <summary>
             ///     Renders to intermediate ping pong buffer.
@@ -161,8 +169,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="start"></param>
             /// <param name="count"></param>
             /// <param name="parameter">The parameter.</param>
-            void RenderScreenSpaced(RenderContext context, FastList<SceneNode> renderables, int start, int count,
-                ref RenderParameter parameter);
+            void RenderScreenSpaced(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                int start,
+                int count,
+                ref RenderParameter parameter
+            );
 
             /// <summary>
             ///     Renders to back buffer.
@@ -186,8 +199,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="renderables"></param>
             /// <param name="parameter"></param>
-            void RenderScene2D(RenderContext2D context, FastList<SceneNode2D> renderables,
-                ref RenderParameter2D parameter);
+            void RenderScene2D(
+                RenderContext2D context,
+                FastList<SceneNode2D> renderables,
+                ref RenderParameter2D parameter
+            );
         }
     }
 }

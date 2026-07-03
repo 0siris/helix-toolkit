@@ -3,8 +3,7 @@ using System.Windows.Media.Imaging;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public static class BitmapExtension
-{
+public static class BitmapExtension {
     /*
           public static BitmapSource ToBitmapSource(this TextBlock element, bool freeze = true)
           {
@@ -133,8 +132,7 @@ public static class BitmapExtension
               return new Size(formattedText.Width + textBlock.Padding.Left + textBlock.Padding.Right, formattedText.Height + textBlock.Padding.Top + textBlock.Padding.Bottom);
           }
       */
-    public static MemoryStream ToMemoryStream(this BitmapSource writeBmp)
-    {
+    public static MemoryStream ToMemoryStream(this BitmapSource writeBmp) {
         var outStream = new MemoryStream();
         BitmapEncoder enc = new BmpBitmapEncoder();
         enc.Frames.Add(BitmapFrame.Create(writeBmp));
@@ -143,10 +141,8 @@ public static class BitmapExtension
         return outStream;
     }
 
-    public static byte[] ToByteArray(this BitmapSource bitmapSource)
-    {
-        using (var ms = new MemoryStream())
-        {
+    public static byte[] ToByteArray(this BitmapSource bitmapSource) {
+        using (var ms = new MemoryStream()) {
             var encoder = new BmpBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
             encoder.Save(ms);

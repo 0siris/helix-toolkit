@@ -22,10 +22,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         User can use <see cref="ScreenSpacedElement3D.SizeScale" /> to scale the size of the rendering.
 ///     </para>
 /// </summary>
-public sealed class ScreenSpacedGroup3D : ScreenSpacedElement3D
-{
-    protected override SceneNode OnCreateSceneNode()
-    {
+public sealed class ScreenSpacedGroup3D : ScreenSpacedElement3D {
+    protected override SceneNode OnCreateSceneNode() {
         return new ScreenSpacedNode();
     }
 }

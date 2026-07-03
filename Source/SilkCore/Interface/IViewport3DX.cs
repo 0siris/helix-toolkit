@@ -12,8 +12,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IViewport3DX : IDisposable
-{
+public interface IViewport3DX : IDisposable {
     /// <summary>
     ///     Gets the render host.
     /// </summary>

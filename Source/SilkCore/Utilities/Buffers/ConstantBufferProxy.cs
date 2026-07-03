@@ -8,14 +8,11 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         /// </summary>
-        public sealed class ConstantBufferProxy : BufferProxyBase
-        {
+        public sealed class ConstantBufferProxy : BufferProxyBase {
             private readonly object lockObj = new();
 
             internal BufferDescription bufferDesc;
@@ -29,17 +26,20 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="optionFlags"></param>
             /// <param name="usage"></param>
             /// <param name="strideSize"></param>
-            public ConstantBufferProxy(string name, int structSize, BindFlags bindFlags = BindFlags.ConstantBuffer,
+            public ConstantBufferProxy(
+                string name,
+                int structSize,
+                BindFlags bindFlags = BindFlags.ConstantBuffer,
                 CpuAccessFlags cpuAccessFlags = CpuAccessFlags.None,
                 ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                ResourceUsage usage = ResourceUsage.Default, int strideSize = 0)
-                : base(structSize, bindFlags)
-            {
+                ResourceUsage usage = ResourceUsage.Default,
+                int strideSize = 0
+            )
+                : base(structSize, bindFlags) {
                 if (structSize % 16 != 0)
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
                 Name = name;
-                bufferDesc = new BufferDescription
-                {
+                bufferDesc = new BufferDescription {
                     SizeInBytes = structSize,
                     BindFlags = bindFlags,
                     CpuAccessFlags = cpuAccessFlags,
@@ -53,13 +53,11 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="description"></param>
             public ConstantBufferProxy(ConstantBufferDescription description)
-                : base(description.StructSize, description.BindFlags)
-            {
+                : base(description.StructSize, description.BindFlags) {
                 if (description.StructSize % 16 != 0)
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
                 Name = description.Name;
-                bufferDesc = new BufferDescription
-                {
+                bufferDesc = new BufferDescription {
                     SizeInBytes = description.StructSize,
                     BindFlags = description.BindFlags,
                     CpuAccessFlags = description.CpuAccessFlags,
@@ -88,8 +86,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns></returns>
             public ConstantBufferVariable this[string name] => VariableDictionary[name];
 
-            public void AddVariable(ConstantBufferVariable var)
-            {
+            public void AddVariable(ConstantBufferVariable var) {
                 if (!VariableDictionary.TryGetValue(var.Name, out var v))
                     VariableDictionary.Add(var.Name, var);
                 else if (v.StartOffset != var.StartOffset || v.Size != var.Size)
@@ -101,16 +98,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     <see cref="ConstantBufferProxy.CreateBuffer(object)" />
             /// </summary>
             /// <param name="device"></param>
-            public void CreateBuffer(object device)
-            {
-                lock (lockObj)
-                {
+            public void CreateBuffer(object device) {
+                lock (lockObj) {
                     RemoveAndDispose(ref buffer);
                 }
             }
 
-            private void EnsureBuffer(DeviceContextProxy context)
-            {
+            private void EnsureBuffer(DeviceContextProxy context) {
                 if (buffer == null) buffer = new Buffer(context, bufferDesc);
             }
 
@@ -121,20 +115,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="data"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UploadDataToBuffer<T>(DeviceContextProxy context, ref T data) where T : unmanaged
-            {
-                lock (lockObj)
-                {
+            public void UploadDataToBuffer<T>(DeviceContextProxy context, ref T data) where T : unmanaged {
+                lock (lockObj) {
                     EnsureBuffer(context);
-                    if (bufferDesc.Usage == ResourceUsage.Dynamic)
-                    {
+                    if (bufferDesc.Usage == ResourceUsage.Dynamic) {
                         Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());
                         var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                         UnsafeHelper.Write(dataBox.DataPointer, ref data);
                         context.UnmapSubresource(buffer, 0);
-                    }
-                    else
-                    {
+                    } else {
                         context.UpdateSubresource(ref data, buffer);
                     }
                 }
@@ -148,8 +137,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="data"></param>
             /// <param name="count"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count) where T : unmanaged
-            {
+            public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count) where T : unmanaged {
                 UploadDataToBuffer(context, data, count, 0);
             }
 
@@ -163,20 +151,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="offset"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count, int offset)
-                where T : unmanaged
-            {
-                lock (lockObj)
-                {
+                where T : unmanaged {
+                lock (lockObj) {
                     EnsureBuffer(context);
-                    if (bufferDesc.Usage == ResourceUsage.Dynamic)
-                    {
+                    if (bufferDesc.Usage == ResourceUsage.Dynamic) {
                         Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= buffer.Description.SizeInBytes);
                         var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                         UnsafeHelper.Write(dataBox.DataPointer, data, offset, count);
                         context.UnmapSubresource(buffer, 0);
-                    }
-                    else
-                    {
+                    } else {
                         context.UpdateSubresource(data, buffer);
                     }
                 }
@@ -188,19 +171,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="writeFuc"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UploadDataToBuffer(DeviceContextProxy context, Action<DataBox> writeFuc)
-            {
-                lock (lockObj)
-                {
+            public void UploadDataToBuffer(DeviceContextProxy context, Action<DataBox> writeFuc) {
+                lock (lockObj) {
                     EnsureBuffer(context);
-                    if (bufferDesc.Usage == ResourceUsage.Dynamic)
-                    {
+                    if (bufferDesc.Usage == ResourceUsage.Dynamic) {
                         var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                         writeFuc?.Invoke(dataBox);
                         context.UnmapSubresource(buffer, 0);
-                    }
-                    else
-                    {
+                    } else {
 #if DEBUG
                         throw new Exception("Constant buffer must be dynamic to use this function.");
 #endif
@@ -209,16 +187,14 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public DataBox Map(DeviceContextProxy context)
-            {
+            public DataBox Map(DeviceContextProxy context) {
                 Monitor.Enter(lockObj);
                 EnsureBuffer(context);
                 return context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public DataStream MapToStream(DeviceContextProxy context)
-            {
+            public DataStream MapToStream(DeviceContextProxy context) {
                 Monitor.Enter(lockObj);
                 EnsureBuffer(context);
                 context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None, out var stream);
@@ -226,8 +202,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Unmap(DeviceContextProxy context)
-            {
+            public void Unmap(DeviceContextProxy context) {
                 context.UnmapSubresource(buffer, 0);
                 Monitor.Exit(lockObj);
             }
@@ -237,19 +212,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="device"></param>
             /// <param name="structSize"></param>
-            public void ResizeBuffer(object device, int structSize)
-            {
+            public void ResizeBuffer(object device, int structSize) {
                 if (structSize % 16 != 0)
                     throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
-                lock (lockObj)
-                {
+                lock (lockObj) {
                     RemoveAndDispose(ref buffer);
                     bufferDesc.SizeInBytes = structSize;
                 }
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref buffer);
                 base.OnDispose(disposeManagedResources);
             }
@@ -261,8 +233,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     The result of the conversion.
             /// </returns>
-            public static implicit operator Buffer(ConstantBufferProxy proxy)
-            {
+            public static implicit operator Buffer(ConstantBufferProxy proxy) {
                 return proxy?.buffer;
             }
 
@@ -272,8 +243,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="variable">The variable.</param>
             /// <returns></returns>
-            public bool TryGetVariableByName(string name, out ConstantBufferVariable variable)
-            {
+            public bool TryGetVariableByName(string name, out ConstantBufferVariable variable) {
                 return VariableDictionary.TryGetValue(name, out variable);
             }
         }

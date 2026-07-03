@@ -4,8 +4,7 @@
 #include "psOITDepthPeelingCommon.hlsl"
 #include "psBillboardText.hlsl"
 
-DDPOutputMRT billboardTextOIT(PSInputBT input)
-{
+DDPOutputMRT billboardTextOIT(PSInputBT input) {
     return depthPeelPS(input.p, main(input));
 }
 #endif

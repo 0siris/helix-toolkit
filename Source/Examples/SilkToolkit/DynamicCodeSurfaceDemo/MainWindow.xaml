@@ -41,7 +41,7 @@
                 EffectsManager="{Binding EffectsManager}"
                 FXAALevel="Low">
                 <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
-                <hx:AmbientLight3D Color="#4B4B4B"/>
+                <hx:AmbientLight3D Color="#4B4B4B" />
                 <hxWpf:DynamicCodeSurfaceModel3D
                     x:Name="surface1"
                     Material="{Binding Material}"

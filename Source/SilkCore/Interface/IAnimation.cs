@@ -1,11 +1,8 @@
-﻿namespace HelixToolkit.SharpDX.Core
-{
-    namespace Animations
-    {
+﻿namespace HelixToolkit.SharpDX.Core {
+    namespace Animations {
         /// <summary>
         /// </summary>
-        public enum AnimationRepeatMode
-        {
+        public enum AnimationRepeatMode {
             PlayOnce,
             Loop,
             PlayOnceHold
@@ -13,8 +10,7 @@
 
         /// <summary>
         /// </summary>
-        public interface IAnimationUpdater
-        {
+        public interface IAnimationUpdater {
             /// <summary>
             ///     Gets or sets the name.
             /// </summary>
@@ -56,8 +52,7 @@
 
         /// <summary>
         /// </summary>
-        public interface IAnimationNode
-        {
+        public interface IAnimationNode {
             /// <summary>
             ///     Gets or sets a value indicating whether this scene node is animation node.
             /// </summary>
@@ -75,8 +70,7 @@
             bool IsAnimationNodeRoot { get; }
         }
 
-        public interface IBoneMatricesNode
-        {
+        public interface IBoneMatricesNode {
             Matrix[] BoneMatrices { get; set; }
 
             /// <summary>

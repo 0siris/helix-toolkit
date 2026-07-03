@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using HelixToolkit.SharpDX.Core.Model;
+
 #if !NETFX_CORE
 using System.Windows.Threading;
 using Color = System.Windows.Media.Color;
@@ -38,8 +39,7 @@ using FileFormatException = Exception;
 ///     The format is documented on <a href="http://en.wikipedia.org/wiki/STL_(file_format)">Wikipedia</a>.
 /// </remarks>
 [Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
-public class StLReader : ModelReader
-{
+public class StLReader : ModelReader {
     /// <summary>
     ///     The regular expression used to parse normal vectors.
     /// </summary>
@@ -63,8 +63,7 @@ public class StLReader : ModelReader
     /// <summary>
     ///     Initializes a new instance of the <see cref="StLReader" /> class.
     /// </summary>
-    public StLReader()
-    {
+    public StLReader() {
         Meshes = new List<MeshBuilder>();
         Materials = new List<MaterialCore>();
     }
@@ -95,12 +94,10 @@ public class StLReader : ModelReader
     /// <param name="stream">The stream.</param>
     /// <param name="info"></param>
     /// <returns>The model.</returns>
-    public override Mesh3DGroup Read(Stream stream, ModelInfo info = default)
-    {
+    public override Mesh3DGroup Read(Stream stream, ModelInfo info = default) {
         // Try to read in BINARY format
         var success = TryReadBinary(stream);
-        if (!success)
-        {
+        if (!success) {
             // Reset position of stream
             stream.Position = 0;
 
@@ -117,14 +114,11 @@ public class StLReader : ModelReader
     ///     Builds the model.
     /// </summary>
     /// <returns>The model.</returns>
-    public Mesh3DGroup ToModel3D()
-    {
+    public Mesh3DGroup ToModel3D() {
         var modelGroup = new Mesh3DGroup();
         var i = 0;
-        foreach (var mesh in Meshes)
-        {
-            var gm = new Object3D
-            {
+        foreach (var mesh in Meshes) {
+            var gm = new Object3D {
                 Geometry = mesh.ToMesh(),
                 Material = Materials[i]
             };
@@ -147,17 +141,13 @@ public class StLReader : ModelReader
     /// <param name="values">
     ///     The values.
     /// </param>
-    private static void ParseLine(string line, out string id, out string values)
-    {
+    private static void ParseLine(string line, out string id, out string values) {
         line = line.Trim();
         var idx = line.IndexOf(' ');
-        if (idx == -1)
-        {
+        if (idx == -1) {
             id = line.ToLowerInvariant();
             values = string.Empty;
-        }
-        else
-        {
+        } else {
             id = line.Substring(0, idx).ToLowerInvariant();
             values = line.Substring(idx + 1);
         }
@@ -172,8 +162,7 @@ public class StLReader : ModelReader
     /// <returns>
     ///     The normal vector.
     /// </returns>
-    private static Color3 ParseNormal(string input)
-    {
+    private static Color3 ParseNormal(string input) {
         input = input.ToLowerInvariant();
         input = input.Replace("nan", "NaN");
         var match = NormalRegex.Match(input);
@@ -198,8 +187,7 @@ public class StLReader : ModelReader
     /// <returns>
     ///     The float.
     /// </returns>
-    private static float ReadFloat(BinaryReader reader)
-    {
+    private static float ReadFloat(BinaryReader reader) {
         var bytes = reader.ReadBytes(4);
         return BitConverter.ToSingle(bytes, 0);
     }
@@ -216,8 +204,7 @@ public class StLReader : ModelReader
     /// <exception cref="FileFormatException">
     ///     The expected token ID was not matched.
     /// </exception>
-    private static void ReadLine(StreamReader reader, string token)
-    {
+    private static void ReadLine(StreamReader reader, string token) {
         if (token == null) throw new ArgumentNullException("token");
 
         var line = reader.ReadLine();
@@ -237,8 +224,7 @@ public class StLReader : ModelReader
     /// <returns>
     ///     The unsigned integer.
     /// </returns>
-    private static ushort ReadUInt16(BinaryReader reader)
-    {
+    private static ushort ReadUInt16(BinaryReader reader) {
         var bytes = reader.ReadBytes(2);
         return BitConverter.ToUInt16(bytes, 0);
     }
@@ -252,8 +238,7 @@ public class StLReader : ModelReader
     /// <returns>
     ///     The unsigned integer.
     /// </returns>
-    private static uint ReadUInt32(BinaryReader reader)
-    {
+    private static uint ReadUInt32(BinaryReader reader) {
         var bytes = reader.ReadBytes(4);
         return BitConverter.ToUInt32(bytes, 0);
     }
@@ -270,12 +255,10 @@ public class StLReader : ModelReader
     /// <returns>
     ///     True if parsing was successful.
     /// </returns>
-    private static bool TryParseVertex(string line, out Point3D point)
-    {
+    private static bool TryParseVertex(string line, out Point3D point) {
         line = line.ToLowerInvariant();
         var match = VertexRegex.Match(line);
-        if (!match.Success)
-        {
+        if (!match.Success) {
             point = new Point3D();
             return false;
         }
@@ -297,23 +280,20 @@ public class StLReader : ModelReader
     /// <param name="normal">
     ///     The normal.
     /// </param>
-    private void ReadFacet(StreamReader reader, string normal)
-    {
+    private void ReadFacet(StreamReader reader, string normal) {
 #pragma warning disable 168
         var n = ParseNormal(normal);
 #pragma warning restore 168
         var points = new List<Point3D>();
         ReadLine(reader, "outer");
-        while (true)
-        {
+        while (true) {
             var line = reader.ReadLine();
             if (string.IsNullOrEmpty(line)) continue;
 
             line = line.Trim();
 
             Point3D point;
-            if (TryParseVertex(line, out point))
-            {
+            if (TryParseVertex(line, out point)) {
                 points.Add(point);
                 continue;
             }
@@ -341,8 +321,7 @@ public class StLReader : ModelReader
     /// <param name="reader">
     ///     The reader.
     /// </param>
-    private void ReadTriangle(BinaryReader reader)
-    {
+    private void ReadTriangle(BinaryReader reader) {
         var ni = ReadFloat(reader);
         var nj = ReadFloat(reader);
         var nk = ReadFloat(reader);
@@ -369,8 +348,7 @@ public class StLReader : ModelReader
         var attrib = Convert.ToString(ReadUInt16(reader), 2).PadLeft(16, '0').ToCharArray();
         var hasColor = attrib[0].Equals('1');
 
-        if (hasColor)
-        {
+        if (hasColor) {
             var blue = attrib[15].Equals('1') ? 1 : 0;
             blue = attrib[14].Equals('1') ? blue + 2 : blue;
             blue = attrib[13].Equals('1') ? blue + 4 : blue;
@@ -396,17 +374,14 @@ public class StLReader : ModelReader
 #else
             var currentColor = new Color(r / 255f, g / 255f, b / 255f);
 #endif
-            if (!Equals(lastColor, currentColor))
-            {
+            if (!Equals(lastColor, currentColor)) {
                 lastColor = currentColor;
                 index++;
             }
 
             if (Materials.Count < index + 1)
                 Materials.Add(new PhongMaterialCore {DiffuseColor = currentColor.ToColor4()});
-        }
-        else
-        {
+        } else {
             if (Materials.Count < index + 1) Materials.Add(DefaultMaterial);
         }
 
@@ -426,14 +401,12 @@ public class StLReader : ModelReader
     /// <returns>
     ///     True if the model was loaded successfully.
     /// </returns>
-    private bool TryReadAscii(Stream stream)
-    {
+    private bool TryReadAscii(Stream stream) {
         var reader = new StreamReader(stream);
         Meshes.Add(new MeshBuilder(true));
         Materials.Add(DefaultMaterial);
 
-        while (!reader.EndOfStream)
-        {
+        while (!reader.EndOfStream) {
             var line = reader.ReadLine();
             if (line == null) continue;
 
@@ -444,8 +417,7 @@ public class StLReader : ModelReader
 
             string id, values;
             ParseLine(line, out id, out values);
-            switch (id)
-            {
+            switch (id) {
                 case "solid":
                     Header = values.Trim();
                     break;
@@ -469,8 +441,7 @@ public class StLReader : ModelReader
     /// <returns>
     ///     True if the file was read successfully.
     /// </returns>
-    private bool TryReadBinary(Stream stream)
-    {
+    private bool TryReadBinary(Stream stream) {
         var length = stream.Length;
         if (length < 84) throw new FileFormatException("Incomplete file");
 

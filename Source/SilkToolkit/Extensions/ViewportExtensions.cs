@@ -26,8 +26,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Provides extension methods for <see cref="Viewport3DX" />.
 /// </summary>
-public static class ViewportExtensions
-{
+public static class ViewportExtensions {
     public static readonly HitTestResult[] EmptyHits = new HitTestResult[0];
 
     /// <summary>
@@ -35,11 +34,9 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <returns>The total number of triangles</returns>
-    public static int GetTotalNumberOfTriangles(this Viewport3DX viewport)
-    {
+    public static int GetTotalNumberOfTriangles(this Viewport3DX viewport) {
         var count = 0;
-        var totalModel = viewport.Renderables.PreorderDFT(x =>
-        {
+        var totalModel = viewport.Renderables.PreorderDFT(x => {
             if (x is GeometryNode g)
                 if (g.Visible && g.Geometry != null && g.Geometry.Indices != null)
                     count += g.Geometry.Indices.Count / 3;
@@ -52,8 +49,7 @@ public static class ViewportExtensions
     /// <summary>
     ///     Copies the specified viewport to the clipboard.
     /// </summary>
-    public static void Copy(this Viewport3DX view)
-    {
+    public static void Copy(this Viewport3DX view) {
         Clipboard.SetImage(view.RenderBitmap());
     }
 
@@ -67,8 +63,7 @@ public static class ViewportExtensions
     ///     The camera transform.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetViewProjectionMatrix3D(this Viewport3DX viewport)
-    {
+    public static Matrix3D GetViewProjectionMatrix3D(this Viewport3DX viewport) {
         return viewport.GetViewProjectionMatrix().ToMatrix3D();
     }
 
@@ -80,8 +75,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <returns>The total transform.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetScreenViewProjectionMatrix3D(this Viewport3DX viewport)
-    {
+    public static Matrix3D GetScreenViewProjectionMatrix3D(this Viewport3DX viewport) {
         return viewport.GetScreenViewProjectionMatrix().ToMatrix3D();
     }
 
@@ -95,8 +89,7 @@ public static class ViewportExtensions
     ///     The transform.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetViewportMatrix3D(this Viewport3DX viewport)
-    {
+    public static Matrix3D GetViewportMatrix3D(this Viewport3DX viewport) {
         return viewport.GetViewportMatrix().ToMatrix3D();
     }
 
@@ -105,8 +98,7 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <returns>The bounding box.</returns>
-    public static Rect3D FindBounds3D(this Viewport3DX viewport)
-    {
+    public static Rect3D FindBounds3D(this Viewport3DX viewport) {
         var bounds = viewport.FindBounds();
         return new Rect3D(bounds.Minimum.ToPoint3D(), (bounds.Maximum - bounds.Minimum).ToSize3D());
     }
@@ -123,10 +115,8 @@ public static class ViewportExtensions
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D
-    {
-        viewport.Renderables.PreorderDFT(node =>
-        {
+    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D {
+        viewport.Renderables.PreorderDFT(node => {
             if (node.WrapperSource is T element) action(element, element.Transform);
             return true;
         });
@@ -138,10 +128,8 @@ public static class ViewportExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
-    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Element3D
-    {
-        viewport.Renderables.PreorderDFT(node =>
-        {
+    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Element3D {
+        viewport.Renderables.PreorderDFT(node => {
             if (node.WrapperSource is T element) return function(element);
             return true;
         });
@@ -159,8 +147,7 @@ public static class ViewportExtensions
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D
-    {
+    public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D {
         var sceneNode = new[] {element.SceneNode};
         element.Traverse(action);
     }
@@ -177,8 +164,7 @@ public static class ViewportExtensions
     /// <returns>
     ///     List of hits, sorted with the nearest hit first.
     /// </returns>
-    public static IList<HitTestResult> FindHits(this Viewport3DX viewport, Point position)
-    {
+    public static IList<HitTestResult> FindHits(this Viewport3DX viewport, Point position) {
         return viewport.FindHits(position.ToVector2());
     }
 
@@ -204,24 +190,24 @@ public static class ViewportExtensions
     /// <returns>
     ///     The find nearest.
     /// </returns>
-    public static bool FindNearest(this Viewport3DX viewport, Point position,
-        out Point3D point, out Vector3D normal, out Element3D model, out SceneNode node)
-    {
+    public static bool FindNearest(
+        this Viewport3DX viewport,
+        Point position,
+        out Point3D point,
+        out Vector3D normal,
+        out Element3D model,
+        out SceneNode node
+    ) {
         var succ = viewport.FindNearest(position.ToVector2(), out var p, out var n, out var m);
         point = p.ToPoint3D();
         normal = n.ToVector3D();
-        if (m is Element3D ele)
-        {
+        if (m is Element3D ele) {
             model = ele;
             node = ele.SceneNode;
-        }
-        else if (m is SceneNode nd)
-        {
+        } else if (m is SceneNode nd) {
             node = nd;
             model = null;
-        }
-        else
-        {
+        } else {
             model = null;
             node = null;
         }
@@ -235,8 +221,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="position">The position.</param>
     /// <returns>The nearest point, or null if no point was found.</returns>
-    public static Point3D? FindNearestPoint(this Viewport3DX viewport, Point position)
-    {
+    public static Point3D? FindNearestPoint(this Viewport3DX viewport, Point position) {
         if (viewport.FindNearest(position.ToVector2(), out var p, out var n, out var model)) return p.ToPoint3D();
         return null;
     }
@@ -247,8 +232,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="point2d">The input point.</param>
     /// <returns>The ray.</returns>
-    public static Ray UnProject(this Viewport3DX viewport, Vector2 point2d)
-    {
+    public static Ray UnProject(this Viewport3DX viewport, Vector2 point2d) {
         viewport.UnProject(point2d, out var ray);
         return ray;
     }
@@ -259,8 +243,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="point2d">The input point.</param>
     /// <returns>The ray.</returns>
-    public static Ray UnProject(this Viewport3DX viewport, Point point2d)
-    {
+    public static Ray UnProject(this Viewport3DX viewport, Point point2d) {
         return viewport.UnProject(point2d.ToVector2());
     }
 
@@ -282,8 +265,7 @@ public static class ViewportExtensions
     /// <returns>
     ///     A 3D point.
     /// </returns>
-    public static Point3D? UnProjectOnPlane(this Viewport3DX viewport, Point p, Point3D position, Vector3D normal)
-    {
+    public static Point3D? UnProjectOnPlane(this Viewport3DX viewport, Point p, Point3D position, Vector3D normal) {
         if (viewport.UnProjectOnPlane(p.ToVector2(), position.ToVector3(), normal.ToVector3(), out var intersection))
             return intersection.ToPoint3D();
 
@@ -296,8 +278,7 @@ public static class ViewportExtensions
     /// <param name="p"></param>
     /// <param name="plane"></param>
     /// <returns></returns>
-    public static Vector3? UnProjectOnPlane(this Viewport3DX viewport, Vector2 p, Plane plane)
-    {
+    public static Vector3? UnProjectOnPlane(this Viewport3DX viewport, Vector2 p, Plane plane) {
         if (viewport.UnProject(p, out var ray))
             if (plane.Intersects(ref ray, out var distance))
                 return ray.Position + ray.Direction * distance;
@@ -317,8 +298,7 @@ public static class ViewportExtensions
     /// <returns>
     ///     A 3D point.
     /// </returns>
-    public static Point3D? UnProjectOnPlane(this Viewport3DX viewport, Point p)
-    {
+    public static Point3D? UnProjectOnPlane(this Viewport3DX viewport, Point p) {
         if (!(viewport.Camera is ProjectionCamera pc)) return null;
         return viewport.UnProjectOnPlane(p, pc.Position + pc.LookDirection, pc.LookDirection);
     }
@@ -329,8 +309,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="point">The 3D point.</param>
     /// <returns>The point.</returns>
-    public static Point Project(this Viewport3DX viewport, Point3D point)
-    {
+    public static Point Project(this Viewport3DX viewport, Point3D point) {
         var p = viewport.Project(point.ToVector3());
         return new Point(p.X, p.Y);
     }
@@ -344,8 +323,7 @@ public static class ViewportExtensions
     /// <param name="description">
     ///     The description.
     /// </param>
-    public static void Print(this Viewport3DX vp, string description)
-    {
+    public static void Print(this Viewport3DX vp, string description) {
         var dlg = new PrintDialog();
         if (dlg.ShowDialog().GetValueOrDefault()) dlg.PrintVisual(vp, description);
     }
@@ -355,19 +333,17 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="view">The viewport.</param>
     /// <returns>A bitmap.</returns>
-    public static BitmapSource RenderBitmap(this Viewport3DX view)
-    {
-        if (view.RenderHost != null && view.RenderHost.IsRendering)
-        {
+    public static BitmapSource RenderBitmap(this Viewport3DX view) {
+        if (view.RenderHost != null && view.RenderHost.IsRendering) {
             view.RenderHost.UpdateAndRender();
-            using (var memoryStream = new MemoryStream())
-            {
-                if (view.RenderHost != null && view.RenderHost.IsRendering)
-                {
+            using (var memoryStream = new MemoryStream()) {
+                if (view.RenderHost != null && view.RenderHost.IsRendering) {
                     if (view.EnableSwapChainRendering) view.RenderHost.UpdateAndRender();
                     // be sure to render the Scene before capture, otherwise the image is just black
                     ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
-                        view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D, memoryStream);
+                                                               view.RenderHost.RenderBuffer.BackBuffer
+                                                                   .Resource as Texture2D,
+                                                               memoryStream);
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
                     memoryStream.Position = 0;
@@ -391,8 +367,10 @@ public static class ViewportExtensions
     /// <param name="height">The height.</param>
     /// <returns>A bitmap.</returns>
     public static BitmapSource RenderBitmap(
-        this Viewport3DX view, int width, int height)
-    {
+        this Viewport3DX view,
+        int width,
+        int height
+    ) {
         var w = view.RenderHost.ActualWidth;
         var h = view.RenderHost.ActualHeight;
         view.RenderHost.Resize(width, height);
@@ -413,8 +391,7 @@ public static class ViewportExtensions
     /// <param name="height">
     ///     The height.
     /// </param>
-    public static void ResizeAndArrange(this Viewport3DX view, int width, int height)
-    {
+    public static void ResizeAndArrange(this Viewport3DX view, int width, int height) {
         view.Width = width;
         view.Height = height;
         if (view.RenderHost == null || !view.RenderHost.IsRendering) return;
@@ -429,12 +406,10 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="view">The view.</param>
     /// <param name="fileName">Name of the file.</param>
-    public static void SaveScreen(this Viewport3DX view, string fileName)
-    {
+    public static void SaveScreen(this Viewport3DX view, string fileName) {
         var ext = Path.GetExtension(fileName);
         var format = Direct2DImageFormat.Bmp;
-        switch (ext)
-        {
+        switch (ext) {
             case "bmp":
                 format = Direct2DImageFormat.Bmp;
                 break;
@@ -456,18 +431,17 @@ public static class ViewportExtensions
     /// <param name="view">The view.</param>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="format">The format.</param>
-    public static void SaveScreen(this Viewport3DX view, string fileName, Direct2DImageFormat format)
-    {
-        using (var file = File.OpenWrite(fileName))
-        {
+    public static void SaveScreen(this Viewport3DX view, string fileName, Direct2DImageFormat format) {
+        using (var file = File.OpenWrite(fileName)) {
             if (!file.CanWrite) throw new AccessViolationException($"File cannot be written. {fileName}");
         }
 
-        if (view.RenderHost != null && view.RenderHost.IsRendering)
-        {
+        if (view.RenderHost != null && view.RenderHost.IsRendering) {
             view.RenderHost.UpdateAndRender();
             ScreenCapture.SaveWICTextureToFile(view.RenderHost.EffectsManager,
-                view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D, fileName, format);
+                                               view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D,
+                                               fileName,
+                                               format);
         }
     }
 
@@ -476,8 +450,7 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this Viewport3DX viewport, double animationTime = 0)
-    {
+    public static void ZoomExtents(this Viewport3DX viewport, double animationTime = 0) {
         var bounds = viewport.FindBounds();
         var diagonal = bounds.Maximum - bounds.Minimum;
 
@@ -491,8 +464,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="bounds">The bounding rectangle.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this Viewport3DX viewport, Rect3D bounds, double animationTime = 0)
-    {
+    public static void ZoomExtents(this Viewport3DX viewport, Rect3D bounds, double animationTime = 0) {
         viewport.Camera.ZoomExtents(viewport, bounds, animationTime);
     }
 
@@ -503,8 +475,7 @@ public static class ViewportExtensions
     /// <param name="center">The center of the sphere.</param>
     /// <param name="radius">The radius of the sphere.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this Viewport3DX viewport, Point3D center, double radius, double animationTime = 0)
-    {
+    public static void ZoomExtents(this Viewport3DX viewport, Point3D center, double radius, double animationTime = 0) {
         viewport.Camera.ZoomExtents(viewport, center, radius, animationTime);
     }
 
@@ -513,8 +484,7 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <param name="rectangle">The rectangle.</param>
-    public static void ZoomToRectangle(this Viewport3DX viewport, Rect rectangle)
-    {
+    public static void ZoomToRectangle(this Viewport3DX viewport, Rect rectangle) {
         if (viewport.Camera is ProjectionCamera pcam) pcam.ZoomToRectangle(viewport, rectangle);
     }
 
@@ -527,8 +497,7 @@ public static class ViewportExtensions
     /// <param name="delta">
     ///     The relative change in fov.
     /// </param>
-    public static void ZoomByChangingFieldOfView(this Viewport3DX viewport, double delta)
-    {
+    public static void ZoomByChangingFieldOfView(this Viewport3DX viewport, double delta) {
         if (!(viewport.Camera is PerspectiveCamera pcamera) || !viewport.IsChangeFieldOfViewEnabled) return;
 
         var fov = pcamera.FieldOfView;

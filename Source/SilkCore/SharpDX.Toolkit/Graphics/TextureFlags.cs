@@ -9,8 +9,7 @@ namespace SharpDX.Toolkit.Graphics;
 ///     Specifies usage of a texture.
 /// </summary>
 [Flags]
-public enum TextureFlags
-{
+public enum TextureFlags {
     /// <summary>
     ///     None.
     /// </summary>

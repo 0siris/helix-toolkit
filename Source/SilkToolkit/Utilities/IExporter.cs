@@ -10,8 +10,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Interface for 3D exporters.
 /// </summary>
-public interface IExporter
-{
+public interface IExporter {
     /// <summary>
     ///     Exports the specified viewport.
     /// </summary>

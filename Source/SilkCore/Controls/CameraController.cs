@@ -8,8 +8,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public sealed class CameraController
-{
+public sealed class CameraController {
     private static readonly Vector2 PointZero = Vector2.Zero;
 
     private static readonly Vector3 Vector3DZero = new();
@@ -260,8 +259,7 @@ public sealed class CameraController
     /// </summary>
     private float zoomSpeed;
 
-    public CameraController(ViewportCore viewport)
-    {
+    public CameraController(ViewportCore viewport) {
         Viewport = viewport;
         zoomHandler = new ZoomHandler(this);
         panHandler = new PanHandler(this);
@@ -275,13 +273,12 @@ public sealed class CameraController
     /// <summary>
     ///     Gets or sets the model up direction.
     /// </summary>
-    public Vector3 ModelUpDirection
-    {
+    public Vector3 ModelUpDirection {
         get => modelUpDirection;
-        set
-        {
+        set {
             modelUpDirection = value;
-            if (Viewport != null) Viewport.ModelUpDirection = value;
+            if (Viewport != null) 
+                Viewport.ModelUpDirection = value;
         }
     }
 
@@ -317,8 +314,7 @@ public sealed class CameraController
     /// <summary>
     ///     Gets or sets CameraLookDirection.
     /// </summary>
-    public Vector3 CameraLookDirection
-    {
+    public Vector3 CameraLookDirection {
         get => ActualCamera.LookDirection;
 
         set => ActualCamera.LookDirection = value;
@@ -327,8 +323,7 @@ public sealed class CameraController
     /// <summary>
     ///     Gets or sets CameraPosition.
     /// </summary>
-    public Vector3 CameraPosition
-    {
+    public Vector3 CameraPosition {
         get => ActualCamera.Position;
 
         set => ActualCamera.Position = value;
@@ -337,8 +332,7 @@ public sealed class CameraController
     /// <summary>
     ///     Gets or sets CameraTarget.
     /// </summary>
-    public Vector3 CameraTarget
-    {
+    public Vector3 CameraTarget {
         get => CameraPosition + CameraLookDirection;
 
         set => CameraLookDirection = value - CameraPosition;
@@ -347,8 +341,7 @@ public sealed class CameraController
     /// <summary>
     ///     Gets or sets CameraUpDirection.
     /// </summary>
-    public Vector3 CameraUpDirection
-    {
+    public Vector3 CameraUpDirection {
         get => ActualCamera.UpDirection;
 
         set => ActualCamera.UpDirection = value;
@@ -383,12 +376,12 @@ public sealed class CameraController
     /// <summary>
     ///     Gets OrthographicCamera.
     /// </summary>
-    public OrthographicCameraCore OrthographicCamera => ActualCamera as OrthographicCameraCore;
+    public OrthographicCameraCore? OrthographicCamera => ActualCamera as OrthographicCameraCore;
 
     /// <summary>
     ///     Gets PerspectiveCamera.
     /// </summary>
-    public PerspectiveCameraCore PerspectiveCamera => ActualCamera as PerspectiveCameraCore;
+    public PerspectiveCameraCore? PerspectiveCamera => ActualCamera as PerspectiveCameraCore;
 
     /// <summary>
     ///     Gets or sets to allow rotate x direction and y direction globally. X, Y is screen space.
@@ -420,10 +413,8 @@ public sealed class CameraController
     /// <param name="dz">
     ///     The delta z.
     /// </param>
-    public void AddMoveForce(float dx, float dy, float dz)
-    {
-        AddMoveForce(new Vector3(dx, dy, dz));
-    }
+    public void AddMoveForce(float dx, float dy, float dz) 
+        => AddMoveForce(new Vector3(dx, dy, dz));
 
     /// <summary>
     ///     Adds the specified move force.
@@ -431,9 +422,9 @@ public sealed class CameraController
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void AddMoveForce(Vector3 delta)
-    {
-        if (!IsMoveEnabled) return;
+    public void AddMoveForce(Vector3 delta) {
+        if (!IsMoveEnabled) 
+            return;
 
         moveSpeed += delta * 40;
         Viewport.InvalidateRender();
@@ -448,10 +439,8 @@ public sealed class CameraController
     /// <param name="dy">
     ///     The delta y.
     /// </param>
-    public void AddPanForce(float dx, float dy)
-    {
-        AddPanForce(FindPanVector(dx, dy));
-    }
+    public void AddPanForce(float dx, float dy) 
+        => AddPanForce(FindPanVector(dx, dy));
 
     /// <summary>
     ///     The add pan force.
@@ -459,8 +448,7 @@ public sealed class CameraController
     /// <param name="pan">
     ///     The pan.
     /// </param>
-    public void AddPanForce(Vector3 pan)
-    {
+    public void AddPanForce(Vector3 pan) {
         if (!IsPanEnabled) return;
 
         if (IsInertiaEnabled)
@@ -479,28 +467,21 @@ public sealed class CameraController
     /// <param name="dy">
     ///     The delta y.
     /// </param>
-    public void AddRotateForce(float dx, float dy)
-    {
-        if (!IsRotationEnabled) return;
+    public void AddRotateForce(float dx, float dy) {
+        if (!IsRotationEnabled) 
+            return;
 
-        if (IsInertiaEnabled)
-        {
+        if (IsInertiaEnabled) {
             rotationPoint3D = CameraTarget;
             rotationPosition = new Vector2(Width / 2f, Height / 2f);
             rotationSpeed.X += dx * 40;
             rotationSpeed.Y += dy * 40;
-        }
-        else if (FixedRotationPointEnabled)
-        {
+        } else if (FixedRotationPointEnabled) {
             rotationPosition = new Vector2(Width / 2f, Height / 2f);
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
-        }
-        else
-        {
+            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
+        } else {
             rotationPosition = new Vector2(Width / 2f, Height / 2f);
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
+            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
         }
 
         Viewport.InvalidateRender();
@@ -512,10 +493,8 @@ public sealed class CameraController
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void AddZoomForce(float delta)
-    {
-        AddZoomForce(delta, CameraTarget);
-    }
+    public void AddZoomForce(float delta) 
+        => AddZoomForce(delta, CameraTarget);
 
     /// <summary>
     ///     Adds the zoom force.
@@ -526,17 +505,14 @@ public sealed class CameraController
     /// <param name="zoomOrigin">
     ///     The zoom origin.
     /// </param>
-    public void AddZoomForce(float delta, Vector3 zoomOrigin)
-    {
-        if (!IsZoomEnabled) return;
+    public void AddZoomForce(float delta, Vector3 zoomOrigin) {
+        if (!IsZoomEnabled) 
+            return;
 
-        if (IsInertiaEnabled)
-        {
+        if (IsInertiaEnabled) {
             zoomPoint3D = zoomOrigin;
             zoomSpeed += delta * 8;
-        }
-        else
-        {
+        } else {
             zoomHandler.Zoom(delta, zoomOrigin);
         }
 
@@ -549,9 +525,9 @@ public sealed class CameraController
     /// <param name="lookDir">The look dir.</param>
     /// <param name="upDir">Up dir.</param>
     /// <param name="animationTime">The animation time.</param>
-    public void ChangeDirection(Vector3 lookDir, Vector3 upDir, float animationTime = 500)
-    {
-        if (!IsRotationEnabled) return;
+    public void ChangeDirection(Vector3 lookDir, Vector3 upDir, float animationTime = 500) {
+        if (!IsRotationEnabled) 
+            return;
 
         StopAnimations();
         ActualCamera.ChangeDirection(lookDir, upDir, animationTime);
@@ -566,8 +542,7 @@ public sealed class CameraController
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public void ChangeDirection(Vector3 lookDir, float animationTime = 500)
-    {
+    public void ChangeDirection(Vector3 lookDir, float animationTime = 500) {
         if (!IsRotationEnabled) return;
 
         StopAnimations();
@@ -584,8 +559,7 @@ public sealed class CameraController
     ///     The animation time.
     /// </param>
     [Obsolete]
-    public void LookAt(Vector3 target, float animationTime)
-    {
+    public void LookAt(Vector3 target, float animationTime) {
         if (!IsPanEnabled) return;
         ActualCamera.LookAt(target, animationTime);
     }
@@ -596,12 +570,10 @@ public sealed class CameraController
     /// <param name="delta">The delta.</param>
     /// <param name="position">The position.</param>
     /// <returns></returns>
-    public bool MouseWheel(float delta, Vector2 position)
-    {
+    public bool MouseWheel(float delta, Vector2 position) {
         if (!IsZoomEnabled) return false;
         if (ZoomAroundMouseDownPoint)
-            if (Viewport.FindNearest(position, out var nearestPoint, out var normal, out var model))
-            {
+            if (Viewport.FindNearest(position, out var nearestPoint, out var normal, out var model)) {
                 AddZoomForce(-delta * 0.001f, nearestPoint);
                 return true;
             }
@@ -613,16 +585,14 @@ public sealed class CameraController
     /// <summary>
     ///     The refresh viewport.
     /// </summary>
-    public void RefreshViewport()
-    {
+    public void RefreshViewport() {
         Viewport.InvalidateRender();
     }
 
     /// <summary>
     ///     Resets the camera.
     /// </summary>
-    public void ResetCamera()
-    {
+    public void ResetCamera() {
         if (!IsZoomEnabled || !IsRotationEnabled || !IsPanEnabled) return;
         ActualCamera.Reset();
         ActualCamera.ZoomExtents(Viewport);
@@ -631,10 +601,8 @@ public sealed class CameraController
     /// <summary>
     ///     Resets the camera up direction.
     /// </summary>
-    public void ResetCameraUpDirection()
-    {
-        CameraUpDirection = ModelUpDirection;
-    }
+    public void ResetCameraUpDirection() 
+        => CameraUpDirection = ModelUpDirection;
 
     /// <summary>
     ///     Starts the spin.
@@ -648,8 +616,7 @@ public sealed class CameraController
     /// <param name="aroundPoint">
     ///     The spin around point.
     /// </param>
-    public void StartSpin(Vector2 speed, Vector2 position, Vector3 aroundPoint)
-    {
+    public void StartSpin(Vector2 speed, Vector2 position, Vector3 aroundPoint) {
         spinningSpeed = speed;
         spinningPosition = position;
         spinningPoint3D = aroundPoint;
@@ -659,8 +626,7 @@ public sealed class CameraController
     /// <summary>
     ///     The stop animations.
     /// </summary>
-    public void StopAnimations()
-    {
+    public void StopAnimations() {
         StopPanning();
         StopZooming();
         StopSpin();
@@ -669,16 +635,13 @@ public sealed class CameraController
     /// <summary>
     ///     Stops the panning.
     /// </summary>
-    public void StopPanning()
-    {
-        panSpeed = Vector3.Zero;
-    }
+    public void StopPanning() 
+        => panSpeed = Vector3.Zero;
 
     /// <summary>
     ///     Stops the spin.
     /// </summary>
-    public void StopSpin()
-    {
+    public void StopSpin() {
         isSpinning = false;
         spinningSpeed = new Vector2();
     }
@@ -686,39 +649,30 @@ public sealed class CameraController
     /// <summary>
     ///     Stops the zooming inertia.
     /// </summary>
-    public void StopZooming()
-    {
-        zoomSpeed = 0;
-    }
+    public void StopZooming() 
+        => zoomSpeed = 0;
 
     /// <summary>
     ///     Views the back.
     /// </summary>
-    public void ViewBack()
-    {
-        ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
-    }
+    public void ViewBack() 
+        => ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
 
-    public void ViewFront()
-    {
-        ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
-    }
+    public void ViewFront() 
+        => ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Views the right.
     /// </summary>
-    public void ViewRight()
-    {
-        ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
-    }
+    public void ViewRight() 
+        => ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Views the top.
     /// </summary>
-    public void ViewTop()
-    {
-        ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
-    }
+    
+    public void ViewTop() 
+        => ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
 
     /// <summary>
     ///     Zooms by the specified delta value.
@@ -726,10 +680,8 @@ public sealed class CameraController
     /// <param name="delta">
     ///     The delta value.
     /// </param>
-    public void Zoom(float delta)
-    {
-        zoomHandler.Zoom(delta);
-    }
+    public void Zoom(float delta) 
+        => zoomHandler.Zoom(delta);
 
     /// <summary>
     ///     Zooms to the extents of the model.
@@ -737,9 +689,9 @@ public sealed class CameraController
     /// <param name="animationTime">
     ///     The animation time (milliseconds).
     /// </param>
-    public void ZoomExtents(float animationTime = 200)
-    {
-        if (!IsZoomEnabled) return;
+    public void ZoomExtents(float animationTime = 200) {
+        if (!IsZoomEnabled) 
+            return;
 
         ActualCamera.ZoomExtents(Viewport, animationTime);
     }
@@ -747,12 +699,12 @@ public sealed class CameraController
     /// <summary>
     ///     Zooms the extents handler.
     /// </summary>
-    public void ZoomExtentsHandler()
-    {
+    public void ZoomExtentsHandler() {
         StopAnimations();
         ZoomExtents();
     }
 
+    //TODO this function does not belong here
     /// <summary>
     ///     Clamps the specified value between the limits.
     /// </summary>
@@ -768,11 +720,12 @@ public sealed class CameraController
     /// <returns>
     ///     The clamp.
     /// </returns>
-    private float Clamp(float value, float min, float max)
-    {
-        if (value < min) return min;
+    private float Clamp(float value, float min, float max) {
+        if (value < min) 
+            return min;
 
-        if (value > max) return max;
+        if (value > max) 
+            return max;
 
         return value;
     }
@@ -789,8 +742,7 @@ public sealed class CameraController
     /// <returns>
     ///     The <see cref="Vector3" /> .
     /// </returns>
-    private Vector3 FindPanVector(float dx, float dy)
-    {
+    private Vector3 FindPanVector(float dx, float dy) {
         var axis1 = SilkMath.Normalize(SilkMath.Cross(CameraLookDirection, CameraUpDirection));
         var axis2 = SilkMath.Normalize(SilkMath.Cross(axis1, CameraLookDirection));
         axis1 *= ActualCamera.CreateLeftHandSystem ? -1 : 1;
@@ -810,8 +762,7 @@ public sealed class CameraController
     /// <summary>
     ///     The on time step.
     /// </summary>
-    public void OnTimeStep()
-    {
+    public void OnTimeStep() {
         var ticks = Stopwatch.GetTimestamp();
         if (lastTick == 0 || lastTick > ticks) lastTick = ticks;
         var time = (float) (ticks - lastTick) / Stopwatch.Frequency;
@@ -821,71 +772,54 @@ public sealed class CameraController
         var factor = IsInertiaEnabled ? Clamp((float) Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
         var needUpdate = false;
 
-        if (rotationSpeed.LengthSquared() > 0.1f)
-        {
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
+        if (rotationSpeed.LengthSquared() > 0.1f) {
+            rotateHandler.Rotate(rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
             rotationSpeed *= factor;
             needUpdate = true;
             spinningSpeed = VectorZero;
-        }
-        else
-        {
+        } else {
             rotationSpeed = VectorZero;
-            if (isSpinning && spinningSpeed.LengthSquared() > 0.1f)
-            {
-                rotateHandler.Rotate(
-                    spinningPosition, spinningPosition + spinningSpeed * time, spinningPoint3D, false);
+            if (isSpinning && spinningSpeed.LengthSquared() > 0.1f) {
+                rotateHandler.Rotate(spinningPosition,
+                                     spinningPosition + spinningSpeed * time,
+                                     spinningPoint3D,
+                                     false);
                 if (!InfiniteSpin) spinningSpeed *= factor;
                 needUpdate = true;
-            }
-            else
-            {
+            } else {
                 spinningSpeed = VectorZero;
             }
         }
 
-        if (panSpeed.LengthSquared() > 0.0001f)
-        {
+        if (panSpeed.LengthSquared() > 0.0001f) {
             panHandler.Pan(panSpeed * time, false);
             panSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             panSpeed = Vector3DZero;
         }
 
-        if (moveSpeed.LengthSquared() > 0.0001f)
-        {
+        if (moveSpeed.LengthSquared() > 0.0001f) {
             zoomHandler.MoveCameraPosition(moveSpeed * time, false);
             moveSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             moveSpeed = Vector3DZero;
         }
 
-        if (Math.Abs(zoomSpeed) > 0.001f)
-        {
+        if (Math.Abs(zoomSpeed) > 0.001f) {
             zoomHandler.Zoom(zoomSpeed * time, zoomPoint3D, false, false);
             zoomSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             zoomSpeed = 0;
         }
 
         if (ActualCamera != null && ActualCamera.OnTimeStep()) needUpdate = true;
-        if (needUpdate)
-        {
+        if (needUpdate) {
             lastTick = ticks;
             Viewport.InvalidateRender();
-        }
-        else
-        {
+        } else {
             lastTick = 0;
         }
     }
@@ -893,62 +827,52 @@ public sealed class CameraController
     /// <summary>
     ///     Views the bottom.
     /// </summary>
-    private void ViewBottom()
-    {
-        ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
-    }
+    private void ViewBottom() 
+        => ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
 
     /// <summary>
     ///     Views the left.
     /// </summary>
-    private void ViewLeft()
-    {
-        ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
-    }
+    private void ViewLeft() 
+        => ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Starts the rotation.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void StartRotate(Vector2 p)
-    {
-        rotateHandler.Start(p);
-    }
+    public void StartRotate(Vector2 p) 
+        => rotateHandler.Start(p);
 
     /// <summary>
     ///     Ends the rotation.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void EndRotate(Vector2 p)
-    {
-        rotateHandler.End(p);
-    }
+    public void EndRotate(Vector2 p) 
+        => rotateHandler.End(p);
 
     /// <summary>
     ///     Starts the panning.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void StartPan(Vector2 p)
-    {
-        panHandler.Start(p);
-    }
+    public void StartPan(Vector2 p) 
+        => panHandler.Start(p);
 
     /// <summary>
     ///     Ends the panning.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void EndPan(Vector2 p)
-    {
-        panHandler.End(p);
-    }
+    public void EndPan(Vector2 p) 
+        => panHandler.End(p);
 
     /// <summary>
     ///     Mouses move position.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void MouseMove(Vector2 p)
-    {
-        if (IsRotating) rotateHandler.MouseMove(p);
-        if (IsPanning) panHandler.MouseMove(p);
+    public void MouseMove(Vector2 p) {
+        if (IsRotating) 
+            rotateHandler.MouseMove(p);
+        
+        if (IsPanning) 
+            panHandler.MouseMove(p);
     }
 }

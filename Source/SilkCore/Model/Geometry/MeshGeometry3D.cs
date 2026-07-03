@@ -13,8 +13,7 @@ namespace HelixToolkit.SharpDX.Core;
     [Serializable]
 #endif
 [DataContract]
-public class MeshGeometry3D : Geometry3D
-{
+public class MeshGeometry3D : Geometry3D {
     private static readonly PropertyChangedEventArgs textureCoordChangedArgs = new(nameof(TextureCoordinates));
 
     /// <summary>
@@ -48,11 +47,9 @@ public class MeshGeometry3D : Geometry3D
     ///     Texture Coordinates
     /// </summary>
     [DataMember]
-    public Vector2Collection TextureCoordinates
-    {
+    public Vector2Collection TextureCoordinates {
         get => textureCoordinates;
-        set
-        {
+        set {
             if (Set(ref textureCoordinates, value, false)) RaisePropertyChanged(textureCoordChangedArgs);
         }
     }
@@ -69,10 +66,8 @@ public class MeshGeometry3D : Geometry3D
     [DataMember]
     public Vector3Collection BiTangents { get; set; }
 
-    public IEnumerable<Triangle> Triangles
-    {
-        get
-        {
+    public IEnumerable<Triangle> Triangles {
+        get {
             for (var i = 0; i < Indices.Count; i += 3)
                 yield return new Triangle
                     {P0 = Positions[Indices[i]], P1 = Positions[Indices[i + 1]], P2 = Positions[Indices[i + 2]]};
@@ -83,8 +78,7 @@ public class MeshGeometry3D : Geometry3D
     ///     A proxy member for <see cref="Geometry3D.Indices" />
     /// </summary>
     [IgnoreDataMember]
-    public IntCollection TriangleIndices
-    {
+    public IntCollection TriangleIndices {
         get => Indices;
         set => Indices = new IntCollection(value);
     }
@@ -101,8 +95,7 @@ public class MeshGeometry3D : Geometry3D
     /// </summary>
     /// <param name="meshes"></param>
     /// <returns></returns>
-    public static MeshGeometry3D Merge(params MeshGeometry3D[] meshes)
-    {
+    public static MeshGeometry3D Merge(params MeshGeometry3D[] meshes) {
         var positions = new Vector3Collection();
         var indices = new IntCollection();
 
@@ -113,8 +106,7 @@ public class MeshGeometry3D : Geometry3D
         var bitangents = meshes.All(x => x.BiTangents != null) ? new Vector3Collection() : null;
 
         var index = 0;
-        foreach (var part in meshes)
-        {
+        foreach (var part in meshes) {
             positions.AddRange(part.Positions);
             indices.AddRange(part.Indices.Select(x => x + index));
             index += part.Positions.Count;
@@ -130,8 +122,7 @@ public class MeshGeometry3D : Geometry3D
 
         if (bitangents != null) bitangents = new Vector3Collection(meshes.SelectMany(x => x.BiTangents));
 
-        var mesh = new MeshGeometry3D
-        {
+        var mesh = new MeshGeometry3D {
             Positions = positions,
             Indices = indices,
             Normals = normals,
@@ -144,16 +135,13 @@ public class MeshGeometry3D : Geometry3D
     }
 
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter)
-    {
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
         return new StaticMeshGeometryOctree(Positions, Indices, parameter);
     }
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
-        if (target is MeshGeometry3D mesh)
-        {
+        if (target is MeshGeometry3D mesh) {
             mesh.Normals = Normals;
             mesh.TextureCoordinates = TextureCoordinates;
             mesh.Tangents = Tangents;
@@ -161,21 +149,20 @@ public class MeshGeometry3D : Geometry3D
         }
     }
 
-    public virtual bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource)
-    {
+    public virtual bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource
+    ) {
         if (Positions == null || Positions.Count == 0
                               || Indices == null || Indices.Count == 0)
             return false;
         var isHit = false;
-        if (Octree != null)
-        {
+        if (Octree != null) {
             isHit = Octree.HitTest(context, originalSource, this, modelMatrix, ReturnMultipleHitsOnHitTest, ref hits);
-        }
-        else
-        {
-            var result = new HitTestResult
-            {
+        } else {
+            var result = new HitTestResult {
                 Distance = double.MaxValue
             };
             var modelInvert = modelMatrix.Inverted();
@@ -183,26 +170,23 @@ public class MeshGeometry3D : Geometry3D
                 return false;
             //transform ray into model coordinates
             var rayModel = new Ray(SilkMath.TransformCoordinate(context.RayWS.Position, modelInvert),
-                SilkMath.Normalize(SilkMath.TransformNormal(context.RayWS.Direction, modelInvert)));
+                                   SilkMath.Normalize(SilkMath.TransformNormal(context.RayWS.Direction, modelInvert)));
 
             var b = Bound;
 
             //Do hit test in local space
-            if (rayModel.Intersects(ref b))
-            {
+            if (rayModel.Intersects(ref b)) {
                 var index = 0;
                 var minDistance = float.MaxValue;
 
-                foreach (var t in Triangles)
-                {
+                foreach (var t in Triangles) {
                     // Used when geometry size is really small, causes hit test failure due to SharpDX.MathUtils.ZeroTolerance.
                     var scaling = 1f;
                     var rayScaled = rayModel;
                     if (EnableSmallTriangleHitTestScaling)
                         if ((t.P0 - t.P1).LengthSquared() < SmallTriangleEdgeLengthSquare
                             || (t.P1 - t.P2).LengthSquared() < SmallTriangleEdgeLengthSquare
-                            || (t.P2 - t.P0).LengthSquared() < SmallTriangleEdgeLengthSquare)
-                        {
+                            || (t.P2 - t.P0).LengthSquared() < SmallTriangleEdgeLengthSquare) {
                             scaling = SmallTriangleHitTestScaling;
                             rayScaled = new Ray(rayModel.Position * scaling, rayModel.Direction);
                         }
@@ -211,8 +195,7 @@ public class MeshGeometry3D : Geometry3D
                     var v1 = t.P1 * scaling;
                     var v2 = t.P2 * scaling;
 
-                    if (Collision.RayIntersectsTriangle(ref rayScaled, ref v0, ref v1, ref v2, out float d))
-                    {
+                    if (Collision.RayIntersectsTriangle(ref rayScaled, ref v0, ref v1, ref v2, out float d)) {
                         d /= scaling;
                         // For CrossSectionMeshGeometryModel3D another hit than the closest may be the valid one, since the closest one might be removed by a crossing plane
                         if (ReturnMultipleHitsOnHitTest) minDistance = float.MaxValue;
@@ -224,7 +207,7 @@ public class MeshGeometry3D : Geometry3D
                             result.ModelHit = originalSource;
                             // transform hit-info to world space now:
                             var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + rayModel.Direction * d,
-                                modelMatrix);
+                                                                          modelMatrix);
                             result.PointHit = pointWorld;
                             result.Distance = (context.RayWS.Position - pointWorld).Length;
                             var p0 = SilkMath.TransformCoordinate(t.P0, modelMatrix);
@@ -239,8 +222,7 @@ public class MeshGeometry3D : Geometry3D
                             result.Tag = index / 3;
                             result.Geometry = this;
                             isHit = true;
-                            if (ReturnMultipleHitsOnHitTest)
-                            {
+                            if (ReturnMultipleHitsOnHitTest) {
                                 hits.Add(result);
                                 result = new HitTestResult();
                             }
@@ -260,13 +242,11 @@ public class MeshGeometry3D : Geometry3D
     /// <summary>
     ///     Call to manually update texture coordinate buffer.
     /// </summary>
-    public void UpdateTextureCoordinates()
-    {
+    public void UpdateTextureCoordinates() {
         RaisePropertyChanged(nameof(TextureCoordinates));
     }
 
-    protected override void OnClearAllGeometryData()
-    {
+    protected override void OnClearAllGeometryData() {
         base.OnClearAllGeometryData();
         Normals?.Clear();
         Normals?.TrimExcess();
@@ -279,14 +259,12 @@ public class MeshGeometry3D : Geometry3D
     }
 }
 
-public struct BatchedMeshGeometryConfig : IBatchedGeometry
-{
+public struct BatchedMeshGeometryConfig : IBatchedGeometry {
     public Geometry3D Geometry { get; }
     public Matrix ModelTransform { get; }
     public int MaterialIndex { get; private set; }
 
-    public BatchedMeshGeometryConfig(Geometry3D geometry, Matrix modelTransform, int materialIndex)
-    {
+    public BatchedMeshGeometryConfig(Geometry3D geometry, Matrix modelTransform, int materialIndex) {
         Geometry = geometry;
         ModelTransform = modelTransform;
         MaterialIndex = materialIndex;

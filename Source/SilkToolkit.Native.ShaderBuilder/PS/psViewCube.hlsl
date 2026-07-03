@@ -8,14 +8,12 @@
 //--------------------------------------------------------------------------------------
 //  Render coordinate system
 //--------------------------------------------------------------------------------------
-float4 main(PSInput input) : SV_Target
-{
+float4 main(PSInput input) : SV_Target {
     float4 I = input.cDiffuse;
     float4 vMaterialTexture = 1.0f;
     //float3 eye = normalize(vEyePos - input.wp.xyz);
-    if (bHasDiffuseMap)
-    {
-	    // SamplerState is defined in Common.fx.
+    if (bHasDiffuseMap) {
+        // SamplerState is defined in Common.fx.
         vMaterialTexture *= texDiffuseMap.Sample(samplerSurface, input.t);
     }
     //float3 d = normalize(mView._m02_m12_m22); // fixed look dir	as light dir

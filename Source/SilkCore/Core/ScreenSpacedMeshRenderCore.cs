@@ -5,14 +5,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public interface IScreenSpacedRenderParams
-        {
+        public interface IScreenSpacedRenderParams {
             /// <summary>
             ///     Relative position X of the center of viewport
             /// </summary>
@@ -104,8 +101,7 @@ namespace HelixToolkit.SharpDX.Core
         ///         sub models. Finally call RestoreCoordinates(RenderHost) to restore original coordinate system.
         ///     </para>
         /// </summary>
-        public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams
-        {
+        public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams {
             private Vector3 absolutePosition;
 
             private ScreenSpacedCameraType cameraType = ScreenSpacedCameraType.Auto;
@@ -125,17 +121,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="ScreenSpacedMeshRenderCore" /> class.
             /// </summary>
-            public ScreenSpacedMeshRenderCore() : base(RenderType.ScreenSpaced)
-            {
-            }
+            public ScreenSpacedMeshRenderCore() : base(RenderType.ScreenSpaced) { }
 
             /// <summary>
             /// </summary>
-            public bool IsRightHand
-            {
+            public bool IsRightHand {
                 get => isRightHand;
-                private set
-                {
+                private set {
                     if (Set(ref isRightHand, value))
                         OnCoordinateSystemChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
                 }
@@ -150,8 +142,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Relative position X of the center of viewport
             /// </summary>
-            public float RelativeScreenLocationX
-            {
+            public float RelativeScreenLocationX {
                 get => relativeScreenLocX;
                 set => SetAffectsRender(ref relativeScreenLocX, value);
             }
@@ -159,20 +150,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Relative position Y of the center of viewport
             /// </summary>
-            public float RelativeScreenLocationY
-            {
+            public float RelativeScreenLocationY {
                 get => relativeScreenLocY;
                 set => SetAffectsRender(ref relativeScreenLocY, value);
             }
 
-            public ScreenSpacedMode Mode
-            {
+            public ScreenSpacedMode Mode {
                 get => mode;
                 set => SetAffectsRender(ref mode, value);
             }
 
-            public Vector3 AbsolutePosition3D
-            {
+            public Vector3 AbsolutePosition3D {
                 get => absolutePosition;
                 set => SetAffectsRender(ref absolutePosition, value);
             }
@@ -180,8 +168,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Size scaling
             /// </summary>
-            public float SizeScale
-            {
+            public float SizeScale {
                 get => sizeScale;
                 set => SetAffectsRender(ref sizeScale, value);
             }
@@ -189,8 +176,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Only being used when <see cref="Mode" /> is RelativeScreenSpaced
             /// </summary>
-            public ScreenSpacedCameraType CameraType
-            {
+            public ScreenSpacedCameraType CameraType {
                 get => cameraType;
                 set => SetAffectsRender(ref cameraType, value);
             }
@@ -237,14 +223,11 @@ namespace HelixToolkit.SharpDX.Core
 
             public bool IsPerspective { get; private set; }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 return true;
             }
 
-            protected override void OnDetach()
-            {
-            }
+            protected override void OnDetach() { }
 
             /// <summary>
             ///     Creates the view matrix.
@@ -252,8 +235,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderContext">The render context.</param>
             /// <param name="eye">The eye.</param>
             /// <returns></returns>
-            protected Matrix CreateViewMatrix(RenderContext renderContext, out Vector3 eye)
-            {
+            protected Matrix CreateViewMatrix(RenderContext renderContext, out Vector3 eye) {
                 eye = -renderContext.Camera.LookDirection.Normalized() * CameraDistance;
                 if (IsRightHand) return SilkMath.LookAtRH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
 
@@ -263,11 +245,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [create projection matrix].
             /// </summary>
-            protected virtual void OnCreateProjectionMatrix(RenderContext context)
-            {
+            protected virtual void OnCreateProjectionMatrix(RenderContext context) {
                 var isPerspective = false;
-                switch (CameraType)
-                {
+                switch (CameraType) {
                     case ScreenSpacedCameraType.Auto:
                         isPerspective = context.IsPerspective;
                         break;
@@ -279,42 +259,56 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 IsPerspective = isPerspective;
-                switch (mode)
-                {
+                switch (mode) {
                     case ScreenSpacedMode.AbsolutePosition3D:
                         if (IsPerspective)
                             projectionMatrix =
                                 context.Camera.CreateProjectionMatrix(context.ActualWidth / context.ActualHeight,
-                                    NearPlane, FarPlane);
+                                                                      NearPlane,
+                                                                      FarPlane);
                         else
                             //projectionMatrix = context.ProjectionMatrix;
-                            projectionMatrix = CreateProjectionMatrix(context.IsPerspective, IsRightHand,
-                                Fov, NearPlane, FarPlane, CameraDistance, CameraDistance);
+                            projectionMatrix = CreateProjectionMatrix(context.IsPerspective,
+                                                                      IsRightHand,
+                                                                      Fov,
+                                                                      NearPlane,
+                                                                      FarPlane,
+                                                                      CameraDistance,
+                                                                      CameraDistance);
                         break;
                     case ScreenSpacedMode.RelativeScreenSpaced:
-                        projectionMatrix = CreateProjectionMatrix(isPerspective, IsRightHand, Fov, NearPlane, FarPlane,
-                            CameraDistance, CameraDistance);
+                        projectionMatrix = CreateProjectionMatrix(isPerspective,
+                                                                  IsRightHand,
+                                                                  Fov,
+                                                                  NearPlane,
+                                                                  FarPlane,
+                                                                  CameraDistance,
+                                                                  CameraDistance);
                         break;
                 }
             }
 
-            private static Matrix CreateProjectionMatrix(bool isPerspective, bool isRightHand, float fov, float near,
-                float far, float w, float h)
-            {
+            private static Matrix CreateProjectionMatrix(
+                bool isPerspective,
+                bool isRightHand,
+                float fov,
+                float near,
+                float far,
+                float w,
+                float h
+            ) {
                 if (isPerspective)
                     return isRightHand
-                        ? SilkMath.PerspectiveFovRH(fov, w / h, near, far)
-                        : SilkMath.PerspectiveFovLH(fov, w / h, near, far);
+                               ? SilkMath.PerspectiveFovRH(fov, w / h, near, far)
+                               : SilkMath.PerspectiveFovLH(fov, w / h, near, far);
 
                 return isRightHand ? SilkMath.OrthoRH(w, h, near, far) : SilkMath.OrthoLH(w, h, near, far);
             }
 
-            protected void UpdateParameters(RenderContext context, float width, float height)
-            {
+            protected void UpdateParameters(RenderContext context, float width, float height) {
                 var ratio = width / height;
                 if (ScreenRatio != ratio || Width != width || Height != height ||
-                    isMainCameraPerspective != context.IsPerspective)
-                {
+                    isMainCameraPerspective != context.IsPerspective) {
                     ScreenRatio = ratio;
                     Width = width;
                     Height = height;
@@ -328,8 +322,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="renderContext">The render context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public override void Render(RenderContext renderContext, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext renderContext, DeviceContextProxy deviceContext) {
                 SetScreenSpacedCoordinates(renderContext, deviceContext);
             }
 
@@ -338,8 +331,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public void SetScreenSpacedCoordinates(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public void SetScreenSpacedCoordinates(RenderContext context, DeviceContextProxy deviceContext) {
                 SetScreenSpacedCoordinates(context, deviceContext, true);
             }
 
@@ -349,12 +341,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             /// <param name="clearDepthBuffer">if set to <c>true</c> [clear depth buffer].</param>
-            protected virtual void SetScreenSpacedCoordinates(RenderContext context, DeviceContextProxy deviceContext,
-                bool clearDepthBuffer)
-            {
+            protected virtual void SetScreenSpacedCoordinates(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                bool clearDepthBuffer
+            ) {
                 if (context.ActualWidth < Size || context.ActualHeight < Size) return;
-                if (clearDepthBuffer)
-                {
+                if (clearDepthBuffer) {
                     deviceContext.GetDepthStencilView(out var dsView);
                     if (dsView == null) return;
 
@@ -363,8 +356,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 IsRightHand = !context.Camera.CreateLeftHandSystem;
-                switch (mode)
-                {
+                switch (mode) {
                     case ScreenSpacedMode.RelativeScreenSpaced:
                         RenderRelativeScreenSpaced(context, deviceContext);
                         break;
@@ -377,8 +369,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            private void RenderRelativeScreenSpaced(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void RenderRelativeScreenSpaced(RenderContext context, DeviceContextProxy deviceContext) {
                 IsRightHand = !context.Camera.CreateLeftHandSystem;
                 var viewportSize = Size * SizeScale * context.DpiScale;
                 var globalTrans = context.GlobalTransform;
@@ -401,8 +392,7 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.SetScissorRectangle(offX, offY, (int) viewportSize + offX, (int) viewportSize + offY);
             }
 
-            private void RenderAbsolutePositionPerspective(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void RenderAbsolutePositionPerspective(RenderContext context, DeviceContextProxy deviceContext) {
                 var globalTrans = context.GlobalTransform;
                 UpdateParameters(context, context.ActualWidth, context.ActualHeight);
                 var distance = Size / 2 / SizeScale;
@@ -429,8 +419,7 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.SetScissorRectangle(0, 0, (int) context.ActualWidth, (int) context.ActualHeight);
             }
 
-            private void RenderAbsolutePositionOrtho(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void RenderAbsolutePositionOrtho(RenderContext context, DeviceContextProxy deviceContext) {
                 IsRightHand = !context.Camera.CreateLeftHandSystem;
                 var viewportSize = Size * SizeScale * context.DpiScale;
                 var globalTrans = context.GlobalTransform;
@@ -448,8 +437,10 @@ namespace HelixToolkit.SharpDX.Core
                 context.Set(ref globalTrans, ref viewport);
                 context.UpdatePerFrameData(true, false, deviceContext);
                 deviceContext.SetViewport(ref viewport);
-                deviceContext.SetScissorRectangle((int) Math.Round(offX), (int) Math.Round(offY),
-                    (int) (viewportSize + offX), (int) (viewportSize + offY));
+                deviceContext.SetScissorRectangle((int) Math.Round(offX),
+                                                  (int) Math.Round(offY),
+                                                  (int) (viewportSize + offX),
+                                                  (int) (viewportSize + offY));
             }
         }
     }

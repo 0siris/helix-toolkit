@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public sealed class PassOnlyMaterialVariable : MaterialVariable
-        {
+        public sealed class PassOnlyMaterialVariable : MaterialVariable {
             private readonly string passName;
 
             /// <summary>
@@ -24,12 +21,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="shadowPassName">Name of the shadow pass.</param>
             /// <param name="wireframePassName">Name of the wireframe pass.</param>
             /// <param name="depthPassName">Name of the depth pass</param>
-            public PassOnlyMaterialVariable(string passName, IRenderTechnique technique,
+            public PassOnlyMaterialVariable(
+                string passName,
+                IRenderTechnique technique,
                 string shadowPassName = DefaultPassNames.ShadowPass,
                 string wireframePassName = DefaultPassNames.Wireframe,
-                string depthPassName = DefaultPassNames.DepthPrepass)
-                : base(technique.EffectsManager, technique, DefaultMeshConstantBufferDesc, null)
-            {
+                string depthPassName = DefaultPassNames.DepthPrepass
+            )
+                : base(technique.EffectsManager, technique, DefaultMeshConstantBufferDesc, null) {
                 this.passName = passName;
                 MaterialPass = technique[passName];
                 ShadowPass = technique[shadowPassName];
@@ -45,35 +44,35 @@ namespace HelixToolkit.SharpDX.Core
 
             public ShaderPass DepthPass { get; }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
                 return true;
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 return MaterialPass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShadowPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return WireframePass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return DepthPass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }
         }

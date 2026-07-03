@@ -23,23 +23,19 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     enables basic functionality like Loaded, which depends on
 ///     a PresentationSource being available.
 /// </remarks>
-public class VisualTargetPresentationSource : PresentationSource, IDisposable
-{
+public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     private readonly VisualTarget _visualTarget;
     private object _dataContext;
     private string _propertyName;
 
-    public VisualTargetPresentationSource(HostVisual hostVisual)
-    {
+    public VisualTargetPresentationSource(HostVisual hostVisual) {
         _visualTarget = new VisualTarget(hostVisual);
     }
 
-    public override Visual RootVisual
-    {
+    public override Visual RootVisual {
         get => _visualTarget.RootVisual;
 
-        set
-        {
+        set {
             var oldRoot = _visualTarget.RootVisual;
 
 
@@ -51,14 +47,12 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable
             // future changed to the layout size of our root, and manually
             // trigger a size change.
             var rootFE = value as FrameworkElement;
-            if (rootFE != null)
-            {
+            if (rootFE != null) {
                 rootFE.SizeChanged += root_SizeChanged;
                 rootFE.DataContext = _dataContext;
 
                 // HACK!
-                if (_propertyName != null)
-                {
+                if (_propertyName != null) {
                     var myBinding = new Binding(_propertyName);
                     myBinding.Source = _dataContext;
                     rootFE.SetBinding(TextBlock.TextProperty, myBinding);
@@ -72,19 +66,16 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable
 
             // Kickoff layout...
             var rootElement = value as UIElement;
-            if (rootElement != null)
-            {
+            if (rootElement != null) {
                 rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 rootElement.Arrange(new Rect(rootElement.DesiredSize));
             }
         }
     }
 
-    public object DataContext
-    {
+    public object DataContext {
         get => _dataContext;
-        set
-        {
+        set {
             _dataContext = value;
             var rootElement = _visualTarget.RootVisual as FrameworkElement;
             if (rootElement != null) rootElement.DataContext = _dataContext;
@@ -92,16 +83,13 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable
     }
 
     // HACK!
-    public string PropertyName
-    {
+    public string PropertyName {
         get => _propertyName;
-        set
-        {
+        set {
             _propertyName = value;
 
             var rootElement = _visualTarget.RootVisual as TextBlock;
-            if (rootElement != null)
-            {
+            if (rootElement != null) {
                 if (!rootElement.CheckAccess()) throw new InvalidOperationException("What?");
 
                 var myBinding = new Binding(_propertyName);
@@ -117,26 +105,22 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable
 
     public event SizeChangedEventHandler SizeChanged;
 
-    protected override CompositionTarget GetCompositionTargetCore()
-    {
+    protected override CompositionTarget GetCompositionTargetCore() {
         return _visualTarget;
     }
 
-    private void root_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
+    private void root_SizeChanged(object sender, SizeChangedEventArgs e) {
         var handler = SizeChanged;
         if (handler != null) handler(this, e);
     }
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
     [SuppressMessage("Microsoft.Usage", "CA2213", Justification = "False positive.")]
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
+    protected virtual void Dispose(bool disposing) {
+        if (!disposedValue) {
             if (disposing) _visualTarget?.Dispose();
             // TODO: dispose managed state (managed objects).
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -153,13 +137,12 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable
     // }
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
         // TODO: uncomment the following line if the finalizer is overridden above.
         // GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
 }

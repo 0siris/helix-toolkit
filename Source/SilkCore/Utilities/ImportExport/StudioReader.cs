@@ -25,12 +25,10 @@ namespace HelixToolkit.UWP
     ///     Ported from HelixToolkit.Wpf
     /// </summary>
     [Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
-    public class StudioReader : IModelReader
-    {
+    public class StudioReader : IModelReader {
         private readonly Dictionary<string, MaterialCore> materials = new();
 
-        private enum ChunkID
-        {
+        private enum ChunkID {
             //// Primary chunk
 
             MAIN3DS = 0x4D4D,
@@ -152,28 +150,23 @@ namespace HelixToolkit.UWP
         ///     Gets or sets the texture path.
         /// </summary>
         /// <value>The texture path.</value>
-        public string TexturePath
-        {
+        public string TexturePath {
             get => Directory;
 
             set => Directory = value;
         }
 
-        public Object3DGroup Read(string path, ModelInfo info = default)
-        {
+        public Object3DGroup Read(string path, ModelInfo info = default) {
             Directory = Path.GetDirectoryName(path);
-            using (var s = File.OpenRead(path))
-            {
+            using (var s = File.OpenRead(path)) {
                 return Read(s);
             }
 
             ;
         }
 
-        public Object3DGroup Read(Stream s, ModelInfo info = default)
-        {
-            using (var reader = new BinaryReader(s))
-            {
+        public Object3DGroup Read(Stream s, ModelInfo info = default) {
+            using (var reader = new BinaryReader(s)) {
                 var length = reader.BaseStream.Length;
                 var headerId = ReadChunkId(reader);
                 if (headerId != ChunkID.MAIN3DS) throw new FileFormatException("Unknown file");
@@ -182,12 +175,10 @@ namespace HelixToolkit.UWP
                 //{
                 //    throw new FileFormatException("Incomplete file (file length does not match header)");
                 //}
-                while (reader.BaseStream.Position < reader.BaseStream.Length)
-                {
+                while (reader.BaseStream.Position < reader.BaseStream.Length) {
                     var id = ReadChunkId(reader);
                     var size = ReadChunkSize(reader);
-                    switch (id)
-                    {
+                    switch (id) {
                         case ChunkID.EDIT_MATERIAL:
                             ReadMaterial(reader, size);
                             break;
@@ -223,8 +214,7 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     The chunk ID.
         /// </returns>
-        private ChunkID ReadChunkId(BinaryReader reader)
-        {
+        private ChunkID ReadChunkId(BinaryReader reader) {
             return (ChunkID) reader.ReadUInt16();
         }
 
@@ -237,8 +227,7 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     The read chunk size.
         /// </returns>
-        private int ReadChunkSize(BinaryReader reader)
-        {
+        private int ReadChunkSize(BinaryReader reader) {
             return (int) reader.ReadUInt32();
         }
 
@@ -248,8 +237,7 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="chunkSize"></param>
-        private void ReadMaterial(BinaryReader reader, int chunkSize)
-        {
+        private void ReadMaterial(BinaryReader reader, int chunkSize) {
             var total = 6;
             string name = null;
             var luminance = Color.Transparent; //SharpDX.Color not System.Windows.Media.Color
@@ -259,14 +247,12 @@ namespace HelixToolkit.UWP
             double opacity = 0;
             string texture = null;
             float specularPower = 100; //check if we can find this somewhere instead of just setting it to 100 
-            while (total < chunkSize)
-            {
+            while (total < chunkSize) {
                 var id = ReadChunkId(reader);
                 var size = ReadChunkSize(reader);
                 total += size;
 
-                switch (id)
-                {
+                switch (id) {
                     case ChunkID.MAT_NAME01:
                         name = ReadString(reader);
                         break;
@@ -305,14 +291,12 @@ namespace HelixToolkit.UWP
 
             var image = ReadBitmapSoure(texture, diffuse);
 
-            if (Math.Abs(opacity) > 0.001)
-            {
+            if (Math.Abs(opacity) > 0.001) {
                 diffuse.A = (byte) (opacity * 255);
                 luminance.A = (byte) (opacity * 255);
             }
 
-            var material = new PhongMaterialCore
-            {
+            var material = new PhongMaterialCore {
                 DiffuseColor = diffuse,
                 AmbientColor = luminance, //not really sure about this, lib3ds uses 0xA010 as AmbientColor
                 SpecularColor = specular,
@@ -327,23 +311,19 @@ namespace HelixToolkit.UWP
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="chunkSize"></param>
-        private void ReadObject(BinaryReader reader, int chunkSize)
-        {
+        private void ReadObject(BinaryReader reader, int chunkSize) {
             var total = 6;
             var objectName = ReadString(reader);
             total += objectName.Length + 1;
-            while (total < chunkSize)
-            {
+            while (total < chunkSize) {
                 var id = ReadChunkId(reader);
                 var size = ReadChunkSize(reader);
                 total += size;
-                switch (id)
-                {
+                switch (id) {
                     case ChunkID.OBJ_TRIMESH:
                         ReadTriangularMesh(reader, size);
                         break;
-                    default:
-                    {
+                    default: {
                         ReadData(reader, size - 6);
                         break;
                     }
@@ -360,8 +340,7 @@ namespace HelixToolkit.UWP
         /// <param name="chunkSize">
         ///     The chunk size.
         /// </param>
-        private void ReadTriangularMesh(BinaryReader reader, int chunkSize)
-        {
+        private void ReadTriangularMesh(BinaryReader reader, int chunkSize) {
             var builder = new MeshBuilder();
             var bytesRead = 6;
             Vector3Collection positions = null;
@@ -374,13 +353,11 @@ namespace HelixToolkit.UWP
             Vector3Collection tangents = null;
             Vector3Collection bitangents = null;
             var transforms = new List<Matrix>();
-            while (bytesRead < chunkSize)
-            {
+            while (bytesRead < chunkSize) {
                 var id = ReadChunkId(reader);
                 var size = ReadChunkSize(reader);
                 bytesRead += size;
-                switch (id)
-                {
+                switch (id) {
                     case ChunkID.TRI_VERTEXL:
                         positions = ReadVertexList(reader);
                         break;
@@ -405,30 +382,37 @@ namespace HelixToolkit.UWP
                 //no faces defined?? return...
                 return;
 
-            if (facesets == null || facesets.Count == 0)
-            {
+            if (facesets == null || facesets.Count == 0) {
                 triangleIndices = faces;
-                CreateMesh(positions, textureCoordinates, triangleIndices, transforms, out normals, out tangents,
-                    out bitangents, new PhongMaterial
-                    {
-                        Name = "Gray",
-                        AmbientColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f),
-                        DiffuseColor = new Color4(0.254902f, 0.254902f, 0.254902f, 1.0f),
-                        SpecularColor = new Color4(0.0225f, 0.0225f, 0.0225f, 1.0f),
-                        EmissiveColor = new Color4(0.0f, 0.0f, 0.0f, 1.0f),
-                        SpecularShininess = 12.8f
-                    });
+                CreateMesh(positions,
+                           textureCoordinates,
+                           triangleIndices,
+                           transforms,
+                           out normals,
+                           out tangents,
+                           out bitangents,
+                           new PhongMaterial {
+                               Name = "Gray",
+                               AmbientColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f),
+                               DiffuseColor = new Color4(0.254902f, 0.254902f, 0.254902f, 1.0f),
+                               SpecularColor = new Color4(0.0225f, 0.0225f, 0.0225f, 1.0f),
+                               EmissiveColor = new Color4(0.0f, 0.0f, 0.0f, 1.0f),
+                               SpecularShininess = 12.8f
+                           });
                 //Add default get and setter
-            }
-            else
-            {
-                foreach (var fm in facesets)
-                {
+            } else {
+                foreach (var fm in facesets) {
                     triangleIndices = ConvertFaceIndices(fm.Faces, faces);
                     MaterialCore mat = null;
                     if (materials.ContainsKey(fm.Name)) mat = materials[fm.Name];
-                    CreateMesh(positions, textureCoordinates, triangleIndices, transforms, out normals, out tangents,
-                        out bitangents, mat);
+                    CreateMesh(positions,
+                               textureCoordinates,
+                               triangleIndices,
+                               transforms,
+                               out normals,
+                               out tangents,
+                               out bitangents,
+                               mat);
                 }
             }
         }
@@ -445,22 +429,29 @@ namespace HelixToolkit.UWP
         /// <param name="bitangents"></param>
         /// <param name="material"></param>
         /// <param name="transforms"></param>
-        private void CreateMesh(Vector3Collection positions, Vector2Collection textureCoordinates,
-            IntCollection triangleIndices, List<Matrix> transforms,
-            out Vector3Collection normals, out Vector3Collection tangents, out Vector3Collection bitangents,
-            MaterialCore material)
-        {
+        private void CreateMesh(
+            Vector3Collection positions,
+            Vector2Collection textureCoordinates,
+            IntCollection triangleIndices,
+            List<Matrix> transforms,
+            out Vector3Collection normals,
+            out Vector3Collection tangents,
+            out Vector3Collection bitangents,
+            MaterialCore material
+        ) {
             ComputeNormals(positions, triangleIndices, out normals);
-            if (textureCoordinates == null)
-            {
+            if (textureCoordinates == null) {
                 textureCoordinates = new Vector2Collection();
                 foreach (var pos in positions) textureCoordinates.Add(Vector2.One);
             }
 
-            MeshBuilder.ComputeTangents(positions, normals, textureCoordinates, triangleIndices, out tangents,
-                out bitangents);
-            var mesh = new MeshGeometry3D
-            {
+            MeshBuilder.ComputeTangents(positions,
+                                        normals,
+                                        textureCoordinates,
+                                        triangleIndices,
+                                        out tangents,
+                                        out bitangents);
+            var mesh = new MeshGeometry3D {
                 Positions = positions,
                 Normals = normals,
                 TextureCoordinates = textureCoordinates,
@@ -482,14 +473,15 @@ namespace HelixToolkit.UWP
         /// <param name="positions"></param>
         /// <param name="triangleIndices"></param>
         /// <param name="normals"></param>
-        private static void ComputeNormals(Vector3Collection positions, IntCollection triangleIndices,
-            out Vector3Collection normals)
-        {
+        private static void ComputeNormals(
+            Vector3Collection positions,
+            IntCollection triangleIndices,
+            out Vector3Collection normals
+        ) {
             normals = new Vector3Collection(positions.Count);
             normals.AddRange(Enumerable.Repeat(Vector3.Zero, positions.Count));
 
-            for (var t = 0; t < triangleIndices.Count; t += 3)
-            {
+            for (var t = 0; t < triangleIndices.Count; t += 3) {
                 var i1 = triangleIndices[t];
                 var i2 = triangleIndices[t + 1];
                 var i3 = triangleIndices[t + 2];
@@ -511,19 +503,16 @@ namespace HelixToolkit.UWP
                 normals[i3] += a * n;
             }
 
-            for (var i = 0; i < normals.Count; i++)
-            {
+            for (var i = 0; i < normals.Count; i++) {
                 var n = normals[i];
                 n.Normalize();
                 normals[i] = n;
             }
         }
 
-        private static IntCollection ConvertFaceIndices(List<int> subFaces, IList<int> faces)
-        {
+        private static IntCollection ConvertFaceIndices(List<int> subFaces, IList<int> faces) {
             var triangleIndices = new IntCollection(subFaces.Count * 3); // new List<int>(subFaces.Count * 3);
-            foreach (var f in subFaces)
-            {
+            foreach (var f in subFaces) {
                 triangleIndices.Add(faces[f * 3]);
                 triangleIndices.Add(faces[f * 3 + 1]);
                 triangleIndices.Add(faces[f * 3 + 2]);
@@ -532,12 +521,10 @@ namespace HelixToolkit.UWP
             return triangleIndices;
         }
 
-        private Vector2Collection ReadTexCoords(BinaryReader reader)
-        {
+        private Vector2Collection ReadTexCoords(BinaryReader reader) {
             int size = reader.ReadUInt16();
             var pts = new Vector2Collection();
-            for (var i = 0; i < size; i++)
-            {
+            for (var i = 0; i < size; i++) {
                 var x = reader.ReadSingle();
                 var y = reader.ReadSingle();
                 pts.Add(new Vector2(x, 1 - y));
@@ -558,19 +545,15 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     A list of face sets.
         /// </returns>
-        private List<FaceSet> ReadFaceSets(BinaryReader reader, int chunkSize)
-        {
+        private List<FaceSet> ReadFaceSets(BinaryReader reader, int chunkSize) {
             var total = 6;
             var list = new List<FaceSet>();
-            while (total < chunkSize)
-            {
+            while (total < chunkSize) {
                 var id = ReadChunkId(reader);
                 var size = ReadChunkSize(reader);
                 total += size;
-                switch (id)
-                {
-                    case ChunkID.TRI_FACEMAT:
-                    {
+                switch (id) {
+                    case ChunkID.TRI_FACEMAT: {
                         var name = ReadString(reader);
                         int n = reader.ReadUInt16();
                         var c = new List<int>();
@@ -581,14 +564,12 @@ namespace HelixToolkit.UWP
                         break;
                     }
 
-                    case ChunkID.TRI_SMOOTH:
-                    {
+                    case ChunkID.TRI_SMOOTH: {
                         ReadData(reader, size - 6);
                         break;
                     }
 
-                    default:
-                    {
+                    default: {
                         ReadData(reader, size - 6);
                         break;
                     }
@@ -598,12 +579,10 @@ namespace HelixToolkit.UWP
             return list;
         }
 
-        private IntCollection ReadFaceList(BinaryReader reader)
-        {
+        private IntCollection ReadFaceList(BinaryReader reader) {
             int size = reader.ReadUInt16();
             var faces = new IntCollection();
-            for (var i = 0; i < size; i++)
-            {
+            for (var i = 0; i < size; i++) {
                 faces.Add(reader.ReadUInt16());
                 faces.Add(reader.ReadUInt16());
                 faces.Add(reader.ReadUInt16());
@@ -623,8 +602,7 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     A vector.
         /// </returns>
-        private Vector3 ReadVector(BinaryReader reader)
-        {
+        private Vector3 ReadVector(BinaryReader reader) {
             return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
 
@@ -637,15 +615,13 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     A transformation.
         /// </returns>
-        private Matrix ReadTransformation(BinaryReader reader)
-        {
+        private Matrix ReadTransformation(BinaryReader reader) {
             var localx = ReadVector(reader);
             var localy = ReadVector(reader);
             var localz = ReadVector(reader);
             var origin = ReadVector(reader);
 
-            var matrix = new Matrix
-            {
+            var matrix = new Matrix {
                 M11 = localx.X,
                 M21 = localx.Y,
                 M31 = localx.Z,
@@ -667,12 +643,10 @@ namespace HelixToolkit.UWP
             return matrix;
         }
 
-        private Vector3Collection ReadVertexList(BinaryReader reader)
-        {
+        private Vector3Collection ReadVertexList(BinaryReader reader) {
             int size = reader.ReadUInt16();
             var pts = new Vector3Collection();
-            for (var i = 0; i < size; i++)
-            {
+            for (var i = 0; i < size; i++) {
                 var x = reader.ReadSingle();
                 var y = reader.ReadSingle();
                 var z = reader.ReadSingle();
@@ -688,22 +662,18 @@ namespace HelixToolkit.UWP
         /// <param name="texture"></param>
         /// <param name="fallBackColor"></param>
         /// <returns></returns>
-        private Stream ReadBitmapSoure(string texture, Color fallBackColor)
-        {
+        private Stream ReadBitmapSoure(string texture, Color fallBackColor) {
             if (texture == null) return null;
-            try
-            {
+            try {
                 var ext = Path.GetExtension(texture);
                 if (ext != null) ext = ext.ToLower();
                 // TGA not supported - convert textures to .png
                 if (ext == ".tga") texture = Path.ChangeExtension(texture, ".png");
                 var actualTexturePath = TexturePath ?? string.Empty;
                 var path = Path.GetFullPath(Path.Combine(actualTexturePath, texture));
-                if (File.Exists(path))
-                {
+                if (File.Exists(path)) {
                     var stream = new MemoryStream();
-                    using (var fileStream = File.OpenRead(path))
-                    {
+                    using (var fileStream = File.OpenRead(path)) {
                         fileStream.CopyTo(stream);
                         return stream;
                     }
@@ -713,8 +683,7 @@ namespace HelixToolkit.UWP
 #else
                     return BitMapSoureFromFallBack(fallBackColor);
 #endif
-            }
-            catch (Exception ex) //Not really nice
+            } catch (Exception ex) //Not really nice
             {
                 throw new FileFormatException(ex.Message);
             }
@@ -754,8 +723,7 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     The mat map.
         /// </returns>
-        private string ReadMatMap(BinaryReader reader, int size)
-        {
+        private string ReadMatMap(BinaryReader reader, int size) {
             var id = ReadChunkId(reader);
             var siz = ReadChunkSize(reader);
             var f1 = reader.ReadUInt16();
@@ -778,14 +746,11 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     A color.
         /// </returns>
-        private Color ReadColor(BinaryReader reader)
-        {
+        private Color ReadColor(BinaryReader reader) {
             var type = ReadChunkId(reader);
             var csize = ReadChunkSize(reader);
-            switch (type)
-            {
-                case ChunkID.COL_RGB:
-                {
+            switch (type) {
+                case ChunkID.COL_RGB: {
                     var r = reader.ReadSingle();
                     var g = reader.ReadSingle();
                     var b = reader.ReadSingle();
@@ -793,8 +758,7 @@ namespace HelixToolkit.UWP
                     return new Color(r, g, b); // .FromScRgb(1, r, g, b);
                 }
 
-                case ChunkID.COL_TRU:
-                {
+                case ChunkID.COL_TRU: {
                     var r = reader.ReadByte();
                     var g = reader.ReadByte();
                     var b = reader.ReadByte();
@@ -809,14 +773,12 @@ namespace HelixToolkit.UWP
             return Color.White;
         }
 
-        private float ReadPercent(BinaryReader reader, int size)
-        {
+        private float ReadPercent(BinaryReader reader, int size) {
             var type = ReadChunkId(reader);
             var cSize = ReadChunkSize(reader);
             size -= 6;
             float percent = 1;
-            switch (type)
-            {
+            switch (type) {
                 case ChunkID.PERCENTW:
                     percent = reader.ReadUInt16();
                     break;
@@ -843,8 +805,7 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     The data.
         /// </returns>
-        private byte[] ReadData(BinaryReader reader, int size)
-        {
+        private byte[] ReadData(BinaryReader reader, int size) {
             return reader.ReadBytes(size);
         }
 
@@ -857,11 +818,9 @@ namespace HelixToolkit.UWP
         /// <returns>
         ///     The string.
         /// </returns>
-        private string ReadString(BinaryReader reader)
-        {
+        private string ReadString(BinaryReader reader) {
             var sb = new StringBuilder();
-            while (true)
-            {
+            while (true) {
                 var ch = (char) reader.ReadByte();
                 if (ch == 0) break;
 
@@ -874,8 +833,7 @@ namespace HelixToolkit.UWP
         /// <summary>
         ///     Represents a set of faces that belongs to the same material.
         /// </summary>
-        private class FaceSet
-        {
+        private class FaceSet {
             /// <summary>
             ///     Gets or sets Faces.
             /// </summary>

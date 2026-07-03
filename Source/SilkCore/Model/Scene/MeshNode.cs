@@ -6,20 +6,16 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class MeshNode : MaterialGeometryNode, IDynamicReflectable
-        {
+        public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
             /// <summary>
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new MeshRenderCore();
             }
 
@@ -29,22 +25,21 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="modelGuid"></param>
             /// <param name="geometry"></param>
             /// <returns></returns>
-            protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry)
-            {
+            protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
                 return geometry != null && geometry.IsDynamic
-                    ? EffectsManager.GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(modelGuid, geometry)
-                    : EffectsManager.GeometryBufferManager
-                        .Register<DefaultMeshGeometryBufferModel>(modelGuid, geometry);
+                           ? EffectsManager.GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
+                               modelGuid,
+                               geometry)
+                           : EffectsManager.GeometryBufferManager
+                                           .Register<DefaultMeshGeometryBufferModel>(modelGuid, geometry);
             }
 
             /// <summary>
             ///     Create raster state description.
             /// </summary>
             /// <returns></returns>
-            protected override RasterizerStateDescription CreateRasterState()
-            {
-                return new RasterizerStateDescription
-                {
+            protected override RasterizerStateDescription CreateRasterState() {
+                return new RasterizerStateDescription {
                     FillMode = FillMode,
                     CullMode = CullMode,
                     DepthBias = DepthBias,
@@ -57,18 +52,19 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            protected override bool OnCheckGeometry(Geometry3D geometry)
-            {
+            protected override bool OnCheckGeometry(Geometry3D geometry) {
                 return base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return (Geometry as MeshGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource);
             }
 
-            #region Properties
+        #region Properties
 
             private bool frontCCW = true;
 
@@ -78,11 +74,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [front CCW]; otherwise, <c>false</c>.
             /// </value>
-            public bool FrontCCW
-            {
+            public bool FrontCCW {
                 get => frontCCW;
-                set
-                {
+                set {
                     if (Set(ref frontCCW, value)) OnRasterStateChanged();
                 }
             }
@@ -95,11 +89,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The cull mode.
             /// </value>
-            public CullMode CullMode
-            {
+            public CullMode CullMode {
                 get => cullMode;
-                set
-                {
+                set {
                     if (Set(ref cullMode, value)) OnRasterStateChanged();
                 }
             }
@@ -110,8 +102,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [invert normal]; otherwise, <c>false</c>.
             /// </value>
-            public bool InvertNormal
-            {
+            public bool InvertNormal {
                 get => (RenderCore as IInvertNormal).InvertNormal;
                 set => (RenderCore as IInvertNormal).InvertNormal = value;
             }
@@ -122,8 +113,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the wireframe.
             /// </value>
-            public Color4 WireframeColor
-            {
+            public Color4 WireframeColor {
                 get => (RenderCore as IMeshRenderParams).WireframeColor;
                 set => (RenderCore as IMeshRenderParams).WireframeColor = value;
             }
@@ -134,8 +124,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderWireframe
-            {
+            public bool RenderWireframe {
                 get => (RenderCore as IMeshRenderParams).RenderWireframe;
                 set => (RenderCore as IMeshRenderParams).RenderWireframe = value;
             }
@@ -146,13 +135,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The dynamic reflector.
             /// </value>
-            public IDynamicReflector DynamicReflector
-            {
+            public IDynamicReflector DynamicReflector {
                 get => (RenderCore as IDynamicReflectable).DynamicReflector;
                 set => (RenderCore as IDynamicReflectable).DynamicReflector = value;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

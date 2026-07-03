@@ -7,10 +7,8 @@ Copyright(c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         ///     Use this node to keep update rendering in each frame.
         ///     <para>
@@ -21,43 +19,35 @@ namespace HelixToolkit.SharpDX.Core
         ///         Use this node to invalidate rendering and keep render host busy.
         ///     </para>
         /// </summary>
-        public sealed class ContinuousRenderNode : SceneNode
-        {
-            protected override RenderCore OnCreateRenderCore()
-            {
+        public sealed class ContinuousRenderNode : SceneNode {
+            protected override RenderCore OnCreateRenderCore() {
                 return new InvalidRendererCore();
             }
 
-            protected override bool CanHitTest(HitTestContext context)
-            {
+            protected override bool CanHitTest(HitTestContext context) {
                 return false;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
 
-            private sealed class InvalidRendererCore : RenderCore
-            {
-                public InvalidRendererCore() : base(RenderType.GlobalEffect)
-                {
-                }
+            private sealed class InvalidRendererCore : RenderCore {
+                public InvalidRendererCore() : base(RenderType.GlobalEffect) { }
 
-                public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-                {
+                public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                     RaiseInvalidateRender();
                 }
 
-                protected override bool OnAttach(IRenderTechnique technique)
-                {
+                protected override bool OnAttach(IRenderTechnique technique) {
                     return true;
                 }
 
-                protected override void OnDetach()
-                {
-                }
+                protected override void OnDetach() { }
             }
         }
     }

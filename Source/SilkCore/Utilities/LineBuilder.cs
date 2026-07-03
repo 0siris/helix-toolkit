@@ -9,15 +9,13 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-public class LineBuilder
-{
+public class LineBuilder {
     private readonly IntCollection lineListIndices;
     private readonly Vector3Collection positions;
 
     /// <summary>
     /// </summary>
-    public LineBuilder()
-    {
+    public LineBuilder() {
         positions = new Vector3Collection();
         // textureCoordinates = new List<Point>();
         lineListIndices = new IntCollection();
@@ -27,19 +25,16 @@ public class LineBuilder
     /// </summary>
     /// <param name="isClosed"></param>
     /// <param name="points"></param>
-    public void Add(bool isClosed, params Vector3[] points)
-    {
+    public void Add(bool isClosed, params Vector3[] points) {
         var i0 = positions.Count;
         foreach (var p in points)
             positions.Add(p);
-        for (var i = 0; i + 1 < points.Length; i++)
-        {
+        for (var i = 0; i + 1 < points.Length; i++) {
             lineListIndices.Add(i0 + i);
             lineListIndices.Add(i0 + i + 1);
         }
 
-        if (isClosed)
-        {
+        if (isClosed) {
             lineListIndices.Add(i0 + points.Length - 1);
             lineListIndices.Add(i0);
         }
@@ -51,8 +46,7 @@ public class LineBuilder
     /// <param name="xlength"></param>
     /// <param name="ylength"></param>
     /// <param name="zlength"></param>
-    public void AddBox(Vector3 center, double xlength, double ylength, double zlength)
-    {
+    public void AddBox(Vector3 center, double xlength, double ylength, double zlength) {
         var i0 = positions.Count;
         var dx = new Vector3((float) xlength / 2f, 0, 0);
         var dy = new Vector3(0, (float) ylength / 2f, 0);
@@ -66,8 +60,7 @@ public class LineBuilder
     /// </summary>
     /// <param name="p1"></param>
     /// <param name="p2"></param>
-    public void AddLine(Vector3 p1, Vector3 p2)
-    {
+    public void AddLine(Vector3 p1, Vector3 p2) {
         var i0 = positions.Count;
         positions.Add(p1);
         positions.Add(p2);
@@ -82,8 +75,7 @@ public class LineBuilder
     /// <param name="rows"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
-    public void AddGrid(BoxFaces plane, int columns, int rows, float width, float height)
-    {
+    public void AddGrid(BoxFaces plane, int columns, int rows, float width, float height) {
         // checks
         if (columns < 2 || rows < 2) throw new ArgumentNullException("columns or rows too small");
         if (width <= 0 || height <= 0) throw new ArgumentNullException("width or height too small");
@@ -107,15 +99,12 @@ public class LineBuilder
     ///     If true, the resulting <see cref="LineGeometry3D" /> has no shared vertices.
     /// </param>
     /// <returns>Returns the resulting <see cref="LineGeometry3D" />.</returns>
-    public LineGeometry3D ToLineGeometry3D(bool unshareVertices = false)
-    {
-        if (unshareVertices)
-        {
+    public LineGeometry3D ToLineGeometry3D(bool unshareVertices = false) {
+        if (unshareVertices) {
             var count = lineListIndices.Count;
             var pos = new Vector3Collection(count);
             var idx = new IntCollection(count);
-            for (var i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 pos.Add(positions[lineListIndices[i]]);
                 idx.Add(i);
             }
@@ -133,8 +122,7 @@ public class LineBuilder
     /// <param name="normal">The normal.</param>
     /// <param name="radius">The radius.</param>
     /// <param name="segments">The segments.</param>
-    public void AddCircle(Vector3 position, Vector3 normal, float radius, int segments)
-    {
+    public void AddCircle(Vector3 position, Vector3 normal, float radius, int segments) {
         if (segments < 3) throw new ArgumentNullException("too few segments, at least 3");
         normal.Normalize();
         var sectionAngle = (float) (2.0 * Math.PI / segments);
@@ -145,8 +133,7 @@ public class LineBuilder
         positions.Add(current);
         var currIndex = posStart;
 
-        for (var i = 1; i < segments; i++)
-        {
+        for (var i = 1; i < segments; i++) {
             next.X = radius * (float) Math.Cos(i * sectionAngle);
             next.Z = radius * (float) Math.Sin(i * sectionAngle);
             current = next;
@@ -159,8 +146,7 @@ public class LineBuilder
         lineListIndices.Add(posStart);
         var axis = SilkMath.Cross(Vector3.UnitY, normal);
         var transform = SilkMath.Translation(position);
-        if (axis.LengthSquared() > 1e-6)
-        {
+        if (axis.LengthSquared() > 1e-6) {
             axis.Normalize();
             transform = SilkMath.RotationAxis(axis, (float) Math.Acos(SilkMath.Dot(Vector3.UnitY, normal))) * transform;
         }
@@ -173,8 +159,7 @@ public class LineBuilder
     ///     Generates a square grid with a step of 1.0
     /// </summary>
     /// <returns></returns>
-    public static LineGeometry3D GenerateGrid(int width = 10)
-    {
+    public static LineGeometry3D GenerateGrid(int width = 10) {
         return GenerateGrid(Vector3.UnitY, 0, width);
     }
 
@@ -182,22 +167,16 @@ public class LineBuilder
     ///     Generates a square grid with a step of 1.0
     /// </summary>
     /// <returns></returns>
-    public static LineGeometry3D GenerateGrid(Vector3 plane, int min0 = 0, int max0 = 10, int min1 = 0, int max1 = 10)
-    {
+    public static LineGeometry3D GenerateGrid(Vector3 plane, int min0 = 0, int max0 = 10, int min1 = 0, int max1 = 10) {
         var grid = new LineBuilder();
         //int width = max - min;
-        if (plane == Vector3.UnitX)
-        {
+        if (plane == Vector3.UnitX) {
             for (var i = min0; i <= max0; i++) grid.AddLine(new Vector3(0, i, min1), new Vector3(0, i, max1));
             for (var i = min1; i <= max1; i++) grid.AddLine(new Vector3(0, min0, i), new Vector3(0, max0, i));
-        }
-        else if (plane == Vector3.UnitY)
-        {
+        } else if (plane == Vector3.UnitY) {
             for (var i = min0; i <= max0; i++) grid.AddLine(new Vector3(i, 0, min1), new Vector3(i, 0, max1));
             for (var i = min1; i <= max1; i++) grid.AddLine(new Vector3(min0, 0, i), new Vector3(max0, 0, i));
-        }
-        else
-        {
+        } else {
             for (var i = min0; i <= max0; i++) grid.AddLine(new Vector3(i, min1, 0), new Vector3(i, max1, 0));
             for (var i = min1; i <= max1; i++) grid.AddLine(new Vector3(min0, i, 0), new Vector3(max0, i, 0));
         }
@@ -210,25 +189,21 @@ public class LineBuilder
     ///     Generates a square grid with a step of 1.0
     /// </summary>
     /// <returns></returns>
-    public static LineGeometry3D GenerateGrid(Vector3 plane, int min = 0, int max = 10)
-    {
+    public static LineGeometry3D GenerateGrid(Vector3 plane, int min = 0, int max = 10) {
         var grid = new LineBuilder();
         //int width = max - min;
         if (plane == Vector3.UnitX)
-            for (var i = min; i <= max; i++)
-            {
+            for (var i = min; i <= max; i++) {
                 grid.AddLine(new Vector3(0, i, min), new Vector3(0, i, max));
                 grid.AddLine(new Vector3(0, min, i), new Vector3(0, max, i));
             }
         else if (plane == Vector3.UnitY)
-            for (var i = min; i <= max; i++)
-            {
+            for (var i = min; i <= max; i++) {
                 grid.AddLine(new Vector3(i, 0, min), new Vector3(i, 0, max));
                 grid.AddLine(new Vector3(min, 0, i), new Vector3(max, 0, i));
             }
         else
-            for (var i = min; i <= max; i++)
-            {
+            for (var i = min; i <= max; i++) {
                 grid.AddLine(new Vector3(i, min, 0), new Vector3(i, max, 0));
                 grid.AddLine(new Vector3(min, i, 0), new Vector3(max, i, 0));
             }
@@ -241,8 +216,7 @@ public class LineBuilder
     /// </summary>
     /// <param name="mesh">Input mesh for the computation of the b-box</param>
     /// <returns></returns>
-    public static LineGeometry3D GenerateBoundingBox(Geometry3D mesh)
-    {
+    public static LineGeometry3D GenerateBoundingBox(Geometry3D mesh) {
         var bb = BoundingBoxExtensions.FromPoints(mesh.Positions);
         return GenerateBoundingBox(bb);
     }
@@ -252,8 +226,7 @@ public class LineBuilder
     /// </summary>
     /// <param name="points">Input points for the computation of the b-box</param>
     /// <returns></returns>
-    public static LineGeometry3D GenerateBoundingBox(Vector3[] points)
-    {
+    public static LineGeometry3D GenerateBoundingBox(Vector3[] points) {
         var bb = BoundingBoxExtensions.FromPoints(points);
         return GenerateBoundingBox(bb);
     }
@@ -263,8 +236,7 @@ public class LineBuilder
     /// </summary>
     /// <param name="bb">The bounding-box</param>
     /// <returns></returns>
-    public static LineGeometry3D GenerateBoundingBox(BoundingBox bb)
-    {
+    public static LineGeometry3D GenerateBoundingBox(BoundingBox bb) {
         var cc = bb.GetCorners();
         var ll = new LineBuilder();
         ll.AddLine(cc[0], cc[1]);
@@ -290,8 +262,7 @@ public class LineBuilder
     /// <param name="radius"></param>
     /// <param name="segments"></param>
     /// <returns></returns>
-    public static LineGeometry3D GenerateCircle(Vector3 plane, float radius, int segments)
-    {
+    public static LineGeometry3D GenerateCircle(Vector3 plane, float radius, int segments) {
         var bd = new LineBuilder();
         bd.AddCircle(Vector3.Zero, plane, radius, segments);
         return bd.ToLineGeometry3D();
@@ -304,8 +275,7 @@ public class LineBuilder
     /// <param name="radius">The radius.</param>
     /// <param name="segments">The segments.</param>
     /// <returns></returns>
-    public static LineGeometry3D GenerateCircile(Plane plane, float radius, int segments)
-    {
+    public static LineGeometry3D GenerateCircile(Plane plane, float radius, int segments) {
         var bd = new LineBuilder();
         bd.AddCircle(new Vector3(plane.D) + plane.Normal, plane.Normal, radius, segments);
         return bd.ToLineGeometry3D();
@@ -320,13 +290,16 @@ public class LineBuilder
     /// <param name="closest"></param>
     /// <param name="t"></param>
     /// <returns></returns>
-    public static float GetPointToLineDistance2D(ref Vector3 pt, ref Vector3 p0, ref Vector3 p1, out Vector3 closest,
-        out float t)
-    {
+    public static float GetPointToLineDistance2D(
+        ref Vector3 pt,
+        ref Vector3 p0,
+        ref Vector3 p1,
+        out Vector3 closest,
+        out float t
+    ) {
         var dx = p1.X - p0.X;
         var dy = p1.Y - p0.Y;
-        if (Math.Abs(dx) < float.Epsilon && Math.Abs(dy) < float.Epsilon)
-        {
+        if (Math.Abs(dx) < float.Epsilon && Math.Abs(dy) < float.Epsilon) {
             // The points are too close together.
             closest = p0;
             dx = pt.X - p0.X;
@@ -339,22 +312,17 @@ public class LineBuilder
         t = ((pt.X - p0.X) * dx + (pt.Y - p0.Y) * dy) / (dx * dx + dy * dy);
 
         // Test, if t inside line bounds.
-        if (t < 0)
-        {
+        if (t < 0) {
             closest = new Vector3(p0.X, p0.Y, p0.Z);
             t = 0f;
             dx = pt.X - p0.X;
             dy = pt.Y - p0.Y;
-        }
-        else if (t > 1)
-        {
+        } else if (t > 1) {
             closest = new Vector3(p1.X, p1.Y, p1.Z);
             t = 1f;
             dx = pt.X - p1.X;
             dy = pt.Y - p1.Y;
-        }
-        else
-        {
+        } else {
             closest = new Vector3(p0.X + t * dx, p0.Y + t * dy, pt.Z);
             dx = pt.X - closest.X;
             dy = pt.Y - closest.Y;
@@ -374,8 +342,14 @@ public class LineBuilder
     /// <param name="tc"></param>
     /// <returns></returns>
     public static float GetRayToLineDistance(
-        Ray ray, Vector3 t0, Vector3 t1, out Vector3 sp, out Vector3 tp, out float sc, out float tc)
-    {
+        Ray ray,
+        Vector3 t0,
+        Vector3 t1,
+        out Vector3 sp,
+        out Vector3 tp,
+        out float sc,
+        out float tc
+    ) {
         var s0 = ray.Position;
         var s1 = ray.Position + ray.Direction;
         return GetLineToLineDistance(s0, s1, t0, t1, out sp, out tp, out sc, out tc, true);
@@ -396,9 +370,16 @@ public class LineBuilder
     /// <param name="sIsRay"></param>
     /// <returns></returns>
     public static float GetLineToLineDistance(
-        Vector3 s0, Vector3 s1, Vector3 t0, Vector3 t1, out Vector3 sp, out Vector3 tp, out float sc, out float tc,
-        bool sIsRay = false)
-    {
+        Vector3 s0,
+        Vector3 s1,
+        Vector3 t0,
+        Vector3 t1,
+        out Vector3 sp,
+        out Vector3 tp,
+        out float sc,
+        out float tc,
+        bool sIsRay = false
+    ) {
         var u = s1 - s0;
         var v = t1 - t0;
         var w = s0 - t0;
@@ -409,35 +390,28 @@ public class LineBuilder
         var d = SilkMath.Dot(u, w);
         var e = SilkMath.Dot(v, w);
         var D = a * c - b * b; // always >= 0
-        float sN, sD = D; // sc = sN / sD, default sD = D >= 0
-        float tN, tD = D; // tc = tN / tD, default tD = D >= 0
+        float sN, sD = D;      // sc = sN / sD, default sD = D >= 0
+        float tN, tD = D;      // tc = tN / tD, default tD = D >= 0
 
         // compute the line parameters of the two closest points
-        if (D < float.Epsilon)
-        {
+        if (D < float.Epsilon) {
             // the lines are almost parallel
             sN = 0.0f; // force using point P0 on segment S1
             sD = 1.0f; // to prevent possible division by 0.0 later
             tN = e;
             tD = c;
-        }
-        else
-        {
+        } else {
             // get the closest points on the infinite lines
             sN = b * e - c * d;
             tN = a * e - b * d;
 
-            if (!sIsRay)
-            {
-                if (sN < 0.0f)
-                {
+            if (!sIsRay) {
+                if (sN < 0.0f) {
                     // sc < 0 => the s=0 edge is visible
                     sN = 0.0f;
                     tN = e;
                     tD = c;
-                }
-                else if (sN > sD)
-                {
+                } else if (sN > sD) {
                     // sc > 1  => the s=1 edge is visible
                     sN = sD;
                     tN = e + b;
@@ -446,40 +420,27 @@ public class LineBuilder
             }
         }
 
-        if (tN < 0.0f)
-        {
+        if (tN < 0.0f) {
             // tc < 0 => the t=0 edge is visible
             tN = 0.0f;
             // recompute sc for this edge
-            if (-d < 0.0f)
-            {
+            if (-d < 0.0f) {
                 sN = 0.0f;
-            }
-            else if (-d > a)
-            {
+            } else if (-d > a) {
                 sN = sD;
-            }
-            else
-            {
+            } else {
                 sN = -d;
                 sD = a;
             }
-        }
-        else if (tN > tD)
-        {
+        } else if (tN > tD) {
             // tc > 1  => the t=1 edge is visible
             tN = tD;
             // recompute sc for this edge
-            if (-d + b < 0.0f)
-            {
+            if (-d + b < 0.0f) {
                 sN = 0;
-            }
-            else if (-d + b > a)
-            {
+            } else if (-d + b > a) {
                 sN = sD;
-            }
-            else
-            {
+            } else {
                 sN = -d + b;
                 sD = a;
             }

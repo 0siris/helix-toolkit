@@ -67,8 +67,7 @@ namespace Wpf3DTools;
 ///     You may also use a Transform3DGroup to combine the
 ///     Transform property with additional Transforms.
 /// </summary>
-public class Trackball
-{
+public class Trackball {
     private readonly RotateTransform3D _rotateTransform;
     private readonly AxisAngleRotation3D _rotation = new();
 
@@ -82,8 +81,7 @@ public class Trackball
     private Point _previousPosition2D;
     private Vector3D _previousPosition3D = new(0, 0, 1);
 
-    public Trackball(double rotationFactor = 4.0, double zoomFacfor = 1.0)
-    {
+    public Trackball(double rotationFactor = 4.0, double zoomFacfor = 1.0) {
         _rotationFactor = rotationFactor;
         _zoomFactor = zoomFacfor;
         _transform = new Transform3DGroup();
@@ -107,14 +105,11 @@ public class Trackball
     /// <summary>
     ///     The FrameworkElement we listen to for mouse events.
     /// </summary>
-    public FrameworkElement EventSource
-    {
+    public FrameworkElement EventSource {
         get => _eventSource;
 
-        set
-        {
-            if (_eventSource != null)
-            {
+        set {
+            if (_eventSource != null) {
                 //_eventSource.MouseDown -= this.OnMouseDown;
                 //_eventSource.MouseUp -= this.OnMouseUp;
                 //_eventSource.MouseMove -= this.OnMouseMove;
@@ -134,27 +129,23 @@ public class Trackball
 
     /// <summary>
     /// </summary>
-    private void OnMouseDown(object sender, MouseEventArgs e)
-    {
+    private void OnMouseDown(object sender, MouseEventArgs e) {
         Mouse.Capture(EventSource, CaptureMode.SubTree);
         _previousPosition2D = e.GetPosition(EventSource);
-        _previousPosition3D = ProjectToTrackball(
-            EventSource.ActualWidth,
-            EventSource.ActualHeight,
-            _previousPosition2D);
+        _previousPosition3D = ProjectToTrackball(EventSource.ActualWidth,
+                                                 EventSource.ActualHeight,
+                                                 _previousPosition2D);
     }
 
     /// <summary>
     /// </summary>
-    private void OnMouseUp(object sender, MouseEventArgs e)
-    {
+    private void OnMouseUp(object sender, MouseEventArgs e) {
         Mouse.Capture(EventSource, CaptureMode.None);
     }
 
     /// <summary>
     /// </summary>
-    private void OnMouseMove(object sender, MouseEventArgs e)
-    {
+    private void OnMouseMove(object sender, MouseEventArgs e) {
         var currentPosition = e.GetPosition(EventSource);
 
         if (e.LeftButton == MouseButtonState.Pressed &&
@@ -169,10 +160,8 @@ public class Trackball
 
     /// <summary>
     /// </summary>
-    private void Look(Point currentPosition)
-    {
-        var currentPosition3D = ProjectToTrackball(
-            EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
+    private void Look(Point currentPosition) {
+        var currentPosition3D = ProjectToTrackball(EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
 
         if (_previousPosition3D.Equals(currentPosition3D))
             return;
@@ -198,10 +187,8 @@ public class Trackball
 
     /// <summary>
     /// </summary>
-    private void Pan(Point currentPosition)
-    {
-        var currentPosition3D = ProjectToTrackball(
-            EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
+    private void Pan(Point currentPosition) {
+        var currentPosition3D = ProjectToTrackball(EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
 
         var change = Point.Subtract(_previousPosition2D, currentPosition);
 
@@ -216,8 +203,7 @@ public class Trackball
 
     /// <summary>
     /// </summary>
-    private Vector3D ProjectToTrackball(double width, double height, Point point)
-    {
+    private Vector3D ProjectToTrackball(double width, double height, Point point) {
         var x = point.X / (width / 2); // Scale so bounds map to [0,0] - [2,2]
         var y = point.Y / (height / 2);
 
@@ -232,8 +218,7 @@ public class Trackball
 
     /// <summary>
     /// </summary>
-    private void Zoom(Point currentPosition)
-    {
+    private void Zoom(Point currentPosition) {
         var yDelta = currentPosition.Y - _previousPosition2D.Y;
 
         var scale = _zoomFactor * Math.Exp(-yDelta / 100); // e^(yDelta/100) is fairly arbitrary.

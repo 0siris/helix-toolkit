@@ -7,35 +7,31 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FileLoadDemo
-{
-    using HelixToolkit.Wpf.SharpDX;
-    using HelixToolkit.SharpDX.Core.Model.Scene;
-    using System.Windows;
+namespace FileLoadDemo;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            this.DataContext = new MainViewModel(this);
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using System.Windows;
 
-            view.AddHandler(Element3D.MouseDown3DEvent, new RoutedEventHandler((s,e)=>
-            {
-                var arg = e as MouseDown3DEventArgs;
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        InitializeComponent();
+        this.DataContext = new MainViewModel(this);
 
-                if(arg.HitTestResult == null)
-                {
-                    return;
-                }
-                if(arg.HitTestResult.ModelHit is SceneNode node && node.Tag is AttachedNodeViewModel vm)
-                {
-                    vm.Selected = !vm.Selected;
-                }
-            }));
-        }
+        view.AddHandler(Element3D.MouseDown3DEvent,
+                        new RoutedEventHandler((s, e) => {
+                            var arg = e as MouseDown3DEventArgs;
+
+                            if (arg.HitTestResult == null) {
+                                return;
+                            }
+
+                            if (arg.HitTestResult.ModelHit is SceneNode node && node.Tag is AttachedNodeViewModel vm) {
+                                vm.Selected = !vm.Selected;
+                            }
+                        }));
     }
 }

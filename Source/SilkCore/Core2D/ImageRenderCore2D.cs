@@ -4,12 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
-        public class ImageRenderCore2D : RenderCore2DBase
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
+        public class ImageRenderCore2D : RenderCore2DBase {
             private Bitmap bitmap;
 
             private BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear;
@@ -22,14 +19,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bitmap.
             /// </value>
-            public Bitmap Bitmap
-            {
+            public Bitmap Bitmap {
                 get => bitmap;
-                set
-                {
+                set {
                     var old = bitmap;
-                    if (SetAffectsRender(ref bitmap, value))
-                    {
+                    if (SetAffectsRender(ref bitmap, value)) {
                         RemoveAndDispose(ref old);
                         if (value != null)
                             ImageSize = bitmap.Size;
@@ -53,8 +47,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The opacity.
             /// </value>
-            public float Opacity
-            {
+            public float Opacity {
                 get => opacity;
                 set => SetAffectsRender(ref opacity, value);
             }
@@ -65,24 +58,20 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The interpolation mode.
             /// </value>
-            public BitmapInterpolationMode InterpolationMode
-            {
+            public BitmapInterpolationMode InterpolationMode {
                 get => interpolationMode;
                 set => Set(ref interpolationMode, value);
             }
 
-            protected override bool CanRender(RenderContext2D context)
-            {
+            protected override bool CanRender(RenderContext2D context) {
                 return base.CanRender(context) && Bitmap != null;
             }
 
-            protected override void OnRender(RenderContext2D context)
-            {
+            protected override void OnRender(RenderContext2D context) {
                 context.DeviceContext.DrawBitmap(Bitmap, LayoutBound, Opacity, InterpolationMode);
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref bitmap);
                 base.OnDetach();
             }

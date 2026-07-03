@@ -8,8 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Used to cache texture models. Reuse existing texture model to avoid duplicate texture loading.
 /// </summary>
-public interface ITextureModelRepository
-{
+public interface ITextureModelRepository {
     /// <summary>
     ///     Creates texture model from a specified stream such as memory stream or file stream.
     ///     <para>This is used for implicit conversion from a Stream to TextureModel</para>
@@ -29,8 +28,7 @@ public interface ITextureModelRepository
 /// <summary>
 ///     Loads texture info and uploads texture to GPU on demand.
 /// </summary>
-public interface ITextureInfoLoader
-{
+public interface ITextureInfoLoader {
     /// <summary>
     ///     Called before GPU texture resource creation.
     /// </summary>

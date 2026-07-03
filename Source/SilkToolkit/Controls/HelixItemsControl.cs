@@ -1,14 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Controls
-    {
-        public class HelixItemsControl : ItemsControl
-        {
-            public HelixItemsControl()
-            {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Controls {
+        public class HelixItemsControl : ItemsControl {
+            public HelixItemsControl() {
                 Focusable = false;
                 Visibility = Visibility.Collapsed;
 
@@ -16,13 +12,11 @@ namespace HelixToolkit.Wpf.SharpDX
                 DefaultStyleKey = typeof(HelixItemsControl);
             }
 
-            protected override Size ArrangeOverride(Size finalSize)
-            {
+            protected override Size ArrangeOverride(Size finalSize) {
                 return new Size();
             }
 
-            protected override Size MeasureOverride(Size availableSize)
-            {
+            protected override Size MeasureOverride(Size availableSize) {
                 return new Size();
             }
         }

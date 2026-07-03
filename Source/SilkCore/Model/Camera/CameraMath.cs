@@ -1,9 +1,6 @@
-﻿namespace HelixToolkit.SharpDX.Core
-{
-    namespace Cameras
-    {
-        public static class CameraMath
-        {
+﻿namespace HelixToolkit.SharpDX.Core {
+    namespace Cameras {
+        public static class CameraMath {
             /// <summary>
             ///     Rotates the trackball.
             /// </summary>
@@ -19,12 +16,20 @@
             /// <param name="newPosition">The new position.</param>
             /// <param name="newLookDirection">The new look direction.</param>
             /// <param name="newUpDirection">The new up direction.</param>
-            public static void RotateTrackball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2,
+            public static void RotateTrackball(
+                CameraMode cameraMode,
+                ref Vector2 p1,
+                ref Vector2 p2,
                 ref Vector3 rotateAround,
                 float sensitivity,
-                int viewportWidth, int viewportHeight, CameraCore camera, int invertFactor,
-                out Vector3 newPosition, out Vector3 newLookDirection, out Vector3 newUpDirection)
-            {
+                int viewportWidth,
+                int viewportHeight,
+                CameraCore camera,
+                int invertFactor,
+                out Vector3 newPosition,
+                out Vector3 newLookDirection,
+                out Vector3 newUpDirection
+            ) {
                 // http://viewport3d.com/trackball.htm
                 // http://www.codeplex.com/3DTools/Thread/View.aspx?ThreadId=22310
                 var v1 = ProjectToTrackball(p1, viewportWidth, viewportHeight);
@@ -46,8 +51,7 @@
 
                 // Find the rotation axis and angle
                 var axis = SilkMath.Cross(u1, u2);
-                if (axis.LengthSquared() < 1e-8)
-                {
+                if (axis.LengthSquared() < 1e-8) {
                     newPosition = camera.Position;
                     newLookDirection = camera.LookDirection;
                     newUpDirection = camera.UpDirection;
@@ -91,8 +95,7 @@
             /// <returns>
             ///     A trackball coordinate.
             /// </returns>
-            private static Vector3 ProjectToTrackball(Vector2 point, double w, double h)
-            {
+            private static Vector3 ProjectToTrackball(Vector2 point, double w, double h) {
                 // Use the diagonal for scaling, making sure that the whole client area is inside the trackball
                 var r = Math.Sqrt(w * w + h * h) / 2;
                 var x = (point.X - w / 2) / r;
@@ -118,15 +121,26 @@
             /// <param name="newPosition">The new position.</param>
             /// <param name="newLookDirection">The new look direction.</param>
             /// <param name="newUpDirection">The new up direction.</param>
-            public static void RotateTurnball(CameraMode cameraMode, ref Vector2 p1, ref Vector2 p2,
+            public static void RotateTurnball(
+                CameraMode cameraMode,
+                ref Vector2 p1,
+                ref Vector2 p2,
                 ref Vector3 rotateAround,
                 float sensitivity,
-                int viewportWidth, int viewportHeight,
-                CameraCore camera, int invertFactor,
-                out Vector3 newPosition, out Vector3 newLookDirection, out Vector3 newUpDirection)
-            {
-                InitTurnballRotationAxes(p1, viewportWidth, viewportHeight, camera, out var rotationAxisX,
-                    out var rotationAxisY);
+                int viewportWidth,
+                int viewportHeight,
+                CameraCore camera,
+                int invertFactor,
+                out Vector3 newPosition,
+                out Vector3 newLookDirection,
+                out Vector3 newUpDirection
+            ) {
+                InitTurnballRotationAxes(p1,
+                                         viewportWidth,
+                                         viewportHeight,
+                                         camera,
+                                         out var rotationAxisX,
+                                         out var rotationAxisY);
 
                 var delta = p2 - p1;
 
@@ -139,7 +153,7 @@
                 d *= sensitivity;
 
                 var q1 = SilkMath.QuaternionRotationAxis(rotationAxisX,
-                    d * invertFactor * delta.X / 180 * (float) Math.PI);
+                                                         d * invertFactor * delta.X / 180 * (float) Math.PI);
                 var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float) Math.PI);
                 var q = q1 * q2;
 
@@ -172,10 +186,14 @@
             /// <param name="rotationAxisY"></param>
             /// <param name="viewportHeight"></param>
             /// <param name="viewportWidth"></param>
-            public static void InitTurnballRotationAxes(Vector2 p1, int viewportWidth, int viewportHeight,
+            public static void InitTurnballRotationAxes(
+                Vector2 p1,
+                int viewportWidth,
+                int viewportHeight,
                 CameraCore camera,
-                out Vector3 rotationAxisX, out Vector3 rotationAxisY)
-            {
+                out Vector3 rotationAxisX,
+                out Vector3 rotationAxisY
+            ) {
                 double fx = p1.X / viewportWidth;
                 double fy = p1.Y / viewportHeight;
 
@@ -211,13 +229,20 @@
             /// <param name="newPosition">The new position.</param>
             /// <param name="newLookDirection">The new look direction.</param>
             /// <param name="newUpDirection">The new up direction.</param>
-            public static void RotateTurntable(CameraMode cameraMode, ref Vector2 delta, ref Vector3 rotateAround,
+            public static void RotateTurntable(
+                CameraMode cameraMode,
+                ref Vector2 delta,
+                ref Vector3 rotateAround,
                 float sensitivity,
-                int viewportWidth, int viewportHeight,
-                CameraCore camera, int invertFactor,
+                int viewportWidth,
+                int viewportHeight,
+                CameraCore camera,
+                int invertFactor,
                 Vector3 modelUpDirection,
-                out Vector3 newPosition, out Vector3 newLookDirection, out Vector3 newUpDirection)
-            {
+                out Vector3 newPosition,
+                out Vector3 newLookDirection,
+                out Vector3 newUpDirection
+            ) {
                 var relativeTarget = rotateAround - camera.Target;
                 var relativePosition = rotateAround - camera.Position;
                 var cUp = SilkMath.Normalize(camera.UpDirection);

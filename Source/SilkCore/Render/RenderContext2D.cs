@@ -6,8 +6,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public sealed class RenderContext2D : DisposeObject
-{
+public sealed class RenderContext2D : DisposeObject {
     private readonly Stack<Matrix3x2> relativeTransformStack = new();
 
     /// <summary>
@@ -25,8 +24,7 @@ public sealed class RenderContext2D : DisposeObject
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     /// <param name="host">The host.</param>
-    public RenderContext2D(D2DDeviceContext deviceContext, IRenderHost host)
-    {
+    public RenderContext2D(D2DDeviceContext deviceContext, IRenderHost host) {
         DeviceContext = deviceContext;
         renderHost = host;
         DeviceResources = host.EffectsManager;
@@ -92,8 +90,7 @@ public sealed class RenderContext2D : DisposeObject
     ///     Pushes the last bitmap transform.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public void PushRelativeTransform(Matrix3x2 transform)
-    {
+    public void PushRelativeTransform(Matrix3x2 transform) {
         relativeTransformStack.Push(RelativeTransform);
         RelativeTransform = transform;
     }
@@ -102,8 +99,7 @@ public sealed class RenderContext2D : DisposeObject
     ///     Pops the last bitmap transform.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void PopRelativeTransform()
-    {
+    public void PopRelativeTransform() {
         RelativeTransform = relativeTransformStack.Pop();
     }
 
@@ -113,8 +109,7 @@ public sealed class RenderContext2D : DisposeObject
     /// <param name="target">The target.</param>
     /// <param name="clear">if set to <c>true</c> [clear].</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void PushRenderTarget(BitmapProxy target, bool clear)
-    {
+    public void PushRenderTarget(BitmapProxy target, bool clear) {
         if (targetStack.Count > 0) DeviceContext.EndDraw();
         targetStack.Push(target);
         DeviceContext.Target = targetStack.Peek();
@@ -127,14 +122,12 @@ public sealed class RenderContext2D : DisposeObject
     ///     Pops the render target.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void PopRenderTarget()
-    {
+    public void PopRenderTarget() {
         DeviceContext.EndDraw();
         DeviceContext.Target = null;
         HasTarget = false;
         targetStack.Pop();
-        if (targetStack.Count > 0)
-        {
+        if (targetStack.Count > 0) {
             DeviceContext.Target = targetStack.Peek();
             HasTarget = true;
             DeviceContext.BeginDraw();

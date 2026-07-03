@@ -8,22 +8,15 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    
+    namespace Core {
         /// <summary>
         /// </summary>
-        public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore
-        {
-            private IAttachableBufferModel geometryBuffer;
-
-            private IElementsBufferModel instanceBuffer = MatrixInstanceBufferModel.Empty;
-
+        public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
             private RasterizerStateProxy invertCullModeState;
 
-            private RasterizerStateDescription rasterDescription = new()
-            {
+            private RasterizerStateDescription rasterDescription = new() {
                 FillMode = FillMode.Solid,
                 CullMode = CullMode.None
             };
@@ -33,17 +26,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="GeometryRenderCore" /> class.
             /// </summary>
-            public GeometryRenderCore() : base(RenderType.Opaque)
-            {
-            }
+            public GeometryRenderCore() : base(RenderType.Opaque) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="GeometryRenderCore" /> class.
             /// </summary>
             /// <param name="renderType">Type of the render.</param>
-            public GeometryRenderCore(RenderType renderType) : base(renderType)
-            {
-            }
+            public GeometryRenderCore(RenderType renderType) : base(renderType) { }
 
             /// <summary>
             /// </summary>
@@ -53,41 +42,34 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public IElementsBufferModel InstanceBuffer
-            {
-                get => instanceBuffer;
-                set
-                {
-                    var old = instanceBuffer;
-                    if (SetAffectsCanRenderFlag(ref instanceBuffer, value))
-                    {
+            public IElementsBufferModel InstanceBuffer {
+                get;
+                set {
+                    var old = field;
+                    if (SetAffectsCanRenderFlag(ref field, value)) {
                         if (old != null) old.ElementChanged -= OnElementChanged;
-                        if (instanceBuffer != null)
-                            instanceBuffer.ElementChanged += OnElementChanged;
+                        if (field != null)
+                            field.ElementChanged += OnElementChanged;
                         else
-                            instanceBuffer = MatrixInstanceBufferModel.Empty;
+                            field = MatrixInstanceBufferModel.Empty;
                     }
                 }
-            }
+            } = MatrixInstanceBufferModel.Empty;
 
             /// <summary>
             /// </summary>
-            public IAttachableBufferModel GeometryBuffer
-            {
-                get => geometryBuffer;
-                set
-                {
-                    if (SetAffectsCanRenderFlag(ref geometryBuffer, value)) OnGeometryBufferChanged(value);
+            public IAttachableBufferModel GeometryBuffer {
+                get;
+                set {
+                    if (SetAffectsCanRenderFlag(ref field, value)) OnGeometryBufferChanged(value);
                 }
             }
 
             /// <summary>
             /// </summary>
-            public RasterizerStateDescription RasterDescription
-            {
+            public RasterizerStateDescription RasterDescription {
                 get => rasterDescription;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref rasterDescription, value) && IsAttached) CreateRasterState(value, false);
                 }
             }
@@ -97,8 +79,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="description"></param>
             /// <param name="force"></param>
             /// <returns></returns>
-            protected virtual bool CreateRasterState(RasterizerStateDescription description, bool force)
-            {
+            protected virtual bool CreateRasterState(RasterizerStateDescription description, bool force) {
                 var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(description);
                 var invCull = description;
                 if (description.CullMode != CullMode.None)
@@ -115,14 +96,12 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="technique"></param>
             /// <returns></returns>
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 CreateRasterState(rasterDescription, true);
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref rasterState);
                 RemoveAndDispose(ref invertCullModeState);
             }
@@ -131,9 +110,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [geometry buffer changed].
             /// </summary>
             /// <param name="buffer">The buffer.</param>
-            protected virtual void OnGeometryBufferChanged(IAttachableBufferModel buffer)
-            {
-            }
+            protected virtual void OnGeometryBufferChanged(IAttachableBufferModel buffer) { }
 
             /// <summary>
             ///     Set all necessary states and buffers
@@ -141,8 +118,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="isInvertCullMode"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode)
-            {
+            protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode) {
                 context.SetRasterState(!isInvertCullMode ? rasterState : invertCullModeState);
             }
 
@@ -151,11 +127,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <param name="vertStartSlot"></param>
-            protected virtual bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot)
-            {
+            protected virtual bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot) {
                 if (GeometryBuffer != null && EffectTechnique != null &&
-                    GeometryBuffer.AttachBuffers(context, ref vertStartSlot, EffectTechnique.EffectsManager))
-                {
+                    GeometryBuffer.AttachBuffers(context, ref vertStartSlot, EffectTechnique.EffectsManager)) {
                     InstanceBuffer.AttachBuffer(context, ref vertStartSlot);
                     return true;
                 }
@@ -167,15 +141,16 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [update can render flag].
             /// </summary>
             /// <returns></returns>
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return base.OnUpdateCanRenderFlag() && GeometryBuffer != null;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static void DrawIndexed(DeviceContextProxy context, IElementsBufferProxy indexBuffer,
-                IElementsBufferModel instanceModel)
-            {
+            public static void DrawIndexed(
+                DeviceContextProxy context,
+                IElementsBufferProxy indexBuffer,
+                IElementsBufferModel instanceModel
+            ) {
                 if (!instanceModel.HasElements)
                     context.DrawIndexed(indexBuffer.ElementCount, 0, 0);
                 else
@@ -183,9 +158,11 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static void DrawPoints(DeviceContextProxy context, IElementsBufferProxy vertexBuffer,
-                IElementsBufferModel instanceModel)
-            {
+            public static void DrawPoints(
+                DeviceContextProxy context,
+                IElementsBufferProxy vertexBuffer,
+                IElementsBufferModel instanceModel
+            ) {
                 if (!instanceModel.HasElements)
                     context.Draw(vertexBuffer.ElementCount, 0);
                 else
@@ -193,8 +170,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool PreRender(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected bool PreRender(RenderContext context, DeviceContextProxy deviceContext) {
                 var vertStartSlot = 0;
                 if (!OnAttachBuffers(deviceContext, ref vertStartSlot)) return false;
                 OnBindRasterState(deviceContext, context.IsInvertCullMode);
@@ -206,25 +182,24 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <param name="deviceContext"></param>
-            public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 if (PreRender(context, deviceContext)) OnRender(context, deviceContext);
             }
 
 
-            public sealed override void RenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public sealed override void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
                 if (PreRender(context, deviceContext)) OnRenderShadow(context, deviceContext);
             }
 
-            public sealed override void RenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public sealed override void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
                 if (PreRender(context, deviceContext)) OnRenderCustom(context, deviceContext);
             }
 
-            public sealed override void RenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
+            public sealed override void RenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) {
                 if (PreRender(context, deviceContext)) OnRenderDepth(context, deviceContext, customPass);
             }
 
@@ -253,17 +228,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
             /// <param name="customPass">Custom depth pass</param>
-            protected abstract void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass);
+            protected abstract void OnRenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            );
 
-            protected void OnElementChanged(object sender, EventArgs e)
-            {
+            protected void OnElementChanged(object sender, EventArgs e) {
                 UpdateCanRenderFlag();
                 RaiseInvalidateRender();
             }
 
-            protected void OnInvalidateRendererEvent(object sender, EventArgs e)
-            {
+            protected void OnInvalidateRendererEvent(object sender, EventArgs e) {
                 RaiseInvalidateRender();
             }
         }

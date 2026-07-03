@@ -8,14 +8,11 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public interface IRenderTaskScheduler
-        {
+        public interface IRenderTaskScheduler {
             /// <summary>
             ///     Schedules render tasks and run.
             ///     <para>
@@ -32,20 +29,24 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="testFrustum"></param>
             /// <param name="numRendered"></param>
             /// <returns></returns>
-            bool ScheduleAndRun(FastList<SceneNode> items, IDeviceContextPool pool,
-                RenderContext context, RenderParameter parameter, bool testFrustum,
-                List<KeyValuePair<int, CommandList>> outputCommands, out int numRendered);
+            bool ScheduleAndRun(
+                FastList<SceneNode> items,
+                IDeviceContextPool pool,
+                RenderContext context,
+                RenderParameter parameter,
+                bool testFrustum,
+                List<KeyValuePair<int, CommandList>> outputCommands,
+                out int numRendered
+            );
         }
 
         /// <summary>
         /// </summary>
-        public class AutoTaskSchedulerParameter
-        {
+        public class AutoTaskSchedulerParameter {
             /// <summary>
             ///     Initializes a new instance of the <see cref="AutoTaskSchedulerParameter" /> class.
             /// </summary>
-            public AutoTaskSchedulerParameter()
-            {
+            public AutoTaskSchedulerParameter() {
                 NumProcessor = Environment.ProcessorCount;
             }
 
@@ -78,16 +79,14 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public class AutoRenderTaskScheduler : IRenderTaskScheduler
-        {
+        public class AutoRenderTaskScheduler : IRenderTaskScheduler {
             private readonly AutoTaskSchedulerParameter schedulerParams;
 
             /// <summary>
             ///     Values the tuple.
             /// </summary>
             /// <returns></returns>
-            public AutoRenderTaskScheduler()
-            {
+            public AutoRenderTaskScheduler() {
                 schedulerParams = new AutoTaskSchedulerParameter();
             }
 
@@ -95,8 +94,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Initializes a new instance of the <see cref="AutoRenderTaskScheduler" /> class.
             /// </summary>
             /// <param name="parameter">The parameter.</param>
-            public AutoRenderTaskScheduler(AutoTaskSchedulerParameter parameter)
-            {
+            public AutoRenderTaskScheduler(AutoTaskSchedulerParameter parameter) {
                 schedulerParams = parameter;
             }
 
@@ -110,57 +108,57 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="numRendered"></param>
             /// <param name="testFrustum"></param>
             /// <returns></returns>
-            public bool ScheduleAndRun(FastList<SceneNode> items, IDeviceContextPool pool,
-                RenderContext context, RenderParameter parameter, bool testFrustum,
-                List<KeyValuePair<int, CommandList>> outputCommands, out int numRendered)
-            {
+            public bool ScheduleAndRun(
+                FastList<SceneNode> items,
+                IDeviceContextPool pool,
+                RenderContext context,
+                RenderParameter parameter,
+                bool testFrustum,
+                List<KeyValuePair<int, CommandList>> outputCommands,
+                out int numRendered
+            ) {
                 outputCommands.Clear();
                 var totalCount = 0;
                 numRendered = 0;
                 Exception exception = null;
-                if (items.Count > schedulerParams.MinimumDrawCalls)
-                {
+                if (items.Count > schedulerParams.MinimumDrawCalls) {
                     var frustum = context.BoundingFrustum;
-                    var partitionParams = Partitioner.Create(0, items.Count,
-                        items.Count / schedulerParams.MaxNumberOfTasks + 1);
-                    Parallel.ForEach(partitionParams, (range, state) =>
-                    {
-                        try
-                        {
-                            var counter = 0;
-                            var deferred = pool.Get();
-                            SetRenderTargets(deferred, ref parameter);
-                            if (!testFrustum)
-                                for (var i = range.Item1; i < range.Item2; ++i)
-                                {
-                                    items[i].Render(context, deferred);
-                                    ++counter;
-                                }
-                            else
-                                for (var i = range.Item1; i < range.Item2; ++i)
-                                {
-                                    if (context.EnableBoundingFrustum && !items[i].TestViewFrustum(ref frustum))
-                                        continue;
-                                    items[i].Render(context, deferred);
-                                    ++counter;
-                                }
+                    var partitionParams = Partitioner.Create(0,
+                                                             items.Count,
+                                                             items.Count / schedulerParams.MaxNumberOfTasks + 1);
+                    Parallel.ForEach(partitionParams,
+                                     (range, state) => {
+                                         try {
+                                             var counter = 0;
+                                             var deferred = pool.Get();
+                                             SetRenderTargets(deferred, ref parameter);
+                                             if (!testFrustum)
+                                                 for (var i = range.Item1; i < range.Item2; ++i) {
+                                                     items[i].Render(context, deferred);
+                                                     ++counter;
+                                                 }
+                                             else
+                                                 for (var i = range.Item1; i < range.Item2; ++i) {
+                                                     if (context.EnableBoundingFrustum &&
+                                                         !items[i].TestViewFrustum(ref frustum))
+                                                         continue;
+                                                     items[i].Render(context, deferred);
+                                                     ++counter;
+                                                 }
 
-                            var command = deferred.FinishCommandList(true);
-                            pool.Put(deferred);
-                            lock (outputCommands)
-                            {
-                                outputCommands.Add(new KeyValuePair<int, CommandList>(range.Item1, command));
-                                totalCount += counter;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            exception = ex;
-                        }
-                    });
+                                             var command = deferred.FinishCommandList(true);
+                                             pool.Put(deferred);
+                                             lock (outputCommands) {
+                                                 outputCommands.Add(
+                                                     new KeyValuePair<int, CommandList>(range.Item1, command));
+                                                 totalCount += counter;
+                                             }
+                                         } catch (Exception ex) {
+                                             exception = ex;
+                                         }
+                                     });
                     numRendered = totalCount;
-                    if (exception != null)
-                    {
+                    if (exception != null) {
                         foreach (var command in outputCommands) command.Value.Dispose();
                         outputCommands.Clear();
                         throw exception;
@@ -178,12 +176,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="parameter">The parameter.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void SetRenderTargets(DeviceContextProxy context, ref RenderParameter parameter)
-            {
+            private void SetRenderTargets(DeviceContextProxy context, ref RenderParameter parameter) {
                 context.SetRenderTargets(parameter.DepthStencilView, parameter.RenderTargetView);
                 context.SetViewport(ref parameter.ViewportRegion);
-                context.SetScissorRectangle(parameter.ScissorRegion.Left, parameter.ScissorRegion.Top,
-                    parameter.ScissorRegion.Right, parameter.ScissorRegion.Bottom);
+                context.SetScissorRectangle(parameter.ScissorRegion.Left,
+                                            parameter.ScissorRegion.Top,
+                                            parameter.ScissorRegion.Right,
+                                            parameter.ScissorRegion.Bottom);
             }
         }
     }

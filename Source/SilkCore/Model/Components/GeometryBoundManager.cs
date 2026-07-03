@@ -6,25 +6,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.ComponentModel;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Components
-    {
-        public sealed class GeometryBoundManager : IDisposable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Components {
+        public sealed class GeometryBoundManager : IDisposable {
             public delegate bool OnCheckGeometryDelegate(Geometry3D geometry);
 
             private readonly WeakReference<GeometryNode> elementCore;
             public OnCheckGeometryDelegate OnCheckGeometry;
 
-            public GeometryBoundManager(GeometryNode core)
-            {
+            public GeometryBoundManager(GeometryNode core) {
                 elementCore = new WeakReference<GeometryNode>(core);
                 core.TransformChanged += OnTransformChanged;
             }
 
-            private void OnGeometryPropertyChangedPrivate(object sender, PropertyChangedEventArgs e)
-            {
+            private void OnGeometryPropertyChangedPrivate(object sender, PropertyChangedEventArgs e) {
                 if (e.PropertyName.Equals(nameof(Geometry3D.Positions)) ||
                     e.PropertyName.Equals(Geometry3D.VertexBuffer))
                     GeometryValid = OnCheckGeometry != null ? OnCheckGeometry.Invoke(geometry) : CheckGeometry();
@@ -41,13 +36,11 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <returns>
             /// </returns>
-            private bool CheckGeometry()
-            {
+            private bool CheckGeometry() {
                 return !(Geometry == null || Geometry.Positions == null || Geometry.Positions.Count == 0);
             }
 
-            private void OnTransformChanged(object sender, TransformArgs e)
-            {
+            private void OnTransformChanged(object sender, TransformArgs e) {
                 var oldBound = BoundsWithTransform;
                 BoundsWithTransform = Bounds.Transform(e);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
@@ -56,31 +49,23 @@ namespace HelixToolkit.SharpDX.Core
                 RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
             }
 
-            private void UpdateBoundingBox()
-            {
-                if (!GeometryValid)
-                {
+            private void UpdateBoundingBox() {
+                if (!GeometryValid) {
                     Bounds = DefaultBound;
                     BoundsWithTransform = DefaultBound;
-                }
-                else
-                {
+                } else {
                     if (!elementCore.TryGetTarget(out var target)) return;
                     BoundingBox oldBound;
-                    if (!HasInstances)
-                    {
+                    if (!HasInstances) {
                         oldBound = Bounds;
                         Bounds = Geometry.Bound;
                         RaiseOnBoundChanged(Bounds, oldBound);
                         oldBound = BoundsWithTransform;
                         BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
                         RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
-                    }
-                    else
-                    {
+                    } else {
                         var bound = Geometry.Bound.Transform(Instances[0]);
-                        foreach (var instance in Instances)
-                        {
+                        foreach (var instance in Instances) {
                             var b = Geometry.Bound.Transform(instance);
                             BoundingBox.Merge(ref bound, ref b, out bound);
                         }
@@ -95,19 +80,14 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            private void UpdateBoundingSphere()
-            {
-                if (!GeometryValid)
-                {
+            private void UpdateBoundingSphere() {
+                if (!GeometryValid) {
                     BoundsSphere = DefaultBoundSphere;
                     BoundsSphereWithTransform = DefaultBoundSphere;
-                }
-                else
-                {
+                } else {
                     if (!elementCore.TryGetTarget(out var target)) return;
                     BoundingSphere oldSphere;
-                    if (!HasInstances)
-                    {
+                    if (!HasInstances) {
                         oldSphere = BoundsSphere;
                         BoundsSphere = Geometry.BoundingSphere;
                         RaiseOnBoundSphereChanged(BoundsSphere, oldSphere);
@@ -115,12 +95,9 @@ namespace HelixToolkit.SharpDX.Core
                         BoundsSphereWithTransform =
                             BoundsSphere.TransformBoundingSphere(target.TotalModelMatrixInternal);
                         RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
-                    }
-                    else
-                    {
+                    } else {
                         var boundSphere = Geometry.BoundingSphere.TransformBoundingSphere(Instances[0]);
-                        foreach (var instance in Instances)
-                        {
+                        foreach (var instance in Instances) {
                             var bs = Geometry.BoundingSphere.TransformBoundingSphere(instance);
                             BoundingSphereExtensions.Merge(ref boundSphere, ref bs, out boundSphere);
                         }
@@ -136,43 +113,36 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            private void UpdateBounds()
-            {
+            private void UpdateBounds() {
                 GeometryValid = OnCheckGeometry != null ? OnCheckGeometry.Invoke(geometry) : CheckGeometry();
                 UpdateBoundingBox();
                 UpdateBoundingSphere();
             }
 
-            public void DisposeAndClear()
-            {
+            public void DisposeAndClear() {
                 Geometry = null;
             }
 
-            #region Properties
+        #region Properties
 
             private Geometry3D geometry;
 
             /// <summary>
             /// </summary>
-            public Geometry3D Geometry
-            {
+            public Geometry3D Geometry {
                 get => geometry;
-                set
-                {
+                set {
                     if (geometry == value) return;
                     var old = geometry;
                     geometry = value;
                     if (geometry != null && geometry.Bound.Maximum == Vector3.Zero &&
                         geometry.Bound.Minimum == Vector3.Zero) geometry.UpdateBounds();
                     if (old != null) old.PropertyChanged -= OnGeometryPropertyChangedPrivate;
-                    if (geometry != null)
-                    {
+                    if (geometry != null) {
                         geometry.PropertyChanged += OnGeometryPropertyChangedPrivate;
                         OriginalBounds = geometry.Bound;
                         OriginalBoundsSphere = geometry.BoundingSphere;
-                    }
-                    else
-                    {
+                    } else {
                         OriginalBounds = DefaultBound;
                         OriginalBoundsSphere = DefaultBoundSphere;
                     }
@@ -183,11 +153,9 @@ namespace HelixToolkit.SharpDX.Core
 
             private IList<Matrix> instances;
 
-            public IList<Matrix> Instances
-            {
+            public IList<Matrix> Instances {
                 get => instances;
-                set
-                {
+                set {
                     if (instances == value) return;
                     instances = value;
                     UpdateBounds();
@@ -198,7 +166,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public bool GeometryValid { get; private set; }
 
-            #region Bounds
+        #region Bounds
 
             public static readonly BoundingBox DefaultBound = new();
             public static readonly BoundingSphere DefaultBoundSphere = new();
@@ -256,11 +224,11 @@ namespace HelixToolkit.SharpDX.Core
 
             public bool HasBound { get; set; } = true;
 
-            #endregion
+        #endregion
 
-            #endregion
+        #endregion
 
-            #region Events and Delegates
+        #region Events and Delegates
 
             public event EventHandler<BoundChangeArgs<BoundingBox>> OnBoundChanged;
 
@@ -270,44 +238,43 @@ namespace HelixToolkit.SharpDX.Core
 
             public event EventHandler<BoundChangeArgs<BoundingSphere>> OnTransformBoundSphereChanged;
 
-            private void RaiseOnTransformBoundChanged(BoundingBox newBound, BoundingBox oldBound)
-            {
+            private void RaiseOnTransformBoundChanged(BoundingBox newBound, BoundingBox oldBound) {
                 OnTransformBoundChanged?.Invoke(elementCore,
-                    new BoundChangeArgs<BoundingBox>(ref newBound, ref oldBound));
+                                                new BoundChangeArgs<BoundingBox>(ref newBound, ref oldBound));
             }
 
-            private void RaiseOnBoundChanged(BoundingBox newBound, BoundingBox oldBound)
-            {
+            private void RaiseOnBoundChanged(BoundingBox newBound, BoundingBox oldBound) {
                 OnBoundChanged?.Invoke(elementCore, new BoundChangeArgs<BoundingBox>(ref newBound, ref oldBound));
             }
 
 
-            private void RaiseOnTransformBoundSphereChanged(BoundingSphere newBoundSphere,
-                BoundingSphere oldBoundSphere)
-            {
+            private void RaiseOnTransformBoundSphereChanged(
+                BoundingSphere newBoundSphere,
+                BoundingSphere oldBoundSphere
+            ) {
                 OnTransformBoundSphereChanged?.Invoke(elementCore,
-                    new BoundChangeArgs<BoundingSphere>(ref newBoundSphere, ref oldBoundSphere));
+                                                      new BoundChangeArgs<BoundingSphere>(
+                                                          ref newBoundSphere,
+                                                          ref oldBoundSphere));
             }
 
 
-            private void RaiseOnBoundSphereChanged(BoundingSphere newBoundSphere, BoundingSphere oldBoundSphere)
-            {
+            private void RaiseOnBoundSphereChanged(BoundingSphere newBoundSphere, BoundingSphere oldBoundSphere) {
                 OnBoundSphereChanged?.Invoke(elementCore,
-                    new BoundChangeArgs<BoundingSphere>(ref newBoundSphere, ref oldBoundSphere));
+                                             new BoundChangeArgs<BoundingSphere>(
+                                                 ref newBoundSphere,
+                                                 ref oldBoundSphere));
             }
 
-            #endregion
+        #endregion
 
-            #region IDisposable Support
+        #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
-            private void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
+            private void Dispose(bool disposing) {
+                if (!disposedValue) {
+                    if (disposing) {
                         if (geometry != null) geometry.PropertyChanged -= OnGeometryPropertyChangedPrivate;
                         if (elementCore.TryGetTarget(out var target)) target.TransformChanged -= OnTransformChanged;
                         OnBoundChanged = null;
@@ -330,15 +297,14 @@ namespace HelixToolkit.SharpDX.Core
             // }
 
             // This code added to correctly implement the disposable pattern.
-            public void Dispose()
-            {
+            public void Dispose() {
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(true);
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

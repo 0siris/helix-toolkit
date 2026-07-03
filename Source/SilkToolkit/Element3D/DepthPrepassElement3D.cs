@@ -17,14 +17,12 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         performance.
 ///     </para>
 /// </summary>
-public sealed class DepthPrepassElement3D : Element3D
-{
+public sealed class DepthPrepassElement3D : Element3D {
     /// <summary>
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new DepthPrepassNode();
     }
 
@@ -34,8 +32,7 @@ public sealed class DepthPrepassElement3D : Element3D
     /// <param name="context">The context.</param>
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
-    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-    {
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         return false;
     }
 }

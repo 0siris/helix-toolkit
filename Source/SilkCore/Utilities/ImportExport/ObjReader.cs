@@ -24,8 +24,7 @@ using Point = Vector2;
 using Point3D = Vector3;
 using Vector3D = Vector3;
 
-public class Object3D
-{
+public class Object3D {
     public Geometry3D Geometry { get; set; }
 
     public MaterialCore Material { get; set; }
@@ -46,8 +45,7 @@ public class Object3D
 ///     http://www.eg-models.de/formats/Format_Obj.html
 /// </remarks>
 [Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
-public class ObjReader : IModelReader
-{
+public class ObjReader : IModelReader {
     /// <summary>
     ///     The smoothing group maps.
     /// </summary>
@@ -71,8 +69,7 @@ public class ObjReader : IModelReader
     /// <summary>
     ///     Initializes a new instance of the <see cref="ObjReader" /> class.
     /// </summary>
-    public ObjReader()
-    {
+    public ObjReader() {
         IgnoreErrors = false;
         SwitchYZ = false;
 
@@ -134,8 +131,7 @@ public class ObjReader : IModelReader
     /// <remarks>
     ///     The default value is smoothing=on (true).
     /// </remarks>
-    public bool IsSmoothingDefault
-    {
+    public bool IsSmoothingDefault {
         set => currentSmoothingGroup = value ? 1 : 0;
     }
 
@@ -165,10 +161,8 @@ public class ObjReader : IModelReader
     /// <summary>
     ///     Gets the current group.
     /// </summary>
-    private Group CurrentGroup
-    {
-        get
-        {
+    private Group CurrentGroup {
+        get {
             if (Groups.Count == 0) AddGroup("default");
 
             return Groups[Groups.Count - 1];
@@ -215,13 +209,11 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     The model.
     /// </returns>
-    public Object3DGroup Read(string path, ModelInfo info = default)
-    {
+    public Object3DGroup Read(string path, ModelInfo info = default) {
         TexturePath = Path.GetDirectoryName(path);
         ModelInfo = info;
 
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Read(s);
         }
     }
@@ -238,20 +230,16 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     The model.
     /// </returns>
-    public Object3DGroup Read(Stream s, ModelInfo info = default)
-    {
-        using (Reader = new StreamReader(s))
-        {
+    public Object3DGroup Read(Stream s, ModelInfo info = default) {
+        using (Reader = new StreamReader(s)) {
             currentLineNo = 0;
-            while (!Reader.EndOfStream)
-            {
+            while (!Reader.EndOfStream) {
                 currentLineNo++;
                 var line = Reader.ReadLine();
                 if (line == null) break;
 
                 line = line.Trim();
-                while (line.EndsWith("\\"))
-                {
+                while (line.EndsWith("\\")) {
                     var nextLine = Reader.ReadLine();
                     while (nextLine.Length == 0) nextLine = Reader.ReadLine();
 
@@ -262,8 +250,7 @@ public class ObjReader : IModelReader
 
                 string keyword, values;
                 SplitLine(line, out keyword, out values);
-                switch (keyword.ToLower())
-                {
+                switch (keyword.ToLower()) {
                     // Vertex data
                     case "v": // geometric vertices
                         AddVertex(values);
@@ -287,11 +274,11 @@ public class ObjReader : IModelReader
                     case "f": // face
                         AddFace(values);
                         break;
-                    case "p": // point
-                    case "l": // line
-                    case "curv": // curve
+                    case "p":     // point
+                    case "l":     // line
+                    case "curv":  // curve
                     case "curv2": // 2D curve
-                    case "surf": // surface
+                    case "surf":  // surface
                         // not supported
                         break;
 
@@ -300,8 +287,8 @@ public class ObjReader : IModelReader
                     case "trim": // outer trimming loop (trim)
                     case "hole": // inner trimming loop (hole)
                     case "scrv": // special curve (scrv)
-                    case "sp": // special point (sp)
-                    case "end": // end statement (end)
+                    case "sp":   // special point (sp)
+                    case "end":  // end statement (end)
                         // not supported
                         break;
 
@@ -336,14 +323,14 @@ public class ObjReader : IModelReader
                         EnsureNewMesh();
 
                         break;
-                    case "bevel": // bevel interpolation
-                    case "c_interp": // color interpolation
-                    case "d_interp": // dissolve interpolation
-                    case "lod": // level of detail
+                    case "bevel":      // bevel interpolation
+                    case "c_interp":   // color interpolation
+                    case "d_interp":   // dissolve interpolation
+                    case "lod":        // level of detail
                     case "shadow_obj": // shadow casting
-                    case "trace_obj": // ray tracing
-                    case "ctech": // curve approximation technique
-                    case "stech": // surface approximation technique
+                    case "trace_obj":  // ray tracing
+                    case "ctech":      // curve approximation technique
+                    case "stech":      // surface approximation technique
                         // not supported
                         break;
                 }
@@ -366,11 +353,9 @@ public class ObjReader : IModelReader
     ///     This is a file format used by Helix Toolkit only.
     ///     Use the GZipHelper class to compress an .obj file.
     /// </remarks>
-    public Object3DGroup ReadZ(string path)
-    {
+    public Object3DGroup ReadZ(string path) {
         TexturePath = Path.GetDirectoryName(path);
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             var deflateStream = new GZipStream(s, CompressionMode.Decompress, true);
             return Read(deflateStream);
         }
@@ -385,8 +370,7 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     The parsed color.
     /// </returns>
-    private static ObjColor ColorParse(string values)
-    {
+    private static ObjColor ColorParse(string values) {
         var fields = Split(values);
 #if NETFX_CORE
         return new ObjColor((float) fields[0], (float) fields[1], (float) fields[2], 1);
@@ -404,8 +388,7 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     The value.
     /// </returns>
-    private static double DoubleParse(string input)
-    {
+    private static double DoubleParse(string input) {
         return double.Parse(input, CultureInfo.InvariantCulture);
     }
 
@@ -418,8 +401,7 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     List of input.
     /// </returns>
-    private static IList<double> Split(string input)
-    {
+    private static IList<double> Split(string input) {
         var fields = input.Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = DoubleParse(fields[i]);
@@ -439,11 +421,9 @@ public class ObjReader : IModelReader
     /// <param name="arguments">
     ///     The arguments.
     /// </param>
-    private static void SplitLine(string line, out string keyword, out string arguments)
-    {
+    private static void SplitLine(string line, out string keyword, out string arguments) {
         var idx = line.IndexOf(' ');
-        if (idx < 0)
-        {
+        if (idx < 0) {
             keyword = line;
             arguments = null;
             return;
@@ -457,8 +437,7 @@ public class ObjReader : IModelReader
     ///     Adds a group with the specified name.
     /// </summary>
     /// <param name="name">The name.</param>
-    private void AddGroup(string name)
-    {
+    private void AddGroup(string name) {
         Groups.Add(new Group(name));
         smoothingGroupMaps.Clear();
     }
@@ -466,10 +445,8 @@ public class ObjReader : IModelReader
     /// <summary>
     ///     Ensures that a new mesh is created.
     /// </summary>
-    private void EnsureNewMesh()
-    {
-        if (CurrentGroup.MeshBuilder.TriangleIndices.Count != 0)
-        {
+    private void EnsureNewMesh() {
+        if (CurrentGroup.MeshBuilder.TriangleIndices.Count != 0) {
             CurrentGroup.AddMesh();
             smoothingGroupMaps.Clear();
         }
@@ -479,25 +456,19 @@ public class ObjReader : IModelReader
     ///     Sets the smoothing group number.
     /// </summary>
     /// <param name="values">The group number.</param>
-    private void SetSmoothingGroup(string values)
-    {
-        if (values == "off")
-        {
+    private void SetSmoothingGroup(string values) {
+        if (values == "off") {
             currentSmoothingGroup = 0;
-        }
-        else
-        {
+        } else {
             long smoothingGroup;
-            if (long.TryParse(values, out smoothingGroup))
-            {
+            if (long.TryParse(values, out smoothingGroup)) {
                 currentSmoothingGroup = smoothingGroup;
-            }
-            else
-            {
+            } else {
                 // invalid parameter
                 if (IgnoreErrors) return;
-                throw new FileFormatException(string.Format("Invalid smoothing group ({0}) at line {1}.", values,
-                    currentLineNo));
+                throw new FileFormatException(string.Format("Invalid smoothing group ({0}) at line {1}.",
+                                                            values,
+                                                            currentLineNo));
             }
         }
     }
@@ -515,8 +486,7 @@ public class ObjReader : IModelReader
     ///     There is no maximum number of vertices that a single polygon may contain.
     ///     The .obj file specification says that each face must be flat and convex.
     /// </remarks>
-    private void AddFace(string values)
-    {
+    private void AddFace(string values) {
         var currentGroup = CurrentGroup;
         var builder = currentGroup.MeshBuilder;
         var positions = builder.Positions;
@@ -528,16 +498,14 @@ public class ObjReader : IModelReader
 
         // If a smoothing group is defined, get the map from obj-file-index to current-group-vertex-index.
         if (currentSmoothingGroup != 0)
-            if (!smoothingGroupMaps.TryGetValue(currentSmoothingGroup, out smoothingGroupMap))
-            {
+            if (!smoothingGroupMaps.TryGetValue(currentSmoothingGroup, out smoothingGroupMap)) {
                 smoothingGroupMap = new Dictionary<Tuple<int, int, int>, int>();
                 smoothingGroupMaps.Add(currentSmoothingGroup, smoothingGroupMap);
             }
 
         var fields = values.Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
         var faceIndices = new List<int>();
-        foreach (var field in fields)
-        {
+        foreach (var field in fields) {
             if (string.IsNullOrEmpty(field)) continue;
 
             var ff = field.Split('/');
@@ -553,12 +521,12 @@ public class ObjReader : IModelReader
             if (vni < 0) vni = Normals.Count + vni + 1;
 
             // Check if the indices are valid
-            if (vi - 1 >= Points.Count)
-            {
+            if (vi - 1 >= Points.Count) {
                 if (IgnoreErrors) return;
 
-                throw new FileFormatException(string.Format("Invalid vertex index ({0}) on line {1}.", vi,
-                    currentLineNo));
+                throw new FileFormatException(string.Format("Invalid vertex index ({0}) on line {1}.",
+                                                            vi,
+                                                            currentLineNo));
             }
 
             if (vti == int.MaxValue)
@@ -572,52 +540,45 @@ public class ObjReader : IModelReader
                 builder.Normals = null;
 
             // check if the texture coordinate index is valid
-            if (builder.HasTexCoords && vti - 1 >= TextureCoordinates.Count)
-            {
+            if (builder.HasTexCoords && vti - 1 >= TextureCoordinates.Count) {
                 if (IgnoreErrors) return;
 
-                throw new FileFormatException(string.Format("Invalid texture coordinate index ({0}) on line {1}.", vti,
-                    currentLineNo));
+                throw new FileFormatException(string.Format("Invalid texture coordinate index ({0}) on line {1}.",
+                                                            vti,
+                                                            currentLineNo));
             }
 
             // check if the normal index is valid
-            if (builder.HasNormals && vni - 1 >= Normals.Count)
-            {
+            if (builder.HasNormals && vni - 1 >= Normals.Count) {
                 if (IgnoreErrors) return;
 
-                throw new FileFormatException(string.Format("Invalid normal index ({0}) on line {1}.", vni,
-                    currentLineNo));
+                throw new FileFormatException(string.Format("Invalid normal index ({0}) on line {1}.",
+                                                            vni,
+                                                            currentLineNo));
             }
 
             var addVertex = true;
 
-            if (smoothingGroupMap != null)
-            {
+            if (smoothingGroupMap != null) {
                 var key = Tuple.Create(vi, vti, vni);
 
                 int vix;
-                if (smoothingGroupMap.TryGetValue(key, out vix))
-                {
+                if (smoothingGroupMap.TryGetValue(key, out vix)) {
                     // use the index of a previously defined vertex
                     addVertex = false;
-                }
-                else
-                {
+                } else {
                     // add a new vertex
                     vix = positions.Count;
                     smoothingGroupMap.Add(key, vix);
                 }
 
                 faceIndices.Add(vix);
-            }
-            else
-            {
+            } else {
                 // if smoothing is off, always add a new vertex
                 faceIndices.Add(positions.Count);
             }
 
-            if (addVertex)
-            {
+            if (addVertex) {
                 // add vertex
                 positions.Add(Points[vi - 1]);
                 if (Colors.Count == Points.Count) colors.Add(Colors[vi - 1]);
@@ -629,15 +590,12 @@ public class ObjReader : IModelReader
             }
         }
 
-        try
-        {
+        try {
             if (faceIndices.Count < 3) throw new InvalidOperationException("Polygon must have at least 3 indices!");
 
 
-            if (ModelInfo.Faces == MeshFaces.QuadPatches)
-            {
-                if (faceIndices.Count == 3)
-                {
+            if (ModelInfo.Faces == MeshFaces.QuadPatches) {
+                if (faceIndices.Count == 3) {
                     faceIndices.Add(faceIndices.Last());
                     builder.AddQuad(faceIndices);
                 }
@@ -647,9 +605,7 @@ public class ObjReader : IModelReader
                 else
                     // add triangles by sweep line algorithm
                     builder.AddPolygonByTriangulation(faceIndices);
-            }
-            else
-            {
+            } else {
                 if (faceIndices.Count == 3)
                     builder.AddTriangle(faceIndices);
                 else if (faceIndices.Count == 4)
@@ -659,9 +615,7 @@ public class ObjReader : IModelReader
                     // add triangles by sweep line algorithm
                     builder.AddPolygonByTriangulation(faceIndices);
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             throw new Exception(string.Format("Error composing polygonal object: {0}", ex.Message));
         }
     }
@@ -672,8 +626,7 @@ public class ObjReader : IModelReader
     /// <param name="values">
     ///     The input values.
     /// </param>
-    private void AddNormal(string values)
-    {
+    private void AddNormal(string values) {
         var fields = Split(values);
         if (SwitchYZ)
             Normals.Add(new Vector3D((float) fields[0], (float) -fields[2], (float) fields[1]));
@@ -687,8 +640,7 @@ public class ObjReader : IModelReader
     /// <param name="values">
     ///     The input values.
     /// </param>
-    private void AddTexCoord(string values)
-    {
+    private void AddTexCoord(string values) {
         var fields = Split(values);
         TextureCoordinates.Add(new Point((float) fields[0], 1 - (float) fields[1]));
     }
@@ -699,15 +651,13 @@ public class ObjReader : IModelReader
     /// <param name="values">
     ///     The input values.
     /// </param>
-    private void AddVertex(string values)
-    {
+    private void AddVertex(string values) {
         var fields = Split(values);
         if (SwitchYZ)
             Points.Add(new Point3D((float) fields[0], (float) -fields[2], (float) fields[1]));
         else
             Points.Add(new Point3D((float) fields[0], (float) fields[1], (float) fields[2]));
-        if (fields.Count >= 6)
-        {
+        if (fields.Count >= 6) {
             if (fields.Count == 6)
                 Colors.Add(new Color4((float) fields[3], (float) fields[4], (float) fields[5], 1f));
             else
@@ -721,8 +671,7 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     A Model3D object.
     /// </returns>
-    private Object3DGroup BuildModel()
-    {
+    private Object3DGroup BuildModel() {
         var modelGroup = new Object3DGroup();
         foreach (var g in Groups)
         foreach (var gm in g.CreateModels(ModelInfo))
@@ -740,13 +689,11 @@ public class ObjReader : IModelReader
     /// <returns>
     ///     The material.
     /// </returns>
-    private PhongMaterialCore GetMaterial(string materialName)
-    {
+    private PhongMaterialCore GetMaterial(string materialName) {
         MaterialDefinition mat;
         if (!string.IsNullOrEmpty(materialName) && Materials.TryGetValue(materialName, out mat))
             return mat.GetMaterial(TexturePath);
-        return new PhongMaterialCore
-        {
+        return new PhongMaterialCore {
             Name = "DefaultVRML",
             AmbientColor = new ObjColor(0.2f, 0.2f, 0.2f, 1.0f),
             DiffuseColor = new ObjColor(0.8f, 0.8f, 0.8f, 1.0f),
@@ -762,18 +709,14 @@ public class ObjReader : IModelReader
     /// <param name="mtlFile">
     ///     The mtl file.
     /// </param>
-    private void LoadMaterialLib(string mtlFile)
-    {
+    private void LoadMaterialLib(string mtlFile) {
         var path = PathHelpers.GetFullPath(TexturePath, mtlFile);
         if (!File.Exists(path)) return;
-        using (var fileStream = File.OpenRead(path))
-        {
-            using (var mreader = new StreamReader(fileStream))
-            {
+        using (var fileStream = File.OpenRead(path)) {
+            using (var mreader = new StreamReader(fileStream)) {
                 MaterialDefinition currentMaterial = null;
 
-                while (!mreader.EndOfStream)
-                {
+                while (!mreader.EndOfStream) {
                     var line = mreader.ReadLine();
                     if (line == null) break;
 
@@ -784,17 +727,12 @@ public class ObjReader : IModelReader
                     string keyword, value;
                     SplitLine(line, out keyword, out value);
 
-                    switch (keyword.ToLower())
-                    {
+                    switch (keyword.ToLower()) {
                         case "newmtl":
-                            if (value != null)
-                            {
-                                if (Materials.ContainsKey(value))
-                                {
+                            if (value != null) {
+                                if (Materials.ContainsKey(value)) {
                                     currentMaterial = null;
-                                }
-                                else
-                                {
+                                } else {
                                     currentMaterial = new MaterialDefinition();
                                     Materials.Add(value, currentMaterial);
                                 }
@@ -866,8 +804,7 @@ public class ObjReader : IModelReader
     /// <param name="materialName">
     ///     The material name.
     /// </param>
-    private void SetMaterial(string materialName)
-    {
+    private void SetMaterial(string materialName) {
         CurrentGroup.Material = GetMaterial(materialName);
     }
 
@@ -875,8 +812,7 @@ public class ObjReader : IModelReader
     /// <summary>
     ///     Represents a group in the obj file.
     /// </summary>
-    public class Group
-    {
+    public class Group {
         /// <summary>
         ///     List of materials.
         /// </summary>
@@ -895,8 +831,7 @@ public class ObjReader : IModelReader
         /// <param name="name">
         ///     The name of the group.
         /// </param>
-        public Group(string name)
-        {
+        public Group(string name) {
             Name = name;
             meshBuilders = new List<MeshBuilder>();
             materials = new List<PhongMaterialCore>();
@@ -908,8 +843,7 @@ public class ObjReader : IModelReader
         ///     Sets the material.
         /// </summary>
         /// <value>The material.</value>
-        public PhongMaterialCore Material
-        {
+        public PhongMaterialCore Material {
             set => materials[materials.Count - 1] = value;
         }
 
@@ -930,8 +864,7 @@ public class ObjReader : IModelReader
         /// <summary>
         ///     Adds a mesh.
         /// </summary>
-        public void AddMesh()
-        {
+        public void AddMesh() {
             var meshBuilder = new MeshBuilder(true);
             meshBuilders.Add(meshBuilder);
             vertexColors.Add(new Color4Collection());
@@ -942,15 +875,12 @@ public class ObjReader : IModelReader
         ///     Creates the models of the group.
         /// </summary>
         /// <returns>The models.</returns>
-        public IEnumerable<Object3D> CreateModels(ModelInfo info)
-        {
-            for (var i = 0; i < meshBuilders.Count; i++)
-            {
+        public IEnumerable<Object3D> CreateModels(ModelInfo info) {
+            for (var i = 0; i < meshBuilders.Count; i++) {
                 meshBuilders[i].ComputeNormalsAndTangents(info.Faces, true);
                 var mesh = meshBuilders[i].ToMeshGeometry3D();
                 mesh.Colors = vertexColors[i];
-                yield return new Object3D
-                {
+                yield return new Object3D {
                     Geometry = mesh,
                     Material = materials[i],
                     Transform = new List<Matrix>()
@@ -965,13 +895,11 @@ public class ObjReader : IModelReader
     /// <remarks>
     ///     The file format is documented in http://en.wikipedia.org/wiki/Material_Template_Library.
     /// </remarks>
-    public class MaterialDefinition
-    {
+    public class MaterialDefinition {
         /// <summary>
         ///     Initializes a new instance of the <see cref="MaterialDefinition" /> class.
         /// </summary>
-        public MaterialDefinition()
-        {
+        public MaterialDefinition() {
             Dissolved = 1.0;
         }
 
@@ -1059,8 +987,7 @@ public class ObjReader : IModelReader
         /// <returns>
         ///     The material.
         /// </returns>
-        public PhongMaterialCore GetMaterial(string texturePath)
-        {
+        public PhongMaterialCore GetMaterial(string texturePath) {
             if (Material == null) Material = CreateMaterial(texturePath);
             //this.Material.Freeze();
             return Material;
@@ -1071,42 +998,36 @@ public class ObjReader : IModelReader
         /// </summary>
         /// <param name="texturePath">The texture path.</param>
         /// <returns>A WPF material.</returns>
-        private PhongMaterialCore CreateMaterial(string texturePath)
-        {
+        private PhongMaterialCore CreateMaterial(string texturePath) {
             MemoryStream diffuseMapMS = null;
             if (DiffuseMap != null)
-                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, DiffuseMap), FileMode.Open))
-                {
+                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, DiffuseMap), FileMode.Open)) {
                     diffuseMapMS = new MemoryStream();
                     fs.CopyTo(diffuseMapMS);
                 }
 
             MemoryStream bumpMapMS = null;
             if (BumpMap != null)
-                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, BumpMap), FileMode.Open))
-                {
+                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, BumpMap), FileMode.Open)) {
                     bumpMapMS = new MemoryStream();
                     fs.CopyTo(bumpMapMS);
                 }
 
             MemoryStream alphaMapMS = null;
             if (AlphaMap != null)
-                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, AlphaMap), FileMode.Open))
-                {
+                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, AlphaMap), FileMode.Open)) {
                     alphaMapMS = new MemoryStream();
                     fs.CopyTo(alphaMapMS);
                 }
 
             MemoryStream specularMapMS = null;
             if (SpecularMap != null)
-                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, SpecularMap), FileMode.Open))
-                {
+                using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, SpecularMap), FileMode.Open)) {
                     specularMapMS = new MemoryStream();
                     fs.CopyTo(specularMapMS);
                 }
 
-            var mat = new PhongMaterialCore
-            {
+            var mat = new PhongMaterialCore {
                 AmbientColor = Ambient,
                 //AmbientMap = this.AmbientMap,
 
@@ -1138,8 +1059,7 @@ public class ObjReader : IModelReader
     /// <summary>
     ///     Path helpers.
     /// </summary>
-    private static class PathHelpers
-    {
+    private static class PathHelpers {
         /// <summary>
         ///     Gets a full path.
         /// </summary>
@@ -1149,8 +1069,7 @@ public class ObjReader : IModelReader
         /// <param name="path">
         ///     The path.
         /// </param>
-        public static string GetFullPath(string basePath, string path)
-        {
+        public static string GetFullPath(string basePath, string path) {
             if (path.Length > 1
                 && (path[0] == Path.DirectorySeparatorChar || path[0] == Path.AltDirectorySeparatorChar)
                 && path[1] != Path.DirectorySeparatorChar && path[1] != Path.AltDirectorySeparatorChar)

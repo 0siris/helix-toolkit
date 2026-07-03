@@ -23,36 +23,40 @@ using Transform3D = Transform3D;
 /// <summary>
 ///     An abstract base class for manipulators.
 /// </summary>
-public abstract class UIManipulator3D : MeshGeometryModel3D
-{
+public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <summary>
     ///     The target transform property.
     ///     Bind the Tranform of the Target to this Property
     /// </summary>
-    public static readonly DependencyProperty TargetTransformProperty = DependencyProperty.Register(
-        "TargetTransform", typeof(Transform3D), typeof(UIManipulator3D), new FrameworkPropertyMetadata(null,
-            FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-            (d, e) => { (d as Element3DCore).InvalidateRender(); }));
+    public static readonly DependencyProperty TargetTransformProperty = DependencyProperty.Register("TargetTransform",
+        typeof(Transform3D),
+        typeof(UIManipulator3D),
+        new FrameworkPropertyMetadata(null,
+                                      FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                                      (d, e) => { (d as Element3DCore).InvalidateRender(); }));
 
     /// <summary>
     ///     The offset property.
     /// </summary>
     public static readonly DependencyProperty OffsetProperty = DependencyProperty.Register(
-        "Offset", typeof(Vector3), typeof(UIManipulator3D), new PropertyMetadata(new Vector3(0, 0, 0), ModelChanged));
+        "Offset",
+        typeof(Vector3),
+        typeof(UIManipulator3D),
+        new PropertyMetadata(new Vector3(0, 0, 0), ModelChanged));
 
     /// <summary>
     ///     The value property.
     /// </summary>
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
-        "Value", typeof(double), typeof(UIManipulator3D),
+    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value",
+        typeof(double),
+        typeof(UIManipulator3D),
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ValueChanged));
 
     protected bool isMouseCaptured;
     protected Vector3 lastHitPosWS, cameraNormal;
     protected Viewport3DX viewport;
 
-    public UIManipulator3D()
-    {
+    public UIManipulator3D() {
         OnSceneNodeCreated += UIManipulator3D_OnSceneNodeCreated;
     }
 
@@ -70,8 +74,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <summary>
     ///     Gets or sets TargetTransform.
     /// </summary>
-    public Transform3D TargetTransform
-    {
+    public Transform3D TargetTransform {
         get => (Transform3D) GetValue(TargetTransformProperty);
         set => SetValue(TargetTransformProperty, value);
     }
@@ -81,8 +84,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <value> The offset. </value>
     [TypeConverter(typeof(Vector3Converter))]
-    public Vector3 Offset
-    {
+    public Vector3 Offset {
         get => (Vector3) GetValue(OffsetProperty);
         set => SetValue(OffsetProperty, value);
     }
@@ -91,8 +93,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     ///     Gets or sets the manipulator value.
     /// </summary>
     /// <value> The value. </value>
-    public double Value
-    {
+    public double Value {
         get => (double) GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
@@ -117,8 +118,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <param name="e">
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
-    private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
+    private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var m = d as UIManipulator3D;
         m.OnValueChanged(e);
         m.InvalidateRender();
@@ -128,8 +128,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="d"></param>
     /// <param name="e"></param>
-    private static void OffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
+    private static void OffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var m = d as UIManipulator3D;
         m.OnOffetChanged(e);
         m.InvalidateRender();
@@ -141,8 +140,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <param name="source">
     ///     Source Visual3D which receives the manipulator transforms.
     /// </param>
-    public void Bind(Element3D source)
-    {
+    public void Bind(Element3D source) {
         BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") {Source = source});
         BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") {Source = source});
     }
@@ -150,8 +148,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <summary>
     ///     Releases the binding of this manipulator.
     /// </summary>
-    public void UnBind()
-    {
+    public void UnBind() {
         BindingOperations.ClearBinding(this, TargetTransformProperty);
         BindingOperations.ClearBinding(this, TransformProperty);
     }
@@ -162,15 +159,12 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <param name="e">
     ///     The e.
     /// </param>
-    protected virtual void OnValueChanged(DependencyPropertyChangedEventArgs e)
-    {
-    }
+    protected virtual void OnValueChanged(DependencyPropertyChangedEventArgs e) { }
 
     /// <summary>
     /// </summary>
     /// <param name="e"></param>
-    protected void OnOffetChanged(DependencyPropertyChangedEventArgs e)
-    {
+    protected void OnOffetChanged(DependencyPropertyChangedEventArgs e) {
         //var trafo = this.Transform.Value;
 
         //this.Position = new Point3D(this.Position.X + this.Offset.X, this.Position.Y + this.Offset.Y, this.Position.Z + this.Offset.Z);
@@ -191,8 +185,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected override void OnMouse3DDown(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DDown(object sender, RoutedEventArgs e) {
         base.OnMouse3DDown(sender, e);
 
         var args = e as Mouse3DEventArgs;
@@ -211,11 +204,9 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected override void OnMouse3DUp(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
         base.OnMouse3DUp(sender, e);
-        if (isMouseCaptured)
-        {
+        if (isMouseCaptured) {
             isMouseCaptured = false;
             viewport = null;
         }
@@ -225,8 +216,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected override void OnMouse3DMove(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
         if (isMouseCaptured) UpdateManipulator(e);
     }
@@ -245,23 +235,19 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// <param name="e">
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
-    protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
+    protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var m = d as UIManipulator3D;
-        if (m.IsAttached)
-        {
+        if (m.IsAttached) {
             m.OnModelChanged();
             m.InvalidateRender();
         }
     }
 
-    private void UIManipulator3D_OnSceneNodeCreated(object sender, SceneNodeCreatedEventArgs e)
-    {
+    private void UIManipulator3D_OnSceneNodeCreated(object sender, SceneNodeCreatedEventArgs e) {
         e.Node.Attached += E_OnAttached;
     }
 
-    private void E_OnAttached(object sender, EventArgs e)
-    {
+    private void E_OnAttached(object sender, EventArgs e) {
         OnModelChanged();
     }
 
@@ -273,8 +259,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToWorldPos(Vector3 vec)
-    {
+    protected Vector3 ToWorldPos(Vector3 vec) {
         //var m = this.Transform.Value.ToMatrix();
         return SilkMath.TransformCoordinate(vec, TotalModelMatrix);
     }
@@ -283,8 +268,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToWorldVec(Vector3 vec)
-    {
+    protected Vector3 ToWorldVec(Vector3 vec) {
         //var m = this.Transform.Value.ToMatrix();
         return SilkMath.TransformNormal(vec, TotalModelMatrix);
     }
@@ -293,8 +277,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToModelPos(Vector3 vec)
-    {
+    protected Vector3 ToModelPos(Vector3 vec) {
         //var m = this.Transform.Value.ToMatrix();
         return SilkMath.TransformCoordinate(vec, TotalModelMatrix.PsudoInvert());
     }
@@ -303,8 +286,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToModelVec(Vector3 vec)
-    {
+    protected Vector3 ToModelVec(Vector3 vec) {
         //var m = this.Transform.Value.ToMatrix();
         var matrix = TotalModelMatrix.PsudoInvert();
         SilkMath.Invert(matrix, out matrix);

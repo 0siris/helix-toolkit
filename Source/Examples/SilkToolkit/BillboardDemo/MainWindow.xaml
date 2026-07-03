@@ -79,8 +79,8 @@
                     IsHitTestVisible="False" />
             </hx:TopMostGroup3D>
             <hx:ScreenSpacedGroup3D SizeScale="2">
-                <hx:BillboardTextModel3D Geometry="{Binding AxisLabels}"/>
-                <hx:LineGeometryModel3D Geometry="{Binding AxisLines}" Color="White"/>
+                <hx:BillboardTextModel3D Geometry="{Binding AxisLabels}" />
+                <hx:LineGeometryModel3D Geometry="{Binding AxisLines}" Color="White" />
             </hx:ScreenSpacedGroup3D>
         </hx:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">

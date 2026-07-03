@@ -7,30 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomShaderDemo
-{
-    public class CustomMeshNode : MeshNode
-    {
-        public float HeightScale
-        {
-            set
-            {
-                (RenderCore as CustomMeshCore).DataHeightScale = value;
-            }
-            get
-            {
-                return (RenderCore as CustomMeshCore).DataHeightScale;
-            }
-        }
+namespace CustomShaderDemo;
 
-        protected override RenderCore OnCreateRenderCore()
-        {
-            return new CustomMeshCore();
-        }
+public class CustomMeshNode : MeshNode {
+    public float HeightScale {
+        set { (RenderCore as CustomMeshCore).DataHeightScale = value; }
+        get { return (RenderCore as CustomMeshCore).DataHeightScale; }
+    }
 
-        protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-        {
-            return effectsManager[CustomShaderNames.DataSampling];
-        }
+    protected override RenderCore OnCreateRenderCore() {
+        return new CustomMeshCore();
+    }
+
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
+        return effectsManager[CustomShaderNames.DataSampling];
     }
 }

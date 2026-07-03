@@ -13,23 +13,19 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace RenderTechniqueImportExport
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            listMenu.DataContext = DataContext;
-            DataContextChanged += MainWindow_DataContextChanged;
-        }
+namespace RenderTechniqueImportExport;
 
-        private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            listMenu.DataContext = e.NewValue;
-        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        InitializeComponent();
+        listMenu.DataContext = DataContext;
+        DataContextChanged += MainWindow_DataContextChanged;
+    }
+
+    private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+        listMenu.DataContext = e.NewValue;
     }
 }

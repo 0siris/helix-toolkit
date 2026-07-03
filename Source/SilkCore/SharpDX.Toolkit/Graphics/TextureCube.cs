@@ -8,16 +8,13 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     A TextureCube front end to the native D3D Texture2D.
 /// </summary>
-public class TextureCube : Texture2DBase
-{
+public class TextureCube : Texture2DBase {
     internal TextureCube(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
-        base(device, description2D, dataBoxes)
-    {
+        base(device, description2D, dataBoxes) {
         Initialize(Resource);
     }
 
-    internal TextureCube(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture)
-    {
+    internal TextureCube(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
         Initialize(Resource);
     }
 
@@ -30,8 +27,7 @@ public class TextureCube : Texture2DBase
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone()
-    {
+    public override Texture Clone() {
         return new TextureCube(GraphicsDevice, Description);
     }
 
@@ -49,8 +45,7 @@ public class TextureCube : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description)
-    {
+    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description) {
         return new TextureCube(device, description);
     }
 
@@ -68,8 +63,7 @@ public class TextureCube : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture)
-    {
+    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture) {
         return new TextureCube(device, texture);
     }
 
@@ -90,9 +84,13 @@ public class TextureCube : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, int size, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static TextureCube New(
+        NativeD3DDevice device,
+        int size,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return New(device, size, false, format, flags, usage);
     }
 
@@ -117,11 +115,20 @@ public class TextureCube : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, int size, MipMapCount mipCount, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static TextureCube New(
+        NativeD3DDevice device,
+        int size,
+        MipMapCount mipCount,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return new TextureCube(device,
-            NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, mipCount, usage));
+                               NewTextureCubeDescription(size,
+                                                         format,
+                                                         flags | TextureFlags.ShaderResource,
+                                                         mipCount,
+                                                         usage));
     }
 
     /// <summary>
@@ -145,10 +152,15 @@ public class TextureCube : Texture2DBase
     ///     The first dimension of mipMapTextures describes the number of array (TextureCube Array), the second is the texture
     ///     data for a particular cube face.
     /// </remarks>
-    public static TextureCube New<T>(NativeD3DDevice device, int size, PixelFormat format, T[][] textureData,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-        where T : unmanaged
-    {
+    public static TextureCube New<T>(
+        NativeD3DDevice device,
+        int size,
+        PixelFormat format,
+        T[][] textureData,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    )
+        where T : unmanaged {
         if (textureData.Length != 6)
             throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
 
@@ -167,8 +179,13 @@ public class TextureCube : Texture2DBase
         Utilities.Pin(textureData[5], ptr => dataBox6 = GetDataBox(format, size, size, 1, textureData[0], ptr));
 
         return new TextureCube(device,
-            NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, 1, usage), dataBox1, dataBox2,
-            dataBox3, dataBox4, dataBox5, dataBox6);
+                               NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, 1, usage),
+                               dataBox1,
+                               dataBox2,
+                               dataBox3,
+                               dataBox4,
+                               dataBox5,
+                               dataBox6);
     }
 
     /// <summary>
@@ -191,14 +208,20 @@ public class TextureCube : Texture2DBase
     ///     The first dimension of mipMapTextures describes the number of array (TextureCube Array), the second is the texture
     ///     data for a particular cube face.
     /// </remarks>
-    public static TextureCube New(NativeD3DDevice device, int size, PixelFormat format, DataBox[] textureData,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public static TextureCube New(
+        NativeD3DDevice device,
+        int size,
+        PixelFormat format,
+        DataBox[] textureData,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         if (textureData.Length != 6)
             throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
 
         return new TextureCube(device,
-            NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, 1, usage), textureData);
+                               NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, 1, usage),
+                               textureData);
     }
 
     /// <summary>
@@ -215,16 +238,20 @@ public class TextureCube : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, Image image, TextureFlags flags = TextureFlags.ShaderResource,
-        ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public static TextureCube New(
+        NativeD3DDevice device,
+        Image image,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         if (image == null)
             throw new ArgumentNullException("image");
         if (image.Description.Dimension != TextureDimension.TextureCube)
             throw new ArgumentException("Invalid image. Must be Cube", "image");
 
         return new TextureCube(device,
-            CreateTextureDescriptionFromImage(image, flags | TextureFlags.ShaderResource, usage), image.ToDataBox());
+                               CreateTextureDescriptionFromImage(image, flags | TextureFlags.ShaderResource, usage),
+                               image.ToDataBox());
     }
 
     /// <summary>
@@ -236,13 +263,16 @@ public class TextureCube : Texture2DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type Cube</exception>
     /// <returns>A texture</returns>
-    public new static TextureCube Load(NativeD3DDevice device, Stream stream,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public new static TextureCube Load(
+        NativeD3DDevice device,
+        Stream stream,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         var texture = Texture.Load(device, stream, flags | TextureFlags.ShaderResource, usage);
         if (!(texture is TextureCube))
             throw new ArgumentException(string.Format("Texture is not type of [TextureCube] but [{0}]",
-                texture.GetType().Name));
+                                                      texture.GetType().Name));
         return (TextureCube) texture;
     }
 
@@ -255,11 +285,13 @@ public class TextureCube : Texture2DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type Cube</exception>
     /// <returns>A texture</returns>
-    public new static TextureCube Load(NativeD3DDevice device, string filePath,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public new static TextureCube Load(
+        NativeD3DDevice device,
+        string filePath,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(device, stream, flags | TextureFlags.ShaderResource, usage);
         }
     }
@@ -272,9 +304,13 @@ public class TextureCube : Texture2DBase
     /// <param name="mipCount"></param>
     /// <param name="usage"></param>
     /// <returns></returns>
-    protected static NativeTexture2DDescription NewTextureCubeDescription(int size, PixelFormat format,
-        TextureFlags flags, int mipCount, ResourceUsage usage)
-    {
+    protected static NativeTexture2DDescription NewTextureCubeDescription(
+        int size,
+        PixelFormat format,
+        TextureFlags flags,
+        int mipCount,
+        ResourceUsage usage
+    ) {
         var desc = NewDescription(size, size, format, flags, mipCount, 6, usage);
         desc.OptionFlags = ResourceOptionFlags.TextureCube;
         return desc;

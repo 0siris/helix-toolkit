@@ -7,10 +7,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         ///     Static mesh batching. Supports multiple <see cref="Materials" />. All geometries are merged into single buffer for
         ///     rendering. Indivisual material color infomations are encoded into vertex buffer.
@@ -19,37 +17,30 @@ namespace HelixToolkit.SharpDX.Core
         ///         binding.
         ///     </para>
         /// </summary>
-        public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable, IApplyPostEffect
-        {
-            public BatchedMeshNode()
-            {
+        public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable, IApplyPostEffect {
+            public BatchedMeshNode() {
                 HasBound = true;
                 TransformChanged += BatchedMeshNode_OnTransformChanged;
             }
 
-            private void BatchedMeshNode_OnTransformChanged(object sender, TransformArgs e)
-            {
+            private void BatchedMeshNode_OnTransformChanged(object sender, TransformArgs e) {
                 UpdateBoundsWithTransform();
             }
 
-            protected override RenderCore OnCreateRenderCore()
-            {
-                return new MeshRenderCore
-                {
+            protected override RenderCore OnCreateRenderCore() {
+                return new MeshRenderCore {
                     Batched = true
                 };
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.MeshBatched];
             }
 
             /// <summary>
             ///     Called when [raster state changed].
             /// </summary>
-            protected virtual void OnRasterStateChanged()
-            {
+            protected virtual void OnRasterStateChanged() {
                 if (IsAttached && RenderCore is IGeometryRenderCore r)
                     r.RasterDescription = OnCreateRasterState != null ? OnCreateRasterState() : CreateRasterState();
             }
@@ -58,10 +49,8 @@ namespace HelixToolkit.SharpDX.Core
             ///     Create raster state description.
             /// </summary>
             /// <returns></returns>
-            protected virtual RasterizerStateDescription CreateRasterState()
-            {
-                return new RasterizerStateDescription
-                {
+            protected virtual RasterizerStateDescription CreateRasterState() {
+                return new RasterizerStateDescription {
                     FillMode = FillMode,
                     CullMode = CullMode,
                     DepthBias = DepthBias,
@@ -76,20 +65,17 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            protected virtual void AttachMaterial()
-            {
+            protected virtual void AttachMaterial() {
                 var newVar = material != null && RenderCore is IMaterialRenderParams
-                    ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
-                    : null;
+                                 ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+                                 : null;
                 RemoveAndDispose(ref materialVariable);
                 if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = materialVariable = newVar;
                 if (Materials == null && Material is PhongMaterialCore p) batchingBuffer.Materials = new[] {p};
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
-                if (base.OnAttach(effectsManager))
-                {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
+                if (base.OnAttach(effectsManager)) {
                     batchingBuffer = new DefaultStaticMeshBatchingBuffer();
                     batchingBuffer.Geometries = Geometries;
                     batchingBuffer.Materials = materials;
@@ -104,8 +90,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [attached].
             /// </summary>
-            protected override void OnAttached()
-            {
+            protected override void OnAttached() {
                 OnRasterStateChanged();
                 base.OnAttached();
             }
@@ -113,16 +98,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Used to override Detach
             /// </summary>
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref batchingBuffer);
                 RemoveAndDispose(ref materialVariable);
                 if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
                 base.OnDetach();
             }
 
-            protected override OrderKey OnUpdateRenderOrderKey()
-            {
+            protected override OrderKey OnUpdateRenderOrderKey() {
                 return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
             }
 
@@ -131,35 +114,30 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
-            protected override bool CanRender(RenderContext context)
-            {
+            protected override bool CanRender(RenderContext context) {
                 if (base.CanRender(context) && Geometries != null) return true;
 
                 return false;
             }
 
-            private void UpdateBounds()
-            {
+            private void UpdateBounds() {
                 var oldBound = originalBounds;
                 var oldBoundSphere = originalBoundsSphere;
-                if (geometries != null && geometries.Length > 0)
-                {
+                if (geometries != null && geometries.Length > 0) {
                     var b = geometries[0].Geometry.Bound;
                     var bs = geometries[0].Geometry.BoundingSphere;
-                    foreach (var geo in geometries)
-                    {
+                    foreach (var geo in geometries) {
                         b = BoundingBox.Merge(b, geo.Geometry.Bound.Transform(geo.ModelTransform));
                         bs = BoundingSphereExtensions.Merge(bs,
-                            geo.Geometry.BoundingSphere.TransformBoundingSphere(geo.ModelTransform));
+                                                            geo.Geometry.BoundingSphere.TransformBoundingSphere(
+                                                                geo.ModelTransform));
                     }
 
                     originalBounds = b;
                     originalBoundsSphere = bs;
                     BatchedGeometryOctree =
                         new StaticBatchedGeometryBoundsOctree(geometries, new OctreeBuildParameter());
-                }
-                else
-                {
+                } else {
                     originalBounds = MaxBound;
                     originalBoundsSphere = MaxBoundSphere;
                     BatchedGeometryOctree = null;
@@ -171,8 +149,7 @@ namespace HelixToolkit.SharpDX.Core
                 UpdateBoundsWithTransform();
             }
 
-            private void UpdateBoundsWithTransform()
-            {
+            private void UpdateBoundsWithTransform() {
                 var old = boundsWithTransform;
                 if (originalBounds == MaxBound)
                     boundsWithTransform = MaxBound;
@@ -193,11 +170,11 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="viewFrustum">The view frustum.</param>
             /// <returns></returns>
-            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum)
-            {
+            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
                 if (!EnableViewFrustumCheck) return true;
-                return BoundingFrustumExtensions.IsInOrIntersectFrustum(ref viewFrustum, ref boundsWithTransform,
-                    ref boundsSphereWithTransform);
+                return BoundingFrustumExtensions.IsInOrIntersectFrustum(ref viewFrustum,
+                                                                        ref boundsWithTransform,
+                                                                        ref boundsSphereWithTransform);
             }
 
             /// <summary>
@@ -207,8 +184,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance [can hit test] the specified context; otherwise, <c>false</c>.
             /// </returns>
-            protected override bool CanHitTest(HitTestContext context)
-            {
+            protected override bool CanHitTest(HitTestContext context) {
                 return base.CanHitTest(context) && Geometries != null && Geometries.Length > 0 && Materials != null &&
                        Materials.Length > 0;
             }
@@ -217,8 +193,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the not render.
             /// </summary>
             /// <param name="context">The context.</param>
-            public override void UpdateNotRender(RenderContext context)
-            {
+            public override void UpdateNotRender(RenderContext context) {
                 base.UpdateNotRender(context);
                 if (IsHitTestVisible && context.AutoUpdateOctree && Geometries != null)
                     foreach (var geometry in Geometries)
@@ -228,26 +203,26 @@ namespace HelixToolkit.SharpDX.Core
                     BatchedGeometryOctree.BuildTree();
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 var rayWS = context.RayWS;
-                if (rayWS.Intersects(boundsWithTransform) && rayWS.Intersects(boundsSphereWithTransform))
-                {
+                if (rayWS.Intersects(boundsWithTransform) && rayWS.Intersects(boundsSphereWithTransform)) {
                     if (BatchedGeometryOctree != null && BatchedGeometryOctree.TreeBuilt)
                         return BatchedGeometryOctree.HitTest(context, WrapperSource, null, totalModelMatrix, ref hits);
 
                     var isHit = false;
-                    for (var i = 0; i < Geometries.Length; ++i)
-                    {
+                    for (var i = 0; i < Geometries.Length; ++i) {
                         var currCount = hits.Count;
                         ref var geo = ref Geometries[i];
-                        if (geo.Geometry is MeshGeometry3D mesh)
-                        {
-                            var hasHit = mesh.HitTest(context, geo.ModelTransform * totalModelMatrix, ref hits,
-                                WrapperSource);
-                            if (hasHit && currCount < hits.Count)
-                            {
+                        if (geo.Geometry is MeshGeometry3D mesh) {
+                            var hasHit = mesh.HitTest(context,
+                                                      geo.ModelTransform * totalModelMatrix,
+                                                      ref hits,
+                                                      WrapperSource);
+                            if (hasHit && currCount < hits.Count) {
                                 var newCount = hits.Count;
                                 for (var j = currCount; j < newCount; ++j)
                                     hits.Add(new BatchedMeshHitTestResult(i, ref geo, hits[j]));
@@ -264,17 +239,14 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            #region Properties
+        #region Properties
 
             private BatchedMeshGeometryConfig[] geometries;
 
-            public BatchedMeshGeometryConfig[] Geometries
-            {
+            public BatchedMeshGeometryConfig[] Geometries {
                 get => geometries;
-                set
-                {
-                    if (SetAffectsRender(ref geometries, value))
-                    {
+                set {
+                    if (SetAffectsRender(ref geometries, value)) {
                         if (IsAttached) batchingBuffer.Geometries = value;
                         UpdateBounds();
                     }
@@ -283,20 +255,17 @@ namespace HelixToolkit.SharpDX.Core
 
             private PhongMaterialCore[] materials;
 
-            public PhongMaterialCore[] Materials
-            {
+            public PhongMaterialCore[] Materials {
                 get => materials;
-                set
-                {
-                    if (SetAffectsRender(ref materials, value) && IsAttached)
-                    {
+                set {
+                    if (SetAffectsRender(ref materials, value) && IsAttached) {
                         batchingBuffer.Materials = value;
                         if (value == null && Material is PhongMaterialCore p) batchingBuffer.Materials = new[] {p};
                     }
                 }
             }
 
-            #region Bound
+        #region Bound
 
             private BoundingBox originalBounds;
 
@@ -357,9 +326,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public override BoundingSphere BoundsSphereWithTransform => boundsSphereWithTransform;
 
-            #endregion
+        #endregion
 
-            #region Rasterizer parameters
+        #region Rasterizer parameters
 
             private int depthBias;
 
@@ -369,11 +338,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The depth bias.
             /// </value>
-            public int DepthBias
-            {
+            public int DepthBias {
                 get => depthBias;
-                set
-                {
+                set {
                     if (Set(ref depthBias, value)) OnRasterStateChanged();
                 }
             }
@@ -386,11 +353,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The slope scaled depth bias.
             /// </value>
-            public float SlopeScaledDepthBias
-            {
+            public float SlopeScaledDepthBias {
                 get => slopScaledDepthBias;
-                set
-                {
+                set {
                     if (Set(ref slopScaledDepthBias, value)) OnRasterStateChanged();
                 }
             }
@@ -403,11 +368,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is msaa enabled; otherwise, <c>false</c>.
             /// </value>
-            public bool IsMSAAEnabled
-            {
+            public bool IsMSAAEnabled {
                 get { return isMSAAEnabled = true; }
-                set
-                {
+                set {
                     if (Set(ref isMSAAEnabled, value)) OnRasterStateChanged();
                 }
             }
@@ -420,11 +383,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is scissor enabled; otherwise, <c>false</c>.
             /// </value>
-            public bool IsScissorEnabled
-            {
+            public bool IsScissorEnabled {
                 get => isScissorEnabled;
-                set
-                {
+                set {
                     if (Set(ref isScissorEnabled, value)) OnRasterStateChanged();
                 }
             }
@@ -437,11 +398,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fill mode.
             /// </value>
-            public FillMode FillMode
-            {
+            public FillMode FillMode {
                 get => fillMode;
-                set
-                {
+                set {
                     if (Set(ref fillMode, value)) OnRasterStateChanged();
                 }
             }
@@ -454,11 +413,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is depth clip enabled; otherwise, <c>false</c>.
             /// </value>
-            public bool IsDepthClipEnabled
-            {
+            public bool IsDepthClipEnabled {
                 get => isDepthClipEnabled;
-                set
-                {
+                set {
                     if (Set(ref isDepthClipEnabled, value)) OnRasterStateChanged();
                 }
             }
@@ -471,11 +428,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [front CCW]; otherwise, <c>false</c>.
             /// </value>
-            public bool FrontCCW
-            {
+            public bool FrontCCW {
                 get => frontCCW;
-                set
-                {
+                set {
                     if (Set(ref frontCCW, value)) OnRasterStateChanged();
                 }
             }
@@ -488,16 +443,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The cull mode.
             /// </value>
-            public CullMode CullMode
-            {
+            public CullMode CullMode {
                 get => cullMode;
-                set
-                {
+                set {
                     if (Set(ref cullMode, value)) OnRasterStateChanged();
                 }
             }
 
-            #endregion Rasterizer parameters
+        #endregion Rasterizer parameters
 
             private bool enableViewFrustumCheck = true;
 
@@ -507,8 +460,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableViewFrustumCheck
-            {
+            public bool EnableViewFrustumCheck {
                 get => enableViewFrustumCheck && HasBound;
                 set => Set(ref enableViewFrustumCheck, value);
             }
@@ -521,13 +473,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The post effects.
             /// </value>
-            public string PostEffects
-            {
+            public string PostEffects {
                 get => postEffects;
-                set
-                {
-                    if (Set(ref postEffects, value))
-                    {
+                set {
+                    if (Set(ref postEffects, value)) {
                         ClearPostEffect();
                         if (value is string effects)
                             if (!string.IsNullOrEmpty(effects))
@@ -543,8 +492,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is throwing shadow; otherwise, <c>false</c>.
             /// </value>
-            public bool IsThrowingShadow
-            {
+            public bool IsThrowingShadow {
                 get => RenderCore.IsThrowingShadow;
                 set => RenderCore.IsThrowingShadow = value;
             }
@@ -555,8 +503,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [invert normal]; otherwise, <c>false</c>.
             /// </value>
-            public bool InvertNormal
-            {
+            public bool InvertNormal {
                 get => (RenderCore as IMeshRenderParams).InvertNormal;
                 set => (RenderCore as IMeshRenderParams).InvertNormal = value;
             }
@@ -567,8 +514,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the wireframe.
             /// </value>
-            public Color4 WireframeColor
-            {
+            public Color4 WireframeColor {
                 get => (RenderCore as IMeshRenderParams).WireframeColor;
                 set => (RenderCore as IMeshRenderParams).WireframeColor = value;
             }
@@ -579,8 +525,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderWireframe
-            {
+            public bool RenderWireframe {
                 get => (RenderCore as IMeshRenderParams).RenderWireframe;
                 set => (RenderCore as IMeshRenderParams).RenderWireframe = value;
             }
@@ -592,11 +537,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
             ///     are preserved.
             /// </summary>
-            public bool IsTransparent
-            {
+            public bool IsTransparent {
                 get => isTransparent;
-                set
-                {
+                set {
                     if (Set(ref isTransparent, value))
                         if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
                             RenderType = value ? RenderType.Transparent : RenderType.Opaque;
@@ -608,21 +551,15 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public MaterialCore Material
-            {
+            public MaterialCore Material {
                 get => material;
-                set
-                {
+                set {
                     if (Set(ref material, value))
-                        if (EffectsManager != null)
-                        {
-                            if (IsAttached)
-                            {
+                        if (EffectsManager != null) {
+                            if (IsAttached) {
                                 AttachMaterial();
                                 InvalidateRender();
-                            }
-                            else
-                            {
+                            } else {
                                 var effectsMgr = EffectsManager;
                                 Detach();
                                 Attach(effectsMgr);
@@ -646,7 +583,7 @@ namespace HelixToolkit.SharpDX.Core
 
             protected StaticBatchedGeometryBoundsOctree BatchedGeometryOctree { get; private set; }
 
-            #endregion
+        #endregion
         }
     }
 }

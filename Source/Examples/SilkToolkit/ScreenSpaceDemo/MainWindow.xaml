@@ -8,7 +8,7 @@
         Title="{Binding Title}" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition />
         </Grid.RowDefinitions>
 
         <hx:Viewport3DX
@@ -25,39 +25,42 @@
             RenderTechnique="{Binding RenderTechnique}"
             EffectsManager="{Binding EffectsManager}">
             <hx:Viewport3DX.InputBindings>
-                <KeyBinding Gesture="Control+E" Command="hx:ViewportCommands.ZoomExtents"/>
-                <MouseBinding Gesture="RightClick" Command="hx:ViewportCommands.Rotate"/>
-                <MouseBinding Gesture="MiddleClick" Command="hx:ViewportCommands.Zoom"/>
-                <MouseBinding Gesture="Shift+RightClick" Command="hx:ViewportCommands.Pan"/>
+                <KeyBinding Gesture="Control+E" Command="hx:ViewportCommands.ZoomExtents" />
+                <MouseBinding Gesture="RightClick" Command="hx:ViewportCommands.Rotate" />
+                <MouseBinding Gesture="MiddleClick" Command="hx:ViewportCommands.Zoom" />
+                <MouseBinding Gesture="Shift+RightClick" Command="hx:ViewportCommands.Pan" />
             </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}"/>
-            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}" Direction = "{Binding DirectionalLightDirection1}"/>
-            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}" Direction = "{Binding DirectionalLightDirection2}"/>
-            <hx:GroupModel3D x:Name="group"  ItemsSource="{Binding ModelGeometry}"   Transform = "{Binding ModelTransform}" />
+            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}"
+                                   Direction="{Binding DirectionalLightDirection1}" />
+            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}"
+                                   Direction="{Binding DirectionalLightDirection2}" />
+            <hx:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" Transform="{Binding ModelTransform}" />
         </hx:Viewport3DX>
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
             <StatusBar.Background>
-                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke"/>
+                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>
             <StatusBarItem>
-                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}"/>
+                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left"
+                           Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}"/>
+                <TextBlock Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}"/>
+                <TextBlock Text="{Binding Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}"/>
+                <TextBlock Text="{Binding Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}"/>
+                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
 

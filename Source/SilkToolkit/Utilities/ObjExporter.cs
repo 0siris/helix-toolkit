@@ -22,8 +22,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     http://www.martinreddy.net/gfx/3d/OBJ.spec
 ///     http://www.eg-models.de/formats/Format_Obj.html
 /// </remarks>
-public class ObjExporter : Exporter
-{
+public class ObjExporter : Exporter {
     /// <summary>
     ///     The directory.
     /// </summary>
@@ -81,9 +80,7 @@ public class ObjExporter : Exporter
     ///     Name of the output file.
     /// </param>
     public ObjExporter(string outputFileName)
-        : this(outputFileName, null)
-    {
-    }
+        : this(outputFileName, null) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ObjExporter" /> class.
@@ -94,8 +91,7 @@ public class ObjExporter : Exporter
     /// <param name="comment">
     ///     The comment.
     /// </param>
-    public ObjExporter(string outputFileName, string comment)
-    {
+    public ObjExporter(string outputFileName, string comment) {
         SwitchYZ = true;
         ExportNormals = false;
 
@@ -130,8 +126,7 @@ public class ObjExporter : Exporter
     /// <summary>
     ///     Closes this exporter.
     /// </summary>
-    public override void Close()
-    {
+    public override void Close() {
         writer.Close();
         mwriter.Close();
         base.Close();
@@ -146,21 +141,16 @@ public class ObjExporter : Exporter
     /// <param name="transform">
     ///     The transform.
     /// </param>
-    protected override void ExportModel(MeshNode model, Transform3D transform)
-    {
-        if (model.GeometryValid && model.Material != null)
-        {
+    protected override void ExportModel(MeshNode model, Transform3D transform) {
+        if (model.GeometryValid && model.Material != null) {
             if (transform == null) transform = Transform3D.Identity;
             writer.WriteLine("o object{0}", objectNo++);
             writer.WriteLine("g group{0}", groupNo++);
 
-            if (exportedMaterials.ContainsKey(model.Material))
-            {
+            if (exportedMaterials.ContainsKey(model.Material)) {
                 var matName = exportedMaterials[model.Material];
                 writer.WriteLine("usemtl {0}", matName);
-            }
-            else
-            {
+            } else {
                 var matName = string.Format("mat{0}", matNo++);
                 writer.WriteLine("usemtl {0}", matName);
                 ExportMaterial(matName, model.Material);
@@ -168,13 +158,10 @@ public class ObjExporter : Exporter
             }
 
             var mesh = model.Geometry as MeshGeometry3D;
-            if (model.HasInstances)
-            {
+            if (model.HasInstances) {
                 var m = transform.ToMatrix();
                 for (var i = 0; i < model.Instances.Count; ++i) ExportMesh(mesh, model.Instances[i] * m);
-            }
-            else
-            {
+            } else {
                 ExportMesh(mesh, transform.ToMatrix());
             }
         }
@@ -189,8 +176,7 @@ public class ObjExporter : Exporter
     /// <param name="t">
     ///     The t.
     /// </param>
-    public void ExportMesh(MeshGeometry3D m, Matrix t)
-    {
+    public void ExportMesh(MeshGeometry3D m, Matrix t) {
         if (m == null) throw new ArgumentNullException("m");
 
         if (t == null) throw new ArgumentNullException("t");
@@ -201,29 +187,23 @@ public class ObjExporter : Exporter
         var normalIndexMap = new Dictionary<int, int>();
 
         var index = 0;
-        if (m.Positions != null)
-        {
-            foreach (var v in m.Positions)
-            {
+        if (m.Positions != null) {
+            foreach (var v in m.Positions) {
                 vertexIndexMap.Add(index++, vertexIndex++);
                 var p = SilkMath.TransformCoordinate(v, t);
-                writer.WriteLine(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "v {0} {1} {2}",
-                        NormalizeZero(p.X),
-                        NormalizeZero(SwitchYZ ? p.Z : p.Y),
-                        NormalizeZero(SwitchYZ ? -p.Y : p.Z)));
+                writer.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                                               "v {0} {1} {2}",
+                                               NormalizeZero(p.X),
+                                               NormalizeZero(SwitchYZ ? p.Z : p.Y),
+                                               NormalizeZero(SwitchYZ ? -p.Y : p.Z)));
             }
 
             writer.WriteLine("# {0} vertices", index);
         }
 
-        if (m.TextureCoordinates != null)
-        {
+        if (m.TextureCoordinates != null) {
             index = 0;
-            foreach (var vt in m.TextureCoordinates)
-            {
+            foreach (var vt in m.TextureCoordinates) {
                 textureIndexMap.Add(index++, textureIndex++);
                 writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "vt {0} {1}", vt.X, 1 - vt.Y));
             }
@@ -231,21 +211,17 @@ public class ObjExporter : Exporter
             writer.WriteLine("# {0} texture coordinates", index);
         }
 
-        if (m.Normals != null && ExportNormals)
-        {
+        if (m.Normals != null && ExportNormals) {
             index = 0;
-            foreach (var vn in m.Normals)
-            {
+            foreach (var vn in m.Normals) {
                 normalIndexMap.Add(index++, normalIndex++);
-                writer.WriteLine(
-                    string.Format(CultureInfo.InvariantCulture, "vn {0} {1} {2}", vn.X, vn.Y, vn.Z));
+                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "vn {0} {1} {2}", vn.X, vn.Y, vn.Z));
             }
 
             writer.WriteLine("# {0} normals", index);
         }
 
-        Func<int, string> formatIndices = i0 =>
-        {
+        Func<int, string> formatIndices = i0 => {
             var hasTextureIndex = textureIndexMap.ContainsKey(i0);
             var hasNormalIndex = normalIndexMap.ContainsKey(i0);
             if (hasTextureIndex && hasNormalIndex)
@@ -258,10 +234,8 @@ public class ObjExporter : Exporter
             return vertexIndexMap[i0].ToString();
         };
 
-        if (m.Indices != null)
-        {
-            for (var i = 0; i < m.Indices.Count; i += 3)
-            {
+        if (m.Indices != null) {
+            for (var i = 0; i < m.Indices.Count; i += 3) {
                 var i0 = m.Indices[i];
                 var i1 = m.Indices[i + 1];
                 var i2 = m.Indices[i + 2];
@@ -284,40 +258,30 @@ public class ObjExporter : Exporter
     /// <param name="material">
     ///     The material.
     /// </param>
-    private void ExportMaterial(string matName, MaterialCore material)
-    {
+    private void ExportMaterial(string matName, MaterialCore material) {
         mwriter.WriteLine("newmtl {0}", matName);
         var pm = material as PhongMaterialCore;
 
-        if (pm != null)
-        {
-            if (pm.DiffuseMap == null)
-            {
+        if (pm != null) {
+            if (pm.DiffuseMap == null) {
                 mwriter.WriteLine("Kd {0}", ToColorString(pm.DiffuseColor));
 
                 if (UseDissolveForTransparency)
                     // Dissolve factor
-                    mwriter.WriteLine(
-                        string.Format(CultureInfo.InvariantCulture, "d {0:F4}", pm.DiffuseColor.W));
+                    mwriter.WriteLine(string.Format(CultureInfo.InvariantCulture, "d {0:F4}", pm.DiffuseColor.W));
                 else
                     // Transparency
-                    mwriter.WriteLine(
-                        string.Format(CultureInfo.InvariantCulture, "Tr {0:F4}", pm.DiffuseColor.W));
-            }
-            else
-            {
+                    mwriter.WriteLine(string.Format(CultureInfo.InvariantCulture, "Tr {0:F4}", pm.DiffuseColor.W));
+            } else {
                 var textureFilename = matName + ".png";
                 var texturePath = Path.Combine(directory, textureFilename);
                 var texture = pm.DiffuseMap.TextureInfoLoader.Load(pm.DiffuseMap.Guid);
-                if (texture != null && texture.Texture != null && texture.Texture.CanRead)
-                {
+                if (texture != null && texture.Texture != null && texture.Texture.CanRead) {
                     // create .png bitmap file for the brush
                     RenderBrush(texturePath, texture.Texture);
                     mwriter.WriteLine("map_Ka {0}", textureFilename);
                     pm.DiffuseMap.TextureInfoLoader.Complete(pm.DiffuseMap.Guid, texture, true);
-                }
-                else
-                {
+                } else {
                     pm.DiffuseMap.TextureInfoLoader.Complete(pm.DiffuseMap.Guid, texture, false);
                 }
             }
@@ -330,10 +294,11 @@ public class ObjExporter : Exporter
         // color = KaIa + Kd { SUM j=1..ls, (N * Lj)Ij }
         var illum = 1; // Lambertian
 
-        if (pm != null)
-        {
+        if (pm != null) {
             mwriter.WriteLine("Ks {0}",
-                ToColorString(pm.DiffuseMap == null ? pm.SpecularColor : new Color4(0.2f, 0.2f, 0.2f, 1.0f)));
+                              ToColorString(pm.DiffuseMap == null
+                                                ? pm.SpecularColor
+                                                : new Color4(0.2f, 0.2f, 0.2f, 1.0f)));
 
             // Illumination model 2
             // This is a diffuse and specular illumination model using Lambertian
@@ -387,18 +352,15 @@ public class ObjExporter : Exporter
     /// <returns>
     ///     The string.
     /// </returns>
-    private string ToColorString(Color4 color)
-    {
-        return string.Format(
-            CultureInfo.InvariantCulture,
-            "{0:F4} {1:F4} {2:F4}",
-            color.X,
-            color.Y,
-            color.Z);
+    private string ToColorString(Color4 color) {
+        return string.Format(CultureInfo.InvariantCulture,
+                             "{0:F4} {1:F4} {2:F4}",
+                             color.X,
+                             color.Y,
+                             color.Z);
     }
 
-    private static float NormalizeZero(float value)
-    {
+    private static float NormalizeZero(float value) {
         return value == 0 ? 0 : value;
     }
 }

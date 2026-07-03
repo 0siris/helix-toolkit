@@ -3,14 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         /// </summary>
-        public interface IBufferProxy : IDisposable
-        {
+        public interface IBufferProxy : IDisposable {
             /// <summary>
             ///     Raw Buffer
             /// </summary>
@@ -40,8 +37,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public abstract class BufferProxyBase : DisposeObject, IBufferProxy
-        {
+        public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
             /// <summary>
             /// </summary>
             protected Buffer buffer;
@@ -50,8 +46,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="structureSize"></param>
             /// <param name="bindFlags"></param>
-            public BufferProxyBase(int structureSize, BindFlags bindFlags)
-            {
+            public BufferProxyBase(int structureSize, BindFlags bindFlags) {
                 StructureSize = structureSize;
                 BindFlags = bindFlags;
             }
@@ -82,14 +77,12 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public BindFlags BindFlags { get; }
 
-            public void DisposeAndClear()
-            {
+            public void DisposeAndClear() {
                 RemoveAndDispose(ref buffer);
                 ElementCount = 0;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 DisposeAndClear();
                 base.OnDispose(disposeManagedResources);
             }

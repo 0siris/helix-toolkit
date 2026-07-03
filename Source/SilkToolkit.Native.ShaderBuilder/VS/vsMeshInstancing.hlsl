@@ -9,8 +9,7 @@
 //--------------------------------------------------------------------------------------
 // PER PIXEL LIGHTING  - Vertex Shader
 //--------------------------------------------------------------------------------------
-PSInput mainInstancing(VSInstancingInput input)
-{
+PSInput mainInstancing(VSInstancingInput input) {
     return main(input);
 }
 

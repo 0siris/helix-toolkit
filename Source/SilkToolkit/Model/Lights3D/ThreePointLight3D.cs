@@ -8,7 +8,6 @@ using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public class ThreePointLight3D : GroupElement3D, ILight3D
-{
+public class ThreePointLight3D : GroupElement3D, ILight3D {
     public LightType LightType => LightType.ThreePoint;
 }

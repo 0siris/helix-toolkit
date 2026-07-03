@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.ShaderManager;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
-        public sealed class Technique : DisposeObject, IRenderTechnique
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
+        public sealed class Technique : DisposeObject, IRenderTechnique {
             private readonly Dictionary<string, Lazy<ShaderPass>> passDict = new();
             private readonly List<Lazy<ShaderPass>> passList = new();
             private InputLayoutProxy layout;
@@ -19,18 +16,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="description"></param>
             /// <param name="manager"></param>
-            public Technique(TechniqueDescription description, IEffectsManager manager)
-            {
+            public Technique(TechniqueDescription description, IEffectsManager manager) {
                 Description = description;
                 Name = description.Name;
                 EffectsManager = manager;
                 if (description.InputLayoutDescription != null && description.PassDescriptions != null)
                     if (description.PassDescriptions != null)
-                        foreach (var desc in description.PassDescriptions)
-                        {
+                        foreach (var desc in description.PassDescriptions) {
                             if (desc.InputLayoutDescription == null)
                                 desc.InputLayoutDescription = description.InputLayoutDescription;
-                            var pass = new Lazy<ShaderPass>(() => { return new ShaderPass(desc, manager); }, true);
+                            var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, manager), true);
                             passDict.Add(desc.Name, pass);
                             passList.Add(pass);
                         }
@@ -98,11 +93,10 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public ShaderPass GetPass(string name)
-            {
+            public ShaderPass GetPass(string name) {
                 return !string.IsNullOrEmpty(name) && passDict.ContainsKey(name)
-                    ? passDict[name].Value
-                    : ShaderPass.NullPass;
+                           ? passDict[name].Value
+                           : ShaderPass.NullPass;
             }
 
             /// <summary>
@@ -110,8 +104,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
-            public ShaderPass GetPass(int index)
-            {
+            public ShaderPass GetPass(int index) {
                 return index >= 0 && passList.Count > index ? passList[index].Value : ShaderPass.NullPass;
             }
 
@@ -120,10 +113,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="description">The description.</param>
             /// <returns></returns>
-            public bool AddPass(ShaderPassDescription description)
-            {
+            public bool AddPass(ShaderPassDescription description) {
                 if (passDict.ContainsKey(description.Name)) return false;
-                var pass = new Lazy<ShaderPass>(() => { return new ShaderPass(description, EffectsManager); }, true);
+                var pass = new Lazy<ShaderPass>(() => new ShaderPass(description, EffectsManager), true);
                 passDict.Add(description.Name, pass);
                 passList.Add(pass);
                 return true;
@@ -133,14 +125,11 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public bool RemovePass(string name)
-            {
-                if (passDict.TryGetValue(name, out var pass))
-                {
+            public bool RemovePass(string name) {
+                if (passDict.TryGetValue(name, out var pass)) {
                     passDict.Remove(name);
                     passList.Remove(pass);
-                    if (pass.IsValueCreated)
-                    {
+                    if (pass.IsValueCreated) {
                         var p = pass.Value;
                         RemoveAndDispose(ref p);
                     }
@@ -168,8 +157,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             /// </summary>
             /// <param name="disposeManagedResources"></param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 passDict.Clear();
                 foreach (var p in passList)
                     if (p.IsValueCreated)

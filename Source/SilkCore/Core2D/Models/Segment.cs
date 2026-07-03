@@ -4,15 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
         /// </summary>
-        public interface ISegment
-        {
+        public interface ISegment {
             bool IsDirty { get; }
 
             void Create(GeometrySink sink);
@@ -21,14 +18,12 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
         /// </summary>
-        public abstract class Segment : ISegment
-        {
+        public abstract class Segment : ISegment {
             public bool IsDirty { get; private set; }
 
             public abstract void Create(GeometrySink sink);
 
-            protected void Invalidate()
-            {
+            protected void Invalidate() {
                 IsDirty = true;
             }
         }

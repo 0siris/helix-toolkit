@@ -24,12 +24,9 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         texture binding.
 ///     </para>
 /// </summary>
-public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, IApplyPostEffect
-{
-    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-    {
-        if (node is BatchedMeshNode n)
-        {
+public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, IApplyPostEffect {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
+        if (node is BatchedMeshNode n) {
             n.DepthBias = DepthBias;
             n.IsDepthClipEnabled = IsDepthClipEnabled;
             n.SlopeScaledDepthBias = (float) SlopeScaledDepthBias;
@@ -49,139 +46,182 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         base.AssignDefaultValuesToSceneNode(node);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new BatchedMeshNode();
     }
 
-    #region Dependency Properties
+#region Dependency Properties
 
-    public IList<BatchedMeshGeometryConfig> BatchedGeometries
-    {
+    public IList<BatchedMeshGeometryConfig> BatchedGeometries {
         get => (IList<BatchedMeshGeometryConfig>) GetValue(BatchedGeometriesProperty);
         set => SetValue(BatchedGeometriesProperty, value);
     }
 
     public static readonly DependencyProperty BatchedGeometriesProperty =
-        DependencyProperty.Register("BatchedGeometries", typeof(IList<BatchedMeshGeometryConfig>),
-            typeof(BatchedMeshGeometryModel3D), new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as BatchedMeshGeometryModel3D).SceneNode as BatchedMeshNode).Geometries = e.NewValue == null
-                        ? null
-                        : ((IList<BatchedMeshGeometryConfig>) e.NewValue).ToArray();
-                }));
+        DependencyProperty.Register("BatchedGeometries",
+                                    typeof(IList<BatchedMeshGeometryConfig>),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as BatchedMeshGeometryModel3D).SceneNode as
+                                                              BatchedMeshNode).Geometries = e.NewValue == null
+                                                                 ? null
+                                                                 : ((IList<BatchedMeshGeometryConfig>) e.NewValue)
+                                                                 .ToArray();
+                                                         }));
 
-    public IList<Material> BatchedMaterials
-    {
+    public IList<Material> BatchedMaterials {
         get => (IList<Material>) GetValue(BatchedMaterialsProperty);
         set => SetValue(BatchedMaterialsProperty, value);
     }
 
     public static readonly DependencyProperty BatchedMaterialsProperty =
-        DependencyProperty.Register("BatchedMaterials", typeof(IList<Material>), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as BatchedMeshGeometryModel3D).SceneNode as BatchedMeshNode).Materials = e.NewValue == null
-                        ? null
-                        : ((IList<Material>) e.NewValue).Where(x => x.Core is PhongMaterialCore)
-                        .Select(x => x.Core as PhongMaterialCore).ToArray();
-                }));
+        DependencyProperty.Register("BatchedMaterials",
+                                    typeof(IList<Material>),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as BatchedMeshGeometryModel3D).SceneNode as
+                                                              BatchedMeshNode).Materials = e.NewValue == null
+                                                                 ? null
+                                                                 : ((IList<Material>) e.NewValue)
+                                                                   .Where(x => x.Core is PhongMaterialCore)
+                                                                   .Select(x => x.Core as PhongMaterialCore)
+                                                                   .ToArray();
+                                                         }));
 
     public static readonly DependencyProperty IsThrowingShadowProperty =
-        DependencyProperty.Register("IsThrowingShadow", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(false, (d, e) =>
-            {
-                if ((d as Element3D).SceneNode is IThrowingShadow t) t.IsThrowingShadow = (bool) e.NewValue;
-            }));
+        DependencyProperty.Register("IsThrowingShadow",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             if ((d as Element3D).SceneNode is IThrowingShadow t)
+                                                                 t.IsThrowingShadow = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The depth bias property
     /// </summary>
     public static readonly DependencyProperty DepthBiasProperty =
-        DependencyProperty.Register("DepthBias", typeof(int), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(0,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).DepthBias = (int) e.NewValue; }));
+        DependencyProperty.Register("DepthBias",
+                                    typeof(int),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .DepthBias = (int) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The slope scaled depth bias property
     /// </summary>
     public static readonly DependencyProperty SlopeScaledDepthBiasProperty =
-        DependencyProperty.Register("SlopeScaledDepthBias", typeof(double), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(0.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as BatchedMeshNode).SlopeScaledDepthBias =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("SlopeScaledDepthBias",
+                                    typeof(double),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(0.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .SlopeScaledDepthBias =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The is selected property
     /// </summary>
     public static readonly DependencyProperty IsSelectedProperty =
-        DependencyProperty.Register("IsSelected", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(false));
+        DependencyProperty.Register("IsSelected",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(false));
 
     /// <summary>
     ///     The is multisample enabled property
     /// </summary>
     public static readonly DependencyProperty IsMultisampleEnabledProperty =
-        DependencyProperty.Register("IsMultisampleEnabled", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(true,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).IsMSAAEnabled = (bool) e.NewValue; }));
+        DependencyProperty.Register("IsMultisampleEnabled",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .IsMSAAEnabled = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The fill mode property
     /// </summary>
     public static readonly DependencyProperty FillModeProperty = DependencyProperty.Register("FillMode",
-        typeof(FillMode), typeof(BatchedMeshGeometryModel3D),
+        typeof(FillMode),
+        typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(FillMode.Solid,
-            (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).FillMode = (FillMode) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FillMode = (FillMode) e.NewValue;
+                             }));
 
     /// <summary>
     ///     The is scissor enabled property
     /// </summary>
     public static readonly DependencyProperty IsScissorEnabledProperty =
-        DependencyProperty.Register("IsScissorEnabled", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as BatchedMeshNode).IsScissorEnabled = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("IsScissorEnabled",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .IsScissorEnabled = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The enable view frustum check property
     /// </summary>
     public static readonly DependencyProperty EnableViewFrustumCheckProperty =
-        DependencyProperty.Register("EnableViewFrustumCheck", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as BatchedMeshNode).EnableViewFrustumCheck = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("EnableViewFrustumCheck",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .EnableViewFrustumCheck = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The is depth clip enabled property
     /// </summary>
     public static readonly DependencyProperty IsDepthClipEnabledProperty = DependencyProperty.Register(
-        "IsDepthClipEnabled", typeof(bool), typeof(BatchedMeshGeometryModel3D),
+        "IsDepthClipEnabled",
+        typeof(bool),
+        typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(true,
-            (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).IsDepthClipEnabled = (bool) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).IsDepthClipEnabled =
+                                     (bool) e.NewValue;
+                             }));
 
 
     // Using a DependencyProperty as the backing store for PostEffects.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty PostEffectsProperty =
-        DependencyProperty.Register("PostEffects", typeof(string), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(string.Empty,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).PostEffects = e.NewValue as string; }));
+        DependencyProperty.Register("PostEffects",
+                                    typeof(string),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(string.Empty,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .PostEffects = e.NewValue as string;
+                                                         }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty MaterialProperty =
-        DependencyProperty.Register("Material", typeof(Material), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(null,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).Material = e.NewValue as Material; }));
+        DependencyProperty.Register("Material",
+                                    typeof(Material),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .Material = e.NewValue as Material;
+                                                         }));
 
     /// <summary>
     ///     Specifiy if model material is transparent.
@@ -189,68 +229,91 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     are preserved.
     /// </summary>
     public static readonly DependencyProperty IsTransparentProperty =
-        DependencyProperty.Register("IsTransparent", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(false,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).IsTransparent = (bool) e.NewValue; }));
+        DependencyProperty.Register("IsTransparent",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .IsTransparent = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The front counter clockwise property
     /// </summary>
     public static readonly DependencyProperty FrontCounterClockwiseProperty = DependencyProperty.Register(
-        "FrontCounterClockwise", typeof(bool), typeof(BatchedMeshGeometryModel3D),
+        "FrontCounterClockwise",
+        typeof(bool),
+        typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(true,
-            (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCCW = (bool) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCCW = (bool) e.NewValue;
+                             }));
 
     /// <summary>
     ///     The cull mode property
     /// </summary>
     public static readonly DependencyProperty CullModeProperty = DependencyProperty.Register("CullMode",
-        typeof(CullMode), typeof(BatchedMeshGeometryModel3D),
+        typeof(CullMode),
+        typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(CullMode.None,
-            (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).CullMode = (CullMode) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).CullMode = (CullMode) e.NewValue;
+                             }));
 
     /// <summary>
     ///     The invert normal property
     /// </summary>
     public static readonly DependencyProperty InvertNormalProperty = DependencyProperty.Register("InvertNormal",
-        typeof(bool), typeof(BatchedMeshGeometryModel3D),
+        typeof(bool),
+        typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(false,
-            (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).InvertNormal = (bool) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).InvertNormal = (bool) e.NewValue;
+                             }));
 
     /// <summary>
     ///     The render wireframe property
     /// </summary>
     public static readonly DependencyProperty RenderWireframeProperty =
-        DependencyProperty.Register("RenderWireframe", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(false,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as BatchedMeshNode).RenderWireframe = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("RenderWireframe",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .RenderWireframe = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The wireframe color property
     /// </summary>
     public static readonly DependencyProperty WireframeColorProperty =
-        DependencyProperty.Register("WireframeColor", typeof(PlatformColor), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(PlatformColors.SkyBlue,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as BatchedMeshNode).WireframeColor =
-                        ((PlatformColor) e.NewValue).ToColor4();
-                }));
+        DependencyProperty.Register("WireframeColor",
+                                    typeof(PlatformColor),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(PlatformColors.SkyBlue,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .WireframeColor =
+                                                                 ((PlatformColor) e.NewValue).ToColor4();
+                                                         }));
 
     /// <summary>
     ///     The always hittable property
     /// </summary>
     public static readonly DependencyProperty AlwaysHittableProperty =
-        DependencyProperty.Register("AlwaysHittable", typeof(bool), typeof(BatchedMeshGeometryModel3D),
-            new PropertyMetadata(false,
-                (d, e) => { ((d as Element3DCore).SceneNode as BatchedMeshNode).AlwaysHittable = (bool) e.NewValue; }));
+        DependencyProperty.Register("AlwaysHittable",
+                                    typeof(bool),
+                                    typeof(BatchedMeshGeometryModel3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as BatchedMeshNode)
+                                                                 .AlwaysHittable = (bool) e.NewValue;
+                                                         }));
 
 
-    public string PostEffects
-    {
+    public string PostEffects {
         get => (string) GetValue(PostEffectsProperty);
         set => SetValue(PostEffectsProperty, value);
     }
@@ -259,8 +322,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <summary>
     ///     <see cref="IThrowingShadow.IsThrowingShadow" />
     /// </summary>
-    public bool IsThrowingShadow
-    {
+    public bool IsThrowingShadow {
         get => (bool) GetValue(IsThrowingShadowProperty);
         set => SetValue(IsThrowingShadowProperty, value);
     }
@@ -271,8 +333,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     The depth bias.
     /// </value>
-    public int DepthBias
-    {
+    public int DepthBias {
         get => (int) GetValue(DepthBiasProperty);
         set => SetValue(DepthBiasProperty, value);
     }
@@ -283,8 +344,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     The slope scaled depth bias.
     /// </value>
-    public double SlopeScaledDepthBias
-    {
+    public double SlopeScaledDepthBias {
         get => (double) GetValue(SlopeScaledDepthBiasProperty);
         set => SetValue(SlopeScaledDepthBiasProperty, value);
     }
@@ -295,8 +355,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if this instance is selected; otherwise, <c>false</c>.
     /// </value>
-    public bool IsSelected
-    {
+    public bool IsSelected {
         get => (bool) GetValue(IsSelectedProperty);
         set => SetValue(IsSelectedProperty, value);
     }
@@ -304,8 +363,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <summary>
     ///     Only works under FillMode = Wireframe. MSAA is determined by viewport MSAA settings for FillMode = Solid
     /// </summary>
-    public bool IsMultisampleEnabled
-    {
+    public bool IsMultisampleEnabled {
         get => (bool) GetValue(IsMultisampleEnabledProperty);
         set => SetValue(IsMultisampleEnabledProperty, value);
     }
@@ -316,8 +374,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     The fill mode.
     /// </value>
-    public FillMode FillMode
-    {
+    public FillMode FillMode {
         get => (FillMode) GetValue(FillModeProperty);
         set => SetValue(FillModeProperty, value);
     }
@@ -328,8 +385,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if this instance is scissor enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsScissorEnabled
-    {
+    public bool IsScissorEnabled {
         get => (bool) GetValue(IsScissorEnabledProperty);
         set => SetValue(IsScissorEnabledProperty, value);
     }
@@ -340,8 +396,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if this instance is depth clip enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsDepthClipEnabled
-    {
+    public bool IsDepthClipEnabled {
         get => (bool) GetValue(IsDepthClipEnabledProperty);
         set => SetValue(IsDepthClipEnabledProperty, value);
     }
@@ -352,16 +407,14 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableViewFrustumCheck
-    {
+    public bool EnableViewFrustumCheck {
         get => (bool) GetValue(EnableViewFrustumCheckProperty);
         set => SetValue(EnableViewFrustumCheckProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public Material Material
-    {
+    public Material Material {
         get => (Material) GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
@@ -371,8 +424,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     During rendering, transparent objects are rendered after opaque objects. Transparent objects' order in scene graph
     ///     are preserved.
     /// </summary>
-    public bool IsTransparent
-    {
+    public bool IsTransparent {
         get => (bool) GetValue(IsTransparentProperty);
         set => SetValue(IsTransparentProperty, value);
     }
@@ -384,8 +436,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
     /// </value>
-    public bool RenderWireframe
-    {
+    public bool RenderWireframe {
         get => (bool) GetValue(RenderWireframeProperty);
         set => SetValue(RenderWireframeProperty, value);
     }
@@ -396,8 +447,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     The color of the wireframe.
     /// </value>
-    public PlatformColor WireframeColor
-    {
+    public PlatformColor WireframeColor {
         get => (PlatformColor) GetValue(WireframeColorProperty);
         set => SetValue(WireframeColorProperty, value);
     }
@@ -408,8 +458,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if [front counter clockwise]; otherwise, <c>false</c>.
     /// </value>
-    public bool FrontCounterClockwise
-    {
+    public bool FrontCounterClockwise {
         get => (bool) GetValue(FrontCounterClockwiseProperty);
         set => SetValue(FrontCounterClockwiseProperty, value);
     }
@@ -420,8 +469,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     The cull mode.
     /// </value>
-    public CullMode CullMode
-    {
+    public CullMode CullMode {
         get => (CullMode) GetValue(CullModeProperty);
         set => SetValue(CullModeProperty, value);
     }
@@ -429,8 +477,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <summary>
     ///     Invert the surface normal during rendering
     /// </summary>
-    public bool InvertNormal
-    {
+    public bool InvertNormal {
         get => (bool) GetValue(InvertNormalProperty);
         set => SetValue(InvertNormalProperty, value);
     }
@@ -441,11 +488,10 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     /// <value>
     ///     <c>true</c> if [always hittable]; otherwise, <c>false</c>.
     /// </value>
-    public bool AlwaysHittable
-    {
+    public bool AlwaysHittable {
         get => (bool) GetValue(AlwaysHittableProperty);
         set => SetValue(AlwaysHittableProperty, value);
     }
 
-    #endregion
+#endregion
 }

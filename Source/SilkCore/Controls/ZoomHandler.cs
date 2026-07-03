@@ -2,8 +2,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public sealed class ZoomHandler : MouseGestureHandler
-{
+public sealed class ZoomHandler : MouseGestureHandler {
     /// <summary>
     ///     The change field of view.
     /// </summary>
@@ -29,8 +28,7 @@ public sealed class ZoomHandler : MouseGestureHandler
     ///     if set to <c>true</c> [change field of view].
     /// </param>
     public ZoomHandler(CameraController viewport, bool changeFieldOfView = false)
-        : base(viewport)
-    {
+        : base(viewport) {
         this.changeFieldOfView = changeFieldOfView;
     }
 
@@ -38,8 +36,7 @@ public sealed class ZoomHandler : MouseGestureHandler
     ///     Occurs when the position is changed during a manipulation.
     /// </summary>
     /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
-    public override void Delta(Vector2 e)
-    {
+    public override void Delta(Vector2 e) {
         var delta = e - LastPoint;
         LastPoint = e;
         Zoom(delta.Y * 0.01f, zoomPoint3D);
@@ -49,14 +46,12 @@ public sealed class ZoomHandler : MouseGestureHandler
     ///     Occurs when the manipulation is started.
     /// </summary>
     /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
-    protected override void Started(Vector2 e)
-    {
+    protected override void Started(Vector2 e) {
         base.Started(e);
         zoomPoint = new Vector2(Controller.Width / 2f, Controller.Height / 2f);
         zoomPoint3D = Camera.Target;
 
-        if (Controller.ZoomAroundMouseDownPoint && MouseDownNearestPoint3D != null)
-        {
+        if (Controller.ZoomAroundMouseDownPoint && MouseDownNearestPoint3D != null) {
             zoomPoint = MouseDownPoint;
             zoomPoint3D = MouseDownNearestPoint3D.Value;
         }
@@ -68,8 +63,7 @@ public sealed class ZoomHandler : MouseGestureHandler
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void Zoom(float delta)
-    {
+    public void Zoom(float delta) {
         Zoom(delta, Camera.Target);
     }
 
@@ -84,19 +78,15 @@ public sealed class ZoomHandler : MouseGestureHandler
     /// </param>
     /// <param name="isTouch"></param>
     /// <param name="stopOther">Stop other manipulation</param>
-    public void Zoom(float delta, Vector3 zoomAround, bool isTouch = false, bool stopOther = true)
-    {
+    public void Zoom(float delta, Vector3 zoomAround, bool isTouch = false, bool stopOther = true) {
         if (!Controller.IsZoomEnabled) return;
-        if (stopOther)
-        {
+        if (stopOther) {
             Controller.StopSpin();
             Controller.StopPanning();
         }
 
-        if (Camera is PerspectiveCameraCore)
-        {
-            if (!isTouch)
-            {
+        if (Camera is PerspectiveCameraCore) {
+            if (!isTouch) {
                 if (delta < -0.5f) delta = -0.5f;
 
                 delta *= ZoomSensitivity;
@@ -106,8 +96,7 @@ public sealed class ZoomHandler : MouseGestureHandler
             if (CameraMode == CameraMode.FixedPosition || changeFieldOfView)
                 Controller.ZoomByChangingFieldOfView(delta);
             else
-                switch (CameraMode)
-                {
+                switch (CameraMode) {
                     case CameraMode.Inspect:
                         ChangeCameraDistance(ref delta, zoomAround);
                         break;
@@ -115,11 +104,8 @@ public sealed class ZoomHandler : MouseGestureHandler
                         Camera.Position -= Camera.LookDirection * delta;
                         break;
                 }
-        }
-        else if (Camera is OrthographicCameraCore)
-        {
-            switch (CameraMode)
-            {
+        } else if (Camera is OrthographicCameraCore) {
+            switch (CameraMode) {
                 case CameraMode.WalkAround:
                     Camera.Position -= Camera.LookDirection * delta;
                     break;
@@ -138,10 +124,8 @@ public sealed class ZoomHandler : MouseGestureHandler
     ///     to the two others)
     /// </param>
     /// <param name="stopOther">Stop other manipulation</param>
-    public void MoveCameraPosition(Vector3 delta, bool stopOther = true)
-    {
-        if (stopOther)
-        {
+    public void MoveCameraPosition(Vector3 delta, bool stopOther = true) {
+        if (stopOther) {
             Controller.StopSpin();
             Controller.StopPanning();
         }
@@ -151,8 +135,7 @@ public sealed class ZoomHandler : MouseGestureHandler
         var y = SilkMath.Cross(x, z);
         x = SilkMath.Cross(z, y);
 
-        switch (CameraMode)
-        {
+        switch (CameraMode) {
             case CameraMode.Inspect:
             case CameraMode.WalkAround:
                 Camera.Position += x * delta.X + y * delta.Y + z * delta.Z;
@@ -170,8 +153,7 @@ public sealed class ZoomHandler : MouseGestureHandler
     ///     The zoom around.
     /// </param>
     /// <param name="isTouch"></param>
-    public void ZoomByChangingCameraWidth(float delta, Vector3 zoomAround, bool isTouch = false)
-    {
+    public void ZoomByChangingCameraWidth(float delta, Vector3 zoomAround, bool isTouch = false) {
         if (!isTouch)
             if (delta < -0.5f)
                 delta = -0.5f;
@@ -189,8 +171,7 @@ public sealed class ZoomHandler : MouseGestureHandler
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected override bool CanStart()
-    {
+    protected override bool CanStart() {
         if (changeFieldOfView) return Controller.IsChangeFieldOfViewEnabled && Camera is PerspectiveCameraCore;
 
         return Controller.IsZoomEnabled;
@@ -201,22 +182,19 @@ public sealed class ZoomHandler : MouseGestureHandler
     /// </summary>
     /// <param name="delta">The delta.</param>
     /// <param name="zoomAround">The zoom around point.</param>
-    private bool ChangeCameraDistance(ref float delta, Vector3 zoomAround)
-    {
+    private bool ChangeCameraDistance(ref float delta, Vector3 zoomAround) {
         // Handle the 'zoomAround' point
         var target = Camera.Position + Camera.LookDirection;
         var relativeTarget = zoomAround - target;
         var relativePosition = zoomAround - Camera.Position;
-        if (relativePosition.LengthSquared() < 1e-5)
-        {
+        if (relativePosition.LengthSquared() < 1e-5) {
             if (delta > 0) //If Zoom out from very close distance, increase the initial relativePosition
             {
                 relativePosition.Normalize();
                 relativePosition /= 10;
                 zoomAround = relativePosition + Camera.Position;
                 relativeTarget = zoomAround - target;
-            }
-            else //If Zoom in too close, stop it.
+            } else //If Zoom in too close, stop it.
             {
                 return false;
             }
@@ -233,8 +211,7 @@ public sealed class ZoomHandler : MouseGestureHandler
         var oldDistance = (Camera.Position - zoomAround).Length;
 
         if (newDistance > Controller.ZoomDistanceLimitFar &&
-            (oldDistance < Controller.ZoomDistanceLimitFar || newDistance > oldDistance))
-        {
+            (oldDistance < Controller.ZoomDistanceLimitFar || newDistance > oldDistance)) {
             var ratio = (newDistance - Controller.ZoomDistanceLimitFar) / newDistance;
             f *= 1 - ratio;
             newRelativePosition = relativePosition * (float) f;
@@ -246,8 +223,7 @@ public sealed class ZoomHandler : MouseGestureHandler
         }
 
         if (newDistance < Controller.ZoomDistanceLimitNear &&
-            (oldDistance > Controller.ZoomDistanceLimitNear || newDistance < oldDistance))
-        {
+            (oldDistance > Controller.ZoomDistanceLimitNear || newDistance < oldDistance)) {
             var ratio = (Controller.ZoomDistanceLimitNear - newDistance) / newDistance;
             f *= 1 + ratio;
             newRelativePosition = relativePosition * (float) f;

@@ -6,18 +6,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Animations
-    {
-        public class NodeAnimationUpdater : IAnimationUpdater
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Animations {
+        public class NodeAnimationUpdater : IAnimationUpdater {
             private readonly List<SceneNode> animationRoots = new();
             private bool changed;
             private float previousTimeElapsed = float.MinValue;
 
-            public NodeAnimationUpdater(Animation animation)
-            {
+            public NodeAnimationUpdater(Animation animation) {
                 Animation = animation;
                 Name = animation.Name;
                 CreateAnimationRoots();
@@ -35,13 +31,11 @@ namespace HelixToolkit.SharpDX.Core
 
             public AnimationRepeatMode RepeatMode { get; set; } = AnimationRepeatMode.Loop;
 
-            public void Update(float timeStamp, long frequency)
-            {
+            public void Update(float timeStamp, long frequency) {
                 var timeSec = timeStamp / frequency;
                 if (timeSec < StartTime) return;
 
-                if (timeSec == StartTime)
-                {
+                if (timeSec == StartTime) {
                     SetToStart();
                     return;
                 }
@@ -52,20 +46,16 @@ namespace HelixToolkit.SharpDX.Core
                 if (previousTimeElapsed == timeElapsed) return;
 
                 if (timeElapsed > Animation.EndTime)
-                    switch (RepeatMode)
-                    {
-                        case AnimationRepeatMode.PlayOnce:
-                        {
+                    switch (RepeatMode) {
+                        case AnimationRepeatMode.PlayOnce: {
                             SetToStart();
                             return;
                         }
-                        case AnimationRepeatMode.PlayOnceHold:
-                        {
+                        case AnimationRepeatMode.PlayOnceHold: {
                             timeElapsed = Animation.EndTime;
                             break;
                         }
-                        case AnimationRepeatMode.Loop:
-                        {
+                        case AnimationRepeatMode.Loop: {
                             timeElapsed = timeElapsed % (EndTime - StartTime) + StartTime;
                             break;
                         }
@@ -76,22 +66,17 @@ namespace HelixToolkit.SharpDX.Core
                 UpdateBoneSkinMesh();
             }
 
-            public void Reset()
-            {
+            public void Reset() {
                 SetToStart();
             }
 
-            private void CreateAnimationRoots()
-            {
+            private void CreateAnimationRoots() {
                 var nodeHash = new HashSet<SceneNode>(Animation.NodeAnimationCollection.Select(x => x.Node));
                 var roots = new HashSet<SceneNode>();
-                foreach (var node in Animation.NodeAnimationCollection.Select(x => x.Node))
-                {
+                foreach (var node in Animation.NodeAnimationCollection.Select(x => x.Node)) {
                     var prev = node;
-                    foreach (var n in node.TraverseUp())
-                    {
-                        if (!nodeHash.Contains(n))
-                        {
+                    foreach (var n in node.TraverseUp()) {
+                        if (!nodeHash.Contains(n)) {
                             roots.Add(prev);
                             break;
                         }
@@ -104,10 +89,8 @@ namespace HelixToolkit.SharpDX.Core
                 animationRoots.AddRange(roots);
             }
 
-            private void UpdateBoneSkinMesh()
-            {
-                if (Animation.HasBoneSkinMeshes && changed)
-                {
+            private void UpdateBoneSkinMesh() {
+                if (Animation.HasBoneSkinMeshes && changed) {
                     foreach (var root in animationRoots) root.UpdateAllTransformMatrix();
                     foreach (var m in Animation.BoneSkinMeshes)
                         if (m.IsRenderable &&
@@ -130,8 +113,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="count">The count.</param>
             /// <returns></returns>
-            protected virtual Matrix[] OnGetNewBoneMatrices(int count)
-            {
+            protected virtual Matrix[] OnGetNewBoneMatrices(int count) {
                 return new Matrix[count];
             }
 
@@ -140,20 +122,15 @@ namespace HelixToolkit.SharpDX.Core
             ///     <see cref="OnGetNewBoneMatrices(int)" />
             /// </summary>
             /// <param name="m">The m.</param>
-            protected virtual void OnReturnOldBoneMatrices(Matrix[] m)
-            {
-            }
+            protected virtual void OnReturnOldBoneMatrices(Matrix[] m) { }
 
-            private void UpdateNodes(float timeElapsed)
-            {
-                for (var i = 0; i < NodeCollection.Count; ++i)
-                {
+            private void UpdateNodes(float timeElapsed) {
+                for (var i = 0; i < NodeCollection.Count; ++i) {
                     var n = NodeCollection[i];
                     var count = n.KeyFrames.Count; // Make sure to use this count
                     var frames = n.KeyFrames.Items;
                     var idx = AnimationUtils.FindKeyFrame(timeElapsed, frames);
-                    if (idx < 0)
-                    {
+                    if (idx < 0) {
                         n.Node.ModelMatrix = Matrix.Identity;
                         continue;
                     }
@@ -161,8 +138,7 @@ namespace HelixToolkit.SharpDX.Core
                     ref var currFrame = ref frames[idx];
                     if (currFrame.Time > timeElapsed && idx == 0) continue;
                     Debug.Assert(currFrame.Time <= timeElapsed);
-                    if (count == 1 || idx == frames.Length - 1)
-                    {
+                    if (count == 1 || idx == frames.Length - 1) {
                         n.Node.ModelMatrix = SilkMath.Scaling(currFrame.Scale) *
                                              SilkMath.RotationQuaternion(currFrame.Rotation) *
                                              SilkMath.Translation(currFrame.Translation);
@@ -175,18 +151,19 @@ namespace HelixToolkit.SharpDX.Core
                     var length = nextFrame.Time - currFrame.Time;
                     var amount = diff / length;
                     var transform = SilkMath.Scaling(SilkMath.Lerp(currFrame.Scale, nextFrame.Scale, amount)) *
-                                    SilkMath.RotationQuaternion(Quaternion.Slerp(currFrame.Rotation, nextFrame.Rotation,
-                                        amount)) *
-                                    SilkMath.Translation(SilkMath.Lerp(currFrame.Translation, nextFrame.Translation,
-                                        amount));
+                                    SilkMath.RotationQuaternion(Quaternion.Slerp(currFrame.Rotation,
+                                                                    nextFrame.Rotation,
+                                                                    amount)) *
+                                    SilkMath.Translation(SilkMath.Lerp(currFrame.Translation,
+                                                                       nextFrame.Translation,
+                                                                       amount));
                     n.Node.ModelMatrix = transform;
                 }
 
                 changed = true;
             }
 
-            private void SetToStart()
-            {
+            private void SetToStart() {
                 previousTimeElapsed = float.MinValue;
                 UpdateNodes(0);
                 UpdateBoneSkinMesh();

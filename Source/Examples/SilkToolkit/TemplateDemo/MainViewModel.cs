@@ -4,62 +4,55 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace TemplateDemo
-{
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Windows.Media.Media3D;
-    using DemoCore;
-    using HelixToolkit.Wpf.SharpDX;
+namespace TemplateDemo;
 
-    public class MainViewModel : BaseViewModel
-    {
-        public ObservableCollection<SelectionViewModel> ViewModels { get; } = new ObservableCollection<SelectionViewModel>();
-        private SelectionViewModel selectedViewModel = null;
-        public SelectionViewModel SelectedViewModel
-        {
-            set
-            {
-                SetValue(ref selectedViewModel, value);
-            }
-            get { return selectedViewModel; }
-        }
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Media.Media3D;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 
-        private PhongMaterialCollection materials = new PhongMaterialCollection();
+public class MainViewModel : BaseViewModel {
+    public ObservableCollection<SelectionViewModel> ViewModels { get; } =
+        new ObservableCollection<SelectionViewModel>();
 
-        public MainViewModel()
-        {
-            EffectsManager = new DefaultEffectsManager();
+    private SelectionViewModel selectedViewModel = null;
 
-            CreateViewModels();
-        }
-
-        private void CreateViewModels()
-        {
-            var vm = new SelectionViewModel(nameof(Sphere));
-            for(int i=0; i<10; ++i)
-            {
-                vm.Items.Add(new Sphere() { Transform = new TranslateTransform3D(0, i, 0), Material = materials[i] });
-            }
-            ViewModels.Add(vm);
-
-            vm = new SelectionViewModel(nameof(Cube));
-            for (int i = 0; i < 10; ++i)
-            {
-                vm.Items.Add(new Cube() { Transform = new TranslateTransform3D(i, i, 0), Material = materials[i] });
-            }
-            ViewModels.Add(vm);
-        }
+    public SelectionViewModel SelectedViewModel {
+        set { SetValue(ref selectedViewModel, value); }
+        get { return selectedViewModel; }
     }
 
-    public class SelectionViewModel
-    {
-        public string Name { private set; get; }
-        public ObservableCollection<Shape> Items { get; } = new ObservableCollection<Shape>();
+    private PhongMaterialCollection materials = new PhongMaterialCollection();
 
-        public SelectionViewModel(string name)
-        {
-            Name = name;
+    public MainViewModel() {
+        EffectsManager = new DefaultEffectsManager();
+
+        CreateViewModels();
+    }
+
+    private void CreateViewModels() {
+        var vm = new SelectionViewModel(nameof(Sphere));
+        for (int i = 0; i < 10; ++i) {
+            vm.Items.Add(new Sphere() {Transform = new TranslateTransform3D(0, i, 0), Material = materials[i]});
         }
+
+        ViewModels.Add(vm);
+
+        vm = new SelectionViewModel(nameof(Cube));
+        for (int i = 0; i < 10; ++i) {
+            vm.Items.Add(new Cube() {Transform = new TranslateTransform3D(i, i, 0), Material = materials[i]});
+        }
+
+        ViewModels.Add(vm);
+    }
+}
+
+public class SelectionViewModel {
+    public string Name { private set; get; }
+    public ObservableCollection<Shape> Items { get; } = new ObservableCollection<Shape>();
+
+    public SelectionViewModel(string name) {
+        Name = name;
     }
 }

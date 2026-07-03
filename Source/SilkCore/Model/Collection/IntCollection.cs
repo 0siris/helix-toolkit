@@ -13,29 +13,20 @@ namespace HelixToolkit.SharpDX.Core;
     [Serializable]
     [TypeConverter(typeof(IntCollectionConverter))]
 #endif
-public sealed class IntCollection : FastList<int>
-{
-    public IntCollection()
-    {
-    }
+public sealed class IntCollection : FastList<int> {
+    public IntCollection() { }
 
     public IntCollection(int capacity)
-        : base(capacity)
-    {
-    }
+        : base(capacity) { }
 
     public IntCollection(IEnumerable<int> items)
-        : base(items)
-    {
-    }
+        : base(items) { }
 
-    public static IntCollection Parse(string source)
-    {
+    public static IntCollection Parse(string source) {
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
         var th = new TokenizerHelper(source, formatProvider);
         var resource = new IntCollection();
-        while (th.NextToken())
-        {
+        while (th.NextToken()) {
             var value = Convert.ToInt32(th.GetCurrentToken(), formatProvider);
             resource.Add(value);
         }
@@ -43,13 +34,11 @@ public sealed class IntCollection : FastList<int>
         return resource;
     }
 
-    public string ConvertToString(string format, IFormatProvider provider)
-    {
+    public string ConvertToString(string format, IFormatProvider provider) {
         if (Count == 0) return string.Empty;
 
         var str = new StringBuilder();
-        for (var i = 0; i < Count; i++)
-        {
+        for (var i = 0; i < Count; i++) {
             str.AppendFormat(provider, "{0:" + format + "}", this[i]);
             if (i != Count - 1) str.Append(" ");
         }

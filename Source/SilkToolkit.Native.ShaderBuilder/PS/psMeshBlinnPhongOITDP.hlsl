@@ -5,8 +5,8 @@
 
 #include "psOITDepthPeelingCommon.hlsl"
 #include "psMeshBlinnPhong.hlsl"
-DDPOutputMRT blinnPhongOITDP(PSInput input)
-{
+
+DDPOutputMRT blinnPhongOITDP(PSInput input) {
     return depthPeelPS(input.p, main(input));
 }
 #endif

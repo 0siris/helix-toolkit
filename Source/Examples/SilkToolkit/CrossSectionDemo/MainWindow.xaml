@@ -5,7 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:CrossSectionDemo"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
     Title="CrossSectionDemo"
     Width="800"
     Height="600"
@@ -14,7 +15,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto"
-                              MinWidth="140"/>
+                              MinWidth="140" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -63,8 +64,7 @@
                 Material="{Binding ModelMaterial}"
                 Plane1="{Binding Plane1}"
                 Plane2="{Binding Plane2}"
-                Transform="{Binding ModelTransform}"
-                />
+                Transform="{Binding ModelTransform}" />
             <hx:CrossSectionMeshGeometryModel3D
                 x:Name="crossModel2"
                 CrossSectionColor="GreenYellow"
@@ -92,7 +92,7 @@
                 IsRendering="{Binding EnablePlane2}"
                 SizeScale="10" />
             <hx:AxisPlaneGridModel3D />
-           
+
         </local:CustomViewport3DX>
         <StackPanel
             Grid.Column="1"
@@ -121,7 +121,7 @@
             </ComboBox>
             <Label Foreground="White"
 
-                Content="{Binding NameOfModelAtCursor}"/>
+                   Content="{Binding NameOfModelAtCursor}" />
         </StackPanel>
     </Grid>
 </Window>

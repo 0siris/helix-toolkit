@@ -4,14 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public abstract class ShapeRenderCore2DBase : RenderCore2DBase
-        {
+        public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
             private Brush fillBrush;
 
             private Brush strokeBrush;
@@ -24,11 +21,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fill brush.
             /// </value>
-            public Brush FillBrush
-            {
+            public Brush FillBrush {
                 get => fillBrush;
-                set
-                {
+                set {
                     var old = fillBrush;
                     if (SetAffectsRender(ref fillBrush, value)) RemoveAndDispose(ref old);
                 }
@@ -40,11 +35,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The stroke brush.
             /// </value>
-            public Brush StrokeBrush
-            {
+            public Brush StrokeBrush {
                 get => strokeBrush;
-                set
-                {
+                set {
                     var old = strokeBrush;
                     if (SetAffectsRender(ref strokeBrush, value)) RemoveAndDispose(ref old);
                 }
@@ -64,18 +57,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The stroke style.
             /// </value>
-            public StrokeStyle StrokeStyle
-            {
+            public StrokeStyle StrokeStyle {
                 get => strokeStyle;
-                set
-                {
+                set {
                     var old = strokeStyle;
                     if (SetAffectsRender(ref strokeStyle, value)) RemoveAndDispose(ref old);
                 }
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref fillBrush);
                 RemoveAndDispose(ref strokeBrush);
                 RemoveAndDispose(ref strokeStyle);

@@ -8,8 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Camera movement modes.
 /// </summary>
-public enum CameraMode
-{
+public enum CameraMode {
     /// <summary>
     ///     Orbits around a point (fixed target position, move closer target when zooming).
     /// </summary>

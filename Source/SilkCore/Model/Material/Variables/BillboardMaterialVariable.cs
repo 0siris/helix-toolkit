@@ -7,12 +7,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public class BillboardMaterialVariable : MaterialVariable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public class BillboardMaterialVariable : MaterialVariable {
             /// <summary>
             ///     Initializes a new instance of the <see cref="BillboardMaterialVariable" /> class.
             /// </summary>
@@ -20,11 +17,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public BillboardMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public BillboardMaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 BillboardMaterialCore materialCore,
-                string defaultPassName = DefaultPassNames.Default)
-                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore)
-            {
+                string defaultPassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore) {
                 BillboardPass = technique[defaultPassName];
                 OITPass = technique[DefaultPassNames.OITPass];
                 OITDepthPeelingInit = technique[DefaultPassNames.OITDepthPeelingInit];
@@ -54,36 +53,36 @@ namespace HelixToolkit.SharpDX.Core
 
             public ShaderPass OITDepthPeeling { get; }
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 base.OnInitialPropertyBindings();
                 AddPropertyBinding(nameof(BillboardMaterialCore.FixedSize),
-                    () => { WriteValue(PointLineMaterialStruct.FixedSize, materialCore.FixedSize); });
+                                   () => { WriteValue(PointLineMaterialStruct.FixedSize, materialCore.FixedSize); });
                 AddPropertyBinding(nameof(BillboardMaterialCore.Type),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr, new Vector4((int) materialCore.Type, 0, 0, 0));
-                    });
-                AddPropertyBinding(nameof(BillboardMaterialCore.SamplerDescription), () =>
-                {
-                    var newSampler = EffectsManager.StateManager.Register(materialCore.SamplerDescription);
-                    RemoveAndDispose(ref textureSampler);
-                    textureSampler = newSampler;
-                });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector4((int) materialCore.Type, 0, 0, 0));
+                                   });
+                AddPropertyBinding(nameof(BillboardMaterialCore.SamplerDescription),
+                                   () => {
+                                       var newSampler =
+                                           EffectsManager.StateManager.Register(materialCore.SamplerDescription);
+                                       RemoveAndDispose(ref textureSampler);
+                                       textureSampler = newSampler;
+                                   });
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
                 shaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
                 return true;
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 if (renderType == RenderType.Transparent)
-                    switch (context.OITRenderStage)
-                    {
+                    switch (context.OITRenderStage) {
                         case OITRenderStage.SinglePassWeighted:
                             return OITPass;
                         case OITRenderStage.DepthPeelingInitMinMaxZ:
@@ -95,45 +94,42 @@ namespace HelixToolkit.SharpDX.Core
                 return BillboardPass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
-                if (bufferModel is IBillboardBufferModel billboardModel)
-                {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
+                if (bufferModel is IBillboardBufferModel billboardModel) {
                     deviceContext.SetShaderResource(PixelShader.Type, shaderTextureSlot, billboardModel.TextureView);
                     DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
                 }
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref textureSampler);
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Private Variables
+        #region Private Variables
 
             private readonly int textureSamplerSlot;
             private readonly int shaderTextureSlot;
             private SamplerStateProxy textureSampler;
             private readonly BillboardMaterialCore materialCore;
 
-            #endregion
+        #endregion
         }
     }
 }

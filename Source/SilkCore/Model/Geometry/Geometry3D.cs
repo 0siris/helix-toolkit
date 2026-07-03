@@ -14,8 +14,7 @@ namespace HelixToolkit.SharpDX.Core;
     [Serializable]
 #endif
 [DataContract]
-public abstract class Geometry3D : ObservableObject, IGUID
-{
+public abstract class Geometry3D : ObservableObject, IGUID {
     public const string VertexBuffer = "VertexBuffer";
     public const string TriangleBuffer = "TriangleBuffer";
     private static readonly PropertyChangedEventArgs vertexBufferPropChanged = new(VertexBuffer);
@@ -24,7 +23,8 @@ public abstract class Geometry3D : ObservableObject, IGUID
     private static readonly PropertyChangedEventArgs positionPropChanged = new(nameof(Positions));
     private static readonly PropertyChangedEventArgs indicesPropChanged = new(nameof(Indices));
 
-    [DataMember] public Guid GUID { get; set; } = Guid.NewGuid();
+    [DataMember]
+    public Guid GUID { get; set; } = Guid.NewGuid();
 
     private IntCollection indices;
 
@@ -32,13 +32,10 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Indices, can be triangle list, line list, etc.
     /// </summary>
     [DataMember]
-    public IntCollection Indices
-    {
+    public IntCollection Indices {
         get => indices;
-        set
-        {
-            if (Set(ref indices, value, false))
-            {
+        set {
+            if (Set(ref indices, value, false)) {
                 ClearOctree();
                 RaisePropertyChanged(indicesPropChanged);
             }
@@ -51,13 +48,10 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Vertex Positions
     /// </summary>
     [DataMember]
-    public Vector3Collection Positions
-    {
+    public Vector3Collection Positions {
         get => position;
-        set
-        {
-            if (Set(ref position, value, false))
-            {
+        set {
+            if (Set(ref position, value, false)) {
                 ClearOctree();
                 RaisePropertyChanged(positionPropChanged);
                 UpdateBounds();
@@ -74,8 +68,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Geometry AABB
     /// </summary>
     [IgnoreDataMember]
-    public BoundingBox Bound
-    {
+    public BoundingBox Bound {
         get => bound;
         set => Set(ref bound, value);
     }
@@ -89,8 +82,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Geometry Bounding Sphere
     /// </summary>
     [IgnoreDataMember]
-    public BoundingSphere BoundingSphere
-    {
+    public BoundingSphere BoundingSphere {
         get => boundingSphere;
         set => Set(ref boundingSphere, value);
     }
@@ -101,11 +93,9 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Vertex Color
     /// </summary>
     [DataMember]
-    public Color4Collection Colors
-    {
+    public Color4Collection Colors {
         get => colors;
-        set
-        {
+        set {
             if (Set(ref colors, value, false)) RaisePropertyChanged(colorsPropChanged);
         }
     }
@@ -199,8 +189,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     /// <summary>
     ///     Initializes a new instance of the <see cref="Geometry3D" /> class.
     /// </summary>
-    public Geometry3D()
-    {
+    public Geometry3D() {
         OctreeParameter.PropertyChanged += OctreeParameter_PropertyChanged;
     }
 
@@ -209,13 +198,11 @@ public abstract class Geometry3D : ObservableObject, IGUID
     /// </summary>
     /// <param name="isDynamic">if set to <c>true</c> [is dynamic].</param>
     public Geometry3D(bool isDynamic)
-        : this()
-    {
+        : this() {
         IsDynamic = isDynamic;
     }
 
-    private void OctreeParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
+    private void OctreeParameter_PropertyChanged(object sender, PropertyChangedEventArgs e) {
         OctreeDirty = true;
     }
 
@@ -230,8 +217,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///         User must manually call <see cref="UpdateBounds" /> to refresh geometry bounding box.
     ///     </para>
     /// </summary>
-    public void UpdateVertices()
-    {
+    public void UpdateVertices() {
         RaisePropertyChanged(vertexBufferPropChanged);
     }
 
@@ -242,8 +228,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///         list.
     ///     </para>
     /// </summary>
-    public void UpdateTriangles()
-    {
+    public void UpdateTriangles() {
         RaisePropertyChanged(triangleBufferPropChanged);
     }
 
@@ -255,24 +240,18 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     </para>
     ///     <para>Make sure the <see cref="Colors" /> count equal to the <see cref="Positions" /> count</para>
     /// </summary>
-    public void UpdateColors()
-    {
+    public void UpdateColors() {
         RaisePropertyChanged(colorsPropChanged);
     }
 
     /// <summary>
     ///     Create Octree for current model.
     /// </summary>
-    public void UpdateOctree(bool force = false)
-    {
-        if (!IsTransient && CanCreateOctree())
-        {
-            if (OctreeDirty || force)
-            {
-                lock (octreeLock)
-                {
-                    if (OctreeDirty || force)
-                    {
+    public void UpdateOctree(bool force = false) {
+        if (!IsTransient && CanCreateOctree()) {
+            if (OctreeDirty || force) {
+                lock (octreeLock) {
+                    if (OctreeDirty || force) {
                         Octree = CreateOctree(OctreeParameter);
                         Octree?.BuildTree();
                         OctreeDirty = false;
@@ -281,16 +260,13 @@ public abstract class Geometry3D : ObservableObject, IGUID
 
                 RaisePropertyChanged(nameof(Octree));
             }
-        }
-        else
-        {
+        } else {
             Octree = null;
             OctreeDirty = true;
         }
     }
 
-    protected virtual bool CanCreateOctree()
-    {
+    protected virtual bool CanCreateOctree() {
         return Positions != null && Indices != null && Positions.Count > 0 && Indices.Count > 0;
     }
 
@@ -299,8 +275,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Override to create different octree in subclasses.
     /// </summary>
     /// <returns></returns>
-    protected virtual IOctreeBasic CreateOctree(OctreeBuildParameter parameter)
-    {
+    protected virtual IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
         return null;
     }
 
@@ -308,8 +283,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     /// <summary>
     ///     Set octree to null
     /// </summary>
-    public void ClearOctree()
-    {
+    public void ClearOctree() {
         Octree = null;
         OctreeDirty = true;
     }
@@ -318,8 +292,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     Manuals the set octree.
     /// </summary>
     /// <param name="octree">The octree.</param>
-    public void ManualSetOctree(IOctreeBasic octree)
-    {
+    public void ManualSetOctree(IOctreeBasic octree) {
         Octree = octree;
         OctreeDirty = false;
     }
@@ -335,8 +308,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     <para>Override <see cref="OnAssignTo(Geometry3D)" /> to assign custom properties in child class</para>
     /// </summary>
     /// <param name="target">The target.</param>
-    public void AssignTo(Geometry3D target)
-    {
+    public void AssignTo(Geometry3D target) {
         target.DisableUpdateBound = true;
         target.Positions = Positions;
         target.ClearOctree();
@@ -353,24 +325,18 @@ public abstract class Geometry3D : ObservableObject, IGUID
         OnAssignTo(target);
     }
 
-    protected virtual void OnAssignTo(Geometry3D target)
-    {
-    }
+    protected virtual void OnAssignTo(Geometry3D target) { }
 
     /// <summary>
     ///     Manually call this function to update AABB and Bounding Sphere
     /// </summary>
-    public virtual void UpdateBounds()
-    {
+    public virtual void UpdateBounds() {
         if (DisableUpdateBound) return;
 
-        if (position == null || position.Count == 0)
-        {
+        if (position == null || position.Count == 0) {
             Bound = new BoundingBox();
             BoundingSphere = new BoundingSphere();
-        }
-        else
-        {
+        } else {
             Bound = BoundingBoxExtensions.FromPoints(Positions);
             BoundingSphere = BoundingSphereExtensions.FromPoints(Positions);
         }
@@ -381,18 +347,15 @@ public abstract class Geometry3D : ObservableObject, IGUID
             throw new Exception("Position vertex contains invalid value(Example: Float.NaN, Float.Infinity).");
     }
 
-    public struct Triangle
-    {
+    public struct Triangle {
         public Vector3 P0, P1, P2;
     }
 
-    public struct Line
-    {
+    public struct Line {
         public Vector3 P0, P1;
     }
 
-    public struct Point
-    {
+    public struct Point {
         public Vector3 P0;
     }
 
@@ -412,8 +375,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     ///     </para>
     ///     A transient geometry does not support hit test.
     /// </summary>
-    public void SetAsTransient()
-    {
+    public void SetAsTransient() {
         IsTransient = true;
         ClearOctree();
     }
@@ -421,8 +383,7 @@ public abstract class Geometry3D : ObservableObject, IGUID
     /// <summary>
     ///     Clears all geometry data.
     /// </summary>
-    public void ClearAllGeometryData()
-    {
+    public void ClearAllGeometryData() {
         Positions?.Clear();
         Positions?.TrimExcess();
         Indices?.Clear();
@@ -432,7 +393,5 @@ public abstract class Geometry3D : ObservableObject, IGUID
         OnClearAllGeometryData();
     }
 
-    protected virtual void OnClearAllGeometryData()
-    {
-    }
+    protected virtual void OnClearAllGeometryData() { }
 }

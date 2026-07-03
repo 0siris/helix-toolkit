@@ -4,33 +4,27 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace DemoCore
-{
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
+namespace DemoCore;
 
-    public abstract class ObservableObject : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-        protected void OnPropertyChanged([CallerMemberName]string info = "")
-        {
-            if (this.PropertyChanged != null)
-            {
-                this.PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
+public abstract class ObservableObject : INotifyPropertyChanged {
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void OnPropertyChanged([CallerMemberName] string info = "") {
+        if (this.PropertyChanged != null) {
+            this.PropertyChanged(this, new PropertyChangedEventArgs(info));
+        }
+    }
+
+    protected bool SetValue<T>(ref T backingField, T value, [CallerMemberName] string propertyName = "") {
+        if (object.Equals(backingField, value)) {
+            return false;
         }
 
-        protected bool SetValue<T>(ref T backingField, T value, [CallerMemberName]string propertyName = "")
-        {
-            if (object.Equals(backingField, value))
-            {
-                return false;
-            }
-
-            backingField = value;
-            this.OnPropertyChanged(propertyName);
-            return true;
-        }
+        backingField = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
     }
 }

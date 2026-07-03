@@ -5,20 +5,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core.Components
-    {
-        public abstract class CoreComponent : DisposeObject
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core.Components {
+        public abstract class CoreComponent : DisposeObject {
             public bool IsAttached { get; private set; }
 
             public IRenderTechnique Technique { get; private set; }
 
             public event EventHandler InvalidateRender;
 
-            public void Attach(IRenderTechnique technique)
-            {
+            public void Attach(IRenderTechnique technique) {
                 if (IsAttached) return;
                 IsAttached = true;
                 Technique = technique;
@@ -27,8 +23,7 @@ namespace HelixToolkit.SharpDX.Core
 
             protected abstract void OnAttach(IRenderTechnique technique);
 
-            public void Detach()
-            {
+            public void Detach() {
                 if (!IsAttached) return;
                 OnDetach();
                 IsAttached = false;
@@ -43,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="value"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsRender<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -52,13 +46,11 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            public void RaiseInvalidateRender()
-            {
+            public void RaiseInvalidateRender() {
                 InvalidateRender?.Invoke(this, EventArgs.Empty);
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Detach();
                 base.OnDispose(disposeManagedResources);
             }

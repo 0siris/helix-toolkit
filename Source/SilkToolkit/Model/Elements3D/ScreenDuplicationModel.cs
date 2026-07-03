@@ -14,55 +14,69 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     https://support.microsoft.com/en-us/help/3019314/error-generated-when-desktop-duplication-api-capable-application-is-ru
 /// </summary>
 /// <seealso cref="HelixToolkit.Wpf.SharpDX.Element3D" />
-public class ScreenDuplicationModel : Element3D
-{
+public class ScreenDuplicationModel : Element3D {
     /// <summary>
     ///     The screen rectangle property
     /// </summary>
     public static readonly DependencyProperty CaptureRectangleProperty =
-        DependencyProperty.Register("CaptureRectangle", typeof(Rect), typeof(ScreenDuplicationModel),
-            new PropertyMetadata(new Rect(),
-                (d, e) =>
-                {
-                    var rect = (Rect) e.NewValue;
-                    ((d as Element3DCore).SceneNode as ScreenDuplicationNode).CaptureRectangle =
-                        new Rectangle((int) rect.Left, (int) rect.Top, (int) rect.Width, (int) rect.Height);
-                }));
+        DependencyProperty.Register("CaptureRectangle",
+                                    typeof(Rect),
+                                    typeof(ScreenDuplicationModel),
+                                    new PropertyMetadata(new Rect(),
+                                                         (d, e) => {
+                                                             var rect = (Rect) e.NewValue;
+                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
+                                                                 .CaptureRectangle =
+                                                                 new Rectangle(
+                                                                     (int) rect.Left,
+                                                                     (int) rect.Top,
+                                                                     (int) rect.Width,
+                                                                     (int) rect.Height);
+                                                         }));
 
     /// <summary>
     ///     The display index property
     /// </summary>
     public static readonly DependencyProperty DisplayIndexProperty =
-        DependencyProperty.Register("DisplayIndex", typeof(int), typeof(ScreenDuplicationModel), new PropertyMetadata(0,
-            (d, e) => { ((d as Element3DCore).SceneNode as ScreenDuplicationNode).DisplayIndex = (int) e.NewValue; }));
+        DependencyProperty.Register("DisplayIndex",
+                                    typeof(int),
+                                    typeof(ScreenDuplicationModel),
+                                    new PropertyMetadata(0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
+                                                                 .DisplayIndex = (int) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The stretch to fill property
     /// </summary>
     public static readonly DependencyProperty StretchToFillProperty =
-        DependencyProperty.Register("StretchToFill", typeof(bool), typeof(ScreenDuplicationModel), new PropertyMetadata(
-            false,
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as ScreenDuplicationNode).StretchToFill = (bool) e.NewValue;
-            }));
+        DependencyProperty.Register("StretchToFill",
+                                    typeof(bool),
+                                    typeof(ScreenDuplicationModel),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
+                                                                 .StretchToFill = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The show mouse cursor property
     /// </summary>
     public static readonly DependencyProperty ShowMouseCursorProperty =
-        DependencyProperty.Register("ShowMouseCursor", typeof(bool), typeof(ScreenDuplicationModel),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ScreenDuplicationNode).ShowMouseCursor = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("ShowMouseCursor",
+                                    typeof(bool),
+                                    typeof(ScreenDuplicationModel),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
+                                                                 .ShowMouseCursor = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ScreenDuplicationModel" /> class.
     /// </summary>
-    public ScreenDuplicationModel()
-    {
+    public ScreenDuplicationModel() {
         IsHitTestVisible = false;
     }
 
@@ -72,8 +86,7 @@ public class ScreenDuplicationModel : Element3D
     /// <value>
     ///     The screen rectangle.
     /// </value>
-    public Rect CaptureRectangle
-    {
+    public Rect CaptureRectangle {
         get => (Rect) GetValue(CaptureRectangleProperty);
         set => SetValue(CaptureRectangleProperty, value);
     }
@@ -84,8 +97,7 @@ public class ScreenDuplicationModel : Element3D
     /// <value>
     ///     The display index.
     /// </value>
-    public int DisplayIndex
-    {
+    public int DisplayIndex {
         get => (int) GetValue(DisplayIndexProperty);
         set => SetValue(DisplayIndexProperty, value);
     }
@@ -97,8 +109,7 @@ public class ScreenDuplicationModel : Element3D
     /// <value>
     ///     <c>true</c> if [stretch to fill]; otherwise, <c>false</c>.
     /// </value>
-    public bool StretchToFill
-    {
+    public bool StretchToFill {
         get => (bool) GetValue(StretchToFillProperty);
         set => SetValue(StretchToFillProperty, value);
     }
@@ -110,14 +121,12 @@ public class ScreenDuplicationModel : Element3D
     /// <value>
     ///     <c>true</c> if [show mouse cursor]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowMouseCursor
-    {
+    public bool ShowMouseCursor {
         get => (bool) GetValue(ShowMouseCursorProperty);
         set => SetValue(ShowMouseCursorProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new ScreenDuplicationNode();
     }
 
@@ -125,14 +134,14 @@ public class ScreenDuplicationModel : Element3D
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="core">The core.</param>
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        if (core is ScreenDuplicationNode c)
-        {
+        if (core is ScreenDuplicationNode c) {
             c.DisplayIndex = DisplayIndex;
-            c.CaptureRectangle = new Rectangle((int) CaptureRectangle.Left, (int) CaptureRectangle.Top,
-                (int) CaptureRectangle.Width, (int) CaptureRectangle.Height);
+            c.CaptureRectangle = new Rectangle((int) CaptureRectangle.Left,
+                                               (int) CaptureRectangle.Top,
+                                               (int) CaptureRectangle.Width,
+                                               (int) CaptureRectangle.Height);
             c.StretchToFill = StretchToFill;
             c.ShowMouseCursor = ShowMouseCursor;
         }

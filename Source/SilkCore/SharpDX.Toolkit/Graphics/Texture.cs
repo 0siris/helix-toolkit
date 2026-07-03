@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Base class for texture resources.
 /// </summary>
-public abstract class Texture : GraphicsResource, IComparable<Texture>
-{
+public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <summary>
     ///     The depth stride in bytes (number of bytes per depth slice).
     /// </summary>
@@ -37,8 +36,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// </summary>
     /// <param name="device"></param>
     /// <param name="description"></param>
-    protected Texture(NativeD3DDevice device, TextureDescription description) : base(device)
-    {
+    protected Texture(NativeD3DDevice device, TextureDescription description) : base(device) {
         Description = description;
         IsBlockCompressed = FormatHelper.IsCompressed(description.Format);
         RowStride = Description.Width * ((PixelFormat) Description.Format).SizeInBytes;
@@ -80,16 +78,14 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public int CompareTo(Texture obj)
-    {
+    public int CompareTo(Texture obj) {
         return textureId.CompareTo(obj.textureId);
     }
 
     /// <summary>
     /// </summary>
     /// <param name="resource"></param>
-    protected override void Initialize(NativeD3DResource resource)
-    {
+    protected override void Initialize(NativeD3DResource resource) {
         // Be sure that we are storing only the main device (which contains the immediate context).
         base.Initialize(resource);
         // Gets a Texture ID
@@ -105,20 +101,14 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     ///     1 miplevel, or > 1 to calculate a specific amount of levels.
     /// </param>
     /// <returns>The number of miplevels.</returns>
-    public static int CalculateMipLevels(int width, MipMapCount mipLevels)
-    {
-        if (mipLevels > 1)
-        {
+    public static int CalculateMipLevels(int width, MipMapCount mipLevels) {
+        if (mipLevels > 1) {
             var maxMips = CountMips(width);
             if (mipLevels > maxMips)
                 throw new InvalidOperationException(string.Format("MipLevels must be <= {0}", maxMips));
-        }
-        else if (mipLevels == 0)
-        {
+        } else if (mipLevels == 0) {
             mipLevels = CountMips(width);
-        }
-        else
-        {
+        } else {
             mipLevels = 1;
         }
 
@@ -135,20 +125,14 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     ///     1 miplevel, or > 1 to calculate a specific amount of levels.
     /// </param>
     /// <returns>The number of miplevels.</returns>
-    public static int CalculateMipLevels(int width, int height, MipMapCount mipLevels)
-    {
-        if (mipLevels > 1)
-        {
+    public static int CalculateMipLevels(int width, int height, MipMapCount mipLevels) {
+        if (mipLevels > 1) {
             var maxMips = CountMips(width, height);
             if (mipLevels > maxMips)
                 throw new InvalidOperationException(string.Format("MipLevels must be <= {0}", maxMips));
-        }
-        else if (mipLevels == 0)
-        {
+        } else if (mipLevels == 0) {
             mipLevels = CountMips(width, height);
-        }
-        else
-        {
+        } else {
             mipLevels = 1;
         }
 
@@ -166,26 +150,20 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     ///     1 miplevel, or > 1 to calculate a specific amount of levels.
     /// </param>
     /// <returns>The number of miplevels.</returns>
-    public static int CalculateMipLevels(int width, int height, int depth, MipMapCount mipLevels)
-    {
-        if (mipLevels > 1)
-        {
+    public static int CalculateMipLevels(int width, int height, int depth, MipMapCount mipLevels) {
+        if (mipLevels > 1) {
             if (!IsPow2(width) || !IsPow2(height) || !IsPow2(depth))
                 throw new InvalidOperationException("Width/Height/Depth must be power of 2");
 
             var maxMips = CountMips(width, height, depth);
             if (mipLevels > maxMips)
                 throw new InvalidOperationException(string.Format("MipLevels must be <= {0}", maxMips));
-        }
-        else if (mipLevels == 0)
-        {
+        } else if (mipLevels == 0) {
             if (!IsPow2(width) || !IsPow2(height) || !IsPow2(depth))
                 throw new InvalidOperationException("Width/Height/Depth must be power of 2");
 
             mipLevels = CountMips(width, height, depth);
-        }
-        else
-        {
+        } else {
             mipLevels = 1;
         }
 
@@ -197,8 +175,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="width"></param>
     /// <param name="mipLevel"></param>
     /// <returns></returns>
-    public static int CalculateMipSize(int width, int mipLevel)
-    {
+    public static int CalculateMipSize(int width, int mipLevel) {
         mipLevel = Math.Min(mipLevel, CountMips(width));
         width = width >> mipLevel;
         return width > 0 ? width : 1;
@@ -210,8 +187,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="arraySlice">The array slice index.</param>
     /// <param name="mipSlice">The mip slice index.</param>
     /// <returns>A value equals to arraySlice * Description.MipLevels + mipSlice.</returns>
-    public int GetSubResourceIndex(int arraySlice, int mipSlice)
-    {
+    public int GetSubResourceIndex(int arraySlice, int mipSlice) {
         return arraySlice * Description.MipLevels + mipSlice;
     }
 
@@ -221,8 +197,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <typeparam name="TData">The type of the T pixel data.</typeparam>
     /// <returns>The expected width</returns>
     /// <exception cref="System.ArgumentException">If the size is invalid</exception>
-    public int CalculateWidth<TData>(int mipLevel = 0) where TData : struct
-    {
+    public int CalculateWidth<TData>(int mipLevel = 0) where TData : struct {
         var widthOnMip = CalculateMipSize(Description.Width, mipLevel);
         var rowStride = widthOnMip * ((PixelFormat) Description.Format).SizeInBytes;
 
@@ -244,8 +219,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     ///     This method is used to allocated a texture data buffer to hold pixel data: var textureData = new T[
     ///     texture.CalculatePixelCount&lt;T&gt;() ] ;.
     /// </remarks>
-    public int CalculatePixelDataCount<TData>(int mipLevel = 0) where TData : struct
-    {
+    public int CalculatePixelDataCount<TData>(int mipLevel = 0) where TData : struct {
         return CalculateWidth<TData>(mipLevel) * CalculateMipSize(Description.Height, mipLevel) *
                CalculateMipSize(Description.Depth, mipLevel);
     }
@@ -270,8 +244,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public T Clone<T>() where T : Texture
-    {
+    public T Clone<T>() where T : Texture {
         return (T) Clone();
     }
 
@@ -281,8 +254,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="graphicsDevice">The graphics device.</param>
     /// <param name="description">The description.</param>
     /// <returns>A Texture instance, either a RenderTarget or DepthStencilBuffer or Texture, depending on Binding flags.</returns>
-    public static Texture New(NativeD3DDevice graphicsDevice, TextureDescription description)
-    {
+    public static Texture New(NativeD3DDevice graphicsDevice, TextureDescription description) {
         if (graphicsDevice == null) throw new ArgumentNullException("graphicsDevice");
 
         if ((description.BindFlags & BindFlags.RenderTarget) != 0)
@@ -291,8 +263,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         if ((description.BindFlags & BindFlags.DepthStencil) != 0)
             throw new NotSupportedException("DepthStencil is not supported.");
 
-        switch (description.Dimension)
-        {
+        switch (description.Dimension) {
             case TextureDimension.Texture1D:
                 return Texture1D.New(graphicsDevice, description);
             case TextureDimension.Texture2D:
@@ -314,21 +285,21 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <returns>A texture</returns>
-    public static Texture Load(NativeD3DDevice device, Stream stream, TextureFlags flags = TextureFlags.ShaderResource,
-        ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public static Texture Load(
+        NativeD3DDevice device,
+        Stream stream,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         stream.Position = 0;
         var image = Image.Load(stream);
-        if (image == null)
-        {
+        if (image == null) {
             stream.Position = 0;
             return null;
         }
 
-        try
-        {
-            switch (image.Description.Dimension)
-            {
+        try {
+            switch (image.Description.Dimension) {
                 case TextureDimension.Texture1D:
                     return Texture1D.New(device, image, flags, usage);
                 case TextureDimension.Texture2D:
@@ -338,9 +309,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
                 case TextureDimension.TextureCube:
                     return TextureCube.New(device, image, flags, usage);
             }
-        }
-        finally
-        {
+        } finally {
             image.Dispose();
             stream.Position = 0;
         }
@@ -356,11 +325,13 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <returns>A texture</returns>
-    public static Texture Load(NativeD3DDevice device, string filePath,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public static Texture Load(
+        NativeD3DDevice device,
+        string filePath,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(device, stream, flags, usage);
         }
     }
@@ -373,8 +344,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="height">The height.</param>
     /// <param name="depth">The depth.</param>
     /// <returns>The resulting mipmap count (clamp to [1, maxMipMapCount] for this texture)</returns>
-    internal static int CalculateMipMapCount(MipMapCount requestedLevel, int width, int height = 0, int depth = 0)
-    {
+    internal static int CalculateMipMapCount(MipMapCount requestedLevel, int width, int height = 0, int depth = 0) {
         var size = Math.Max(Math.Max(width, height), depth);
         var maxMipMap = 1 + (int) Math.Log(size, 2);
 
@@ -391,9 +361,14 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
     /// <param name="textureData"></param>
     /// <param name="fixedPointer"></param>
     /// <returns></returns>
-    internal static DataBox GetDataBox<T>(Format format, int width, int height, int depth, T[] textureData,
-        nint fixedPointer) where T : unmanaged
-    {
+    internal static DataBox GetDataBox<T>(
+        Format format,
+        int width,
+        int height,
+        int depth,
+        T[] textureData,
+        nint fixedPointer
+    ) where T : unmanaged {
         // Check that the textureData size is correct
         if (textureData == null)
             throw new ArgumentNullException("textureData");
@@ -408,9 +383,11 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return new DataBox(fixedPointer, rowPitch, slicePitch);
     }
 
-    internal static TextureDescription CreateTextureDescriptionFromImage(Image image, TextureFlags flags,
-        ResourceUsage usage)
-    {
+    internal static TextureDescription CreateTextureDescriptionFromImage(
+        Image image,
+        TextureFlags flags,
+        ResourceUsage usage
+    ) {
         var desc = (TextureDescription) image.Description;
         desc.BindFlags = BindFlags.ShaderResource;
         desc.Usage = usage;
@@ -423,13 +400,16 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return desc;
     }
 
-    internal void GetViewSliceBounds(ViewType viewType, ref int arrayOrDepthIndex, ref int mipIndex,
-        out int arrayOrDepthCount, out int mipCount)
-    {
+    internal void GetViewSliceBounds(
+        ViewType viewType,
+        ref int arrayOrDepthIndex,
+        ref int mipIndex,
+        out int arrayOrDepthCount,
+        out int mipCount
+    ) {
         var arrayOrDepthSize = Description.Depth > 1 ? Description.Depth : Description.ArraySize;
 
-        switch (viewType)
-        {
+        switch (viewType) {
             case ViewType.Full:
                 arrayOrDepthIndex = 0;
                 mipIndex = 0;
@@ -455,29 +435,24 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         }
     }
 
-    internal int GetViewCount()
-    {
+    internal int GetViewCount() {
         var arrayOrDepthSize = Description.Depth > 1 ? Description.Depth : Description.ArraySize;
         return GetViewIndex((ViewType) 4, arrayOrDepthSize, Description.MipLevels);
     }
 
-    internal int GetViewIndex(ViewType viewType, int arrayOrDepthIndex, int mipIndex)
-    {
+    internal int GetViewIndex(ViewType viewType, int arrayOrDepthIndex, int mipIndex) {
         var arrayOrDepthSize = Description.Depth > 1 ? Description.Depth : Description.ArraySize;
         return ((int) viewType * arrayOrDepthSize + arrayOrDepthIndex) * Description.MipLevels + mipIndex;
     }
 
-    private static bool IsPow2(int x)
-    {
+    private static bool IsPow2(int x) {
         return x != 0 && (x & (x - 1)) == 0;
     }
 
-    private static int CountMips(int width)
-    {
+    private static int CountMips(int width) {
         var mipLevels = 1;
 
-        while (width > 1)
-        {
+        while (width > 1) {
             ++mipLevels;
 
             if (width > 1)
@@ -487,12 +462,10 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return mipLevels;
     }
 
-    private static int CountMips(int width, int height)
-    {
+    private static int CountMips(int width, int height) {
         var mipLevels = 1;
 
-        while (height > 1 || width > 1)
-        {
+        while (height > 1 || width > 1) {
             ++mipLevels;
 
             if (height > 1)
@@ -505,12 +478,10 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return mipLevels;
     }
 
-    private static int CountMips(int width, int height, int depth)
-    {
+    private static int CountMips(int width, int height, int depth) {
         var mipLevels = 1;
 
-        while (height > 1 || width > 1 || depth > 1)
-        {
+        while (height > 1 || width > 1 || depth > 1) {
             ++mipLevels;
 
             if (height > 1)
@@ -526,8 +497,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return mipLevels;
     }
 
-    internal static BindFlags GetBindFlagsFromTextureFlags(TextureFlags flags)
-    {
+    internal static BindFlags GetBindFlagsFromTextureFlags(TextureFlags flags) {
         var bindFlags = BindFlags.None;
         if ((flags & TextureFlags.ShaderResource) != 0)
             bindFlags |= BindFlags.ShaderResource;
@@ -541,10 +511,8 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
         return bindFlags;
     }
 
-    internal struct TextureViewKey : IEquatable<TextureViewKey>
-    {
-        public TextureViewKey(Format viewFormat, ViewType viewType, int arrayOrDepthSlice, int mipIndex)
-        {
+    internal struct TextureViewKey : IEquatable<TextureViewKey> {
+        public TextureViewKey(Format viewFormat, ViewType viewType, int arrayOrDepthSlice, int mipIndex) {
             ViewFormat = viewFormat;
             ViewType = viewType;
             ArrayOrDepthSlice = arrayOrDepthSlice;
@@ -559,23 +527,19 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
 
         public readonly int MipIndex;
 
-        public bool Equals(TextureViewKey other)
-        {
+        public bool Equals(TextureViewKey other) {
             return ViewFormat == other.ViewFormat && ViewType == other.ViewType &&
                    ArrayOrDepthSlice == other.ArrayOrDepthSlice && MipIndex == other.MipIndex;
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj))
                 return false;
             return obj is TextureViewKey && Equals((TextureViewKey) obj);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 var hashCode = (int) ViewFormat;
                 hashCode = (hashCode * 397) ^ (int) ViewType;
                 hashCode = (hashCode * 397) ^ ArrayOrDepthSlice;
@@ -584,13 +548,11 @@ public abstract class Texture : GraphicsResource, IComparable<Texture>
             }
         }
 
-        public static bool operator ==(TextureViewKey left, TextureViewKey right)
-        {
+        public static bool operator ==(TextureViewKey left, TextureViewKey right) {
             return left.Equals(right);
         }
 
-        public static bool operator !=(TextureViewKey left, TextureViewKey right)
-        {
+        public static bool operator !=(TextureViewKey left, TextureViewKey right) {
             return !left.Equals(right);
         }
     }

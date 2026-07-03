@@ -6,16 +6,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         ///     Line Geometry Buffer Model. Used for line rendering
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
-        public abstract class LineGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct
-        {
+        public abstract class LineGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct {
             protected static readonly VertexStruct[] emptyVertices = new VertexStruct[0];
             protected static readonly int[] emptyIndices = new int[0];
 
@@ -26,14 +23,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(int structSize, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                    dynamic
-                        ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
-                        : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
-                    dynamic
-                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
-                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
-            {
-            }
+                       dynamic
+                           ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                           : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+                       dynamic
+                           ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                           : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer)) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
@@ -42,12 +37,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(IElementsBufferProxy vertexBuffer, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                    vertexBuffer,
-                    dynamic
-                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
-                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
-            {
-            }
+                       vertexBuffer,
+                       dynamic
+                           ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                           : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer)) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
@@ -56,12 +49,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="dynamic">Create dynamic buffer or immutable buffer</param>
             public LineGeometryBufferModel(IElementsBufferProxy[] vertexBuffer, bool dynamic = false)
                 : base(PrimitiveTopology.LineList,
-                    vertexBuffer,
-                    dynamic
-                        ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
-                        : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer))
-            {
-            }
+                       vertexBuffer,
+                       dynamic
+                           ? new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer)
+                           : new ImmutableBufferProxy(sizeof(int), BindFlags.IndexBuffer)) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
@@ -70,9 +61,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="indexBuffer"></param>
             public LineGeometryBufferModel(IElementsBufferProxy vertexBuffer, IElementsBufferProxy indexBuffer)
                 : base(PrimitiveTopology.LineList,
-                    vertexBuffer, indexBuffer)
-            {
-            }
+                       vertexBuffer,
+                       indexBuffer) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.
@@ -81,29 +71,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="indexBuffer"></param>
             public LineGeometryBufferModel(IElementsBufferProxy[] vertexBuffer, IElementsBufferProxy indexBuffer)
                 : base(PrimitiveTopology.LineList,
-                    vertexBuffer, indexBuffer)
-            {
-            }
+                       vertexBuffer,
+                       indexBuffer) { }
         }
 
         /// <summary>
         /// </summary>
-        public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVertex>
-        {
+        public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVertex> {
             /// <summary>
             ///     Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel" /> class.
             /// </summary>
-            public DefaultLineGeometryBufferModel() : base(LinesVertex.SizeInBytes)
-            {
-            }
+            public DefaultLineGeometryBufferModel() : base(LinesVertex.SizeInBytes) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DefaultLineGeometryBufferModel" /> class.
             /// </summary>
             /// <param name="isDynamic"></param>
-            public DefaultLineGeometryBufferModel(bool isDynamic) : base(LinesVertex.SizeInBytes, isDynamic)
-            {
-            }
+            public DefaultLineGeometryBufferModel(bool isDynamic) : base(LinesVertex.SizeInBytes, isDynamic) { }
 
             /// <summary>
             ///     Called when [create vertex buffer].
@@ -113,26 +97,29 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
             /// <param name="bufferIndex"></param>
-            protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
-            {
+            protected override void OnCreateVertexBuffer(
+                DeviceContextProxy context,
+                IElementsBufferProxy buffer,
+                int bufferIndex,
+                Geometry3D geometry,
+                IDeviceResources deviceResources
+            ) {
                 // -- set geometry if given
-                if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
-                {
+                if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0) {
                     // --- get geometry
                     var data = OnBuildVertexArray(geometry);
-                    buffer.UploadDataToBuffer(context, data, geometry.Positions.Count, 0,
-                        geometry.PreDefinedVertexCount);
-                }
-                else
-                {
+                    buffer.UploadDataToBuffer(context,
+                                              data,
+                                              geometry.Positions.Count,
+                                              0,
+                                              geometry.PreDefinedVertexCount);
+                } else {
                     //buffer.DisposeAndClear();
                     buffer.UploadDataToBuffer(context, emptyVertices, 0);
                 }
             }
 
-            protected override bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex)
-            {
+            protected override bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex) {
                 return base.IsVertexBufferChanged(propertyName, vertexBufferIndex) ||
                        propertyName.Equals(nameof(Geometry3D.Colors));
             }
@@ -144,12 +131,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected override void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                Geometry3D geometry, IDeviceResources deviceResources)
-            {
+            protected override void OnCreateIndexBuffer(
+                DeviceContextProxy context,
+                IElementsBufferProxy buffer,
+                Geometry3D geometry,
+                IDeviceResources deviceResources
+            ) {
                 if (geometry != null && geometry.Indices != null && geometry.Indices.Count > 0)
-                    buffer.UploadDataToBuffer(context, geometry.Indices, geometry.Indices.Count, 0,
-                        geometry.PreDefinedIndexCount);
+                    buffer.UploadDataToBuffer(context,
+                                              geometry.Indices,
+                                              geometry.Indices.Count,
+                                              0,
+                                              geometry.PreDefinedIndexCount);
                 else
                     buffer.UploadDataToBuffer(context, emptyIndices, 0);
             }
@@ -159,17 +152,15 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="geometry">The geometry.</param>
             /// <returns></returns>
-            private LinesVertex[] OnBuildVertexArray(Geometry3D geometry)
-            {
+            private LinesVertex[] OnBuildVertexArray(Geometry3D geometry) {
                 var positions = geometry.Positions;
                 var vertexCount = geometry.Positions.Count;
                 var array = ThreadBufferManager<LinesVertex>.GetBuffer(vertexCount);
                 var colors = geometry.Colors != null
-                    ? geometry.Colors.GetEnumerator()
-                    : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
+                                 ? geometry.Colors.GetEnumerator()
+                                 : Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
 
-                for (var i = 0; i < vertexCount; i++)
-                {
+                for (var i = 0; i < vertexCount; i++) {
                     colors.MoveNext();
                     array[i].Position = new Vector4(positions[i], 1f);
                     array[i].Color = colors.Current;
@@ -182,14 +173,11 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public sealed class DynamicLineGeometryBufferModel : DefaultLineGeometryBufferModel
-        {
+        public sealed class DynamicLineGeometryBufferModel : DefaultLineGeometryBufferModel {
             /// <summary>
             ///     Initializes a new instance of the <see cref="DynamicLineGeometryBufferModel" /> class.
             /// </summary>
-            public DynamicLineGeometryBufferModel() : base(true)
-            {
-            }
+            public DynamicLineGeometryBufferModel() : base(true) { }
         }
     }
 }

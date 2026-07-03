@@ -12,7 +12,7 @@
     </Window.DataContext>
     <Grid>
         <hx:ScreenDuplicationViewport3DX EffectsManager="{Binding EffectsManager}">
-            <hx:ScreenDuplicationModel/>
+            <hx:ScreenDuplicationModel />
         </hx:ScreenDuplicationViewport3DX>
     </Grid>
 </Window>

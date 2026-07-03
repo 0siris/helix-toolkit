@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public class PointMaterialVariable : MaterialVariable
-        {
+        public class PointMaterialVariable : MaterialVariable {
             private readonly PointMaterialCore material;
 
             /// <summary>
@@ -23,11 +20,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The material core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public PointMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public PointMaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 PointMaterialCore materialCore,
-                string defaultPassName = DefaultPassNames.Default)
-                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore)
-            {
+                string defaultPassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore) {
                 PointPass = technique[defaultPassName];
                 ShadowPass = technique[DefaultPassNames.ShadowPass];
                 DepthPass = technique[DefaultPassNames.DepthPrepass];
@@ -40,86 +39,101 @@ namespace HelixToolkit.SharpDX.Core
 
             public ShaderPass DepthPass { get; }
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 AddPropertyBinding(nameof(PointMaterialCore.PointColor),
-                    () => { WriteValue(PointLineMaterialStruct.ColorStr, material.PointColor); });
+                                   () => { WriteValue(PointLineMaterialStruct.ColorStr, material.PointColor); });
                 AddPropertyBinding(nameof(PointMaterialCore.Width),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector4(material.Width, material.Height, (int) material.Figure, material.FigureRatio));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector4(material.Width,
+                                                              material.Height,
+                                                              (int) material.Figure,
+                                                              material.FigureRatio));
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.Height),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector4(material.Width, material.Height, (int) material.Figure, material.FigureRatio));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector4(material.Width,
+                                                              material.Height,
+                                                              (int) material.Figure,
+                                                              material.FigureRatio));
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.Figure),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector4(material.Width, material.Height, (int) material.Figure, material.FigureRatio));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector4(material.Width,
+                                                              material.Height,
+                                                              (int) material.Figure,
+                                                              material.FigureRatio));
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.FigureRatio),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector4(material.Width, material.Height, (int) material.Figure, material.FigureRatio));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector4(material.Width,
+                                                              material.Height,
+                                                              (int) material.Figure,
+                                                              material.FigureRatio));
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.EnableDistanceFading),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.EnableDistanceFading, material.EnableDistanceFading ? 1 : 0);
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.EnableDistanceFading,
+                                                  material.EnableDistanceFading ? 1 : 0);
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.FadingNearDistance),
-                    () => { WriteValue(PointLineMaterialStruct.FadeNearDistance, material.FadingNearDistance); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.FadeNearDistance,
+                                                  material.FadingNearDistance);
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.FadingFarDistance),
-                    () => { WriteValue(PointLineMaterialStruct.FadeFarDistance, material.FadingFarDistance); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.FadeFarDistance, material.FadingFarDistance);
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.FixedSize),
-                    () => { WriteValue(PointLineMaterialStruct.FixedSize, material.FixedSize); });
+                                   () => { WriteValue(PointLineMaterialStruct.FixedSize, material.FixedSize); });
                 AddPropertyBinding(nameof(PointMaterialCore.EnableColorBlending),
-                    () => { WriteValue(PointLineMaterialStruct.EnableBlendingStr, material.EnableColorBlending); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.EnableBlendingStr,
+                                                  material.EnableColorBlending);
+                                   });
                 AddPropertyBinding(nameof(PointMaterialCore.BlendingFactor),
-                    () => { WriteValue(PointLineMaterialStruct.BlendingFactorStr, material.BlendingFactor); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.BlendingFactorStr, material.BlendingFactor);
+                                   });
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
                 DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 return PointPass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShadowPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return DepthPass;
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
                 return true;
             }
 
-            protected override void UpdateInternalVariables(DeviceContextProxy deviceContext)
-            {
-            }
+            protected override void UpdateInternalVariables(DeviceContextProxy deviceContext) { }
         }
     }
 }

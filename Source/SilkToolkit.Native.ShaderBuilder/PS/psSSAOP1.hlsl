@@ -5,15 +5,13 @@
 
 #include"..\Common\CommonBuffers.hlsl"
 #pragma pack_matrix( row_major )
-struct SSAOIn
-{
+struct SSAOIn {
     float4 pos : SV_POSITION;
     float depth : TEXCOORD0;
     float3 normal : NORMAL;
 };
 
-float4 main(SSAOIn input) : SV_TARGET
-{
+float4 main(SSAOIn input) : SV_TARGET {
     return float4(normalize(input.normal), 1);
 }
 #endif

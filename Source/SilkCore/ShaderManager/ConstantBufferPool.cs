@@ -8,15 +8,12 @@ using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace ShaderManager
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace ShaderManager {
         /// <summary>
         ///     Pool to store and share constant buffers. Do not dispose constant buffer object externally.
         /// </summary>
-        public interface IConstantBufferPool : IDisposable
-        {
+        public interface IConstantBufferPool : IDisposable {
             /// <summary>
             ///     Gets the count.
             /// </summary>
@@ -53,8 +50,8 @@ namespace HelixToolkit.SharpDX.Core
         ///     Pool to store and share constant buffers. Do not dispose constant buffer object externally.
         /// </summary>
         public sealed class ConstantBufferPool :
-            ReferenceCountedDictionaryPool<string, ConstantBufferProxy, ConstantBufferDescription>, IConstantBufferPool
-        {
+            ReferenceCountedDictionaryPool<string, ConstantBufferProxy, ConstantBufferDescription>,
+            IConstantBufferPool {
             private static readonly ILogger logger = LogManager.Create<ConstantBufferPool>();
 
             /// <summary>
@@ -62,8 +59,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="device">The device.</param>
             public ConstantBufferPool(object device)
-                : base(false)
-            {
+                : base(false) {
                 this.Device = device;
             }
 
@@ -75,15 +71,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="structSize">Size of the structure.</param>
             /// <returns></returns>
-            public ConstantBufferProxy Register(string name, int structSize)
-            {
+            public ConstantBufferProxy Register(string name, int structSize) {
                 return Register(new ConstantBufferDescription(name, structSize));
             }
 
-            public ConstantBufferProxy Register(ConstantBufferDescription description)
-            {
-                if (TryCreateOrGet(description.Name, description, out var buffer))
-                {
+            public ConstantBufferProxy Register(ConstantBufferDescription description) {
+                if (TryCreateOrGet(description.Name, description, out var buffer)) {
                     foreach (var var in description.Variables) buffer.AddVariable(var);
                     return buffer;
                 }
@@ -91,8 +84,7 @@ namespace HelixToolkit.SharpDX.Core
                 return null;
             }
 
-            protected override bool CanCreate(ref string key, ref ConstantBufferDescription argument)
-            {
+            protected override bool CanCreate(ref string key, ref ConstantBufferDescription argument) {
                 return !string.IsNullOrEmpty(key);
             }
 
@@ -102,8 +94,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="key">The key.</param>
             /// <param name="description">The description.</param>
             /// <returns></returns>
-            protected override ConstantBufferProxy OnCreate(ref string key, ref ConstantBufferDescription description)
-            {
+            protected override ConstantBufferProxy OnCreate(ref string key, ref ConstantBufferDescription description) {
                 if (logger.IsEnabled(LogLevel.Debug))
                     logger.LogDebug("Creating constant buffer. Key: {0}; Size: {1}", key, description.StructSize);
                 var buffer = description.CreateBuffer();
@@ -112,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
                 return buffer;
             }
 
-            private void ErrorCheck(ConstantBufferProxy value, ref ConstantBufferDescription description)
-            {
+            private void ErrorCheck(ConstantBufferProxy value, ref ConstantBufferDescription description) {
                 if (value.StructureSize != description.StructSize)
                     throw new ArgumentException(
                         $"Constant buffer with same name is found but their size does not match.\n" +

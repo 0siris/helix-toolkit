@@ -13,24 +13,16 @@ namespace HelixToolkit.SharpDX.Core;
     [Serializable]
     [TypeConverter(typeof(Vector2CollectionConverter))]
 #endif
-public sealed class Vector2Collection : FastList<Vector2>
-{
-    public Vector2Collection()
-    {
-    }
+public sealed class Vector2Collection : FastList<Vector2> {
+    public Vector2Collection() { }
 
     public Vector2Collection(int capacity)
-        : base(capacity)
-    {
-    }
+        : base(capacity) { }
 
     public Vector2Collection(IEnumerable<Vector2> items)
-        : base(items)
-    {
-    }
+        : base(items) { }
 
-    public static Vector2Collection Parse(string source)
-    {
+    public static Vector2Collection Parse(string source) {
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
 
         var th = new TokenizerHelper(source, formatProvider);
@@ -38,11 +30,9 @@ public sealed class Vector2Collection : FastList<Vector2>
 
         Vector2 value;
 
-        while (th.NextToken())
-        {
-            value = new Vector2(
-                Convert.ToSingle(th.GetCurrentToken(), formatProvider),
-                Convert.ToSingle(th.NextTokenRequired(), formatProvider));
+        while (th.NextToken()) {
+            value = new Vector2(Convert.ToSingle(th.GetCurrentToken(), formatProvider),
+                                Convert.ToSingle(th.NextTokenRequired(), formatProvider));
 
             resource.Add(value);
         }
@@ -50,13 +40,11 @@ public sealed class Vector2Collection : FastList<Vector2>
         return resource;
     }
 
-    public string ConvertToString(string format, IFormatProvider provider)
-    {
+    public string ConvertToString(string format, IFormatProvider provider) {
         if (Count == 0) return string.Empty;
 
         var str = new StringBuilder();
-        for (var i = 0; i < Count; i++)
-        {
+        for (var i = 0; i < Count; i++) {
             //str.AppendFormat(provider, "{0:" + format + "}", this[i]);
             str.AppendFormat(provider, "{0},{1}", this[i].X, this[i].Y);
             if (i != Count - 1) str.Append(" ");

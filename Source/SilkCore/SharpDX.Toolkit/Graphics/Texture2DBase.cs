@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Abstract class front end to the native D3D Texture2D.
 /// </summary>
-public abstract class Texture2DBase : Texture
-{
+public abstract class Texture2DBase : Texture {
     /// <summary>
     /// </summary>
     protected new readonly NativeD3DTexture2D Resource;
@@ -26,8 +25,7 @@ public abstract class Texture2DBase : Texture
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
     protected internal Texture2DBase(NativeD3DDevice device, NativeTexture2DDescription description2D)
-        : base(device, description2D)
-    {
+        : base(device, description2D) {
         Resource = device.CreateTexture2D(description2D);
         Initialize(Resource);
     }
@@ -44,10 +42,12 @@ public abstract class Texture2DBase : Texture
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    protected internal Texture2DBase(NativeD3DDevice device, NativeTexture2DDescription description2D,
-        DataBox[] dataBoxes)
-        : base(device, description2D)
-    {
+    protected internal Texture2DBase(
+        NativeD3DDevice device,
+        NativeTexture2DDescription description2D,
+        DataBox[] dataBoxes
+    )
+        : base(device, description2D) {
         Resource = device.CreateTexture2D(description2D, dataBoxes);
         Initialize(Resource);
     }
@@ -64,8 +64,7 @@ public abstract class Texture2DBase : Texture
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
     protected internal Texture2DBase(NativeD3DDevice device, NativeD3DTexture2D texture)
-        : base(device, texture.Description)
-    {
+        : base(device, texture.Description) {
         Resource = texture;
         Initialize(Resource);
     }
@@ -73,8 +72,7 @@ public abstract class Texture2DBase : Texture
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    protected virtual Format GetDefaultViewFormat()
-    {
+    protected virtual Format GetDefaultViewFormat() {
         return Description.Format;
     }
 
@@ -88,14 +86,19 @@ public abstract class Texture2DBase : Texture
     /// <param name="arraySize"></param>
     /// <param name="usage"></param>
     /// <returns></returns>
-    protected static NativeTexture2DDescription NewDescription(int width, int height, PixelFormat format,
-        TextureFlags textureFlags, int mipCount, int arraySize, ResourceUsage usage)
-    {
+    protected static NativeTexture2DDescription NewDescription(
+        int width,
+        int height,
+        PixelFormat format,
+        TextureFlags textureFlags,
+        int mipCount,
+        int arraySize,
+        ResourceUsage usage
+    ) {
         if ((textureFlags & TextureFlags.UnorderedAccess) != 0)
             usage = ResourceUsage.Default;
 
-        var desc = new NativeTexture2DDescription
-        {
+        var desc = new NativeTexture2DDescription {
             Width = width,
             Height = height,
             ArraySize = arraySize,
@@ -116,8 +119,7 @@ public abstract class Texture2DBase : Texture
         return desc;
     }
 
-    protected override void Dispose(bool disposeManagedResources)
-    {
+    protected override void Dispose(bool disposeManagedResources) {
         Resource?.Dispose();
         base.Dispose(disposeManagedResources);
     }

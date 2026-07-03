@@ -1,11 +1,8 @@
-﻿namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+﻿namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public sealed class DX11RenderHostConfiguration
-        {
+        public sealed class DX11RenderHostConfiguration {
             /// <summary>
             ///     Auto update octree in geometry during rendering.
             /// </summary>

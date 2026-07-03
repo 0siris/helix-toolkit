@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public interface IDeviceContextPool : IDisposable
-        {
+        public interface IDeviceContextPool : IDisposable {
             /// <summary>
             ///     Gets this instance.
             /// </summary>
@@ -34,8 +31,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool
-        {
+        public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool {
             private readonly ConcurrentBag<DeviceContextProxy> contextPool = new();
 
             private readonly NativeD3DDevice device;
@@ -44,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Initializes a new instance of the <see cref="DeviceContextPool" /> class.
             /// </summary>
             /// <param name="device">The device.</param>
-            internal DeviceContextPool(NativeD3DDevice device)
-            {
+            internal DeviceContextPool(NativeD3DDevice device) {
                 this.device = device ?? throw new ArgumentNullException(nameof(device));
             }
 
@@ -54,12 +49,10 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public DeviceContextProxy Get()
-            {
+            public DeviceContextProxy Get() {
                 if (contextPool.TryTake(out var context)) return context;
 
-                lock (this)
-                {
+                lock (this) {
                     return new DeviceContextProxy(device.CreateDeferredContext(), device);
                 }
             }
@@ -69,19 +62,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Put(DeviceContextProxy context)
-            {
+            public void Put(DeviceContextProxy context) {
                 context.ClearRenderTagetBindings();
                 context.Reset();
                 contextPool.Add(context);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public int ResetDrawCalls()
-            {
+            public int ResetDrawCalls() {
                 var totalCalls = 0;
-                foreach (var ctx in contextPool)
-                {
+                foreach (var ctx in contextPool) {
                     totalCalls += ctx.NumberOfDrawCalls;
                     ctx.ResetDrawCalls();
                 }
@@ -96,8 +86,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to
             ///     release only unmanaged resources.
             /// </param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 while (!contextPool.IsEmpty)
                     if (contextPool.TryTake(out var context))
                         RemoveAndDispose(ref context);

@@ -16,8 +16,7 @@ namespace SharpDX.Toolkit.Graphics;
 ///     It provides also 2-way implicit conversions for 1D, 2D, 3D textures descriptions.
 /// </remarks>
 [StructLayout(LayoutKind.Sequential)]
-public struct TextureDescription : IEquatable<TextureDescription>
-{
+public struct TextureDescription : IEquatable<TextureDescription> {
     /// <summary>
     ///     The dimension of a texture.
     /// </summary>
@@ -135,15 +134,14 @@ public struct TextureDescription : IEquatable<TextureDescription>
     ///     Gets the staging description for this instance..
     /// </summary>
     /// <returns>A Staging description</returns>
-    public TextureDescription ToStagingDescription()
-    {
+    public TextureDescription ToStagingDescription() {
         var copy = this;
         copy.BindFlags = BindFlags.None;
         copy.CpuAccessFlags = CpuAccessFlags.Read | CpuAccessFlags.Write;
         copy.Usage = ResourceUsage.Staging;
         copy.OptionFlags = copy.Dimension == TextureDimension.TextureCube
-            ? ResourceOptionFlags.TextureCube
-            : ResourceOptionFlags.None;
+                               ? ResourceOptionFlags.TextureCube
+                               : ResourceOptionFlags.None;
         return copy;
     }
 
@@ -151,8 +149,7 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(TextureDescription other)
-    {
+    public bool Equals(TextureDescription other) {
         return Dimension.Equals(other.Dimension) && Width == other.Width && Height == other.Height &&
                Depth == other.Depth && ArraySize == other.ArraySize && MipLevels == other.MipLevels &&
                Format.Equals(other.Format) && SampleDescription.Equals(other.SampleDescription) &&
@@ -164,8 +161,7 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj)) return false;
         return obj is TextureDescription && Equals((TextureDescription) obj);
     }
@@ -173,10 +169,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode()
-    {
-        unchecked
-        {
+    public override int GetHashCode() {
+        unchecked {
             var hashCode = Dimension.GetHashCode();
             hashCode = (hashCode * 397) ^ Width;
             hashCode = (hashCode * 397) ^ Height;
@@ -198,8 +192,7 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(TextureDescription left, TextureDescription right)
-    {
+    public static bool operator ==(TextureDescription left, TextureDescription right) {
         return left.Equals(right);
     }
 
@@ -208,8 +201,7 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(TextureDescription left, TextureDescription right)
-    {
+    public static bool operator !=(TextureDescription left, TextureDescription right) {
         return !left.Equals(right);
     }
 
@@ -218,10 +210,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(NativeTexture1DDescription description)
-    {
-        return new TextureDescription
-        {
+    public static implicit operator TextureDescription(NativeTexture1DDescription description) {
+        return new TextureDescription {
             Dimension = TextureDimension.Texture1D,
             Width = description.Width,
             Height = 1,
@@ -242,10 +232,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture1DDescription(TextureDescription description)
-    {
-        return new NativeTexture1DDescription
-        {
+    public static implicit operator NativeTexture1DDescription(TextureDescription description) {
+        return new NativeTexture1DDescription {
             Width = description.Width,
             MipLevels = description.MipLevels,
             ArraySize = description.ArraySize,
@@ -262,14 +250,12 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(NativeTexture2DDescription description)
-    {
+    public static implicit operator TextureDescription(NativeTexture2DDescription description) {
         var dimension = description.ArraySize == 6 && (description.OptionFlags & ResourceOptionFlags.TextureCube) != 0
-            ? TextureDimension.TextureCube
-            : TextureDimension.Texture2D;
+                            ? TextureDimension.TextureCube
+                            : TextureDimension.Texture2D;
 
-        return new TextureDescription
-        {
+        return new TextureDescription {
             Dimension = dimension,
             Width = description.Width,
             Height = description.Height,
@@ -290,10 +276,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture2DDescription(TextureDescription description)
-    {
-        return new NativeTexture2DDescription
-        {
+    public static implicit operator NativeTexture2DDescription(TextureDescription description) {
+        return new NativeTexture2DDescription {
             Width = description.Width,
             Height = description.Height,
             MipLevels = description.MipLevels,
@@ -312,10 +296,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(NativeTexture3DDescription description)
-    {
-        return new TextureDescription
-        {
+    public static implicit operator TextureDescription(NativeTexture3DDescription description) {
+        return new TextureDescription {
             Dimension = TextureDimension.Texture3D,
             Width = description.Width,
             Height = description.Height,
@@ -336,10 +318,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture3DDescription(TextureDescription description)
-    {
-        return new NativeTexture3DDescription
-        {
+    public static implicit operator NativeTexture3DDescription(TextureDescription description) {
+        return new NativeTexture3DDescription {
             Width = description.Width,
             Height = description.Height,
             Depth = description.Depth,
@@ -358,10 +338,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(ImageDescription description)
-    {
-        return new TextureDescription
-        {
+    public static implicit operator TextureDescription(ImageDescription description) {
+        return new TextureDescription {
             Dimension = description.Dimension,
             Width = description.Width,
             Height = description.Height,
@@ -374,8 +352,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
             BindFlags = BindFlags.None,
             CpuAccessFlags = CpuAccessFlags.None,
             OptionFlags = description.Dimension == TextureDimension.TextureCube
-                ? ResourceOptionFlags.TextureCube
-                : ResourceOptionFlags.None
+                              ? ResourceOptionFlags.TextureCube
+                              : ResourceOptionFlags.None
         };
     }
 
@@ -384,10 +362,8 @@ public struct TextureDescription : IEquatable<TextureDescription>
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator ImageDescription(TextureDescription description)
-    {
-        return new ImageDescription
-        {
+    public static implicit operator ImageDescription(TextureDescription description) {
+        return new ImageDescription {
             Dimension = description.Dimension,
             Width = description.Width,
             Height = description.Height,

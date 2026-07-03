@@ -12,20 +12,17 @@ using System.Windows.Media.Imaging;
 #endif
 namespace HelixToolkit.SharpDX.Core;
 
-public class BillboardImage3D : BillboardBase
-{
+public class BillboardImage3D : BillboardBase {
     private ObservableCollection<ImageInfo> imageInfos = new();
 
     private Color4 maskColor = Color.Transparent;
 
-    public BillboardImage3D(Stream imageStream)
-    {
+    public BillboardImage3D(Stream imageStream) {
         Texture = imageStream;
         imageInfos.CollectionChanged += CollectionChanged;
     }
 
-    public BillboardImage3D(TextureModel texture)
-    {
+    public BillboardImage3D(TextureModel texture) {
         Texture = texture;
         imageInfos.CollectionChanged += CollectionChanged;
     }
@@ -36,23 +33,18 @@ public class BillboardImage3D : BillboardBase
     ///     If color in image is equal to the mask color, the color will set to transparent in image.
     ///     Default color is Transparent, which did not mask any color.
     /// </summary>
-    public Color4 MaskColor
-    {
+    public Color4 MaskColor {
         get => maskColor;
-        set
-        {
+        set {
             if (Set(ref maskColor, value)) IsInitialized = false;
         }
     }
 
-    public ObservableCollection<ImageInfo> ImageInfos
-    {
+    public ObservableCollection<ImageInfo> ImageInfos {
         get => imageInfos;
-        set
-        {
+        set {
             var old = imageInfos;
-            if (Set(ref imageInfos, value))
-            {
+            if (Set(ref imageInfos, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
                 if (value != null) value.CollectionChanged += CollectionChanged;
@@ -60,32 +52,31 @@ public class BillboardImage3D : BillboardBase
         }
     }
 
-    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
+    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
         IsInitialized = false;
     }
 
-    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources)
-    {
-        foreach (var img in ImageInfos)
-        {
+    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
+        foreach (var img in ImageInfos) {
             img.UpdateImage();
             DrawImageVertex(img);
         }
     }
 
-    private void DrawImageVertex(ImageInfo info)
-    {
-        GetQuadOffset(info.Width, info.Height, info.HorizontalAlignment, info.VerticalAlignment, out var tl,
-            out var br);
+    private void DrawImageVertex(ImageInfo info) {
+        GetQuadOffset(info.Width,
+                      info.Height,
+                      info.HorizontalAlignment,
+                      info.VerticalAlignment,
+                      out var tl,
+                      out var br);
 
         var transform = info.Angle != 0 ? Matrix3x2.Rotation(info.Angle) : Matrix3x2.Identity;
         var offTL = tl * info.Scale;
         var offBR = br * info.Scale;
         var offTR = new Vector2(offBR.X, offTL.Y);
         var offBL = new Vector2(offTL.X, offBR.Y);
-        BillboardVertices.Add(new BillboardVertex
-        {
+        BillboardVertices.Add(new BillboardVertex {
             Position = info.Position.ToVector4(),
             Foreground = Color.White,
             Background = maskColor,
@@ -98,41 +89,38 @@ public class BillboardImage3D : BillboardBase
         });
     }
 
-    public override bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, bool fixedSize)
-    {
+    public override bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        bool fixedSize
+    ) {
         var rayWS = context.RayWS;
         if (!IsInitialized || context == null ||
             (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS))) return false;
 
         return fixedSize
-            ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, imageInfos.Count)
-            : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, imageInfos.Count);
+                   ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, imageInfos.Count)
+                   : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, imageInfos.Count);
     }
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
-        if (target is BillboardImage3D t)
-        {
+        if (target is BillboardImage3D t) {
             t.ImageInfos = new ObservableCollection<ImageInfo>(ImageInfos);
             t.IsInitialized = false;
         }
     }
 
-    public override void UpdateBounds()
-    {
-        if (ImageInfos.Count == 0)
-        {
+    public override void UpdateBounds() {
+        if (ImageInfos.Count == 0) {
             Bound = new BoundingBox();
             BoundingSphere = new BoundingSphere();
-        }
-        else
-        {
+        } else {
             var sphere = ImageInfos[0].BoundSphere;
             var bound = BoundingBox.FromSphere(sphere);
-            foreach (var info in ImageInfos)
-            {
+            foreach (var info in ImageInfos) {
                 sphere = BoundingSphereExtensions.Merge(sphere, info.BoundSphere);
                 bound = BoundingBox.Merge(bound, BoundingBox.FromSphere(info.BoundSphere));
             }
@@ -143,8 +131,7 @@ public class BillboardImage3D : BillboardBase
     }
 }
 
-public class ImageInfo
-{
+public class ImageInfo {
     public Vector2 UV_TopLeft { get; set; }
 
     public Vector2 UV_BottomRight { get; set; }
@@ -189,8 +176,7 @@ public class ImageInfo
 
     public BoundingSphere BoundSphere { get; private set; }
 
-    public virtual void UpdateImage()
-    {
+    public virtual void UpdateImage() {
         BoundSphere = new BoundingSphere(Position, Math.Max(Width * Scale, Height * Scale) / 2);
     }
 }

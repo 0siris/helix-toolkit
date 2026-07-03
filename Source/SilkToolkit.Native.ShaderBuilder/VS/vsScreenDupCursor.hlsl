@@ -15,12 +15,10 @@ static const float2 quadtexcoords[4] =
 };
 
 
-ScreenDupVS_INPUT main(uint vI : SV_VERTEXID)
-{
-    ScreenDupVS_INPUT output = (ScreenDupVS_INPUT) 0;
+ScreenDupVS_INPUT main(uint vI : SV_VERTEXID) {
+    ScreenDupVS_INPUT output = (ScreenDupVS_INPUT)0;
 
     output.Tex = quadtexcoords[vI];
     output.Pos = CursorVertCoord[vI];
     return output;
 }
-

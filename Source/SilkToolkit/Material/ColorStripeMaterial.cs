@@ -12,77 +12,88 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 /// </summary>
 [DataContract]
-public class ColorStripeMaterial : Material
-{
+public class ColorStripeMaterial : Material {
     /// <summary>
     ///     The diffuse color property
     /// </summary>
     public static readonly DependencyProperty DiffuseColorProperty =
-        DependencyProperty.Register("DiffuseColor", typeof(Color4), typeof(ColorStripeMaterial), new PropertyMetadata(
-            (Color4) Color.White,
-            (d, e) => { ((d as Material).Core as ColorStripeMaterialCore).DiffuseColor = (Color4) e.NewValue; }));
+        DependencyProperty.Register("DiffuseColor",
+                                    typeof(Color4),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata((Color4) Color.White,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .DiffuseColor = (Color4) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The color stripe property
     /// </summary>
     public static readonly DependencyProperty ColorStripeXProperty =
-        DependencyProperty.Register("ColorStripeX", typeof(IList<Color4>), typeof(ColorStripeMaterial),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as Material).Core as ColorStripeMaterialCore).ColorStripeX = (IList<Color4>) e.NewValue;
-                }));
+        DependencyProperty.Register("ColorStripeX",
+                                    typeof(IList<Color4>),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .ColorStripeX = (IList<Color4>) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The color stripe property
     /// </summary>
     public static readonly DependencyProperty ColorStripeYProperty =
-        DependencyProperty.Register("ColorStripeY", typeof(IList<Color4>), typeof(ColorStripeMaterial),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as Material).Core as ColorStripeMaterialCore).ColorStripeY = (IList<Color4>) e.NewValue;
-                }));
+        DependencyProperty.Register("ColorStripeY",
+                                    typeof(IList<Color4>),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .ColorStripeY = (IList<Color4>) e.NewValue;
+                                                         }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty ColorStripeSamplerProperty =
-        DependencyProperty.Register("ColorStripeSampler", typeof(SamplerStateDescription), typeof(ColorStripeMaterial),
-            new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
-                (d, e) =>
-                {
-                    ((d as Material).Core as ColorStripeMaterialCore).ColorStripeSampler =
-                        (SamplerStateDescription) e.NewValue;
-                }));
+        DependencyProperty.Register("ColorStripeSampler",
+                                    typeof(SamplerStateDescription),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .ColorStripeSampler =
+                                                                 (SamplerStateDescription) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The color stripe x enabled property
     /// </summary>
     public static readonly DependencyProperty ColorStripeXEnabledProperty =
-        DependencyProperty.Register("ColorStripeXEnabled", typeof(bool), typeof(ColorStripeMaterial),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as Material).Core as ColorStripeMaterialCore).ColorStripeXEnabled = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("ColorStripeXEnabled",
+                                    typeof(bool),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .ColorStripeXEnabled = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The color stripe y enabled property
     /// </summary>
     public static readonly DependencyProperty ColorStripeYEnabledProperty =
-        DependencyProperty.Register("ColorStripeYEnabled", typeof(bool), typeof(ColorStripeMaterial),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as Material).Core as ColorStripeMaterialCore).ColorStripeYEnabled = (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("ColorStripeYEnabled",
+                                    typeof(bool),
+                                    typeof(ColorStripeMaterial),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Material).Core as ColorStripeMaterialCore)
+                                                                 .ColorStripeYEnabled = (bool) e.NewValue;
+                                                         }));
 
-    public ColorStripeMaterial()
-    {
-    }
+    public ColorStripeMaterial() { }
 
-    public ColorStripeMaterial(ColorStripeMaterialCore core) : base(core)
-    {
+    public ColorStripeMaterial(ColorStripeMaterialCore core) : base(core) {
         DiffuseColor = core.DiffuseColor;
         ColorStripeSampler = core.ColorStripeSampler;
         ColorStripeX = core.ColorStripeX;
@@ -96,8 +107,7 @@ public class ColorStripeMaterial : Material
     /// </summary>
 
     [TypeConverter(typeof(Color4Converter))]
-    public Color4 DiffuseColor
-    {
+    public Color4 DiffuseColor {
         get => (Color4) GetValue(DiffuseColorProperty);
         set => SetValue(DiffuseColorProperty, value);
     }
@@ -108,8 +118,7 @@ public class ColorStripeMaterial : Material
     /// <value>
     ///     The color stripe.
     /// </value>
-    public IList<Color4> ColorStripeX
-    {
+    public IList<Color4> ColorStripeX {
         get => (IList<Color4>) GetValue(ColorStripeXProperty);
         set => SetValue(ColorStripeXProperty, value);
     }
@@ -120,8 +129,7 @@ public class ColorStripeMaterial : Material
     /// <value>
     ///     The color stripe.
     /// </value>
-    public IList<Color4> ColorStripeY
-    {
+    public IList<Color4> ColorStripeY {
         get => (IList<Color4>) GetValue(ColorStripeYProperty);
         set => SetValue(ColorStripeYProperty, value);
     }
@@ -133,8 +141,7 @@ public class ColorStripeMaterial : Material
     /// <value>
     ///     <c>true</c> if [color stripe x enabled]; otherwise, <c>false</c>.
     /// </value>
-    public bool ColorStripeXEnabled
-    {
+    public bool ColorStripeXEnabled {
         get => (bool) GetValue(ColorStripeXEnabledProperty);
         set => SetValue(ColorStripeXEnabledProperty, value);
     }
@@ -145,24 +152,20 @@ public class ColorStripeMaterial : Material
     /// <value>
     ///     <c>true</c> if [color stripe y enabled]; otherwise, <c>false</c>.
     /// </value>
-    public bool ColorStripeYEnabled
-    {
+    public bool ColorStripeYEnabled {
         get => (bool) GetValue(ColorStripeYEnabledProperty);
         set => SetValue(ColorStripeYEnabledProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public SamplerStateDescription ColorStripeSampler
-    {
+    public SamplerStateDescription ColorStripeSampler {
         get => (SamplerStateDescription) GetValue(ColorStripeSamplerProperty);
         set => SetValue(ColorStripeSamplerProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore()
-    {
-        return new ColorStripeMaterialCore
-        {
+    protected override MaterialCore OnCreateCore() {
+        return new ColorStripeMaterialCore {
             DiffuseColor = DiffuseColor,
             ColorStripeSampler = ColorStripeSampler,
             ColorStripeX = ColorStripeX,
@@ -173,10 +176,8 @@ public class ColorStripeMaterial : Material
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
-        return new ColorStripeMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new ColorStripeMaterial {
             DiffuseColor = DiffuseColor,
             ColorStripeSampler = ColorStripeSampler,
             ColorStripeX = ColorStripeX,

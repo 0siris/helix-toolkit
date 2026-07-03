@@ -3,14 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace ShaderManager
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace ShaderManager {
         /// <summary>
         /// </summary>
-        public interface IBufferPool
-        {
+        public interface IBufferPool {
             /// <summary>
             ///     Register a buffer with object as its key
             /// </summary>

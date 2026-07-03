@@ -8,8 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface ITransform
-{
+public interface ITransform {
     /// <summary>
     ///     Local transform
     /// </summary>
@@ -28,8 +27,7 @@ public interface ITransform
 
 /// <summary>
 /// </summary>
-public interface ITransform2D
-{
+public interface ITransform2D {
     /// <summary>
     ///     Gets or sets the model matrix.
     /// </summary>

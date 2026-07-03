@@ -3,8 +3,7 @@
 
 #include"..\Common\DataStructs.hlsl"
 
-void psClipPlaneBackFace(PSInput input)
-{
+void psClipPlaneBackFace(PSInput input) {
 }
 
 #endif

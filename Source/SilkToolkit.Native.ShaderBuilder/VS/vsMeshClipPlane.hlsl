@@ -5,9 +5,7 @@
 #include"vsMeshDefault.hlsl"
 #pragma pack_matrix( row_major )
 
-PSInputClip mainClip(VSInput input)
-{
+PSInputClip mainClip(VSInput input) {
     return main(input);
-
 }
 #endif

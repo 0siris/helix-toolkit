@@ -4,8 +4,7 @@
 #include"..\Common\DataStructs.hlsl"
 #include"..\Common\Common.hlsl"
 
-SpritePS_INPUT main(SpriteVS_INPUT input)
-{
+SpritePS_INPUT main(SpriteVS_INPUT input) {
     SpritePS_INPUT output;
     output.Pos = mul(float4(input.Pos.xy, 0, 1), mProjection);
     output.Color = input.Color;

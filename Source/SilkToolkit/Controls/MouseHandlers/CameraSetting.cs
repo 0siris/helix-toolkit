@@ -18,21 +18,18 @@ using Vector3D = Vector3D;
 /// <summary>
 ///     Represents camera settings.
 /// </summary>
-public struct CameraSetting
-{
+public struct CameraSetting {
     /// <summary>
     ///     Initializes a new instance of the <see cref="CameraSetting" /> class.
     /// </summary>
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public CameraSetting(Camera camera)
-    {
+    public CameraSetting(Camera camera) {
         Position = camera.Position;
         LookDirection = camera.LookDirection;
         UpDirection = camera.UpDirection;
-        if (camera is IProjectionCameraModel c)
-        {
+        if (camera is IProjectionCameraModel c) {
             NearPlaneDistance = c.NearPlaneDistance;
             FarPlaneDistance = c.FarPlaneDistance;
             FieldOfView = 45;
@@ -40,9 +37,7 @@ public struct CameraSetting
             if (camera is IPerspectiveCameraModel pcamera)
                 FieldOfView = pcamera.FieldOfView;
             else if (camera is IOrthographicCameraModel ocamera) Width = ocamera.Width;
-        }
-        else
-        {
+        } else {
             NearPlaneDistance = 0;
             FarPlaneDistance = 0;
             FieldOfView = 45;
@@ -91,13 +86,11 @@ public struct CameraSetting
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public void UpdateCamera(Camera camera)
-    {
+    public void UpdateCamera(Camera camera) {
         camera.Position = Position;
         camera.LookDirection = LookDirection;
         camera.UpDirection = UpDirection;
-        if (camera is IProjectionCameraModel c)
-        {
+        if (camera is IProjectionCameraModel c) {
             c.NearPlaneDistance = NearPlaneDistance;
             c.FarPlaneDistance = FarPlaneDistance;
             if (camera is IPerspectiveCameraModel perspectiveCamera)

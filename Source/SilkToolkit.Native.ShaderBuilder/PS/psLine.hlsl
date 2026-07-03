@@ -4,12 +4,11 @@
 #include"..\Common\DataStructs.hlsl"
 #include"..\Common\Common.hlsl"
 
-float4 main(PSInputPS input) : SV_Target
-{
+float4 main(PSInputPS input) : SV_Target {
     // Compute distance of the fragment to the edges    
     //float dist = min(abs(input.t[0]), abs(input.t[1]));	
     float dist = abs(input.t.y);
-    
+
     // Cull fragments too far from the edge.
     //if (dist > 0.5*vLineParams.x+1) discard;
 
@@ -21,22 +20,20 @@ float4 main(PSInputPS input) : SV_Target
     dist *= dist;
     float alpha = exp2(-2 * dist / sigma);
 
-	//if(alpha<0.1) discard;
+    //if(alpha<0.1) discard;
 
     // Standard wire color
     float4 color = input.c;
-    if (bHasTexture)
-    {
+    if (bHasTexture) {
         //Use tex.z to mark some pixels only use input color. Such as arrow head/tail, to ignore the texture color.
-        color = color * (1 - input.tex.z) + color * texDiffuseMap.SampleLevel(samplerBillboard, input.tex.xy, 0) * input.tex.z;
+        color = color * (1 - input.tex.z) + color * texDiffuseMap.SampleLevel(samplerBillboard, input.tex.xy, 0) * input
+                .tex.z;
     }
     color.a *= alpha;
-    if (enableDistanceFading)
-    {
+    if (enableDistanceFading) {
         color.a *= 1 - clamp((input.vEye.w - fadeNearDistance) / (fadeFarDistance - fadeNearDistance), 0, 1);
     }
-    if (color.a < pAlphaThreshold)
-    {
+    if (color.a < pAlphaThreshold) {
         discard;
     }
     //color *= whengt(color.a, pAlphaThreshold);

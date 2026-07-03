@@ -6,12 +6,9 @@ Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
-        public static class VolumeDataHelper
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
+        public static class VolumeDataHelper {
             /// <summary>
             ///     Generates gradients using a central differences scheme.
             /// </summary>
@@ -20,30 +17,31 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="height"></param>
             /// <param name="depth"></param>
             /// <param name="sampleSize">The size/radius of the sample to take.</param>
-            public static Half4[] GenerateGradients(float[] data, int width, int height, int depth, int sampleSize)
-            {
+            public static Half4[] GenerateGradients(float[] data, int width, int height, int depth, int sampleSize) {
                 var n = sampleSize;
 
                 var gradients = new Half4[width * height * depth];
-                Parallel.For(0, depth, new ParallelOptions {MaxDegreeOfParallelism = 4}, z =>
-                {
-                    var index = z * width * height;
-                    for (var y = 0; y < height; y++)
-                    for (var x = 0; x < width; x++, ++index)
-                    {
-                        Vector3 s1, s2;
-                        s1.X = SampleVolume(data, width, height, depth, x - n, y, z);
-                        s2.X = SampleVolume(data, width, height, depth, x + n, y, z);
-                        s1.Y = SampleVolume(data, width, height, depth, x, y - n, z);
-                        s2.Y = SampleVolume(data, width, height, depth, x, y + n, z);
-                        s1.Z = SampleVolume(data, width, height, depth, x, y, z - n);
-                        s2.Z = SampleVolume(data, width, height, depth, x, y, z + n);
-                        var v = SilkMath.Normalize(s2 - s1);
-                        var sample = SampleVolume(data, width, height, depth, x, y, z);
-                        gradients[index] = new Half4(v.X, v.Y, v.Z, sample);
-                        if (float.IsNaN((float) gradients[index].X)) gradients[index] = new Half4(0, 0, 0, sample);
-                    }
-                });
+                Parallel.For(0,
+                             depth,
+                             new ParallelOptions {MaxDegreeOfParallelism = 4},
+                             z => {
+                                 var index = z * width * height;
+                                 for (var y = 0; y < height; y++)
+                                 for (var x = 0; x < width; x++, ++index) {
+                                     Vector3 s1, s2;
+                                     s1.X = SampleVolume(data, width, height, depth, x - n, y, z);
+                                     s2.X = SampleVolume(data, width, height, depth, x + n, y, z);
+                                     s1.Y = SampleVolume(data, width, height, depth, x, y - n, z);
+                                     s2.Y = SampleVolume(data, width, height, depth, x, y + n, z);
+                                     s1.Z = SampleVolume(data, width, height, depth, x, y, z - n);
+                                     s2.Z = SampleVolume(data, width, height, depth, x, y, z + n);
+                                     var v = SilkMath.Normalize(s2 - s1);
+                                     var sample = SampleVolume(data, width, height, depth, x, y, z);
+                                     gradients[index] = new Half4(v.X, v.Y, v.Z, sample);
+                                     if (float.IsNaN((float) gradients[index].X))
+                                         gradients[index] = new Half4(0, 0, 0, sample);
+                                 }
+                             });
                 return gradients;
             }
 
@@ -56,13 +54,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="height"></param>
             /// <param name="depth"></param>
             /// <param name="n"></param>
-            public static void FilterNxNxN(Half4[] data, int width, int height, int depth, int n)
-            {
+            public static void FilterNxNxN(Half4[] data, int width, int height, int depth, int n) {
                 var index = 0;
                 for (var z = 0; z < depth; z++)
                 for (var y = 0; y < height; y++)
-                for (var x = 0; x < width; x++)
-                {
+                for (var x = 0; x < width; x++) {
                     var w = (float) data[index].W;
                     data[index++] = SampleNxNxN(data, width, height, depth, x, y, z, n).ToVector4(w);
                 }
@@ -82,9 +78,16 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="n"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static Vector3 SampleNxNxN(Half4[] data, int width, int height, int depth, int x, int y, int z,
-                int n)
-            {
+            private static Vector3 SampleNxNxN(
+                Half4[] data,
+                int width,
+                int height,
+                int depth,
+                int x,
+                int y,
+                int z,
+                int n
+            ) {
                 n = (n - 1) / 2;
 
                 var average = Vector3.Zero;
@@ -93,8 +96,7 @@ namespace HelixToolkit.SharpDX.Core
                 for (var k = z - n; k <= z + n; k++)
                 for (var j = y - n; j <= y + n; j++)
                 for (var i = x - n; i <= x + n; i++)
-                    if (IsInBounds(width, height, depth, i, j, k))
-                    {
+                    if (IsInBounds(width, height, depth, i, j, k)) {
                         average += SampleGradients(data, width, height, depth, i, j, k);
                         num++;
                     }
@@ -107,8 +109,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static bool IsInBounds(int width, int height, int depth, int x, int y, int z)
-            {
+            private static bool IsInBounds(int width, int height, int depth, int x, int y, int z) {
                 return x >= 0 && x < width &&
                        y >= 0 && y < height &&
                        z >= 0 && z < depth;
@@ -126,8 +127,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="z"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static Vector3 SampleGradients(Half4[] data, int width, int height, int depth, int x, int y, int z)
-            {
+            private static Vector3 SampleGradients(
+                Half4[] data,
+                int width,
+                int height,
+                int depth,
+                int x,
+                int y,
+                int z
+            ) {
                 var half = data[x + y * width + z * width * height];
                 return new Vector3((float) half.X, (float) half.Y, (float) half.Z);
             }
@@ -144,8 +152,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="depth">The depth.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static float SampleVolume(float[] data, int width, int height, int depth, int x, int y, int z)
-            {
+            private static float SampleVolume(float[] data, int width, int height, int depth, int x, int y, int z) {
                 x = Math.Min(Math.Max(x, 0), width - 1);
                 y = Math.Min(Math.Max(y, 0), height - 1);
                 z = Math.Min(Math.Max(z, 0), depth - 1);

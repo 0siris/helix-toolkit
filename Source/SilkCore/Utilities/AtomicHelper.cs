@@ -2,8 +2,7 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class AtomicHelper
-{
+public static class AtomicHelper {
     /// <summary>
     ///     Only increment value by 1 if value is greater than comparand.
     /// </summary>
@@ -11,11 +10,9 @@ public static class AtomicHelper
     /// <param name="comparand"></param>
     /// <returns>Success or not</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IncrementIfGreaterThan(ref int value, int comparand)
-    {
+    public static bool IncrementIfGreaterThan(ref int value, int comparand) {
         int next;
-        do
-        {
+        do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
             if (next <= comparand) return false;
         } while (Interlocked.CompareExchange(ref value, next + 1, next) != next);
@@ -31,11 +28,9 @@ public static class AtomicHelper
     /// <param name="comparand"></param>
     /// <returns>Success or not</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool ExchangeIfGreaterThan(ref int value, int target, int comparand)
-    {
+    public static bool ExchangeIfGreaterThan(ref int value, int target, int comparand) {
         int next;
-        do
-        {
+        do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
             if (next <= comparand) return false;
         } while (Interlocked.CompareExchange(ref value, target, next) != next);
@@ -50,11 +45,9 @@ public static class AtomicHelper
     /// <param name="comparand"></param>
     /// <returns>Success or not</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool DecrementIfGreaterThan(ref int value, int comparand)
-    {
+    public static bool DecrementIfGreaterThan(ref int value, int comparand) {
         int next;
-        do
-        {
+        do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
             if (next <= comparand) return false;
         } while (Interlocked.CompareExchange(ref value, next - 1, next) != next);
@@ -68,8 +61,7 @@ public static class AtomicHelper
     /// <param name="value"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Read(ref int value)
-    {
+    public static int Read(ref int value) {
         return Interlocked.CompareExchange(ref value, 0, 0);
     }
 }

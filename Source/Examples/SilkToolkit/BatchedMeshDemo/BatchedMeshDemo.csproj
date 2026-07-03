@@ -1,33 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>BatchedMeshDemo</RootNamespace>
-        <AssemblyName>BatchedMeshDemo</AssemblyName>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>BatchedMeshDemo</RootNamespace>
+    <AssemblyName>BatchedMeshDemo</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
 
-        <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\..\..\..\Models\3ds\Car.3DS"
-              Link="Car.3DS"
-              CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup>
+    <None Include="..\..\..\..\Models\3ds\Car.3DS"
+          Link="Car.3DS"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\TextureNoise1_dot3.jpg"
-                 Link="TextureNoise1_dot3.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+    <Content Include="..\..\..\..\Images\Textures\TextureNoise1_dot3.jpg"
+             Link="TextureNoise1_dot3.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+  </ItemGroup>
 
 </Project>

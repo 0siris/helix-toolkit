@@ -54,7 +54,7 @@
                     Material="{Binding ViewCubeMaterial4}"
                     Mouse3DDown="MeshGeometryModel3D_Mouse3DDown"
                     Transform="{Binding ViewCubeTransform3}" />
-                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}"/>
+                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}" />
             </hx:ScreenSpacedGroup3D>
             <hx:ScreenSpacedGroup3D
                 AbsolutePosition3D="0,2,0"
@@ -68,7 +68,7 @@
                     <hx:LineGeometryModel3D
                         Geometry="{Binding Coordinate}"
                         Color="White" Mouse3DDown="LineGeometryModel3D_Mouse3DDown" />
-                    <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}"/>
+                    <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}" />
                 </hx:GroupModel3D>
             </hx:ScreenSpacedGroup3D>
             <hx:ScreenSpacedGroup3D
@@ -84,15 +84,17 @@
                         </RotateTransform3D>
                     </Transform3DGroup>
                 </hx:ScreenSpacedGroup3D.Transform>
-                <hx:LineGeometryModel3D Geometry="{Binding Coordinate}" Color="White" Mouse3DDown="LineGeometryModel3D_Mouse3DDown" />
-                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}"/>
+                <hx:LineGeometryModel3D Geometry="{Binding Coordinate}" Color="White"
+                                        Mouse3DDown="LineGeometryModel3D_Mouse3DDown" />
+                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}" />
             </hx:ScreenSpacedGroup3D>
             <hx:ScreenSpacedGroup3D
                 AbsolutePosition3D="0,0,-1"
                 Mode="AbsolutePosition3D"
                 SizeScale="2">
-                <hx:LineGeometryModel3D Geometry="{Binding Coordinate}" Color="White" Mouse3DDown="LineGeometryModel3D_Mouse3DDown" />
-                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}"/>
+                <hx:LineGeometryModel3D Geometry="{Binding Coordinate}" Color="White"
+                                        Mouse3DDown="LineGeometryModel3D_Mouse3DDown" />
+                <hx:BillboardTextModel3D Geometry="{Binding CoordinateText}" />
             </hx:ScreenSpacedGroup3D>
             <hx:MeshGeometryModel3D Geometry="{Binding Geometry}" Material="{Binding Material}" />
             <hx:MeshGeometryModel3D Geometry="{Binding RectGeometry}" Material="{Binding Material}" />

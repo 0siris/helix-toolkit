@@ -21,8 +21,7 @@ namespace SharpDX.Toolkit.Graphics;
 ///     </ul>
 /// </remarks>
 [StructLayout(LayoutKind.Sequential, Size = 4)]
-public struct MipMapCount : IEquatable<MipMapCount>
-{
+public struct MipMapCount : IEquatable<MipMapCount> {
     /// <summary>
     ///     Automatic mipmap level based on texture size.
     /// </summary>
@@ -32,8 +31,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     ///     Initializes a new instance of the <see cref="MipMapCount" /> struct.
     /// </summary>
     /// <param name="allMipMaps">if set to <c>true</c> generates all mip maps.</param>
-    public MipMapCount(bool allMipMaps)
-    {
+    public MipMapCount(bool allMipMaps) {
         Count = allMipMaps ? 0 : 1;
     }
 
@@ -41,8 +39,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     ///     Initializes a new instance of the <see cref="MipMapCount" /> struct.
     /// </summary>
     /// <param name="count">The count.</param>
-    public MipMapCount(int count)
-    {
+    public MipMapCount(int count) {
         if (count < 0)
             throw new ArgumentException("mipCount must be >= 0");
         Count = count;
@@ -60,8 +57,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(MipMapCount other)
-    {
+    public bool Equals(MipMapCount other) {
         return Count == other.Count;
     }
 
@@ -69,8 +65,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj))
             return false;
         return obj is MipMapCount && Equals((MipMapCount) obj);
@@ -79,8 +74,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return Count;
     }
 
@@ -89,8 +83,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(MipMapCount left, MipMapCount right)
-    {
+    public static bool operator ==(MipMapCount left, MipMapCount right) {
         return left.Equals(right);
     }
 
@@ -99,8 +92,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(MipMapCount left, MipMapCount right)
-    {
+    public static bool operator !=(MipMapCount left, MipMapCount right) {
         return !left.Equals(right);
     }
 
@@ -109,8 +101,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="mipMap">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator bool(MipMapCount mipMap)
-    {
+    public static implicit operator bool(MipMapCount mipMap) {
         return mipMap.Count == 0;
     }
 
@@ -119,8 +110,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="mipMapAll">True to generate all mipmaps, false to use a single mipmap.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator MipMapCount(bool mipMapAll)
-    {
+    public static implicit operator MipMapCount(bool mipMapAll) {
         return new MipMapCount(mipMapAll);
     }
 
@@ -129,8 +119,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="mipMap">The value.</param>
     /// <returns>The count of mipmap (0 means all mipmaps).</returns>
-    public static implicit operator int(MipMapCount mipMap)
-    {
+    public static implicit operator int(MipMapCount mipMap) {
         return mipMap.Count;
     }
 
@@ -139,8 +128,7 @@ public struct MipMapCount : IEquatable<MipMapCount>
     /// </summary>
     /// <param name="mipMapCount">True to generate all mipmaps, false to use a single mipmap.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator MipMapCount(int mipMapCount)
-    {
+    public static implicit operator MipMapCount(int mipMapCount) {
         return new MipMapCount(mipMapCount);
     }
 }

@@ -8,8 +8,7 @@ using System.Windows.Input;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public static class ViewportCommands
-{
+public static class ViewportCommands {
     public static RoutedCommand Zoom { get; } = new();
 
     public static RoutedCommand ZoomExtents { get; } = new();

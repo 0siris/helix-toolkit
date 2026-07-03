@@ -6,15 +6,19 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Used to share bone matrices for multiple <see cref="BoneSkinMeshGeometryModel3D" />
 /// </summary>
-public sealed class BoneGroupModel3D : GroupModel3D
-{
+public sealed class BoneGroupModel3D : GroupModel3D {
     /// <summary>
     ///     The bone matrices property
     /// </summary>
     public static readonly DependencyProperty BoneMatricesProperty =
-        DependencyProperty.Register("BoneMatrices", typeof(Matrix[]), typeof(BoneGroupModel3D),
-            new PropertyMetadata(null,
-                (d, e) => { ((d as Element3D).SceneNode as BoneGroupNode).BoneMatrices = (Matrix[]) e.NewValue; }));
+        DependencyProperty.Register("BoneMatrices",
+                                    typeof(Matrix[]),
+                                    typeof(BoneGroupModel3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as BoneGroupNode)
+                                                                 .BoneMatrices = (Matrix[]) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the bone matrices.
@@ -22,14 +26,12 @@ public sealed class BoneGroupModel3D : GroupModel3D
     /// <value>
     ///     The bone matrices.
     /// </value>
-    public Matrix[] BoneMatrices
-    {
+    public Matrix[] BoneMatrices {
         get => (Matrix[]) GetValue(BoneMatricesProperty);
         set => SetValue(BoneMatricesProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new BoneGroupNode();
     }
 }

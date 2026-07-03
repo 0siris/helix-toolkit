@@ -6,19 +6,15 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class AxisPlaneGridNode : SceneNode
-        {
+        public class AxisPlaneGridNode : SceneNode {
             /// <summary>
             ///     Initializes a new instance of the <see cref="AxisPlaneGridNode" /> class.
             /// </summary>
-            public AxisPlaneGridNode()
-            {
+            public AxisPlaneGridNode() {
                 RenderOrder = 1000;
             }
 
@@ -28,8 +24,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [automatic spacing]; otherwise, <c>false</c>.
             /// </value>
-            public bool AutoSpacing
-            {
+            public bool AutoSpacing {
                 get => (RenderCore as AxisPlaneGridCore).AutoSpacing;
                 set => (RenderCore as AxisPlaneGridCore).AutoSpacing = value;
             }
@@ -40,8 +35,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The automatic spacing rate.
             /// </value>
-            public float AutoSpacingRate
-            {
+            public float AutoSpacingRate {
                 get => (RenderCore as AxisPlaneGridCore).AutoSpacingRate;
                 set => (RenderCore as AxisPlaneGridCore).AutoSpacingRate = value;
             }
@@ -60,8 +54,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The grid spacing.
             /// </value>
-            public float GridSpacing
-            {
+            public float GridSpacing {
                 get => (RenderCore as AxisPlaneGridCore).GridSpacing;
                 set => (RenderCore as AxisPlaneGridCore).GridSpacing = value;
             }
@@ -72,8 +65,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The grid thickness.
             /// </value>
-            public float GridThickness
-            {
+            public float GridThickness {
                 get => (RenderCore as AxisPlaneGridCore).GridThickness;
                 set => (RenderCore as AxisPlaneGridCore).GridThickness = value;
             }
@@ -84,8 +76,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fading factor.
             /// </value>
-            public float FadingFactor
-            {
+            public float FadingFactor {
                 get => (RenderCore as AxisPlaneGridCore).FadingFactor;
                 set => (RenderCore as AxisPlaneGridCore).FadingFactor = value;
             }
@@ -96,8 +87,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the plane.
             /// </value>
-            public Color4 PlaneColor
-            {
+            public Color4 PlaneColor {
                 get => (RenderCore as AxisPlaneGridCore).PlaneColor;
                 set => (RenderCore as AxisPlaneGridCore).PlaneColor = value;
             }
@@ -108,8 +98,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the grid.
             /// </value>
-            public Color4 GridColor
-            {
+            public Color4 GridColor {
                 get => (RenderCore as AxisPlaneGridCore).GridColor;
                 set => (RenderCore as AxisPlaneGridCore).GridColor = value;
             }
@@ -120,8 +109,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderShadowMap
-            {
+            public bool RenderShadowMap {
                 get => (RenderCore as AxisPlaneGridCore).RenderShadowMap;
                 set => (RenderCore as AxisPlaneGridCore).RenderShadowMap = value;
             }
@@ -132,8 +120,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     Up axis.
             /// </value>
-            public Axis UpAxis
-            {
+            public Axis UpAxis {
                 get => (RenderCore as AxisPlaneGridCore).UpAxis;
                 set => (RenderCore as AxisPlaneGridCore).UpAxis = value;
             }
@@ -144,8 +131,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The offset.
             /// </value>
-            public float Offset
-            {
+            public float Offset {
                 get => (RenderCore as AxisPlaneGridCore).Offset;
                 set => (RenderCore as AxisPlaneGridCore).Offset = value;
             }
@@ -156,28 +142,26 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The type of the grid.
             /// </value>
-            public GridPattern GridPattern
-            {
+            public GridPattern GridPattern {
                 get => (RenderCore as AxisPlaneGridCore).GridPattern;
                 set => (RenderCore as AxisPlaneGridCore).GridPattern = value;
             }
 
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new AxisPlaneGridCore();
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.PlaneGrid];
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 var normal = Vector3.Zero;
-                switch (UpAxis)
-                {
+                switch (UpAxis) {
                     case Axis.X:
                         normal = Vector3.UnitX;
                         break;
@@ -191,10 +175,8 @@ namespace HelixToolkit.SharpDX.Core
 
                 var plane = new Plane(normal, -Offset);
                 var ray = context.RayWS;
-                if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point))
-                {
-                    var hitTestResult = new HitTestResult
-                    {
+                if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point)) {
+                    var hitTestResult = new HitTestResult {
                         IsValid = true,
                         NormalAtHit = normal,
                         Distance = (context.RayWS.Position - point).Length,

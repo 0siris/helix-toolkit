@@ -23,8 +23,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Provides a control that manipulates the camera by mouse and keyboard gestures.
 /// </summary>
-public class CameraController
-{
+public class CameraController {
     private static readonly Point PointZero = new(0, 0);
     private static readonly Vector2 VectorZero = new();
     private static readonly Vector3 Vector3DZero = new();
@@ -381,12 +380,10 @@ public class CameraController
     /// <summary>
     ///     Initializes a new instance of the <see cref="CameraController" /> class.
     /// </summary>
-    public CameraController(Viewport3DX viewport)
-    {
+    public CameraController(Viewport3DX viewport) {
         InitializeBindings();
         Viewport = viewport;
-        Viewport.SizeChanged += (s, e) =>
-        {
+        Viewport.SizeChanged += (s, e) => {
             Width = (int) e.NewSize.Width;
             Height = (int) e.NewSize.Height;
         };
@@ -404,13 +401,10 @@ public class CameraController
     /// <summary>
     ///     Gets ActualCamera.
     /// </summary>
-    public Camera ActualCamera
-    {
+    public Camera ActualCamera {
         get => actualCamera;
-        set
-        {
-            if (actualCamera != value)
-            {
+        set {
+            if (actualCamera != value) {
                 actualCamera = value;
                 OnCameraChanged();
             }
@@ -420,8 +414,7 @@ public class CameraController
     /// <summary>
     ///     Gets or sets CameraLookDirection.
     /// </summary>
-    public Vector3 CameraLookDirection
-    {
+    public Vector3 CameraLookDirection {
         get => ActualCamera.CameraInternal.LookDirection;
 
         set => ActualCamera.LookDirection = value.ToVector3D();
@@ -430,8 +423,7 @@ public class CameraController
     /// <summary>
     ///     Gets or sets CameraPosition.
     /// </summary>
-    public Vector3 CameraPosition
-    {
+    public Vector3 CameraPosition {
         get => ActualCamera.CameraInternal.Position;
 
         set => ActualCamera.Position = value.ToPoint3D();
@@ -440,8 +432,7 @@ public class CameraController
     /// <summary>
     ///     Gets or sets CameraTarget.
     /// </summary>
-    public Vector3 CameraTarget
-    {
+    public Vector3 CameraTarget {
         get => CameraPosition + CameraLookDirection;
 
         set => CameraLookDirection = value - CameraPosition;
@@ -450,8 +441,7 @@ public class CameraController
     /// <summary>
     ///     Gets or sets CameraUpDirection.
     /// </summary>
-    public Vector3 CameraUpDirection
-    {
+    public Vector3 CameraUpDirection {
         get => ActualCamera.CameraInternal.UpDirection;
 
         set => ActualCamera.UpDirection = value.ToVector3D();
@@ -520,8 +510,7 @@ public class CameraController
     /// <param name="dz">
     ///     The delta z.
     /// </param>
-    public void AddMoveForce(float dx, float dy, float dz)
-    {
+    public void AddMoveForce(float dx, float dy, float dz) {
         AddMoveForce(new Vector3(dx, dy, dz));
     }
 
@@ -531,8 +520,7 @@ public class CameraController
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void AddMoveForce(Vector3 delta)
-    {
+    public void AddMoveForce(Vector3 delta) {
         if (!IsMoveEnabled) return;
 
         PushCameraSetting();
@@ -549,8 +537,7 @@ public class CameraController
     /// <param name="dy">
     ///     The delta y.
     /// </param>
-    public void AddPanForce(float dx, float dy)
-    {
+    public void AddPanForce(float dx, float dy) {
         AddPanForce(FindPanVector(dx, dy));
     }
 
@@ -560,8 +547,7 @@ public class CameraController
     /// <param name="pan">
     ///     The pan.
     /// </param>
-    public void AddPanForce(Vector3 pan)
-    {
+    public void AddPanForce(Vector3 pan) {
         if (!IsPanEnabled) return;
 
         PushCameraSetting();
@@ -581,29 +567,21 @@ public class CameraController
     /// <param name="dy">
     ///     The delta y.
     /// </param>
-    public void AddRotateForce(float dx, float dy)
-    {
+    public void AddRotateForce(float dx, float dy) {
         if (!IsRotationEnabled) return;
 
         PushCameraSetting();
-        if (IsInertiaEnabled)
-        {
+        if (IsInertiaEnabled) {
             rotationPoint3D = CameraTarget;
             rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
             rotationSpeed.X += dx * 40;
             rotationSpeed.Y += dy * 40;
-        }
-        else if (FixedRotationPointEnabled)
-        {
+        } else if (FixedRotationPointEnabled) {
             rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
-        }
-        else
-        {
+            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
+        } else {
             rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
+            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
         }
 
         Viewport.InvalidateRender();
@@ -615,8 +593,7 @@ public class CameraController
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void AddZoomForce(float delta)
-    {
+    public void AddZoomForce(float delta) {
         AddZoomForce(delta, CameraTarget);
     }
 
@@ -629,18 +606,14 @@ public class CameraController
     /// <param name="zoomOrigin">
     ///     The zoom origin.
     /// </param>
-    public void AddZoomForce(float delta, Vector3 zoomOrigin)
-    {
+    public void AddZoomForce(float delta, Vector3 zoomOrigin) {
         if (!IsZoomEnabled) return;
         PushCameraSetting();
 
-        if (IsInertiaEnabled)
-        {
+        if (IsInertiaEnabled) {
             zoomPoint3D = zoomOrigin;
             zoomSpeed += delta * 8;
-        }
-        else
-        {
+        } else {
             zoomHandler.Zoom(delta, zoomOrigin);
         }
 
@@ -659,8 +632,7 @@ public class CameraController
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public void ChangeDirection(Vector3 lookDir, Vector3 upDir, double animationTime = 500)
-    {
+    public void ChangeDirection(Vector3 lookDir, Vector3 upDir, double animationTime = 500) {
         ChangeDirection(lookDir.ToVector3D(), upDir.ToVector3D(), animationTime);
     }
 
@@ -670,8 +642,7 @@ public class CameraController
     /// <param name="lookDir">The look dir.</param>
     /// <param name="upDir">Up dir.</param>
     /// <param name="animationTime">The animation time.</param>
-    public void ChangeDirection(Vector3D lookDir, Vector3D upDir, double animationTime = 500)
-    {
+    public void ChangeDirection(Vector3D lookDir, Vector3D upDir, double animationTime = 500) {
         if (!IsRotationEnabled) return;
 
         StopAnimations();
@@ -688,8 +659,7 @@ public class CameraController
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public void ChangeDirection(Vector3 lookDir, double animationTime = 500)
-    {
+    public void ChangeDirection(Vector3 lookDir, double animationTime = 500) {
         if (!IsRotationEnabled) return;
 
         StopAnimations();
@@ -707,8 +677,7 @@ public class CameraController
     ///     The animation time.
     /// </param>
     [Obsolete]
-    public void LookAt(Vector3 target, double animationTime)
-    {
+    public void LookAt(Vector3 target, double animationTime) {
         if (!IsPanEnabled) return;
 
         PushCameraSetting();
@@ -718,8 +687,7 @@ public class CameraController
     /// <summary>
     ///     Push the current camera settings on an internal stack.
     /// </summary>
-    public void PushCameraSetting()
-    {
+    public void PushCameraSetting() {
         if (ActualCamera == null) return;
         cameraHistory.Add(new CameraSetting(ActualCamera));
     }
@@ -727,17 +695,13 @@ public class CameraController
     /// <summary>
     ///     Resets the camera.
     /// </summary>
-    public void ResetCamera()
-    {
+    public void ResetCamera() {
         if (!IsZoomEnabled || !IsRotationEnabled || !IsPanEnabled) return;
 
         PushCameraSetting();
-        if (DefaultCamera != null)
-        {
+        if (DefaultCamera != null) {
             DefaultCamera.CopyTo(ActualCamera);
-        }
-        else
-        {
+        } else {
             ActualCamera.Reset();
             ActualCamera.ZoomExtents(Viewport);
         }
@@ -746,8 +710,7 @@ public class CameraController
     /// <summary>
     ///     Resets the camera up direction.
     /// </summary>
-    public void ResetCameraUpDirection()
-    {
+    public void ResetCameraUpDirection() {
         CameraUpDirection = ModelUpDirection;
     }
 
@@ -755,10 +718,8 @@ public class CameraController
     ///     Restores the most recent camera setting from the internal stack.
     /// </summary>
     /// <returns> The restore camera setting. </returns>
-    public bool RestoreCameraSetting()
-    {
-        if (cameraHistory.Count > 0)
-        {
+    public bool RestoreCameraSetting() {
+        if (cameraHistory.Count > 0) {
             var cs = cameraHistory.Last;
             cameraHistory.RemoveLast();
             cs.UpdateCamera(ActualCamera);
@@ -780,8 +741,7 @@ public class CameraController
     /// <param name="aroundPoint">
     ///     The spin around point.
     /// </param>
-    public void StartSpin(Vector2 speed, Point position, Vector3 aroundPoint)
-    {
+    public void StartSpin(Vector2 speed, Point position, Vector3 aroundPoint) {
         spinningSpeed = speed;
         spinningPosition = position.ToVector2();
         spinningPoint3D = aroundPoint;
@@ -791,8 +751,7 @@ public class CameraController
     /// <summary>
     ///     Stops the spin.
     /// </summary>
-    public void StopSpin()
-    {
+    public void StopSpin() {
         isSpinning = false;
         spinningSpeed = new Vector2();
     }
@@ -800,16 +759,14 @@ public class CameraController
     /// <summary>
     ///     Stops the zooming inertia.
     /// </summary>
-    public void StopZooming()
-    {
+    public void StopZooming() {
         zoomSpeed = 0;
     }
 
     /// <summary>
     ///     Stops the panning.
     /// </summary>
-    public void StopPanning()
-    {
+    public void StopPanning() {
         panSpeed = Vector3.Zero;
     }
 
@@ -819,8 +776,7 @@ public class CameraController
     /// <param name="delta">
     ///     The delta value.
     /// </param>
-    public void Zoom(double delta)
-    {
+    public void Zoom(double delta) {
         zoomHandler.Zoom(delta);
     }
 
@@ -830,8 +786,7 @@ public class CameraController
     /// <param name="animationTime">
     ///     The animation time (milliseconds).
     /// </param>
-    public void ZoomExtents(double animationTime = 200)
-    {
+    public void ZoomExtents(double animationTime = 200) {
         if (!IsZoomEnabled) return;
 
         PushCameraSetting();
@@ -844,8 +799,7 @@ public class CameraController
     /// <param name="e">
     ///     The data for the event.
     /// </param>
-    public void OnManipulationCompleted(ManipulationCompletedEventArgs e)
-    {
+    public void OnManipulationCompleted(ManipulationCompletedEventArgs e) {
         var p = e.ManipulationOrigin + e.TotalManipulation.Translation;
 
         if (manipulatorCount == rotateFingerCount) rotateHandler.Completed(p);
@@ -861,15 +815,14 @@ public class CameraController
     /// <param name="e">
     ///     The data for the event.
     /// </param>
-    public void OnManipulationDelta(ManipulationDeltaEventArgs e)
-    {
+    public void OnManipulationDelta(ManipulationDeltaEventArgs e) {
         if (!EnablePinchZoom && !EnableThreeFingerPan && !EnableTouchRotate) return;
 
         // number of manipulators (fingers)
         var n = e.Manipulators.Count();
         var p = e.ManipulationOrigin;
         var position = new Point(touchPreviousPoint.X + e.DeltaManipulation.Translation.X,
-            touchPreviousPoint.Y + e.DeltaManipulation.Translation.Y);
+                                 touchPreviousPoint.Y + e.DeltaManipulation.Translation.Y);
         touchPreviousPoint = position;
 
         // http://msdn.microsoft.com/en-us/library/system.windows.uielement.manipulationdelta.aspx
@@ -877,8 +830,7 @@ public class CameraController
         //// System.Diagnostics.Debug.WriteLine("OnManipulationDelta: T={0}, S={1}, R={2}, O={3}", e.DeltaManipulation.Translation, e.DeltaManipulation.Scale, e.DeltaManipulation.Rotation, e.ManipulationOrigin);
         //// System.Diagnostics.Debug.WriteLine(n + " Delta:" + e.DeltaManipulation.Translation + " Origin:" + e.ManipulationOrigin + " pos:" + position);
 
-        if (manipulatorCount != n)
-        {
+        if (manipulatorCount != n) {
             // the number of manipulators has changed
 
             // cancel old manipulations
@@ -889,8 +841,7 @@ public class CameraController
                 combine = allowCombinedManipulation;
             }
 
-            if (manipulatorCount == zoomFingerCount && combine)
-            {
+            if (manipulatorCount == zoomFingerCount && combine) {
                 zoomHandler.Completed(p);
                 combine = allowCombinedManipulation;
             }
@@ -906,15 +857,13 @@ public class CameraController
                 combine = allowCombinedManipulation;
             }
 
-            if (EnablePinchZoom && n == zoomFingerCount && combine)
-            {
+            if (EnablePinchZoom && n == zoomFingerCount && combine) {
                 zoomHandler.Started(p);
                 e.Handled = true;
                 combine = allowCombinedManipulation;
             }
 
-            if (EnableThreeFingerPan && n == panFingerCount && combine)
-            {
+            if (EnableThreeFingerPan && n == panFingerCount && combine) {
                 panHandler.Started(position);
                 e.Handled = true;
                 //combine = this.allowCombinedManipulation;
@@ -922,37 +871,25 @@ public class CameraController
 
             manipulatorCount = n;
             // skip this event, the origin may have changed
-        }
-        else
-        {
-            if (EnableTouchRotate && n == rotateFingerCount)
-            {
+        } else {
+            if (EnableTouchRotate && n == rotateFingerCount) {
                 rotateHandler.Delta(position);
                 e.Handled = true;
                 if (!allowCombinedManipulation)
                     return;
             }
 
-            if (EnablePinchZoom && n == zoomFingerCount)
-            {
-                if (prevScale == 1)
-                {
+            if (EnablePinchZoom && n == zoomFingerCount) {
+                if (prevScale == 1) {
                     prevScale = e.CumulativeManipulation.Scale.Length;
-                }
-                else
-                {
-                    if (PinchZoomAtCenter)
-                    {
+                } else {
+                    if (PinchZoomAtCenter) {
                         var s = e.CumulativeManipulation.Scale.Length;
                         zoomHandler.Zoom(prevScale - s, CameraPosition + CameraLookDirection, true);
                         prevScale = s;
-                    }
-                    else
-                    {
-                        var zoomAroundPoint = zoomHandler.UnProject(
-                            p, zoomHandler.Origin, CameraLookDirection);
-                        if (zoomAroundPoint.HasValue)
-                        {
+                    } else {
+                        var zoomAroundPoint = zoomHandler.UnProject(p, zoomHandler.Origin, CameraLookDirection);
+                        if (zoomAroundPoint.HasValue) {
                             var s = e.CumulativeManipulation.Scale.Length;
                             zoomHandler.Zoom(prevScale - s, zoomAroundPoint.Value, true);
                             prevScale = s;
@@ -965,8 +902,7 @@ public class CameraController
                     return;
             }
 
-            if (EnableThreeFingerPan && n == panFingerCount)
-            {
+            if (EnableThreeFingerPan && n == panFingerCount) {
                 panHandler.Delta(position);
                 e.Handled = true;
                 //if (!this.allowCombinedManipulation) return;
@@ -980,8 +916,7 @@ public class CameraController
     /// <param name="e">
     ///     The data for the event.
     /// </param>
-    public void OnManipulationStarted(ManipulationStartedEventArgs e)
-    {
+    public void OnManipulationStarted(ManipulationStartedEventArgs e) {
         touchPreviousPoint = e.ManipulationOrigin;
         manipulatorCount = 0;
         prevScale = 1;
@@ -990,8 +925,7 @@ public class CameraController
         rotateFingerCount = -1;
         allowCombinedManipulation = false;
 
-        foreach (var mb in Viewport.InputBindings.OfType<ManipulationBinding>())
-        {
+        foreach (var mb in Viewport.InputBindings.OfType<ManipulationBinding>()) {
             allowCombinedManipulation = true;
             if (mb.Command == ViewportCommands.Pan)
                 panFingerCount = mb.FingerCount;
@@ -1000,8 +934,7 @@ public class CameraController
             else if (mb.Command == ViewportCommands.Rotate) rotateFingerCount = mb.FingerCount;
         }
 
-        if (!allowCombinedManipulation)
-        {
+        if (!allowCombinedManipulation) {
             panFingerCount = 3;
             zoomFingerCount = 2;
             rotateFingerCount = 1;
@@ -1016,8 +949,7 @@ public class CameraController
     ///     The <see cref="T:System.Windows.Input.MouseButtonEventArgs" /> that contains the event data. This event data
     ///     reports details about the mouse button that was pressed and the handled state.
     /// </param>
-    public void OnMouseDown(MouseButtonEventArgs e)
-    {
+    public void OnMouseDown(MouseButtonEventArgs e) {
         if (e.ChangedButton == MouseButton.XButton1) RestoreCameraSetting();
     }
 
@@ -1028,19 +960,16 @@ public class CameraController
     /// <param name="e">
     ///     The <see cref="T:System.Windows.Input.StylusSystemGestureEventArgs" /> that contains the event data.
     /// </param>
-    public void OnStylusSystemGesture(StylusSystemGestureEventArgs e)
-    {
+    public void OnStylusSystemGesture(StylusSystemGestureEventArgs e) {
         // Debug.WriteLine("OnStylusSystemGesture: " + e.SystemGesture);
-        if (e.SystemGesture == SystemGesture.HoldEnter)
-        {
+        if (e.SystemGesture == SystemGesture.HoldEnter) {
             var p = e.GetPosition(Viewport);
             changeLookAtHandler.Started(p);
             changeLookAtHandler.Completed(p);
             e.Handled = true;
         }
 
-        if (e.SystemGesture == SystemGesture.TwoFingerTap)
-        {
+        if (e.SystemGesture == SystemGesture.TwoFingerTap) {
             ZoomExtents();
             e.Handled = true;
         }
@@ -1055,8 +984,7 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void BackViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void BackViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
     }
 
@@ -1069,8 +997,7 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void BottomViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void BottomViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
     }
 
@@ -1089,8 +1016,7 @@ public class CameraController
     /// <returns>
     ///     The clamp.
     /// </returns>
-    private double Clamp(double value, double min, double max)
-    {
+    private double Clamp(double value, double min, double max) {
         if (value < min) return min;
 
         if (value > max) return max;
@@ -1110,8 +1036,7 @@ public class CameraController
     /// <returns>
     ///     The <see cref="Vector3" /> .
     /// </returns>
-    private Vector3 FindPanVector(float dx, float dy)
-    {
+    private Vector3 FindPanVector(float dx, float dy) {
         var axis1 = SilkMath.Normalize(SilkMath.Cross(CameraLookDirection, CameraUpDirection));
         var axis2 = SilkMath.Normalize(SilkMath.Cross(axis1, CameraLookDirection));
         axis1 *= ActualCamera.CreateLeftHandSystem ? -1 : 1;
@@ -1136,16 +1061,14 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void FrontViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void FrontViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
     }
 
     /// <summary>
     ///     Initializes the input bindings.
     /// </summary>
-    private void InitializeBindings()
-    {
+    private void InitializeBindings() {
         changeLookAtHandler = new RotateHandler(this, true);
         rotateHandler = new RotateHandler(this);
         zoomRectangleHandler = new ZoomRectangleHandler(this);
@@ -1170,16 +1093,14 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void LeftViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void LeftViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
     }
 
     /// <summary>
     ///     The on camera changed.
     /// </summary>
-    private void OnCameraChanged()
-    {
+    private void OnCameraChanged() {
         cameraHistory.Clear();
         PushCameraSetting();
     }
@@ -1188,8 +1109,7 @@ public class CameraController
     ///     Called when [composition target rendering].
     /// </summary>
     /// <param name="ticks">The ticks.</param>
-    public void OnCompositionTargetRendering(long ticks)
-    {
+    public void OnCompositionTargetRendering(long ticks) {
         OnTimeStep(ticks);
     }
 
@@ -1199,15 +1119,13 @@ public class CameraController
     /// <param name="e">
     ///     The <see cref="System.Windows.Input.KeyEventArgs" /> instance containing the event data.
     /// </param>
-    public void OnKeyDown(KeyEventArgs e)
-    {
+    public void OnKeyDown(KeyEventArgs e) {
         var shift = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
         var control = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
         var f = control ? 0.25f : 1;
 
         if (!shift)
-            switch (e.Key)
-            {
+            switch (e.Key) {
                 case Key.Left:
                     AddRotateForce(-1 * f * (float) LeftRightRotationSensitivity, 0);
                     e.Handled = true;
@@ -1226,8 +1144,7 @@ public class CameraController
                     break;
             }
         else
-            switch (e.Key)
-            {
+            switch (e.Key) {
                 case Key.Left:
                     AddPanForce(-5 * f * (float) LeftRightPanSensitivity, 0);
                     e.Handled = true;
@@ -1246,8 +1163,7 @@ public class CameraController
                     break;
             }
 
-        switch (e.Key)
-        {
+        switch (e.Key) {
             case Key.PageUp:
                 AddZoomForce(-0.1f * f * (float) PageUpDownZoomSensitivity);
                 e.Handled = true;
@@ -1262,8 +1178,7 @@ public class CameraController
                 break;
         }
 
-        switch (e.Key)
-        {
+        switch (e.Key) {
             case Key.W:
                 AddMoveForce(0, 0, 0.1f * f * (float) MoveSensitivity);
                 break;
@@ -1294,14 +1209,11 @@ public class CameraController
     /// <param name="e">
     ///     The <see cref="System.Windows.Input.MouseWheelEventArgs" /> instance containing the event data.
     /// </param>
-    public void OnMouseWheel(object sender, MouseWheelEventArgs e)
-    {
+    public void OnMouseWheel(object sender, MouseWheelEventArgs e) {
         if (!IsZoomEnabled) return;
-        if (ZoomAroundMouseDownPoint)
-        {
+        if (ZoomAroundMouseDownPoint) {
             var point = e.GetPosition(Viewport);
-            if (Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out var normal, out var model))
-            {
+            if (Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out var normal, out var model)) {
                 AddZoomForce(-e.Delta * 0.001f, nearestPoint);
                 e.Handled = true;
                 return;
@@ -1318,8 +1230,7 @@ public class CameraController
     /// <param name="ticks">
     ///     The time.
     /// </param>
-    private void OnTimeStep(long ticks)
-    {
+    private void OnTimeStep(long ticks) {
         if (lastTick == 0) lastTick = ticks;
         var time = (float) (ticks - lastTick) / Stopwatch.Frequency;
         time = time == 0 ? 0.016f : time;
@@ -1328,71 +1239,51 @@ public class CameraController
         var factor = IsInertiaEnabled ? (float) Clamp(Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
         var needUpdate = false;
 
-        if (rotationSpeed.LengthSquared() > 0.1f)
-        {
-            rotateHandler.Rotate(
-                rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
+        if (rotationSpeed.LengthSquared() > 0.1f) {
+            rotateHandler.Rotate(rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
             rotationSpeed *= factor;
             needUpdate = true;
             spinningSpeed = VectorZero;
-        }
-        else
-        {
+        } else {
             rotationSpeed = VectorZero;
-            if (isSpinning && spinningSpeed.LengthSquared() > 0.1f)
-            {
-                rotateHandler.Rotate(
-                    spinningPosition, spinningPosition + spinningSpeed * time, spinningPoint3D, false);
+            if (isSpinning && spinningSpeed.LengthSquared() > 0.1f) {
+                rotateHandler.Rotate(spinningPosition, spinningPosition + spinningSpeed * time, spinningPoint3D, false);
                 if (!InfiniteSpin) spinningSpeed *= factor;
                 needUpdate = true;
-            }
-            else
-            {
+            } else {
                 spinningSpeed = VectorZero;
             }
         }
 
-        if (panSpeed.LengthSquared() > 0.0001f)
-        {
+        if (panSpeed.LengthSquared() > 0.0001f) {
             panHandler.Pan(panSpeed * time, false);
             panSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             panSpeed = Vector3DZero;
         }
 
-        if (moveSpeed.LengthSquared() > 0.0001f)
-        {
+        if (moveSpeed.LengthSquared() > 0.0001f) {
             zoomHandler.MoveCameraPosition(moveSpeed * time, false);
             moveSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             moveSpeed = Vector3DZero;
         }
 
-        if (Math.Abs(zoomSpeed) > 0.001f)
-        {
+        if (Math.Abs(zoomSpeed) > 0.001f) {
             zoomHandler.Zoom(zoomSpeed * time, zoomPoint3D, false, false);
             zoomSpeed *= factor;
             needUpdate = true;
-        }
-        else
-        {
+        } else {
             zoomSpeed = 0;
         }
 
         if (ActualCamera != null && ActualCamera.OnTimeStep()) needUpdate = true;
-        if (needUpdate)
-        {
+        if (needUpdate) {
             lastTick = ticks;
             Viewport.InvalidateRender();
-        }
-        else
-        {
+        } else {
             lastTick = 0;
         }
     }
@@ -1400,16 +1291,14 @@ public class CameraController
     /// <summary>
     ///     The on viewport changed.
     /// </summary>
-    private void OnViewportChanged()
-    {
+    private void OnViewportChanged() {
         InitializeBindings();
     }
 
     /// <summary>
     ///     The refresh viewport.
     /// </summary>
-    private void RefreshViewport()
-    {
+    private void RefreshViewport() {
         Viewport.InvalidateRender();
     }
 
@@ -1422,10 +1311,8 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void ResetCameraHandler(object sender, ExecutedRoutedEventArgs e)
-    {
-        if (IsPanEnabled && IsZoomEnabled && CameraMode != CameraMode.FixedPosition)
-        {
+    private void ResetCameraHandler(object sender, ExecutedRoutedEventArgs e) {
+        if (IsPanEnabled && IsZoomEnabled && CameraMode != CameraMode.FixedPosition) {
             StopAnimations();
             ResetCamera();
         }
@@ -1440,16 +1327,14 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void RightViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void RightViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
     }
 
     /// <summary>
     ///     The stop animations.
     /// </summary>
-    public void StopAnimations()
-    {
+    public void StopAnimations() {
         StopPanning();
         StopZooming();
         StopSpin();
@@ -1464,8 +1349,7 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void TopViewHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void TopViewHandler(object sender, ExecutedRoutedEventArgs e) {
         ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
     }
 
@@ -1478,18 +1362,17 @@ public class CameraController
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void ZoomExtentsHandler(object sender, ExecutedRoutedEventArgs e)
-    {
+    private void ZoomExtentsHandler(object sender, ExecutedRoutedEventArgs e) {
         StopAnimations();
         ZoomExtents();
     }
 
-    #region TouchGesture
+#region TouchGesture
 
     public bool EnableTouchRotate { get; set; } = true;
     public bool EnablePinchZoom { get; set; } = true;
     public bool EnableThreeFingerPan { get; set; } = true;
     public bool PinchZoomAtCenter { get; set; } = false;
 
-    #endregion
+#endregion
 }

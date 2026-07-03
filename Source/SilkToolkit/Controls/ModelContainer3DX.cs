@@ -19,15 +19,16 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Use to contain shared models for multiple viewports.
 ///     <para>Suggest to bind effects manager in viewmodel. Assign effect manager from code behind may cause memory leak</para>
 /// </summary>
-public class ModelContainer3DX : HelixItemsControl, IModelContainer
-{
+public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>
     ///     The EffectsManager property. Suggest to bind effects manager in viewmodel. Assign effect manager from code behind
     ///     may cause memory leak
     /// </summary>
-    public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register(
-        "EffectsManager", typeof(IEffectsManager), typeof(ModelContainer3DX), new PropertyMetadata(null,
-            (s, e) => ((ModelContainer3DX) s).EffectsManagerPropertyChanged()));
+    public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register("EffectsManager",
+        typeof(IEffectsManager),
+        typeof(ModelContainer3DX),
+        new PropertyMetadata(null,
+                             (s, e) => ((ModelContainer3DX) s).EffectsManagerPropertyChanged()));
 
     private readonly HashSet<IRenderHost> attachedRenderHosts = new();
 
@@ -37,8 +38,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
 
     private int d3dCounter;
 
-    public ModelContainer3DX()
-    {
+    public ModelContainer3DX() {
         IsHitTestVisible = false;
 #if !NETFX_CORE && !WINUI
         Visibility = Visibility.Collapsed;
@@ -60,8 +60,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     ///         behind may cause memory leak.
     ///     </para>
     /// </summary>
-    public IEffectsManager EffectsManager
-    {
+    public IEffectsManager EffectsManager {
         get => (IEffectsManager) GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
@@ -86,13 +85,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
 
     /// <summary>
     /// </summary>
-    public IRenderHost CurrentRenderHost
-    {
+    public IRenderHost CurrentRenderHost {
         get => currentRenderHost;
-        set
-        {
-            if (currentRenderHost != value)
-            {
+        set {
+            if (currentRenderHost != value) {
                 currentRenderHost = value;
                 currentRenderHost.SetDefaultRenderTargets(false);
             }
@@ -115,9 +111,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame renderable.
     /// </value>
-    public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameFlattenedScene
-        : Constants.EmptyRenderablePair;
+    public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameFlattenedScene
+            : Constants.EmptyRenderablePair;
 
     /// <summary>
     ///     Gets the current frame Lights for rendering.
@@ -134,9 +131,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame post effect cores.
     /// </value>
-    public FastList<SceneNode> PerFrameNodesWithPostEffect => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameNodesWithPostEffect
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameNodesWithPostEffect =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameNodesWithPostEffect
+            : Constants.EmptyRenderable;
 
     /// <summary>
     ///     Gets the per frame general render cores.
@@ -144,9 +142,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame general render cores.
     /// </value>
-    public FastList<SceneNode> PerFrameOpaqueNodes => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameOpaqueNodes
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameOpaqueNodes =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameOpaqueNodes
+            : Constants.EmptyRenderable;
 
     /// <summary>
     ///     Gets the per frame opaque nodes in frustum.
@@ -154,9 +153,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame opaque nodes in frustum.
     /// </value>
-    public FastList<SceneNode> PerFrameOpaqueNodesInFrustum => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameOpaqueNodesInFrustum
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameOpaqueNodesInFrustum =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameOpaqueNodesInFrustum
+            : Constants.EmptyRenderable;
 
     /// <summary>
     ///     Gets the per frame transparent nodes. , <see cref="RenderType.Transparent" />
@@ -164,9 +164,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame transparent nodes.
     /// </value>
-    public FastList<SceneNode> PerFrameTransparentNodes => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameTransparentNodes
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameTransparentNodes =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameTransparentNodes
+            : Constants.EmptyRenderable;
 
     /// <summary>
     ///     Gets the per frame transparent nodes in frustum.
@@ -174,9 +175,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame transparent nodes in frustum.
     /// </value>
-    public FastList<SceneNode> PerFrameTransparentNodesInFrustum => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameTransparentNodesInFrustum
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameTransparentNodesInFrustum =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameTransparentNodesInFrustum
+            : Constants.EmptyRenderable;
 
     /// <summary>
     ///     Gets the per frame particle nodes. <see cref="RenderType.Particle" />
@@ -184,52 +186,47 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The per frame particle nodes.
     /// </value>
-    public FastList<SceneNode> PerFrameParticleNodes => CurrentRenderHost != null
-        ? CurrentRenderHost.PerFrameParticleNodes
-        : Constants.EmptyRenderable;
+    public FastList<SceneNode> PerFrameParticleNodes =>
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameParticleNodes
+            : Constants.EmptyRenderable;
 
     /// <summary>
     /// </summary>
     /// <param name="viewport"></param>
-    public void AttachViewport3DX(IViewport3DX viewport)
-    {
+    public void AttachViewport3DX(IViewport3DX viewport) {
         if (viewports.Add(viewport)) viewport.EffectsManager = EffectsManager;
     }
 
     /// <summary>
     /// </summary>
     /// <param name="viewport"></param>
-    public void DettachViewport3DX(IViewport3DX viewport)
-    {
+    public void DettachViewport3DX(IViewport3DX viewport) {
         viewports.Remove(viewport);
     }
 
     /// <summary>
     ///     Invalidates the render.
     /// </summary>
-    public void InvalidateRender()
-    {
+    public void InvalidateRender() {
         foreach (var v in attachedRenderHosts) v.InvalidateRender();
     }
 
     /// <summary>
     ///     Invalidates the scene graph.
     /// </summary>
-    public void InvalidateSceneGraph()
-    {
+    public void InvalidateSceneGraph() {
         foreach (var v in attachedRenderHosts) v.InvalidateSceneGraph();
     }
 
     /// <summary>
     ///     Invalidates the per frame renderables.
     /// </summary>
-    public void InvalidatePerFrameRenderables()
-    {
+    public void InvalidatePerFrameRenderables() {
         foreach (var v in attachedRenderHosts) v.InvalidatePerFrameRenderables();
     }
 
-    public void Invalidate(InvalidateTypes type)
-    {
+    public void Invalidate(InvalidateTypes type) {
         foreach (var v in attachedRenderHosts) v.Invalidate(type);
     }
 
@@ -237,17 +234,14 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     ///     Sets the default render targets.
     /// </summary>
     /// <param name="clear">if set to <c>true</c> [clear].</param>
-    public void SetDefaultRenderTargets(bool clear = true)
-    {
+    public void SetDefaultRenderTargets(bool clear = true) {
         CurrentRenderHost.SetDefaultRenderTargets(clear);
     }
 
     /// <summary>
     /// </summary>
-    public IEnumerable<SceneNode> Renderables
-    {
-        get
-        {
+    public IEnumerable<SceneNode> Renderables {
+        get {
             foreach (Element3D item in Items) yield return item.SceneNode;
         }
     }
@@ -278,8 +272,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
 #if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
 #endif
-    public Color4 ClearColor
-    {
+    public Color4 ClearColor {
         get { return currentRenderHost != null ? currentRenderHost.ClearColor : Color.White; }
         set { throw new NotImplementedException(); }
     }
@@ -291,8 +284,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     ///     <c>true</c> if this instance is shadow map enabled; otherwise, <c>false</c>.
     /// </value>
     /// <exception cref="NotImplementedException"></exception>
-    public bool IsShadowMapEnabled
-    {
+    public bool IsShadowMapEnabled {
         get => currentRenderHost != null ? currentRenderHost.IsShadowMapEnabled : false;
         set => throw new NotImplementedException();
     }
@@ -351,8 +343,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     The shared model container.
     /// </value>
-    public IModelContainer SharedModelContainer
-    {
+    public IModelContainer SharedModelContainer {
         get => this;
         set { }
     }
@@ -363,8 +354,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <value>
     ///     <c>true</c> if [enable sharing model mode]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableSharingModelMode
-    {
+    public bool EnableSharingModelMode {
         get => true;
         set { }
     }
@@ -429,12 +419,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     ///     Attaches the specified host.
     /// </summary>
     /// <param name="host">The host.</param>
-    public void Attach(IRenderHost host)
-    {
+    public void Attach(IRenderHost host) {
         if (host != null && attachedRenderHosts.Add(host))
             if (Interlocked.Increment(ref d3dCounter) == 1 && host.EffectsManager != null)
-                foreach (var renderable in Renderables)
-                {
+                foreach (var renderable in Renderables) {
                     renderable.RenderHost = host;
                     renderable.Invalidated += RenderableInvalidated;
                     renderable.Attach(EffectsManager);
@@ -446,13 +434,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// </summary>
     /// <param name="host"></param>
     /// <exception cref="IndexOutOfRangeException">D3DCounter is negative.</exception>
-    public void Detach(IRenderHost host)
-    {
-        if (host != null && attachedRenderHosts.Remove(host))
-        {
+    public void Detach(IRenderHost host) {
+        if (host != null && attachedRenderHosts.Remove(host)) {
             if (Interlocked.Decrement(ref d3dCounter) == 0)
-                foreach (var renderable in Renderables)
-                {
+                foreach (var renderable in Renderables) {
                     renderable.Detach();
                     renderable.RenderHost = null;
                     renderable.Invalidated -= RenderableInvalidated;
@@ -466,30 +451,21 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public void StartD3D(int width, int height)
-    {
-    }
+    public void StartD3D(int width, int height) { }
 
     /// <summary>
     ///     Ends the d3 d.
     /// </summary>
-    public void EndD3D()
-    {
-    }
+    public void EndD3D() { }
 
-    public void StartRendering()
-    {
-    }
+    public void StartRendering() { }
 
-    public void StopRendering()
-    {
-    }
+    public void StopRendering() { }
 
     /// <summary>
     ///     Updates the and render.
     /// </summary>
-    public bool UpdateAndRender()
-    {
+    public bool UpdateAndRender() {
         return false;
     }
 
@@ -498,9 +474,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public void Resize(int width, int height)
-    {
-    }
+    public void Resize(int width, int height) { }
 
     /// <summary>
     ///     Clears the render target.
@@ -508,29 +482,24 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     /// <param name="context">The context.</param>
     /// <param name="clearBackBuffer">if set to <c>true</c> [clear back buffer].</param>
     /// <param name="clearDepthStencilBuffer">if set to <c>true</c> [clear depth stencil buffer].</param>
-    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer)
-    {
+    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer) {
         CurrentRenderHost?.ClearRenderTarget(context, clearBackBuffer, clearDepthStencilBuffer);
     }
 
     /// <summary>
     ///     Handles the change of the effects manager.
     /// </summary>
-    private void EffectsManagerPropertyChanged()
-    {
+    private void EffectsManagerPropertyChanged() {
         foreach (var viewport in viewports) viewport.EffectsManager = EffectsManager;
         EffectsManagerChanged?.Invoke(this, EffectsManager);
     }
 
-    private void RenderableInvalidated(object sender, InvalidateTypes e)
-    {
+    private void RenderableInvalidated(object sender, InvalidateTypes e) {
         Invalidate(e);
     }
 
-    private void Detach()
-    {
-        foreach (var renderable in Renderables)
-        {
+    private void Detach() {
+        foreach (var renderable in Renderables) {
             renderable.Detach();
             renderable.Invalidated -= RenderableInvalidated;
         }
@@ -564,16 +533,13 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     public event EventHandler SceneGraphUpdated;
 #pragma warning restore 0067
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
+    protected virtual void Dispose(bool disposing) {
+        if (!disposedValue) {
+            if (disposing) {
                 attachedRenderHosts.Clear();
                 Detach();
                 foreach (var item in Items)
@@ -599,13 +565,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer
     // }
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
         // TODO: uncomment the following line if the finalizer is overridden above.
         // GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
 }

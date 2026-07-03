@@ -3,19 +3,15 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
-        public static class DefaultSamplers
-        {
+        public static class DefaultSamplers {
             /// <summary>
             ///     The linear sampler wrap anisotropy =16
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerWrapAni16 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerWrapAni16 = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -27,8 +23,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The linear sampler wrap anisotropy =8
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerWrapAni8 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerWrapAni8 = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -39,8 +34,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The linear sampler wrap anisotropy = 4
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerWrapAni4 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerWrapAni4 = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -52,8 +46,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The linear sampler wrap anisotropy =2
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerWrapAni2 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerWrapAni2 = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -65,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The linear sampler wrap anisotropy = 1
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerWrapAni1 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerWrapAni1 = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -74,8 +66,7 @@ namespace HelixToolkit.SharpDX.Core
                 MaximumLod = float.MaxValue
             };
 
-            public static readonly SamplerStateDescription LinearSamplerClampAni1 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerClampAni1 = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
@@ -86,8 +77,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The point sampler wrap
             /// </summary>
-            public static readonly SamplerStateDescription PointSamplerWrap = new()
-            {
+            public static readonly SamplerStateDescription PointSamplerWrap = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -98,8 +88,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The shadow sampler
             /// </summary>
-            public static readonly SamplerStateDescription ShadowSampler = new()
-            {
+            public static readonly SamplerStateDescription ShadowSampler = new() {
                 AddressU = TextureAddressMode.Border,
                 AddressV = TextureAddressMode.Border,
                 AddressW = TextureAddressMode.Border,
@@ -111,8 +100,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The cube sampler
             /// </summary>
-            public static readonly SamplerStateDescription EnvironmentSampler = new()
-            {
+            public static readonly SamplerStateDescription EnvironmentSampler = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
@@ -124,8 +112,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The cube sampler
             /// </summary>
-            public static readonly SamplerStateDescription IBLSampler = new()
-            {
+            public static readonly SamplerStateDescription IBLSampler = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
@@ -137,8 +124,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The linear sampler clamp ani4
             /// </summary>
-            public static readonly SamplerStateDescription LinearSamplerClampAni4 = new()
-            {
+            public static readonly SamplerStateDescription LinearSamplerClampAni4 = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
@@ -149,16 +135,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The screen dup sampler
             /// </summary>
-            public static readonly SamplerStateDescription ScreenDupSampler = new()
-            {
+            public static readonly SamplerStateDescription ScreenDupSampler = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
                 Filter = Filter.MinMagMipLinear
             };
 
-            public static readonly SamplerStateDescription VolumeSampler = new()
-            {
+            public static readonly SamplerStateDescription VolumeSampler = new() {
                 AddressU = TextureAddressMode.Border,
                 AddressV = TextureAddressMode.Border,
                 AddressW = TextureAddressMode.Border,
@@ -167,8 +151,7 @@ namespace HelixToolkit.SharpDX.Core
                 BorderColor = new Color4(0, 0, 0, 0)
             };
 
-            public static readonly SamplerStateDescription SSAONoise = new()
-            {
+            public static readonly SamplerStateDescription SSAONoise = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Wrap,
                 AddressW = TextureAddressMode.Wrap,
@@ -176,8 +159,7 @@ namespace HelixToolkit.SharpDX.Core
                 MaximumLod = 0
             };
 
-            public static readonly SamplerStateDescription SSAOSamplerClamp = new()
-            {
+            public static readonly SamplerStateDescription SSAOSamplerClamp = new() {
                 AddressU = TextureAddressMode.Clamp,
                 AddressV = TextureAddressMode.Clamp,
                 AddressW = TextureAddressMode.Clamp,
@@ -188,8 +170,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     The point sampler wrap
             /// </summary>
-            public static readonly SamplerStateDescription LineSamplerUWrapVClamp = new()
-            {
+            public static readonly SamplerStateDescription LineSamplerUWrapVClamp = new() {
                 AddressU = TextureAddressMode.Wrap,
                 AddressV = TextureAddressMode.Border,
                 AddressW = TextureAddressMode.Wrap,

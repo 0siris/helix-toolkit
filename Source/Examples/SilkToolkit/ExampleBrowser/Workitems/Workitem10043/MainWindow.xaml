@@ -57,7 +57,8 @@
                         <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Shift+RightClick" />
                     </hx:Viewport3DX.InputBindings>
                     <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-                    <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="{Binding DirectionalLightColor}" />
+                    <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}"
+                                           Color="{Binding DirectionalLightColor}" />
                     <hx:MeshGeometryModel3D
                         x:Name="model1"
                         Geometry="{Binding Model}"
@@ -106,7 +107,8 @@
                         <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Shift+RightClick" />
                     </hx:Viewport3DX.InputBindings>
                     <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-                    <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="{Binding DirectionalLightColor}" />
+                    <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}"
+                                           Color="{Binding DirectionalLightColor}" />
                     <hx:MeshGeometryModel3D
                         x:Name="model1b"
                         Geometry="{Binding Model}"

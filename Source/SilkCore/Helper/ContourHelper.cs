@@ -14,14 +14,12 @@ using DoubleOrSingle = float;
 /// <remarks>
 ///     See <a href="http://paulbourke.net/papers/conrec/">CONREC</a> for further information.
 /// </remarks>
-public class ContourHelper
-{
+public class ContourHelper {
     /// <summary>
     ///     Provides the indices for the various <see cref="ContourFacetResult" /> cases.
     /// </summary>
     private static readonly IDictionary<ContourFacetResult, int[,]> ResultIndices
-        = new Dictionary<ContourFacetResult, int[,]>
-        {
+        = new Dictionary<ContourFacetResult, int[,]> {
             {ContourFacetResult.ZeroOnly, new[,] {{0, 1}, {0, 2}}},
             {ContourFacetResult.OneAndTwo, new[,] {{0, 2}, {0, 1}}},
             {ContourFacetResult.OneOnly, new[,] {{1, 2}, {1, 0}}},
@@ -101,8 +99,7 @@ public class ContourHelper
     /// <param name="planeOrigin">The plane origin.</param>
     /// <param name="planeNormal">The plane normal.</param>
     /// <param name="originalMesh">The original mesh.</param>
-    public ContourHelper(Point3D planeOrigin, Vector3D planeNormal, MeshGeometry3D originalMesh)
-    {
+    public ContourHelper(Point3D planeOrigin, Vector3D planeNormal, MeshGeometry3D originalMesh) {
         var hasNormals = originalMesh.Normals != null && originalMesh.Normals.Count > 0;
         var hasTextureCoordinates =
             originalMesh.TextureCoordinates != null && originalMesh.TextureCoordinates.Count > 0;
@@ -144,14 +141,13 @@ public class ContourHelper
         out Point3D[] newPositions,
         out Vector3D[] newNormals,
         out Point[] newTextureCoordinates,
-        out int[] triangleIndices)
-    {
+        out int[] triangleIndices
+    ) {
         SetData(index0, index1, index2);
 
         var facetResult = GetContourFacet();
 
-        switch (facetResult)
-        {
+        switch (facetResult) {
             case ContourFacetResult.ZeroOnly:
                 triangleIndices = new[] {index0, positionCount++, positionCount++};
                 break;
@@ -185,15 +181,13 @@ public class ContourHelper
         }
 
         var facetIndices = ResultIndices[facetResult];
-        newPositions = new[]
-        {
+        newPositions = new[] {
             CreateNewPosition(facetIndices[0, 0], facetIndices[0, 1]),
             CreateNewPosition(facetIndices[1, 0], facetIndices[1, 1])
         };
 
         if (normals != null)
-            newNormals = new[]
-            {
+            newNormals = new[] {
                 CreateNewNormal(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewNormal(facetIndices[1, 0], facetIndices[1, 1])
             };
@@ -201,8 +195,7 @@ public class ContourHelper
             newNormals = new Vector3D[0];
 
         if (textures != null)
-            newTextureCoordinates = new[]
-            {
+            newTextureCoordinates = new[] {
                 CreateNewTexture(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewTexture(facetIndices[1, 0], facetIndices[1, 1])
             };
@@ -227,9 +220,12 @@ public class ContourHelper
     /// </param>
     /// <returns>The new coordinate.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static DoubleOrSingle CalculatePoint(DoubleOrSingle firstPoint, DoubleOrSingle secondPoint,
-        DoubleOrSingle firstSide, DoubleOrSingle secondSide)
-    {
+    private static DoubleOrSingle CalculatePoint(
+        DoubleOrSingle firstPoint,
+        DoubleOrSingle secondPoint,
+        DoubleOrSingle firstSide,
+        DoubleOrSingle secondSide
+    ) {
         return firstPoint - firstSide * (secondPoint - firstPoint) / (secondSide - firstSide);
     }
 
@@ -237,8 +233,7 @@ public class ContourHelper
     ///     Gets the <see cref="ContourFacetResult" /> for the current facet.
     /// </summary>
     /// <returns>a facet result.</returns>
-    private ContourFacetResult GetContourFacet()
-    {
+    private ContourFacetResult GetContourFacet() {
         if (IsSideAlone(0)) return sides[0] > 0 ? ContourFacetResult.ZeroOnly : ContourFacetResult.OneAndTwo;
 
         if (IsSideAlone(1)) return sides[1] > 0 ? ContourFacetResult.OneOnly : ContourFacetResult.ZeroAndTwo;
@@ -256,8 +251,7 @@ public class ContourHelper
     /// <param name="index0">The first triangle index of the facet.</param>
     /// <param name="index1">The second triangle index of the facet.</param>
     /// <param name="index2">The third triangle index of the facet.</param>
-    private void SetData(int index0, int index1, int index2)
-    {
+    private void SetData(int index0, int index1, int index2) {
         indices[0] = index0;
         indices[1] = index1;
         indices[2] = index2;
@@ -266,15 +260,13 @@ public class ContourHelper
         points[1] = meshPositions[index1];
         points[2] = meshPositions[index2];
 
-        if (normals != null)
-        {
+        if (normals != null) {
             normals[0] = meshNormals[index0];
             normals[1] = meshNormals[index1];
             normals[2] = meshNormals[index2];
         }
 
-        if (textures != null)
-        {
+        if (textures != null) {
             textures[0] = meshTextureCoordinates[index0];
             textures[1] = meshTextureCoordinates[index1];
             textures[2] = meshTextureCoordinates[index2];
@@ -292,16 +284,14 @@ public class ContourHelper
     /// <param name="index1">The second index.</param>
     /// <returns>The interpolated position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Point3D CreateNewPosition(int index0, int index1)
-    {
+    private Point3D CreateNewPosition(int index0, int index1) {
         var firstPoint = points[index0];
         var secondPoint = points[index1];
         var firstSide = sides[index0];
         var secondSide = sides[index1];
-        return new Point3D(
-            CalculatePoint(firstPoint.X, secondPoint.X, firstSide, secondSide),
-            CalculatePoint(firstPoint.Y, secondPoint.Y, firstSide, secondSide),
-            CalculatePoint(firstPoint.Z, secondPoint.Z, firstSide, secondSide));
+        return new Point3D(CalculatePoint(firstPoint.X, secondPoint.X, firstSide, secondSide),
+                           CalculatePoint(firstPoint.Y, secondPoint.Y, firstSide, secondSide),
+                           CalculatePoint(firstPoint.Z, secondPoint.Z, firstSide, secondSide));
     }
 
     /// <summary>
@@ -311,16 +301,14 @@ public class ContourHelper
     /// <param name="index1">The second index.</param>
     /// <returns>The interpolated vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Vector3D CreateNewNormal(int index0, int index1)
-    {
+    private Vector3D CreateNewNormal(int index0, int index1) {
         var firstPoint = normals[index0];
         var secondPoint = normals[index1];
         var firstSide = sides[index0];
         var secondSide = sides[index1];
-        return new Vector3D(
-            CalculatePoint(firstPoint.X, secondPoint.X, firstSide, secondSide),
-            CalculatePoint(firstPoint.Y, secondPoint.Y, firstSide, secondSide),
-            CalculatePoint(firstPoint.Z, secondPoint.Z, firstSide, secondSide));
+        return new Vector3D(CalculatePoint(firstPoint.X, secondPoint.X, firstSide, secondSide),
+                            CalculatePoint(firstPoint.Y, secondPoint.Y, firstSide, secondSide),
+                            CalculatePoint(firstPoint.Z, secondPoint.Z, firstSide, secondSide));
     }
 
     /// <summary>
@@ -330,16 +318,14 @@ public class ContourHelper
     /// <param name="index1">The second index.</param>
     /// <returns>The interpolated texture coordinate.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Point CreateNewTexture(int index0, int index1)
-    {
+    private Point CreateNewTexture(int index0, int index1) {
         var firstTexture = textures[index0];
         var secondTexture = textures[index1];
         var firstSide = sides[index0];
         var secondSide = sides[index1];
 
-        return new Point(
-            CalculatePoint(firstTexture.X, secondTexture.X, firstSide, secondSide),
-            CalculatePoint(firstTexture.Y, secondTexture.Y, firstSide, secondSide));
+        return new Point(CalculatePoint(firstTexture.X, secondTexture.X, firstSide, secondSide),
+                         CalculatePoint(firstTexture.Y, secondTexture.Y, firstSide, secondSide));
     }
 
     /// <summary>
@@ -347,8 +333,7 @@ public class ContourHelper
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns><c>true</c> if the vertex is on its own side.</returns>
-    private bool IsSideAlone(int index)
-    {
+    private bool IsSideAlone(int index) {
         Func<int, int> getNext = i => i + 1 > 2 ? 0 : i + 1;
 
         var firstSideIndex = getNext(index);
@@ -361,8 +346,7 @@ public class ContourHelper
     ///     Determines whether all sides of the facet are below the contour.
     /// </summary>
     /// <returns><c>true</c> if all sides are below the contour.</returns>
-    private bool AllSidesBelowContour()
-    {
+    private bool AllSidesBelowContour() {
         return sides[0] >= 0
                && sides[1] >= 0
                && sides[2] >= 0;
@@ -371,8 +355,7 @@ public class ContourHelper
     /// <summary>
     ///     The contour facet result.
     /// </summary>
-    private enum ContourFacetResult
-    {
+    private enum ContourFacetResult {
         /// <summary>
         ///     All of the points fall above the contour plane.
         /// </summary>

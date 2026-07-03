@@ -15,8 +15,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public class BillboardSingleImage3D : BillboardBase
-{
+public class BillboardSingleImage3D : BillboardBase {
     /// <summary>
     ///     Billboard type, <see cref="BillboardType" />
     /// </summary>
@@ -27,11 +26,9 @@ public class BillboardSingleImage3D : BillboardBase
     /// <summary>
     ///     Billboard center location
     /// </summary>
-    public Vector3 Center
-    {
+    public Vector3 Center {
         get => center;
-        set
-        {
+        set {
             if (Set(ref center, value)) IsInitialized = false;
         }
     }
@@ -42,11 +39,9 @@ public class BillboardSingleImage3D : BillboardBase
     ///     If color in image is equal to the mask color, the color will set to transparent in image.
     ///     Default color is Transparent, which did not mask any color.
     /// </summary>
-    public Color4 MaskColor
-    {
+    public Color4 MaskColor {
         get => maskColor;
-        set
-        {
+        set {
             if (Set(ref maskColor, value)) IsInitialized = false;
         }
     }
@@ -59,11 +54,9 @@ public class BillboardSingleImage3D : BillboardBase
     /// <value>
     ///     The angle in radians.
     /// </value>
-    public float Angle
-    {
+    public float Angle {
         get => angle;
-        set
-        {
+        set {
             if (Set(ref angle, value)) IsInitialized = false;
         }
     }
@@ -80,11 +73,9 @@ public class BillboardSingleImage3D : BillboardBase
     /// <value>
     ///     The horizontal alignment.
     /// </value>
-    public BillboardHorizontalAlignment HorizontalAlignment
-    {
+    public BillboardHorizontalAlignment HorizontalAlignment {
         get => horizontalAlignment;
-        set
-        {
+        set {
             if (Set(ref horizontalAlignment, value)) IsInitialized = false;
         }
     }
@@ -101,13 +92,10 @@ public class BillboardSingleImage3D : BillboardBase
     /// <value>
     ///     The vertical alignment.
     /// </value>
-    public BillboardVerticalAlignment VerticalAlignment
-    {
+    public BillboardVerticalAlignment VerticalAlignment {
         get => verticalAlignment;
-        set
-        {
-            if (Set(ref verticalAlignment, value))
-            {
+        set {
+            if (Set(ref verticalAlignment, value)) {
                 verticalAlignment = value;
                 IsInitialized = false;
             }
@@ -120,11 +108,9 @@ public class BillboardSingleImage3D : BillboardBase
     ///     Behavior depends on whether billboard is fixed sized or not.
     ///     When billboard is fixed sized, the offset is screen spaced.
     /// </summary>
-    public Vector2 Offset
-    {
+    public Vector2 Offset {
         get => offset;
-        set
-        {
+        set {
             if (Set(ref offset, value)) IsInitialized = false;
         }
     }
@@ -144,11 +130,9 @@ public class BillboardSingleImage3D : BillboardBase
     ///     Initializes a new instance of the <see cref="BillboardSingleImage3D" /> class.
     /// </summary>
     /// <param name="imageStream">The image stream.</param>
-    public BillboardSingleImage3D(Stream imageStream)
-    {
+    public BillboardSingleImage3D(Stream imageStream) {
         Texture = imageStream;
-        using (var image = Image.Load(imageStream))
-        {
+        using (var image = Image.Load(imageStream)) {
             Width = image.Description.Width;
             Height = image.Description.Height;
         }
@@ -160,8 +144,7 @@ public class BillboardSingleImage3D : BillboardBase
     /// <param name="texture">The image texture.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public BillboardSingleImage3D(TextureModel texture, float width, float height)
-    {
+    public BillboardSingleImage3D(TextureModel texture, float width, float height) {
         Texture = texture;
         Width = width;
         Height = height;
@@ -170,17 +153,14 @@ public class BillboardSingleImage3D : BillboardBase
     /// <summary>
     ///     Updates the bounds.
     /// </summary>
-    public override void UpdateBounds()
-    {
+    public override void UpdateBounds() {
         BoundingSphere = new BoundingSphere(Center, (float) Math.Sqrt(Width * Width + Height * Height) / 2);
         Bound = BoundingBox.FromSphere(BoundingSphere);
     }
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
-        if (target is BillboardSingleImage3D billboard)
-        {
+        if (target is BillboardSingleImage3D billboard) {
             billboard.Center = Center;
             billboard.MaskColor = MaskColor;
         }
@@ -190,8 +170,7 @@ public class BillboardSingleImage3D : BillboardBase
     ///     Called when [draw texture].
     /// </summary>
     /// <param name="deviceResources">The device resources.</param>
-    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources)
-    {
+    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
         GetQuadOffset(Width, Height, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
         var uv_tl = new Vector2(0, 0);
@@ -199,8 +178,7 @@ public class BillboardSingleImage3D : BillboardBase
         var transform = Angle != 0 ? Matrix3x2.Rotation(Angle) : Matrix3x2.Identity;
         var tr = new Vector2(br.X, tl.Y);
         var bl = new Vector2(tl.X, br.Y);
-        BillboardVertices.Add(new BillboardVertex
-        {
+        BillboardVertices.Add(new BillboardVertex {
             Position = Center.ToVector4(),
             Foreground = Color.White,
             Background = MaskColor,
@@ -213,16 +191,20 @@ public class BillboardSingleImage3D : BillboardBase
         });
     }
 
-    public override bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, bool fixedSize)
-    {
+    public override bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        bool fixedSize
+    ) {
         var rayWS = context.RayWS;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
             return false;
 
         return fixedSize
-            ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count)
-            : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count);
+                   ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count)
+                   : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count);
     }
 }

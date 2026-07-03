@@ -49,7 +49,8 @@
             </i:Interaction.Triggers>
             <!--<hx:AmbientLight3D Color="{Binding AmbientLightColor}"/>-->
 
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}" Color="{Binding DirectionalLightColor}" />
+            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+                                   Color="{Binding DirectionalLightColor}" />
 
             <hx:MeshGeometryModel3D
                 x:Name="model1"

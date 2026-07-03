@@ -5,19 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class NodePostEffectBorderHighlight : NodePostEffectMeshOutlineBlur
-        {
+        public class NodePostEffectBorderHighlight : NodePostEffectMeshOutlineBlur {
             /// <summary>
             ///     Initializes a new instance of the <see cref="NodePostEffectBorderHighlight" /> class.
             /// </summary>
-            public NodePostEffectBorderHighlight()
-            {
+            public NodePostEffectBorderHighlight() {
                 EffectName = DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight;
             }
 
@@ -27,14 +23,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The draw mode.
             /// </value>
-            public OutlineMode DrawMode
-            {
+            public OutlineMode DrawMode {
                 get => (RenderCore as PostEffectMeshOutlineBlurCore).DrawMode;
                 set => (RenderCore as PostEffectMeshOutlineBlurCore).DrawMode = value;
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight];
             }
 
@@ -42,8 +36,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new PostEffectMeshOutlineBlurCore(false);
             }
         }

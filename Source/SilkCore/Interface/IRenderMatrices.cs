@@ -11,8 +11,7 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-public interface IRenderMatrices
-{
+public interface IRenderMatrices {
     /// <summary>
     ///     Gets the view matrix.
     /// </summary>

@@ -6,22 +6,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class SpotLightNode : PointLightNode
-        {
+        public class SpotLightNode : PointLightNode {
             /// <summary>
             ///     Gets or sets the direction.
             /// </summary>
             /// <value>
             ///     The direction.
             /// </value>
-            public Vector3 Direction
-            {
+            public Vector3 Direction {
                 get => (RenderCore as SpotLightCore).Direction;
                 set => (RenderCore as SpotLightCore).Direction = value;
             }
@@ -32,8 +28,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fall off.
             /// </value>
-            public float FallOff
-            {
+            public float FallOff {
                 get => (RenderCore as SpotLightCore).FallOff;
                 set => (RenderCore as SpotLightCore).FallOff = value;
             }
@@ -44,8 +39,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The inner angle.
             /// </value>
-            public float InnerAngle
-            {
+            public float InnerAngle {
                 get => (RenderCore as SpotLightCore).InnerAngle;
                 set => (RenderCore as SpotLightCore).InnerAngle = value;
             }
@@ -56,8 +50,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The outer angle.
             /// </value>
-            public float OuterAngle
-            {
+            public float OuterAngle {
                 get => (RenderCore as SpotLightCore).OuterAngle;
                 set => (RenderCore as SpotLightCore).OuterAngle = value;
             }
@@ -66,8 +59,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new SpotLightCore();
             }
         }

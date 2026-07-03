@@ -11,8 +11,7 @@
 //--------------------------------------------------------------------------------------
 // PER PIXEL LIGHTING - BLINN-PHONG
 //--------------------------------------------------------------------------------------
-float4 mainXRayGrid(PSInput input) : SV_Target
-{
+float4 mainXRayGrid(PSInput input) : SV_Target {
     float4 I = main(input);
     float dimming = Param._m01;
     I.rgb *= dimming;

@@ -13,12 +13,9 @@ using System.Configuration;
 using System.Linq;
 using System.Windows;
 
-namespace DeferredShadingDemo
-{
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
-}
+namespace DeferredShadingDemo;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application { }

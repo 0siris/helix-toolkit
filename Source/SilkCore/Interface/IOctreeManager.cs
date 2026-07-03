@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IOctreeManager
-{
+public interface IOctreeManager {
     /// <summary>
     ///     Gets the octree.
     /// </summary>

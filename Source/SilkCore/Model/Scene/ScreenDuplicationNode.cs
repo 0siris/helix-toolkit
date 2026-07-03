@@ -7,19 +7,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 
 #if !WINDOWS_UWP
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class ScreenDuplicationNode : SceneNode
-        {
+        public class ScreenDuplicationNode : SceneNode {
             /// <summary>
             ///     Initializes a new instance of the <see cref="ScreenDuplicationNode" /> class.
             /// </summary>
-            public ScreenDuplicationNode()
-            {
+            public ScreenDuplicationNode() {
                 IsHitTestVisible = false;
             }
 
@@ -27,23 +23,23 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new ScreenCloneRenderCore();
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.ScreenDuplication];
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             ///     Gets or sets the capture rectangle.
@@ -51,8 +47,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The capture rectangle.
             /// </value>
-            public Rectangle CaptureRectangle
-            {
+            public Rectangle CaptureRectangle {
                 get => (RenderCore as IScreenClone).CloneRectangle;
                 set => (RenderCore as IScreenClone).CloneRectangle = value;
             }
@@ -63,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The display index.
             /// </value>
-            public int DisplayIndex
-            {
+            public int DisplayIndex {
                 get => (RenderCore as IScreenClone).Output;
                 set => (RenderCore as IScreenClone).Output = value;
             }
@@ -75,8 +69,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [stretch to fill]; otherwise, <c>false</c>.
             /// </value>
-            public bool StretchToFill
-            {
+            public bool StretchToFill {
                 get => (RenderCore as IScreenClone).StretchToFill;
                 set => (RenderCore as IScreenClone).StretchToFill = value;
             }
@@ -87,13 +80,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [show mouse cursor]; otherwise, <c>false</c>.
             /// </value>
-            public bool ShowMouseCursor
-            {
+            public bool ShowMouseCursor {
                 get => (RenderCore as IScreenClone).ShowMouseCursor;
                 set => (RenderCore as IScreenClone).ShowMouseCursor = value;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

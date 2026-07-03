@@ -3,18 +3,15 @@ using HelixToolkit.SharpDX.Core.Controls;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class ViewportExtensions
-{
+public static class ViewportExtensions {
     /// <summary>
     ///     Changes the field of view and tries to keep the scale fixed.
     /// </summary>
     /// <param name="controller">The controller.</param>
     /// <param name="delta">The delta.</param>
-    public static void ZoomByChangingFieldOfView(this CameraController controller, float delta)
-    {
+    public static void ZoomByChangingFieldOfView(this CameraController controller, float delta) {
         var viewport = controller.Viewport;
-        if (viewport.CameraCore is PerspectiveCameraCore pcamera)
-        {
+        if (viewport.CameraCore is PerspectiveCameraCore pcamera) {
             var fov = pcamera.FieldOfView;
             var d = pcamera.LookDirection.Length;
             var r = d * (float) Math.Tan(0.5f * fov / 180 * Math.PI);
@@ -40,8 +37,7 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <param name="rectangle">The rectangle.</param>
-    public static void ZoomToRectangle(this ViewportCore viewport, RectangleF rectangle)
-    {
+    public static void ZoomToRectangle(this ViewportCore viewport, RectangleF rectangle) {
         viewport.CameraCore.ZoomToRectangle(viewport, rectangle);
     }
 
@@ -50,8 +46,7 @@ public static class ViewportExtensions
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this ViewportCore viewport, float animationTime = 0)
-    {
+    public static void ZoomExtents(this ViewportCore viewport, float animationTime = 0) {
         var bounds = viewport.FindBounds();
         var diagonal = bounds.Maximum - bounds.Minimum;
 
@@ -65,8 +60,7 @@ public static class ViewportExtensions
     /// <param name="viewport">The viewport.</param>
     /// <param name="bounds">The bounding rectangle.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this ViewportCore viewport, BoundingBox bounds, float animationTime = 0)
-    {
+    public static void ZoomExtents(this ViewportCore viewport, BoundingBox bounds, float animationTime = 0) {
         viewport.CameraCore.ZoomExtents(viewport, bounds, animationTime);
     }
 
@@ -77,8 +71,7 @@ public static class ViewportExtensions
     /// <param name="center">The center of the sphere.</param>
     /// <param name="radius">The radius of the sphere.</param>
     /// <param name="animationTime">The animation time.</param>
-    public static void ZoomExtents(this ViewportCore viewport, Vector3 center, float radius, float animationTime = 0)
-    {
+    public static void ZoomExtents(this ViewportCore viewport, Vector3 center, float radius, float animationTime = 0) {
         viewport.CameraCore.ZoomExtents(viewport, center, radius, animationTime);
     }
 }

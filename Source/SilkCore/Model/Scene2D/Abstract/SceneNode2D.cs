@@ -8,14 +8,11 @@ using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
         /// <summary>
         /// </summary>
-        public abstract partial class SceneNode2D : DisposeObject, IHitable2D
-        {
+        public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
             private static readonly ILogger logger = LogManager.Create<SceneNode2D>();
 
             private readonly WeakReference<SceneNode2D> parent = new(null);
@@ -35,8 +32,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
             /// </summary>
-            public SceneNode2D()
-            {
+            public SceneNode2D() {
                 WrapperSource = this;
             }
 
@@ -54,15 +50,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The parent.
             /// </value>
-            public SceneNode2D Parent
-            {
-                get
-                {
+            public SceneNode2D Parent {
+                get {
                     parent.TryGetTarget(out var target);
                     return target;
                 }
-                set
-                {
+                set {
                     parent.TryGetTarget(out var target);
                     if (Set(ref target, value)) parent.SetTarget(value);
                 }
@@ -74,11 +67,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if visible; otherwise, <c>false</c>.
             /// </value>
-            public Visibility Visibility
-            {
+            public Visibility Visibility {
                 get => visibility;
-                set
-                {
+                set {
                     if (Set(ref visibility, value)) InvalidateVisual();
                 }
             }
@@ -113,17 +104,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The render core.
             /// </value>
-            public RenderCore2D RenderCore
-            {
-                get
-                {
+            public RenderCore2D RenderCore {
+                get {
                     if (renderCore == null) RenderCore = CreateRenderCore();
                     return renderCore;
                 }
-                private set
-                {
-                    if (renderCore != value)
-                    {
+                private set {
+                    if (renderCore != value) {
                         if (renderCore != null) renderCore.InvalidateRender -= RenderCore_OnInvalidateRenderer;
                         renderCore = value;
                         if (renderCore != null) renderCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
@@ -162,13 +149,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The model matrix.
             /// </value>
-            public Matrix3x2 ModelMatrix
-            {
+            public Matrix3x2 ModelMatrix {
                 get => modelMatrix;
-                set
-                {
-                    if (Set(ref modelMatrix, value))
-                    {
+                set {
+                    if (Set(ref modelMatrix, value)) {
                         RenderCore.LocalTransform = value;
                         InvalidateVisual();
                     }
@@ -181,11 +165,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The layout translate.
             /// </value>
-            public Matrix3x2 LayoutTranslate
-            {
+            public Matrix3x2 LayoutTranslate {
                 get => layoutTranslate;
-                set
-                {
+                set {
                     if (Set(ref layoutTranslate, value)) InvalidateRender();
                 }
             }
@@ -196,11 +178,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The parent matrix.
             /// </value>
-            public Matrix3x2 ParentMatrix
-            {
+            public Matrix3x2 ParentMatrix {
                 get => parentMatrix;
-                set
-                {
+                set {
                     if (Set(ref parentMatrix, value)) IsTransformDirty = true;
                 }
             }
@@ -211,13 +191,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The total model matrix.
             /// </value>
-            public Matrix3x2 TotalModelMatrix
-            {
+            public Matrix3x2 TotalModelMatrix {
                 get => totalTransform;
-                private set
-                {
-                    if (Set(ref totalTransform, value))
-                    {
+                private set {
+                    if (Set(ref totalTransform, value)) {
                         for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = totalTransform;
                         TransformChanged(ref value);
                         OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
@@ -247,8 +224,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
             /// </value>
-            public bool IsMouseOver
-            {
+            public bool IsMouseOver {
                 get => RenderCore.IsMouseOver;
                 set => RenderCore.IsMouseOver = value;
             }
@@ -269,8 +245,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="mousePoint">The mouse point.</param>
             /// <param name="hitResult">The hit result.</param>
             /// <returns></returns>
-            public bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
+            public bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) {
                 if (Parent == null) mousePoint *= DpiScale;
 
                 if (CanHitTest()) return OnHitTest(ref mousePoint, out hitResult);
@@ -283,8 +258,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Creates the render core.
             /// </summary>
             /// <returns></returns>
-            protected virtual RenderCore2D CreateRenderCore()
-            {
+            protected virtual RenderCore2D CreateRenderCore() {
                 return new EmptyRenderCore2D();
             }
 
@@ -299,8 +273,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     </para>
             /// </summary>
             /// <param name="host">The host.</param>
-            public void Attach(IRenderHost host)
-            {
+            public void Attach(IRenderHost host) {
                 if (IsAttached || host == null) return;
                 RenderHost = host;
                 DpiScale = host.DpiScale;
@@ -314,8 +287,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="host"></param>
             /// <returns>Return true if attached</returns>
-            protected virtual bool OnAttach(IRenderHost host)
-            {
+            protected virtual bool OnAttach(IRenderHost host) {
                 RenderCore.Attach(host);
                 return true;
             }
@@ -323,10 +295,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Detaches this instance.
             /// </summary>
-            public void Detach()
-            {
-                if (IsAttached)
-                {
+            public void Detach() {
+                if (IsAttached) {
                     IsAttached = false;
                     RenderCore.Detach();
                     Disposer.RemoveAndDispose(ref bitmapCache);
@@ -338,8 +308,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [detach].
             /// </summary>
-            protected virtual void OnDetach()
-            {
+            protected virtual void OnDetach() {
                 RenderHost = null;
             }
 
@@ -347,8 +316,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
-            public virtual void Update(RenderContext2D context)
-            {
+            public virtual void Update(RenderContext2D context) {
                 UpdateRequested?.Invoke(this, new UpdateEventArgs(context));
                 IsRenderable = CanRender(context);
             }
@@ -359,8 +327,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance [can hit test]; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool CanHitTest()
-            {
+            protected virtual bool CanHitTest() {
                 return IsAttached && IsHitTestVisible;
             }
 
@@ -377,21 +344,18 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="sender">The source of the event.</param>
             /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e)
-            {
+            private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e) {
                 InvalidateVisual();
             }
 
             /// <summary>
             ///     Invalidates the render.
             /// </summary>
-            public void InvalidateRender()
-            {
+            public void InvalidateRender() {
                 RenderHost?.InvalidateRender();
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 renderCore?.Dispose();
                 renderCore = null;
                 base.OnDispose(disposeManagedResources);
@@ -403,8 +367,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="backingField"></param>
             /// <param name="value"></param>
             /// <returns></returns>
-            protected bool SetAffectsRender<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsRender<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -418,8 +381,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="backingField"></param>
             /// <param name="value"></param>
             /// <returns></returns>
-            protected bool SetAffectsMeasure<T>(ref T backingField, T value)
-            {
+            protected bool SetAffectsMeasure<T>(ref T backingField, T value) {
                 if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
                 backingField = value;
@@ -427,34 +389,30 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            public sealed class UpdateEventArgs : EventArgs
-            {
-                public UpdateEventArgs(RenderContext2D context)
-                {
+            public sealed class UpdateEventArgs : EventArgs {
+                public UpdateEventArgs(RenderContext2D context) {
                     Context = context;
                 }
 
                 public RenderContext2D Context { get; private set; }
             }
 
-            #region Handling Transforms
+        #region Handling Transforms
 
             /// <summary>
             ///     Transforms the changed.
             /// </summary>
             /// <param name="totalTransform">The total transform.</param>
-            protected virtual void TransformChanged(ref Matrix3x2 totalTransform)
-            {
-            }
+            protected virtual void TransformChanged(ref Matrix3x2 totalTransform) { }
 
             /// <summary>
             ///     Occurs when [on transform changed].
             /// </summary>
             public event EventHandler<Transform2DArgs> OnTransformChanged;
 
-            #endregion Handling Transforms
+        #endregion Handling Transforms
 
-            #region Events;
+        #region Events;
 
             /// <summary>
             ///     Occurs when [on attached].
@@ -471,17 +429,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public event EventHandler<UpdateEventArgs> UpdateRequested;
 
-            #endregion Events;
+        #endregion Events;
 
-            #region Rendering
+        #region Rendering
 
             /// <summary>
             ///     <para>Determine if this can be rendered.</para>
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
-            protected virtual bool CanRender(RenderContext2D context)
-            {
+            protected virtual bool CanRender(RenderContext2D context) {
                 return Visibility == Visibility.Visible && IsAttached;
             }
 
@@ -492,11 +449,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     <para>Uses <see cref="CanRender" />  to call OnRender or not. </para>
             /// </summary>
             /// <param name="context">The context.</param>
-            public void Render(RenderContext2D context)
-            {
+            public void Render(RenderContext2D context) {
                 if (!IsRenderable) return;
-                if (IsTransformDirty)
-                {
+                if (IsTransformDirty) {
                     RelativeMatrix = Matrix3x2.Translation(-RenderSize * RenderTransformOrigin)
                                      * ModelMatrix * Matrix3x2.Translation(RenderSize * RenderTransformOrigin)
                                      * LayoutTranslate;
@@ -511,13 +466,12 @@ namespace HelixToolkit.SharpDX.Core
                 IsBitmapCacheValid = false;
 #else
                 EnsureBitmapCache(context,
-                    new Size2((int) Math.Ceiling(LayoutClipBound.Width), (int) Math.Ceiling(LayoutClipBound.Height)),
-                    context.DeviceContext.MaximumBitmapSize);
+                                  new Size2((int) Math.Ceiling(LayoutClipBound.Width),
+                                            (int) Math.Ceiling(LayoutClipBound.Height)),
+                                  context.DeviceContext.MaximumBitmapSize);
 #endif
-                if (EnableBitmapCache && IsBitmapCacheValid)
-                {
-                    if (IsVisualDirty)
-                    {
+                if (EnableBitmapCache && IsBitmapCacheValid) {
+                    if (IsVisualDirty) {
 #if DEBUGDRAWING
                         if (logger.IsEnabled(LogLevel.Debug))
                         {
@@ -534,14 +488,11 @@ namespace HelixToolkit.SharpDX.Core
                         IsVisualDirty = false;
                     }
 
-                    if (context.HasTarget)
-                    {
+                    if (context.HasTarget) {
                         context.DeviceContext.Transform = context.RelativeTransform * RelativeMatrix;
                         context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), LayoutClipBound);
                     }
-                }
-                else if (context.HasTarget)
-                {
+                } else if (context.HasTarget) {
                     context.PushRelativeTransform(context.RelativeTransform * RelativeMatrix);
                     RenderCore.Transform = context.RelativeTransform;
                     OnRender(context);
@@ -554,16 +505,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Renders the bitmap cache to a render target only.
             /// </summary>
             /// <param name="context">The context.</param>
-            public void RenderBitmapCache(RenderContext2D context)
-            {
-                if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty && context.HasTarget)
-                {
+            public void RenderBitmapCache(RenderContext2D context) {
+                if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty && context.HasTarget) {
                     context.DeviceContext.Transform = RelativeMatrix;
-                    context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0),
-                        new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
-                }
-                else
-                {
+                    context.DeviceContext.DrawImage(bitmapCache,
+                                                    new Vector2(0, 0),
+                                                    new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
+                } else {
                     Render(context);
                 }
             }
@@ -572,13 +520,12 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
-            protected virtual void OnRender(RenderContext2D context)
-            {
+            protected virtual void OnRender(RenderContext2D context) {
                 RenderCore.Render(context);
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Render(context);
             }
 
-            #endregion Rendering
+        #endregion Rendering
         }
     }
 }

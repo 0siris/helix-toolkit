@@ -19,32 +19,40 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         is Front, Back, Down, Up, Left, Right
 ///     </para>
 /// </summary>
-public class ViewBoxModel3D : ScreenSpacedElement3D
-{
+public class ViewBoxModel3D : ScreenSpacedElement3D {
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty UpDirectionProperty = DependencyProperty.Register("UpDirection",
-        typeof(Media3D.Vector3D), typeof(ViewBoxModel3D),
+        typeof(Media3D.Vector3D),
+        typeof(ViewBoxModel3D),
         new PropertyMetadata(new Media3D.Vector3D(0, 1, 0),
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as ViewBoxNode).UpDirection =
-                    ((Media3D.Vector3D) e.NewValue).ToVector3();
-            }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as ViewBoxNode).UpDirection =
+                                     ((Media3D.Vector3D) e.NewValue).ToVector3();
+                             }));
 
 
     public static readonly DependencyProperty ViewBoxTextureProperty = DependencyProperty.Register("ViewBoxTexture",
-        typeof(TextureModel), typeof(ViewBoxModel3D),
+        typeof(TextureModel),
+        typeof(ViewBoxModel3D),
         new PropertyMetadata(null,
-            (d, e) => { ((d as Element3DCore).SceneNode as ViewBoxNode).ViewBoxTexture = (TextureModel) e.NewValue; }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as ViewBoxNode).ViewBoxTexture =
+                                     (TextureModel) e.NewValue;
+                             }));
 
     /// <summary>
     ///     The enable edge click property
     /// </summary>
     public static readonly DependencyProperty EnableEdgeClickProperty =
-        DependencyProperty.Register("EnableEdgeClick", typeof(bool), typeof(ViewBoxModel3D),
-            new PropertyMetadata(false,
-                (d, e) => { ((d as Element3DCore).SceneNode as ViewBoxNode).EnableEdgeClick = (bool) e.NewValue; }));
+        DependencyProperty.Register("EnableEdgeClick",
+                                    typeof(bool),
+                                    typeof(ViewBoxModel3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ViewBoxNode)
+                                                                 .EnableEdgeClick = (bool) e.NewValue;
+                                                         }));
 
 
     /// <summary>
@@ -53,14 +61,12 @@ public class ViewBoxModel3D : ScreenSpacedElement3D
     /// <value>
     ///     Up direction.
     /// </value>
-    public Media3D.Vector3D UpDirection
-    {
+    public Media3D.Vector3D UpDirection {
         get => (Media3D.Vector3D) GetValue(UpDirectionProperty);
         set => SetValue(UpDirectionProperty, value);
     }
 
-    public TextureModel ViewBoxTexture
-    {
+    public TextureModel ViewBoxTexture {
         get => (TextureModel) GetValue(ViewBoxTextureProperty);
         set => SetValue(ViewBoxTextureProperty, value);
     }
@@ -72,20 +78,17 @@ public class ViewBoxModel3D : ScreenSpacedElement3D
     /// <value>
     ///     <c>true</c> if [enable edge click]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableEdgeClick
-    {
+    public bool EnableEdgeClick {
         get => (bool) GetValue(EnableEdgeClickProperty);
         set => SetValue(EnableEdgeClickProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         var node = new ViewBoxNode();
         return node;
     }
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         (node as ViewBoxNode).UpDirection = UpDirection.ToVector3();
         base.AssignDefaultValuesToSceneNode(node);
     }

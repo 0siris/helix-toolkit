@@ -3,23 +3,19 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
         /// </summary>
-        public class Figure
-        {
+        public class Figure {
             /// <summary>
             ///     Initializes a new instance of the <see cref="Figure" /> class.
             /// </summary>
             /// <param name="startPoint">The start point.</param>
             /// <param name="filled">if set to <c>true</c> [filled].</param>
             /// <param name="closed">if set to <c>true</c> [closed].</param>
-            public Figure(Vector2 startPoint, bool filled, bool closed)
-            {
+            public Figure(Vector2 startPoint, bool filled, bool closed) {
                 StartPoint = startPoint;
                 Filled = filled;
                 Closed = closed;
@@ -57,8 +53,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="segment">The segment.</param>
             /// <param name="isStroked">if set to <c>true</c> [is stroked].</param>
             /// <param name="isSmoothJoined">if set to <c>true</c> [is smooth joined].</param>
-            public void AddSegment(ISegment segment, bool isStroked = true, bool isSmoothJoined = true)
-            {
+            public void AddSegment(ISegment segment, bool isStroked = true, bool isSmoothJoined = true) {
                 Segments.Add(new SegmentData(segment, isStroked, isSmoothJoined));
             }
 
@@ -66,11 +61,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Creates the specified sink.
             /// </summary>
             /// <param name="sink">The sink.</param>
-            public void Create(GeometrySink sink)
-            {
+            public void Create(GeometrySink sink) {
                 sink.BeginFigure(StartPoint, Filled ? FigureBegin.Filled : FigureBegin.Hollow);
-                for (var i = 0; i < Segments.Count; ++i)
-                {
+                for (var i = 0; i < Segments.Count; ++i) {
                     var flag = PathSegment.None;
                     var segment = Segments[i];
                     if (!segment.IsStroked) flag |= PathSegment.ForceUnstroked;
@@ -84,14 +77,12 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            private struct SegmentData
-            {
+            private struct SegmentData {
                 public readonly ISegment Segment;
                 public readonly bool IsStroked;
                 public readonly bool IsSmoothJoined;
 
-                public SegmentData(ISegment segment, bool isStroked, bool isSmoothJoined)
-                {
+                public SegmentData(ISegment segment, bool isStroked, bool isSmoothJoined) {
                     Segment = segment;
                     IsStroked = isStroked;
                     IsSmoothJoined = isSmoothJoined;

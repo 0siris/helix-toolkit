@@ -12,12 +12,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Windows;
 
-namespace FileLoadDemo
-{
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
-}
+namespace FileLoadDemo;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application { }

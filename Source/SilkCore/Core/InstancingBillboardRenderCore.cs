@@ -5,43 +5,33 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class InstancingBillboardRenderCore : PointLineRenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class InstancingBillboardRenderCore : PointLineRenderCore {
             private IElementsBufferModel parameterBufferModel;
 
-            public IElementsBufferModel ParameterBuffer
-            {
+            public IElementsBufferModel ParameterBuffer {
                 get => parameterBufferModel;
-                set
-                {
+                set {
                     var old = parameterBufferModel;
-                    if (SetAffectsCanRenderFlag(ref parameterBufferModel, value))
-                    {
+                    if (SetAffectsCanRenderFlag(ref parameterBufferModel, value)) {
                         if (old != null) old.ElementChanged -= OnElementChanged;
                         if (parameterBufferModel != null) parameterBufferModel.ElementChanged += OnElementChanged;
                     }
                 }
             }
 
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return base.OnUpdateCanRenderFlag() && InstanceBuffer != null && InstanceBuffer.HasElements;
             }
 
-            protected override void OnUpdatePerModelStruct()
-            {
+            protected override void OnUpdatePerModelStruct() {
                 base.OnUpdatePerModelStruct();
                 modelStruct.HasInstanceParams = ParameterBuffer != null && ParameterBuffer.HasElements ? 1 : 0;
             }
 
-            protected override bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot)
-            {
-                if (base.OnAttachBuffers(context, ref vertStartSlot))
-                {
+            protected override bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot) {
+                if (base.OnAttachBuffers(context, ref vertStartSlot)) {
                     ParameterBuffer?.AttachBuffer(context, ref vertStartSlot);
                     return true;
                 }

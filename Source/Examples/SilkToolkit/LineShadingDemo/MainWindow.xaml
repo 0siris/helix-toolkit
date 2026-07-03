@@ -36,7 +36,8 @@
                 <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
             </hx:Viewport3DX.InputBindings>
             <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}" Color="{Binding DirectionalLightColor}" />
+            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+                                   Color="{Binding DirectionalLightColor}" />
 
             <hx:MeshGeometryModel3D
                 x:Name="model1"
@@ -117,23 +118,23 @@
                     <TextBlock Margin="3">Line Thickness</TextBlock>
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" VerticalAlignment="Center"
-                                   Text="{Binding ElementName=lineThicknessSlider, Path=Value}"/>
+                                   Text="{Binding ElementName=lineThicknessSlider, Path=Value}" />
                         <Slider x:Name="lineThicknessSlider"
-                            Margin="3" IsSnapToTickEnabled="True"
-                            TickFrequency="{Binding LineThicknessTickFrequency}"
-                            Maximum="{Binding LineThicknessMaximum}"
-                            Minimum="0"
-                            Value="{Binding LineThickness}" />
+                                Margin="3" IsSnapToTickEnabled="True"
+                                TickFrequency="{Binding LineThicknessTickFrequency}"
+                                Maximum="{Binding LineThicknessMaximum}"
+                                Minimum="0"
+                                Value="{Binding LineThickness}" />
                     </DockPanel>
                     <TextBlock Margin="3">Line Smoothness</TextBlock>
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" VerticalAlignment="Center"
-                                   Text="{Binding ElementName=lineSmoothnessSlider, Path=Value}"/>
+                                   Text="{Binding ElementName=lineSmoothnessSlider, Path=Value}" />
                         <Slider x:Name="lineSmoothnessSlider"
-                            Margin="3" IsSnapToTickEnabled="True"
-                            Maximum="20"
-                            Minimum="0"
-                            Value="{Binding LineSmoothness}" />
+                                Margin="3" IsSnapToTickEnabled="True"
+                                Maximum="20"
+                                Minimum="0"
+                                Value="{Binding LineSmoothness}" />
                     </DockPanel>
                     <CheckBox IsChecked="{Binding EnableArrowHeadTail}">Arrow Head and Tail</CheckBox>
                 </StackPanel>

@@ -9,16 +9,14 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public static class SceneNodeExtensions
-{
+public static class SceneNodeExtensions {
     /// <summary>
     ///     Gets the type of the scene node from scene graph.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="root">The root.</param>
     /// <returns></returns>
-    public static IList<T> GetSceneNodeByType<T>(this SceneNode root) where T : SceneNode
-    {
+    public static IList<T> GetSceneNodeByType<T>(this SceneNode root) where T : SceneNode {
         var ret = new List<T>();
         foreach (var node in root.Traverse())
             if (node is T m)
@@ -31,8 +29,7 @@ public static class SceneNodeExtensions
     ///     Updates all transform matrix from the root node to the child.
     /// </summary>
     /// <param name="root">The root.</param>
-    public static void UpdateAllTransformMatrix(this SceneNode root)
-    {
+    public static void UpdateAllTransformMatrix(this SceneNode root) {
         foreach (var node in root.Traverse()) node.ComputeTransformMatrix();
     }
 
@@ -47,16 +44,14 @@ public static class SceneNodeExtensions
     /// <param name="root"></param>
     /// <param name="centroid"></param>
     /// <returns></returns>
-    public static bool TryGetCentroid(this SceneNode root, out Vector3 centroid)
-    {
+    public static bool TryGetCentroid(this SceneNode root, out Vector3 centroid) {
         Vector3? result = null;
         var count = 0;
         foreach (var node in root.Traverse())
             if (node is GeometryNode geoNode)
                 if (geoNode.Geometry != null
                     && geoNode.Geometry.Positions != null
-                    && geoNode.Geometry.Positions.Count > 0)
-                {
+                    && geoNode.Geometry.Positions.Count > 0) {
                     var c = geoNode.Geometry.Positions.GetCentroid();
                     c = SilkMath.Transform(c, geoNode.TotalModelMatrix).ToVector3();
                     ++count;
@@ -79,15 +74,13 @@ public static class SceneNodeExtensions
     /// <param name="root"></param>
     /// <param name="bound"></param>
     /// <returns></returns>
-    public static bool TryGetBound(this SceneNode root, out BoundingBox bound)
-    {
+    public static bool TryGetBound(this SceneNode root, out BoundingBox bound) {
         BoundingBox? result = null;
         foreach (var node in root.Traverse())
             if (node is GeometryNode geoNode)
                 if (geoNode.Geometry != null
                     && geoNode.Geometry.Positions != null
-                    && geoNode.Geometry.Positions.Count > 0)
-                {
+                    && geoNode.Geometry.Positions.Count > 0) {
                     geoNode.Geometry.UpdateBounds();
                     var b = geoNode.Geometry.Bound;
                     b = b.Transform(geoNode.TotalModelMatrix);

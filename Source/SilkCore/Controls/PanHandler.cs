@@ -1,22 +1,16 @@
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public sealed class PanHandler : MouseGestureHandler
-{
+public sealed class PanHandler(CameraController cameraController) : MouseGestureHandler(cameraController) {
     /// <summary>
     ///     The 3D pan origin.
     /// </summary>
     private Vector3 panPoint3D;
 
-    public PanHandler(CameraController cameraController) : base(cameraController)
-    {
-    }
-
     /// <summary>
     ///     Occurs when the position is changed during a manipulation.
     /// </summary>
     /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
-    public override void Delta(Vector2 e)
-    {
+    public override void Delta(Vector2 e) {
         base.Delta(e);
         if (Camera.LookDirection.LengthSquared() < 1e-5f) return;
         var thisPoint3D = UnProject(e, panPoint3D, Camera.LookDirection);
@@ -37,11 +31,9 @@ public sealed class PanHandler : MouseGestureHandler
     ///     The panning vector.
     /// </param>
     /// <param name="stopOther">Stop other manipulation</param>
-    public void Pan(Vector3 delta, bool stopOther = true)
-    {
+    public void Pan(Vector3 delta, bool stopOther = true) {
         if (!Controller.IsPanEnabled) return;
-        if (stopOther)
-        {
+        if (stopOther) {
             Controller.StopSpin();
             Controller.StopZooming();
         }
@@ -57,10 +49,8 @@ public sealed class PanHandler : MouseGestureHandler
     ///     The delta.
     /// </param>
     /// <param name="stopOther">Stop other manipulation</param>
-    public void Pan(Vector2 delta, bool stopOther = true)
-    {
-        if (stopOther)
-        {
+    public void Pan(Vector2 delta, bool stopOther = true) {
+        if (stopOther) {
             Controller.StopSpin();
             Controller.StopZooming();
         }
@@ -83,8 +73,7 @@ public sealed class PanHandler : MouseGestureHandler
     ///     Occurs when the manipulation is started.
     /// </summary>
     /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
-    protected override void Started(Vector2 e)
-    {
+    protected override void Started(Vector2 e) {
         base.Started(e);
         panPoint3D = Camera.Target;
         if (MouseDownNearestPoint3D.HasValue) panPoint3D = MouseDownNearestPoint3D.Value;
@@ -99,10 +88,8 @@ public sealed class PanHandler : MouseGestureHandler
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected override bool CanStart()
-    {
-        return Controller.IsPanEnabled && Controller.CameraMode != CameraMode.FixedPosition;
-    }
+    protected override bool CanStart() 
+        => Controller.IsPanEnabled && Controller.CameraMode != CameraMode.FixedPosition;
 
     /// <summary>
     ///     Called when inertia is starting.
@@ -110,8 +97,7 @@ public sealed class PanHandler : MouseGestureHandler
     /// <param name="elapsedTime">
     ///     The elapsed time (milliseconds).
     /// </param>
-    protected override void OnInertiaStarting(double elapsedTime)
-    {
+    protected override void OnInertiaStarting(double elapsedTime) {
         var speed = (LastPoint - MouseDownPoint) * (40.0f / (float) elapsedTime);
         Controller.AddPanForce(speed.X, speed.Y);
     }

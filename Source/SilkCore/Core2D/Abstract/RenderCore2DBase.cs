@@ -5,14 +5,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGBOUNDS
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public abstract class RenderCore2DBase : RenderCore2D
-        {
+        public abstract class RenderCore2DBase : RenderCore2D {
 #if DEBUGBOUNDS
             /// <summary>
             /// 
@@ -27,24 +24,25 @@ namespace HelixToolkit.SharpDX.Core
             ///     Renders the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
-            public override void Render(RenderContext2D context)
-            {
-                if (CanRender(context))
-                {
+            public override void Render(RenderContext2D context) {
+                if (CanRender(context)) {
                     context.DeviceContext.Transform = Transform;
                     if (ShowDrawingBorder)
-                        using (var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1)))
-                        {
+                        using (var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1))) {
                             using (var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                       new StrokeStyleProperties {DashStyle = DashStyle.DashDot}))
-                            {
+                                                                        new StrokeStyleProperties
+                                                                            {DashStyle = DashStyle.DashDot})) {
                                 using (var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                           new StrokeStyleProperties {DashStyle = DashStyle.Solid}))
-                                {
-                                    context.DeviceContext.DrawRectangle(LayoutBound, borderBrush, 1f,
-                                        IsMouseOver ? borderLineStyle : borderDotStyle);
-                                    context.DeviceContext.DrawRectangle(LayoutClippingBound, borderBrush, 0.5f,
-                                        borderDotStyle);
+                                                                             new StrokeStyleProperties
+                                                                                 {DashStyle = DashStyle.Solid})) {
+                                    context.DeviceContext.DrawRectangle(LayoutBound,
+                                                                        borderBrush,
+                                                                        1f,
+                                                                        IsMouseOver ? borderLineStyle : borderDotStyle);
+                                    context.DeviceContext.DrawRectangle(LayoutClippingBound,
+                                                                        borderBrush,
+                                                                        0.5f,
+                                                                        borderDotStyle);
                                 }
                             }
                         }
@@ -66,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool CanRender(RenderContext2D context)
-            {
+            protected virtual bool CanRender(RenderContext2D context) {
                 return IsAttached && IsRendering;
             }
         }

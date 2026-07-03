@@ -6,10 +6,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         ///     Do a depth prepass before rendering.
         ///     <para>
@@ -18,35 +16,28 @@ namespace HelixToolkit.SharpDX.Core
         ///         performance.
         ///     </para>
         /// </summary>
-        public sealed class DepthPrepassCore : RenderCore
-        {
+        public sealed class DepthPrepassCore : RenderCore {
             /// <summary>
             ///     Initializes a new instance of the <see cref="DepthPrepassCore" /> class.
             /// </summary>
-            public DepthPrepassCore() : base(RenderType.PreProc)
-            {
-            }
+            public DepthPrepassCore() : base(RenderType.PreProc) { }
 
             /// <summary>
             ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 context.CustomPassName = DefaultPassNames.DepthPrepass;
                 for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i)
                     context.RenderHost.PerFrameOpaqueNodesInFrustum[i].RenderDepth(context, deviceContext, null);
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 return true;
             }
 
-            protected override void OnDetach()
-            {
-            }
+            protected override void OnDetach() { }
         }
     }
 }

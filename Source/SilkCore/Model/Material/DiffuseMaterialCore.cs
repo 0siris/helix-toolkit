@@ -6,13 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         [DataContract]
-        public class DiffuseMaterialCore : MaterialCore
-        {
+        public class DiffuseMaterialCore : MaterialCore {
             private Color4 diffuseColor = Color.White;
             private TextureModel diffuseMap;
             private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
@@ -33,8 +30,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the diffuse.
             /// </value>
-            public Color4 DiffuseColor
-            {
+            public Color4 DiffuseColor {
                 get => diffuseColor;
                 set => Set(ref diffuseColor, value);
             }
@@ -45,8 +41,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The diffuse map.
             /// </value>
-            public TextureModel DiffuseMap
-            {
+            public TextureModel DiffuseMap {
                 get => diffuseMap;
                 set => Set(ref diffuseMap, value);
             }
@@ -65,8 +60,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The uv transform.
             /// </value>
-            public UVTransform UVTransform
-            {
+            public UVTransform UVTransform {
                 get => uvTransform;
                 set => Set(ref uvTransform, value);
             }
@@ -77,16 +71,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     DiffuseMapSampler
             /// </value>
-            public SamplerStateDescription DiffuseMapSampler
-            {
+            public SamplerStateDescription DiffuseMapSampler {
                 get => diffuseMapSampler;
                 set => Set(ref diffuseMapSampler, value);
             }
 
             /// <summary>
             /// </summary>
-            public bool RenderDiffuseMap
-            {
+            public bool RenderDiffuseMap {
                 get => renderDiffuseMap;
                 set => Set(ref renderDiffuseMap, value);
             }
@@ -97,8 +89,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableUnLit
-            {
+            public bool EnableUnLit {
                 get => enableUnLit;
                 set => Set(ref enableUnLit, value);
             }
@@ -109,8 +100,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableFlatShading
-            {
+            public bool EnableFlatShading {
                 get => enableFlatShading;
                 set => Set(ref enableFlatShading, value);
             }
@@ -123,24 +113,24 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The vert color blending factor.
             /// </value>
-            public float VertexColorBlendingFactor
-            {
+            public float VertexColorBlendingFactor {
                 get => vertexColorBlendingFactor;
                 set => Set(ref vertexColorBlendingFactor, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new DiffuseMaterialVariables(DefaultPassNames.Diffuse, manager, technique, this);
             }
         }
 
-        public sealed class ViewCubeMaterialCore : DiffuseMaterialCore
-        {
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+        public sealed class ViewCubeMaterialCore : DiffuseMaterialCore {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new DiffuseMaterialVariables(DefaultPassNames.ViewCube, manager, technique, this);
             }
         }

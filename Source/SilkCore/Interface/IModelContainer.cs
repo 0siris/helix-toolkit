@@ -4,8 +4,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IModelContainer : IRenderHost
-{
+public interface IModelContainer : IRenderHost {
     /// <summary>
     /// </summary>
     IEnumerable<SceneNode> Renderables { get; }

@@ -9,16 +9,12 @@ using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.Wpf.SharpDX
-
-{
-    namespace Model
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Model {
         /// <summary>
         ///     External Wrapper core to be used for different platform
         /// </summary>
-        public abstract class Element3DCore : FrameworkContentElement, IDisposable
-        {
+        public abstract class Element3DCore : FrameworkContentElement, IDisposable {
             /// <summary>
             /// </summary>
             public Guid GUID => SceneNode.GUID;
@@ -32,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX
 
             public bool IsAttached => SceneNode.IsAttached;
 
-            #region Events
+        #region Events
 
             /// <summary>
             ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
@@ -40,9 +36,9 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             public event EventHandler<SceneNodeCreatedEventArgs> OnSceneNodeCreated;
 
-            #endregion
+        #endregion
 
-            #region Hit Test
+        #region Hit Test
 
             /// <summary>
             ///     Hits the test.
@@ -50,47 +46,38 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <param name="context">The context.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
+            public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
                 return SceneNode.HitTest(context, ref hits);
             }
 
-            #endregion
+        #endregion
 
-            public void InvalidateRender()
-            {
+            public void InvalidateRender() {
                 SceneNode.InvalidateRender();
             }
 
-            public static explicit operator SceneNode(Element3DCore core)
-            {
+            public static explicit operator SceneNode(Element3DCore core) {
                 return core.SceneNode;
             }
 
-            public sealed class SceneNodeCreatedEventArgs : EventArgs
-            {
-                public SceneNodeCreatedEventArgs(SceneNode node)
-                {
+            public sealed class SceneNodeCreatedEventArgs : EventArgs {
+                public SceneNodeCreatedEventArgs(SceneNode node) {
                     Node = node;
                 }
 
                 public SceneNode Node { get; private set; }
             }
 
-            #region Scene Node
+        #region Scene Node
 
             private readonly object sceneNodeLock = new();
             private SceneNode sceneNode;
 
-            public SceneNode SceneNode
-            {
-                get
-                {
+            public SceneNode SceneNode {
+                get {
                     if (sceneNode == null)
-                        lock (sceneNodeLock)
-                        {
-                            if (sceneNode == null)
-                            {
+                        lock (sceneNodeLock) {
+                            if (sceneNode == null) {
                                 sceneNode = OnCreateSceneNode();
                                 AssignDefaultValuesToSceneNode(sceneNode);
                                 sceneNode.WrapperSource = this;
@@ -108,19 +95,16 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <returns></returns>
             protected abstract SceneNode OnCreateSceneNode();
 
-            protected virtual void AssignDefaultValuesToSceneNode(SceneNode node)
-            {
-            }
+            protected virtual void AssignDefaultValuesToSceneNode(SceneNode node) { }
 
-            public string SceneNodeName
-            {
+            public string SceneNodeName {
                 get => SceneNode.Name;
                 set => SceneNode.Name = value;
             }
 
-            #endregion
+        #endregion
 
-            #region IBoundable
+        #region IBoundable
 
             /// <summary>
             ///     Gets the bounds.
@@ -154,9 +138,9 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </value>
             public BoundingSphere BoundsSphereWithTransform => SceneNode.BoundsSphereWithTransform;
 
-            #endregion
+        #endregion
 
-            #region IDisposable Support
+        #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls        
 
@@ -167,10 +151,8 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
             ///     unmanaged resources.
             /// </param>
-            protected virtual void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
+            protected virtual void Dispose(bool disposing) {
+                if (!disposedValue) {
                     if (disposing) Disposer.RemoveAndDispose(ref sceneNode);
                     // TODO: dispose managed state (managed objects).
                     // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -190,15 +172,14 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <summary>
             ///     Releases unmanaged and - optionally - managed resources.
             /// </summary>
-            public void Dispose()
-            {
+            public void Dispose() {
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(true);
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

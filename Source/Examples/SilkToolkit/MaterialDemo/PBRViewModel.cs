@@ -16,152 +16,140 @@ using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
-namespace MaterialDemo
-{
-    public class PBRViewModel : BaseViewModel
-    {
-        public Geometry3D SphereModel { get; }
-        private const int Row = 5;
-        private const int Col = 5;
-        private const int Size = 5 * 5;
-        public TextureModel EnvironmentMap { set; get; }
-        public ObservableElement3DCollection Models { get; } = new ObservableElement3DCollection();
-        private List<PBRMaterial> materials = new List<PBRMaterial>();
-        public Geometry3D Model { get; }
-        public Geometry3D FloorModel { get; }
-        public Transform3D ModelTransform { get; }
-        public PBRMaterial Material { get; }
-        public PBRMaterial FloorMaterial { get; }
-        public Transform3D FloorModelTransform { get; }
-        private Color albedoColor = Colors.Gold;
-        public Color AlbedoColor
-        {
-            set
-            {
-                if(SetValue(ref albedoColor, value))
-                {
-                    foreach(var m in materials)
-                    {
-                        m.AlbedoColor = value.ToColor4();
-                    }
+namespace MaterialDemo;
 
-                    Material.AlbedoColor = value.ToColor4();
+public class PBRViewModel : BaseViewModel {
+    public Geometry3D SphereModel { get; }
+    private const int Row = 5;
+    private const int Col = 5;
+    private const int Size = 5 * 5;
+    public TextureModel EnvironmentMap { set; get; }
+    public ObservableElement3DCollection Models { get; } = new ObservableElement3DCollection();
+    private List<PBRMaterial> materials = new List<PBRMaterial>();
+    public Geometry3D Model { get; }
+    public Geometry3D FloorModel { get; }
+    public Transform3D ModelTransform { get; }
+    public PBRMaterial Material { get; }
+    public PBRMaterial FloorMaterial { get; }
+    public Transform3D FloorModelTransform { get; }
+    private Color albedoColor = Colors.Gold;
+
+    public Color AlbedoColor {
+        set {
+            if (SetValue(ref albedoColor, value)) {
+                foreach (var m in materials) {
+                    m.AlbedoColor = value.ToColor4();
+                }
+
+                Material.AlbedoColor = value.ToColor4();
+            }
+        }
+        get { return albedoColor; }
+    }
+
+    private bool renderEnvironment = true;
+
+    public bool RenderEnvironment {
+        set {
+            if (SetValue(ref renderEnvironment, value)) {
+                foreach (var m in materials) {
+                    m.RenderEnvironmentMap = value;
                 }
             }
-            get { return albedoColor; }
         }
+        get { return renderEnvironment; }
+    }
 
-        private bool renderEnvironment = true;
-        public bool RenderEnvironment
-        {
-            set
-            {
-                if(SetValue(ref renderEnvironment, value))
-                {
-                    foreach (var m in materials)
-                    {
-                        m.RenderEnvironmentMap = value;
-                    }                   
+    private bool renderNormalMap = true;
+
+    public bool RenderNormalMap {
+        set {
+            if (SetValue(ref renderNormalMap, value)) {
+                foreach (var m in materials) {
+                    m.RenderNormalMap = value;
                 }
             }
-            get { return renderEnvironment; }
         }
-        private bool renderNormalMap = true;
-        public bool RenderNormalMap
-        {
-            set
-            {
-                if (SetValue(ref renderNormalMap, value))
-                {
-                    foreach (var m in materials)
-                    {
-                        m.RenderNormalMap = value;
-                    }
-                }
-            }
-            get { return renderNormalMap; }
-        }
-        public PBRViewModel(IEffectsManager manager)
-        {
-            EffectsManager = manager;
-            this.Camera = new PerspectiveCamera { Position = new Point3D(0, 60, 60), LookDirection = new Vector3D(0, -60, -60), UpDirection = new Vector3D(0, 1, 0) };
-            var builder = new MeshBuilder();
-            builder.AddSphere(Vector3.Zero, 2);
-            SphereModel = builder.ToMesh();
-            var normalMap = TextureModel.Create(new System.Uri("TextureNoise1_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString());
-            for (int i = -Row; i < Row; ++i)
-            {
+        get { return renderNormalMap; }
+    }
 
-                for(int j=-Col; j<Col; ++j)
-                {
-                    var m = new PBRMaterial()
-                    {
-                        AlbedoColor = albedoColor.ToColor4(),
-                        RoughnessFactor = 1.0 / (2 * Row) * Math.Abs(i + Row),
-                        MetallicFactor = 1.0 / (2 * Col) * Math.Abs(j + Col),
-                        RenderEnvironmentMap = true,
-                        EnableAutoTangent = true,
-                        NormalMap = normalMap,
-                        RenderShadowMap = true
-                    };
-                    materials.Add(m);
-                    Models.Add(new MeshGeometryModel3D()
-                    {
-                        CullMode = CullMode.Back,
-                        Geometry = SphereModel,
-                        Material = m,
-                        IsThrowingShadow = true,
-                        Transform = new Media3D.TranslateTransform3D(new Vector3D(i * 6, 0, j * 6))
-                    });
-                }
+    public PBRViewModel(IEffectsManager manager) {
+        EffectsManager = manager;
+        this.Camera = new PerspectiveCamera {
+            Position = new Point3D(0, 60, 60), LookDirection = new Vector3D(0, -60, -60),
+            UpDirection = new Vector3D(0, 1, 0)
+        };
+        var builder = new MeshBuilder();
+        builder.AddSphere(Vector3.Zero, 2);
+        SphereModel = builder.ToMesh();
+        var normalMap =
+            TextureModel.Create(new System.Uri("TextureNoise1_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString());
+        for (int i = -Row; i < Row; ++i) {
+            for (int j = -Col; j < Col; ++j) {
+                var m = new PBRMaterial() {
+                    AlbedoColor = albedoColor.ToColor4(),
+                    RoughnessFactor = 1.0 / (2 * Row) * Math.Abs(i + Row),
+                    MetallicFactor = 1.0 / (2 * Col) * Math.Abs(j + Col),
+                    RenderEnvironmentMap = true,
+                    EnableAutoTangent = true,
+                    NormalMap = normalMap,
+                    RenderShadowMap = true
+                };
+                materials.Add(m);
+                Models.Add(new MeshGeometryModel3D() {
+                    CullMode = CullMode.Back,
+                    Geometry = SphereModel,
+                    Material = m,
+                    IsThrowingShadow = true,
+                    Transform = new Media3D.TranslateTransform3D(new Vector3D(i * 6, 0, j * 6))
+                });
             }
-            builder = new MeshBuilder();
-            builder.AddSphere(Vector3.Zero, 8, 12, 12);
-            Model = builder.ToMesh();
-            Material = new PBRMaterial()
-            {
-                AlbedoColor = albedoColor.ToColor4(),
-                RenderEnvironmentMap = true,
-                AlbedoMap = TextureModel.Create("Engraved_Metal_COLOR.jpg"),
-                NormalMap = TextureModel.Create("Engraved_Metal_NORM.jpg"),
-                DisplacementMap = TextureModel.Create("Engraved_Metal_DISP.png"),
-                RoughnessMetallicMap = TextureModel.Create("Engraved_Metal_RMC.png"),
-                DisplacementMapScaleMask = new Vector4(0.1f, 0.1f, 0.1f, 0),
-                EnableAutoTangent =true, EnableTessellation = true, MaxDistanceTessellationFactor = 2, MinDistanceTessellationFactor = 4
-            };
-            ModelTransform = new Media3D.MatrixTransform3D(Translation(0, 30, 0).ToMatrix3D());
-
-            builder = new MeshBuilder();
-            builder.AddBox(Vector3.Zero, 100, 0.5, 100);
-            var floorGeo = builder.ToMesh();
-            for (int i = 0; i < floorGeo.TextureCoordinates.Count; ++i)
-            {
-                floorGeo.TextureCoordinates[i] *= 5;
-            }
-            FloorModel = floorGeo;
-            FloorMaterial = new PBRMaterial()
-            {
-                AlbedoMap = TextureModel.Create("Wood_Planks_COLOR.jpg"),
-                NormalMap = TextureModel.Create("Wood_Planks_NORM.jpg"),
-                DisplacementMap = TextureModel.Create("Wood_Planks_DISP.png"),
-                RoughnessMetallicMap = TextureModel.Create("Wood_Planks_RMA.png"),
-                AmbientOcculsionMap = TextureModel.Create("Wood_Planks_RMA.png"),
-                DisplacementMapScaleMask = new Vector4(1f, 1f, 1f, 0),
-                RoughnessFactor = 0.8,
-                MetallicFactor = 0.2,                
-                RenderShadowMap = true,
-                EnableAutoTangent = true,
-            };
-            FloorModelTransform = new Media3D.MatrixTransform3D(Translation(0, -5, 0).ToMatrix3D());
         }
 
-        private static Matrix Translation(float x, float y, float z)
-        {
-            var matrix = Matrix.Identity;
-            matrix.M41 = x;
-            matrix.M42 = y;
-            matrix.M43 = z;
-            return matrix;
+        builder = new MeshBuilder();
+        builder.AddSphere(Vector3.Zero, 8, 12, 12);
+        Model = builder.ToMesh();
+        Material = new PBRMaterial() {
+            AlbedoColor = albedoColor.ToColor4(),
+            RenderEnvironmentMap = true,
+            AlbedoMap = TextureModel.Create("Engraved_Metal_COLOR.jpg"),
+            NormalMap = TextureModel.Create("Engraved_Metal_NORM.jpg"),
+            DisplacementMap = TextureModel.Create("Engraved_Metal_DISP.png"),
+            RoughnessMetallicMap = TextureModel.Create("Engraved_Metal_RMC.png"),
+            DisplacementMapScaleMask = new Vector4(0.1f, 0.1f, 0.1f, 0),
+            EnableAutoTangent = true, EnableTessellation = true, MaxDistanceTessellationFactor = 2,
+            MinDistanceTessellationFactor = 4
+        };
+        ModelTransform = new Media3D.MatrixTransform3D(Translation(0, 30, 0).ToMatrix3D());
+
+        builder = new MeshBuilder();
+        builder.AddBox(Vector3.Zero, 100, 0.5, 100);
+        var floorGeo = builder.ToMesh();
+        for (int i = 0; i < floorGeo.TextureCoordinates.Count; ++i) {
+            floorGeo.TextureCoordinates[i] *= 5;
         }
+
+        FloorModel = floorGeo;
+        FloorMaterial = new PBRMaterial() {
+            AlbedoMap = TextureModel.Create("Wood_Planks_COLOR.jpg"),
+            NormalMap = TextureModel.Create("Wood_Planks_NORM.jpg"),
+            DisplacementMap = TextureModel.Create("Wood_Planks_DISP.png"),
+            RoughnessMetallicMap = TextureModel.Create("Wood_Planks_RMA.png"),
+            AmbientOcculsionMap = TextureModel.Create("Wood_Planks_RMA.png"),
+            DisplacementMapScaleMask = new Vector4(1f, 1f, 1f, 0),
+            RoughnessFactor = 0.8,
+            MetallicFactor = 0.2,
+            RenderShadowMap = true,
+            EnableAutoTangent = true,
+        };
+        FloorModelTransform = new Media3D.MatrixTransform3D(Translation(0, -5, 0).ToMatrix3D());
+    }
+
+    private static Matrix Translation(float x, float y, float z) {
+        var matrix = Matrix.Identity;
+        matrix.M41 = x;
+        matrix.M42 = y;
+        matrix.M43 = z;
+        return matrix;
     }
 }

@@ -6,16 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Animations
-    {
-        public class MorphTargetKeyFrameUpdater : IAnimationUpdater
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Animations {
+        public class MorphTargetKeyFrameUpdater : IAnimationUpdater {
             private readonly FastList<MorphTargetKeyframe>[] kfs;
 
-            public MorphTargetKeyFrameUpdater(Animation animation, IList<float> weights)
-            {
+            public MorphTargetKeyFrameUpdater(Animation animation, IList<float> weights) {
                 Animation = animation;
                 Name = animation.Name;
                 Weights = weights;
@@ -40,28 +36,23 @@ namespace HelixToolkit.SharpDX.Core
 
             public AnimationRepeatMode RepeatMode { get; set; } = AnimationRepeatMode.PlayOnce;
 
-            public void Update(float timeStamp, long frequency)
-            {
+            public void Update(float timeStamp, long frequency) {
                 if (StartTime == EndTime || kfs.Length == 0) return;
                 //Find time(t)
                 var timeSec = timeStamp / frequency;
                 if (timeSec < StartTime) return;
                 var elapsed = timeSec - StartTime;
                 if (elapsed > EndTime)
-                    switch (RepeatMode)
-                    {
-                        case AnimationRepeatMode.Loop:
-                        {
+                    switch (RepeatMode) {
+                        case AnimationRepeatMode.Loop: {
                             elapsed = elapsed % (EndTime - StartTime) + StartTime;
                             break;
                         }
-                        case AnimationRepeatMode.PlayOnce:
-                        {
+                        case AnimationRepeatMode.PlayOnce: {
                             SetWeights(StartTime);
                             return;
                         }
-                        case AnimationRepeatMode.PlayOnceHold:
-                        {
+                        case AnimationRepeatMode.PlayOnceHold: {
                             elapsed = EndTime;
                             break;
                         }
@@ -70,20 +61,16 @@ namespace HelixToolkit.SharpDX.Core
                 SetWeights(elapsed);
             }
 
-            public void Reset()
-            {
+            public void Reset() {
                 Update(0, 1);
             }
 
-            private void SetWeights(float timeElapsed)
-            {
+            private void SetWeights(float timeElapsed) {
                 //Interpolate between each individual weight's keyframe pairs at current time
-                for (var i = 0; i < kfs.Length; ++i)
-                {
+                for (var i = 0; i < kfs.Length; ++i) {
                     var frames = kfs[i];
                     var idx = AnimationUtils.FindKeyFrame(timeElapsed, frames);
-                    if (idx < 0)
-                    {
+                    if (idx < 0) {
                         Weights[i] = 0;
                         continue;
                     }
@@ -91,8 +78,7 @@ namespace HelixToolkit.SharpDX.Core
                     ref var currFrame = ref frames.GetInternalArray()[idx];
                     if (currFrame.Time > timeElapsed && idx == 0) continue;
                     Debug.Assert(currFrame.Time <= timeElapsed);
-                    if (frames.Count == 1 || idx == frames.Count - 1)
-                    {
+                    if (frames.Count == 1 || idx == frames.Count - 1) {
                         Weights[i] = currFrame.Weight;
                         continue;
                     }

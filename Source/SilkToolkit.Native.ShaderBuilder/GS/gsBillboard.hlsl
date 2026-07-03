@@ -7,15 +7,14 @@
 
 //--------------------------------------------------------------------------------
 [maxvertexcount(4)]
-void main(point GSInputBT input[1], inout TriangleStream<PSInputBT> SpriteStream)
-{
+void main(point GSInputBT input[1], inout TriangleStream<PSInputBT> SpriteStream) {
     float4 ndcPosition0 = input[0].p;
     float4 ndcPosition1 = input[0].p;
     float4 ndcPosition2 = input[0].p;
     float4 ndcPosition3 = input[0].p;
 
-	// Transform to clip space
-    if (!fixedSize)// if not fixed size billboard
+    // Transform to clip space
+    if (!fixedSize) // if not fixed size billboard
     {
         ndcPosition0.xy += input[0].offTR;
         ndcPosition1.xy += input[0].offBR;
@@ -33,9 +32,9 @@ void main(point GSInputBT input[1], inout TriangleStream<PSInputBT> SpriteStream
     float4 ndcTranslated2 = ndcPosition2 / ndcPosition2.w;
     float4 ndcTranslated3 = ndcPosition3 / ndcPosition3.w;
 
-    if (fixedSize)// if fixed sized billboard
+    if (fixedSize) // if fixed sized billboard
     {
-		// Translate offset into normalized device coordinates.
+        // Translate offset into normalized device coordinates.
         ndcTranslated0.xy += windowToNdc(input[0].offTR * DpiScale);
         ndcTranslated1.xy += windowToNdc(input[0].offBR * DpiScale);
         ndcTranslated2.xy += windowToNdc(input[0].offTL * DpiScale);
@@ -45,7 +44,7 @@ void main(point GSInputBT input[1], inout TriangleStream<PSInputBT> SpriteStream
     float3 vEye = vEyePos - input[0].p.xyz;
     float4 eye = float4(normalize(vEye), length(vEye)); //Use wp for camera->vertex direction
 
-    PSInputBT output = (PSInputBT) 0;
+    PSInputBT output = (PSInputBT)0;
     output.p = float4(ndcTranslated0.xyz, 1.0);
     output.background = input[0].background;
     output.foreground = input[0].foreground;
@@ -70,7 +69,7 @@ void main(point GSInputBT input[1], inout TriangleStream<PSInputBT> SpriteStream
     output.p = float4(ndcTranslated3.xyz, 1.0);
     output.background = input[0].background;
     output.foreground = input[0].foreground;
-    output.t = float2(input[0].t0.x, input[0].t3.y);    
+    output.t = float2(input[0].t0.x, input[0].t3.y);
     output.vEye = eye;
     SpriteStream.Append(output);
 

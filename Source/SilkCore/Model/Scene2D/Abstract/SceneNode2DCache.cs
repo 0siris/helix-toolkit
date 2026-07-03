@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public partial class SceneNode2D
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public partial class SceneNode2D {
 #pragma warning disable
 
             /// <summary>
@@ -48,20 +45,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="size">The size.</param>
             /// <param name="maxSize">The maximum size.</param>
-            private void EnsureBitmapCache(RenderContext2D context, Size2 size, int maxSize)
-            {
+            private void EnsureBitmapCache(RenderContext2D context, Size2 size, int maxSize) {
                 IsBitmapCacheValid = false;
                 if (size.Width <= 0 || size.Height <= 0 || !EnableBitmapCache ||
-                    size.Width * size.Height < MinimumBitmapSize)
-                {
+                    size.Width * size.Height < MinimumBitmapSize) {
                     Disposer.RemoveAndDispose(ref bitmapCache);
-                }
-                else if (size.Width > maxSize || size.Height > maxSize)
-                {
-                }
-                else if (bitmapCache == null || size.Width > bitmapCache.Size.Width ||
-                         size.Height > bitmapCache.Size.Height)
-                {
+                } else if (size.Width > maxSize || size.Height > maxSize) { } else if (bitmapCache == null ||
+                     size.Width > bitmapCache.Size.Width ||
+                     size.Height > bitmapCache.Size.Height) {
 #if DEBUGCACHECREATE
                     if (logger.IsEnabled(LogLevel.Debug))
                     {
@@ -72,9 +63,7 @@ namespace HelixToolkit.SharpDX.Core
                     bitmapCache = BitmapProxy.Create("Cache", context.DeviceContext, size, default);
                     IsBitmapCacheValid = true;
                     IsVisualDirty = true;
-                }
-                else
-                {
+                } else {
                     IsBitmapCacheValid = true;
                 }
             }

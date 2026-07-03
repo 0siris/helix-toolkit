@@ -5,17 +5,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
         /// <summary>
         /// </summary>
-        public partial class SceneNode2D
-        {
-            #region layout management
+        public partial class SceneNode2D {
+        #region layout management
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             ///     Gets or sets a value indicating whether this instance is measure dirty.
@@ -51,13 +48,10 @@ namespace HelixToolkit.SharpDX.Core
 
             private Thickness margin;
 
-            public Thickness Margin
-            {
+            public Thickness Margin {
                 get => margin;
-                set
-                {
-                    if (Set(ref margin, value))
-                    {
+                set {
+                    if (Set(ref margin, value)) {
                         MarginWidthHeight = new Vector2(value.Left + value.Right, value.Top + value.Bottom);
                         InvalidateMeasure();
                     }
@@ -68,99 +62,81 @@ namespace HelixToolkit.SharpDX.Core
 
             private float width = float.PositiveInfinity;
 
-            public float Width
-            {
+            public float Width {
                 get => width;
-                set
-                {
+                set {
                     if (Set(ref width, value)) InvalidateMeasure();
                 }
             }
 
             private float height = float.PositiveInfinity;
 
-            public float Height
-            {
+            public float Height {
                 get => height;
-                set
-                {
+                set {
                     if (Set(ref height, value)) InvalidateMeasure();
                 }
             }
 
             private float minimumWidth;
 
-            public float MinimumWidth
-            {
+            public float MinimumWidth {
                 get => minimumWidth;
-                set
-                {
+                set {
                     if (Set(ref minimumWidth, value) && value > width) InvalidateMeasure();
                 }
             }
 
             private float minimumHeight;
 
-            public float MinimumHeight
-            {
+            public float MinimumHeight {
                 get => minimumHeight;
-                set
-                {
+                set {
                     if (Set(ref minimumHeight, value) && value > height) InvalidateMeasure();
                 }
             }
 
             private float maximumWidth = float.PositiveInfinity;
 
-            public float MaximumWidth
-            {
+            public float MaximumWidth {
                 get => maximumWidth;
-                set
-                {
+                set {
                     if (Set(ref maximumWidth, value) && value < width) InvalidateMeasure();
                 }
             }
 
             private float maximumHeight = float.PositiveInfinity;
 
-            public float MaximumHeight
-            {
+            public float MaximumHeight {
                 get => maximumHeight;
-                set
-                {
+                set {
                     if (Set(ref maximumHeight, value) && value < height) InvalidateMeasure();
                 }
             }
 
             private HorizontalAlignment horizontalAlignment = HorizontalAlignment.Stretch;
 
-            public HorizontalAlignment HorizontalAlignment
-            {
+            public HorizontalAlignment HorizontalAlignment {
                 get => horizontalAlignment;
-                set
-                {
+                set {
                     if (Set(ref horizontalAlignment, value)) InvalidateArrange();
                 }
             }
 
             private VerticalAlignment verticalAlignment = VerticalAlignment.Stretch;
 
-            public VerticalAlignment VerticalAlignment
-            {
+            public VerticalAlignment VerticalAlignment {
                 get => verticalAlignment;
-                set
-                {
+                set {
                     if (Set(ref verticalAlignment, value)) InvalidateArrange();
                 }
             }
 
             private Vector2 layoutOffset = Vector2.Zero;
 
-            public Vector2 LayoutOffsets
-            {
+            public Vector2 LayoutOffsets {
                 get => layoutOffset;
-                private set
-                {
+                private set {
                     if (Set(ref layoutOffset, value)) InvalidateTransform();
                 }
             }
@@ -173,22 +149,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The size of the render.
             /// </value>
-            public Vector2 RenderSize
-            {
+            public Vector2 RenderSize {
                 get => renderSize;
-                private set
-                {
+                private set {
                     if (Set(ref renderSize, value)) InvalidateTransform();
                 }
             }
 
             private Vector2 renderTransformOrigin = new(0.5f, 0.5f);
 
-            public Vector2 RenderTransformOrigin
-            {
+            public Vector2 RenderTransformOrigin {
                 get => renderTransformOrigin;
-                set
-                {
+                set {
                     if (Set(ref renderTransformOrigin, value)) InvalidateRender();
                 }
             }
@@ -221,8 +193,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The layout clip bound.
             /// </value>
-            public RectangleF LayoutClipBound
-            {
+            public RectangleF LayoutClipBound {
                 get => RenderCore.LayoutClippingBound;
                 private set => RenderCore.LayoutClippingBound = value;
             }
@@ -230,8 +201,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Gets the size of the actual layout bound without margin.
             /// </summary>
-            public RectangleF LayoutBound
-            {
+            public RectangleF LayoutBound {
                 get => RenderCore.LayoutBound;
                 private set => RenderCore.LayoutBound = value;
             }
@@ -239,89 +209,82 @@ namespace HelixToolkit.SharpDX.Core
             private Size2F? previousMeasureSize;
             private RectangleF? previousArrange;
 
-            #endregion Properties
+        #endregion Properties
 
-            public void InvalidateMeasure()
-            {
+            public void InvalidateMeasure() {
                 IsArrangeDirty = true;
                 IsMeasureDirty = true;
-                TraverseUp(this, p =>
-                {
-                    if (p.IsArrangeDirty && p.IsMeasureDirty) return false;
-                    p.IsArrangeDirty = true;
-                    p.IsMeasureDirty = true;
-                    return true;
-                });
+                TraverseUp(this,
+                           p => {
+                               if (p.IsArrangeDirty && p.IsMeasureDirty) return false;
+                               p.IsArrangeDirty = true;
+                               p.IsMeasureDirty = true;
+                               return true;
+                           });
                 if (IsAttached) InvalidateRender();
             }
 
-            public void InvalidateArrange()
-            {
+            public void InvalidateArrange() {
                 IsArrangeDirty = true;
-                TraverseUp(this, p =>
-                {
-                    if (p.IsArrangeDirty) return false;
-                    p.IsArrangeDirty = true;
-                    return true;
-                });
+                TraverseUp(this,
+                           p => {
+                               if (p.IsArrangeDirty) return false;
+                               p.IsArrangeDirty = true;
+                               return true;
+                           });
                 if (IsAttached) InvalidateRender();
             }
 
-            public void InvalidateVisual()
-            {
+            public void InvalidateVisual() {
                 IsVisualDirty = true;
-                TraverseUp(this, p =>
-                {
-                    if (p.IsVisualDirty) return false;
-                    p.IsVisualDirty = true;
-                    return true;
-                });
+                TraverseUp(this,
+                           p => {
+                               if (p.IsVisualDirty) return false;
+                               p.IsVisualDirty = true;
+                               return true;
+                           });
                 if (IsAttached) InvalidateRender();
             }
 
-            public void InvalidateTransform()
-            {
+            public void InvalidateTransform() {
                 IsTransformDirty = true;
-                TraverseUp(this, e =>
-                {
-                    if (e.IsTransformDirty) return false;
-                    e.IsTransformDirty = true;
-                    return true;
-                });
+                TraverseUp(this,
+                           e => {
+                               if (e.IsTransformDirty) return false;
+                               e.IsTransformDirty = true;
+                               return true;
+                           });
                 if (IsAttached) InvalidateRender();
             }
 
-            public void InvalidateAll()
-            {
+            public void InvalidateAll() {
                 IsTransformDirty = true;
                 IsMeasureDirty = true;
                 IsArrangeDirty = true;
                 IsVisualDirty = true;
-                TraverseUp(this, p =>
-                {
-                    if (p.IsTransformDirty && p.IsMeasureDirty && p.IsArrangeDirty && p.IsVisualDirty) return false;
-                    p.IsTransformDirty = true;
-                    p.IsMeasureDirty = true;
-                    p.IsArrangeDirty = true;
-                    p.IsVisualDirty = true;
-                    return true;
-                });
+                TraverseUp(this,
+                           p => {
+                               if (p.IsTransformDirty && p.IsMeasureDirty && p.IsArrangeDirty && p.IsVisualDirty)
+                                   return false;
+                               p.IsTransformDirty = true;
+                               p.IsMeasureDirty = true;
+                               p.IsArrangeDirty = true;
+                               p.IsVisualDirty = true;
+                               return true;
+                           });
                 if (IsAttached) InvalidateRender();
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected static void TraverseUp(SceneNode2D core, Func<SceneNode2D, bool> action)
-            {
+            protected static void TraverseUp(SceneNode2D core, Func<SceneNode2D, bool> action) {
                 var ancestor = core.Parent;
-                while (ancestor != null)
-                {
+                while (ancestor != null) {
                     if (!action(ancestor)) break;
                     ancestor = ancestor.Parent;
                 }
             }
 
-            public void Measure(Size2F size)
-            {
+            public void Measure(Size2F size) {
                 if (!IsAttached || Visibility == Visibility.Collapsed ||
                     (!IsMeasureDirty && previousMeasureSize == size)) return;
                 previousMeasureSize = size;
@@ -338,28 +301,24 @@ namespace HelixToolkit.SharpDX.Core
                 var unclippedDesiredSize = desiredSize;
 
                 var clipped = false;
-                if (desiredSize.X > maxSize.X)
-                {
+                if (desiredSize.X > maxSize.X) {
                     desiredSize.X = maxSize.X;
                     clipped = true;
                 }
 
-                if (desiredSize.Y > maxSize.Y)
-                {
+                if (desiredSize.Y > maxSize.Y) {
                     desiredSize.Y = maxSize.Y;
                     clipped = true;
                 }
 
                 var clippedDesiredSize = desiredSize + MarginWidthHeight * DpiScale;
 
-                if (clippedDesiredSize.X > availableSize.X)
-                {
+                if (clippedDesiredSize.X > availableSize.X) {
                     clippedDesiredSize.X = availableSize.X;
                     clipped = true;
                 }
 
-                if (clippedDesiredSize.Y > availableSize.Y)
-                {
+                if (clippedDesiredSize.Y > availableSize.Y) {
                     clippedDesiredSize.Y = availableSize.Y;
                     clipped = true;
                 }
@@ -368,32 +327,27 @@ namespace HelixToolkit.SharpDX.Core
                     UnclippedDesiredSize = unclippedDesiredSize;
                 else
                     UnclippedDesiredSize = new Vector2(-1, -1);
-                if (DesiredSize != clippedDesiredSize)
-                {
+                if (DesiredSize != clippedDesiredSize) {
                     DesiredSize = clippedDesiredSize;
                     for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].InvalidateMeasure();
-                }
-                else
-                {
+                } else {
                     IsMeasureDirty = false;
                 }
             }
 
-            public void Arrange(RectangleF rect)
-            {
+            public void Arrange(RectangleF rect) {
                 if (!IsAttached || Visibility == Visibility.Collapsed) return;
                 if (IsMeasureDirty) Measure(previousMeasureSize ?? rect.Size);
                 var ancestorDirty = false;
-                TraverseUp(this, parent =>
-                {
-                    if (parent.IsArrangeDirty)
-                    {
-                        ancestorDirty = true;
-                        return false;
-                    }
+                TraverseUp(this,
+                           parent => {
+                               if (parent.IsArrangeDirty) {
+                                   ancestorDirty = true;
+                                   return false;
+                               }
 
-                    return true;
-                });
+                               return true;
+                           });
 
                 var rectWidthHeight = new Vector2(rect.Width, rect.Height);
 
@@ -406,22 +360,19 @@ namespace HelixToolkit.SharpDX.Core
                 ClipEnabled = false;
                 var desiredSize = DesiredSize;
 
-                if (float.IsNaN(DesiredSize.X) || float.IsNaN(DesiredSize.Y))
-                {
+                if (float.IsNaN(DesiredSize.X) || float.IsNaN(DesiredSize.Y)) {
                     if (UnclippedDesiredSize.X == -1 || UnclippedDesiredSize.Y == -1)
                         desiredSize = arrangeSize - MarginWidthHeight * DpiScale;
                     else
                         desiredSize = UnclippedDesiredSize - MarginWidthHeight * DpiScale;
                 }
 
-                if (arrangeSize.X < desiredSize.X)
-                {
+                if (arrangeSize.X < desiredSize.X) {
                     ClipEnabled = true;
                     arrangeSize.X = desiredSize.X;
                 }
 
-                if (arrangeSize.Y < desiredSize.Y)
-                {
+                if (arrangeSize.Y < desiredSize.Y) {
                     ClipEnabled = true;
                     arrangeSize.Y = desiredSize.Y;
                 }
@@ -435,22 +386,22 @@ namespace HelixToolkit.SharpDX.Core
                 CalculateMinMax(ref minSize, ref maxSize);
 
                 var calcedMaxWidth = Math.Max(desiredSize.X, maxSize.X);
-                if (calcedMaxWidth < arrangeSize.X)
-                {
+                if (calcedMaxWidth < arrangeSize.X) {
                     ClipEnabled = true;
                     arrangeSize.X = calcedMaxWidth;
                 }
 
                 var calcedMaxHeight = Math.Max(desiredSize.Y, maxSize.Y);
-                if (calcedMaxHeight < arrangeSize.Y)
-                {
+                if (calcedMaxHeight < arrangeSize.Y) {
                     ClipEnabled = true;
                     arrangeSize.Y = calcedMaxHeight;
                 }
 
                 var oldRenderSize = RenderSize;
-                var arrangeResultSize = ArrangeOverride(new RectangleF(Margin.Left * DpiScale, Margin.Top * DpiScale,
-                        arrangeSize.X - MarginWidthHeight.X * DpiScale, arrangeSize.Y - MarginWidthHeight.Y * DpiScale))
+                var arrangeResultSize = ArrangeOverride(new RectangleF(Margin.Left * DpiScale,
+                                                                       Margin.Top * DpiScale,
+                                                                       arrangeSize.X - MarginWidthHeight.X * DpiScale,
+                                                                       arrangeSize.Y - MarginWidthHeight.Y * DpiScale))
                     .ToVector2();
 
                 var arrangeSizeChanged = arrangeResultSize != oldRenderSize;
@@ -459,13 +410,13 @@ namespace HelixToolkit.SharpDX.Core
                 RenderSize = arrangeResultSize;
 
                 var clippedArrangeResultSize = new Vector2(Math.Min(arrangeResultSize.X, maxSize.X),
-                    Math.Min(arrangeResultSize.Y, maxSize.Y));
+                                                           Math.Min(arrangeResultSize.Y, maxSize.Y));
                 if (!ClipEnabled)
                     ClipEnabled = clippedArrangeResultSize.X < arrangeResultSize.X ||
                                   clippedArrangeResultSize.Y < arrangeResultSize.Y;
 
                 var clientSize = new Vector2(Math.Max(0, rectWidthHeight.X - MarginWidthHeight.X * DpiScale),
-                    Math.Max(0, rectWidthHeight.Y - MarginWidthHeight.Y * DpiScale));
+                                             Math.Max(0, rectWidthHeight.Y - MarginWidthHeight.Y * DpiScale));
 
                 if (!ClipEnabled)
                     ClipEnabled = clientSize.X < clippedArrangeResultSize.X ||
@@ -507,8 +458,7 @@ namespace HelixToolkit.SharpDX.Core
                 IsArrangeDirty = false;
             }
 
-            private void CalculateMinMax(ref Vector2 minSize, ref Vector2 maxSize)
-            {
+            private void CalculateMinMax(ref Vector2 minSize, ref Vector2 maxSize) {
                 maxSize.Y = MaximumHeight;
                 minSize.Y = MinimumHeight;
 
@@ -538,28 +488,27 @@ namespace HelixToolkit.SharpDX.Core
                 maxSize *= DpiScale;
             }
 
-            private void UpdateLayoutInternal()
-            {
+            private void UpdateLayoutInternal() {
                 LayoutBound = new RectangleF(Margin.Left * DpiScale, Margin.Top * DpiScale, RenderSize.X, RenderSize.Y);
-                LayoutClipBound = new RectangleF(0, 0, RenderSize.X + MarginWidthHeight.X * DpiScale,
-                    RenderSize.Y + MarginWidthHeight.Y * DpiScale);
+                LayoutClipBound = new RectangleF(0,
+                                                 0,
+                                                 RenderSize.X + MarginWidthHeight.X * DpiScale,
+                                                 RenderSize.Y + MarginWidthHeight.Y * DpiScale);
                 LayoutTranslate = Matrix3x2.Translation((float) Math.Round(LayoutOffsets.X),
-                    (float) Math.Round(LayoutOffsets.Y));
+                                                        (float) Math.Round(LayoutOffsets.Y));
             }
 
-            protected virtual RectangleF ArrangeOverride(RectangleF finalSize)
-            {
+            protected virtual RectangleF ArrangeOverride(RectangleF finalSize) {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Arrange(finalSize);
                 return finalSize;
             }
 
-            protected virtual Size2F MeasureOverride(Size2F availableSize)
-            {
+            protected virtual Size2F MeasureOverride(Size2F availableSize) {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Measure(availableSize);
                 return availableSize;
             }
 
-            #endregion layout management
+        #endregion layout management
         }
     }
 }

@@ -15,8 +15,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Specifies constants that define actions performed by manipulation.
 /// </summary>
 [TypeConverter(typeof(ManipulationActionConverter))]
-public enum ManipulationAction
-{
+public enum ManipulationAction {
     None,
 
     Pan,

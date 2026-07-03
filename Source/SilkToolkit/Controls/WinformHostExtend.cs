@@ -6,71 +6,64 @@ using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Controls
-    {
-        public class WinformHostExtend : WindowsFormsHost
-        {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Controls {
+        public class WinformHostExtend : WindowsFormsHost {
             public delegate void FormMouseMoveEventHandler(object sender, FormMouseMoveEventArgs e);
 
             public delegate void FormMouseWheelEventHandler(object sender, FormMouseWheelEventArgs e);
 
             public static readonly RoutedEvent FormMouseMoveEvent =
-                EventManager.RegisterRoutedEvent("FormMouseMove", RoutingStrategy.Bubble,
-                    typeof(FormMouseMoveEventHandler), typeof(WinformHostExtend));
+                EventManager.RegisterRoutedEvent("FormMouseMove",
+                                                 RoutingStrategy.Bubble,
+                                                 typeof(FormMouseMoveEventHandler),
+                                                 typeof(WinformHostExtend));
 
             public static readonly RoutedEvent FormMouseWheelEvent =
-                EventManager.RegisterRoutedEvent("FormMouseWheel", RoutingStrategy.Bubble,
-                    typeof(FormMouseWheelEventHandler), typeof(WinformHostExtend));
+                EventManager.RegisterRoutedEvent("FormMouseWheel",
+                                                 RoutingStrategy.Bubble,
+                                                 typeof(FormMouseWheelEventHandler),
+                                                 typeof(WinformHostExtend));
 
             private double dpiScale = 1;
 
-            public WinformHostExtend()
-            {
+            public WinformHostExtend() {
                 ChildChanged += OnChildChanged;
             }
 
             protected UIElement ParentControl { get; set; }
 
-            public double DpiScale
-            {
+            public double DpiScale {
                 get => dpiScale;
-                set
-                {
+                set {
                     if (dpiScale == value) return;
                     dpiScale = value;
                     DpiScaleChanged?.Invoke(this, value);
                 }
             }
 
-            public event FormMouseMoveEventHandler FormMouseMove
-            {
+            public event FormMouseMoveEventHandler FormMouseMove {
                 add => AddHandler(FormMouseMoveEvent, value);
                 remove => RemoveHandler(FormMouseMoveEvent, value);
             }
 
-            public event FormMouseWheelEventHandler FormMouseWheel
-            {
+            public event FormMouseWheelEventHandler FormMouseWheel {
                 add => AddHandler(FormMouseWheelEvent, value);
                 remove => RemoveHandler(FormMouseWheelEvent, value);
             }
 
             public event EventHandler<double> DpiScaleChanged;
 
-            private void OnChildChanged(object sender, ChildChangedEventArgs childChangedEventArgs)
-            {
+            private void OnChildChanged(object sender, ChildChangedEventArgs childChangedEventArgs) {
                 var previousChild = childChangedEventArgs.PreviousChild as Control;
-                if (previousChild != null)
-                {
+                if (previousChild != null) {
                     previousChild.MouseDown -= OnMouseDown;
                     previousChild.MouseWheel -= OnMouseWheel;
                     previousChild.MouseMove -= OnMouseMove;
                     previousChild.MouseUp -= OnMouseUp;
                 }
 
-                if (Child != null)
-                {
+                if (Child != null) {
                     Child.MouseDown += OnMouseDown;
                     Child.MouseWheel += OnMouseWheel;
                     Child.MouseMove += OnMouseMove;
@@ -78,48 +71,45 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            private void OnMouseMove(object sender, MouseEventArgs e)
-            {
+            private void OnMouseMove(object sender, MouseEventArgs e) {
                 RaiseEvent(new FormMouseMoveEventArgs(FormMouseMoveEvent,
-                    new Point(e.Location.X / DpiScale, e.Location.Y / DpiScale), e.X, e.Y, e.Delta) {Source = this});
+                                                      new Point(e.Location.X / DpiScale, e.Location.Y / DpiScale),
+                                                      e.X,
+                                                      e.Y,
+                                                      e.Delta) {Source = this});
             }
 
-            private void OnMouseWheel(object sender, MouseEventArgs e)
-            {
-                RaiseEvent(new FormMouseWheelEventArgs(FormMouseWheelEvent, Mouse.PrimaryDevice, Environment.TickCount,
-                    e.Delta)
-                {
+            private void OnMouseWheel(object sender, MouseEventArgs e) {
+                RaiseEvent(new FormMouseWheelEventArgs(FormMouseWheelEvent,
+                                                       Mouse.PrimaryDevice,
+                                                       Environment.TickCount,
+                                                       e.Delta) {
                     Source = this
                 });
             }
 
-            private void OnMouseDown(object sender, MouseEventArgs mouseEventArgs)
-            {
+            private void OnMouseDown(object sender, MouseEventArgs mouseEventArgs) {
                 var wpfButton = ConvertToWpf(mouseEventArgs.Button);
                 if (!wpfButton.HasValue)
                     return;
                 Capture();
-                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value)
-                {
+                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value) {
                     RoutedEvent = Mouse.PreviewMouseDownEvent,
                     Source = this
                 });
 
-                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value)
-                {
+                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value) {
                     RoutedEvent = Mouse.MouseDownEvent,
                     Source = this
                 });
             }
 
-            private void OnMouseUp(object sender, MouseEventArgs mouseEventArgs)
-            {
+            private void OnMouseUp(object sender, MouseEventArgs mouseEventArgs) {
                 var wpfButton = ConvertToWpf(mouseEventArgs.Button);
                 if (!wpfButton.HasValue)
                     return;
                 Capture();
-                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value)
-                {
+                RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, wpfButton.Value) {
                     RoutedEvent = Mouse.MouseUpEvent,
                     Source = this
                 });
@@ -129,16 +119,13 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     Has to do this, otherwise the mouse point is wrong in mouse event.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void Capture()
-            {
+            private void Capture() {
                 CaptureMouse();
                 ReleaseMouseCapture();
             }
 
-            private MouseButton? ConvertToWpf(MouseButtons winformButton)
-            {
-                switch (winformButton)
-                {
+            private MouseButton? ConvertToWpf(MouseButtons winformButton) {
+                switch (winformButton) {
                     case MouseButtons.Left:
                         return MouseButton.Left;
                     case MouseButtons.None:
@@ -159,8 +146,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <summary>
             /// </summary>
             /// <seealso cref="System.Windows.RoutedEventArgs" />
-            public sealed class FormMouseMoveEventArgs : RoutedEventArgs
-            {
+            public sealed class FormMouseMoveEventArgs : RoutedEventArgs {
                 /// <summary>
                 ///     Initializes a new instance of the <see cref="FormMouseMoveEventArgs" /> class.
                 /// </summary>
@@ -170,8 +156,7 @@ namespace HelixToolkit.Wpf.SharpDX
                 /// <param name="y">The y.</param>
                 /// <param name="delta">The delta.</param>
                 public FormMouseMoveEventArgs(RoutedEvent routedEvent, Point p, int x, int y, int delta)
-                    : base(routedEvent)
-                {
+                    : base(routedEvent) {
                     Location = p;
                     X = x;
                     Y = y;
@@ -217,8 +202,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// <summary>
             /// </summary>
             /// <seealso cref="System.Windows.Input.MouseWheelEventArgs" />
-            public sealed class FormMouseWheelEventArgs : RoutedEventArgs
-            {
+            public sealed class FormMouseWheelEventArgs : RoutedEventArgs {
                 public readonly int Delta;
                 public readonly MouseDevice Mouse;
                 public readonly int Timestamp;
@@ -231,15 +215,13 @@ namespace HelixToolkit.Wpf.SharpDX
                 /// <param name="timestamp">The time when the input occurred.</param>
                 /// <param name="delta">The amount the wheel has changed.</param>
                 public FormMouseWheelEventArgs(RoutedEvent routedEvent, MouseDevice mouse, int timestamp, int delta) :
-                    base(routedEvent)
-                {
+                    base(routedEvent) {
                     Delta = delta;
                     Timestamp = timestamp;
                     Mouse = mouse;
                 }
 
-                public static implicit operator MouseWheelEventArgs(FormMouseWheelEventArgs args)
-                {
+                public static implicit operator MouseWheelEventArgs(FormMouseWheelEventArgs args) {
                     return new MouseWheelEventArgs(args.Mouse, args.Timestamp, args.Delta)
                         {RoutedEvent = MouseWheelEvent};
                 }

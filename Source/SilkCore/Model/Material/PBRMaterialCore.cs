@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public class PBRMaterialCore : MaterialCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public class PBRMaterialCore : MaterialCore {
             private Color4 albedoColor = Color.White;
 
             private TextureModel albedoMap;
@@ -94,8 +91,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the albedo.
             /// </value>
-            public Color4 AlbedoColor
-            {
+            public Color4 AlbedoColor {
                 get => albedoColor;
                 set => Set(ref albedoColor, value);
             }
@@ -106,8 +102,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the emissive.
             /// </value>
-            public Color4 EmissiveColor
-            {
+            public Color4 EmissiveColor {
                 get => emissiveColor;
                 set => Set(ref emissiveColor, value);
             }
@@ -119,8 +114,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The metallic factor.
             /// </value>
-            public float MetallicFactor
-            {
+            public float MetallicFactor {
                 get => metallicFactor;
                 set => Set(ref metallicFactor, value);
             }
@@ -132,8 +126,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The roughness factor.
             /// </value>
-            public float RoughnessFactor
-            {
+            public float RoughnessFactor {
                 get => roughnessFactor;
                 set => Set(ref roughnessFactor, value);
             }
@@ -145,8 +138,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The ambient occlusion factor.
             /// </value>
-            public float AmbientOcclusionFactor
-            {
+            public float AmbientOcclusionFactor {
                 get => ambientOcclusionFactor;
                 set => Set(ref ambientOcclusionFactor, value);
             }
@@ -157,8 +149,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The reflectance factor.
             /// </value>
-            public float ReflectanceFactor
-            {
+            public float ReflectanceFactor {
                 get => reflectanceFactor;
                 set => Set(ref reflectanceFactor, value);
             }
@@ -169,8 +160,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The clear coat strength.
             /// </value>
-            public float ClearCoatStrength
-            {
+            public float ClearCoatStrength {
                 get => clearCoatStrength;
                 set => Set(ref clearCoatStrength, value);
             }
@@ -181,56 +171,48 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The clear coat roughness.
             /// </value>
-            public float ClearCoatRoughness
-            {
+            public float ClearCoatRoughness {
                 get => clearCoatRoughness;
                 set => Set(ref clearCoatRoughness, value);
             }
 
-            public bool RenderAlbedoMap
-            {
+            public bool RenderAlbedoMap {
                 get => renderAlbodoMap;
                 set => Set(ref renderAlbodoMap, value);
             }
 
-            public bool RenderNormalMap
-            {
+            public bool RenderNormalMap {
                 get => renderNormalMap;
                 set => Set(ref renderNormalMap, value);
             }
 
-            public bool RenderRoughnessMetallicMap
-            {
+            public bool RenderRoughnessMetallicMap {
                 get => renderRoughnessMetallicMap;
                 set => Set(ref renderRoughnessMetallicMap, value);
             }
 
-            public bool RenderAmbientOcclusionMap
-            {
+            public bool RenderAmbientOcclusionMap {
                 get => renderAmbientOcclusionMap;
                 set => Set(ref renderAmbientOcclusionMap, value);
             }
 
             /// <summary>
             /// </summary>
-            public bool RenderDisplacementMap
-            {
+            public bool RenderDisplacementMap {
                 get => renderDisplacementMap;
                 set => Set(ref renderDisplacementMap, value);
             }
 
             /// <summary>
             /// </summary>
-            public bool RenderShadowMap
-            {
+            public bool RenderShadowMap {
                 get => renderShadowMap;
                 set => Set(ref renderShadowMap, value);
             }
 
             /// <summary>
             /// </summary>
-            public bool RenderEnvironmentMap
-            {
+            public bool RenderEnvironmentMap {
                 get => renderEnvironmentMap;
                 set => Set(ref renderEnvironmentMap, value);
             }
@@ -241,8 +223,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render irrandiance map]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderIrradianceMap
-            {
+            public bool RenderIrradianceMap {
                 get => renderIrradianceMap;
                 set => Set(ref renderIrradianceMap, value);
             }
@@ -253,8 +234,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render emissive map]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderEmissiveMap
-            {
+            public bool RenderEmissiveMap {
                 get => renderEmissiveMap;
                 set => Set(ref renderEmissiveMap, value);
             }
@@ -265,8 +245,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableAutoTangent
-            {
+            public bool EnableAutoTangent {
                 get => enableAutoTangent;
                 set => Set(ref enableAutoTangent, value);
             }
@@ -277,8 +256,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The albedo map.
             /// </value>
-            public TextureModel AlbedoMap
-            {
+            public TextureModel AlbedoMap {
                 get => albedoMap;
                 set => Set(ref albedoMap, value);
             }
@@ -297,8 +275,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The emissive map.
             /// </value>
-            public TextureModel EmissiveMap
-            {
+            public TextureModel EmissiveMap {
                 get => emissiveMap;
                 set => Set(ref emissiveMap, value);
             }
@@ -317,8 +294,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     NormalMap
             /// </value>
-            public TextureModel NormalMap
-            {
+            public TextureModel NormalMap {
                 get => normalMap;
                 set => Set(ref normalMap, value);
             }
@@ -337,8 +313,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     DisplacementMap
             /// </value>
-            public TextureModel DisplacementMap
-            {
+            public TextureModel DisplacementMap {
                 get => displacementMap;
                 set => Set(ref displacementMap, value);
             }
@@ -357,8 +332,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The irradiance map.
             /// </value>
-            public TextureModel IrradianceMap
-            {
+            public TextureModel IrradianceMap {
                 get => irradianceMap;
                 set => Set(ref irradianceMap, value);
             }
@@ -380,8 +354,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The rma map.
             /// </value>
-            public TextureModel RoughnessMetallicMap
-            {
+            public TextureModel RoughnessMetallicMap {
                 get => roughnessMetallicMap;
                 set => Set(ref roughnessMetallicMap, value);
             }
@@ -403,8 +376,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The ao map.
             /// </value>
-            public TextureModel AmbientOcculsionMap
-            {
+            public TextureModel AmbientOcculsionMap {
                 get => ambientOcculsionMap;
                 set => Set(ref ambientOcculsionMap, value);
             }
@@ -423,8 +395,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     DisplacementMapScaleMask
             /// </value>
-            public Vector4 DisplacementMapScaleMask
-            {
+            public Vector4 DisplacementMapScaleMask {
                 get => displacementMapScaleMask;
                 set => Set(ref displacementMapScaleMask, value);
             }
@@ -435,8 +406,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The uv transform.
             /// </value>
-            public UVTransform UVTransform
-            {
+            public UVTransform UVTransform {
                 get => uvTransform;
                 set => Set(ref uvTransform, value);
             }
@@ -447,8 +417,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The surface map sampler.
             /// </value>
-            public SamplerStateDescription SurfaceMapSampler
-            {
+            public SamplerStateDescription SurfaceMapSampler {
                 get => surfaceMapSampler;
                 set => Set(ref surfaceMapSampler, value);
             }
@@ -459,8 +428,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     DisplacementMapSampler
             /// </value>
-            public SamplerStateDescription DisplacementMapSampler
-            {
+            public SamplerStateDescription DisplacementMapSampler {
                 get => displacementMapSampler;
                 set => Set(ref displacementMapSampler, value);
             }
@@ -471,20 +439,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The IBL sampler.
             /// </value>
-            public SamplerStateDescription IBLSampler
-            {
+            public SamplerStateDescription IBLSampler {
                 get => iblSampler;
                 set => Set(ref iblSampler, value);
             }
 
-            public float MinTessellationDistance
-            {
+            public float MinTessellationDistance {
                 get => minTessellationDistance;
                 set => Set(ref minTessellationDistance, value);
             }
 
-            public float MaxTessellationDistance
-            {
+            public float MaxTessellationDistance {
                 get => maxTessellationDistance;
                 set => Set(ref maxTessellationDistance, value);
             }
@@ -495,8 +460,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The minimum distance tessellation factor.
             /// </value>
-            public float MinDistanceTessellationFactor
-            {
+            public float MinDistanceTessellationFactor {
                 get => minDistanceTessellationFactor;
                 set => Set(ref minDistanceTessellationFactor, value);
             }
@@ -507,20 +471,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The maximum distance tessellation factor.
             /// </value>
-            public float MaxDistanceTessellationFactor
-            {
+            public float MaxDistanceTessellationFactor {
                 get => maxDistanceTessellationFactor;
                 set => Set(ref maxDistanceTessellationFactor, value);
             }
 
-            public MeshTopologyEnum MeshType
-            {
+            public MeshTopologyEnum MeshType {
                 get => meshType;
                 set => Set(ref meshType, value);
             }
 
-            public bool EnableTessellation
-            {
+            public bool EnableTessellation {
                 get => enableTessellation;
                 set => Set(ref enableTessellation, value);
             }
@@ -531,8 +492,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableFlatShading
-            {
+            public bool EnableFlatShading {
                 get => enableFlatShading;
                 set => Set(ref enableFlatShading, value);
             }
@@ -545,15 +505,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The vert color blending factor.
             /// </value>
-            public float VertexColorBlendingFactor
-            {
+            public float VertexColorBlendingFactor {
                 get => vertexColorBlendingFactor;
                 set => Set(ref vertexColorBlendingFactor, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new PBRMaterialVariable(manager, technique, this);
             }
         }

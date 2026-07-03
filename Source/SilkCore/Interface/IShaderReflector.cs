@@ -1,9 +1,6 @@
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
-        public interface IShaderReflector
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
+        public interface IShaderReflector {
             FeatureLevel FeatureLevel { get; }
 
             Dictionary<string, ConstantBufferMapping> ConstantBufferMappings { get; }

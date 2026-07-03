@@ -4,14 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         /// </summary>
-        public interface IRandomSeed
-        {
+        public interface IRandomSeed {
             /// <summary>
             ///     Gets the seed.
             /// </summary>
@@ -23,8 +20,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public interface IRandomVector : IRandomSeed
-        {
+        public interface IRandomVector : IRandomSeed {
             /// <summary>
             ///     Gets the random vector3.
             /// </summary>

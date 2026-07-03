@@ -6,12 +6,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Globalization;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
-        public class TokenizerHelper
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
+        public class TokenizerHelper {
             private char argSeparator;
             private int charIndex;
             private int currentTokenIndex;
@@ -29,8 +26,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="str"> The string which will be tokenized. </param>
             /// <param name="formatProvider"> The IFormatProvider which controls this tokenization. </param>
-            public TokenizerHelper(string str, IFormatProvider formatProvider)
-            {
+            public TokenizerHelper(string str, IFormatProvider formatProvider) {
                 var numberSeparator = GetNumericListSeparator(formatProvider);
                 Initialize(str, '\'', numberSeparator);
             }
@@ -42,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="str"> The string to tokenize. </param>
             /// <param name="quoteChar"> The quote char. </param>
             /// <param name="separator"> The list separator. </param>
-            public TokenizerHelper(string str, char quoteChar, char separator)
-            {
+            public TokenizerHelper(string str, char quoteChar, char separator) {
                 Initialize(str, quoteChar, separator);
             }
 
@@ -56,8 +51,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="str"> The string to tokenize. </param>
             /// <param name="quoteChar"> The quote char. </param>
             /// <param name="separator"> The list separator. </param>
-            private void Initialize(string str, char quoteChar, char separator)
-            {
+            private void Initialize(string str, char quoteChar, char separator) {
                 this.str = str;
                 strLen = str == null ? 0 : str.Length;
                 currentTokenIndex = -1;
@@ -67,16 +61,14 @@ namespace HelixToolkit.SharpDX.Core
                 // immediately forward past any whitespace so 
                 // NextToken() logic always starts on the first
                 // character of the next token.
-                while (charIndex < strLen)
-                {
+                while (charIndex < strLen) {
                     if (!char.IsWhiteSpace(this.str, charIndex)) break;
 
                     ++charIndex;
                 }
             }
 
-            public string GetCurrentToken()
-            {
+            public string GetCurrentToken() {
                 // if no current token, return null 
                 if (currentTokenIndex < 0) return null;
 
@@ -86,8 +78,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Throws an exception if there is any non-whitespace left un-parsed.
             /// </summary>
-            public void LastTokenRequired()
-            {
+            public void LastTokenRequired() {
                 if (charIndex != strLen) throw new InvalidOperationException("TokenizerHelperExtraDataEncountered");
             }
 
@@ -95,8 +86,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Advances to the NextToken
             /// </summary>
             /// <returns>true if next token was found, false if at end of string</returns>
-            public bool NextToken()
-            {
+            public bool NextToken() {
                 return NextToken(false);
             }
 
@@ -104,8 +94,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Advances to the NextToken, throwing an exception if not present
             /// </summary>
             /// <returns>The next token found</returns>
-            public string NextTokenRequired()
-            {
+            public string NextTokenRequired() {
                 if (!NextToken(false)) throw new InvalidOperationException("TokenizerHelperPrematureStringTermination");
 
                 return GetCurrentToken();
@@ -115,8 +104,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Advances to the NextToken, throwing an exception if not present
             /// </summary>
             /// <returns>The next token found</returns>
-            public string NextTokenRequired(bool allowQuotedToken)
-            {
+            public string NextTokenRequired(bool allowQuotedToken) {
                 if (!NextToken(allowQuotedToken))
                     throw new InvalidOperationException("TokenizerHelperPrematureStringTermination");
 
@@ -127,8 +115,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Advances to the NextToken
             /// </summary>
             /// <returns>true if next token was found, false if at end of string</returns>
-            public bool NextToken(bool allowQuotedToken)
-            {
+            public bool NextToken(bool allowQuotedToken) {
                 // use the currently-set separator character. 
                 return NextToken(allowQuotedToken, argSeparator);
             }
@@ -138,8 +125,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     which overrides the one previously set.
             /// </summary>
             /// <returns>true if next token was found, false if at end of string</returns>
-            public bool NextToken(bool allowQuotedToken, char separator)
-            {
+            public bool NextToken(bool allowQuotedToken, char separator) {
                 currentTokenIndex = -1; // reset the currentTokenIndex 
                 FoundSeparator = false; // reset
 
@@ -156,10 +142,9 @@ namespace HelixToolkit.SharpDX.Core
                 // If we are allowing a quoted token and this token begins with a quote, 
                 // set up the quote count and skip the initial quote
                 if (allowQuotedToken &&
-                    currentChar == quoteChar)
-                {
+                    currentChar == quoteChar) {
                     quoteCount++; // increment quote count
-                    ++charIndex; // move to next character 
+                    ++charIndex;  // move to next character 
                 }
 
                 var newTokenIndex = charIndex;
@@ -167,30 +152,24 @@ namespace HelixToolkit.SharpDX.Core
 
                 // loop until hit end of string or hit a , or whitespace
                 // if at end of string ust return false.
-                while (charIndex < strLen)
-                {
+                while (charIndex < strLen) {
                     currentChar = str[charIndex];
 
                     // if have a QuoteCount and this is a quote 
                     // decrement the quoteCount
-                    if (quoteCount > 0)
-                    {
+                    if (quoteCount > 0) {
                         // if anything but a quoteChar we move on
-                        if (currentChar == quoteChar)
-                        {
+                        if (currentChar == quoteChar) {
                             --quoteCount;
 
                             // if at zero which it always should for now 
                             // break out of the loop
-                            if (0 == quoteCount)
-                            {
+                            if (0 == quoteCount) {
                                 ++charIndex; // move past the quote
                                 break;
                             }
                         }
-                    }
-                    else if (char.IsWhiteSpace(currentChar) || currentChar == separator)
-                    {
+                    } else if (char.IsWhiteSpace(currentChar) || currentChar == separator) {
                         if (currentChar == separator) FoundSeparator = true;
                         break;
                     }
@@ -215,11 +194,9 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             // helper to move the _charIndex to the next token or to the end of the string
-            private void ScanToNextToken(char separator)
-            {
+            private void ScanToNextToken(char separator) {
                 // if already at end of the string don't bother
-                if (charIndex < strLen)
-                {
+                if (charIndex < strLen) {
                     var currentChar = str[charIndex];
 
                     // check that the currentChar is a space or the separator.  If not 
@@ -233,24 +210,18 @@ namespace HelixToolkit.SharpDX.Core
                     // an argument separator or whitespace.
                     // !!!Todo: if more than one argSet throw an exception 
                     var argSepCount = 0;
-                    while (charIndex < strLen)
-                    {
+                    while (charIndex < strLen) {
                         currentChar = str[charIndex];
 
-                        if (currentChar == separator)
-                        {
+                        if (currentChar == separator) {
                             FoundSeparator = true;
                             ++argSepCount;
                             charIndex++;
 
                             if (argSepCount > 1) throw new InvalidOperationException("TokenizerHelperEmptyToken");
-                        }
-                        else if (char.IsWhiteSpace(currentChar))
-                        {
+                        } else if (char.IsWhiteSpace(currentChar)) {
                             ++charIndex;
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                     }
@@ -266,8 +237,7 @@ namespace HelixToolkit.SharpDX.Core
 
             // Helper to get the numeric list separator for a given IFormatProvider.
             // Separator is a comma [,] if the decimal separator is not a comma, or a semicolon [;] otherwise. 
-            public static char GetNumericListSeparator(IFormatProvider provider)
-            {
+            public static char GetNumericListSeparator(IFormatProvider provider) {
                 var numericSeparator = ',';
 
                 // Get the NumberFormatInfo out of the provider, if possible

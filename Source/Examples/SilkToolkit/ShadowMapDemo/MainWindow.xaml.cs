@@ -21,28 +21,23 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ShadowMapDemo
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            Closed += (s, e) => {
-                if (DataContext is IDisposable)
-                {
-                    (DataContext as IDisposable).Dispose();
-                }
-            };
-        }
+namespace ShadowMapDemo;
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new MultiViewportWin() { DataContext = this.DataContext };
-            win.Show();
-        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        InitializeComponent();
+        Closed += (s, e) => {
+            if (DataContext is IDisposable) {
+                (DataContext as IDisposable).Dispose();
+            }
+        };
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e) {
+        var win = new MultiViewportWin() {DataContext = this.DataContext};
+        win.Show();
     }
 }

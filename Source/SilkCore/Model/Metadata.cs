@@ -20,14 +20,11 @@
  * THE SOFTWARE.
  */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public enum MetaDataType
-        {
+        public enum MetaDataType {
             Bool = 0,
             Int32 = 1,
             UInt64 = 2,
@@ -40,34 +37,27 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         ///     Represents a container for holding metadata, representing as key-value pairs.
         /// </summary>
-        public sealed class Metadata : Dictionary<string, Metadata.Entry>
-        {
+        public sealed class Metadata : Dictionary<string, Metadata.Entry> {
             /// <summary>
             ///     Initializes a new instance of the <see cref="Metadata" /> class.
             /// </summary>
-            public Metadata()
-            {
-            }
+            public Metadata() { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="Metadata" /> class.
             /// </summary>
             /// <param name="capacity">The capacity.</param>
-            public Metadata(int capacity) : base(capacity)
-            {
-            }
+            public Metadata(int capacity) : base(capacity) { }
 
             /// <summary>
             /// </summary>
-            public struct Entry : IEquatable<Entry>
-            {
+            public struct Entry : IEquatable<Entry> {
                 /// <summary>
                 ///     Initializes a new instance of the <see cref="Entry" /> struct.
                 /// </summary>
                 /// <param name="dataType">Type of the data.</param>
                 /// <param name="data">The data.</param>
-                public Entry(MetaDataType dataType, object data)
-                {
+                public Entry(MetaDataType dataType, object data) {
                     DataType = dataType;
                     Data = data;
                 }
@@ -88,11 +78,9 @@ namespace HelixToolkit.SharpDX.Core
                 /// </value>
                 public object Data { get; }
 
-                public T? DataAs<T>() where T : unmanaged
-                {
+                public T? DataAs<T>() where T : unmanaged {
                     Type dataTypeType = null;
-                    switch (DataType)
-                    {
+                    switch (DataType) {
                         case MetaDataType.Bool:
                             dataTypeType = typeof(bool);
                             break;
@@ -122,21 +110,17 @@ namespace HelixToolkit.SharpDX.Core
                     return null;
                 }
 
-                public override bool Equals(object obj)
-                {
+                public override bool Equals(object obj) {
                     if (obj is Entry e) return e.Equals(this);
                     return false;
                 }
 
-                public bool Equals(Entry other)
-                {
+                public bool Equals(Entry other) {
                     return other.DataType == DataType && other.Data.Equals(Data);
                 }
 
-                public override int GetHashCode()
-                {
-                    unchecked
-                    {
+                public override int GetHashCode() {
+                    unchecked {
                         var hash = 17;
                         hash = hash * 31 + Data.GetHashCode();
                         hash = hash * 31 + (Data == null ? 0 : Data.GetHashCode());
@@ -145,18 +129,15 @@ namespace HelixToolkit.SharpDX.Core
                     }
                 }
 
-                public override string ToString()
-                {
+                public override string ToString() {
                     return $"Type:{DataType}; Value:{Data}";
                 }
 
-                public static bool operator ==(Entry a, Entry b)
-                {
+                public static bool operator ==(Entry a, Entry b) {
                     return a.Equals(b);
                 }
 
-                public static bool operator !=(Entry a, Entry b)
-                {
+                public static bool operator !=(Entry a, Entry b) {
                     return !a.Equals(b);
                 }
             }

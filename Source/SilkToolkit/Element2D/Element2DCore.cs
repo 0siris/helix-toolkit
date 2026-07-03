@@ -18,12 +18,9 @@ namespace HelixToolkit.Wpf.SharpDX.Core2D;
 /// <summary>
 ///     External Wrapper core to be used for different platform
 /// </summary>
-public abstract class Element2DCore : FrameworkContentElement, IDisposable
-{
-    public sealed class SceneNode2DCreatedEventArgs : EventArgs
-    {
-        public SceneNode2DCreatedEventArgs(SceneNode2D node)
-        {
+public abstract class Element2DCore : FrameworkContentElement, IDisposable {
+    public sealed class SceneNode2DCreatedEventArgs : EventArgs {
+        public SceneNode2DCreatedEventArgs(SceneNode2D node) {
             Node = node;
         }
 
@@ -41,20 +38,16 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
 
     public bool IsAttached => SceneNode.IsAttached;
 
-    #region Scene Node
+#region Scene Node
 
     private readonly object sceneNodeLock = new();
     private SceneNode2D sceneNode;
 
-    public SceneNode2D SceneNode
-    {
-        get
-        {
+    public SceneNode2D SceneNode {
+        get {
             if (sceneNode == null)
-                lock (sceneNodeLock)
-                {
-                    if (sceneNode == null)
-                    {
+                lock (sceneNodeLock) {
+                    if (sceneNode == null) {
                         sceneNode = OnCreateSceneNode();
                         AssignDefaultValuesToSceneNode(sceneNode);
                         sceneNode.WrapperSource = this;
@@ -69,13 +62,11 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
         }
     }
 
-    private void SceneNode_OnUpdate(object sender, SceneNode2D.UpdateEventArgs e)
-    {
+    private void SceneNode_OnUpdate(object sender, SceneNode2D.UpdateEventArgs e) {
         OnUpdate(e.Context);
     }
 
-    private void SceneNode_OnDetached(object sender, EventArgs e)
-    {
+    private void SceneNode_OnDetached(object sender, EventArgs e) {
 #if NETFX_CORE || WINUI
             if(Dispatcher != null)
             {
@@ -86,8 +77,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
             }
 
 #else
-        if (Dispatcher != null && Dispatcher.Thread.IsAlive)
-        {
+        if (Dispatcher != null && Dispatcher.Thread.IsAlive) {
             if (Dispatcher.CheckAccess())
                 OnDetached();
             else
@@ -96,22 +86,15 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
 #endif
     }
 
-    private void SceneNode_OnAttached(object sender, EventArgs e)
-    {
+    private void SceneNode_OnAttached(object sender, EventArgs e) {
         OnAttached();
     }
 
-    protected virtual void OnAttached()
-    {
-    }
+    protected virtual void OnAttached() { }
 
-    protected virtual void OnDetached()
-    {
-    }
+    protected virtual void OnDetached() { }
 
-    protected virtual void OnUpdate(RenderContext2D context)
-    {
-    }
+    protected virtual void OnUpdate(RenderContext2D context) { }
 
     /// <summary>
     ///     Called when [create scene node].
@@ -119,13 +102,11 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
     /// <returns></returns>
     protected abstract SceneNode2D OnCreateSceneNode();
 
-    protected virtual void AssignDefaultValuesToSceneNode(SceneNode2D node)
-    {
-    }
+    protected virtual void AssignDefaultValuesToSceneNode(SceneNode2D node) { }
 
-    #endregion
+#endregion
 
-    #region Events
+#region Events
 
     /// <summary>
     ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
@@ -133,25 +114,21 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
     /// </summary>
     public event EventHandler<SceneNode2DCreatedEventArgs> OnSceneNodeCreated;
 
-    #endregion
+#endregion
 
-    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult)
-    {
+    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) {
         return SceneNode.HitTest(mousePoint, out hitResult);
     }
 
-    public void InvalidateRender()
-    {
+    public void InvalidateRender() {
         SceneNode.InvalidateRender();
     }
 #if !NETFX_CORE && !WINUI
-    public void InvalidateMeasure()
-    {
+    public void InvalidateMeasure() {
         SceneNode.InvalidateMeasure();
     }
 
-    public void InvalidateArrange()
-    {
+    public void InvalidateArrange() {
         SceneNode.InvalidateArrange();
     }
 #else
@@ -167,12 +144,11 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
 #endif
 
 
-    public static implicit operator SceneNode2D(Element2DCore e)
-    {
+    public static implicit operator SceneNode2D(Element2DCore e) {
         return e.SceneNode;
     }
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls        
 
@@ -183,12 +159,9 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
     ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
     ///     unmanaged resources.
     /// </param>
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
+    protected virtual void Dispose(bool disposing) {
+        if (!disposedValue) {
+            if (disposing) {
                 // TODO: dispose managed state (managed objects).
             }
 
@@ -209,13 +182,12 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable
     /// <summary>
     ///     Releases unmanaged and - optionally - managed resources.
     /// </summary>
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
         // TODO: uncomment the following line if the finalizer is overridden above.
         // GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
 }

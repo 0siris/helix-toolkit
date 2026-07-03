@@ -104,7 +104,10 @@
                         Render Octree
                     </CheckBox>
                     <CheckBox Margin="4" IsChecked="{Binding EnableAnimation}">Animation</CheckBox>
-                    <CheckBox Margin="4" IsChecked="{Binding ElementName=billboardModel3D, Path=FixedSize, FallbackValue=true}">Billboard Fixed Size</CheckBox>
+                    <CheckBox Margin="4"
+                              IsChecked="{Binding ElementName=billboardModel3D, Path=FixedSize, FallbackValue=true}">
+                        Billboard Fixed Size
+                    </CheckBox>
                 </StackPanel>
             </Expander>
         </StackPanel>

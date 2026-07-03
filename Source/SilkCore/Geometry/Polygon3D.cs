@@ -9,8 +9,7 @@ using Vector3D = Color3;
 /// <summary>
 ///     Represents a 3D polygon.
 /// </summary>
-public class Polygon3D
-{
+public class Polygon3D {
     /// <summary>
     ///     The points.
     /// </summary>
@@ -19,8 +18,7 @@ public class Polygon3D
     /// <summary>
     ///     Initializes a new instance of the <see cref="Polygon3D" /> class.
     /// </summary>
-    public Polygon3D()
-    {
+    public Polygon3D() {
         points = new List<Point3D>();
     }
 
@@ -30,8 +28,7 @@ public class Polygon3D
     /// <param name="pts">
     ///     The PTS.
     /// </param>
-    public Polygon3D(IList<Point3D> pts)
-    {
+    public Polygon3D(IList<Point3D> pts) {
         points = pts;
     }
 
@@ -39,8 +36,7 @@ public class Polygon3D
     ///     Gets or sets the points.
     /// </summary>
     /// <value>The points.</value>
-    public IList<Point3D> Points
-    {
+    public IList<Point3D> Points {
         get => points;
 
         set => points = value;
@@ -57,8 +53,7 @@ public class Polygon3D
     /// <returns>
     ///     The 2D polygon.
     /// </returns>
-    public Polygon Flatten()
-    {
+    public Polygon Flatten() {
         // http://forums.xna.com/forums/p/16529/86802.aspx
         // http://stackoverflow.com/questions/1023948/rotate-normal-vector-onto-axis-plane
         var up = GetNormal();
@@ -68,15 +63,31 @@ public class Polygon3D
 #else
             var right = Vector3D.CrossProduct(
 #endif
-            up, Math.Abs(up.X) > Math.Abs(up.Z) ? new Vector3D(0, 0, 1) : new Vector3D(1, 0, 0));
+            up,
+            Math.Abs(up.X) > Math.Abs(up.Z) ? new Vector3D(0, 0, 1) : new Vector3D(1, 0, 0));
 #if SHARPDX || SILKNET
         var backward = SilkMath.Cross(
 #else
             var backward = Vector3D.CrossProduct(
 #endif
-            right, up);
-        var m = new Matrix3D(backward.X, right.X, up.X, 0, backward.Y, right.Y, up.Y, 0, backward.Z, right.Z, up.Z, 0,
-            0, 0, 0, 1);
+            right,
+            up);
+        var m = new Matrix3D(backward.X,
+                             right.X,
+                             up.X,
+                             0,
+                             backward.Y,
+                             right.Y,
+                             up.Y,
+                             0,
+                             backward.Z,
+                             right.Z,
+                             up.Z,
+                             0,
+                             0,
+                             0,
+                             0,
+                             1);
 
         // make first point origin
 #if SHARPDX || SILKNET
@@ -90,8 +101,7 @@ public class Polygon3D
 #endif
 
         var polygon = new Polygon {Points = new PointCollection(Points.Count)};
-        foreach (var p in Points)
-        {
+        foreach (var p in Points) {
 #if SHARPDX || SILKNET
             var pp = SilkMath.TransformCoordinate(p, m);
 #else
@@ -109,14 +119,12 @@ public class Polygon3D
     /// <returns>
     ///     The normal.
     /// </returns>
-    public Vector3D GetNormal()
-    {
+    public Vector3D GetNormal() {
         if (Points.Count < 3)
             throw new InvalidOperationException("At least three points required in the polygon to find a normal.");
 
         var v1 = Points[1] - Points[0];
-        for (var i = 2; i < Points.Count; i++)
-        {
+        for (var i = 2; i < Points.Count; i++) {
 #if SHARPDX || SILKNET
             var n = SilkMath.Cross(v1, Points[i] - Points[0]);
 
@@ -147,12 +155,10 @@ public class Polygon3D
     /// <returns>
     ///     The is planar.
     /// </returns>
-    public bool IsPlanar()
-    {
+    public bool IsPlanar() {
         var v1 = Points[1] - Points[0];
         var normal = new Vector3D();
-        for (var i = 2; i < Points.Count; i++)
-        {
+        for (var i = 2; i < Points.Count; i++) {
 #if SHARPDX || SILKNET
             var n = SilkMath.Cross(v1, Points[i] - Points[0]);
 #else

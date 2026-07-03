@@ -17,8 +17,7 @@ namespace HelixToolkit.SharpDX.Core;
 ///         same result.
 ///     </para>
 /// </summary>
-public sealed class TextureResourceManager : IDisposable, ITextureResourceManager
-{
+public sealed class TextureResourceManager : IDisposable, ITextureResourceManager {
     private static readonly ILogger logger = LogManager.Create<TextureResourceManager>();
     private readonly object device;
     private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryMipMaps = new();
@@ -28,8 +27,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     ///     Initializes a new instance of the <see cref="TextureResourceManager" /> class.
     /// </summary>
     /// <param name="device">The device.</param>
-    public TextureResourceManager(object device)
-    {
+    public TextureResourceManager(object device) {
         this.device = device;
     }
 
@@ -40,8 +38,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     /// </summary>
     /// <param name="textureStream">The texture model.</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Register(TextureModel textureStream)
-    {
+    public ShaderResourceViewProxy Register(TextureModel textureStream) {
         return Register(textureStream, true);
     }
 
@@ -51,14 +48,11 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     /// <param name="textureModel">The texture model.</param>
     /// <param name="enableAutoGenMipMap">Enable generate mipmaps automatically</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Register(TextureModel textureModel, bool enableAutoGenMipMap)
-    {
+    public ShaderResourceViewProxy Register(TextureModel textureModel, bool enableAutoGenMipMap) {
         if (textureModel == null) return null;
         var targetDict = enableAutoGenMipMap ? resourceDictionaryMipMaps : resourceDictionaryNoMipMaps;
-        lock (targetDict)
-        {
-            if (targetDict.TryGetValue(textureModel.Guid, out var view))
-            {
+        lock (targetDict) {
+            if (targetDict.TryGetValue(textureModel.Guid, out var view)) {
                 if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Re-using existing texture resource");
                 view.IncRef();
                 return view;
@@ -68,10 +62,8 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
             var proxy = new ShaderResourceViewProxy(device);
             proxy.CreateView(textureModel, true, enableAutoGenMipMap);
             proxy.Guid = textureModel.Guid;
-            proxy.Disposed += (s, e) =>
-            {
-                lock (targetDict)
-                {
+            proxy.Disposed += (s, e) => {
+                lock (targetDict) {
                     targetDict.Remove(proxy.Guid);
                 }
             };
@@ -80,24 +72,19 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
         }
     }
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
-    private void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
-                lock (resourceDictionaryMipMaps)
-                {
+    private void Dispose(bool disposing) {
+        if (!disposedValue) {
+            if (disposing) {
+                lock (resourceDictionaryMipMaps) {
                     foreach (var resource in resourceDictionaryMipMaps.Values.ToArray()) resource.ForceDispose();
                     resourceDictionaryMipMaps.Clear();
                 }
 
-                lock (resourceDictionaryNoMipMaps)
-                {
+                lock (resourceDictionaryNoMipMaps) {
                     foreach (var resource in resourceDictionaryNoMipMaps.Values.ToArray()) resource.ForceDispose();
                     resourceDictionaryNoMipMaps.Clear();
                 }
@@ -117,13 +104,12 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     // }
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
         // TODO: uncomment the following line if the finalizer is overridden above.
         // GC.SuppressFinalize(this);
     }
 
-    #endregion
+#endregion
 }

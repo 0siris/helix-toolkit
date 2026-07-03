@@ -7,18 +7,14 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams
-        {
-            #region Default Mesh
+        public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
+        #region Default Mesh
 
-            private static readonly Vector3Collection BoxPositions = new()
-            {
+            private static readonly Vector3Collection BoxPositions = new() {
                 new Vector3(-10.0f, 10.0f, -10.0f),
                 new Vector3(-10.0f, -10.0f, -10.0f),
                 new Vector3(10.0f, -10.0f, -10.0f),
@@ -62,13 +58,12 @@ namespace HelixToolkit.SharpDX.Core
                 new Vector3(10.0f, -10.0f, 10.0f)
             };
 
-            #endregion
+        #endregion
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="SkyBoxRenderCore" /> class.
             /// </summary>
-            public SkyBoxRenderCore()
-            {
+            public SkyBoxRenderCore() {
                 RasterDescription = DefaultRasterDescriptions.RSSkybox;
             }
 
@@ -77,10 +72,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="technique">The technique.</param>
             /// <returns></returns>
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
-                if (base.OnAttach(technique))
-                {
+            protected override bool OnAttach(IRenderTechnique technique) {
+                if (base.OnAttach(technique)) {
                     DefaultShaderPass = technique[DefaultPassNames.Default];
                     OnDefaultPassChanged(DefaultShaderPass);
                     skyBuffer = new SkyBoxBufferModel();
@@ -95,13 +88,11 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            private void UpdateTexture()
-            {
+            private void UpdateTexture() {
                 MipMapLevels = 0;
                 RemoveAndDispose(ref cubeTextureRes);
 
-                if (cubeTexture != null)
-                {
+                if (cubeTexture != null) {
                     cubeTextureRes = new ShaderResourceViewProxy(Device);
                     cubeTextureRes.CreateView(cubeTexture);
                     if (cubeTextureRes.TextureView != null && cubeTextureRes.TextureView.Description.Dimension ==
@@ -110,8 +101,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 MipMapLevels = 0;
                 GeometryBuffer = null;
                 RemoveAndDispose(ref skyBuffer);
@@ -124,8 +114,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [default pass changed].
             /// </summary>
             /// <param name="pass">The pass.</param>
-            protected void OnDefaultPassChanged(ShaderPass pass)
-            {
+            protected void OnDefaultPassChanged(ShaderPass pass) {
                 cubeTextureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
                 textureSamplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderCubeTextureSamplerName);
             }
@@ -135,10 +124,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext)
-            {
-                if (context.Camera.CreateLeftHandSystem && RasterDescription.IsFrontCounterClockwise)
-                {
+            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
+                if (context.Camera.CreateLeftHandSystem && RasterDescription.IsFrontCounterClockwise) {
                     var desc = RasterDescription;
                     desc.IsFrontCounterClockwise = false;
                     RasterDescription = desc;
@@ -161,31 +148,30 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected sealed override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
-            }
+            protected sealed override void OnRenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) { }
 
             /// <summary>
             /// </summary>
-            private sealed class SkyBoxBufferModel : PointGeometryBufferModel<Vector3>
-            {
-                public SkyBoxBufferModel() : base(SilkMath.Vector3SizeInBytes)
-                {
+            private sealed class SkyBoxBufferModel : PointGeometryBufferModel<Vector3> {
+                public SkyBoxBufferModel() : base(SilkMath.Vector3SizeInBytes) {
                     Topology = PrimitiveTopology.TriangleList;
                 }
 
-                protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                    int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
-                {
+                protected override void OnCreateVertexBuffer(
+                    DeviceContextProxy context,
+                    IElementsBufferProxy buffer,
+                    int bufferIndex,
+                    Geometry3D geometry,
+                    IDeviceResources deviceResources
+                ) {
                     // -- set geometry if given
                     if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
                         buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
@@ -194,7 +180,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            #region Variables
+        #region Variables
 
             private ShaderResourceViewProxy cubeTextureRes;
             private int cubeTextureSlot;
@@ -203,9 +189,9 @@ namespace HelixToolkit.SharpDX.Core
             private ShaderPass DefaultShaderPass;
             private SkyBoxBufferModel skyBuffer;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             private TextureModel cubeTexture;
 
@@ -215,11 +201,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The cube texture.
             /// </value>
-            public TextureModel CubeTexture
-            {
+            public TextureModel CubeTexture {
                 get => cubeTexture;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref cubeTexture, value) && IsAttached) UpdateTexture();
                 }
             }
@@ -240,13 +224,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The sampler description.
             /// </value>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
-                set
-                {
-                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
-                    {
+                set {
+                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached) {
                         var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
                         RemoveAndDispose(ref textureSampler);
                         textureSampler = newSampler;
@@ -275,7 +256,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public bool SkipRendering { get; set; }
 
-            #endregion
+        #endregion
         }
     }
 }

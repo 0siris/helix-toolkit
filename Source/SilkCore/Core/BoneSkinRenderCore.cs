@@ -7,12 +7,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class BoneSkinRenderCore : MeshRenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class BoneSkinRenderCore : MeshRenderCore {
             private readonly BoneUploaderCore internalBoneBuffer = new();
             private readonly MorphTargetUploaderCore internalMTBuffer = new();
 
@@ -28,36 +25,29 @@ namespace HelixToolkit.SharpDX.Core
 
             private BoneUploaderCore sharedBoneBuffer;
 
-            public BoneSkinRenderCore()
-            {
+            public BoneSkinRenderCore() {
                 NeedUpdate = true;
                 internalBoneBuffer.BoneChanged += OnBoneChanged;
             }
 
-            public Matrix[] BoneMatrices
-            {
+            public Matrix[] BoneMatrices {
                 get => internalBoneBuffer.BoneMatrices;
                 set => internalBoneBuffer.BoneMatrices = value;
             }
 
-            public float[] MorphTargetWeights
-            {
+            public float[] MorphTargetWeights {
                 get => internalMTBuffer.MorphTargetWeights;
-                set
-                {
+                set {
                     internalMTBuffer.MorphTargetWeights = value;
                     mtChanged = true;
                 }
             }
 
-            public BoneUploaderCore SharedBoneBuffer
-            {
+            public BoneUploaderCore SharedBoneBuffer {
                 get => sharedBoneBuffer;
-                set
-                {
+                set {
                     var old = sharedBoneBuffer;
-                    if (Set(ref sharedBoneBuffer, value))
-                    {
+                    if (Set(ref sharedBoneBuffer, value)) {
                         if (old != null) old.BoneChanged -= OnBoneChanged;
                         if (value != null) value.BoneChanged += OnBoneChanged;
                         matricsChanged = true;
@@ -65,20 +55,18 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
-                if (base.OnAttach(technique))
-                {
+            protected override bool OnAttach(IRenderTechnique technique) {
+                if (base.OnAttach(technique)) {
                     matricsChanged = true;
                     preComputeBoneSkinPass = technique[DefaultPassNames.PreComputeMeshBoneSkinned];
                     boneSkinSBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                        .GetMapping(DefaultBufferNames.BoneSkinSB).Slot;
+                                                           .GetMapping(DefaultBufferNames.BoneSkinSB).Slot;
                     mtWeightsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                        .GetMapping(DefaultBufferNames.MTWeightsB).Slot;
+                                                           .GetMapping(DefaultBufferNames.MTWeightsB).Slot;
                     mtDeltasBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                        .GetMapping(DefaultBufferNames.MTDeltasB).Slot;
+                                                          .GetMapping(DefaultBufferNames.MTDeltasB).Slot;
                     mtOffsetsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                        .GetMapping(DefaultBufferNames.MTOffsetsB).Slot;
+                                                           .GetMapping(DefaultBufferNames.MTOffsetsB).Slot;
                     internalBoneBuffer.Attach(technique);
                     internalMTBuffer.Attach(technique);
                     return true;
@@ -87,20 +75,17 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            private void OnBoneChanged(object sender, EventArgs e)
-            {
+            private void OnBoneChanged(object sender, EventArgs e) {
                 matricsChanged = true;
                 RaiseInvalidateRender();
             }
 
-            protected override void OnGeometryBufferChanged(IAttachableBufferModel buffer)
-            {
+            protected override void OnGeometryBufferChanged(IAttachableBufferModel buffer) {
                 base.OnGeometryBufferChanged(buffer);
                 preComputeBoneBuffer = buffer as IBoneSkinPreComputehBufferModel;
             }
 
-            protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
                 //Skip if not ready
                 if (preComputeBoneSkinPass.IsNULL || preComputeBoneBuffer == null ||
                     !preComputeBoneBuffer.CanPreCompute)
@@ -112,12 +97,9 @@ namespace HelixToolkit.SharpDX.Core
 
                 var boneBuffer = sharedBoneBuffer ?? internalBoneBuffer;
 
-                if (boneBuffer.BoneMatrices.Length == 0 && !mtChanged)
-                {
+                if (boneBuffer.BoneMatrices.Length == 0 && !mtChanged) {
                     preComputeBoneBuffer.ResetSkinnedVertexBuffer(deviceContext);
-                }
-                else
-                {
+                } else {
                     GeometryBuffer.UpdateBuffers(deviceContext, EffectTechnique.EffectsManager);
                     preComputeBoneBuffer.BindSkinnedVertexBufferToOutput(deviceContext);
                     boneBuffer.Update(context, deviceContext);
@@ -132,37 +114,31 @@ namespace HelixToolkit.SharpDX.Core
                 matricsChanged = false;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 preComputeBoneBuffer = null;
                 internalBoneBuffer.Detach();
                 internalMTBuffer.Detach();
                 base.OnDetach();
             }
 
-            public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array)
-            {
+            public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array) {
                 return preComputeBoneBuffer.CopySkinnedToArray(context, array);
             }
 
-            public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch)
-            {
+            public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch) {
                 return internalMTBuffer.InitializeMorphTargets(targets, pitch);
             }
 
-            public void SetWeight(int i, float w)
-            {
+            public void SetWeight(int i, float w) {
                 mtChanged = true;
                 internalMTBuffer.SetWeight(i, w);
             }
 
-            public void InvalidateBoneMatrices()
-            {
+            public void InvalidateBoneMatrices() {
                 matricsChanged = true;
             }
 
-            public void InvalidateMorphTargetWeights()
-            {
+            public void InvalidateMorphTargetWeights() {
                 mtChanged = true;
                 internalMTBuffer.InvalidateWeight();
             }

@@ -7,23 +7,19 @@ using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class VectorExtensions
-{
+public static class VectorExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ToVector3(this Vector2 vector, float z = 1.0f)
-    {
+    public static Vector3 ToVector3(this Vector2 vector, float z = 1.0f) {
         return new Vector3(vector.X, vector.Y, z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ToVector3(this Vector4 vector)
-    {
+    public static Vector3 ToVector3(this Vector4 vector) {
         return new Vector3(vector.X / vector.W, vector.Y / vector.W, vector.Z / vector.W);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ToXYZ(this Vector4 vector)
-    {
+    public static Vector3 ToXYZ(this Vector4 vector) {
         return new Vector3(vector.X, vector.Y, vector.Z);
     }
 
@@ -33,8 +29,7 @@ public static class VectorExtensions
     /// <param name="vector1">The vector1.</param>
     /// <param name="vector2">The vector2.</param>
     /// <returns></returns>
-    public static float AngleBetween(this Vector3 vector1, Vector3 vector2)
-    {
+    public static float AngleBetween(this Vector3 vector1, Vector3 vector2) {
         vector1 = vector1.Normalized();
         vector2 = vector2.Normalized();
         var ratio = SilkMath.Dot(vector1, vector2);
@@ -48,20 +43,17 @@ public static class VectorExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector4 ToVector4(this Vector3 vector, float w = 1f)
-    {
+    public static Vector4 ToVector4(this Vector3 vector, float w = 1f) {
         return new Vector4(vector.X, vector.Y, vector.Z, w);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color4 ToColor4(this Vector4 vector, float w = 1f)
-    {
+    public static Color4 ToColor4(this Vector4 vector, float w = 1f) {
         return new Color4(vector.X, vector.Y, vector.Z, vector.W);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color4 ToColor4(this Vector3 vector, float w = 1f)
-    {
+    public static Color4 ToColor4(this Vector3 vector, float w = 1f) {
         return new Color4(vector.X, vector.Y, vector.Z, w);
     }
 
@@ -74,21 +66,18 @@ public static class VectorExtensions
 #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color4 ToColor4(this Vector2 vector, float z = 1f, float w = 1f)
-    {
+    public static Color4 ToColor4(this Vector2 vector, float z = 1f, float w = 1f) {
         return new Color4(vector.X, vector.Y, z, w);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Normalized(this Vector3 vector)
-    {
+    public static Vector3 Normalized(this Vector3 vector) {
         var length = vector.Length;
         return length > 0 ? vector / length : vector;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector4 Normalized(this Vector4 vector)
-    {
+    public static Vector4 Normalized(this Vector4 vector) {
         var length = vector.Length;
         return length > 0 ? vector / length : vector;
     }
@@ -102,8 +91,7 @@ public static class VectorExtensions
         }
 #endif
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix Inverted(this Matrix m)
-    {
+    public static Matrix Inverted(this Matrix m) {
         m.Invert();
         return m;
     }
@@ -118,8 +106,7 @@ public static class VectorExtensions
     ///     A perpendicular vector.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 FindAnyPerpendicular(this Vector3 n)
-    {
+    public static Vector3 FindAnyPerpendicular(this Vector3 n) {
         n = n.Normalized();
         var u = SilkMath.Cross(new Vector3(0, 1, 0), n);
         if (u.LengthSquared < 1e-3) u = SilkMath.Cross(new Vector3(1, 0, 0), n);
@@ -135,22 +122,19 @@ public static class VectorExtensions
     ///     <c>true</c> if the specified vector is undefined; otherwise, <c>false</c>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsUndefined(this Vector3 v)
-    {
+    public static bool IsUndefined(this Vector3 v) {
         return float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z);
     }
 }
 
-public static class VectorComparisonExtensions
-{
+public static class VectorComparisonExtensions {
     /// <summary>
     ///     Returns whether ALL elements of this are SmallerOrEqual the corresponding element of v.
     ///     ATTENTION: For example (a.AllSmaller(b)) is not the same as !(a.AllGreaterOrEqual(b)) but
     ///     !(a.AnyGreaterOrEqual(b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmallerOrEqual(this Vector2 v1, Vector2 v2)
-    {
+    public static bool AllSmallerOrEqual(this Vector2 v1, Vector2 v2) {
         return v1.X <= v2.X && v1.Y <= v2.Y;
     }
 
@@ -160,8 +144,7 @@ public static class VectorComparisonExtensions
     ///     !(a.AnyGreaterOrEqual(b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmallerOrEqual(this Vector3 v1, Vector3 v2)
-    {
+    public static bool AllSmallerOrEqual(this Vector3 v1, Vector3 v2) {
         return v1.X <= v2.X && v1.Y <= v2.Y && v1.Z <= v2.Z;
     }
 
@@ -171,8 +154,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmallerOrEqual(this Vector3 v, float s)
-    {
+    public static bool AllSmallerOrEqual(this Vector3 v, float s) {
         return v.X <= s && v.Y <= s && v.Z <= s;
     }
 
@@ -182,8 +164,7 @@ public static class VectorComparisonExtensions
     ///     !(a.AnyGreaterOrEqual(b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmaller(this Vector2 v1, Vector2 v2)
-    {
+    public static bool AllSmaller(this Vector2 v1, Vector2 v2) {
         return v1.X < v2.X && v1.Y < v2.Y;
     }
 
@@ -193,8 +174,7 @@ public static class VectorComparisonExtensions
     ///     !(a.AnyGreaterOrEqual(b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmaller(this Vector3 v1, Vector3 v2)
-    {
+    public static bool AllSmaller(this Vector3 v1, Vector3 v2) {
         return v1.X < v2.X && v1.Y < v2.Y && v1.Z < v2.Z;
     }
 
@@ -204,8 +184,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllSmaller(this Vector3 v, float s)
-    {
+    public static bool AllSmaller(this Vector3 v, float s) {
         return v.X < s && v.Y < s && v.Z < s;
     }
 
@@ -215,8 +194,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AnySmallerOrEqual(this Vector3 a, Vector3 b)
-    {
+    public static bool AnySmallerOrEqual(this Vector3 a, Vector3 b) {
         return a.X <= b.X || a.Y <= b.Y || a.Z <= b.Z;
     }
 
@@ -226,8 +204,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AnySmallerOrEqual(this Vector3 v, float s)
-    {
+    public static bool AnySmallerOrEqual(this Vector3 v, float s) {
         return v.X <= s || v.Y <= s || v.Z <= s;
     }
 
@@ -237,8 +214,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllGreaterOrEqual(this Vector3 a, Vector3 b)
-    {
+    public static bool AllGreaterOrEqual(this Vector3 a, Vector3 b) {
         return a.X >= b.X && a.Y >= b.Y && a.Z >= b.Z;
     }
 
@@ -248,8 +224,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AllGreaterOrEqual(this Vector3 v, float s)
-    {
+    public static bool AllGreaterOrEqual(this Vector3 v, float s) {
         return v.X >= s && v.Y >= s && v.Z >= s;
     }
 
@@ -259,8 +234,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AnyGreaterOrEqual(this Vector3 a, Vector3 b)
-    {
+    public static bool AnyGreaterOrEqual(this Vector3 a, Vector3 b) {
         return a.X >= b.X || a.Y >= b.Y || a.Z >= b.Z;
     }
 
@@ -270,8 +244,7 @@ public static class VectorComparisonExtensions
     ///     !(AnyGreaterOrEqual(a,b)).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool AnyGreaterOrEqual(this Vector3 v, float s)
-    {
+    public static bool AnyGreaterOrEqual(this Vector3 v, float s) {
         return v.X >= s || v.Y >= s || v.Z >= s;
     }
 
@@ -279,8 +252,7 @@ public static class VectorComparisonExtensions
     ///     Component-wise min vec
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ComponentMin(this Vector3 a, Vector3 b)
-    {
+    public static Vector3 ComponentMin(this Vector3 a, Vector3 b) {
         return new Vector3(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
     }
 
@@ -288,8 +260,7 @@ public static class VectorComparisonExtensions
     ///     Component-wise max vec
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ComponentMax(this Vector3 a, Vector3 b)
-    {
+    public static Vector3 ComponentMax(this Vector3 a, Vector3 b) {
         return new Vector3(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
     }
 
@@ -299,8 +270,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToVector2(this Size2F s)
-    {
+    public static Vector2 ToVector2(this Size2F s) {
         return new Vector2(s.Width, s.Height);
     }
 
@@ -310,8 +280,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToVector2(this Size2 s)
-    {
+    public static Vector2 ToVector2(this Size2 s) {
         return new Vector2(s.Width, s.Height);
     }
 
@@ -321,8 +290,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2F ToSize2F(this Vector2 s)
-    {
+    public static Size2F ToSize2F(this Vector2 s) {
         return new Size2F(s.X, s.Y);
     }
 
@@ -332,8 +300,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2 ToSize2(this Vector2 s)
-    {
+    public static Size2 ToSize2(this Vector2 s) {
         return new Size2((int) s.X, (int) s.Y);
     }
 
@@ -343,8 +310,7 @@ public static class VectorComparisonExtensions
     /// <param name="v">The v.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static RectangleF ToRectangleF(this Vector2 v)
-    {
+    public static RectangleF ToRectangleF(this Vector2 v) {
         return new RectangleF(0, 0, v.X, v.Y);
     }
 
@@ -354,8 +320,7 @@ public static class VectorComparisonExtensions
     /// <param name="v">The v.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Rectangle ToRectangle(this Vector2 v)
-    {
+    public static Rectangle ToRectangle(this Vector2 v) {
         return new Rectangle(0, 0, (int) v.X, (int) v.Y);
     }
 
@@ -365,8 +330,7 @@ public static class VectorComparisonExtensions
     /// <param name="v">The v.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToVector2(this RectangleF v)
-    {
+    public static Vector2 ToVector2(this RectangleF v) {
         return new Vector2(v.Width, v.Height);
     }
 
@@ -376,8 +340,7 @@ public static class VectorComparisonExtensions
     /// <param name="v">The v.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToRectangle(this Rectangle v)
-    {
+    public static Vector2 ToRectangle(this Rectangle v) {
         return new Vector2(v.Width, v.Height);
     }
 
@@ -387,8 +350,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2F ToSizeF(this Size2 s)
-    {
+    public static Size2F ToSizeF(this Size2 s) {
         return new Size2F(s.Width, s.Height);
     }
 
@@ -398,8 +360,7 @@ public static class VectorComparisonExtensions
     /// <param name="s">The s.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Size2 ToSize2(this Size2F s)
-    {
+    public static Size2 ToSize2(this Size2F s) {
         return new Size2((int) s.Width, (int) s.Height);
     }
 
@@ -410,14 +371,13 @@ public static class VectorComparisonExtensions
     /// <param name="plane">The plane.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, ref Plane plane)
-    {
+    public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, ref Plane plane) {
         var normal = plane.Normal * (plane.D >= 0 ? 1 : -1);
         var v1 = new Vector4(normal, Math.Abs(plane.D));
         var v2 = new Vector4(point, 1);
         var ret = SilkMath.Dot(v1, v2);
         return ret > 0 ? PlaneIntersectionType.Front :
-            ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
+               ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
     }
 
     /// <summary>
@@ -427,12 +387,11 @@ public static class VectorComparisonExtensions
     /// <param name="plane">The plane.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, Plane plane)
-    {
+    public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, Plane plane) {
         var v1 = new Vector4(plane.Normal * (plane.D > 0 ? 1 : -1), Math.Abs(plane.D));
         var v2 = new Vector4(point, 1);
         var ret = SilkMath.Dot(v1, v2);
         return ret > 0 ? PlaneIntersectionType.Front :
-            ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
+               ret == 0 ? PlaneIntersectionType.Intersecting : PlaneIntersectionType.Back;
     }
 }

@@ -3,14 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public class OverlayNode2D : PanelNode2D
-        {
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public class OverlayNode2D : PanelNode2D {
+            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
                 hitResult = null;
                 if (LayoutBoundWithTransform.Contains(mousePoint))
                     foreach (var item in Items.Reverse())
@@ -20,8 +16,7 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override Size2F MeasureOverride(Size2F availableSize)
-            {
+            protected override Size2F MeasureOverride(Size2F availableSize) {
                 foreach (var item in Items)
                     if (item is SceneNode2D e)
                         e.Measure(availableSize);

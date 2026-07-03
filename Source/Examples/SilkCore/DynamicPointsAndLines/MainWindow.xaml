@@ -5,53 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DynamicPointsAndLines"
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
-        Title="DynamicPointsAndLines" 
+        Title="DynamicPointsAndLines"
         Width="640"
         Height="480"
         d:DataContext="{d:DesignInstance local:MainViewModel}"
-        mc:Ignorable="d"
->
+        mc:Ignorable="d">
     <DockPanel>
         <DockPanel DockPanel.Dock="Bottom">
             <StatusBar VerticalAlignment="Bottom">
-            <StatusBar.Background>
-                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
-            </StatusBar.Background>
-            <StatusBarItem>
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}" />
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
-            </StatusBarItem>
-        </StatusBar>
+                <StatusBar.Background>
+                    <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
+                </StatusBar.Background>
+                <StatusBarItem>
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                </StatusBarItem>
+                <Separator />
+                <StatusBarItem>
+                    <TextBlock Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}" />
+                </StatusBarItem>
+                <Separator />
+                <StatusBarItem>
+                    <TextBlock Text="{Binding Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
+                </StatusBarItem>
+                <Separator />
+                <StatusBarItem>
+                    <TextBlock Text="{Binding Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
+                </StatusBarItem>
+                <Separator />
+                <StatusBarItem>
+                    <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                </StatusBarItem>
+            </StatusBar>
         </DockPanel>
         <DockPanel DockPanel.Dock="Bottom">
             <TextBlock Width="80" Margin="2"
                        DockPanel.Dock="Left"
                        Text="{Binding NumberOfPoints, StringFormat='N = {0}'}"
-                       TextAlignment="Center"
-            />
+                       TextAlignment="Center" />
             <Slider Margin="2" LargeChange="100"
                     Maximum="10000" Minimum="75"
                     SmallChange="1"
-                    Value="{Binding NumberOfPoints}"
-            />
+                    Value="{Binding NumberOfPoints}" />
         </DockPanel>
         <hx:Viewport3DX
             x:Name="view1"
@@ -76,7 +73,8 @@
                 <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
             </hx:Viewport3DX.InputBindings>
             <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}" Color="{Binding DirectionalLightColor}" />
+            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+                                   Color="{Binding DirectionalLightColor}" />
 
             <hx:LineGeometryModel3D
                 Geometry="{Binding Lines}"
@@ -85,7 +83,7 @@
                 IsRendering="True"
                 Smoothness="1.0"
                 Thickness="1.0"
-                Color="Green"  />
+                Color="Green" />
 
             <hx:LineGeometryModel3D
                 Geometry="{Binding Lines}"
@@ -94,15 +92,15 @@
                 IsRendering="True"
                 Smoothness="1.0"
                 Thickness="0.2"
-                Color="Blue"  />
+                Color="Blue" />
 
-            <hx:PointGeometryModel3D 
+            <hx:PointGeometryModel3D
                 Geometry="{Binding Points}"
                 Transform="{Binding Points1Transform}"
                 IsRendering="True"
                 FixedSize="True"
-                Size="5.5, 1.5" 
-                Color="Red"  />
+                Size="5.5, 1.5"
+                Color="Red" />
 
         </hx:Viewport3DX>
     </DockPanel>

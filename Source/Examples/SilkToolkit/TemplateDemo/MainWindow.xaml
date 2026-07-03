@@ -5,19 +5,22 @@
         Title="Template demo" Height="350" Width="525">
     <Window.Resources>
         <DataTemplate x:Key="Template1">
-            <hx:MeshGeometryModel3D Geometry="{Binding Geometry}" Transform="{Binding Transform}" Material="{Binding Material}"/>
+            <hx:MeshGeometryModel3D Geometry="{Binding Geometry}" Transform="{Binding Transform}"
+                                    Material="{Binding Material}" />
         </DataTemplate>
     </Window.Resources>
     <Grid x:Name="grid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX DataContext="{Binding SelectedViewModel}" EffectsManager="{Binding ElementName=grid, Path = DataContext.EffectsManager}">
+        <hx:Viewport3DX DataContext="{Binding SelectedViewModel}"
+                        EffectsManager="{Binding ElementName=grid, Path = DataContext.EffectsManager}">
             <hx:AmbientLight3D />
-            <hx:DirectionalLight3D Direction = "-2,-5,-2"/>
-            <hx:ItemsModel3D ItemTemplate="{StaticResource Template1}" ItemsSource="{Binding Items}"/>
+            <hx:DirectionalLight3D Direction="-2,-5,-2" />
+            <hx:ItemsModel3D ItemTemplate="{StaticResource Template1}" ItemsSource="{Binding Items}" />
         </hx:Viewport3DX>
-        <ListBox Grid.Column="1" Width="60" ItemsSource="{Binding ViewModels}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedViewModel}"/>
+        <ListBox Grid.Column="1" Width="60" ItemsSource="{Binding ViewModels}" DisplayMemberPath="Name"
+                 SelectedItem="{Binding SelectedViewModel}" />
     </Grid>
 </Window>

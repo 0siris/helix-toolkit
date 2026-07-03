@@ -6,8 +6,7 @@
 #include"psBillboardText.hlsl"
 #include"psCommon.hlsl"
 
-PSOITOutput billboardTextOIT(PSInputBT input)
-{
+PSOITOutput billboardTextOIT(PSInputBT input) {
     float4 color = main(input);
     return calculateOIT(color, input.vEye.w, input.p.z);
 }

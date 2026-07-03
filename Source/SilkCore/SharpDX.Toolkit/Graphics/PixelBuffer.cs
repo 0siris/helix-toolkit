@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     An unmanaged buffer of pixels.
 /// </summary>
-public sealed class PixelBuffer
-{
+public sealed class PixelBuffer {
     /// <summary>
     ///     True when RowStride == sizeof(pixelformat) * width
     /// </summary>
@@ -26,8 +25,7 @@ public sealed class PixelBuffer
     /// <param name="rowStride">The row pitch.</param>
     /// <param name="bufferStride">The slice pitch.</param>
     /// <param name="dataPointer">The pixels.</param>
-    public PixelBuffer(int width, int height, Format format, int rowStride, int bufferStride, nint dataPointer)
-    {
+    public PixelBuffer(int width, int height, Format format, int rowStride, int bufferStride, nint dataPointer) {
         if (dataPointer == nint.Zero)
             throw new ArgumentException("Pointer cannot be equal to IntPtr.Zero", "dataPointer");
 
@@ -57,14 +55,14 @@ public sealed class PixelBuffer
     ///     Gets the format (this value can be changed)
     /// </summary>
     /// <value>The format.</value>
-    public Format Format
-    {
+    public Format Format {
         get => format;
-        set
-        {
+        set {
             if (PixelSize != FormatHelper.SizeOfInBytes(value))
                 throw new ArgumentException(string.Format(
-                    "Format [{0}] doesn't have same pixel size in bytes than current format [{1}]", value, format));
+                                                "Format [{0}] doesn't have same pixel size in bytes than current format [{1}]",
+                                                value,
+                                                format));
             format = value;
         }
     }
@@ -101,29 +99,24 @@ public sealed class PixelBuffer
     ///     The destination pixel buffer must have exactly the same dimensions (width, height) and format than this instance.
     ///     Destination buffer can have different row stride.
     /// </remarks>
-    public unsafe void CopyTo(PixelBuffer pixelBuffer)
-    {
+    public unsafe void CopyTo(PixelBuffer pixelBuffer) {
         // Check that buffers are identical
         if (Width != pixelBuffer.Width
             || Height != pixelBuffer.Height
             || PixelSize != FormatHelper.SizeOfInBytes(pixelBuffer.Format))
             throw new ArgumentException("Invalid destination pixelBufferArray. Mush have same Width, Height and Format",
-                "pixelBuffer");
+                                        "pixelBuffer");
 
         // If buffers have same size, than we can copy it directly
-        if (BufferStride == pixelBuffer.BufferStride)
-        {
+        if (BufferStride == pixelBuffer.BufferStride) {
             Utilities.CopyMemory(pixelBuffer.DataPointer, DataPointer, BufferStride);
-        }
-        else
-        {
+        } else {
             var srcPointer = (byte*) DataPointer;
             var dstPointer = (byte*) pixelBuffer.DataPointer;
             var rowStride = Math.Min(RowStride, pixelBuffer.RowStride);
 
             // Copy per scanline
-            for (var i = 0; i < Height; i++)
-            {
+            for (var i = 0; i < Height; i++) {
                 Utilities.CopyMemory(new nint(dstPointer), new nint(srcPointer), rowStride);
                 srcPointer += RowStride;
                 dstPointer += pixelBuffer.RowStride;
@@ -141,8 +134,7 @@ public sealed class PixelBuffer
     /// <remarks>
     ///     Caution, this method doesn't check bounding.
     /// </remarks>
-    public unsafe T GetPixel<T>(int x, int y) where T : unmanaged
-    {
+    public unsafe T GetPixel<T>(int x, int y) where T : unmanaged {
         return Utilities.Read<T>(new nint((byte*) DataPointer + RowStride * y + x * PixelSize));
     }
 
@@ -156,8 +148,7 @@ public sealed class PixelBuffer
     /// <remarks>
     ///     Caution, this method doesn't check bounding.
     /// </remarks>
-    public unsafe void SetPixel<T>(int x, int y, T value) where T : unmanaged
-    {
+    public unsafe void SetPixel<T>(int x, int y, T value) where T : unmanaged {
         Utilities.Write(new nint((byte*) DataPointer + RowStride * y + x * PixelSize), ref value);
     }
 
@@ -172,8 +163,7 @@ public sealed class PixelBuffer
     ///     This method is working on a row basis. The <paramref name="yOffset" /> is specifying the first row to get
     ///     the pixels from.
     /// </remarks>
-    public T[] GetPixels<T>(int yOffset = 0) where T : unmanaged
-    {
+    public T[] GetPixels<T>(int yOffset = 0) where T : unmanaged {
         var sizeOfOutputPixel = Utilities.SizeOf<T>();
         var totalSize = Width * Height * PixelSize;
         if (totalSize % sizeOfOutputPixel != 0)
@@ -197,8 +187,7 @@ public sealed class PixelBuffer
     ///     This method is working on a row basis. The <paramref name="yOffset" /> is specifying the first row to get
     ///     the pixels from.
     /// </remarks>
-    public void GetPixels<T>(T[] pixels, int yOffset = 0) where T : unmanaged
-    {
+    public void GetPixels<T>(T[] pixels, int yOffset = 0) where T : unmanaged {
         GetPixels(pixels, yOffset, 0, pixels.Length);
     }
 
@@ -215,20 +204,15 @@ public sealed class PixelBuffer
     ///     This method is working on a row basis. The <paramref name="yOffset" /> is specifying the first row to get
     ///     the pixels from.
     /// </remarks>
-    public unsafe void GetPixels<T>(T[] pixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged
-    {
+    public unsafe void GetPixels<T>(T[] pixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged {
         var pixelPointer = (byte*) DataPointer + yOffset * RowStride;
-        if (isStrictRowStride)
-        {
+        if (isStrictRowStride) {
             Utilities.Read(new nint(pixelPointer), pixels, 0, pixelCount);
-        }
-        else
-        {
+        } else {
             var sizeOfOutputPixel = Utilities.SizeOf<T>() * pixelCount;
             var sizePerWidth = sizeOfOutputPixel / Width;
             var remainingPixels = sizeOfOutputPixel % Width;
-            for (var i = 0; i < sizePerWidth; i++)
-            {
+            for (var i = 0; i < sizePerWidth; i++) {
                 Utilities.Read(new nint(pixelPointer), pixels, pixelIndex, Width);
                 pixelPointer += RowStride;
                 pixelIndex += Width;
@@ -249,8 +233,7 @@ public sealed class PixelBuffer
     ///     This method is working on a row basis. The <paramref name="yOffset" /> is specifying the first row to get
     ///     the pixels from.
     /// </remarks>
-    public void SetPixels<T>(T[] sourcePixels, int yOffset = 0) where T : unmanaged
-    {
+    public void SetPixels<T>(T[] sourcePixels, int yOffset = 0) where T : unmanaged {
         SetPixels(sourcePixels, yOffset, 0, sourcePixels.Length);
     }
 
@@ -267,20 +250,15 @@ public sealed class PixelBuffer
     ///     This method is working on a row basis. The <paramref name="yOffset" /> is specifying the first row to get
     ///     the pixels from.
     /// </remarks>
-    public unsafe void SetPixels<T>(T[] sourcePixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged
-    {
+    public unsafe void SetPixels<T>(T[] sourcePixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged {
         var pixelPointer = (byte*) DataPointer + yOffset * RowStride;
-        if (isStrictRowStride)
-        {
+        if (isStrictRowStride) {
             Utilities.Write(new nint(pixelPointer), sourcePixels, 0, pixelCount);
-        }
-        else
-        {
+        } else {
             var sizeOfOutputPixel = Utilities.SizeOf<T>() * pixelCount;
             var sizePerWidth = sizeOfOutputPixel / Width;
             var remainingPixels = sizeOfOutputPixel % Width;
-            for (var i = 0; i < sizePerWidth; i++)
-            {
+            for (var i = 0; i < sizePerWidth; i++) {
                 Utilities.Write(new nint(pixelPointer), sourcePixels, pixelIndex, Width);
                 pixelPointer += RowStride;
                 pixelIndex += Width;

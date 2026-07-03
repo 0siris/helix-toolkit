@@ -5,17 +5,14 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class TreeTraverser
-{
+public static class TreeTraverser {
     /// <summary>
     ///     Traverses up to the root
     /// </summary>
     /// <param name="node">The node.</param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> TraverseUp(this SceneNode node)
-    {
-        while (node != null)
-        {
+    public static IEnumerable<SceneNode> TraverseUp(this SceneNode node) {
+        while (node != null) {
             yield return node;
             node = node.Parent;
         }
@@ -25,8 +22,7 @@ public static class TreeTraverser
     ///     Forces to update transform and bounds.
     /// </summary>
     /// <param name="root">The root.</param>
-    public static void ForceUpdateTransformsAndBounds(this SceneNode root)
-    {
+    public static void ForceUpdateTransformsAndBounds(this SceneNode root) {
         var nodes = Enumerable.Repeat(root, 1);
         foreach (var n in nodes.Traverse()) n.ComputeTransformMatrix();
     }
@@ -35,8 +31,7 @@ public static class TreeTraverser
     ///     Forces the update transform and bounds.
     /// </summary>
     /// <param name="nodes">The nodes.</param>
-    public static void ForceUpdateTransformsAndBounds(this IEnumerable<SceneNode> nodes)
-    {
+    public static void ForceUpdateTransformsAndBounds(this IEnumerable<SceneNode> nodes) {
         foreach (var n in nodes.Traverse()) n.ComputeTransformMatrix();
     }
 
@@ -47,11 +42,13 @@ public static class TreeTraverser
     /// <param name="onlyRendering">if set to <c>true</c> [only rendering].</param>
     /// <param name="stackCache">The stack cache.</param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> Traverse(this SceneNode root, bool onlyRendering = false,
-        Stack<IEnumerator<SceneNode>> stackCache = null)
-    {
+    public static IEnumerable<SceneNode> Traverse(
+        this SceneNode root,
+        bool onlyRendering = false,
+        Stack<IEnumerator<SceneNode>> stackCache = null
+    ) {
         var nodes = Enumerable.Repeat(root, 1);
-        return nodes.PreorderDFT(n => { return onlyRendering ? n.IsRenderable : true; }, stackCache);
+        return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
     }
 
     /// <summary>
@@ -64,10 +61,12 @@ public static class TreeTraverser
     /// </param>
     /// <param name="stackCache">The stack cache.</param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> Traverse(this IEnumerable<SceneNode> nodes, bool onlyRendering = false,
-        Stack<IEnumerator<SceneNode>> stackCache = null)
-    {
-        return nodes.PreorderDFT(n => { return onlyRendering ? n.IsRenderable : true; }, stackCache);
+    public static IEnumerable<SceneNode> Traverse(
+        this IEnumerable<SceneNode> nodes,
+        bool onlyRendering = false,
+        Stack<IEnumerator<SceneNode>> stackCache = null
+    ) {
+        return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
     }
 
     /// <summary>
@@ -77,16 +76,16 @@ public static class TreeTraverser
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> PreorderDFT(this IEnumerable<SceneNode> nodes, Func<SceneNode, bool> condition,
-        Stack<IEnumerator<SceneNode>> stackCache = null)
-    {
+    public static IEnumerable<SceneNode> PreorderDFT(
+        this IEnumerable<SceneNode> nodes,
+        Func<SceneNode, bool> condition,
+        Stack<IEnumerator<SceneNode>> stackCache = null
+    ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode>>(20);
         var e = nodes.GetEnumerator();
 
-        while (true)
-        {
-            while (e.MoveNext())
-            {
+        while (true) {
+            while (e.MoveNext()) {
                 var item = e.Current;
                 if (!condition(item)) continue;
                 yield return item;
@@ -114,19 +113,20 @@ public static class TreeTraverser
     /// <param name="condition">The condition.</param>
     /// <param name="results">The results.</param>
     /// <param name="stackCache">The stack cache.</param>
-    public static void PreorderDFT(this IList<SceneNode> nodes, RenderContext context,
-        Func<SceneNode, RenderContext, bool> condition, IList<KeyValuePair<int, SceneNode>> results,
-        Stack<KeyValuePair<int, IList<SceneNode>>> stackCache = null)
-    {
+    public static void PreorderDFT(
+        this IList<SceneNode> nodes,
+        RenderContext context,
+        Func<SceneNode, RenderContext, bool> condition,
+        IList<KeyValuePair<int, SceneNode>> results,
+        Stack<KeyValuePair<int, IList<SceneNode>>> stackCache = null
+    ) {
         var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode>>>(20);
         var i = -1;
         var level = 0;
         var currNodes = nodes;
-        while (true)
-        {
+        while (true) {
             var length = currNodes.Count;
-            while (++i < length)
-            {
+            while (++i < length) {
                 var item = currNodes[i];
                 if (!condition(item, context)) continue;
                 results.Add(new KeyValuePair<int, SceneNode>(level, item));
@@ -154,17 +154,16 @@ public static class TreeTraverser
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<RenderCore> PreorderDFTGetCores(this IEnumerable<SceneNode> nodes,
+    public static IEnumerable<RenderCore> PreorderDFTGetCores(
+        this IEnumerable<SceneNode> nodes,
         Func<SceneNode, bool> condition,
-        Stack<IEnumerator<SceneNode>> stackCache = null)
-    {
+        Stack<IEnumerator<SceneNode>> stackCache = null
+    ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode>>(20);
         var e = nodes.GetEnumerator();
 
-        while (true)
-        {
-            while (e.MoveNext())
-            {
+        while (true) {
+            while (e.MoveNext()) {
                 var item = e.Current;
                 if (!condition(item)) continue;
                 yield return item.RenderCore;
@@ -190,15 +189,15 @@ public static class TreeTraverser
     /// <param name="nodes">The nodes.</param>
     /// <param name="condition">The condition.</param>
     /// <param name="stackCache">The stack cache.</param>
-    public static void PreorderDFTRun(this IList<SceneNode2D> nodes, Func<SceneNode2D, bool> condition,
-        Stack<KeyValuePair<int, IList<SceneNode2D>>> stackCache = null)
-    {
+    public static void PreorderDFTRun(
+        this IList<SceneNode2D> nodes,
+        Func<SceneNode2D, bool> condition,
+        Stack<KeyValuePair<int, IList<SceneNode2D>>> stackCache = null
+    ) {
         var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode2D>>>(20);
         var i = -1;
-        while (true)
-        {
-            while (++i < nodes.Count)
-            {
+        while (true) {
+            while (++i < nodes.Count) {
                 var item = nodes[i];
                 if (!condition(item)) continue;
                 var elements = item.ItemsInternal;
@@ -222,17 +221,16 @@ public static class TreeTraverser
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<RenderCore2D> PreorderDFTGetCores(this IEnumerable<SceneNode2D> nodes,
+    public static IEnumerable<RenderCore2D> PreorderDFTGetCores(
+        this IEnumerable<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
-        Stack<IEnumerator<SceneNode2D>> stackCache = null)
-    {
+        Stack<IEnumerator<SceneNode2D>> stackCache = null
+    ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode2D>>(20);
         var e = nodes.GetEnumerator();
 
-        while (true)
-        {
-            while (e.MoveNext())
-            {
+        while (true) {
+            while (e.MoveNext()) {
                 var item = e.Current;
                 if (!condition(item)) continue;
                 yield return item.RenderCore;

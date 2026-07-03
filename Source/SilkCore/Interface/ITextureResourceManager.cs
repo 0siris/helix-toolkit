@@ -2,8 +2,7 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-public interface ITextureResourceManager : IDisposable
-{
+public interface ITextureResourceManager : IDisposable {
     int Count { get; }
 
     /// <summary>

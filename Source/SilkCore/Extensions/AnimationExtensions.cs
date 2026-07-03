@@ -7,14 +7,12 @@ using HelixToolkit.SharpDX.Core.Animations;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class AnimationExtensions
-{
-    public static Dictionary<string, IAnimationUpdater> CreateAnimationUpdaters(this IEnumerable<Animation> animations)
-    {
+public static class AnimationExtensions {
+    public static Dictionary<string, IAnimationUpdater>
+        CreateAnimationUpdaters(this IEnumerable<Animation> animations) {
         var dict = new Dictionary<string, IAnimationUpdater>();
         foreach (var ani in animations)
-            switch (ani.AnimationType)
-            {
+            switch (ani.AnimationType) {
                 case AnimationType.Keyframe:
                     if (ani.RootNode is IBoneMatricesNode bNode)
                         AddUpdaterToDict(dict, new KeyFrameUpdater(ani, bNode.Bones));
@@ -39,25 +37,18 @@ public static class AnimationExtensions
         return dict;
     }
 
-    private static void AddUpdaterToDict(Dictionary<string, IAnimationUpdater> dict, IAnimationUpdater updater)
-    {
-        if (dict.TryGetValue(updater.Name, out var existingUpdater))
-        {
-            if (existingUpdater is AnimationGroupUpdater group)
-            {
+    private static void AddUpdaterToDict(Dictionary<string, IAnimationUpdater> dict, IAnimationUpdater updater) {
+        if (dict.TryGetValue(updater.Name, out var existingUpdater)) {
+            if (existingUpdater is AnimationGroupUpdater group) {
                 group.Children.Add(updater);
-            }
-            else
-            {
+            } else {
                 dict.Remove(updater.Name);
                 var newGroup = new AnimationGroupUpdater(updater.Name);
                 newGroup.Children.Add(existingUpdater);
                 newGroup.Children.Add(updater);
                 dict.Add(newGroup.Name, newGroup);
             }
-        }
-        else
-        {
+        } else {
             dict.Add(updater.Name, updater);
         }
     }

@@ -149,7 +149,8 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label>Max Particle Count:</Label>
-                    <TextBlock VerticalAlignment="Center" Text="{Binding ElementName=particleModel, Path=ParticleCount}" />
+                    <TextBlock VerticalAlignment="Center"
+                               Text="{Binding ElementName=particleModel, Path=ParticleCount}" />
                     <Slider
                         VerticalAlignment="Center"
                         LargeChange="100"
@@ -171,7 +172,8 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label>Initial Velocity:</Label>
-                    <TextBlock VerticalAlignment="Center" Text="{Binding ElementName=particleModel, Path=InitialVelocity}" />
+                    <TextBlock VerticalAlignment="Center"
+                               Text="{Binding ElementName=particleModel, Path=InitialVelocity}" />
                     <Slider
                         LargeChange="1"
                         Maximum="10"
@@ -374,27 +376,33 @@
                             <Label>Blend State</Label>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Blend Operation:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOperationArray}" SelectedItem="{Binding ElementName=particleModel, Path=Blend}" />
+                                <ComboBox ItemsSource="{Binding BlendOperationArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=Blend}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Alpha Blend Operation:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOperationArray}" SelectedItem="{Binding ElementName=particleModel, Path=AlphaBlend}" />
+                                <ComboBox ItemsSource="{Binding BlendOperationArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=AlphaBlend}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Source Blend:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOptionArray}" SelectedItem="{Binding ElementName=particleModel, Path=SourceBlend}" />
+                                <ComboBox ItemsSource="{Binding BlendOptionArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=SourceBlend}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Dest Blend:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOptionArray}" SelectedItem="{Binding ElementName=particleModel, Path=DestBlend}" />
+                                <ComboBox ItemsSource="{Binding BlendOptionArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=DestBlend}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Source Alpha Blend:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOptionArray}" SelectedItem="{Binding ElementName=particleModel, Path=SourceAlphaBlend}" />
+                                <ComboBox ItemsSource="{Binding BlendOptionArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=SourceAlphaBlend}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label>Dest Alpha Blend:</Label>
-                                <ComboBox ItemsSource="{Binding BlendOptionArray}" SelectedItem="{Binding ElementName=particleModel, Path=DestAlphaBlend}" />
+                                <ComboBox ItemsSource="{Binding BlendOptionArray}"
+                                          SelectedItem="{Binding ElementName=particleModel, Path=DestAlphaBlend}" />
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">

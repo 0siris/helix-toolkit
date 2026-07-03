@@ -8,34 +8,28 @@ using System.Threading.Tasks;
 using System.Windows;
 using Media = System.Windows.Media;
 
-namespace CustomShaderDemo.Materials
-{
-    public class CustomPointMaterial : PointMaterial
-    {
-         protected override MaterialCore OnCreateCore()
-        {
-            return new CustomPointMaterialCore()
-            {
-                PointColor = Color.ToColor4(),
-                Width = (float)Size.Width,
-                Height = (float)Size.Height,
-                Figure = Figure,
-                FigureRatio = (float)FigureRatio,
-                Name = Name,
-                EnableDistanceFading = EnableDistanceFading,
-                FadingNearDistance = (float)FadingNearDistance,
-                FadingFarDistance = (float)FadingFarDistance
-            };
-        }
+namespace CustomShaderDemo.Materials;
+
+public class CustomPointMaterial : PointMaterial {
+    protected override MaterialCore OnCreateCore() {
+        return new CustomPointMaterialCore() {
+            PointColor = Color.ToColor4(),
+            Width = (float) Size.Width,
+            Height = (float) Size.Height,
+            Figure = Figure,
+            FigureRatio = (float) FigureRatio,
+            Name = Name,
+            EnableDistanceFading = EnableDistanceFading,
+            FadingNearDistance = (float) FadingNearDistance,
+            FadingFarDistance = (float) FadingFarDistance
+        };
+    }
 
 #if !NETFX_CORE
-        protected override Freezable CreateInstanceCore()
-        {
-            return new CustomPointMaterial()
-            {
-                Name = Name
-            };
-        }
-#endif
+    protected override Freezable CreateInstanceCore() {
+        return new CustomPointMaterial() {
+            Name = Name
+        };
     }
+#endif
 }

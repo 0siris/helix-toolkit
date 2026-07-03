@@ -12,107 +12,132 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>
-public class ShadowMap3D : Element3D
-{
+public class ShadowMap3D : Element3D {
     /// <summary>
     ///     The resolution property
     /// </summary>
     public static readonly DependencyProperty ResolutionProperty =
-        DependencyProperty.Register("Resolution", typeof(Size), typeof(ShadowMap3D), new PropertyMetadata(
-            new Size(1024, 1024), (d, e) =>
-            {
-                var resolution = (Size) e.NewValue;
-                ((d as Element3DCore).SceneNode as ShadowMapNode).Resolution =
-                    new Size2((int) resolution.Width, (int) resolution.Height);
-            }));
+        DependencyProperty.Register("Resolution",
+                                    typeof(Size),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(new Size(1024, 1024),
+                                                         (d, e) => {
+                                                             var resolution = (Size) e.NewValue;
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .Resolution =
+                                                                 new Size2((int) resolution.Width,
+                                                                           (int) resolution.Height);
+                                                         }));
 
 
     /// <summary>
     ///     The bias property
     /// </summary>
     public static readonly DependencyProperty BiasProperty =
-        DependencyProperty.Register("Bias", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(0.0015,
-                (d, e) => { ((d as Element3DCore).SceneNode as ShadowMapNode).Bias = (float) (double) e.NewValue; }));
+        DependencyProperty.Register("Bias",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(0.0015,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode).Bias =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The intensity property
     /// </summary>
     public static readonly DependencyProperty IntensityProperty =
-        DependencyProperty.Register("Intensity", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(0.5,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).Intensity = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("Intensity",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(0.5,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .Intensity = (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The light camera property
     /// </summary>
     public static readonly DependencyProperty LightCameraProperty =
-        DependencyProperty.Register("LightCamera", typeof(IProjectionCameraModel), typeof(ShadowMap3D),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).LightCamera =
-                        (e.NewValue as Camera)?.CameraInternal as ProjectionCameraCore;
-                }));
+        DependencyProperty.Register("LightCamera",
+                                    typeof(IProjectionCameraModel),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .LightCamera =
+                                                                 (e.NewValue as Camera)?.CameraInternal as
+                                                                 ProjectionCameraCore;
+                                                         }));
 
     /// <summary>
     ///     The distance property
     /// </summary>
     public static readonly DependencyProperty DistanceProperty =
-        DependencyProperty.Register("Distance", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(200.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).Distance = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("Distance",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(200.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .Distance = (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The ortho width property
     /// </summary>
     public static readonly DependencyProperty OrthoWidthProperty =
-        DependencyProperty.Register("OrthoWidth", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(100.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).OrthoWidth = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("OrthoWidth",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(100.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .OrthoWidth = (float) (double) e.NewValue;
+                                                         }));
 
 
     /// <summary>
     ///     The far field distance property
     /// </summary>
     public static readonly DependencyProperty FarFieldDistanceProperty =
-        DependencyProperty.Register("FarFieldDistance", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(500.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).FarField = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("FarFieldDistance",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(500.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .FarField = (float) (double) e.NewValue;
+                                                         }));
 
 
     /// <summary>
     ///     The near field distance property
     /// </summary>
     public static readonly DependencyProperty NearFieldDistanceProperty =
-        DependencyProperty.Register("NearFieldDistance", typeof(double), typeof(ShadowMap3D),
-            new PropertyMetadata(1.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as ShadowMapNode).NearField = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("NearFieldDistance",
+                                    typeof(double),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(1.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as ShadowMapNode)
+                                                                 .NearField = (float) (double) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty AutoCoverCompleteSceneProperty =
-        DependencyProperty.Register("AutoCoverCompleteScene", typeof(bool), typeof(ShadowMap3D),
-            new PropertyMetadata(false, (d, e) => { }));
+        DependencyProperty.Register("AutoCoverCompleteScene",
+                                    typeof(bool),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(false, (d, e) => { }));
 
 
     // Using a DependencyProperty as the backing store for IsSceneDynamic.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty IsSceneDynamicProperty =
-        DependencyProperty.Register("IsSceneDynamic", typeof(bool), typeof(ShadowMap3D),
-            new PropertyMetadata(false, (d, e) => { }));
+        DependencyProperty.Register("IsSceneDynamic",
+                                    typeof(bool),
+                                    typeof(ShadowMap3D),
+                                    new PropertyMetadata(false, (d, e) => { }));
 
 
     /// <summary>
@@ -121,8 +146,7 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     The distance of the shadow caster
     /// </value>
-    public double Distance
-    {
+    public double Distance {
         get => (double) GetValue(DistanceProperty);
         set => SetValue(DistanceProperty, value);
     }
@@ -133,8 +157,7 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     The width of the orthographic matrix.
     /// </value>
-    public double OrthoWidth
-    {
+    public double OrthoWidth {
         get => (double) GetValue(OrthoWidthProperty);
         set => SetValue(OrthoWidthProperty, value);
     }
@@ -145,24 +168,21 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     The resolution.
     /// </value>
-    public Size Resolution
-    {
+    public Size Resolution {
         get => (Size) GetValue(ResolutionProperty);
         set => SetValue(ResolutionProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public double Bias
-    {
+    public double Bias {
         get => (double) GetValue(BiasProperty);
         set => SetValue(BiasProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public double Intensity
-    {
+    public double Intensity {
         get => (double) GetValue(IntensityProperty);
         set => SetValue(IntensityProperty, value);
     }
@@ -173,8 +193,7 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     The near field distance.
     /// </value>
-    public double NearFieldDistance
-    {
+    public double NearFieldDistance {
         get => (double) GetValue(NearFieldDistanceProperty);
         set => SetValue(NearFieldDistanceProperty, value);
     }
@@ -185,8 +204,7 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     The far field distance.
     /// </value>
-    public double FarFieldDistance
-    {
+    public double FarFieldDistance {
         get => (double) GetValue(FarFieldDistanceProperty);
         set => SetValue(FarFieldDistanceProperty, value);
     }
@@ -194,8 +212,7 @@ public class ShadowMap3D : Element3D
     /// <summary>
     ///     Distance of the directional light from origin
     /// </summary>
-    public IProjectionCameraModel LightCamera
-    {
+    public IProjectionCameraModel LightCamera {
         get => (IProjectionCameraModel) GetValue(LightCameraProperty);
         set => SetValue(LightCameraProperty, value);
     }
@@ -208,8 +225,7 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     <c>true</c> if [automaticcally cover complete scene]; otherwise, <c>false</c>.
     /// </value>
-    public bool AutoCoverCompleteScene
-    {
+    public bool AutoCoverCompleteScene {
         get => (bool) GetValue(AutoCoverCompleteSceneProperty);
         set => SetValue(AutoCoverCompleteSceneProperty, value);
     }
@@ -223,14 +239,12 @@ public class ShadowMap3D : Element3D
     /// <value>
     ///     <c>true</c> if scene is dynamic; otherwise, <c>false</c>.
     /// </value>
-    public bool IsSceneDynamic
-    {
+    public bool IsSceneDynamic {
         get => (bool) GetValue(IsSceneDynamicProperty);
         set => SetValue(IsSceneDynamicProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new ShadowMapNode();
     }
 
@@ -238,10 +252,8 @@ public class ShadowMap3D : Element3D
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="core">The core.</param>
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
-        if (core is ShadowMapNode n)
-        {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
+        if (core is ShadowMapNode n) {
             n.Intensity = (float) Intensity;
             n.Bias = (float) Bias;
             n.Resolution = new Size2((int) Resolution.Width, (int) Resolution.Height);

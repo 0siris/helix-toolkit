@@ -8,15 +8,12 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         ///     General Geometry Buffer Model.
         /// </summary>
-        public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBufferModel
-        {
+        public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBufferModel {
             private static readonly IElementsBufferProxy[] emptyBuffers = new IElementsBufferProxy[0];
             private static readonly VertexBufferBinding[] emptyBinding = new VertexBufferBinding[0];
 
@@ -53,8 +50,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The size of the vertex structure.
             /// </value>
-            public IEnumerable<int> VertexStructSize
-            {
+            public IEnumerable<int> VertexStructSize {
                 get { return VertexBuffer.Select(x => x != null ? x.StructureSize : 0); }
             }
 
@@ -80,11 +76,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The geometry.
             /// </value>
-            public Geometry3D Geometry
-            {
+            public Geometry3D Geometry {
                 get => geometry;
-                set
-                {
+                set {
                     if (geometry == value) return;
                     if (geometry != null) geometry.PropertyChanged -= Geometry_PropertyChanged;
                     geometry = value;
@@ -105,9 +99,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceResources">The device resources.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool AttachBuffers(DeviceContextProxy context, ref int vertexBufferStartSlot,
-                IDeviceResources deviceResources)
-            {
+            public bool AttachBuffers(
+                DeviceContextProxy context,
+                ref int vertexBufferStartSlot,
+                IDeviceResources deviceResources
+            ) {
                 UpdateBuffers(context, deviceResources);
                 return OnAttachBuffer(context, ref vertexBufferStartSlot);
             }
@@ -118,25 +114,21 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="deviceResources">The device resources.</param>
             /// <returns></returns>
-            public virtual bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources)
-            {
+            public virtual bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
                 var bufferUpdated = false;
                 if (VertexChanged != 0)
-                    lock (VertexBuffer)
-                    {
+                    lock (VertexBuffer) {
                         var updateVBinding = false;
                         if (VertexChanged != 0)
                             for (var i = 0; i < VertexBuffer.Length && VertexChanged != 0; ++i)
-                                if ((VertexChanged & (1u << i)) != 0)
-                                {
+                                if ((VertexChanged & (1u << i)) != 0) {
                                     if (VertexBuffer[i] != null)
                                         OnCreateVertexBuffer(context, VertexBuffer[i], i, Geometry, deviceResources);
                                     VertexChanged &= ~(1u << i);
                                     updateVBinding = true;
                                 }
 
-                        if (updateVBinding)
-                        {
+                        if (updateVBinding) {
                             VertexBufferBindings = OnCreateVertexBufferBinding();
                             updateVBinding = false;
                             VertexBufferUpdated?.Invoke(this, EventArgs.Empty);
@@ -145,10 +137,8 @@ namespace HelixToolkit.SharpDX.Core
                     }
 
                 if (IndexChanged && IndexBuffer != null)
-                    lock (IndexBuffer)
-                    {
-                        if (IndexChanged)
-                        {
+                    lock (IndexBuffer) {
+                        if (IndexChanged) {
                             OnCreateIndexBuffer(context, IndexBuffer, Geometry, deviceResources);
                             bufferUpdated = true;
                         }
@@ -170,20 +160,17 @@ namespace HelixToolkit.SharpDX.Core
             public Guid GUID { get; } = Guid.NewGuid();
 
 
-            private void Geometry_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
+            private void Geometry_PropertyChanged(object sender, PropertyChangedEventArgs e) {
                 var vertChanged = false;
                 for (var i = 0; i < VertexBuffer.Length; ++i)
-                    if (IsVertexBufferChanged(e.PropertyName, i))
-                    {
+                    if (IsVertexBufferChanged(e.PropertyName, i)) {
                         VertexChanged |= 1u << i;
                         InvalidateRenderer();
                         vertChanged = true;
                         break;
                     }
 
-                if (!vertChanged && IsIndexBufferChanged(e.PropertyName))
-                {
+                if (!vertChanged && IsIndexBufferChanged(e.PropertyName)) {
                     IndexChanged = true;
                     InvalidateRenderer();
                 }
@@ -192,8 +179,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Invalidates the renderer.
             /// </summary>
-            protected void InvalidateRenderer()
-            {
+            protected void InvalidateRenderer() {
                 EffectsManager?.RaiseInvalidateRender();
             }
 
@@ -205,8 +191,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if [is vertex buffer changed] [the specified property name]; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex)
-            {
+            protected virtual bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex) {
                 return propertyName.Equals(Geometry3D.VertexBuffer) ||
                        propertyName.Equals(nameof(Geometry3D.Positions));
             }
@@ -218,18 +203,16 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if [is index buffer changed] [the specified property name]; otherwise, <c>false</c>.
             /// </returns>
-            protected virtual bool IsIndexBufferChanged(string propertyName)
-            {
+            protected virtual bool IsIndexBufferChanged(string propertyName) {
                 return propertyName.Equals(Geometry3D.TriangleBuffer) ||
                        propertyName.Equals(nameof(Geometry3D.Indices));
             }
 
-            protected virtual VertexBufferBinding[] OnCreateVertexBufferBinding()
-            {
+            protected virtual VertexBufferBinding[] OnCreateVertexBufferBinding() {
                 return VertexBuffer.Select(x =>
-                    x != null
-                        ? new VertexBufferBinding(x.Buffer, x.StructureSize, x.Offset)
-                        : new VertexBufferBinding()).ToArray();
+                                               x != null
+                                                   ? new VertexBufferBinding(x.Buffer, x.StructureSize, x.Offset)
+                                                   : new VertexBufferBinding()).ToArray();
             }
 
             /// <summary>
@@ -240,8 +223,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
             /// <param name="bufferIndex"></param>
-            protected abstract void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources);
+            protected abstract void OnCreateVertexBuffer(
+                DeviceContextProxy context,
+                IElementsBufferProxy buffer,
+                int bufferIndex,
+                Geometry3D geometry,
+                IDeviceResources deviceResources
+            );
 
             /// <summary>
             ///     Called when [create index buffer].
@@ -250,8 +238,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="buffer">The buffer.</param>
             /// <param name="geometry">The geometry.</param>
             /// <param name="deviceResources">The device resources.</param>
-            protected abstract void OnCreateIndexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                Geometry3D geometry, IDeviceResources deviceResources);
+            protected abstract void OnCreateIndexBuffer(
+                DeviceContextProxy context,
+                IElementsBufferProxy buffer,
+                Geometry3D geometry,
+                IDeviceResources deviceResources
+            );
 
             /// <summary>
             ///     Called when [attach buffer].
@@ -262,17 +254,12 @@ namespace HelixToolkit.SharpDX.Core
             ///     binding
             /// </param>
             /// <returns></returns>
-            protected virtual bool OnAttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot)
-            {
-                if (VertexBuffer.Length > 0)
-                {
-                    if (VertexBuffer.Length == VertexBufferBindings.Length)
-                    {
+            protected virtual bool OnAttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot) {
+                if (VertexBuffer.Length > 0) {
+                    if (VertexBuffer.Length == VertexBufferBindings.Length) {
                         context.SetVertexBuffers(vertexBufferStartSlot, VertexBufferBindings);
                         vertexBufferStartSlot += VertexBuffer.Length;
-                    }
-                    else
-                    {
+                    } else {
                         return false;
                     }
                 }
@@ -293,8 +280,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to
             ///     release only unmanaged resources.
             /// </param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 if (geometry != null) geometry.PropertyChanged -= Geometry_PropertyChanged;
                 geometry = null;
                 for (var i = 0; i < VertexBuffer.Length; ++i) RemoveAndDispose(VertexBuffer[i]);
@@ -305,7 +291,7 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Constructors
+        #region Constructors
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="GeometryBufferModel" /> class.
@@ -313,9 +299,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="topology">The topology.</param>
             /// <param name="vertexBuffer">The vertex buffer.</param>
             /// <param name="indexBuffer">The index buffer.</param>
-            protected GeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy vertexBuffer,
-                IElementsBufferProxy indexBuffer)
-            {
+            protected GeometryBufferModel(
+                PrimitiveTopology topology,
+                IElementsBufferProxy vertexBuffer,
+                IElementsBufferProxy indexBuffer
+            ) {
                 Topology = topology;
                 VertexBuffer = vertexBuffer != null ? new[] {vertexBuffer} : emptyBuffers;
                 VertexChanged = 1u;
@@ -328,12 +316,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="topology">The topology.</param>
             /// <param name="vertexBuffer">The vertex buffer.</param>
             /// <param name="indexBuffer">The index buffer.</param>
-            protected GeometryBufferModel(PrimitiveTopology topology, IElementsBufferProxy[] vertexBuffer,
-                IElementsBufferProxy indexBuffer)
-            {
+            protected GeometryBufferModel(
+                PrimitiveTopology topology,
+                IElementsBufferProxy[] vertexBuffer,
+                IElementsBufferProxy indexBuffer
+            ) {
                 Topology = topology;
-                if (vertexBuffer != null)
-                {
+                if (vertexBuffer != null) {
                     for (var i = 0; i < vertexBuffer.Length; ++i) VertexChanged |= 1u << i;
                     VertexBuffer = vertexBuffer;
                 }
@@ -341,7 +330,7 @@ namespace HelixToolkit.SharpDX.Core
                 this.IndexBuffer = indexBuffer;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

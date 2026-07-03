@@ -6,12 +6,9 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public abstract class ParametricSurface3DNode : MeshNode
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public abstract class ParametricSurface3DNode : MeshNode {
             private CancellationTokenSource cancelToken = new();
 
             private bool isTessellating;
@@ -21,69 +18,58 @@ namespace HelixToolkit.SharpDX.Core
             private int meshSizeV = 120;
             private Task tesselationTask;
 
-            public int MeshSizeU
-            {
+            public int MeshSizeU {
                 get => meshSizeU;
-                set
-                {
+                set {
                     if (Set(ref meshSizeU, value)) TessellateAsync();
                 }
             }
 
-            public int MeshSizeV
-            {
+            public int MeshSizeV {
                 get => meshSizeV;
-                set
-                {
+                set {
                     if (Set(ref meshSizeV, value)) TessellateAsync();
                 }
             }
 
-            public bool IsTessellating
-            {
+            public bool IsTessellating {
                 get => isTessellating;
                 private set => Set(ref isTessellating, value);
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
                 cancelToken = new CancellationTokenSource();
                 return base.OnAttach(effectsManager);
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 cancelToken.Cancel(true);
                 RemoveAndDispose(ref cancelToken);
                 base.OnDetach();
             }
 
-            protected void TessellateAsync()
-            {
+            protected void TessellateAsync() {
                 cancelToken.Cancel(true);
                 RemoveAndDispose(ref cancelToken);
                 cancelToken = new CancellationTokenSource();
                 IsTessellating = true;
                 var token = cancelToken.Token;
-                tesselationTask = Task.Run(() =>
-                    {
-                        var mesh = OnTesselatingAsync(token);
-                        mesh.Normals = mesh.CalculateNormals();
-                        mesh?.UpdateOctree();
-                        mesh?.UpdateBounds();
-                        return mesh;
-                    },
-                    token).ContinueWith(result =>
-                {
-                    IsTessellating = false;
-                    if (result.IsCompleted) Geometry = result.Result;
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                tesselationTask = Task.Run(() => {
+                                               var mesh = OnTesselatingAsync(token);
+                                               mesh.Normals = mesh.CalculateNormals();
+                                               mesh?.UpdateOctree();
+                                               mesh?.UpdateBounds();
+                                               return mesh;
+                                           },
+                                           token).ContinueWith(result => {
+                                                                   IsTessellating = false;
+                                                                   if (result.IsCompleted) Geometry = result.Result;
+                                                               },
+                                                               TaskScheduler.FromCurrentSynchronizationContext());
             }
 
-            protected virtual MeshGeometry3D OnTesselatingAsync(CancellationToken token)
-            {
-                var mesh = new MeshGeometry3D
-                {
+            protected virtual MeshGeometry3D OnTesselatingAsync(CancellationToken token) {
+                var mesh = new MeshGeometry3D {
                     Positions = new Vector3Collection(),
                     TextureCoordinates = new Vector2Collection(),
                     Indices = new IntCollection()
@@ -98,12 +84,10 @@ namespace HelixToolkit.SharpDX.Core
 
                 // todo: parallel execution...
                 // Parallel.For(0, n, (i) =>
-                for (var i = 0; i < n && !token.IsCancellationRequested; i++)
-                {
+                for (var i = 0; i < n && !token.IsCancellationRequested; i++) {
                     var u = 1.0 * i / (n - 1);
 
-                    for (var j = 0; j < m; j++)
-                    {
+                    for (var j = 0; j < m; j++) {
                         var v = 1.0 * j / (m - 1);
                         var ij = i * m + j;
                         p[ij] = Evaluate(u, v, out tc[ij]);
@@ -113,16 +97,14 @@ namespace HelixToolkit.SharpDX.Core
                 // );
                 var idx = 0;
                 for (var i = 0; i < n && !token.IsCancellationRequested; i++)
-                for (var j = 0; j < m; j++)
-                {
+                for (var j = 0; j < m; j++) {
                     mesh.Positions.Add(p[idx]);
                     mesh.TextureCoordinates.Add(tc[idx]);
                     idx++;
                 }
 
                 for (var i = 0; i + 1 < n && !token.IsCancellationRequested; i++)
-                for (var j = 0; j + 1 < m; j++)
-                {
+                for (var j = 0; j + 1 < m; j++) {
                     var x0 = i * m;
                     var x1 = (i + 1) * m;
                     var y0 = j;
@@ -149,8 +131,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="i3">
             ///     The i 3.
             /// </param>
-            private static void AddTriangle(MeshGeometry3D mesh, int i1, int i2, int i3)
-            {
+            private static void AddTriangle(MeshGeometry3D mesh, int i1, int i2, int i3) {
                 var p1 = mesh.Positions[i1];
                 if (!IsDefined(p1)) return;
 
@@ -192,8 +173,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     The is defined.
             /// </returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static bool IsDefined(Vector3 point)
-            {
+            private static bool IsDefined(Vector3 point) {
                 return !double.IsNaN(point.X) && !double.IsNaN(point.Y) && !double.IsNaN(point.Z);
             }
         }

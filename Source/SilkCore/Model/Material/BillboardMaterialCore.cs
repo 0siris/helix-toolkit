@@ -6,12 +6,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public sealed class BillboardMaterialCore : MaterialCore, IBillboardRenderParams
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public sealed class BillboardMaterialCore : MaterialCore, IBillboardRenderParams {
             private bool fixedSize = true;
 
             private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
@@ -24,14 +21,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [fixed size]; otherwise, <c>false</c>.
             /// </value>
-            public bool FixedSize
-            {
+            public bool FixedSize {
                 get => fixedSize;
                 set => Set(ref fixedSize, value);
             }
 
-            public BillboardType Type
-            {
+            public BillboardType Type {
                 get => type;
                 set => Set(ref type, value);
             }
@@ -39,15 +34,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Billboard texture sampler description
             /// </summary>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
                 set => Set(ref samplerDescription, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new BillboardMaterialVariable(manager, technique, this);
             }
         }

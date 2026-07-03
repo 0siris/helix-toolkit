@@ -11,8 +11,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Used to hold scene nodes without WPF/UWP dependencies.
 ///     Used for code behind only. Avoid performance penalty from Dependency Properties.
 /// </summary>
-public sealed class SceneNodeGroupModel3D : Element3D
-{
+public sealed class SceneNodeGroupModel3D : Element3D {
     public GroupNode GroupNode { get; } = new();
 
     /// <summary>
@@ -20,8 +19,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     /// </summary>
     /// <param name="node">The node.</param>
     /// <returns>Success or not</returns>
-    public bool AddNode(SceneNode node)
-    {
+    public bool AddNode(SceneNode node) {
         return GroupNode.AddChildNode(node);
     }
 
@@ -32,8 +30,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     /// <param name="node">The node.</param>
     /// <param name="detachChildren">Detach children after being removed.</param>
     /// <returns>Sucess or not</returns>
-    public bool RemoveNode(SceneNode node, bool detachChildren = true)
-    {
+    public bool RemoveNode(SceneNode node, bool detachChildren = true) {
         return GroupNode.RemoveChildNode(node, detachChildren);
     }
 
@@ -43,8 +40,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     /// </summary>
     /// <param name="detachChildren">
     /// </param>
-    public void Clear(bool detachChildren = true)
-    {
+    public void Clear(bool detachChildren = true) {
         GroupNode.Clear(detachChildren);
     }
 
@@ -53,8 +49,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     /// </summary>
     /// <param name="fromIndex">From index.</param>
     /// <param name="toIndex">To index.</param>
-    public void MoveNode(int fromIndex, int toIndex)
-    {
+    public void MoveNode(int fromIndex, int toIndex) {
         GroupNode.MoveChildNode(fromIndex, toIndex);
     }
 
@@ -63,8 +58,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     /// </summary>
     /// <param name="item">The item.</param>
     /// <param name="target">The target.</param>
-    public void TransferNode(SceneNode item, GroupNodeBase target)
-    {
+    public void TransferNode(SceneNode item, GroupNodeBase target) {
         GroupNode.TransferChildNode(item, target);
     }
 
@@ -72,8 +66,7 @@ public sealed class SceneNodeGroupModel3D : Element3D
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return GroupNode;
     }
 }

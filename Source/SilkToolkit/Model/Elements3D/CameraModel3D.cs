@@ -8,11 +8,16 @@ using Color = HelixToolkit.SharpDX.Core.Color;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public class CameraModel3D : CompositeModel3D
-{
+public class CameraModel3D : CompositeModel3D {
     public static readonly DependencyProperty CameraProperty =
-        DependencyProperty.Register("Camera", typeof(ProjectionCamera), typeof(CameraModel3D),
-            new PropertyMetadata(null, (d, e) => { (d as CameraModel3D).camera = e.NewValue as ProjectionCamera; }));
+        DependencyProperty.Register("Camera",
+                                    typeof(ProjectionCamera),
+                                    typeof(CameraModel3D),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             (d as CameraModel3D).camera =
+                                                                 e.NewValue as ProjectionCamera;
+                                                         }));
 
     private ProjectionCamera _camera;
 
@@ -21,8 +26,7 @@ public class CameraModel3D : CompositeModel3D
     protected Viewport3DX viewport;
     protected CameraCore viewportCamera;
 
-    public CameraModel3D()
-    {
+    public CameraModel3D() {
         var b1 = new MeshBuilder();
         b1.AddBox(new Vector3(), 1f, 1f, 1.2f, BoxFaces.All);
         var body = new MeshGeometryModel3D {CullMode = CullMode.Back};
@@ -42,8 +46,7 @@ public class CameraModel3D : CompositeModel3D
         builder.AddLine(Vector3.Zero, new Vector3(0, 0, -2));
 
         var mesh = builder.ToLineGeometry3D();
-        var arrowMeshModel = new LineGeometryModel3D
-        {
+        var arrowMeshModel = new LineGeometryModel3D {
             Geometry = mesh,
             Color = Colors.White,
             IsHitTestVisible = false
@@ -62,25 +65,21 @@ public class CameraModel3D : CompositeModel3D
     /// <summary>
     ///     Distance of the directional light from origin
     /// </summary>
-    public ProjectionCamera Camera
-    {
+    public ProjectionCamera Camera {
         get => (ProjectionCamera) GetValue(CameraProperty);
         set => SetValue(CameraProperty, value);
     }
 
-    protected ProjectionCamera camera
-    {
+    protected ProjectionCamera camera {
         get => _camera;
-        private set
-        {
+        private set {
             if (_camera == value) return;
             _camera = value;
             Transform = new MatrixTransform3D(_camera.GetInversedViewMatrix());
         }
     }
 
-    protected override void OnMouse3DDown(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DDown(object sender, RoutedEventArgs e) {
         base.OnMouse3DDown(sender, e);
 
         if (!(e is Mouse3DEventArgs args))
@@ -94,22 +93,18 @@ public class CameraModel3D : CompositeModel3D
         lastHitPos = args.HitTestResult.PointHit;
     }
 
-    protected override void OnMouse3DUp(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
         base.OnMouse3DUp(sender, e);
-        if (isCaptured)
-        {
+        if (isCaptured) {
             isCaptured = false;
             viewportCamera = null;
             viewport = null;
         }
     }
 
-    protected override void OnMouse3DMove(object sender, RoutedEventArgs e)
-    {
+    protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
-        if (isCaptured)
-        {
+        if (isCaptured) {
             var args = e as Mouse3DEventArgs;
 
             // move dragmodel                         
@@ -117,23 +112,20 @@ public class CameraModel3D : CompositeModel3D
 
             // hit position                        
             var newHit = viewport.UnProjectOnPlane(args.Position, lastHitPos.ToPoint3D(), normal.ToVector3D());
-            if (newHit.HasValue)
-            {
+            if (newHit.HasValue) {
                 var offset = newHit.Value - lastHitPos.ToPoint3D();
                 lastHitPos = newHit.Value.ToVector3();
                 if (Transform == null)
                     Transform = new TranslateTransform3D(offset);
                 else
                     Transform = new MatrixTransform3D(Transform.AppendTransform(new TranslateTransform3D(offset))
-                        .Value);
+                                                               .Value);
             }
         }
     }
 
-    private void SceneNode_OnTransformChanged(object sender, TransformArgs e)
-    {
-        if (camera != null)
-        {
+    private void SceneNode_OnTransformChanged(object sender, TransformArgs e) {
+        if (camera != null) {
             var m = e.Transform;
             camera.Position = new Point3D(m.M41, m.M42, m.M43);
             camera.LookDirection = new Vector3D(-m.M31, -m.M32, -m.M33);

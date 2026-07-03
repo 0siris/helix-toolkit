@@ -1,13 +1,8 @@
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
-        public static class DepthStencilFormatHelper
-        {
-            public static Format ComputeDSVFormat(this Format format)
-            {
-                switch (format)
-                {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
+        public static class DepthStencilFormatHelper {
+            public static Format ComputeDSVFormat(this Format format) {
+                switch (format) {
                     case Format.FormatD32Float:
                     case Format.FormatR32Typeless:
                         return Format.FormatD32Float;
@@ -20,17 +15,15 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 throw new InvalidOperationException(string.Format("Unsupported DXGI.FORMAT [{0}] for depth buffer",
-                    format));
+                                                                  format));
             }
 
-            public static Format ComputeTextureFormat(this Format format, out bool canUseAsShaderResource)
-            {
+            public static Format ComputeTextureFormat(this Format format, out bool canUseAsShaderResource) {
                 Format viewFormat;
                 canUseAsShaderResource = false;
 
                 // Determine TypeLess Format and ShaderResourceView Format
-                switch (format)
-                {
+                switch (format) {
                     case Format.FormatD32Float:
                     case Format.FormatR32Typeless:
                         viewFormat = Format.FormatR32Typeless;
@@ -54,10 +47,8 @@ namespace HelixToolkit.SharpDX.Core
                 return viewFormat;
             }
 
-            public static Format ComputeSRVFormat(this Format format)
-            {
-                switch (format)
-                {
+            public static Format ComputeSRVFormat(this Format format) {
+                switch (format) {
                     case Format.FormatD32Float:
                     case Format.FormatR32Typeless:
                         return Format.FormatR32Float;
@@ -73,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
                     string.Format("Unsupported DXGI.FORMAT [{0}] for creating shaderResourceView", format));
             }
 
-            public static bool CanUseAsShaderResource(this Format format)
-            {
+            public static bool CanUseAsShaderResource(this Format format) {
                 format.ComputeTextureFormat(out var canUse);
                 return canUse;
             }

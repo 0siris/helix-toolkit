@@ -19,8 +19,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     An abstract base class for the mouse gesture handlers.
 /// </summary>
-internal abstract class MouseGestureHandler
-{
+internal abstract class MouseGestureHandler {
     protected List<HitTestResult> hits = new();
 
     private long startTick;
@@ -31,18 +30,15 @@ internal abstract class MouseGestureHandler
     /// <param name="controller">
     ///     The camera controller.
     /// </param>
-    protected MouseGestureHandler(CameraController controller)
-    {
+    protected MouseGestureHandler(CameraController controller) {
         Controller = controller;
     }
 
     /// <summary>
     ///     Gets the origin.
     /// </summary>
-    public Vector3 Origin
-    {
-        get
-        {
+    public Vector3 Origin {
+        get {
             if (MouseDownNearestPoint3D != null) return MouseDownNearestPoint3D.Value;
 
             if (MouseDownPoint3D != null) return MouseDownPoint3D.Value;
@@ -138,8 +134,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="Point" /> instance containing the event data.
     /// </param>
-    public virtual void Completed(Point e)
-    {
+    public virtual void Completed(Point e) {
         var elapsed =
             (double) (Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
             1000; //this.ManipulationWatch.ElapsedMilliseconds;
@@ -154,9 +149,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="Point" /> instance containing the event data.
     /// </param>
-    public virtual void Delta(Point e)
-    {
-    }
+    public virtual void Delta(Point e) { }
 
     /// <summary>
     ///     Executes the mouse gesture command.
@@ -167,8 +160,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    public void Execute(object sender, ExecutedRoutedEventArgs e)
-    {
+    public void Execute(object sender, ExecutedRoutedEventArgs e) {
         if (!CanExecute()) return;
 
 
@@ -187,8 +179,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="Point" /> instance containing the event data.
     /// </param>
-    public virtual void Started(Point e)
-    {
+    public virtual void Started(Point e) {
         SetMouseDownPoint(e);
         LastPoint = MouseDownPoint;
         LastPoint3D = MouseDownPoint3D;
@@ -215,8 +206,7 @@ internal abstract class MouseGestureHandler
     /// <returns>
     ///     A 3D point.
     /// </returns>
-    public Vector3? UnProject(Point p, Vector3 position, Vector3 normal)
-    {
+    public Vector3? UnProject(Point p, Vector3 position, Vector3 normal) {
         var ray = GetRay(p);
         var plane = new Plane(position, normal);
         if (plane.Intersects(ref ray, out var distance)) return ray.Position + ray.Direction * distance;
@@ -234,8 +224,7 @@ internal abstract class MouseGestureHandler
     /// <returns>
     ///     A 3D point.
     /// </returns>
-    public Vector3? UnProject(Point p)
-    {
+    public Vector3? UnProject(Point p) {
         return UnProject(p, Camera.CameraInternal.Target, Camera.CameraInternal.LookDirection);
     }
 
@@ -246,8 +235,7 @@ internal abstract class MouseGestureHandler
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected virtual bool CanExecute()
-    {
+    protected virtual bool CanExecute() {
         return true;
     }
 
@@ -268,8 +256,7 @@ internal abstract class MouseGestureHandler
     /// <returns>
     ///     A ray
     /// </returns>
-    protected Ray GetRay(Point position)
-    {
+    protected Ray GetRay(Point position) {
         return Viewport.UnProject(position);
     }
 
@@ -279,9 +266,7 @@ internal abstract class MouseGestureHandler
     /// <param name="elapsedTime">
     ///     The elapsed time (milliseconds).
     /// </param>
-    protected virtual void OnInertiaStarting(double elapsedTime)
-    {
-    }
+    protected virtual void OnInertiaStarting(double elapsedTime) { }
 
     /// <summary>
     ///     Called when the mouse button is pressed down.
@@ -292,8 +277,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The <see cref="System.Windows.Input.MouseEventArgs" /> instance containing the event data.
     /// </param>
-    protected virtual void OnMouseDown(object sender, MouseEventArgs e)
-    {
+    protected virtual void OnMouseDown(object sender, MouseEventArgs e) {
         Started(Mouse.GetPosition(Viewport));
 
         Controller.CursorHistory.Push(Viewport.Cursor);
@@ -309,8 +293,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    protected virtual void OnMouseMove(object sender, MouseEventArgs e)
-    {
+    protected virtual void OnMouseMove(object sender, MouseEventArgs e) {
         if (e.Handled)
             return;
         Delta(Mouse.GetPosition(Viewport));
@@ -325,8 +308,7 @@ internal abstract class MouseGestureHandler
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    protected virtual void OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
+    protected virtual void OnMouseUp(object sender, MouseButtonEventArgs e) {
         Viewport.MouseMove -= OnMouseMove;
         Viewport.MouseUp -= OnMouseUp;
         Viewport.ReleaseMouseCapture();
@@ -335,8 +317,7 @@ internal abstract class MouseGestureHandler
         CheckCursorHistory();
     }
 
-    private void CheckCursorHistory()
-    {
+    private void CheckCursorHistory() {
         if (Controller.CursorHistory.Count == 0) return;
         foreach (var handler in Controller.MouseHandlers)
             if (handler.IsActive)
@@ -356,8 +337,7 @@ internal abstract class MouseGestureHandler
     /// <returns>
     ///     The 2D point.
     /// </returns>
-    protected Point Project(Vector3 p)
-    {
+    protected Point Project(Vector3 p) {
         return Viewport.Project(p).ToPoint();
     }
 
@@ -367,23 +347,18 @@ internal abstract class MouseGestureHandler
     /// <param name="position">
     ///     The position.
     /// </param>
-    private void SetMouseDownPoint(Point position)
-    {
+    private void SetMouseDownPoint(Point position) {
         MouseDownPoint = position;
 
-        if (!Viewport.FixedRotationPointEnabled && Viewport.FindHitsInFrustum(MouseDownPoint.ToVector2(), ref hits))
-        {
-            if (hits.Count > 0)
-            {
+        if (!Viewport.FixedRotationPointEnabled && Viewport.FindHitsInFrustum(MouseDownPoint.ToVector2(), ref hits)) {
+            if (hits.Count > 0) {
                 MouseDownNearestPoint3D = hits[0].PointHit;
                 if (hits[0].ModelHit is Element3D ele)
                     MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center();
                 else if (hits[0].ModelHit is SceneNode node)
                     MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
             }
-        }
-        else
-        {
+        } else {
             MouseDownNearestModelBoundCenter = null;
             MouseDownNearestPoint3D = null;
         }

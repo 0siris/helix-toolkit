@@ -8,16 +8,13 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     A Texture 2D front end to the native D3D texture.
 /// </summary>
-public class Texture2D : Texture2DBase
-{
+public class Texture2D : Texture2DBase {
     internal Texture2D(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
-        base(device, description2D, dataBoxes)
-    {
+        base(device, description2D, dataBoxes) {
         Initialize(Resource);
     }
 
-    internal Texture2D(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture)
-    {
+    internal Texture2D(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
         Initialize(Resource);
     }
 
@@ -30,8 +27,7 @@ public class Texture2D : Texture2DBase
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone()
-    {
+    public override Texture Clone() {
         return new Texture2D(GraphicsDevice, Description);
     }
 
@@ -49,8 +45,7 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description)
-    {
+    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description) {
         return new Texture2D(device, description);
     }
 
@@ -68,8 +63,7 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, NativeD3DTexture2D texture)
-    {
+    public static Texture2D New(NativeD3DDevice device, NativeD3DTexture2D texture) {
         return new Texture2D(device, texture);
     }
 
@@ -90,10 +84,15 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, int width, int height, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, int arraySize = 1,
-        ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static Texture2D New(
+        NativeD3DDevice device,
+        int width,
+        int height,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        int arraySize = 1,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return New(device, width, height, false, format, flags, arraySize, usage);
     }
 
@@ -118,10 +117,16 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, int width, int height, MipMapCount mipCount, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, int arraySize = 1,
-        ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static Texture2D New(
+        NativeD3DDevice device,
+        int width,
+        int height,
+        MipMapCount mipCount,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        int arraySize = 1,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return new Texture2D(device, NewDescription(width, height, format, flags, mipCount, arraySize, usage));
     }
 
@@ -146,17 +151,29 @@ public class Texture2D : Texture2DBase
     /// <remarks>
     ///     Each value in textureData is a pixel in the destination texture.
     /// </remarks>
-    public static Texture2D New<T>(NativeD3DDevice device, int width, int height, PixelFormat format, T[] textureData,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-        where T : unmanaged
-    {
+    public static Texture2D New<T>(
+        NativeD3DDevice device,
+        int width,
+        int height,
+        PixelFormat format,
+        T[] textureData,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    )
+        where T : unmanaged {
         Texture2D texture = null;
         Utilities.Pin(textureData,
-            ptr =>
-            {
-                texture = New(device, width, height, 1, format,
-                    new[] {GetDataBox(format, width, height, 1, textureData, ptr)}, flags, 1, usage);
-            });
+                      ptr => {
+                          texture = New(device,
+                                        width,
+                                        height,
+                                        1,
+                                        format,
+                                        new[] {GetDataBox(format, width, height, 1, textureData, ptr)},
+                                        flags,
+                                        1,
+                                        usage);
+                      });
         return texture;
     }
 
@@ -182,12 +199,20 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, int width, int height, MipMapCount mipCount, PixelFormat format,
-        DataBox[] textureData, TextureFlags flags = TextureFlags.ShaderResource, int arraySize = 1,
-        ResourceUsage usage = ResourceUsage.Default)
-    {
-        return new Texture2D(device, NewDescription(width, height, format, flags, mipCount, arraySize, usage),
-            textureData);
+    public static Texture2D New(
+        NativeD3DDevice device,
+        int width,
+        int height,
+        MipMapCount mipCount,
+        PixelFormat format,
+        DataBox[] textureData,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        int arraySize = 1,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
+        return new Texture2D(device,
+                             NewDescription(width, height, format, flags, mipCount, arraySize, usage),
+                             textureData);
     }
 
     /// <summary>
@@ -204,9 +229,12 @@ public class Texture2D : Texture2DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, Image image, TextureFlags flags = TextureFlags.ShaderResource,
-        ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public static Texture2D New(
+        NativeD3DDevice device,
+        Image image,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         if (image == null)
             throw new ArgumentNullException("image");
         if (image.Description.Dimension != TextureDimension.Texture2D)
@@ -224,13 +252,16 @@ public class Texture2D : Texture2DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type 2D</exception>
     /// <returns>A texture</returns>
-    public new static Texture2D Load(NativeD3DDevice device, Stream stream,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public new static Texture2D Load(
+        NativeD3DDevice device,
+        Stream stream,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         var texture = Texture.Load(device, stream, flags, usage);
         if (!(texture is Texture2D))
             throw new ArgumentException(string.Format("Texture is not type of [Texture2D] but [{0}]",
-                texture.GetType().Name));
+                                                      texture.GetType().Name));
         return (Texture2D) texture;
     }
 
@@ -243,11 +274,13 @@ public class Texture2D : Texture2DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type 2D</exception>
     /// <returns>A texture</returns>
-    public new static Texture2D Load(NativeD3DDevice device, string filePath,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public new static Texture2D Load(
+        NativeD3DDevice device,
+        string filePath,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(device, stream, flags, usage);
         }
     }
@@ -256,8 +289,7 @@ public class Texture2D : Texture2DBase
     ///     Implicit casting operator to <see cref="Direct3D11.Resource" />
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
-    public static implicit operator NativeD3DResource(Texture2D from)
-    {
+    public static implicit operator NativeD3DResource(Texture2D from) {
         return from == null ? null : from.Resource;
     }
 }

@@ -11,13 +11,10 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 #else
 #endif
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
-        public partial class DefaultRenderHost
-        {
-            #region Per frame render list
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
+        public partial class DefaultRenderHost {
+        #region Per frame render list
 
             protected readonly FastList<SceneNode> viewportRenderables = new();
 
@@ -106,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The per frame lights.
             /// </value>
-            public sealed override IEnumerable<LightNode> PerFrameLights
-            {
+            public sealed override IEnumerable<LightNode> PerFrameLights {
                 get { return lightNodes.Select(x => x as LightNode); }
             }
 
@@ -167,7 +163,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public sealed override FastList<SceneNode> PerFrameNodesWithPostEffect => nodesWithPostEffect;
 
-            #endregion
+        #endregion
         }
     }
 }

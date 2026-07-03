@@ -7,8 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IGUID
-{
+public interface IGUID {
     /// <summary>
     ///     Gets the unique identifier.
     /// </summary>
@@ -20,8 +19,7 @@ public interface IGUID
 
 /// <summary>
 /// </summary>
-public interface IAttachable
-{
+public interface IAttachable {
     /// <summary>
     /// </summary>
     bool IsAttached { get; }
@@ -38,8 +36,7 @@ public interface IAttachable
 
 /// <summary>
 /// </summary>
-public interface IResourceSharing : IDisposable
-{
+public interface IResourceSharing : IDisposable {
     /// <summary>
     ///     Attaches the specified model unique identifier.
     /// </summary>
@@ -55,8 +52,7 @@ public interface IResourceSharing : IDisposable
 
 /// <summary>
 /// </summary>
-public interface IHitable
-{
+public interface IHitable {
     /// <summary>
     ///     Indicates, if this element should be hit-tested.
     ///     default is true
@@ -83,15 +79,13 @@ public interface IHitable
 /// <summary>
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class BoundChangeArgs<T> : EventArgs where T : unmanaged
-{
+public sealed class BoundChangeArgs<T> : EventArgs where T : unmanaged {
     /// <summary>
     ///     Initializes a new instance of the <see cref="BoundChangeArgs{T}" /> class.
     /// </summary>
     /// <param name="newBound">The new bound.</param>
     /// <param name="oldBound">The old bound.</param>
-    public BoundChangeArgs(ref T newBound, ref T oldBound)
-    {
+    public BoundChangeArgs(ref T newBound, ref T oldBound) {
         NewBound = newBound;
         OldBound = oldBound;
     }
@@ -115,8 +109,7 @@ public sealed class BoundChangeArgs<T> : EventArgs where T : unmanaged
 
 /// <summary>
 /// </summary>
-public interface IBoundable
-{
+public interface IBoundable {
     /// <summary>
     ///     Gets or sets a value indicating whether [bound enabled].
     /// </summary>
@@ -200,8 +193,7 @@ public interface IBoundable
 
 /// <summary>
 /// </summary>
-public interface IInstancing
-{
+public interface IInstancing {
     /// <summary>
     ///     Gets the instance buffer.
     /// </summary>

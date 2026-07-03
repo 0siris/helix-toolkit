@@ -20,8 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Provides extension methods for the cameras.
 /// </summary>
-public static class CameraExtensions
-{
+public static class CameraExtensions {
     /// <summary>
     ///     Changes the direction of a camera.
     /// </summary>
@@ -37,9 +36,12 @@ public static class CameraExtensions
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public static void ChangeDirection(this Camera camera, Vector3D newLookDir, Vector3D newUpDirection,
-        double animationTime)
-    {
+    public static void ChangeDirection(
+        this Camera camera,
+        Vector3D newLookDir,
+        Vector3D newUpDirection,
+        double animationTime
+    ) {
         var target = camera.Position + camera.LookDirection;
         var length = camera.LookDirection.Length;
         newLookDir.Normalize();
@@ -55,8 +57,7 @@ public static class CameraExtensions
     /// <param name="dest">
     ///     The destination camera.
     /// </param>
-    public static void CopyTo(this ICameraModel source, Camera dest)
-    {
+    public static void CopyTo(this ICameraModel source, Camera dest) {
         var projectionSource = source as IProjectionCameraModel;
         var projectionDest = dest as IProjectionCameraModel;
         if (projectionSource == null || projectionDest == null) return;
@@ -65,8 +66,7 @@ public static class CameraExtensions
         projectionDest.Position = projectionSource.Position;
         projectionDest.UpDirection = projectionSource.UpDirection;
 
-        if (dest is IPerspectiveCameraModel pdest)
-        {
+        if (dest is IPerspectiveCameraModel pdest) {
             projectionDest.NearPlaneDistance =
                 projectionSource.NearPlaneDistance > 0 ? projectionSource.NearPlaneDistance : 1e-1;
             projectionDest.FarPlaneDistance = projectionSource.FarPlaneDistance;
@@ -74,8 +74,7 @@ public static class CameraExtensions
             double fov = 45;
             if (source is IPerspectiveCameraModel psrc) fov = psrc.FieldOfView;
 
-            if (source is IOrthographicCameraModel osrc)
-            {
+            if (source is IOrthographicCameraModel osrc) {
                 var dist = projectionSource.LookDirection.Length;
                 fov = Math.Atan2(osrc.Width / 2, dist) * (180 / Math.PI);
             }
@@ -83,14 +82,12 @@ public static class CameraExtensions
             pdest.FieldOfView = fov;
         }
 
-        if (dest is IOrthographicCameraModel odest)
-        {
+        if (dest is IOrthographicCameraModel odest) {
             projectionDest.NearPlaneDistance = projectionSource.NearPlaneDistance;
             projectionDest.FarPlaneDistance = projectionSource.FarPlaneDistance;
 
             double width = 100;
-            if (source is IPerspectiveCameraModel psrc)
-            {
+            if (source is IPerspectiveCameraModel psrc) {
                 var dist = projectionSource.LookDirection.Length;
                 width = Math.Tan(psrc.FieldOfView / 180 * Math.PI) * 2 * dist;
             }
@@ -105,8 +102,7 @@ public static class CameraExtensions
     ///     Creates a default perspective camera.
     /// </summary>
     /// <returns>A perspective camera.</returns>
-    public static Camera CreateDefaultCamera()
-    {
+    public static Camera CreateDefaultCamera() {
         var camera = new PerspectiveCamera();
         camera.Reset();
         return camera;
@@ -121,8 +117,7 @@ public static class CameraExtensions
     /// <returns>
     ///     The <see cref="Vector3D" /> .
     /// </returns>
-    public static Vector3D FindPanVector(this Camera camera, double dx, double dy)
-    {
+    public static Vector3D FindPanVector(this Camera camera, double dx, double dy) {
         if (!(camera is IProjectionCameraModel projectionCamera)) return default;
 
         var axis1 = Vector3D.CrossProduct(projectionCamera.LookDirection, projectionCamera.UpDirection);
@@ -146,55 +141,46 @@ public static class CameraExtensions
     /// <returns>
     ///     The get info.
     /// </returns>
-    public static string GetInfo(this Camera camera)
-    {
+    public static string GetInfo(this Camera camera) {
         var sb = new StringBuilder();
         sb.AppendLine(camera.GetType().Name);
-        if (camera is IProjectionCameraModel projectionCamera)
-        {
-            sb.AppendLine(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "LookDirection:\t{0:0.000},{1:0.000},{2:0.000}",
-                    projectionCamera.LookDirection.X,
-                    projectionCamera.LookDirection.Y,
-                    projectionCamera.LookDirection.Z));
-            sb.AppendLine(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "UpDirection:\t{0:0.000},{1:0.000},{2:0.000}",
-                    projectionCamera.UpDirection.X,
-                    projectionCamera.UpDirection.Y,
-                    projectionCamera.UpDirection.Z));
-            sb.AppendLine(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Position:\t\t{0:0.000},{1:0.000},{2:0.000}",
-                    projectionCamera.Position.X,
-                    projectionCamera.Position.Y,
-                    projectionCamera.Position.Z));
+        if (camera is IProjectionCameraModel projectionCamera) {
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "LookDirection:\t{0:0.000},{1:0.000},{2:0.000}",
+                                        projectionCamera.LookDirection.X,
+                                        projectionCamera.LookDirection.Y,
+                                        projectionCamera.LookDirection.Z));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "UpDirection:\t{0:0.000},{1:0.000},{2:0.000}",
+                                        projectionCamera.UpDirection.X,
+                                        projectionCamera.UpDirection.Y,
+                                        projectionCamera.UpDirection.Z));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "Position:\t\t{0:0.000},{1:0.000},{2:0.000}",
+                                        projectionCamera.Position.X,
+                                        projectionCamera.Position.Y,
+                                        projectionCamera.Position.Z));
             var target = projectionCamera.Position + projectionCamera.LookDirection;
-            sb.AppendLine(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Target:\t\t{0:0.000},{1:0.000},{2:0.000}",
-                    target.X,
-                    target.Y,
-                    target.Z));
-            sb.AppendLine(
-                string.Format(
-                    CultureInfo.InvariantCulture, "NearPlaneDist:\t{0}", projectionCamera.NearPlaneDistance));
-            sb.AppendLine(
-                string.Format(CultureInfo.InvariantCulture, "FarPlaneDist:\t{0}", projectionCamera.FarPlaneDistance));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "Target:\t\t{0:0.000},{1:0.000},{2:0.000}",
+                                        target.X,
+                                        target.Y,
+                                        target.Z));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "NearPlaneDist:\t{0}",
+                                        projectionCamera.NearPlaneDistance));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "FarPlaneDist:\t{0}",
+                                        projectionCamera.FarPlaneDistance));
         }
 
         if (camera is PerspectiveCamera perspectiveCamera)
-            sb.AppendLine(
-                string.Format(CultureInfo.InvariantCulture, "FieldOfView:\t{0:0.#}°", perspectiveCamera.FieldOfView));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                                        "FieldOfView:\t{0:0.#}°",
+                                        perspectiveCamera.FieldOfView));
 
         if (camera is OrthographicCamera orthographicCamera)
-            sb.AppendLine(
-                string.Format(CultureInfo.InvariantCulture, "Width:\t{0:0.###}", orthographicCamera.Width));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Width:\t{0:0.###}", orthographicCamera.Width));
 
         return sb.ToString().Trim();
     }
@@ -211,8 +197,7 @@ public static class CameraExtensions
     /// <returns>
     ///     The inverse transform.
     /// </returns>
-    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio)
-    {
+    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio) {
         return GetInverseViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
     }
 
@@ -228,8 +213,7 @@ public static class CameraExtensions
     /// <returns>
     ///     The inverse transform.
     /// </returns>
-    public static Matrix GetInverseViewProjectionMatrix(this CameraCore camera, double aspectRatio)
-    {
+    public static Matrix GetInverseViewProjectionMatrix(this CameraCore camera, double aspectRatio) {
         var m = camera.GetViewProjectionMatrix(aspectRatio);
         m.Invert();
         return m;
@@ -241,8 +225,7 @@ public static class CameraExtensions
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio)
-    {
+    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio) {
         return GetProjectionMatrix(camera, aspectRatio).ToMatrix3D();
     }
 
@@ -252,8 +235,7 @@ public static class CameraExtensions
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix GetProjectionMatrix(this CameraCore camera, double aspectRatio)
-    {
+    public static Matrix GetProjectionMatrix(this CameraCore camera, double aspectRatio) {
         return camera.CreateProjectionMatrix((float) aspectRatio);
     }
 
@@ -263,8 +245,7 @@ public static class CameraExtensions
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
-    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio)
-    {
+    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio) {
         return GetViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
     }
 
@@ -274,8 +255,7 @@ public static class CameraExtensions
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
-    public static Matrix GetViewProjectionMatrix(this CameraCore camera, double aspectRatio)
-    {
+    public static Matrix GetViewProjectionMatrix(this CameraCore camera, double aspectRatio) {
         if (camera == null) throw new ArgumentNullException("camera");
         return camera.GetViewMatrix() * camera.GetProjectionMatrix(aspectRatio);
     }
@@ -289,8 +269,7 @@ public static class CameraExtensions
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix3D GetViewMatrix3D(this Camera camera)
-    {
+    public static Matrix3D GetViewMatrix3D(this Camera camera) {
         return GetViewMatrix(camera).ToMatrix3D();
     }
 
@@ -303,19 +282,16 @@ public static class CameraExtensions
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix GetViewMatrix(this CameraCore camera)
-    {
+    public static Matrix GetViewMatrix(this CameraCore camera) {
         return camera.CreateViewMatrix();
     }
 
-    public static Matrix3D GetInversedViewMatrix(this Camera camera)
-    {
+    public static Matrix3D GetInversedViewMatrix(this Camera camera) {
         var viewMatrix = GetViewMatrix(camera);
         return MatrixExtensions.PsudoInvert(ref viewMatrix).ToMatrix3D();
     }
 
-    public static Matrix GetInversedViewMatrix(this CameraCore camera)
-    {
+    public static Matrix GetInversedViewMatrix(this CameraCore camera) {
         var viewMatrix = camera.GetViewMatrix();
         return MatrixExtensions.PsudoInvert(ref viewMatrix);
     }
@@ -332,13 +308,11 @@ public static class CameraExtensions
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public static void LookAt(this ICameraModel camera, Point3D target, double animationTime)
-    {
+    public static void LookAt(this ICameraModel camera, Point3D target, double animationTime) {
         camera.LookAt(target, camera.LookDirection, animationTime);
     }
 
-    public static void LookAt(this ICameraModel camera, Vector3 target, double animationTime)
-    {
+    public static void LookAt(this ICameraModel camera, Vector3 target, double animationTime) {
         camera.LookAt(target.ToPoint3D(), camera.LookDirection, animationTime);
     }
 
@@ -358,8 +332,11 @@ public static class CameraExtensions
     ///     The animation time.
     /// </param>
     public static void LookAt(
-        this ICameraModel camera, Point3D target, Vector3D newLookDirection, double animationTime)
-    {
+        this ICameraModel camera,
+        Point3D target,
+        Vector3D newLookDirection,
+        double animationTime
+    ) {
         camera.LookAt(target, newLookDirection, camera.UpDirection, animationTime);
     }
 
@@ -386,8 +363,8 @@ public static class CameraExtensions
         Point3D target,
         Vector3D newLookDirection,
         Vector3D newUpDirection,
-        double animationTime)
-    {
+        double animationTime
+    ) {
         var newPosition = target - newLookDirection;
         camera.AnimateTo(newPosition, newLookDirection, newUpDirection, animationTime);
     }
@@ -407,8 +384,7 @@ public static class CameraExtensions
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public static void LookAt(this Camera camera, Point3D target, double distance, double animationTime)
-    {
+    public static void LookAt(this Camera camera, Point3D target, double distance, double animationTime) {
         var d = camera.LookDirection;
         d.Normalize();
         camera.LookAt(target, d * distance, animationTime);
@@ -420,8 +396,7 @@ public static class CameraExtensions
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this Camera camera)
-    {
+    public static void Reset(this Camera camera) {
         if (camera is PerspectiveCamera pCamera)
             pCamera.Reset();
         else if (camera is OrthographicCamera ocamera) ocamera.Reset();
@@ -433,8 +408,7 @@ public static class CameraExtensions
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this PerspectiveCamera camera)
-    {
+    public static void Reset(this PerspectiveCamera camera) {
         if (camera == null) return;
 
         camera.Position = new Point3D(20, 10, 40);
@@ -451,8 +425,7 @@ public static class CameraExtensions
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this OrthographicCamera camera)
-    {
+    public static void Reset(this OrthographicCamera camera) {
         if (camera == null) return;
 
         camera.Position = new Point3D(20, 10, 40);
@@ -476,8 +449,10 @@ public static class CameraExtensions
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this Camera camera, Viewport3DX viewport, double animationTime = 0)
-    {
+        this Camera camera,
+        Viewport3DX viewport,
+        double animationTime = 0
+    ) {
         var bounds = viewport.FindBounds();
         camera.ZoomExtents(viewport, bounds, animationTime);
     }
@@ -498,16 +473,18 @@ public static class CameraExtensions
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this Camera camera, Viewport3DX viewport, Rect3D bounds, double animationTime = 0)
-    {
+        this Camera camera,
+        Viewport3DX viewport,
+        Rect3D bounds,
+        double animationTime = 0
+    ) {
         camera.ZoomExtents(viewport, bounds.ToBoundingBox(), animationTime);
     }
 
-    public static BoundingBox ToBoundingBox(this Rect3D bounds)
-    {
+    public static BoundingBox ToBoundingBox(this Rect3D bounds) {
         return new BoundingBox(bounds.Location.ToVector3(),
-            bounds.Location.ToVector3() +
-            new Vector3((float) bounds.SizeX, (float) bounds.SizeY, (float) bounds.SizeZ));
+                               bounds.Location.ToVector3() +
+                               new Vector3((float) bounds.SizeX, (float) bounds.SizeY, (float) bounds.SizeZ));
     }
 
     /// <summary>
@@ -526,21 +503,28 @@ public static class CameraExtensions
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this Camera camera, Viewport3DX viewport, BoundingBox bounds, double animationTime = 0)
-    {
+        this Camera camera,
+        Viewport3DX viewport,
+        BoundingBox bounds,
+        double animationTime = 0
+    ) {
         var diagonal = bounds.Maximum - bounds.Minimum;
 
         if (diagonal.LengthSquared().Equals(0)) return;
-        if (camera is PerspectiveCamera p && camera.CameraInternal is PerspectiveCameraCore pCore)
-        {
-            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight), bounds, out var pos, out var look,
-                out var up);
+        if (camera is PerspectiveCamera p && camera.CameraInternal is PerspectiveCameraCore pCore) {
+            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                              bounds,
+                              out var pos,
+                              out var look,
+                              out var up);
             p.AnimateTo(pos.ToPoint3D(), look.ToVector3D(), up.ToVector3D(), animationTime);
-        }
-        else if (camera is OrthographicCamera orth && camera.CameraInternal is OrthographicCameraCore oCore)
-        {
-            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight), bounds, out var pos, out var look,
-                out var up, out var width);
+        } else if (camera is OrthographicCamera orth && camera.CameraInternal is OrthographicCameraCore oCore) {
+            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                              bounds,
+                              out var pos,
+                              out var look,
+                              out var up,
+                              out var width);
             orth.AnimateWidth(width, animationTime);
             orth.AnimateTo(pos.ToPoint3D(), look.ToVector3D(), up.ToVector3D(), animationTime);
         }
@@ -565,11 +549,14 @@ public static class CameraExtensions
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this Camera camera, Viewport3DX viewport, Point3D center, double radius, double animationTime = 0)
-    {
+        this Camera camera,
+        Viewport3DX viewport,
+        Point3D center,
+        double radius,
+        double animationTime = 0
+    ) {
         // var target = Camera.Position + Camera.LookDirection;
-        if (camera is IPerspectiveCameraModel pcam)
-        {
+        if (camera is IPerspectiveCameraModel pcam) {
             var disth = radius / Math.Tan(0.5 * pcam.FieldOfView * Math.PI / 180);
             var vfov = pcam.FieldOfView / viewport.ActualWidth * viewport.ActualHeight;
             var distv = radius / Math.Tan(0.5 * vfov * Math.PI / 180);
@@ -578,9 +565,7 @@ public static class CameraExtensions
             var dir = camera.LookDirection;
             dir.Normalize();
             camera.LookAt(center, dir * dist, animationTime);
-        }
-        else if (camera is IOrthographicCameraModel orth)
-        {
+        } else if (camera is IOrthographicCameraModel orth) {
             orth.LookAt(center, 0);
             var newWidth = radius * 2;
             if (viewport.ActualWidth > viewport.ActualHeight)
@@ -601,19 +586,16 @@ public static class CameraExtensions
     /// <param name="zoomRectangle">
     ///     The zoom rectangle.
     /// </param>
-    public static void ZoomToRectangle(this Camera camera, Viewport3DX viewport, Rect zoomRectangle)
-    {
+    public static void ZoomToRectangle(this Camera camera, Viewport3DX viewport, Rect zoomRectangle) {
         if (viewport.UnProject(zoomRectangle.TopLeft.ToVector2(), out var topLeftRay)
             && viewport.UnProject(zoomRectangle.TopRight.ToVector2(), out var topRightRay)
-            && viewport.UnProject(new Vector2(
-                (float) (zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
-                (float) (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f), out var centerRay))
-        {
+            && viewport.UnProject(new Vector2((float) (zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
+                                              (float) (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
+                                  out var centerRay)) {
             var u = SilkMath.Normalize(topLeftRay.Direction);
             var v = SilkMath.Normalize(topRightRay.Direction);
             var w = SilkMath.Normalize(centerRay.Direction);
-            if (camera is IPerspectiveCameraModel perspectiveCamera)
-            {
+            if (camera is IPerspectiveCameraModel perspectiveCamera) {
                 var distance = camera.LookDirection.Length;
 
                 // option 1: change distance
@@ -628,9 +610,7 @@ public static class CameraExtensions
                 // var newTarget = camera.Position + distance * w;
                 // pcamera.FieldOfView = newFieldOfView * 180 / Math.PI;
                 // LookAt(camera, newTarget, distance * w, 0);
-            }
-            else if (camera is IOrthographicCameraModel orthographicCamera)
-            {
+            } else if (camera is IOrthographicCameraModel orthographicCamera) {
                 orthographicCamera.Width *= zoomRectangle.Width / viewport.ActualWidth;
                 var oldTarget = camera.CameraInternal.Position + camera.CameraInternal.LookDirection;
                 var distance = camera.CameraInternal.LookDirection.Length;
@@ -645,8 +625,7 @@ public static class CameraExtensions
     /// </summary>
     /// <param name="camera">The camera.</param>
     /// <param name="delta">The delta.</param>
-    public static void MoveCameraPosition(this Camera camera, Vector3D delta)
-    {
+    public static void MoveCameraPosition(this Camera camera, Vector3D delta) {
         var z = SilkMath.Normalize(camera.CameraInternal.LookDirection);
         var x = SilkMath.Cross(z, camera.CameraInternal.UpDirection);
         var y = SilkMath.Normalize(SilkMath.Cross(x, z));

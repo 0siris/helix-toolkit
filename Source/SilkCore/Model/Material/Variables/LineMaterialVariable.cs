@@ -8,14 +8,11 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public class LineMaterialVariable : MaterialVariable
-        {
+        public class LineMaterialVariable : MaterialVariable {
             private readonly LineMaterialCore material;
             private readonly int shaderTextureSlot;
             private readonly ITextureResourceManager textureManager;
@@ -31,11 +28,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The material core.</param>
             /// <param name="defaultPassName">Default pass name</param>
-            public LineMaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public LineMaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 LineMaterialCore materialCore,
-                string defaultPassName = DefaultPassNames.Default)
-                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore)
-            {
+                string defaultPassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore) {
                 textureManager = manager.MaterialTextureManager;
                 LinePass = technique[defaultPassName];
                 ShadowPass = technique[DefaultPassNames.ShadowPass];
@@ -62,89 +61,95 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public string ShaderTextureSamplerName { get; } = DefaultSamplerStateNames.BillboardTextureSampler;
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 AddPropertyBinding(nameof(LineMaterialCore.LineColor),
-                    () => { WriteValue(PointLineMaterialStruct.ColorStr, material.LineColor); });
+                                   () => { WriteValue(PointLineMaterialStruct.ColorStr, material.LineColor); });
                 AddPropertyBinding(nameof(LineMaterialCore.Thickness),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector2(material.Thickness, material.Smoothness));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector2(material.Thickness, material.Smoothness));
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.Smoothness),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                            new Vector2(material.Thickness, material.Smoothness));
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.ParamsStr,
+                                                  new Vector2(material.Thickness, material.Smoothness));
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.TextureScale),
-                    () => { WriteValue(PointLineMaterialStruct.TextureScaleStr, material.TextureScale); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.TextureScaleStr, material.TextureScale);
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.AlphaThreshold),
-                    () => { WriteValue(PointLineMaterialStruct.AlphaThresholdStr, material.AlphaThreshold); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.AlphaThresholdStr, material.AlphaThreshold);
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.EnableDistanceFading),
-                    () =>
-                    {
-                        WriteValue(PointLineMaterialStruct.EnableDistanceFading, material.EnableDistanceFading ? 1 : 0);
-                    });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.EnableDistanceFading,
+                                                  material.EnableDistanceFading ? 1 : 0);
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.FadingNearDistance),
-                    () => { WriteValue(PointLineMaterialStruct.FadeNearDistance, material.FadingNearDistance); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.FadeNearDistance,
+                                                  material.FadingNearDistance);
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.FadingFarDistance),
-                    () => { WriteValue(PointLineMaterialStruct.FadeFarDistance, material.FadingFarDistance); });
+                                   () => {
+                                       WriteValue(PointLineMaterialStruct.FadeFarDistance, material.FadingFarDistance);
+                                   });
                 AddPropertyBinding(nameof(LineMaterialCore.FixedSize),
-                    () => { WriteValue(PointLineMaterialStruct.FixedSize, material.FixedSize); });
-                AddPropertyBinding(nameof(LineMaterialCore.Texture), () =>
-                {
-                    CreateTextureView(material.Texture);
-                    WriteValue(PointLineMaterialStruct.HasTextureStr, textureResource != null ? 1 : 0);
-                });
-                AddPropertyBinding(nameof(LineMaterialCore.SamplerDescription), () =>
-                {
-                    var newSampler = EffectsManager.StateManager.Register(material.SamplerDescription);
-                    RemoveAndDispose(ref textureSampler);
-                    textureSampler = newSampler;
-                });
+                                   () => { WriteValue(PointLineMaterialStruct.FixedSize, material.FixedSize); });
+                AddPropertyBinding(nameof(LineMaterialCore.Texture),
+                                   () => {
+                                       CreateTextureView(material.Texture);
+                                       WriteValue(PointLineMaterialStruct.HasTextureStr,
+                                                  textureResource != null ? 1 : 0);
+                                   });
+                AddPropertyBinding(nameof(LineMaterialCore.SamplerDescription),
+                                   () => {
+                                       var newSampler =
+                                           EffectsManager.StateManager.Register(material.SamplerDescription);
+                                       RemoveAndDispose(ref textureSampler);
+                                       textureSampler = newSampler;
+                                   });
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void CreateTextureView(TextureModel texture)
-            {
+            private void CreateTextureView(TextureModel texture) {
                 var newRes = texture == null ? null : textureManager.Register(texture);
                 RemoveAndDispose(ref textureResource);
                 textureResource = newRes;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 return LinePass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShadowPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 return ShaderPass.NullPass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return DepthPass;
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
-                if (textureResource != null)
-                {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
+                if (textureResource != null) {
                     shaderPass.PixelShader.BindTexture(deviceContext, shaderTextureSlot, textureResource);
                     shaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
                 }
@@ -152,8 +157,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref textureResource);
                 RemoveAndDispose(ref textureSampler);
                 base.OnDispose(disposeManagedResources);

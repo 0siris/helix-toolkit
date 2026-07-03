@@ -11,8 +11,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 using Mesh3DGroup = List<Object3D>;
 
-public struct ModelInfo
-{
+public struct ModelInfo {
     public MeshFaces Faces { get; set; }
     public bool Normals { get; set; }
     public bool Tangents { get; set; }
@@ -21,8 +20,7 @@ public struct ModelInfo
 /// <summary>
 ///     Interface for model readers.
 /// </summary>
-public interface IModelReader
-{
+public interface IModelReader {
     /// <summary>
     ///     Reads the model from the specified path.
     /// </summary>

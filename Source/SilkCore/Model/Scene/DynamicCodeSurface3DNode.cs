@@ -10,12 +10,9 @@ using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 #endif
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public static class DynamicCodeSurfaceTemplate
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public static class DynamicCodeSurfaceTemplate {
             public const string template =
                 @"
             using System;
@@ -44,8 +41,7 @@ namespace HelixToolkit.SharpDX.Core
 #if !WINDOWS_UWP
         /// <summary>
         /// </summary>
-        public class DynamicCodeSurface3DNode : ParametricSurface3DNode
-        {
+        public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
             private object _codeInstance;
 
             // Type and instance of the dynamic code
@@ -57,11 +53,9 @@ namespace HelixToolkit.SharpDX.Core
             private string source;
             private string sourceCode;
 
-            public float ParameterW
-            {
+            public float ParameterW {
                 get => parameterW;
-                set
-                {
+                set {
                     if (Set(ref parameterW, value)) UpdateSource();
                 }
             }
@@ -72,28 +66,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The source.
             /// </value>
-            public string Source
-            {
+            public string Source {
                 get => source;
-                set
-                {
+                set {
                     if (Set(ref source, value)) UpdateSource();
                 }
             }
 
-            public CompilerErrorCollection Errors
-            {
+            public CompilerErrorCollection Errors {
                 get => errors;
-                private set
-                {
+                private set {
                     if (Set(ref errors, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
                 }
             }
 
             public event EventHandler OnCompileError;
 
-            private void UpdateSource()
-            {
+            private void UpdateSource() {
                 sourceCode = Source;
                 _codeType = null;
                 _codeInstance = null;
@@ -107,16 +96,13 @@ namespace HelixToolkit.SharpDX.Core
                 options.ReferencedAssemblies.Add(qn);
                 var src = GetTemplate().Replace("#code#", sourceCode);
                 var compilerResults = provider.CompileAssemblyFromSource(options, src);
-                if (!compilerResults.Errors.HasErrors)
-                {
+                if (!compilerResults.Errors.HasErrors) {
                     Errors = null;
                     var assembly = compilerResults.CompiledAssembly;
                     _codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
                     _codeType = _codeInstance.GetType();
                     TessellateAsync();
-                }
-                else
-                {
+                } else {
                     // correct line numbers
                     Errors = compilerResults.Errors;
                     for (var i = 0; i < Errors.Count; i++)
@@ -124,15 +110,12 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected virtual string GetTemplate()
-            {
+            protected virtual string GetTemplate() {
                 return DynamicCodeSurfaceTemplate.template;
             }
 
-            protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord)
-            {
-                if (_codeType == null)
-                {
+            protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
+                if (_codeType == null) {
                     texCoord = new Vector2();
                     return Vector3.Zero;
                 }
@@ -141,8 +124,11 @@ namespace HelixToolkit.SharpDX.Core
                 parameters[0] = u;
                 parameters[1] = v;
                 parameters[2] = ParameterW;
-                var result = _codeType.InvokeMember("Evaluate", BindingFlags.InvokeMethod, null, _codeInstance,
-                    parameters);
+                var result = _codeType.InvokeMember("Evaluate",
+                                                    BindingFlags.InvokeMethod,
+                                                    null,
+                                                    _codeInstance,
+                                                    parameters);
                 var p = (Tuple<double, double, double, double>) result;
 
                 // todo: why doesn't this work??

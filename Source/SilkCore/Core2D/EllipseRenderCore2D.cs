@@ -4,22 +4,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public class EllipseRenderCore2D : ShapeRenderCore2DBase
-        {
+        public class EllipseRenderCore2D : ShapeRenderCore2DBase {
             private Ellipse ellipse;
 
             /// <summary>
             ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
-            protected override void OnRender(RenderContext2D context)
-            {
+            protected override void OnRender(RenderContext2D context) {
                 ellipse.Point = LayoutBound.Center;
                 ellipse.RadiusX = LayoutBound.Width / 2;
                 ellipse.RadiusY = LayoutBound.Height / 2;

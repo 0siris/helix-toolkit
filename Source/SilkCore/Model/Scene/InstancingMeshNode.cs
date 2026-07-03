@@ -6,14 +6,11 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class InstancingMeshNode : MeshNode
-        {
+        public class InstancingMeshNode : MeshNode {
             /// <summary>
             ///     The instance parameter buffer
             /// </summary>
@@ -22,20 +19,16 @@ namespace HelixToolkit.SharpDX.Core
 
             private bool isInstanceChanged;
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.InstancingMesh];
             }
 
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new InstancingMeshRenderCore {ParameterBuffer = instanceParamBuffer};
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
-                if (base.OnAttach(effectsManager))
-                {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
+                if (base.OnAttach(effectsManager)) {
                     instanceParamBuffer.Initialize();
 
                     return true;
@@ -47,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [detach].
             /// </summary>
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 instanceParamBuffer.DisposeAndClear();
                 base.OnDetach();
             }
@@ -57,11 +49,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the not render.
             /// </summary>
             /// <param name="context">The context.</param>
-            public override void UpdateNotRender(RenderContext context)
-            {
+            public override void UpdateNotRender(RenderContext context) {
                 base.UpdateNotRender(context);
-                if (isInstanceChanged)
-                {
+                if (isInstanceChanged) {
                     BuildOctree();
                     isInstanceChanged = false;
                 }
@@ -70,8 +60,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Instanceses the changed.
             /// </summary>
-            protected override void InstancesChanged()
-            {
+            protected override void InstancesChanged() {
                 base.InstancesChanged();
                 octreeManager?.Clear();
                 isInstanceChanged = true;
@@ -80,36 +69,32 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Builds the octree.
             /// </summary>
-            private void BuildOctree()
-            {
+            private void BuildOctree() {
                 if (IsRenderable && InstanceBuffer.HasElements)
                     octreeManager?.RebuildTree(Enumerable.Repeat<SceneNode>(this, 1));
                 else
                     octreeManager?.Clear();
             }
 
-            public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
+            public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
                 var isHit = false;
-                if (CanHitTest(context) && PreHitTestOnBounds(context))
-                {
-                    if (octreeManager != null && octreeManager.Octree != null)
-                    {
+                if (CanHitTest(context) && PreHitTestOnBounds(context)) {
+                    if (octreeManager != null && octreeManager.Octree != null) {
                         var boundHits = new List<HitTestResult>();
-                        isHit = octreeManager.Octree.HitTest(context, WrapperSource, Geometry, TotalModelMatrixInternal,
-                            ref boundHits);
-                        if (isHit)
-                        {
+                        isHit = octreeManager.Octree.HitTest(context,
+                                                             WrapperSource,
+                                                             Geometry,
+                                                             TotalModelMatrixInternal,
+                                                             ref boundHits);
+                        if (isHit) {
                             isHit = false;
                             Matrix instanceMatrix;
-                            foreach (var hit in boundHits)
-                            {
+                            foreach (var hit in boundHits) {
                                 var instanceIdx = (int) hit.Tag;
                                 instanceMatrix = InstanceBuffer.Elements[instanceIdx];
                                 var h = base.OnHitTest(context, TotalModelMatrixInternal * instanceMatrix, ref hits);
                                 isHit |= h;
-                                if (h && hits.Count > 0)
-                                {
+                                if (h && hits.Count > 0) {
                                     var result = hits.Last();
                                     object tag = null;
                                     if (InstanceIdentifiers != null &&
@@ -122,9 +107,7 @@ namespace HelixToolkit.SharpDX.Core
                                 }
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         isHit = base.HitTest(context, ref hits);
                     }
                 }
@@ -132,7 +115,7 @@ namespace HelixToolkit.SharpDX.Core
                 return isHit;
             }
 
-            #region Properties
+        #region Properties
 
             private IList<Guid> instanceIdentifiers;
 
@@ -142,8 +125,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The instance identifiers.
             /// </value>
-            public IList<Guid> InstanceIdentifiers
-            {
+            public IList<Guid> InstanceIdentifiers {
                 get => instanceIdentifiers;
                 set => Set(ref instanceIdentifiers, value);
             }
@@ -154,8 +136,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The instance parameter array.
             /// </value>
-            public IList<InstanceParameter> InstanceParamArray
-            {
+            public IList<InstanceParameter> InstanceParamArray {
                 get => instanceParamBuffer.Elements;
                 set => instanceParamBuffer.Elements = value;
             }
@@ -168,21 +149,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The octree manager.
             /// </value>
-            public IOctreeManager OctreeManager
-            {
+            public IOctreeManager OctreeManager {
                 get => octreeManager;
-                set
-                {
+                set {
                     if (Set(ref octreeManager, value))
-                        if (octreeManager != null)
-                        {
+                        if (octreeManager != null) {
                             octreeManager.Clear();
                             isInstanceChanged = true;
                         }
                 }
             }
 
-            #endregion
+        #endregion
         }
     }
 }

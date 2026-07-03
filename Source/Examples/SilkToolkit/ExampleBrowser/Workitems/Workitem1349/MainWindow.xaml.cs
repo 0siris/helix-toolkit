@@ -7,20 +7,17 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem1349
-{
-    using System.Windows;
-    using ExampleBrowser;
+namespace Workitem1349;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    [Example("Issue 1349", "SharpDX: BillboardText3D is not shown until origin is moved into sight.")]
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            this.InitializeComponent();
-        }
+using System.Windows;
+using ExampleBrowser;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+[Example("Issue 1349", "SharpDX: BillboardText3D is not shown until origin is moved into sight.")]
+public partial class MainWindow : Window {
+    public MainWindow() {
+        this.InitializeComponent();
     }
 }

@@ -4,14 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class CoordinateSystemNode : ScreenSpacedNode
-        {
+        public class CoordinateSystemNode : ScreenSpacedNode {
             private static readonly float arrowSize = 5.5f;
             private static readonly float arrowWidth = 0.6f;
             private static readonly float arrowHead = 1.7f;
@@ -34,8 +31,7 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public CoordinateSystemNode()
-            {
+            public CoordinateSystemNode() {
                 IsHitTestVisible = false;
                 CameraType = ScreenSpacedCameraType.Perspective;
                 arrowMeshModel.Material = new ColorMaterialCore();
@@ -57,11 +53,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the axis x.
             /// </value>
-            public Color4 AxisXColor
-            {
+            public Color4 AxisXColor {
                 get => axisXColor;
-                set
-                {
+                set {
                     if (Set(ref axisXColor, value)) UpdateAxisColor(0, value);
                 }
             }
@@ -72,11 +66,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the axis y.
             /// </value>
-            public Color4 AxisYColor
-            {
+            public Color4 AxisYColor {
                 get => axisYColor;
-                set
-                {
+                set {
                     if (Set(ref axisYColor, value)) UpdateAxisColor(1, value);
                 }
             }
@@ -87,11 +79,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the axis z.
             /// </value>
-            public Color4 AxisZColor
-            {
+            public Color4 AxisZColor {
                 get => axisZColor;
-                set
-                {
+                set {
                     if (Set(ref axisZColor, value)) UpdateAxisColor(2, value);
                 }
             }
@@ -102,11 +92,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the label.
             /// </value>
-            public Color4 LabelColor
-            {
+            public Color4 LabelColor {
                 get => labelColor;
-                set
-                {
+                set {
                     if (Set(ref labelColor, value)) UpdateLabelColor(value);
                 }
             }
@@ -117,11 +105,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The label x.
             /// </value>
-            public string LabelX
-            {
+            public string LabelX {
                 get => labelX;
-                set
-                {
+                set {
                     if (Set(ref labelX, value)) UpdateAxisLabel(0, value);
                 }
             }
@@ -132,11 +118,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The label y.
             /// </value>
-            public string LabelY
-            {
+            public string LabelY {
                 get => labelY;
-                set
-                {
+                set {
                     if (Set(ref labelY, value)) UpdateAxisLabel(1, value);
                 }
             }
@@ -147,17 +131,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The label z.
             /// </value>
-            public string LabelZ
-            {
+            public string LabelZ {
                 get => labelZ;
-                set
-                {
+                set {
                     if (Set(ref labelZ, value)) UpdateAxisLabel(2, value);
                 }
             }
 
-            private void UpdateModel()
-            {
+            private void UpdateModel() {
                 var builder = new MeshBuilder(true, false);
 
                 builder.AddArrow(Vector3.Zero, new Vector3(arrowSize, 0, 0), arrowWidth, arrowHead, 8);
@@ -171,11 +152,9 @@ namespace HelixToolkit.SharpDX.Core
                 UpdateAxisColor(arrowMeshModel.Geometry, 2, AxisZColor, LabelZ, LabelColor);
             }
 
-            private void UpdateAxisColor(int which, Color4 color)
-            {
+            private void UpdateAxisColor(int which, Color4 color) {
                 var label = string.Empty;
-                switch (which)
-                {
+                switch (which) {
                     case 0:
                         label = LabelX;
                         break;
@@ -192,11 +171,9 @@ namespace HelixToolkit.SharpDX.Core
                 UpdateAxisColor(arrowMeshModel.Geometry, which, color, label, LabelColor);
             }
 
-            private void UpdateAxisLabel(int which, string label)
-            {
+            private void UpdateAxisLabel(int which, string label) {
                 Color4 color = Color.Red;
-                switch (which)
-                {
+                switch (which) {
                     case 0:
                         color = AxisXColor;
                         break;
@@ -213,8 +190,7 @@ namespace HelixToolkit.SharpDX.Core
                 UpdateAxisColor(arrowMeshModel.Geometry, which, color, label, LabelColor);
             }
 
-            private void UpdateLabelColor(Color4 color)
-            {
+            private void UpdateLabelColor(Color4 color) {
                 UpdateAxisColor(arrowMeshModel.Geometry, 0, AxisXColor, LabelX, LabelColor);
                 UpdateAxisColor(arrowMeshModel.Geometry, 1, AxisYColor, LabelY, LabelColor);
                 UpdateAxisColor(arrowMeshModel.Geometry, 2, AxisZColor, LabelZ, LabelColor);
@@ -227,11 +203,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="color"></param>
             /// <param name="label"></param>
             /// <param name="labelColor"></param>
-            protected void UpdateAxisColor(Geometry3D mesh, int which, Color4 color, string label, Color4 labelColor)
-            {
+            protected void UpdateAxisColor(Geometry3D mesh, int which, Color4 color, string label, Color4 labelColor) {
                 var labelText = axisBillboard.Geometry as BillboardText3D;
-                switch (which)
-                {
+                switch (which) {
                     case 0:
                         labelText.TextInfo[which] = new TextInfo(label, new Vector3(arrowSize + 1.5f, 0, 0))
                             {Foreground = labelColor, Scale = 0.5f};
@@ -250,14 +224,13 @@ namespace HelixToolkit.SharpDX.Core
 
                 var segment = mesh.Positions.Count / 3;
                 var colors = new Color4Collection(mesh.Colors == null
-                    ? Enumerable.Repeat<Color4>(Color.Black, mesh.Positions.Count)
-                    : mesh.Colors);
+                                                      ? Enumerable.Repeat<Color4>(Color.Black, mesh.Positions.Count)
+                                                      : mesh.Colors);
                 for (var i = segment * which; i < segment * (which + 1); ++i) colors[i] = color;
                 mesh.Colors = colors;
             }
 
-            protected override bool CanHitTest(HitTestContext context)
-            {
+            protected override bool CanHitTest(HitTestContext context) {
                 return false;
             }
         }

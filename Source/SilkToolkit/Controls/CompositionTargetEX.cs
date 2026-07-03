@@ -1,36 +1,29 @@
 ﻿using System;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Controls
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Controls {
         /// <summary>
         ///     https://evanl.wordpress.com/2009/12/06/efficient-optimal-per-frame-eventing-in-wpf/
         /// </summary>
-        public sealed class CompositionTargetEx : IDisposable
-        {
+        public sealed class CompositionTargetEx : IDisposable {
             private TimeSpan _last = TimeSpan.Zero;
             private event EventHandler<RenderingEventArgs> _FrameUpdating;
 
-            public event EventHandler<RenderingEventArgs> Rendering
-            {
-                add
-                {
+            public event EventHandler<RenderingEventArgs> Rendering {
+                add {
                     if (_FrameUpdating == null)
                         CompositionTarget.Rendering += CompositionTarget_Rendering;
                     _FrameUpdating += value;
                 }
-                remove
-                {
+                remove {
                     _FrameUpdating -= value;
                     if (_FrameUpdating == null)
                         CompositionTarget.Rendering -= CompositionTarget_Rendering;
                 }
             }
 
-            private void CompositionTarget_Rendering(object sender, EventArgs e)
-            {
+            private void CompositionTarget_Rendering(object sender, EventArgs e) {
                 var args = (RenderingEventArgs) e;
                 if (args.RenderingTime == _last)
                     return;
@@ -38,17 +31,14 @@ namespace HelixToolkit.Wpf.SharpDX
                 _FrameUpdating?.Invoke(sender, args);
             }
 
-            #region IDisposable Support
+        #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
-            private void Dispose(bool disposing)
-            {
+            private void Dispose(bool disposing) {
                 CompositionTarget.Rendering -= CompositionTarget_Rendering;
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
+                if (!disposedValue) {
+                    if (disposing) {
                         // TODO: dispose managed state (managed objects).
                     }
 
@@ -60,22 +50,20 @@ namespace HelixToolkit.Wpf.SharpDX
             }
 
             // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-            ~CompositionTargetEx()
-            {
+            ~CompositionTargetEx() {
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(false);
             }
 
             // This code added to correctly implement the disposable pattern.
-            public void Dispose()
-            {
+            public void Dispose() {
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(true);
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 GC.SuppressFinalize(this);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

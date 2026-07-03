@@ -4,15 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     Static octree for points
         /// </summary>
-        public class StaticPointGeometryOctree : StaticOctree<int>
-        {
+        public class StaticPointGeometryOctree : StaticOctree<int> {
             private static readonly Vector3 BoundOffset = new(0.001f);
             protected readonly IList<Vector3> Positions;
 
@@ -21,10 +18,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="positions"></param>
             /// <param name="parameter"></param>
             /// <param name="stackCache"></param>
-            public StaticPointGeometryOctree(IList<Vector3> positions,
-                OctreeBuildParameter parameter, Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null)
-                : base(parameter)
-            {
+            public StaticPointGeometryOctree(
+                IList<Vector3> positions,
+                OctreeBuildParameter parameter,
+                Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+            )
+                : base(parameter) {
                 Positions = positions;
             }
 
@@ -33,8 +32,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="item">The item.</param>
             /// <returns></returns>
-            protected override BoundingBox GetBoundingBoxFromItem(ref int item)
-            {
+            protected override BoundingBox GetBoundingBoxFromItem(ref int item) {
                 return new BoundingBox(Positions[item] - BoundOffset, Positions[item] + BoundOffset);
             }
 
@@ -42,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Gets the maximum bound.
             /// </summary>
             /// <returns></returns>
-            protected override BoundingBox GetMaxBound()
-            {
+            protected override BoundingBox GetMaxBound() {
                 return BoundingBoxExtensions.FromPoints(Positions);
             }
 
@@ -53,8 +50,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="target"></param>
             /// <param name="obj"></param>
             /// <returns></returns>
-            protected override bool IsContains(ref BoundingBox source, BoundingBox target, ref int obj)
-            {
+            protected override bool IsContains(ref BoundingBox source, BoundingBox target, ref int obj) {
                 var point = Positions[obj];
                 //Bound contains point.
                 return source.Minimum.X <= point.X && source.Maximum.X >= point.X &&
@@ -66,16 +62,20 @@ namespace HelixToolkit.SharpDX.Core
             ///     Gets the objects.
             /// </summary>
             /// <returns></returns>
-            protected override int[] GetObjects()
-            {
+            protected override int[] GetObjects() {
                 var objects = new int[Positions.Count];
                 for (var i = 0; i < Positions.Count; ++i) objects[i] = i;
                 return objects;
             }
 
-            public override bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                ref List<HitTestResult> hits, float hitThickness)
-            {
+            public override bool HitTest(
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref List<HitTestResult> hits,
+                float hitThickness
+            ) {
                 needRecalculate = true;
                 return base.HitTest(context, model, geometry, modelMatrix, ref hits, hitThickness);
             }
@@ -93,23 +93,28 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="isIntersect"></param>
             /// <param name="hitThickness"></param>
             /// <returns></returns>
-            protected override bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context,
+            protected override bool HitTestCurrentNodeExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
                 object model,
-                Geometry3D geometry, Matrix modelMatrix, ref Ray rayModel, bool returnMultiple,
-                ref List<HitTestResult> hits, ref bool isIntersect, float hitThickness)
-            {
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref Ray rayModel,
+                bool returnMultiple,
+                ref List<HitTestResult> hits,
+                ref bool isIntersect,
+                float hitThickness
+            ) {
                 isIntersect = false;
                 if (!octant.IsBuilt || context == null) return false;
                 var isHit = false;
                 var bound = octant.Bound;
-                if (rayModel.Intersects(ref bound))
-                {
+                if (rayModel.Intersects(ref bound)) {
                     isIntersect = true;
                     if (octant.Count == 0) return false;
                     var result = new HitTestResult();
                     result.Distance = double.MaxValue;
-                    if (needRecalculate)
-                    {
+                    if (needRecalculate) {
                         var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
                         smvpm = modelMatrix * svpm;
                         needRecalculate = false;
@@ -119,8 +124,7 @@ namespace HelixToolkit.SharpDX.Core
                     isIntersect = true;
                     var dist = hitThickness;
                     var rayWS = context.RayWS;
-                    for (var i = octant.Start; i < octant.End; ++i)
-                    {
+                    for (var i = octant.Start; i < octant.End; ++i) {
                         var v0 = Positions[Objects[i]];
                         var p0 = SilkMath.TransformCoordinate(v0, smvpm);
                         var pv = p0 - clickPoint;
@@ -137,27 +141,21 @@ namespace HelixToolkit.SharpDX.Core
                             result.Tag = Objects[i];
                             result.Geometry = geometry;
                             isHit = true;
-                            if (returnMultiple)
-                            {
+                            if (returnMultiple) {
                                 hits.Add(result);
                                 result = new HitTestResult();
                             }
                         }
                     }
 
-                    if (isHit && !returnMultiple)
-                    {
+                    if (isHit && !returnMultiple) {
                         isHit = false;
-                        if (hits.Count > 0)
-                        {
-                            if (hits[0].Distance > result.Distance)
-                            {
+                        if (hits.Count > 0) {
+                            if (hits[0].Distance > result.Distance) {
                                 hits[0] = result;
                                 isHit = true;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             hits.Add(result);
                             isHit = true;
                         }
@@ -175,23 +173,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="result"></param>
             /// <param name="isIntersect"></param>
             /// <returns></returns>
-            protected override bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context,
-                ref BoundingSphere sphere, ref List<HitTestResult> result, ref bool isIntersect)
-            {
+            protected override bool FindNearestPointBySphereExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
+                ref BoundingSphere sphere,
+                ref List<HitTestResult> result,
+                ref bool isIntersect
+            ) {
                 var isHit = false;
                 var resultTemp = new HitTestResult();
                 resultTemp.Distance = float.MaxValue;
-                if (!BoxDisjointSphere(octant.Bound, ref sphere))
-                {
+                if (!BoxDisjointSphere(octant.Bound, ref sphere)) {
                     isIntersect = true;
-                    for (var i = octant.Start; i < octant.End; ++i)
-                    {
+                    for (var i = octant.Start; i < octant.End; ++i) {
                         var p = Positions[Objects[i]];
-                        if (BoundingSphereExtensions.Contains(sphere, p) != ContainmentType.Disjoint)
-                        {
+                        if (BoundingSphereExtensions.Contains(sphere, p) != ContainmentType.Disjoint) {
                             var d = (p - sphere.Center).Length;
-                            if (resultTemp.Distance > d)
-                            {
+                            if (resultTemp.Distance > d) {
                                 resultTemp.Distance = d;
                                 resultTemp.IsValid = true;
                                 resultTemp.PointHit = p;
@@ -201,38 +199,31 @@ namespace HelixToolkit.SharpDX.Core
                         }
                     }
 
-                    if (isHit)
-                    {
+                    if (isHit) {
                         isHit = false;
-                        if (result.Count > 0)
-                        {
-                            if (result[0].Distance > resultTemp.Distance)
-                            {
+                        if (result.Count > 0) {
+                            if (result[0].Distance > resultTemp.Distance) {
                                 result[0] = resultTemp;
                                 isHit = true;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             result.Add(resultTemp);
                             isHit = true;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     isIntersect = false;
                 }
 
                 return isHit;
             }
 
-            #region Temp Variables for hittest
+        #region Temp Variables for hittest
 
             private bool needRecalculate = true;
             private Matrix smvpm;
 
-            #endregion
+        #endregion
         }
     }
 }

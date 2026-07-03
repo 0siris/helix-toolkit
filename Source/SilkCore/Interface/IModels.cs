@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IBillboardText
-{
+public interface IBillboardText {
     /// <summary>
     ///     Gets the type.
     /// </summary>
@@ -70,8 +69,7 @@ public interface IBillboardText
 /// <summary>
 /// </summary>
 [Flags]
-public enum BillboardType
-{
+public enum BillboardType {
     SingleText = 1,
     MultipleText = 2,
     Image = 4
@@ -80,8 +78,7 @@ public enum BillboardType
 /// <summary>
 ///     Shows billboard horizontally relative to the origin.
 /// </summary>
-public enum BillboardHorizontalAlignment
-{
+public enum BillboardHorizontalAlignment {
     Center,
     Left,
     Right
@@ -90,8 +87,7 @@ public enum BillboardHorizontalAlignment
 /// <summary>
 ///     Shows billboard vertically relative to the origin.
 /// </summary>
-public enum BillboardVerticalAlignment
-{
+public enum BillboardVerticalAlignment {
     Center,
     Top,
     Bottom
@@ -100,8 +96,7 @@ public enum BillboardVerticalAlignment
 /// <summary>
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface ILightsBufferProxy<T> where T : unmanaged
-{
+public interface ILightsBufferProxy<T> where T : unmanaged {
     /// <summary>
     ///     Gets the size of the buffer.
     /// </summary>

@@ -12,8 +12,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Base class to handle disposable.
 /// </summary>
-public abstract class DisposeObject : IDisposable
-{
+public abstract class DisposeObject : IDisposable {
     internal Action<DisposeObject> AddBackToPool;
 
     /// <summary>
@@ -35,18 +34,14 @@ public abstract class DisposeObject : IDisposable
     ///     If true, managed resources should be
     ///     disposed of in addition to unmanaged resources.
     /// </param>
-    protected virtual void OnDispose(bool disposeManagedResources)
-    {
-    }
+    protected virtual void OnDispose(bool disposeManagedResources) { }
 
     /// <summary>
     ///     Dispose a disposable object and set the reference to null. Removes this object from this instance..
     /// </summary>
     /// <param name="objectToDispose">Object to dispose.</param>
-    public static void RemoveAndDispose<T>(ref T objectToDispose) where T : class, IDisposable
-    {
-        if (objectToDispose is IDisposable disposible)
-        {
+    public static void RemoveAndDispose<T>(ref T objectToDispose) where T : class, IDisposable {
+        if (objectToDispose is IDisposable disposible) {
             // Dispose the component
             disposible.Dispose();
 #pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
@@ -62,8 +57,7 @@ public abstract class DisposeObject : IDisposable
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="objectToDispose">The object to dispose.</param>
-    public static void RemoveAndDispose<T>(T objectToDispose) where T : class, IDisposable
-    {
+    public static void RemoveAndDispose<T>(T objectToDispose) where T : class, IDisposable {
         if (objectToDispose is IDisposable disposible)
             // Dispose the component
             disposible.Dispose();
@@ -76,14 +70,13 @@ public abstract class DisposeObject : IDisposable
     /// <param name="backingField"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    protected static bool Set<T>(ref T backingField, T value)
-    {
+    protected static bool Set<T>(ref T backingField, T value) {
         if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
         backingField = value;
         return true;
     }
 
-    #region IDisposible
+#region IDisposible
 
     public int RefCount => AtomicHelper.Read(ref refCounter_);
 
@@ -93,8 +86,7 @@ public abstract class DisposeObject : IDisposable
     ///     Increase reference counter
     /// </summary>
     /// <returns></returns>
-    public int IncRef()
-    {
+    public int IncRef() {
         // Increment only greater than 1
         AtomicHelper.IncrementIfGreaterThan(ref refCounter_, 0);
         return AtomicHelper.Read(ref refCounter_);
@@ -103,8 +95,7 @@ public abstract class DisposeObject : IDisposable
     /// <summary>
     ///     Forces the dispose.
     /// </summary>
-    public void ForceDispose()
-    {
+    public void ForceDispose() {
         // Set ref counter to 1 if greater than 1
         AtomicHelper.ExchangeIfGreaterThan(ref refCounter_, 1, 1);
         Dispose();
@@ -139,17 +130,14 @@ public abstract class DisposeObject : IDisposable
 #pragma warning restore CA1063 // Implement IDisposable Correctly
     {
         // If already 0, return.
-        if (!AtomicHelper.DecrementIfGreaterThan(ref refCounter_, 0))
-        {
+        if (!AtomicHelper.DecrementIfGreaterThan(ref refCounter_, 0)) {
             Debug.Assert(RefCount == 0);
             return;
         }
 
         var currRef = RefCount;
-        if (currRef == 0 && !IsDisposed)
-        {
-            if (Interlocked.Increment(ref disposeCount_) == 1)
-            {
+        if (currRef == 0 && !IsDisposed) {
+            if (Interlocked.Increment(ref disposeCount_) == 1) {
                 AddBackToPool = null;
                 Disposing?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
                 Disposing = null;
@@ -161,12 +149,10 @@ public abstract class DisposeObject : IDisposable
                 Disposed?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
                 Disposed = null;
             }
-        }
-        else if (currRef == 1)
-        {
+        } else if (currRef == 1) {
             AddBackToPool?.Invoke(this);
         }
     }
 
-    #endregion
+#endregion
 }

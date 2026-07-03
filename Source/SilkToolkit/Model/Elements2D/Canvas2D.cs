@@ -8,29 +8,23 @@ using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Core2D;
 
-namespace HelixToolkit.Wpf.SharpDX
-{
-    namespace Elements2D
-    {
+namespace HelixToolkit.Wpf.SharpDX {
+    namespace Elements2D {
         /// <summary>
         ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement2DCollection
         /// </summary>
-        public class Canvas2D : Panel2D
-        {
-            protected override SceneNode2D OnCreateSceneNode()
-            {
+        public class Canvas2D : Panel2D {
+            protected override SceneNode2D OnCreateSceneNode() {
                 return new Node2DCanvas();
             }
 
-            protected class Node2DCanvas : PanelNode2D
-            {
+            protected class Node2DCanvas : PanelNode2D {
                 /// <summary>
                 ///     Measures the override.
                 /// </summary>
                 /// <param name="availableSize">Size of the available.</param>
                 /// <returns></returns>
-                protected override Size2F MeasureOverride(Size2F availableSize)
-                {
+                protected override Size2F MeasureOverride(Size2F availableSize) {
                     var childConstraint = new Size2F(float.PositiveInfinity, float.PositiveInfinity);
                     foreach (var child in Items) child.Measure(childConstraint);
                     return new Size2F();
@@ -41,33 +35,25 @@ namespace HelixToolkit.Wpf.SharpDX
                 /// </summary>
                 /// <param name="finalSize">The final size.</param>
                 /// <returns></returns>
-                protected override RectangleF ArrangeOverride(RectangleF finalSize)
-                {
+                protected override RectangleF ArrangeOverride(RectangleF finalSize) {
                     foreach (var child in Items)
-                        if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D)
-                        {
+                        if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D) {
                             float xPos = 0;
                             float yPos = 0;
                             var left = GetLeft(element2D);
                             var desired = c.DesiredSize;
-                            if (left != double.PositiveInfinity)
-                            {
+                            if (left != double.PositiveInfinity) {
                                 xPos = (float) left;
-                            }
-                            else
-                            {
+                            } else {
                                 var right = GetRight(element2D);
                                 if (right != double.PositiveInfinity)
                                     xPos = finalSize.Width - desired.X - (float) right;
                             }
 
                             var top = GetTop(element2D);
-                            if (top != double.PositiveInfinity)
-                            {
+                            if (top != double.PositiveInfinity) {
                                 yPos = (float) top;
-                            }
-                            else
-                            {
+                            } else {
                                 var bottom = GetBottom(element2D);
                                 if (bottom != double.PositiveInfinity)
                                     yPos = finalSize.Height - desired.Y - (float) bottom;
@@ -81,13 +67,14 @@ namespace HelixToolkit.Wpf.SharpDX
                 }
             }
 
-            #region Attached Properties
+        #region Attached Properties
 
             /// <summary>
             ///     The left property
             /// </summary>
             public static readonly DependencyProperty LeftProperty = DependencyProperty.RegisterAttached("Left",
-                typeof(double), typeof(Canvas2D),
+                typeof(double),
+                typeof(Canvas2D),
                 new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -95,8 +82,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetLeft(Element2DCore element, double value)
-            {
+            public static void SetLeft(Element2DCore element, double value) {
                 element.SetValue(LeftProperty, value);
             }
 
@@ -105,8 +91,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetLeft(Element2DCore element)
-            {
+            public static double GetLeft(Element2DCore element) {
                 return (double) element.GetValue(LeftProperty);
             }
 
@@ -114,7 +99,8 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     The top property
             /// </summary>
             public static readonly DependencyProperty TopProperty = DependencyProperty.RegisterAttached("Top",
-                typeof(double), typeof(Canvas2D),
+                typeof(double),
+                typeof(Canvas2D),
                 new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -122,8 +108,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetTop(Element2DCore element, double value)
-            {
+            public static void SetTop(Element2DCore element, double value) {
                 element.SetValue(TopProperty, value);
             }
 
@@ -132,8 +117,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetTop(Element2DCore element)
-            {
+            public static double GetTop(Element2DCore element) {
                 return (double) element.GetValue(TopProperty);
             }
 
@@ -141,7 +125,8 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     The right property
             /// </summary>
             public static readonly DependencyProperty RightProperty = DependencyProperty.RegisterAttached("Right",
-                typeof(double), typeof(Canvas2D),
+                typeof(double),
+                typeof(Canvas2D),
                 new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -149,8 +134,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetRight(Element2DCore element, double value)
-            {
+            public static void SetRight(Element2DCore element, double value) {
                 element.SetValue(RightProperty, value);
             }
 
@@ -159,8 +143,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetRight(Element2DCore element)
-            {
+            public static double GetRight(Element2DCore element) {
                 return (double) element.GetValue(RightProperty);
             }
 
@@ -168,7 +151,8 @@ namespace HelixToolkit.Wpf.SharpDX
             ///     The bottom property
             /// </summary>
             public static readonly DependencyProperty BottomProperty = DependencyProperty.RegisterAttached("Bottom",
-                typeof(double), typeof(Canvas2D),
+                typeof(double),
+                typeof(Canvas2D),
                 new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
 
             /// <summary>
@@ -176,8 +160,7 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <param name="value">The value.</param>
-            public static void SetBottom(Element2DCore element, double value)
-            {
+            public static void SetBottom(Element2DCore element, double value) {
                 element.SetValue(BottomProperty, value);
             }
 
@@ -186,12 +169,11 @@ namespace HelixToolkit.Wpf.SharpDX
             /// </summary>
             /// <param name="element">The element.</param>
             /// <returns></returns>
-            public static double GetBottom(Element2DCore element)
-            {
+            public static double GetBottom(Element2DCore element) {
                 return (double) element.GetValue(BottomProperty);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

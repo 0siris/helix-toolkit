@@ -13,8 +13,7 @@
 // http://casual-effects.blogspot.com/2014/03/weighted-blended-order-independent.html
 //--------------------------------------------------------------------------------------
 
-PSOITOutput meshBlinnPhongOIT(PSInput input)
-{    
+PSOITOutput meshBlinnPhongOIT(PSInput input) {
     float4 color = main(input);
     return calculateOIT(color, input.vEye.w, input.p.z);
 }
@@ -27,16 +26,14 @@ RWBuffer<float> deepBufferDepth : register(u2);
 RWBuffer<uint4> deepBufferColor : register(u3);
 RWBuffer<uint> prefixSum : register(u4);
 
-void FragmentCountPS(PSInput input)
-{
+void FragmentCountPS(PSInput input) {
     // Increments need to be done atomically
     InterlockedAdd(fragmentCount[input.p.xy], 1);
 }
 
-void meshBlinnPhongOITSort(PSInput input)
-{
+void meshBlinnPhongOITSort(PSInput input) {
     float4 color = main(input);
-    
+
     uint x = input.p.x;
     uint y = input.p.y;
 
@@ -46,10 +43,8 @@ void meshBlinnPhongOITSort(PSInput input)
 
     uint nPrefixSumPos = y * vViewport.x + x;
     uint nDeepBufferPos;
-    if (nPrefixSumPos == 0)
-        nDeepBufferPos = fc;
-    else
-        nDeepBufferPos = prefixSum[nPrefixSumPos - 1] + fc;
+    if (nPrefixSumPos == 0) nDeepBufferPos = fc;
+    else nDeepBufferPos = prefixSum[nPrefixSumPos - 1] + fc;
 
     // Store fragment data into the allocated space
     deepBufferDepth[nDeepBufferPos] = input.p.z;

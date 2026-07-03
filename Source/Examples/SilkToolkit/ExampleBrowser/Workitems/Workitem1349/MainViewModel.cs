@@ -3,71 +3,73 @@
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace Workitem1349
-{
 
-    using System.Linq;
-    using DemoCore;
-    using HelixToolkit.Wpf.SharpDX;
-    using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
-    using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+namespace Workitem1349;
 
-    using Point3D = System.Windows.Media.Media3D.Point3D;
-    using Vector3D = System.Windows.Media.Media3D.Vector3D;
-    using Color = System.Windows.Media.Color;
-    using Colors = System.Windows.Media.Colors;
-    using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using System.Linq;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
+using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
-    public class MainViewModel : BaseViewModel
-    {
-        public MeshGeometry3D Model { get; private set; }
-        public LineGeometry3D Grid { get; private set; }
+public class MainViewModel : BaseViewModel {
+    public MeshGeometry3D Model { get; private set; }
+    public LineGeometry3D Grid { get; private set; }
 
-        public HelixToolkit.SharpDX.Core.Color GridColor { get; private set; }
+    public HelixToolkit.SharpDX.Core.Color GridColor { get; private set; }
 
-        public Color DirectionalLightColor { get; private set; }
-        public Color AmbientLightColor { get; private set; }
+    public Color DirectionalLightColor { get; private set; }
+    public Color AmbientLightColor { get; private set; }
 
-        public BillboardText3D Text3D { get; set; } = new BillboardText3D()
-        {
-            IsDynamic = true
+    public BillboardText3D Text3D { get; set; } = new BillboardText3D() {
+        IsDynamic = true
+    };
+
+    public MainViewModel() {
+        // titles
+        this.Title = "Bug? BillboardText3D not visible until origin comes in sight.";
+        this.SubTitle =
+            "Please move or rotate the view and see how the BillboardText suddenly appears when the origin (right front edge of the grid) comes into view.";
+
+        // camera setup
+        this.Camera = new PerspectiveCamera {
+            Position = new Point3D(4.4, 2.2, -4.4), LookDirection = new Vector3D(0, -4, 10),
+            UpDirection = new Vector3D(0, 1, 0)
         };
 
-        public MainViewModel()
-        {
-            // titles
-            this.Title = "Bug? BillboardText3D not visible until origin comes in sight.";
-            this.SubTitle = "Please move or rotate the view and see how the BillboardText suddenly appears when the origin (right front edge of the grid) comes into view.";
+        EffectsManager = new DefaultEffectsManager();
 
-            // camera setup
-            this.Camera = new PerspectiveCamera { Position = new Point3D(4.4, 2.2, -4.4), LookDirection = new Vector3D(0, -4, 10), UpDirection = new Vector3D(0, 1, 0) };
+        // setup lighting
+        this.AmbientLightColor = Colors.Black;
+        this.DirectionalLightColor = Colors.White;
 
-            EffectsManager = new DefaultEffectsManager();
+        // floor plane grid
+        this.Grid = LineBuilder.GenerateGrid();
+        this.GridColor = HelixToolkit.SharpDX.Core.Color.Black;
 
-            // setup lighting
-            this.AmbientLightColor = Colors.Black;
-            this.DirectionalLightColor = Colors.White;
+        // scene model3d
+        var b1 = new MeshBuilder();
+        b1.AddSphere(new Vector3(0, 0, 0), 0.05);
 
-            // floor plane grid
-            this.Grid = LineBuilder.GenerateGrid();
-            this.GridColor = HelixToolkit.SharpDX.Core.Color.Black;
+        var meshGeometry = b1.ToMeshGeometry3D();
+        meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
+        this.Model = meshGeometry;
 
-            // scene model3d
-            var b1 = new MeshBuilder();
-            b1.AddSphere(new Vector3(0, 0, 0), 0.05);
-
-            var meshGeometry = b1.ToMeshGeometry3D();
-            meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
-            this.Model = meshGeometry;
-
-            // Create Billboard Text
-            float offset = 4.5f;
-            float scale = 0.8f;
-            Text3D.TextInfo.Add(new TextInfo("2", new Vector3(2,0,0)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
-            Text3D.TextInfo.Add(new TextInfo("3", new Vector3(3,0,3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
-            Text3D.TextInfo.Add(new TextInfo("4", new Vector3(4,0,3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
-            Text3D.TextInfo.Add(new TextInfo("5", new Vector3(5,0,3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
-
-        }
+        // Create Billboard Text
+        float offset = 4.5f;
+        float scale = 0.8f;
+        Text3D.TextInfo.Add(new TextInfo("2", new Vector3(2, 0, 0))
+                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
+        Text3D.TextInfo.Add(new TextInfo("3", new Vector3(3, 0, 3))
+                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
+        Text3D.TextInfo.Add(new TextInfo("4", new Vector3(4, 0, 3))
+                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
+        Text3D.TextInfo.Add(new TextInfo("5", new Vector3(5, 0, 3))
+                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
     }
 }

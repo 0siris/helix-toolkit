@@ -17,8 +17,7 @@ using System.Windows.Media.Imaging;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public enum Direct2DImageFormat
-{
+public enum Direct2DImageFormat {
     Png,
     Gif,
     Ico,
@@ -28,12 +27,10 @@ public enum Direct2DImageFormat
     Bmp
 }
 
-public static class BitmapExtensions
-{
+public static class BitmapExtensions {
     private static readonly ILogger logger = LogManager.Create(nameof(BitmapExtensions));
 
-    private static class ImageContainerFormats
-    {
+    private static class ImageContainerFormats {
         public static readonly Guid Bmp = new("0af1d87e-fcfe-4188-bdeb-a7906471cbe3");
         public static readonly Guid Png = new("1b7cfaf4-713f-473c-bbcd-6137425faeaf");
         public static readonly Guid Ico = new("a3a860c4-338f-4c17-919a-fba4b5628f21");
@@ -43,56 +40,67 @@ public static class BitmapExtensions
         public static readonly Guid Gif = new("1f8a5601-7d4d-4cbd-9c82-1bc8d4eeb9a5");
     }
 
-    public static MemoryStream ToBitmapStream(this string text, int fontSize, Color4 foreground,
-        Color4 background, string fontFamily, FontWeight fontWeight, FontStyle fontStyle, Vector4 padding,
-        ref float width, ref float height, bool predefinedSize,
-        IDevice2DResources deviceResources)
-    {
-        using (var layout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle))
-        {
+    public static MemoryStream ToBitmapStream(
+        this string text,
+        int fontSize,
+        Color4 foreground,
+        Color4 background,
+        string fontFamily,
+        FontWeight fontWeight,
+        FontStyle fontStyle,
+        Vector4 padding,
+        ref float width,
+        ref float height,
+        bool predefinedSize,
+        IDevice2DResources deviceResources
+    ) {
+        using (var layout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle)) {
             var metrices = layout.Metrics;
-            if (!predefinedSize)
-            {
+            if (!predefinedSize) {
                 width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
                 height = (float) Math.Ceiling(metrices.Height + padding.Y + padding.W);
-            }
-            else
-            {
+            } else {
                 var scale = width / height;
                 width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
                 height = width / scale;
             }
 
-            using (var bitmap = CreateBitmapStream(deviceResources, (int) width, (int) height, Direct2DImageFormat.Bmp,
-                       target =>
-                       {
-                           target.Clear(background);
-                           using (var brush = new SolidColorBrush(target, foreground))
-                           {
-                               target.DrawTextLayout(new Vector2(padding.X, padding.Y), layout, brush);
-                           }
-                       }))
-            {
+            using (var bitmap = CreateBitmapStream(deviceResources,
+                                                   (int) width,
+                                                   (int) height,
+                                                   Direct2DImageFormat.Bmp,
+                                                   target => {
+                                                       target.Clear(background);
+                                                       using (var brush = new SolidColorBrush(target, foreground)) {
+                                                           target.DrawTextLayout(
+                                                               new Vector2(padding.X, padding.Y),
+                                                               layout,
+                                                               brush);
+                                                       }
+                                                   })) {
                 return bitmap.ToMemoryStream(deviceResources);
             }
         }
     }
 
-    public static TextLayout GetTextLayoutMetrices(this string text, IDevice2DResources deviceResources, int fontSize,
-        string fontFamily, FontWeight fontWeight, FontStyle fontStyle,
-        float maxWidth = float.MaxValue, float maxHeight = float.MaxValue)
-    {
+    public static TextLayout GetTextLayoutMetrices(
+        this string text,
+        IDevice2DResources deviceResources,
+        int fontSize,
+        string fontFamily,
+        FontWeight fontWeight,
+        FontStyle fontStyle,
+        float maxWidth = float.MaxValue,
+        float maxHeight = float.MaxValue
+    ) {
         using (var format =
-               new TextFormat(deviceResources.DirectWriteFactory, fontFamily, fontWeight, fontStyle, fontSize))
-        {
+               new TextFormat(deviceResources.DirectWriteFactory, fontFamily, fontWeight, fontStyle, fontSize)) {
             return new TextLayout(deviceResources.DirectWriteFactory, text, format, maxWidth, maxHeight);
         }
     }
 
-    public static Guid ToWICImageFormat(this Direct2DImageFormat format)
-    {
-        switch (format)
-        {
+    public static Guid ToWICImageFormat(this Direct2DImageFormat format) {
+        switch (format) {
             case Direct2DImageFormat.Bmp:
                 return ImageContainerFormats.Bmp;
             case Direct2DImageFormat.Ico:
@@ -112,9 +120,13 @@ public static class BitmapExtensions
         throw new NotSupportedException();
     }
 
-    public static Bitmap CreateBitmapStream(IDevice2DResources deviceResources, int width, int height,
-        Direct2DImageFormat imageType, Action<D2DDeviceContext> drawingAction)
-    {
+    public static Bitmap CreateBitmapStream(
+        IDevice2DResources deviceResources,
+        int width,
+        int height,
+        Direct2DImageFormat imageType,
+        Action<D2DDeviceContext> drawingAction
+    ) {
         if (width <= 0 || height <= 0) return null;
 
         if (deviceResources is not IDevice3DResources device3D
@@ -122,8 +134,7 @@ public static class BitmapExtensions
             || deviceResources.DeviceContext2D?.HasNativeContext != true)
             return new Bitmap(new Size2F(width, height));
 
-        var texture = device3D.NativeDeviceResources.Device.CreateTexture2D(new Texture2DDescription
-        {
+        var texture = device3D.NativeDeviceResources.Device.CreateTexture2D(new Texture2DDescription {
             Width = width,
             Height = height,
             MipLevels = 1,
@@ -136,33 +147,27 @@ public static class BitmapExtensions
             Usage = ResourceUsage.Default
         });
         BitmapProxy target = null;
-        try
-        {
+        try {
             var context = deviceResources.DeviceContext2D;
-            var properties = BitmapProxy.CreateDescription(
-                context.DotsPerInch.Width,
-                context.DotsPerInch.Height,
-                Format.FormatB8G8R8A8Unorm,
-                D2DAlphaMode.Premultiplied,
-                D2DBitmapOptions.Target);
+            var properties = BitmapProxy.CreateDescription(context.DotsPerInch.Width,
+                                                           context.DotsPerInch.Height,
+                                                           Format.FormatB8G8R8A8Unorm,
+                                                           D2DAlphaMode.Premultiplied,
+                                                           D2DBitmapOptions.Target);
             var nativeBitmap = context.CreateTargetBitmap(texture, properties);
-            target = new BitmapProxy(
-                nameof(BitmapExtensions),
-                context,
-                new Size2(width, height),
-                properties,
-                nativeBitmap);
+            target = new BitmapProxy(nameof(BitmapExtensions),
+                                     context,
+                                     new Size2(width, height),
+                                     properties,
+                                     nativeBitmap);
             var previousTarget = context.Target;
-            try
-            {
+            try {
                 context.Target = target;
                 context.Transform = Matrix3x2.Identity;
                 context.BeginDraw();
                 drawingAction?.Invoke(context);
                 context.EndDraw();
-            }
-            finally
-            {
+            } finally {
                 context.Target = previousTarget;
             }
 
@@ -170,23 +175,21 @@ public static class BitmapExtensions
             texture = null;
             target = null;
             return bitmap;
-        }
-        finally
-        {
+        } finally {
             target?.Dispose();
             texture?.Dispose();
         }
     }
 
 
-    public static MemoryStream ToMemoryStream(this Bitmap bitmap,
+    public static MemoryStream ToMemoryStream(
+        this Bitmap bitmap,
         IDevice2DResources deviceResources,
-        Direct2DImageFormat imageType = Direct2DImageFormat.Bmp)
-    {
+        Direct2DImageFormat imageType = Direct2DImageFormat.Bmp
+    ) {
         if (bitmap == null) return null;
 
-        if (bitmap.Texture != null && deviceResources is IDeviceResources resources)
-        {
+        if (bitmap.Texture != null && deviceResources is IDeviceResources resources) {
             var stream = new MemoryStream();
             if (ScreenCapture.SaveWICTextureToStream(resources, bitmap.Texture, stream, imageType)) return stream;
             stream.Dispose();
@@ -197,8 +200,7 @@ public static class BitmapExtensions
         var stride = width * 4;
         var pixelDataSize = stride * height;
         var systemStream = new MemoryStream(54 + pixelDataSize);
-        using (var writer = new BinaryWriter(systemStream, Encoding.UTF8, true))
-        {
+        using (var writer = new BinaryWriter(systemStream, Encoding.UTF8, true)) {
             writer.Write((byte) 'B');
             writer.Write((byte) 'M');
             writer.Write(54 + pixelDataSize);
@@ -223,27 +225,41 @@ public static class BitmapExtensions
         return systemStream;
     }
 
-    public static MemoryStream CreateSolidColorBitmapStream(IDevice2DResources deviceResources,
-        int width, int height, Direct2DImageFormat imageType, Color4 color)
-    {
-        using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, target =>
-               {
-                   using (var brush =
-                          new SolidColorBrush(target, color, new BrushProperties {Opacity = color.GetAlpha()}))
-                   {
-                       target.FillRectangle(new RectangleF(0, 0, width, height), brush);
-                   }
-               }))
-        {
+    public static MemoryStream CreateSolidColorBitmapStream(
+        IDevice2DResources deviceResources,
+        int width,
+        int height,
+        Direct2DImageFormat imageType,
+        Color4 color
+    ) {
+        using (var bmp = CreateBitmapStream(deviceResources,
+                                            width,
+                                            height,
+                                            imageType,
+                                            target => {
+                                                using (var brush =
+                                                       new SolidColorBrush(
+                                                           target,
+                                                           color,
+                                                           new BrushProperties {Opacity = color.GetAlpha()})) {
+                                                    target.FillRectangle(new RectangleF(0, 0, width, height), brush);
+                                                }
+                                            })) {
             return bmp.ToMemoryStream(deviceResources, imageType);
         }
     }
 
-    public static MemoryStream CreateLinearGradientBitmapStream(IDevice2DResources deviceResources,
-        int width, int height, Direct2DImageFormat imageType, Vector2 startPoint, Vector2 endPoint,
+    public static MemoryStream CreateLinearGradientBitmapStream(
+        IDevice2DResources deviceResources,
+        int width,
+        int height,
+        Direct2DImageFormat imageType,
+        Vector2 startPoint,
+        Vector2 endPoint,
         GradientStop[] gradients,
-        ExtendMode extendMode = ExtendMode.Clamp, Gamma gamma = Gamma.StandardRgb)
-    {
+        ExtendMode extendMode = ExtendMode.Clamp,
+        Gamma gamma = Gamma.StandardRgb
+    ) {
 #if !NETFX_CORE
             return CreateWpfGradientBitmapStream(
                 width,
@@ -258,31 +274,47 @@ public static class BitmapExtensions
                     SpreadMethod = ToWpfSpreadMethod(extendMode)
                 });
 #else
-        using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, target =>
-               {
-                   using (var gradientCol = new GradientStopCollection(target, gradients, gamma, extendMode))
-                   {
-                       using (var brush = new LinearGradientBrush(target, new LinearGradientBrushProperties
-                              {
-                                  StartPoint = startPoint,
-                                  EndPoint = endPoint
-                              }, gradientCol))
-                       {
-                           target.FillRectangle(new RectangleF(0, 0, width, height), brush);
-                       }
-                   }
-               }))
-        {
+        using (var bmp = CreateBitmapStream(deviceResources,
+                                            width,
+                                            height,
+                                            imageType,
+                                            target => {
+                                                using (var gradientCol =
+                                                       new GradientStopCollection(
+                                                           target,
+                                                           gradients,
+                                                           gamma,
+                                                           extendMode)) {
+                                                    using (var brush = new LinearGradientBrush(target,
+                                                               new LinearGradientBrushProperties {
+                                                                   StartPoint = startPoint,
+                                                                   EndPoint = endPoint
+                                                               },
+                                                               gradientCol)) {
+                                                        target.FillRectangle(
+                                                            new RectangleF(0, 0, width, height),
+                                                            brush);
+                                                    }
+                                                }
+                                            })) {
             return bmp.ToMemoryStream(deviceResources, imageType);
         }
 #endif
     }
 
-    public static MemoryStream CreateRadiusGradientBitmapStream(IDevice2DResources deviceResources,
-        int width, int height, Direct2DImageFormat imageType, Vector2 center, Vector2 gradientOriginOffset,
-        float radiusX, float radiusY, GradientStop[] gradients,
-        ExtendMode extendMode = ExtendMode.Clamp, Gamma gamma = Gamma.StandardRgb)
-    {
+    public static MemoryStream CreateRadiusGradientBitmapStream(
+        IDevice2DResources deviceResources,
+        int width,
+        int height,
+        Direct2DImageFormat imageType,
+        Vector2 center,
+        Vector2 gradientOriginOffset,
+        float radiusX,
+        float radiusY,
+        GradientStop[] gradients,
+        ExtendMode extendMode = ExtendMode.Clamp,
+        Gamma gamma = Gamma.StandardRgb
+    ) {
 #if !NETFX_CORE
             return CreateWpfGradientBitmapStream(
                 width,
@@ -298,23 +330,31 @@ public static class BitmapExtensions
                     SpreadMethod = ToWpfSpreadMethod(extendMode)
                 });
 #else
-        using (var bmp = CreateBitmapStream(deviceResources, width, height, imageType, target =>
-               {
-                   using (var gradientCol = new GradientStopCollection(target, gradients, gamma, extendMode))
-                   {
-                       using (var brush = new RadialGradientBrush(target, new RadialGradientBrushProperties
-                              {
-                                  Center = center,
-                                  GradientOriginOffset = gradientOriginOffset,
-                                  RadiusX = radiusX,
-                                  RadiusY = radiusY
-                              }, gradientCol))
-                       {
-                           target.FillRectangle(new RectangleF(0, 0, width, height), brush);
-                       }
-                   }
-               }))
-        {
+        using (var bmp = CreateBitmapStream(deviceResources,
+                                            width,
+                                            height,
+                                            imageType,
+                                            target => {
+                                                using (var gradientCol =
+                                                       new GradientStopCollection(
+                                                           target,
+                                                           gradients,
+                                                           gamma,
+                                                           extendMode)) {
+                                                    using (var brush = new RadialGradientBrush(target,
+                                                               new RadialGradientBrushProperties {
+                                                                   Center = center,
+                                                                   GradientOriginOffset = gradientOriginOffset,
+                                                                   RadiusX = radiusX,
+                                                                   RadiusY = radiusY
+                                                               },
+                                                               gradientCol)) {
+                                                        target.FillRectangle(
+                                                            new RectangleF(0, 0, width, height),
+                                                            brush);
+                                                    }
+                                                }
+                                            })) {
             return bmp.ToMemoryStream(deviceResources, imageType);
         }
 #endif
@@ -378,50 +418,74 @@ public static class BitmapExtensions
         }
 #endif
 
-    public static MemoryStream CreateViewBoxTexture(IDevice2DResources deviceResources, string front, string back,
-        string left, string right, string top, string down,
-        Color4 frontFaceColor, Color4 backFaceColor, Color4 leftFaceColor, Color4 rightFaceColor, Color4 topFaceColor,
+    public static MemoryStream CreateViewBoxTexture(
+        IDevice2DResources deviceResources,
+        string front,
+        string back,
+        string left,
+        string right,
+        string top,
+        string down,
+        Color4 frontFaceColor,
+        Color4 backFaceColor,
+        Color4 leftFaceColor,
+        Color4 rightFaceColor,
+        Color4 topFaceColor,
         Color4 bottomFaceColor,
-        Color4 frontTextColor, Color4 backTextColor, Color4 leftTextColor, Color4 rightTextColor, Color4 topTextColor,
+        Color4 frontTextColor,
+        Color4 backTextColor,
+        Color4 leftTextColor,
+        Color4 rightTextColor,
+        Color4 topTextColor,
         Color4 bottomTextColor,
         string fontFamily = "Arial",
-        FontWeight fontWeight = FontWeight.SemiBold, FontStyle fontStyle = FontStyle.Normal, int fontSize = 64,
-        int faceSize = 100)
-    {
-        using (var bmp = CreateBitmapStream(deviceResources, faceSize * 6, faceSize, Direct2DImageFormat.Bmp, target =>
-               {
-                   target.Clear(new Color4(0, 0, 0, 1));
-                   var faceRect = new RectangleF(0, 0, faceSize, faceSize);
-                   var faceColors = new[]
-                       {frontFaceColor, backFaceColor, leftFaceColor, rightFaceColor, topFaceColor, bottomFaceColor};
-                   var textColors = new[]
-                       {frontTextColor, backTextColor, leftTextColor, rightTextColor, topTextColor, bottomTextColor};
-                   var texts = new[] {front, back, right, left, top, down};
-                   for (var i = 0; i < 6; ++i)
-                   {
-                       using (var layout = texts[i].GetTextLayoutMetrices(deviceResources, fontSize, fontFamily,
-                                  fontWeight, fontStyle, faceSize, faceSize))
-                       {
-                           var metrices = layout.Metrics;
-                           var offset = new Vector2((faceSize - metrices.WidthIncludingTrailingWhitespace) / 2,
-                               (faceSize - metrices.Height) / 2);
-                           offset.X += faceRect.Left;
-                           using (var brush = new SolidColorBrush(target, faceColors[i]))
-                           {
-                               target.FillRectangle(faceRect, brush);
-                           }
+        FontWeight fontWeight = FontWeight.SemiBold,
+        FontStyle fontStyle = FontStyle.Normal,
+        int fontSize = 64,
+        int faceSize = 100
+    ) {
+        using (var bmp = CreateBitmapStream(deviceResources,
+                                            faceSize * 6,
+                                            faceSize,
+                                            Direct2DImageFormat.Bmp,
+                                            target => {
+                                                target.Clear(new Color4(0, 0, 0, 1));
+                                                var faceRect = new RectangleF(0, 0, faceSize, faceSize);
+                                                var faceColors = new[] {
+                                                    frontFaceColor, backFaceColor, leftFaceColor, rightFaceColor,
+                                                    topFaceColor, bottomFaceColor
+                                                };
+                                                var textColors = new[] {
+                                                    frontTextColor, backTextColor, leftTextColor, rightTextColor,
+                                                    topTextColor, bottomTextColor
+                                                };
+                                                var texts = new[] {front, back, right, left, top, down};
+                                                for (var i = 0; i < 6; ++i) {
+                                                    using (var layout = texts[i].GetTextLayoutMetrices(deviceResources,
+                                                               fontSize,
+                                                               fontFamily,
+                                                               fontWeight,
+                                                               fontStyle,
+                                                               faceSize,
+                                                               faceSize)) {
+                                                        var metrices = layout.Metrics;
+                                                        var offset = new Vector2(
+                                                            (faceSize - metrices.WidthIncludingTrailingWhitespace) / 2,
+                                                            (faceSize - metrices.Height) / 2);
+                                                        offset.X += faceRect.Left;
+                                                        using (var brush = new SolidColorBrush(target, faceColors[i])) {
+                                                            target.FillRectangle(faceRect, brush);
+                                                        }
 
-                           using (var brush = new SolidColorBrush(target, textColors[i]))
-                           {
-                               target.DrawTextLayout(offset, layout, brush);
-                           }
-                       }
+                                                        using (var brush = new SolidColorBrush(target, textColors[i])) {
+                                                            target.DrawTextLayout(offset, layout, brush);
+                                                        }
+                                                    }
 
-                       faceRect.Left += faceSize;
-                       faceRect.Width = faceSize;
-                   }
-               }))
-        {
+                                                    faceRect.Left += faceSize;
+                                                    faceRect.Width = faceSize;
+                                                }
+                                            })) {
             return bmp.ToMemoryStream(deviceResources);
         }
     }
@@ -444,24 +508,31 @@ public static class BitmapExtensions
     /// <param name="maxHeight">The maximum height.</param>
     /// <param name="squareImage">if set to <c>true</c> [square image].</param>
     /// <returns></returns>
-    public static BillboardImage3D ToBillboardImage3D(this IEnumerable<TextInfoExt> items,
-        IEffectsManager effectsManager, int maxWidth = 2048, int maxHeight = 2048, bool squareImage = true)
-    {
-        using (var imagePacker = new TextInfoExtPacker(effectsManager))
-        {
-            var code = imagePacker.Pack(items, true, squareImage, maxWidth, maxHeight, 2,
-                out var bitmap, out var imageWidth, out var imageHeight,
-                out var map);
+    public static BillboardImage3D ToBillboardImage3D(
+        this IEnumerable<TextInfoExt> items,
+        IEffectsManager effectsManager,
+        int maxWidth = 2048,
+        int maxHeight = 2048,
+        bool squareImage = true
+    ) {
+        using (var imagePacker = new TextInfoExtPacker(effectsManager)) {
+            var code = imagePacker.Pack(items,
+                                        true,
+                                        squareImage,
+                                        maxWidth,
+                                        maxHeight,
+                                        2,
+                                        out var bitmap,
+                                        out var imageWidth,
+                                        out var imageHeight,
+                                        out var map);
             if (code == ImagePackReturnCode.Succeed)
-                using (bitmap)
-                {
+                using (bitmap) {
                     var stream = bitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
                     var model = new BillboardImage3D(stream);
-                    foreach (var imageInfo in items.Select((x, i) =>
-                             {
+                    foreach (var imageInfo in items.Select((x, i) => {
                                  var rect = map[i];
-                                 return new ImageInfo
-                                 {
+                                 return new ImageInfo {
                                      Width = rect.Width,
                                      Height = rect.Height,
                                      Position = x.Origin,

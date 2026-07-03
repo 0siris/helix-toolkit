@@ -7,18 +7,20 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Highlight the border of meshes
 /// </summary>
-public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur
-{
+public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
     /// <summary>
     ///     The draw mode property
     /// </summary>
     public static readonly DependencyProperty DrawModeProperty =
-        DependencyProperty.Register("DrawMode", typeof(OutlineMode), typeof(PostEffectMeshBorderHighlight),
-            new PropertyMetadata(OutlineMode.Merged,
-                (d, e) =>
-                {
-                    ((d as Element3D).SceneNode as NodePostEffectBorderHighlight).DrawMode = (OutlineMode) e.NewValue;
-                }));
+        DependencyProperty.Register("DrawMode",
+                                    typeof(OutlineMode),
+                                    typeof(PostEffectMeshBorderHighlight),
+                                    new PropertyMetadata(OutlineMode.Merged,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as
+                                                              NodePostEffectBorderHighlight).DrawMode =
+                                                                 (OutlineMode) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the draw mode.
@@ -26,15 +28,13 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur
     /// <value>
     ///     The draw mode.
     /// </value>
-    public OutlineMode DrawMode
-    {
+    public OutlineMode DrawMode {
         get => (OutlineMode) GetValue(DrawModeProperty);
         set => SetValue(DrawModeProperty, value);
     }
 
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new NodePostEffectBorderHighlight();
     }
 }

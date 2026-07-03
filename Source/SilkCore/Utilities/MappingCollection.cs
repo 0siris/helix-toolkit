@@ -3,17 +3,14 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         /// </summary>
         /// <typeparam name="INDEXTYPE"></typeparam>
         /// <typeparam name="NAMETYPE"></typeparam>
         /// <typeparam name="DATATYPE"></typeparam>
-        public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE>
-        {
+        public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
             private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = new();
             private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = new();
             private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = new();
@@ -52,8 +49,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="index"></param>
             /// <param name="name"></param>
             /// <param name="item"></param>
-            public void Add(INDEXTYPE index, NAMETYPE name, DATATYPE item)
-            {
+            public void Add(INDEXTYPE index, NAMETYPE name, DATATYPE item) {
                 if (nameIndexMapping.ContainsKey(name)) throw new ArgumentException("Cannot add duplicate name.");
                 if (indexNameMapping.ContainsKey(index)) throw new ArgumentException("Cannot add duplicate index");
                 indexNameMapping.Add(index, name);
@@ -66,10 +62,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
-            public bool Remove(INDEXTYPE index)
-            {
-                if (indexNameMapping.ContainsKey(index))
-                {
+            public bool Remove(INDEXTYPE index) {
+                if (indexNameMapping.ContainsKey(index)) {
                     nameIndexMapping.Remove(indexNameMapping[index]);
                     indexNameMapping.Remove(index);
                     indexDataMapping.Remove(index);
@@ -84,10 +78,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public bool Remove(NAMETYPE name)
-            {
-                if (nameIndexMapping.ContainsKey(name))
-                {
+            public bool Remove(NAMETYPE name) {
+                if (nameIndexMapping.ContainsKey(name)) {
                     indexNameMapping.Remove(nameIndexMapping[name]);
                     indexDataMapping.Remove(nameIndexMapping[name]);
                     nameIndexMapping.Remove(name);
@@ -102,8 +94,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="id"></param>
             /// <returns></returns>
-            public bool HasItem(INDEXTYPE id)
-            {
+            public bool HasItem(INDEXTYPE id) {
                 return indexNameMapping.ContainsKey(id);
             }
 
@@ -112,8 +103,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="id"></param>
             /// <param name="data"></param>
             /// <returns></returns>
-            public bool TryGetItem(INDEXTYPE id, out DATATYPE data)
-            {
+            public bool TryGetItem(INDEXTYPE id, out DATATYPE data) {
                 return indexDataMapping.TryGetValue(id, out data);
             }
 
@@ -122,8 +112,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name"></param>
             /// <param name="index"></param>
             /// <returns></returns>
-            public bool TryGetSlot(NAMETYPE name, out INDEXTYPE index)
-            {
+            public bool TryGetSlot(NAMETYPE name, out INDEXTYPE index) {
                 return nameIndexMapping.TryGetValue(name, out index);
             }
 
@@ -132,8 +121,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="id"></param>
             /// <param name="name"></param>
             /// <returns></returns>
-            public bool TryGetName(INDEXTYPE id, out NAMETYPE name)
-            {
+            public bool TryGetName(INDEXTYPE id, out NAMETYPE name) {
                 return indexNameMapping.TryGetValue(id, out name);
             }
 
@@ -141,8 +129,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public bool HasItem(NAMETYPE name)
-            {
+            public bool HasItem(NAMETYPE name) {
                 return nameIndexMapping.ContainsKey(name);
             }
 
@@ -151,8 +138,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name"></param>
             /// <param name="data"></param>
             /// <returns></returns>
-            public bool TryGetItem(NAMETYPE name, out DATATYPE data)
-            {
+            public bool TryGetItem(NAMETYPE name, out DATATYPE data) {
                 INDEXTYPE idx;
                 if (nameIndexMapping.TryGetValue(name, out idx) && indexDataMapping.TryGetValue(idx, out data))
                     return true;
@@ -163,8 +149,7 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public void Clear()
-            {
+            public void Clear() {
                 nameIndexMapping.Clear();
                 indexNameMapping.Clear();
                 indexDataMapping.Clear();

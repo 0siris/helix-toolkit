@@ -10,8 +10,7 @@ namespace SharpDX.Toolkit;
 /// <summary>
 ///     A lightweight Component base class.
 /// </summary>
-public abstract class ComponentBase : IComponent, INotifyPropertyChanged
-{
+public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// <summary>
     ///     Gets or sets a value indicating whether the name of this instance is immutable.
     /// </summary>
@@ -29,18 +28,14 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged
     /// <summary>
     ///     Initializes a new instance of the <see cref="ComponentBase" /> class with a mutable name.
     /// </summary>
-    protected ComponentBase()
-    {
-    }
+    protected ComponentBase() { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ComponentBase" /> class with an immutable name.
     /// </summary>
     /// <param name="name">The name.</param>
-    protected ComponentBase(string name)
-    {
-        if (name != null)
-        {
+    protected ComponentBase(string name) {
+        if (name != null) {
             this.name = name;
             isNameImmutable = true;
         }
@@ -54,11 +49,9 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged
         [Browsable(false)]
 #endif
     [DefaultValue(null)]
-    public object Tag
-    {
+    public object Tag {
         get { return tag; }
-        set
-        {
+        set {
             if (ReferenceEquals(tag, value))
                 return;
             tag = value;
@@ -71,11 +64,9 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged
     /// </summary>
     /// <value>The name.</value>
     [DefaultValue(null)]
-    public string Name
-    {
+    public string Name {
         get => name;
-        set
-        {
+        set {
             if (isNameImmutable)
                 throw new ArgumentException("Name property is immutable for this instance", "value");
             if (name == value)
@@ -93,8 +84,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged
     /// <summary>
     /// </summary>
     /// <param name="propertyName"></param>
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
+    protected virtual void OnPropertyChanged(string propertyName) {
         var handler = PropertyChanged;
         if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
     }

@@ -3,8 +3,7 @@
 /// <summary>
 ///     Custom Texture loading IO interface.
 /// </summary>
-public interface ITexturePathResolver
-{
+public interface ITexturePathResolver {
     /// <summary>
     ///     Resolves the texture path.
     /// </summary>

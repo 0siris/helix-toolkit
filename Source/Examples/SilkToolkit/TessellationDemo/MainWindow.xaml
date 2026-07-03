@@ -41,7 +41,8 @@
             </hx:Viewport3DX.InputBindings>
             <hx:ShadowMap3D />
             <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection1}" Color="{Binding DirectionalLightColor}" />
+            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection1}"
+                                   Color="{Binding DirectionalLightColor}" />
             <hx:MeshGeometryModel3D
                 x:Name="model1"
                 FillMode="{Binding FillMode}"

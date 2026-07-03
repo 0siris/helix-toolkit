@@ -3,12 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public class LineArrowHeadMaterialCore : LineMaterialCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public class LineArrowHeadMaterialCore : LineMaterialCore {
             private float arrowSize = 0.1f;
 
             /// <summary>
@@ -17,27 +14,30 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The size of the arrow.
             /// </value>
-            public float ArrowSize
-            {
+            public float ArrowSize {
                 get => arrowSize;
                 set => Set(ref arrowSize, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new LineArrowMaterialVariable(manager,
-                    manager.GetTechnique(DefaultRenderTechniqueNames.LinesArrowHead), this);
+                                                     manager.GetTechnique(DefaultRenderTechniqueNames.LinesArrowHead),
+                                                     this);
             }
         }
 
-        public class LineArrowHeadTailMaterialCore : LineArrowHeadMaterialCore
-        {
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+        public class LineArrowHeadTailMaterialCore : LineArrowHeadMaterialCore {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new LineArrowMaterialVariable(manager,
-                    manager.GetTechnique(DefaultRenderTechniqueNames.LinesArrowHeadTail), this);
+                                                     manager.GetTechnique(
+                                                         DefaultRenderTechniqueNames.LinesArrowHeadTail),
+                                                     this);
             }
         }
     }

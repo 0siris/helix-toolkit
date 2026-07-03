@@ -2,8 +2,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class CameraExtension
-{
+public static class CameraExtension {
     /// <summary>
     ///     Set the camera target point without changing the look direction.
     /// </summary>
@@ -16,8 +15,7 @@ public static class CameraExtension
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public static void LookAt(this CameraCore camera, Vector3 target, float animationTime)
-    {
+    public static void LookAt(this CameraCore camera, Vector3 target, float animationTime) {
         if (camera is ProjectionCameraCore projectionCamera)
             camera.LookAt(target, projectionCamera.LookDirection, animationTime);
     }
@@ -38,8 +36,11 @@ public static class CameraExtension
     ///     The animation time.
     /// </param>
     public static void LookAt(
-        this CameraCore camera, Vector3 target, Vector3 newLookDirection, float animationTime)
-    {
+        this CameraCore camera,
+        Vector3 target,
+        Vector3 newLookDirection,
+        float animationTime
+    ) {
         if (camera is ProjectionCameraCore projectionCamera)
             camera.LookAt(target, newLookDirection, projectionCamera.UpDirection, animationTime);
     }
@@ -57,8 +58,8 @@ public static class CameraExtension
         Vector3 target,
         Vector3 newLookDirection,
         Vector3 newUpDirection,
-        float animationTime)
-    {
+        float animationTime
+    ) {
         var newPosition = target - newLookDirection;
         camera.AnimateTo(newPosition, newLookDirection, newUpDirection, animationTime);
     }
@@ -78,9 +79,12 @@ public static class CameraExtension
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    public static void ChangeDirection(this CameraCore camera, Vector3 newLookDir, Vector3 newUpDirection,
-        float animationTime)
-    {
+    public static void ChangeDirection(
+        this CameraCore camera,
+        Vector3 newLookDir,
+        Vector3 newUpDirection,
+        float animationTime
+    ) {
         var target = camera.Position + camera.LookDirection;
         var length = camera.LookDirection.Length;
         camera.LookAt(target, newLookDir.Normalized() * length, newUpDirection, animationTime);
@@ -98,8 +102,7 @@ public static class CameraExtension
     /// <param name="animationTime">
     ///     Animation time in milliseconds
     /// </param>
-    public static void AnimateWidth(this OrthographicCameraCore camera, float newWidth, float animationTime)
-    {
+    public static void AnimateWidth(this OrthographicCameraCore camera, float newWidth, float animationTime) {
         if (animationTime > 0)
             camera.AnimateWidth(newWidth, animationTime);
         else
@@ -118,24 +121,20 @@ public static class CameraExtension
     /// <param name="zoomRectangle">
     ///     The zoom rectangle.
     /// </param>
-    public static void ZoomToRectangle(this CameraCore camera, ViewportCore viewport, RectangleF zoomRectangle)
-    {
+    public static void ZoomToRectangle(this CameraCore camera, ViewportCore viewport, RectangleF zoomRectangle) {
         if (camera is ProjectionCameraCore pcam)
             if (viewport.UnProject(new Vector2(zoomRectangle.Top, zoomRectangle.Left), out var topLeftRay)
                 && viewport.UnProject(new Vector2(zoomRectangle.Top, zoomRectangle.Right), out var topRightRay)
-                && viewport.UnProject(
-                    new Vector2(
-                        (zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
-                        (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f), out var centerRay))
-            {
+                && viewport.UnProject(new Vector2((zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
+                                                  (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
+                                      out var centerRay)) {
                 var u = topLeftRay.Direction;
                 var v = topRightRay.Direction;
                 var w = centerRay.Direction;
                 u = u.Normalized();
                 v = v.Normalized();
                 w = w.Normalized();
-                if (camera is PerspectiveCameraCore perspectiveCamera)
-                {
+                if (camera is PerspectiveCameraCore perspectiveCamera) {
                     var distance = pcam.LookDirection.Length;
 
                     // option 1: change distance
@@ -144,15 +143,12 @@ public static class CameraExtension
                     var newPosition = perspectiveCamera.Position + (distance - newDistance) * w;
                     var newTarget = newPosition + newLookDirection;
                     pcam.LookAt(newTarget, newLookDirection, 200);
-                }
-                else if (camera is OrthographicCameraCore orthographicCamera)
-                {
+                } else if (camera is OrthographicCameraCore orthographicCamera) {
                     orthographicCamera.Width *= zoomRectangle.Width / viewport.ViewportRectangle.Width;
                     var oldTarget = pcam.Position + pcam.LookDirection;
                     var distance = pcam.LookDirection.Length;
 
-                    if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget))
-                    {
+                    if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget)) {
                         orthographicCamera.LookDirection = w * distance;
                         orthographicCamera.Position = newTarget - orthographicCamera.LookDirection;
                     }
@@ -166,8 +162,7 @@ public static class CameraExtension
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this CameraCore camera)
-    {
+    public static void Reset(this CameraCore camera) {
         if (camera is PerspectiveCameraCore projectionCamera)
             projectionCamera.Reset();
         else if (camera is OrthographicCameraCore ocamera) ocamera.Reset();
@@ -179,8 +174,7 @@ public static class CameraExtension
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this PerspectiveCameraCore camera)
-    {
+    public static void Reset(this PerspectiveCameraCore camera) {
         if (camera == null) return;
 
         camera.Position = new Vector3(20, 10, 40);
@@ -197,8 +191,7 @@ public static class CameraExtension
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this OrthographicCameraCore camera)
-    {
+    public static void Reset(this OrthographicCameraCore camera) {
         if (camera == null) return;
 
         camera.Position = new Vector3(20, 10, 40);
@@ -222,8 +215,10 @@ public static class CameraExtension
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this CameraCore camera, ViewportCore viewport, float animationTime = 0)
-    {
+        this CameraCore camera,
+        ViewportCore viewport,
+        float animationTime = 0
+    ) {
         var bounds = viewport.FindBoundsInternal();
         camera.ZoomExtents(viewport, bounds, animationTime);
     }
@@ -244,21 +239,28 @@ public static class CameraExtension
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this CameraCore camera, ViewportCore viewport, BoundingBox bounds, float animationTime = 0)
-    {
+        this CameraCore camera,
+        ViewportCore viewport,
+        BoundingBox bounds,
+        float animationTime = 0
+    ) {
         var diagonal = bounds.Maximum - bounds.Minimum;
 
         if (diagonal.LengthSquared.Equals(0)) return;
-        if (camera is PerspectiveCameraCore pCore)
-        {
-            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight), bounds, out var pos, out var look,
-                out var up);
+        if (camera is PerspectiveCameraCore pCore) {
+            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                              bounds,
+                              out var pos,
+                              out var look,
+                              out var up);
             pCore.AnimateTo(pos, look, up, animationTime);
-        }
-        else if (camera is OrthographicCameraCore oCore)
-        {
-            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight), bounds, out var pos, out var look,
-                out var up, out var width);
+        } else if (camera is OrthographicCameraCore oCore) {
+            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                              bounds,
+                              out var pos,
+                              out var look,
+                              out var up,
+                              out var width);
             oCore.AnimateWidth(width, animationTime);
             oCore.AnimateTo(pos, look, up, animationTime);
         }
@@ -283,11 +285,14 @@ public static class CameraExtension
     ///     The animation time.
     /// </param>
     public static void ZoomExtents(
-        this CameraCore camera, ViewportCore viewport, Vector3 center, float radius, float animationTime = 0)
-    {
+        this CameraCore camera,
+        ViewportCore viewport,
+        Vector3 center,
+        float radius,
+        float animationTime = 0
+    ) {
         // var target = Camera.Position + Camera.LookDirection;
-        if (camera is PerspectiveCameraCore pcam)
-        {
+        if (camera is PerspectiveCameraCore pcam) {
             var disth = radius / (float) Math.Tan(0.75 * pcam.FieldOfView * Math.PI / 180);
             var vfov = pcam.FieldOfView / viewport.ViewportRectangle.Width * viewport.ViewportRectangle.Height;
             var distv = radius / (float) Math.Tan(0.75 * vfov * Math.PI / 180);
@@ -296,9 +301,7 @@ public static class CameraExtension
             var dir = camera.LookDirection;
             dir = dir.Normalized();
             camera.LookAt(center, dir * dist, animationTime);
-        }
-        else if (camera is OrthographicCameraCore orth)
-        {
+        } else if (camera is OrthographicCameraCore orth) {
             orth.LookAt(center, 0);
             var newWidth = radius * 2;
             if (viewport.ActualWidth > viewport.ActualHeight)

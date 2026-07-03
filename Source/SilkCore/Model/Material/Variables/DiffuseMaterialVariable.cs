@@ -9,14 +9,11 @@ using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public class DiffuseMaterialVariables : MaterialVariable
-        {
+        public class DiffuseMaterialVariables : MaterialVariable {
             private const int NUMTEXTURES = 1;
             private const int NUMSAMPLERS = 1;
             private const int DiffuseIdx = 0;
@@ -39,11 +36,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="materialCore">The material core.</param>
             /// <param name="defaultPassName"></param>
-            private DiffuseMaterialVariables(IEffectsManager manager, IRenderTechnique technique,
+            private DiffuseMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 DiffuseMaterialCore materialCore,
-                string defaultPassName = DefaultPassNames.Default)
-                : base(manager, technique, DefaultMeshConstantBufferDesc, materialCore)
-            {
+                string defaultPassName = DefaultPassNames.Default
+            )
+                : base(manager, technique, DefaultMeshConstantBufferDesc, materialCore) {
                 material = materialCore;
                 texDiffuseSlot = -1;
                 samplerDiffuseSlot = samplerShadowSlot = -1;
@@ -71,10 +70,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="manager">The manager.</param>
             /// <param name="technique"></param>
             /// <param name="material">The material.</param>
-            public DiffuseMaterialVariables(string passName, IEffectsManager manager, IRenderTechnique technique,
-                DiffuseMaterialCore material)
-                : this(manager, technique, material)
-            {
+            public DiffuseMaterialVariables(
+                string passName,
+                IEffectsManager manager,
+                IRenderTechnique technique,
+                DiffuseMaterialCore material
+            )
+                : this(manager, technique, material) {
                 MaterialPass = technique[passName];
             }
 
@@ -110,43 +112,43 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public string SamplerShadowMapName { get; } = DefaultSamplerStateNames.ShadowMapSampler;
 
-            protected override void OnInitialPropertyBindings()
-            {
+            protected override void OnInitialPropertyBindings() {
                 base.OnInitialPropertyBindings();
                 AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseColor),
-                    () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
-                AddPropertyBinding(nameof(DiffuseMaterialCore.UVTransform), () =>
-                {
-                    Matrix m = material.UVTransform;
-                    WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, m.Column1);
-                    WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, m.Column2);
-                });
-                AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMap), () =>
-                {
-                    CreateTextureView(material.DiffuseMap, DiffuseIdx);
-                    WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
-                        material.RenderDiffuseMap && TextureResource != null ? 1 : 0);
-                });
-                AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMapSampler), () =>
-                {
-                    var newSampler = statePoolManager.Register(material.DiffuseMapSampler);
-                    RemoveAndDispose(ref SamplerResource);
-                    SamplerResource = newSampler;
-                });
+                                   () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
+                AddPropertyBinding(nameof(DiffuseMaterialCore.UVTransform),
+                                   () => {
+                                       Matrix m = material.UVTransform;
+                                       WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, m.Column1);
+                                       WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, m.Column2);
+                                   });
+                AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMap),
+                                   () => {
+                                       CreateTextureView(material.DiffuseMap, DiffuseIdx);
+                                       WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                                                  material.RenderDiffuseMap && TextureResource != null ? 1 : 0);
+                                   });
+                AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMapSampler),
+                                   () => {
+                                       var newSampler = statePoolManager.Register(material.DiffuseMapSampler);
+                                       RemoveAndDispose(ref SamplerResource);
+                                       SamplerResource = newSampler;
+                                   });
                 AddPropertyBinding(nameof(DiffuseMaterialCore.EnableUnLit),
-                    () => { WriteValue(PhongPBRMaterialStruct.HasNormalMapStr, material.EnableUnLit); });
+                                   () => { WriteValue(PhongPBRMaterialStruct.HasNormalMapStr, material.EnableUnLit); });
                 AddPropertyBinding(nameof(DiffuseMaterialCore.EnableFlatShading),
-                    () => { WriteValue(PhongPBRMaterialStruct.RenderFlat, material.EnableFlatShading); });
+                                   () => {
+                                       WriteValue(PhongPBRMaterialStruct.RenderFlat, material.EnableFlatShading);
+                                   });
                 AddPropertyBinding(nameof(DiffuseMaterialCore.VertexColorBlendingFactor),
-                    () =>
-                    {
-                        WriteValue(PhongPBRMaterialStruct.VertColorBlending, material.VertexColorBlendingFactor);
-                    });
+                                   () => {
+                                       WriteValue(PhongPBRMaterialStruct.VertColorBlending,
+                                                  material.VertexColorBlendingFactor);
+                                   });
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void CreateTextureView(TextureModel texture, int index)
-            {
+            private void CreateTextureView(TextureModel texture, int index) {
                 var newTexture = texture == null ? null : textureManager.Register(texture);
                 RemoveAndDispose(ref TextureResource);
                 TextureResource = newTexture;
@@ -156,29 +158,26 @@ namespace HelixToolkit.SharpDX.Core
                     textureIndex &= ~(1u << index);
             }
 
-            private void CreateTextureViews()
-            {
-                if (material != null)
-                {
+            private void CreateTextureViews() {
+                if (material != null) {
                     CreateTextureView(material.DiffuseMap, DiffuseIdx);
-                }
-                else
-                {
+                } else {
                     RemoveAndDispose(ref TextureResource);
                     textureIndex = 0;
                 }
             }
 
-            private void CreateSamplers()
-            {
+            private void CreateSamplers() {
                 var newSampler = material == null ? null : statePoolManager.Register(material.DiffuseMapSampler);
                 RemoveAndDispose(ref SamplerResource);
                 SamplerResource = newSampler;
             }
 
-            public override bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass)
-            {
+            public override bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            ) {
                 if (HasTextures) OnBindMaterialTextures(deviceContext, shaderPass.PixelShader);
                 return true;
             }
@@ -189,8 +188,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="shader"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader)
-            {
+            private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
                 if (shader.IsNULL) return;
                 var idx = shader.ShaderStageIndex;
                 shader.BindTexture(context, texDiffuseSlot, TextureResource);
@@ -198,8 +196,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void UpdateMappings(ShaderPass shaderPass)
-            {
+            private void UpdateMappings(ShaderPass shaderPass) {
                 texDiffuseSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderDiffuseTexName);
                 samplerDiffuseSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(SamplerDiffuseTexName);
                 samplerShadowSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(SamplerShadowMapName);
@@ -209,10 +206,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             /// </summary>
             /// <param name="disposeManagedResources"></param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
-                if (disposeManagedResources)
-                {
+            protected override void OnDispose(bool disposeManagedResources) {
+                if (disposeManagedResources) {
                     RemoveAndDispose(ref SamplerResource);
                     RemoveAndDispose(ref TextureResource);
                 }
@@ -220,11 +215,9 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
                 if (renderType == RenderType.Transparent)
-                    switch (context.OITRenderStage)
-                    {
+                    switch (context.OITRenderStage) {
                         case OITRenderStage.SinglePassWeighted:
                             return OITPass;
                         case OITRenderStage.DepthPeelingInitMinMaxZ:
@@ -236,21 +229,17 @@ namespace HelixToolkit.SharpDX.Core
                 return MaterialPass;
             }
 
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
                 return ShadowPass;
             }
 
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
                 return DepthPass;
             }
 
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context)
-            {
+            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
                 if (renderType == RenderType.Transparent)
-                    switch (context.OITRenderStage)
-                    {
+                    switch (context.OITRenderStage) {
                         case OITRenderStage.SinglePassWeighted:
                             return WireframeOITPass;
                         case OITRenderStage.DepthPeelingInitMinMaxZ:
@@ -262,9 +251,11 @@ namespace HelixToolkit.SharpDX.Core
                 return WireframePass;
             }
 
-            public override void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount)
-            {
+            public override void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            ) {
                 DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
             }
         }

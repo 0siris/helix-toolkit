@@ -13,19 +13,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SSAODemo
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        private MainWindowViewModel vm = new MainWindowViewModel();
-        public MainWindow()
-        {
-            InitializeComponent();
-            DataContext = vm;
-            Closed += (s, e) => { vm.Dispose(); };
-        }
+namespace SSAODemo;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    private MainWindowViewModel vm = new MainWindowViewModel();
+
+    public MainWindow() {
+        InitializeComponent();
+        DataContext = vm;
+        Closed += (s, e) => { vm.Dispose(); };
     }
 }

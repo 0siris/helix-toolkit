@@ -4,8 +4,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public sealed class Texture2DArgs : EventArgs
-{
+public sealed class Texture2DArgs : EventArgs {
     /// <summary>
     ///     The texture
     /// </summary>
@@ -15,8 +14,7 @@ public sealed class Texture2DArgs : EventArgs
     ///     Initializes a new instance of the <see cref="Texture2DArgs" /> class.
     /// </summary>
     /// <param name="texture">The texture.</param>
-    public Texture2DArgs(ShaderResourceViewProxy texture)
-    {
+    public Texture2DArgs(ShaderResourceViewProxy texture) {
         Texture = texture;
     }
 
@@ -27,16 +25,14 @@ public sealed class Texture2DArgs : EventArgs
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator ShaderResourceViewProxy(Texture2DArgs args)
-    {
+    public static implicit operator ShaderResourceViewProxy(Texture2DArgs args) {
         return args.Texture;
     }
 }
 
 /// <summary>
 /// </summary>
-public sealed class OctreeArgs : EventArgs
-{
+public sealed class OctreeArgs : EventArgs {
     /// <summary>
     ///     The octree
     /// </summary>
@@ -46,16 +42,14 @@ public sealed class OctreeArgs : EventArgs
     ///     Initializes a new instance of the <see cref="OctreeArgs" /> class.
     /// </summary>
     /// <param name="octree">The octree.</param>
-    public OctreeArgs(IOctreeBasic octree)
-    {
+    public OctreeArgs(IOctreeBasic octree) {
         Octree = octree;
     }
 }
 
 /// <summary>
 /// </summary>
-public sealed class TransformArgs : EventArgs
-{
+public sealed class TransformArgs : EventArgs {
     /// <summary>
     ///     The transform
     /// </summary>
@@ -65,8 +59,7 @@ public sealed class TransformArgs : EventArgs
     ///     Initializes a new instance of the <see cref="TransformArgs" /> class.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public TransformArgs(Matrix transform)
-    {
+    public TransformArgs(Matrix transform) {
         Transform = transform;
     }
 
@@ -74,8 +67,7 @@ public sealed class TransformArgs : EventArgs
     ///     Initializes a new instance of the <see cref="TransformArgs" /> class.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public TransformArgs(ref Matrix transform)
-    {
+    public TransformArgs(ref Matrix transform) {
         Transform = transform;
     }
 
@@ -86,16 +78,14 @@ public sealed class TransformArgs : EventArgs
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Matrix(TransformArgs args)
-    {
+    public static implicit operator Matrix(TransformArgs args) {
         return args.Transform;
     }
 }
 
 /// <summary>
 /// </summary>
-public sealed class Transform2DArgs : EventArgs
-{
+public sealed class Transform2DArgs : EventArgs {
     /// <summary>
     ///     The transform
     /// </summary>
@@ -105,8 +95,7 @@ public sealed class Transform2DArgs : EventArgs
     ///     Initializes a new instance of the <see cref="Transform2DArgs" /> class.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public Transform2DArgs(Matrix3x2 transform)
-    {
+    public Transform2DArgs(Matrix3x2 transform) {
         Transform = transform;
     }
 
@@ -114,8 +103,7 @@ public sealed class Transform2DArgs : EventArgs
     ///     Initializes a new instance of the <see cref="Transform2DArgs" /> class.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public Transform2DArgs(ref Matrix3x2 transform)
-    {
+    public Transform2DArgs(ref Matrix3x2 transform) {
         Transform = transform;
     }
 
@@ -126,16 +114,14 @@ public sealed class Transform2DArgs : EventArgs
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Matrix3x2(Transform2DArgs args)
-    {
+    public static implicit operator Matrix3x2(Transform2DArgs args) {
         return args.Transform;
     }
 }
 
 /// <summary>
 /// </summary>
-public sealed class BoolArgs : EventArgs
-{
+public sealed class BoolArgs : EventArgs {
     /// <summary>
     ///     The true arguments
     /// </summary>
@@ -155,16 +141,14 @@ public sealed class BoolArgs : EventArgs
     ///     Initializes a new instance of the <see cref="BoolArgs" /> class.
     /// </summary>
     /// <param name="value">if set to <c>true</c> [value].</param>
-    public BoolArgs(bool value)
-    {
+    public BoolArgs(bool value) {
         Value = value;
     }
 }
 
 /// <summary>
 /// </summary>
-public sealed class StringArgs : EventArgs
-{
+public sealed class StringArgs : EventArgs {
     /// <summary>
     ///     The value
     /// </summary>
@@ -174,19 +158,16 @@ public sealed class StringArgs : EventArgs
     ///     Initializes a new instance of the <see cref="StringArgs" /> class.
     /// </summary>
     /// <param name="value">The value.</param>
-    public StringArgs(string value)
-    {
+    public StringArgs(string value) {
         Value = value;
     }
 }
 
-public sealed class FrameStatisticsArg : EventArgs
-{
+public sealed class FrameStatisticsArg : EventArgs {
     public readonly double AverageFrequency;
     public readonly double AverageValue;
 
-    public FrameStatisticsArg(double avgValue, double avgFrequency)
-    {
+    public FrameStatisticsArg(double avgValue, double avgFrequency) {
         AverageValue = avgValue;
         AverageFrequency = avgFrequency;
     }

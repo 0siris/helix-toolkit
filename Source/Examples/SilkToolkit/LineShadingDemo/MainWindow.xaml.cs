@@ -23,35 +23,29 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HelixToolkit.Wpf.SharpDX;
 
-namespace LineShadingDemo
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            var viewModel = new MainViewModel();
-            this.DataContext = viewModel;
+namespace LineShadingDemo;
 
-            // mouse events            
-            this.view1.MouseDown += (o, e) =>
-            {                
-                var hits = this.view1.FindHits(e.GetPosition(this.view1));
-                if (hits.Count > 0)
-                {
-                    foreach (var hit in hits.Where(h => h.IsValid))
-                    {
-                        (hit.ModelHit as Element3D).RaiseEvent(new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(this.view1), null, e));
-                        if (e.Handled)
-                        {
-                            break;
-                        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        InitializeComponent();
+        var viewModel = new MainViewModel();
+        this.DataContext = viewModel;
+
+        // mouse events            
+        this.view1.MouseDown += (o, e) => {
+            var hits = this.view1.FindHits(e.GetPosition(this.view1));
+            if (hits.Count > 0) {
+                foreach (var hit in hits.Where(h => h.IsValid)) {
+                    (hit.ModelHit as Element3D).RaiseEvent(
+                        new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(this.view1), null, e));
+                    if (e.Handled) {
+                        break;
                     }
                 }
-            };
-        }
+            }
+        };
     }
 }

@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public class DeferredContextRenderer : ImmediateContextRenderer
-        {
+        public class DeferredContextRenderer : ImmediateContextRenderer {
             private readonly List<KeyValuePair<int, CommandList>> commandList = new();
             private readonly IRenderTaskScheduler scheduler;
             private IDeviceContextPool deferredContextPool;
@@ -24,8 +21,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceResources">The deviceResources.</param>
             /// <param name="scheduler"></param>
             public DeferredContextRenderer(IDevice3DResources deviceResources, IRenderTaskScheduler scheduler) : base(
-                deviceResources)
-            {
+                deviceResources) {
                 deferredContextPool = deviceResources.DeviceContextPool;
                 this.scheduler = scheduler;
             }
@@ -38,19 +34,24 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="parameter">The parameter.</param>
             /// <param name="testFrustum"></param>
             /// <returns>Number of node has been rendered</returns>
-            public override int RenderOpaque(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter, bool testFrustum)
-            {
-                if (scheduler.ScheduleAndRun(renderables, deferredContextPool, context, parameter,
-                        testFrustum, commandList, out var counter))
-                    try
-                    {
+            public override int RenderOpaque(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter,
+                bool testFrustum
+            ) {
+                if (scheduler.ScheduleAndRun(renderables,
+                                             deferredContextPool,
+                                             context,
+                                             parameter,
+                                             testFrustum,
+                                             commandList,
+                                             out var counter))
+                    try {
                         foreach (var command in commandList.OrderBy(x => x.Key))
                             ImmediateContext.ExecuteCommandList(command.Value, true);
                         return counter;
-                    }
-                    finally
-                    {
+                    } finally {
                         foreach (var command in commandList) command.Value.Dispose();
                         commandList.Clear();
                     }
@@ -58,8 +59,7 @@ namespace HelixToolkit.SharpDX.Core
                 return base.RenderOpaque(context, renderables, ref parameter, testFrustum);
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 foreach (var command in commandList) command.Value.Dispose();
                 commandList.Clear();
                 deferredContextPool = null;

@@ -29,47 +29,48 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     bind an
 ///     ItemsControl to a collection object.
 /// </remarks>
-public class ItemsModel3D : CompositeModel3D
-{
+public class ItemsModel3D : CompositeModel3D {
     /// <summary>
     ///     The item template property
     /// </summary>
     public static readonly DependencyProperty ItemTemplateProperty = DependencyProperty.Register(
-        "ItemTemplate", typeof(DataTemplate), typeof(ItemsModel3D), new PropertyMetadata(null));
+        "ItemTemplate",
+        typeof(DataTemplate),
+        typeof(ItemsModel3D),
+        new PropertyMetadata(null));
 
     /// <summary>
     ///     The items source property
     /// </summary>
-    public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(
-        "ItemsSource",
+    public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register("ItemsSource",
         typeof(IEnumerable),
         typeof(ItemsModel3D),
-        new PropertyMetadata(null, (s, e) =>
-        {
-            if (s is ItemsModel3D itemsModel && itemsModel.IsAttached)
-                itemsModel.ItemsSourceChanged(e.NewValue as IEnumerable);
-        }));
+        new PropertyMetadata(null,
+                             (s, e) => {
+                                 if (s is ItemsModel3D itemsModel && itemsModel.IsAttached)
+                                     itemsModel.ItemsSourceChanged(e.NewValue as IEnumerable);
+                             }));
 
     /// <summary>
     ///     Add octree manager to use octree hit test.
     /// </summary>
     public static readonly DependencyProperty OctreeManagerProperty = DependencyProperty.Register("OctreeManager",
         typeof(IOctreeManagerWrapper),
-        typeof(ItemsModel3D), new PropertyMetadata(null, (s, e) =>
-        {
-            var d = s as ItemsModel3D;
-            if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
+        typeof(ItemsModel3D),
+        new PropertyMetadata(null,
+                             (s, e) => {
+                                 var d = s as ItemsModel3D;
+                                 if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
 
-            if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
-            (d.SceneNode as GroupNode).OctreeManager =
-                e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
-        }));
+                                 if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
+                                 (d.SceneNode as GroupNode).OctreeManager =
+                                     e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
+                             }));
 
     private readonly Dictionary<object, Element3D> elementDict = new();
     private IEnumerable itemsSourceInternal;
 
-    public ItemsModel3D()
-    {
+    public ItemsModel3D() {
         SceneNode.Attached += SceneNode_Attached;
         SceneNode.Detached += SceneNode_Detached;
     }
@@ -80,8 +81,7 @@ public class ItemsModel3D : CompositeModel3D
     /// <value>
     ///     The item template.
     /// </value>
-    public DataTemplate ItemTemplate
-    {
+    public DataTemplate ItemTemplate {
         get => (DataTemplate) GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
     }
@@ -92,32 +92,27 @@ public class ItemsModel3D : CompositeModel3D
     /// <value>
     ///     The items source.
     /// </value>
-    public IEnumerable ItemsSource
-    {
+    public IEnumerable ItemsSource {
         get => (IEnumerable) GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
     }
 
-    public IOctreeManagerWrapper OctreeManager
-    {
+    public IOctreeManagerWrapper OctreeManager {
         get => (IOctreeManagerWrapper) GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 
     private IOctreeBasic Octree => (SceneNode as GroupNode)?.OctreeManager?.Octree;
 
-    private void SceneNode_Attached(object sender, EventArgs e)
-    {
+    private void SceneNode_Attached(object sender, EventArgs e) {
         if (ItemsSource != null) ItemsSourceChanged(ItemsSource);
     }
 
-    private void SceneNode_Detached(object sender, EventArgs e)
-    {
+    private void SceneNode_Detached(object sender, EventArgs e) {
         if (itemsSourceInternal != null) ItemsSourceChanged(null);
     }
 
-    private void ItemsSourceChanged(IEnumerable itemsSource)
-    {
+    private void ItemsSourceChanged(IEnumerable itemsSource) {
         if (itemsSourceInternal == itemsSource) return;
         if (itemsSourceInternal is INotifyCollectionChanged o) o.CollectionChanged -= ItemsModel3D_CollectionChanged;
         if (itemsSourceInternal == null && itemsSource != null && Children.Count > 0)
@@ -128,8 +123,7 @@ public class ItemsModel3D : CompositeModel3D
 
         itemsSourceInternal = itemsSource;
 
-        if (itemsSourceInternal is INotifyCollectionChanged n)
-        {
+        if (itemsSourceInternal is INotifyCollectionChanged n) {
             n.CollectionChanged -= ItemsModel3D_CollectionChanged;
             n.CollectionChanged += ItemsModel3D_CollectionChanged;
         }
@@ -138,41 +132,32 @@ public class ItemsModel3D : CompositeModel3D
 
         if (ItemTemplate == null)
             foreach (var item in itemsSourceInternal)
-                if (item is Element3D model)
-                {
+                if (item is Element3D model) {
                     elementDict.Add(item, model);
                     Children.Add(model);
-                }
-                else
-                {
+                } else {
                     throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                 }
         else
             foreach (var item in itemsSourceInternal)
-                if (ItemTemplate.LoadContent() is Element3D model)
-                {
+                if (ItemTemplate.LoadContent() is Element3D model) {
                     model.DataContext = item;
                     elementDict.Add(item, model);
                     Children.Add(model);
-                }
-                else
-                {
+                } else {
                     throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                 }
 
         if (Children.Count > 0) (SceneNode as GroupNode).OctreeManager?.RequestRebuild();
     }
 
-    protected void ItemsModel3D_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-        switch (e.Action)
-        {
+    protected void ItemsModel3D_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        switch (e.Action) {
             case NotifyCollectionChangedAction.Replace:
             case NotifyCollectionChangedAction.Remove:
                 if (e.OldItems != null)
                     foreach (var item in e.OldItems)
-                        if (elementDict.TryGetValue(item, out var model))
-                        {
+                        if (elementDict.TryGetValue(item, out var model)) {
                             elementDict.Remove(item);
                             Children.Remove(model);
                         }
@@ -184,32 +169,24 @@ public class ItemsModel3D : CompositeModel3D
                 break;
         }
 
-        switch (e.Action)
-        {
+        switch (e.Action) {
             case NotifyCollectionChangedAction.Reset:
-                if (ItemsSource != null)
-                {
+                if (ItemsSource != null) {
                     if (ItemTemplate == null)
                         foreach (var item in ItemsSource)
-                            if (item is Element3D model)
-                            {
+                            if (item is Element3D model) {
                                 elementDict.Add(item, model);
                                 Children.Add(model);
-                            }
-                            else
-                            {
+                            } else {
                                 throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                             }
                     else
                         foreach (var item in ItemsSource)
-                            if (ItemTemplate.LoadContent() is Element3D model)
-                            {
+                            if (ItemTemplate.LoadContent() is Element3D model) {
                                 model.DataContext = item;
                                 elementDict.Add(item, model);
                                 Children.Add(model);
-                            }
-                            else
-                            {
+                            } else {
                                 throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                             }
                 }
@@ -217,29 +194,22 @@ public class ItemsModel3D : CompositeModel3D
                 break;
             case NotifyCollectionChangedAction.Add:
             case NotifyCollectionChangedAction.Replace:
-                if (e.NewItems != null)
-                {
+                if (e.NewItems != null) {
                     if (ItemTemplate != null)
                         foreach (var item in e.NewItems)
-                            if (ItemTemplate.LoadContent() is Element3D model)
-                            {
+                            if (ItemTemplate.LoadContent() is Element3D model) {
                                 model.DataContext = item;
                                 elementDict.Add(item, model);
                                 Children.Add(model);
-                            }
-                            else
-                            {
+                            } else {
                                 throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                             }
                     else
                         foreach (var item in e.NewItems)
-                            if (item is Element3D model)
-                            {
+                            if (item is Element3D model) {
                                 elementDict.Add(item, model);
                                 Children.Add(model);
-                            }
-                            else
-                            {
+                            } else {
                                 throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                             }
                 }
@@ -251,8 +221,7 @@ public class ItemsModel3D : CompositeModel3D
         }
     }
 
-    public virtual void Clear()
-    {
+    public virtual void Clear() {
         elementDict.Clear();
         var node = SceneNode as GroupNode;
         node.Clear();

@@ -8,12 +8,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class DrawScreenQuadCore : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class DrawScreenQuadCore : RenderCore {
             private readonly ConstantBufferComponent modelCB;
 
             public ScreenQuadModelStruct ModelStruct;
@@ -28,12 +25,12 @@ namespace HelixToolkit.SharpDX.Core
             private ShaderResourceViewProxy textureProxy;
             private int textureSlot;
 
-            public DrawScreenQuadCore() : base(RenderType.Opaque)
-            {
+            public DrawScreenQuadCore() : base(RenderType.Opaque) {
                 modelCB = AddComponent(new ConstantBufferComponent(
-                    new ConstantBufferDescription(DefaultBufferNames.ScreenQuadCB, ScreenQuadModelStruct.SizeInBytes)));
-                ModelStruct = new ScreenQuadModelStruct
-                {
+                                           new ConstantBufferDescription(
+                                               DefaultBufferNames.ScreenQuadCB,
+                                               ScreenQuadModelStruct.SizeInBytes)));
+                ModelStruct = new ScreenQuadModelStruct {
                     TopLeft = new Vector4(-1, 1, 1, 1),
                     TopRight = new Vector4(1, 1, 1, 1),
                     BottomLeft = new Vector4(-1, -1, 1, 1),
@@ -45,13 +42,10 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public string PassName
-            {
+            public string PassName {
                 get => passName;
-                set
-                {
-                    if (SetAffectsRender(ref passName, value) && IsAttached)
-                    {
+                set {
+                    if (SetAffectsRender(ref passName, value) && IsAttached) {
                         pass = EffectTechnique[value];
                         textureSlot =
                             pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
@@ -68,11 +62,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The texture.
             /// </value>
-            public TextureModel Texture
-            {
+            public TextureModel Texture {
                 get => texture;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref texture, value) && IsAttached) UpdateTexture(value);
                 }
             }
@@ -83,48 +75,40 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The sampler description.
             /// </value>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
-                set
-                {
-                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
-                    {
-                    }
+                set {
+                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached) { }
                 }
             }
 
-            private void UpdateTexture(TextureModel texture)
-            {
+            private void UpdateTexture(TextureModel texture) {
                 var newTexture = texture == null
-                    ? null
-                    : EffectTechnique.EffectsManager.MaterialTextureManager.Register(texture);
+                                     ? null
+                                     : EffectTechnique.EffectsManager.MaterialTextureManager.Register(texture);
                 RemoveAndDispose(ref textureProxy);
                 textureProxy = newTexture;
             }
 
-            private void UpdateSampler()
-            {
+            private void UpdateSampler() {
                 var newSampler = EffectTechnique.EffectsManager.StateManager.Register(samplerDescription);
                 RemoveAndDispose(ref sampler);
                 sampler = newSampler;
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 if (pass.IsNULL) return;
                 ModelStruct.mWorld = ModelMatrix;
                 modelCB.Upload(deviceContext, ref ModelStruct);
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext,
-                    StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
+                                StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
                 pass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
                 pass.PixelShader.BindTexture(deviceContext, textureSlot, textureProxy);
                 deviceContext.Draw(4, 0);
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 pass = technique[passName];
                 textureSlot =
                     pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
@@ -134,8 +118,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref textureProxy);
                 RemoveAndDispose(ref sampler);
             }

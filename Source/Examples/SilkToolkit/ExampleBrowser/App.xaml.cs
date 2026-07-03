@@ -9,12 +9,9 @@
 
 using System.Windows;
 
-namespace ExampleBrowser
-{
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
-}
+namespace ExampleBrowser;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application { }

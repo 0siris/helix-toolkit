@@ -5,22 +5,18 @@ Copyright(c) 2020 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class CrossSectionMeshNode : MeshNode
-        {
+        public class CrossSectionMeshNode : MeshNode {
             /// <summary>
             ///     Gets or sets the cutting operation.
             /// </summary>
             /// <value>
             ///     The cutting operation.
             /// </value>
-            public CuttingOperation CuttingOperation
-            {
+            public CuttingOperation CuttingOperation {
                 get => (RenderCore as ICrossSectionRenderParams).CuttingOperation;
                 set => (RenderCore as ICrossSectionRenderParams).CuttingOperation = value;
             }
@@ -31,8 +27,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the cross section.
             /// </value>
-            public Color4 CrossSectionColor
-            {
+            public Color4 CrossSectionColor {
                 get => (RenderCore as ICrossSectionRenderParams).SectionColor;
                 set => (RenderCore as ICrossSectionRenderParams).SectionColor = value;
             }
@@ -43,11 +38,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane1]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane1
-            {
+            public bool EnablePlane1 {
                 get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.X;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
                     v.X = value;
                     (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
@@ -60,11 +53,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane2]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane2
-            {
+            public bool EnablePlane2 {
                 get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.Y;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
                     v.Y = value;
                     (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
@@ -77,11 +68,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane3]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane3
-            {
+            public bool EnablePlane3 {
                 get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.Z;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
                     v.Z = value;
                     (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
@@ -94,11 +83,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane4]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane4
-            {
+            public bool EnablePlane4 {
                 get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.W;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
                     v.W = value;
                     (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
@@ -111,11 +98,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane5]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane5
-            {
+            public bool EnablePlane5 {
                 get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.X;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
                     v.X = value;
                     (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
@@ -128,11 +113,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane6]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane6
-            {
+            public bool EnablePlane6 {
                 get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.Y;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
                     v.Y = value;
                     (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
@@ -145,11 +128,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane7]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane7
-            {
+            public bool EnablePlane7 {
                 get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.Z;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
                     v.Z = value;
                     (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
@@ -162,11 +143,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable plane8]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnablePlane8
-            {
+            public bool EnablePlane8 {
                 get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.W;
-                set
-                {
+                set {
                     var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
                     v.W = value;
                     (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
@@ -179,8 +158,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane1.
             /// </value>
-            public Plane Plane1
-            {
+            public Plane Plane1 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane1Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane1Params = PlaneToVector(ref value);
             }
@@ -191,8 +169,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane2.
             /// </value>
-            public Plane Plane2
-            {
+            public Plane Plane2 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane2Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane2Params = PlaneToVector(ref value);
             }
@@ -203,8 +180,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane3.
             /// </value>
-            public Plane Plane3
-            {
+            public Plane Plane3 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane3Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane3Params = PlaneToVector(ref value);
             }
@@ -215,8 +191,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane4.
             /// </value>
-            public Plane Plane4
-            {
+            public Plane Plane4 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane4Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane4Params = PlaneToVector(ref value);
             }
@@ -227,8 +202,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane5.
             /// </value>
-            public Plane Plane5
-            {
+            public Plane Plane5 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane5Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane5Params = PlaneToVector(ref value);
             }
@@ -239,8 +213,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane6.
             /// </value>
-            public Plane Plane6
-            {
+            public Plane Plane6 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane6Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane6Params = PlaneToVector(ref value);
             }
@@ -251,8 +224,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane7.
             /// </value>
-            public Plane Plane7
-            {
+            public Plane Plane7 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane7Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane7Params = PlaneToVector(ref value);
             }
@@ -263,8 +235,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The plane8.
             /// </value>
-            public Plane Plane8
-            {
+            public Plane Plane8 {
                 get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane8Params);
                 set => (RenderCore as ICrossSectionRenderParams).Plane8Params = PlaneToVector(ref value);
             }
@@ -274,18 +245,15 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="p">The <see cref="Plane" /></param>
             /// <returns>The <see cref="Vector4" /></returns>
-            private static Vector4 PlaneToVector(ref Plane p)
-            {
+            private static Vector4 PlaneToVector(ref Plane p) {
                 return new Vector4(p.Normal, p.D);
             }
 
-            private static Plane VectorToPlane(Vector4 v)
-            {
+            private static Plane VectorToPlane(Vector4 v) {
                 return new Plane(v.ToXYZ(), v.W);
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.CrossSection];
             }
 
@@ -293,14 +261,15 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new CrossSectionMeshRenderCore();
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 var hitsBeforeCheck = hits?.Count ?? 0;
                 var meshGeometry3d = Geometry as MeshGeometry3D;
                 if (meshGeometry3d == null)
@@ -312,10 +281,8 @@ namespace HelixToolkit.SharpDX.Core
                 var result = meshGeometry3d.HitTest(context, totalModelMatrix, ref hits, WrapperSource);
                 meshGeometry3d.ReturnMultipleHitsOnHitTest = false;
                 var operation = CuttingOperation;
-                if (result)
-                {
-                    switch (operation)
-                    {
+                if (result) {
+                    switch (operation) {
                         case CuttingOperation.Intersect:
                             // Remove any hit point behinds any of the clip plane.
                             if (EnablePlane1)
@@ -348,12 +315,13 @@ namespace HelixToolkit.SharpDX.Core
                 return result;
             }
 
-            private static bool RemoveHitPointBehindCrossingPlane(Plane plane, List<HitTestResult> hits,
-                int hitsBeforeCheck)
-            {
+            private static bool RemoveHitPointBehindCrossingPlane(
+                Plane plane,
+                List<HitTestResult> hits,
+                int hitsBeforeCheck
+            ) {
                 // Loop backwards to remove at end of list when possible
-                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--)
-                {
+                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--) {
                     var pointTimesNormal = hits[i].PointHit * plane.Normal;
                     var distanceToPlane = pointTimesNormal.X + pointTimesNormal.Y + pointTimesNormal.Z - plane.D;
                     if (distanceToPlane < 0) hits.RemoveAt(i);
@@ -364,10 +332,8 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            private bool RemoveHitPointInFrontOfAllCrossingPlanes(List<HitTestResult> hits, int hitsBeforeCheck)
-            {
-                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--)
-                {
+            private bool RemoveHitPointInFrontOfAllCrossingPlanes(List<HitTestResult> hits, int hitsBeforeCheck) {
+                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--) {
                     var hitPoint = hits[i].PointHit;
                     if (EnablePlane1)
                         if (hitPoint.PointToPlanePosition(Plane1) != PlaneIntersectionType.Front)
@@ -414,18 +380,15 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="hits">All hits so far</param>
             /// <param name="hitsBeforeCheck">The number of hits before this object was processed</param>
-            private static void RemoveAllButClosest(List<HitTestResult> hits, int hitsBeforeCheck)
-            {
+            private static void RemoveAllButClosest(List<HitTestResult> hits, int hitsBeforeCheck) {
                 if (hits.Count - hitsBeforeCheck == 0) return;
                 var minDistance = double.MaxValue;
-                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--)
-                {
+                for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--) {
                     var hit = hits[i];
                     if (minDistance > hit.Distance) minDistance = hit.Distance;
                 }
 
-                if (minDistance < double.MaxValue)
-                {
+                if (minDistance < double.MaxValue) {
                     var foundMinDistance = false;
                     // Loop backwards to remove at end of list when possible
                     for (var i = hits.Count - 1; i >= hitsBeforeCheck; i--)

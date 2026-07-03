@@ -1,7 +1,6 @@
 ﻿namespace HelixToolkit.SharpDX.Core;
 
-public static class IRenderMetricesExtensions
-{
+public static class IRenderMetricesExtensions {
     /// <summary>
     ///     Un-project 2D screen point onto 3D space by camera.
     /// </summary>
@@ -10,11 +9,13 @@ public static class IRenderMetricesExtensions
     /// <param name="ray">The ray.</param>
     /// <returns></returns>
     public static bool
-        UnProject(this IRenderMatrices renderMatrices, Vector2 point2d,
-            out Ray ray) //, out Vector3 pointNear, out Vector3 pointFar)
+        UnProject(
+            this IRenderMatrices renderMatrices,
+            Vector2 point2d,
+            out Ray ray
+        ) //, out Vector3 pointNear, out Vector3 pointFar)
     {
-        if (renderMatrices == null)
-        {
+        if (renderMatrices == null) {
             ray = new Ray();
             return false;
         }
@@ -29,20 +30,16 @@ public static class IRenderMetricesExtensions
         var w = renderMatrices.ActualWidth / renderMatrices.DpiScale;
         var h = renderMatrices.ActualHeight / renderMatrices.DpiScale;
 
-        var v = new Vector3
-        {
+        var v = new Vector3 {
             X = (2 * px / w - 1) / projMatrix.M11,
             Y = -(2 * py / h - 1) / projMatrix.M22,
             Z = 1 / projMatrix.M33
         };
         SilkMath.TransformCoordinate(ref v, ref viewInv, out var zf);
         Vector3 zn;
-        if (renderMatrices.IsPerspective)
-        {
+        if (renderMatrices.IsPerspective) {
             zn = viewInv.Row4.ToVector3();
-        }
-        else
-        {
+        } else {
             v.Z = 0;
             SilkMath.TransformCoordinate(ref v, ref viewInv, out zn);
         }
@@ -53,8 +50,7 @@ public static class IRenderMetricesExtensions
         return true;
     }
 
-    public static Vector2 Project(this IRenderMatrices renderMatrices, Vector3 point)
-    {
+    public static Vector2 Project(this IRenderMatrices renderMatrices, Vector3 point) {
         renderMatrices.Update();
         var matrix = renderMatrices.ScreenViewProjectionMatrix;
         var pointTransformed = SilkMath.TransformCoordinate(point, matrix);

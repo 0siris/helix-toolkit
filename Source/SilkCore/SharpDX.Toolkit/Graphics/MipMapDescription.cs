@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Describes a mipmap.
 /// </summary>
-public class MipMapDescription : IEquatable<MipMapDescription>
-{
+public class MipMapDescription : IEquatable<MipMapDescription> {
     /// <summary>
     ///     Depth of this mipmap.
     /// </summary>
@@ -60,9 +59,15 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// <param name="depthStride">The depth stride.</param>
     /// <param name="widthPacked">The packed width.</param>
     /// <param name="heightPacked">The packed height.</param>
-    public MipMapDescription(int width, int height, int depth, int rowStride, int depthStride, int widthPacked,
-        int heightPacked)
-    {
+    public MipMapDescription(
+        int width,
+        int height,
+        int depth,
+        int rowStride,
+        int depthStride,
+        int widthPacked,
+        int heightPacked
+    ) {
         Width = width;
         Height = height;
         Depth = depth;
@@ -77,8 +82,7 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(MipMapDescription other)
-    {
+    public bool Equals(MipMapDescription other) {
         if (ReferenceEquals(null, other))
             return false;
         if (ReferenceEquals(this, other))
@@ -92,8 +96,7 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj))
             return false;
         if (ReferenceEquals(this, obj))
@@ -106,10 +109,8 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode()
-    {
-        unchecked
-        {
+    public override int GetHashCode() {
+        unchecked {
             var hashCode = Width;
             hashCode = (hashCode * 397) ^ Height;
             hashCode = (hashCode * 397) ^ WidthPacked;
@@ -128,8 +129,7 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(MipMapDescription left, MipMapDescription right)
-    {
+    public static bool operator ==(MipMapDescription left, MipMapDescription right) {
         return Equals(left, right);
     }
 
@@ -139,8 +139,7 @@ public class MipMapDescription : IEquatable<MipMapDescription>
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(MipMapDescription left, MipMapDescription right)
-    {
+    public static bool operator !=(MipMapDescription left, MipMapDescription right) {
         return !Equals(left, right);
     }
 }

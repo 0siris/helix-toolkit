@@ -17,8 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public sealed class EffectsManagerConfiguration
-{
+public sealed class EffectsManagerConfiguration {
     public int AdapterIndex { get; set; } = -1;
 
     /// <summary>
@@ -33,8 +32,7 @@ public sealed class EffectsManagerConfiguration
 /// <summary>
 ///     Shader and Technique manager
 /// </summary>
-public class EffectsManager : DisposeObject, IEffectsManager
-{
+public class EffectsManager : DisposeObject, IEffectsManager {
     private static readonly ILogger logger = LogManager.Create<EffectsManager>();
 
     /// <summary>
@@ -107,7 +105,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     public IStructArrayPool StructArrayPool => structArrayPool;
     private StructArrayPool structArrayPool;
 
-    #region 3D Resoruces
+#region 3D Resoruces
 
     private INativeDeviceResources nativeDeviceResources;
 
@@ -131,9 +129,9 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// </value>
     public IDeviceContextPool DeviceContextPool => deviceContextPool;
 
-    #endregion
+#endregion
 
-    #region 2D Resources
+#region 2D Resources
 
     private D2DDevice device2D;
 
@@ -186,7 +184,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// </value>
     public DirectWriteFactory DirectWriteFactory => directWriteFactory;
 
-    #endregion
+#endregion
 
     /// <summary>
     /// </summary>
@@ -204,24 +202,18 @@ public class EffectsManager : DisposeObject, IEffectsManager
     ///     Initializes a new instance of the <see cref="EffectsManager" /> class.
     /// </summary>
     public EffectsManager()
-        : this(new EffectsManagerConfiguration())
-    {
-    }
+        : this(new EffectsManagerConfiguration()) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="EffectsManager" /> class.
     /// </summary>
     /// <param name="adapterIndex">Index of the adapter.</param>
     public EffectsManager(int adapterIndex)
-        : this(new EffectsManagerConfiguration
-        {
+        : this(new EffectsManagerConfiguration {
             AdapterIndex = adapterIndex
-        })
-    {
-    }
+        }) { }
 
-    public EffectsManager(EffectsManagerConfiguration configuration)
-    {
+    public EffectsManager(EffectsManagerConfiguration configuration) {
         EnableSoftwareRendering = configuration.EnableSoftwareRendering;
         Initialize(configuration.AdapterIndex);
     }
@@ -229,8 +221,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <summary>
     ///     Initializes this instance.
     /// </summary>
-    private void Initialize()
-    {
+    private void Initialize() {
 #if DEBUGMEMORY
             global::SharpDX.Configuration.EnableObjectTracking = true;
 #endif
@@ -243,25 +234,23 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <summary>
     ///     Initializes this instance.
     /// </summary>
-    private void Initialize(int adapterIndex)
-    {
+    private void Initialize(int adapterIndex) {
         logger.LogInformation("Adapter Index = {0}", adapterIndex);
         AdapterIndex = Math.Max(0, adapterIndex);
 #if DX11
         DriverType = EnableSoftwareRendering ? DriverType.Warp : DriverType.Hardware;
         RemoveAndDispose(ref nativeDeviceResources);
-        nativeDeviceResources = SilkD3D11DeviceFactory.CreateDefault(
-            AdapterIndex,
-            DriverType == DriverType.Warp ? SilkDriverType.Warp : SilkDriverType.Hardware);
-#endif
-#else
-            throw new PlatformNotSupportedException("DirectX 11 support is required.");
+        nativeDeviceResources = SilkD3D11DeviceFactory.CreateDefault(AdapterIndex,
+                                                                     DriverType == DriverType.Warp
+                                                                         ? SilkDriverType.Warp
+                                                                         : SilkDriverType.Hardware);
 #endif
 
-        logger.LogInformation("Direct3D device initilized. DriverType: {0}; FeatureLevel: {1}", DriverType,
-            nativeDeviceResources.Device.FeatureLevel);
+        logger.LogInformation("Direct3D device initilized. DriverType: {0}; FeatureLevel: {1}",
+                              DriverType,
+                              nativeDeviceResources.Device.FeatureLevel);
 
-        #region Initial Internal Pools
+    #region Initial Internal Pools
 
         logger.LogInformation("Initializing resource pools");
         RemoveAndDispose(ref constantBufferPool);
@@ -288,7 +277,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
         RemoveAndDispose(ref structArrayPool);
         structArrayPool = new StructArrayPool();
 
-        #endregion
+    #endregion
 
         logger.LogInformation("Initializing Direct2D resource handles");
         factory2D = new D2DFactory();
@@ -303,26 +292,25 @@ public class EffectsManager : DisposeObject, IEffectsManager
     ///     <see cref="IEffectsManager.AddTechnique(TechniqueDescription)" />
     /// </summary>
     /// <param name="description"></param>
-    public void AddTechnique(TechniqueDescription description)
-    {
+    public void AddTechnique(TechniqueDescription description) {
         if (techniqueDict.ContainsKey(description.Name))
             throw new ArgumentException($"Technique {description.Name} already exists.");
         techniqueDescriptions.Add(description.Name, description);
         techniqueDict.Add(description.Name,
-            new Lazy<IRenderTechnique>(() => { return Initialized ? new Technique(description, this) : null; }, true));
+                          new Lazy<IRenderTechnique>(() => Initialized ? new Technique(description, this) : null,
+                                                     true));
     }
 
     /// <summary>
     ///     Reinitializes all resources after calling <see cref="DisposeAllResources" />.
     /// </summary>
-    public void Reinitialize()
-    {
-        if (!Initialized)
-        {
+    public void Reinitialize() {
+        if (!Initialized) {
             Initialize();
             foreach (var tech in techniqueDescriptions.Values)
                 techniqueDict.Add(tech.Name,
-                    new Lazy<IRenderTechnique>(() => { return Initialized ? new Technique(tech, this) : null; }, true));
+                                  new Lazy<IRenderTechnique>(() => Initialized ? new Technique(tech, this) : null,
+                                                             true));
             Reinitialized?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -330,8 +318,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <summary>
     ///     Disposes all resources. This is used to handle such as DeviceLost or DeviceRemoved Error
     /// </summary>
-    public void DisposeAllResources()
-    {
+    public void DisposeAllResources() {
         if (Initialized) DisposeResources();
     }
 
@@ -342,8 +329,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <returns>
     ///     <c>true</c> if the specified name has technique; otherwise, <c>false</c>.
     /// </returns>
-    public bool HasTechnique(string name)
-    {
+    public bool HasTechnique(string name) {
         return techniqueDict.ContainsKey(name);
     }
 
@@ -352,12 +338,9 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool RemoveTechnique(string name)
-    {
-        if (techniqueDict.TryGetValue(name, out var t))
-        {
-            if (t.IsValueCreated)
-            {
+    public bool RemoveTechnique(string name) {
+        if (techniqueDict.TryGetValue(name, out var t)) {
+            if (t.IsValueCreated) {
                 var v = t.Value;
                 RemoveAndDispose(ref v);
             }
@@ -372,8 +355,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <summary>
     ///     Removes all technique.
     /// </summary>
-    public void RemoveAllTechniques()
-    {
+    public void RemoveAllTechniques() {
         var names = techniqueDict.Keys.ToArray();
         foreach (var name in names) RemoveTechnique(name);
     }
@@ -385,10 +367,8 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// <returns></returns>
     /// <exception cref="Exception">Manager has not been initialized.</exception>
     /// <exception cref="ArgumentException"></exception>
-    public IRenderTechnique GetTechnique(string name)
-    {
-        if (!techniqueDict.TryGetValue(name, out var t))
-        {
+    public IRenderTechnique GetTechnique(string name) {
+        if (!techniqueDict.TryGetValue(name, out var t)) {
             logger.LogWarning("Technique {0} does not exist. Return a null technique.", name);
             return new Technique(new TechniqueDescription {Name = name, IsNull = true}, this);
         }
@@ -411,8 +391,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     /// </summary>
     /// <param name="disposeManagedResources"></param>
     [SuppressMessage("Microsoft.Usage", "CA2213", Justification = "False positive.")]
-    protected override void OnDispose(bool disposeManagedResources)
-    {
+    protected override void OnDispose(bool disposeManagedResources) {
         DisposeResources();
         Initialized = false;
         base.OnDispose(disposeManagedResources);
@@ -421,12 +400,10 @@ public class EffectsManager : DisposeObject, IEffectsManager
 #endif
     }
 
-    private void DisposeResources()
-    {
+    private void DisposeResources() {
         DisposingResources?.Invoke(this, EventArgs.Empty);
         foreach (var technique in techniqueDict.Values.ToArray())
-            if (technique.IsValueCreated)
-            {
+            if (technique.IsValueCreated) {
                 var t = technique.Value;
                 RemoveAndDispose(ref t);
             }
@@ -468,8 +445,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
         }
 #endif
 
-    public void RaiseInvalidateRender()
-    {
+    public void RaiseInvalidateRender() {
         InvalidateRender?.Invoke(this, EventArgs.Empty);
     }
 
@@ -477,8 +453,7 @@ public class EffectsManager : DisposeObject, IEffectsManager
     ///     Outputs the resource cout summary.
     /// </summary>
     /// <returns></returns>
-    public string GetResourceCountSummary()
-    {
+    public string GetResourceCountSummary() {
         return $"ConstantBuffer Count: {constantBufferPool.Count}\n" +
                $"BlendState Count: {statePoolManager.BlendStatePool.Count}\n" +
                $"DepthStencilState Count: {statePoolManager.DepthStencilStatePool.Count}\n" +

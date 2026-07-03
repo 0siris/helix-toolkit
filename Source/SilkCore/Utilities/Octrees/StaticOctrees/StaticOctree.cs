@@ -11,21 +11,18 @@ using System.Runtime.InteropServices;
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     Base class for array based static octree.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged
-        {
+        public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
             public const int OctantSize = 8;
             private static readonly ILogger logger = LogManager.Create<StaticOctree<T>>();
 
             private static readonly ObjectPool<Stack<KeyValuePair<int, int>>> hitStackPool
-                = new(() => { return new Stack<KeyValuePair<int, int>>(); }, 10);
+                = new(() => new Stack<KeyValuePair<int, int>>(), 10);
 
             private readonly List<BoundingBox> hitPathBoundingBoxes = new();
 
@@ -34,8 +31,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             /// </summary>
             /// <param name="parameter"></param>
-            public StaticOctree(OctreeBuildParameter parameter)
-            {
+            public StaticOctree(OctreeBuildParameter parameter) {
                 Parameter = parameter;
             }
 
@@ -74,8 +70,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Call to build the tree
             /// </summary>
-            public void BuildTree()
-            {
+            public void BuildTree() {
                 if (TreeBuilt) return;
 #if DEBUG
                 var tick = Stopwatch.GetTimestamp();
@@ -88,8 +83,9 @@ namespace HelixToolkit.SharpDX.Core
                 Bound = octants[0].Bound;
 #if DEBUG
                 tick = Stopwatch.GetTimestamp() - tick;
-                logger.LogDebug("Build static tree time = {0}; Total = {1}", (double) tick / Stopwatch.Frequency * 1000,
-                    octants.Count);
+                logger.LogDebug("Build static tree time = {0}; Total = {1}",
+                                (double) tick / Stopwatch.Frequency * 1000,
+                                octants.Count);
 #endif
             }
 
@@ -101,9 +97,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="modelMatrix"></param>
             /// <param name="hits"></param>
             /// <returns></returns>
-            public bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            public bool HitTest(
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return HitTest(context, model, geometry, modelMatrix, false, ref hits);
             }
 
@@ -116,9 +116,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="returnMultiple"></param>
             /// <param name="hits"></param>
             /// <returns></returns>
-            public bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                bool returnMultiple, ref List<HitTestResult> hits)
-            {
+            public bool HitTest(
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                bool returnMultiple,
+                ref List<HitTestResult> hits
+            ) {
                 return HitTest(context, model, geometry, modelMatrix, returnMultiple, ref hits, 0);
             }
 
@@ -132,9 +137,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="hits">The hits.</param>
             /// <param name="hitThickness">The hit thickness.</param>
             /// <returns></returns>
-            public virtual bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                ref List<HitTestResult> hits, float hitThickness)
-            {
+            public virtual bool HitTest(
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref List<HitTestResult> hits,
+                float hitThickness
+            ) {
                 return HitTest(context, model, geometry, modelMatrix, false, ref hits, hitThickness);
             }
 
@@ -148,9 +158,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="hits"></param>
             /// <param name="hitThickness"></param>
             /// <returns></returns>
-            public virtual bool HitTest(HitTestContext context, object model, Geometry3D geometry, Matrix modelMatrix,
-                bool returnMultiple, ref List<HitTestResult> hits, float hitThickness)
-            {
+            public virtual bool HitTest(
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                bool returnMultiple,
+                ref List<HitTestResult> hits,
+                float hitThickness
+            ) {
                 if (hits == null) hits = new List<HitTestResult>();
                 hitPathBoundingBoxes.Clear();
                 var hitStack = hitStackPool.GetObject();
@@ -161,37 +177,39 @@ namespace HelixToolkit.SharpDX.Core
                 if (modelInv == default) return false; //Cannot be inverted
                 var rayWS = context.RayWS;
                 var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInv),
-                    SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInv)));
+                                       SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInv)));
 
                 var parent = -1;
                 var curr = -1;
                 var dummy = new Octant(-1, -1);
                 dummy[0] = 0;
                 var parentOctant = dummy;
-                while (true)
-                {
+                while (true) {
                     while (++curr < OctantSize)
-                        if (parentOctant.HasChildAtIndex(curr))
-                        {
+                        if (parentOctant.HasChildAtIndex(curr)) {
                             ref var octant = ref octants.array[parentOctant[curr]];
                             var isIntersect = false;
                             var nodeHit = HitTestCurrentNodeExcludeChild(ref octant,
-                                context, model, geometry, modelMatrix, ref rayModel, returnMultiple, ref modelHits,
-                                ref isIntersect, hitThickness);
+                                                                         context,
+                                                                         model,
+                                                                         geometry,
+                                                                         modelMatrix,
+                                                                         ref rayModel,
+                                                                         returnMultiple,
+                                                                         ref modelHits,
+                                                                         ref isIntersect,
+                                                                         hitThickness);
                             isHit |= nodeHit;
-                            if (isIntersect && octant.HasChildren)
-                            {
+                            if (isIntersect && octant.HasChildren) {
                                 hitStack.Push(new KeyValuePair<int, int>(parent, curr));
                                 parent = octant.Index;
                                 curr = -1;
                                 parentOctant = octants[parent];
                             }
 
-                            if (Parameter.RecordHitPathBoundingBoxes && nodeHit)
-                            {
+                            if (Parameter.RecordHitPathBoundingBoxes && nodeHit) {
                                 var n = octant;
-                                while (true)
-                                {
+                                while (true) {
                                     hitPathBoundingBoxes.Add(n.Bound);
                                     if (n.Parent >= 0)
                                         n = octants[n.Parent];
@@ -210,12 +228,9 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 hitStackPool.PutObject(hitStack);
-                if (!isHit)
-                {
+                if (!isHit) {
                     hitPathBoundingBoxes.Clear();
-                }
-                else
-                {
+                } else {
                     hits.AddRange(modelHits);
                     Hit?.Invoke(this, EventArgs.Empty);
                 }
@@ -229,9 +244,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="sphere"></param>
             /// <param name="points"></param>
             /// <returns></returns>
-            public virtual bool FindNearestPointBySphere(HitTestContext context, ref BoundingSphere sphere,
-                ref List<HitTestResult> points)
-            {
+            public virtual bool FindNearestPointBySphere(
+                HitTestContext context,
+                ref BoundingSphere sphere,
+                ref List<HitTestResult> points
+            ) {
                 if (points == null) points = new List<HitTestResult>();
                 var hitStack = hitStackPool.GetObject();
                 hitStack.Clear();
@@ -242,18 +259,18 @@ namespace HelixToolkit.SharpDX.Core
                 var dummy = new Octant(-1, -1);
                 dummy[0] = 0;
                 var parentOctant = dummy;
-                while (true)
-                {
+                while (true) {
                     while (++curr < OctantSize)
-                        if (parentOctant.HasChildAtIndex(curr))
-                        {
+                        if (parentOctant.HasChildAtIndex(curr)) {
                             ref var octant = ref octants.array[parentOctant[curr]];
                             var isIntersect = false;
-                            var nodeHit = FindNearestPointBySphereExcludeChild(ref octant, context, ref sphere,
-                                ref points, ref isIntersect);
+                            var nodeHit = FindNearestPointBySphereExcludeChild(ref octant,
+                                                                               context,
+                                                                               ref sphere,
+                                                                               ref points,
+                                                                               ref isIntersect);
                             isHit |= nodeHit;
-                            if (octant.HasChildren && isIntersect)
-                            {
+                            if (octant.HasChildren && isIntersect) {
                                 hitStack.Push(new KeyValuePair<int, int>(parent, curr));
                                 parent = octant.Index;
                                 curr = -1;
@@ -280,9 +297,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="results"></param>
             /// <param name="heuristicSearchFactor"></param>
             /// <returns></returns>
-            public virtual bool FindNearestPointFromPoint(HitTestContext context, ref Vector3 point,
-                ref List<HitTestResult> results, float heuristicSearchFactor = 1f)
-            {
+            public virtual bool FindNearestPointFromPoint(
+                HitTestContext context,
+                ref Vector3 point,
+                ref List<HitTestResult> results,
+                float heuristicSearchFactor = 1f
+            ) {
                 if (results == null) results = new List<HitTestResult>();
                 var hitStack = hitStackPool.GetObject();
                 hitStack.Clear();
@@ -295,22 +315,21 @@ namespace HelixToolkit.SharpDX.Core
                 var dummy = new Octant(-1, -1);
                 dummy[0] = 0;
                 var parentOctant = dummy;
-                while (true)
-                {
+                while (true) {
                     while (++curr < OctantSize)
-                        if (parentOctant.HasChildAtIndex(curr))
-                        {
+                        if (parentOctant.HasChildAtIndex(curr)) {
                             ref var octant = ref octants.array[parentOctant[curr]];
                             var isIntersect = false;
-                            var nodeHit = FindNearestPointBySphereExcludeChild(ref octant, context, ref sphere,
-                                ref results, ref isIntersect);
+                            var nodeHit = FindNearestPointBySphereExcludeChild(ref octant,
+                                                                               context,
+                                                                               ref sphere,
+                                                                               ref results,
+                                                                               ref isIntersect);
                             isHit |= nodeHit;
-                            if (isIntersect)
-                            {
+                            if (isIntersect) {
                                 if (results.Count > 0)
                                     sphere.Radius = (float) results[0].Distance * heuristicSearchFactor;
-                                if (octant.HasChildren)
-                                {
+                                if (octant.HasChildren) {
                                     hitStack.Push(new KeyValuePair<int, int>(parent, curr));
                                     parent = octant.Index;
                                     curr = -1;
@@ -338,9 +357,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="radius"></param>
             /// <param name="result"></param>
             /// <returns></returns>
-            public bool FindNearestPointByPointAndSearchRadius(HitTestContext context, ref Vector3 point, float radius,
-                ref List<HitTestResult> result)
-            {
+            public bool FindNearestPointByPointAndSearchRadius(
+                HitTestContext context,
+                ref Vector3 point,
+                float radius,
+                ref List<HitTestResult> result
+            ) {
                 var sphere = new BoundingSphere(point, radius);
                 return FindNearestPointBySphere(context, ref sphere, ref result);
             }
@@ -348,11 +370,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             /// </summary>
             /// <returns></returns>
-            public LineGeometry3D CreateOctreeLineModel()
-            {
+            public LineGeometry3D CreateOctreeLineModel() {
                 var builder = new LineBuilder();
-                for (var i = 0; i < octants.Count; ++i)
-                {
+                for (var i = 0; i < octants.Count; ++i) {
                     var box = octants.array[i].Bound;
                     var verts = new Vector3[8];
                     verts[0] = box.Minimum;
@@ -394,8 +414,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool CheckDimension(ref BoundingBox bound)
-            {
+            public bool CheckDimension(ref BoundingBox bound) {
                 var dimensions = bound.Maximum - bound.Minimum;
 
                 if (dimensions == Vector3.Zero) return false;
@@ -409,37 +428,33 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Build sub tree nodes
             /// </summary>
-            protected void BuildSubTree(int index)
-            {
+            protected void BuildSubTree(int index) {
                 var octant = octants[index];
                 if (octant.IsBuilt) return;
                 var b = octant.Bound;
                 if (CheckDimension(ref b) && !octant.IsEmpty
-                                          && octant.Count > Parameter.MinObjectSizeToSplit)
-                {
+                                          && octant.Count > Parameter.MinObjectSizeToSplit) {
                     var octantBounds = CreateOctants(ref b, Parameter.MinimumOctantSize);
-                    if (octantBounds.Length == OctantSize)
-                    {
+                    if (octantBounds.Length == OctantSize) {
                         var start = octant.Start;
                         var childOctant = new Octant();
-                        for (var childOctantIdx = 0; childOctantIdx < OctantSize; ++childOctantIdx)
-                        {
+                        for (var childOctantIdx = 0; childOctantIdx < OctantSize; ++childOctantIdx) {
                             var count = 0;
                             var end = octant.End;
                             var hasChildOctant = false;
                             var childIdx = -1;
 
-                            for (var i = end - 1; i >= start; --i)
-                            {
+                            for (var i = end - 1; i >= start; --i) {
                                 var obj = Objects[i];
-                                if (IsContains(ref octantBounds[childOctantIdx], GetBoundingBoxFromItem(ref obj),
-                                        ref obj))
-                                {
+                                if (IsContains(ref octantBounds[childOctantIdx],
+                                               GetBoundingBoxFromItem(ref obj),
+                                               ref obj)) {
                                     if (!hasChildOctant) //Add New Child Octant if not having one.
                                     {
-                                        if (!octants.Add(index, childOctantIdx, octantBounds[childOctantIdx],
-                                                ref octant))
-                                        {
+                                        if (!octants.Add(index,
+                                                         childOctantIdx,
+                                                         octantBounds[childOctantIdx],
+                                                         ref octant)) {
                                             logger.LogDebug("Failed to add child");
                                             break;
                                         }
@@ -480,13 +495,11 @@ namespace HelixToolkit.SharpDX.Core
             ///     This finds the dimensions of the bounding box necessary to tightly enclose all items in the object list.
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected BoundingBox FindEnclosingBox(int index)
-            {
+            protected BoundingBox FindEnclosingBox(int index) {
                 ref var octant = ref octants.array[index];
                 if (octant.Count == 0) return new BoundingBox();
                 var b = GetBoundingBoxFromItem(ref Objects[octant.Start]);
-                for (var i = octant.Start + 1; i < octant.End; ++i)
-                {
+                for (var i = octant.Start + 1; i < octant.End; ++i) {
                     var bound = GetBoundingBoxFromItem(ref Objects[i]);
                     BoundingBox.Merge(ref b, ref bound, out b);
                 }
@@ -501,8 +514,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="minSize"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static BoundingBox[] CreateOctants(ref BoundingBox box, float minSize)
-            {
+            public static BoundingBox[] CreateOctants(ref BoundingBox box, float minSize) {
                 var dimensions = box.Maximum - box.Minimum;
                 if (dimensions == Vector3.Zero || dimensions.X < minSize || dimensions.Y < minSize ||
                     dimensions.Z < minSize) return new BoundingBox[0];
@@ -511,22 +523,21 @@ namespace HelixToolkit.SharpDX.Core
                 var minimum = box.Minimum;
                 var maximum = box.Maximum;
                 //Create subdivided regions for each octant
-                return new[]
-                {
+                return new[] {
                     new BoundingBox(minimum, center),
                     new BoundingBox(new Vector3(center.X, minimum.Y, minimum.Z),
-                        new Vector3(maximum.X, center.Y, center.Z)),
+                                    new Vector3(maximum.X, center.Y, center.Z)),
                     new BoundingBox(new Vector3(center.X, minimum.Y, center.Z),
-                        new Vector3(maximum.X, center.Y, maximum.Z)),
+                                    new Vector3(maximum.X, center.Y, maximum.Z)),
                     new BoundingBox(new Vector3(minimum.X, minimum.Y, center.Z),
-                        new Vector3(center.X, center.Y, maximum.Z)),
+                                    new Vector3(center.X, center.Y, maximum.Z)),
                     new BoundingBox(new Vector3(minimum.X, center.Y, minimum.Z),
-                        new Vector3(center.X, maximum.Y, center.Z)),
+                                    new Vector3(center.X, maximum.Y, center.Z)),
                     new BoundingBox(new Vector3(center.X, center.Y, minimum.Z),
-                        new Vector3(maximum.X, maximum.Y, center.Z)),
+                                    new Vector3(maximum.X, maximum.Y, center.Z)),
                     new BoundingBox(center, maximum),
                     new BoundingBox(new Vector3(minimum.X, center.Y, center.Z),
-                        new Vector3(center.X, maximum.Y, maximum.Z))
+                                    new Vector3(center.X, maximum.Y, maximum.Z))
                 };
             }
 
@@ -536,8 +547,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="target"></param>
             /// <param name="targetObj"></param>
             /// <returns></returns>
-            protected virtual bool IsContains(ref BoundingBox source, BoundingBox target, ref T targetObj)
-            {
+            protected virtual bool IsContains(ref BoundingBox source, BoundingBox target, ref T targetObj) {
                 return BoxContainsBox(ref source, ref target);
             }
 
@@ -548,24 +558,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="process"></param>
             /// <param name="canVisitChildren"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void TreeTraversal(Stack<KeyValuePair<int, int>> stack, Action<int> process,
-                Func<int, bool> canVisitChildren = null)
-            {
+            public void TreeTraversal(
+                Stack<KeyValuePair<int, int>> stack,
+                Action<int> process,
+                Func<int, bool> canVisitChildren = null
+            ) {
                 var parent = -1;
                 var curr = -1;
                 var dummy = new Octant(-1, -1);
                 dummy[0] = 0;
                 var parentOctant = dummy;
-                while (true)
-                {
+                while (true) {
                     while (++curr < OctantSize)
-                        if (parentOctant.HasChildAtIndex(curr))
-                        {
+                        if (parentOctant.HasChildAtIndex(curr)) {
                             var childIdx = parentOctant[curr];
                             process(childIdx);
                             ref var octant = ref octants.array[childIdx];
-                            if (octant.HasChildren && (canVisitChildren == null || canVisitChildren(octant.Index)))
-                            {
+                            if (octant.HasChildren && (canVisitChildren == null || canVisitChildren(octant.Index))) {
                                 stack.Push(new KeyValuePair<int, int>(parent, curr));
                                 parent = octant.Index;
                                 curr = -1;
@@ -591,8 +600,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="points"></param>
             /// <param name="isIntersect"></param>
             /// <returns></returns>
-            protected abstract bool FindNearestPointBySphereExcludeChild(ref Octant octant, HitTestContext context,
-                ref BoundingSphere sphere, ref List<HitTestResult> points, ref bool isIntersect);
+            protected abstract bool FindNearestPointBySphereExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
+                ref BoundingSphere sphere,
+                ref List<HitTestResult> points,
+                ref bool isIntersect
+            );
 
             /// <summary>
             ///     Hit test for current node.
@@ -608,17 +622,24 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="isIntersect"></param>
             /// <param name="hitThickness"></param>
             /// <returns></returns>
-            protected abstract bool HitTestCurrentNodeExcludeChild(ref Octant octant, HitTestContext context,
-                object model, Geometry3D geometry,
-                Matrix modelMatrix, ref Ray rayModel, bool returnMultiple, ref List<HitTestResult> hits,
-                ref bool isIntersect, float hitThickness);
+            protected abstract bool HitTestCurrentNodeExcludeChild(
+                ref Octant octant,
+                HitTestContext context,
+                object model,
+                Geometry3D geometry,
+                Matrix modelMatrix,
+                ref Ray rayModel,
+                bool returnMultiple,
+                ref List<HitTestResult> hits,
+                ref bool isIntersect,
+                float hitThickness
+            );
 
             /// <summary>
             ///     Octant structure, size = 80 bytes
             /// </summary>
             [StructLayout(LayoutKind.Sequential)]
-            protected struct Octant
-            {
+            protected struct Octant {
                 public readonly BoundingBox Bound;
                 private int c0, c1, c2, c3, c4, c5, c6, c7;
                 public readonly int Parent;
@@ -639,8 +660,7 @@ namespace HelixToolkit.SharpDX.Core
                 /// <param name="parent">The parent.</param>
                 /// <param name="index">The index.</param>
                 /// <param name="bound">The bound.</param>
-                public Octant(int parent, int index, ref BoundingBox bound)
-                {
+                public Octant(int parent, int index, ref BoundingBox bound) {
                     Parent = parent;
                     Index = index;
                     Bound = bound;
@@ -655,8 +675,7 @@ namespace HelixToolkit.SharpDX.Core
                 /// </summary>
                 /// <param name="parent">The parent.</param>
                 /// <param name="index">The index.</param>
-                public Octant(int parent, int index)
-                {
+                public Octant(int parent, int index) {
                     Parent = parent;
                     Index = index;
                     Bound = new BoundingBox();
@@ -672,10 +691,8 @@ namespace HelixToolkit.SharpDX.Core
                 /// <param name="index">The index.</param>
                 /// <returns></returns>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public int GetChildIndex(int index)
-                {
-                    switch (index)
-                    {
+                public int GetChildIndex(int index) {
+                    switch (index) {
                         case 0:
                             return c0;
                         case 1:
@@ -703,10 +720,8 @@ namespace HelixToolkit.SharpDX.Core
                 /// <param name="index">The index.</param>
                 /// <param name="value">The value.</param>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public void SetChildIndex(int index, int value)
-                {
-                    switch (index)
-                    {
+                public void SetChildIndex(int index, int value) {
+                    switch (index) {
                         case 0:
                             c0 = value;
                             break;
@@ -744,8 +759,7 @@ namespace HelixToolkit.SharpDX.Core
                 /// </value>
                 /// <param name="index">The index.</param>
                 /// <returns></returns>
-                public int this[int index]
-                {
+                public int this[int index] {
                     get => GetChildIndex(index);
                     set => SetChildIndex(index, value);
                 }
@@ -758,8 +772,7 @@ namespace HelixToolkit.SharpDX.Core
                 ///     <c>true</c> if [has child at index] [the specified index]; otherwise, <c>false</c>.
                 /// </returns>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public bool HasChildAtIndex(int index)
-                {
+                public bool HasChildAtIndex(int index) {
                     return (ActiveNode & (byte) (1 << index)) != 0;
                 }
             }
@@ -767,8 +780,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Octant array, used to manage a internal octant array, which is the storage for the entire octree
             /// </summary>
-            protected sealed class OctantArray
-            {
+            protected sealed class OctantArray {
                 internal Octant[] array = new Octant[128];
 
                 /// <summary>
@@ -776,10 +788,8 @@ namespace HelixToolkit.SharpDX.Core
                 /// </summary>
                 /// <param name="bound">The bound.</param>
                 /// <param name="length">The length.</param>
-                public OctantArray(BoundingBox bound, int length)
-                {
-                    var octant = new Octant(-1, 0, ref bound)
-                    {
+                public OctantArray(BoundingBox bound, int length) {
+                    var octant = new Octant(-1, 0, ref bound) {
                         Start = 0,
                         End = length
                     };
@@ -794,8 +804,7 @@ namespace HelixToolkit.SharpDX.Core
                 /// </summary>
                 /// <param name="index"></param>
                 /// <returns></returns>
-                public Octant this[int index]
-                {
+                public Octant this[int index] {
                     get => array[index];
                     set => array[index] = value;
                 }
@@ -809,10 +818,8 @@ namespace HelixToolkit.SharpDX.Core
                 /// <param name="newParent">The parent out.</param>
                 /// <returns></returns>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public bool Add(int parentIndex, int childIndex, BoundingBox bound, ref Octant newParent)
-                {
-                    if (array.Length < Count + OctantSize)
-                    {
+                public bool Add(int parentIndex, int childIndex, BoundingBox bound, ref Octant newParent) {
+                    if (array.Length < Count + OctantSize) {
                         var newSize = array.Length * 2;
                         if (newSize > int.MaxValue / 4) //Size is too big
                             return false;
@@ -833,10 +840,8 @@ namespace HelixToolkit.SharpDX.Core
                 /// <summary>
                 ///     Compacts the octree array, remove all unused storage space at the end of the array.
                 /// </summary>
-                public void Compact()
-                {
-                    if (array.Length > Count)
-                    {
+                public void Compact() {
+                    if (array.Length > Count) {
                         var newArray = new Octant[Count];
                         Array.Copy(array, newArray, Count);
                         array = newArray;
@@ -848,17 +853,15 @@ namespace HelixToolkit.SharpDX.Core
                 /// <param name="i"></param>
                 /// <returns></returns>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public ref Octant Get(int i)
-                {
+                public ref Octant Get(int i) {
                     return ref array[i];
                 }
             }
 
-            #region Special Tests
+        #region Special Tests
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected static bool BoxContainsBox(ref BoundingBox source, ref BoundingBox target)
-            {
+            protected static bool BoxContainsBox(ref BoundingBox source, ref BoundingBox target) {
                 //Source contains target
                 return source.Minimum.X <= target.Minimum.X && target.Maximum.X <= source.Maximum.X &&
                        source.Minimum.Y <= target.Minimum.Y && target.Maximum.Y <= source.Maximum.Y &&
@@ -866,15 +869,14 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected static bool BoxDisjointSphere(BoundingBox box, ref BoundingSphere sphere)
-            {
+            protected static bool BoxDisjointSphere(BoundingBox box, ref BoundingSphere sphere) {
                 var vector = SilkMath.Clamp(sphere.Center, box.Minimum, box.Maximum);
                 var distance = SilkMath.DistanceSquared(sphere.Center, vector);
 
                 return distance > sphere.Radius * sphere.Radius;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

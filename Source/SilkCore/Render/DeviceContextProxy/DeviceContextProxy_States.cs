@@ -1,19 +1,15 @@
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
-        public partial class DeviceContextProxy
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
+        public partial class DeviceContextProxy {
             /// <summary>
             ///     Sets the state of the raster.
             /// </summary>
             /// <param name="rasterState">State of the raster.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetRasterState(RasterizerStateProxy rasterState)
-            {
+            public void SetRasterState(RasterizerStateProxy rasterState) {
                 if (AutoSkipRedundantStateSetting && currRasterState == rasterState) return;
                 NativeContext.SetRasterState(rasterState?.State);
                 currRasterState = rasterState;
@@ -25,8 +21,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="depthStencilState">State of the depth stencil.</param>
             /// <param name="stencilRef">The stencil reference.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetDepthStencilState(DepthStencilStateProxy depthStencilState, int stencilRef = 0)
-            {
+            public void SetDepthStencilState(DepthStencilStateProxy depthStencilState, int stencilRef = 0) {
                 if (AutoSkipRedundantStateSetting && currDepthStencilState == depthStencilState &&
                     currStencilRef == stencilRef) return;
                 NativeContext.SetDepthStencilState(depthStencilState?.State, stencilRef);
@@ -41,8 +36,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="blendFactor">The blend factor.</param>
             /// <param name="sampleMask">The sample mask.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetBlendState(BlendStateProxy blendState, Color4? blendFactor = null, int sampleMask = -1)
-            {
+            public void SetBlendState(BlendStateProxy blendState, Color4? blendFactor = null, int sampleMask = -1) {
                 var mask = sampleMask == -1 ? uint.MaxValue : unchecked((uint) sampleMask);
                 if (AutoSkipRedundantStateSetting && currBlendState == blendState && blendFactor == currBlendFactor &&
                     currSampleMask == mask) return;
@@ -59,9 +53,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="blendFactor">The blend factor.</param>
             /// <param name="sampleMask">The sample mask.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetBlendState(BlendStateProxy blendState, Color4? blendFactor = null,
-                uint sampleMask = uint.MaxValue)
-            {
+            public void SetBlendState(
+                BlendStateProxy blendState,
+                Color4? blendFactor = null,
+                uint sampleMask = uint.MaxValue
+            ) {
                 if (AutoSkipRedundantStateSetting && currBlendState == blendState && blendFactor == currBlendFactor &&
                     currSampleMask == sampleMask) return;
                 NativeContext.SetBlendState(blendState?.State, blendFactor, sampleMask);

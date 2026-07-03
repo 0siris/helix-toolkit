@@ -12,16 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace OctreeDemo
-{
-    /// <summary>
-    /// Interaction logic for MultiviewportWin.xaml
-    /// </summary>
-    public partial class MultiviewportWin : Window
-    {
-        public MultiviewportWin()
-        {
-            InitializeComponent();
-        }
+namespace OctreeDemo;
+
+/// <summary>
+/// Interaction logic for MultiviewportWin.xaml
+/// </summary>
+public partial class MultiviewportWin : Window {
+    public MultiviewportWin() {
+        InitializeComponent();
     }
 }

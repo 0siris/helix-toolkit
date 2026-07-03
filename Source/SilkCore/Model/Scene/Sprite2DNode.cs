@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
-        public class Sprite2DNode : SceneNode
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
+        public class Sprite2DNode : SceneNode {
             private Sprite2DBufferModel bufferModel;
 
             private int indexCount;
@@ -22,94 +19,81 @@ namespace HelixToolkit.SharpDX.Core
             private SpriteStruct[] sprites;
             private TextureModel texture;
 
-            public TextureModel Texture
-            {
+            public TextureModel Texture {
                 get => texture;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref texture, value) && IsAttached)
                         (RenderCore as Sprite2DRenderCore).UpdateTexture(value, EffectsManager.MaterialTextureManager);
                 }
             }
 
-            public Matrix ProjectionMatrix
-            {
+            public Matrix ProjectionMatrix {
                 get => (RenderCore as Sprite2DRenderCore).ProjectionMatrix;
                 set => (RenderCore as Sprite2DRenderCore).ProjectionMatrix = value;
             }
 
-            public SpriteStruct[] Sprites
-            {
+            public SpriteStruct[] Sprites {
                 get => sprites;
-                set
-                {
+                set {
                     if (Set(ref sprites, value) && IsAttached) bufferModel.Sprites = value;
                 }
             }
 
-            public int SpriteCount
-            {
+            public int SpriteCount {
                 get => spriteCount;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref spriteCount, value) && IsAttached) bufferModel.SpriteCount = value;
                 }
             }
 
-            public int[] Indices
-            {
+            public int[] Indices {
                 get => indices;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref indices, value) && IsAttached) bufferModel.Indices = value;
                 }
             }
 
-            public int IndexCount
-            {
+            public int IndexCount {
                 get => indexCount;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref indexCount, value) && IsAttached) bufferModel.IndexCount = value;
                 }
             }
 
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new Sprite2DRenderCore();
             }
 
-            protected override void OnAttached()
-            {
+            protected override void OnAttached() {
                 bufferModel = new Sprite2DBufferModel();
                 bufferModel.Sprites = Sprites;
                 bufferModel.SpriteCount = SpriteCount;
                 if (texture != null)
                     (RenderCore as Sprite2DRenderCore).UpdateTexture(texture,
-                        EffectTechnique.EffectsManager.MaterialTextureManager);
+                                                                     EffectTechnique.EffectsManager
+                                                                         .MaterialTextureManager);
                 base.OnAttached();
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref bufferModel);
                 base.OnDetach();
             }
 
-            protected override bool CanRender(RenderContext context)
-            {
+            protected override bool CanRender(RenderContext context) {
                 return base.CanRender(context) && sprites != null && indices != null
                        && spriteCount != 0 && indexCount != 0;
             }
 
-            protected override bool CanHitTest(HitTestContext context)
-            {
+            protected override bool CanHitTest(HitTestContext context) {
                 return false;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
         }

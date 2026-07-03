@@ -3,32 +3,25 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public class StackPanelNode2D : PanelNode2D
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public class StackPanelNode2D : PanelNode2D {
             private Orientation orientation = Orientation.Horizontal;
 
-            public StackPanelNode2D()
-            {
+            public StackPanelNode2D() {
                 EnableBitmapCache = true;
             }
 
-            public Orientation Orientation
-            {
+            public Orientation Orientation {
                 get => orientation;
                 set => SetAffectsMeasure(ref orientation, value);
             }
 
-            protected override Size2F MeasureOverride(Size2F availableSize)
-            {
+            protected override Size2F MeasureOverride(Size2F availableSize) {
                 var constraint = availableSize;
 
                 var size = new Size2F();
-                switch (Orientation)
-                {
+                switch (Orientation) {
                     case Orientation.Horizontal:
                         availableSize.Width = float.PositiveInfinity;
                         break;
@@ -39,11 +32,9 @@ namespace HelixToolkit.SharpDX.Core
                 }
 
                 foreach (var child in Items)
-                    if (child is SceneNode2D c)
-                    {
+                    if (child is SceneNode2D c) {
                         child.Measure(availableSize);
-                        switch (Orientation)
-                        {
+                        switch (Orientation) {
                             case Orientation.Horizontal:
                                 size.Width += c.DesiredSize.X;
                                 size.Height = Math.Max(size.Height, c.DesiredSize.Y);
@@ -59,15 +50,12 @@ namespace HelixToolkit.SharpDX.Core
                 return size;
             }
 
-            protected override RectangleF ArrangeOverride(RectangleF finalSize)
-            {
+            protected override RectangleF ArrangeOverride(RectangleF finalSize) {
                 float lastSize = 0;
                 var totalSize = finalSize;
                 foreach (var child in Items)
-                    if (child is SceneNode2D c)
-                    {
-                        switch (Orientation)
-                        {
+                    if (child is SceneNode2D c) {
+                        switch (Orientation) {
                             case Orientation.Horizontal:
                                 totalSize.Left += lastSize;
                                 lastSize = c.DesiredSize.X;

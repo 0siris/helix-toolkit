@@ -13,8 +13,7 @@ namespace HelixToolkit.UWP
 namespace HelixToolkit.Wpf.SharpDX
 #endif
 {
-    public sealed class HitTestContext
-    {
+    public sealed class HitTestContext {
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
@@ -24,8 +23,7 @@ namespace HelixToolkit.Wpf.SharpDX
         ///     The hit point on screen space. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP)
-        {
+        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP) {
             RenderMatrices = metrices;
             RayWS = rayWS;
             HitPointSP = hitSP;
@@ -41,9 +39,7 @@ namespace HelixToolkit.Wpf.SharpDX
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
         public HitTestContext(IRenderMatrices metrices, Ray rayWS, Vector2 hitSP)
-            : this(metrices, ref rayWS, ref hitSP)
-        {
-        }
+            : this(metrices, ref rayWS, ref hitSP) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
@@ -51,8 +47,7 @@ namespace HelixToolkit.Wpf.SharpDX
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
         /// <param name="rayWS">The ray in world space.</param>
-        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS)
-        {
+        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS) {
             RenderMatrices = metrices;
             RayWS = rayWS;
             if (metrices != null) HitPointSP = metrices.Project(rayWS.Position);
@@ -67,12 +62,10 @@ namespace HelixToolkit.Wpf.SharpDX
         ///     Screen hit point. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-        public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP)
-        {
+        public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP) {
             RenderMatrices = metrices;
             HitPointSP = hitSP;
-            if (metrices != null)
-            {
+            if (metrices != null) {
                 metrices.UnProject(hitSP, out var ray);
                 RayWS = ray;
             }

@@ -8,16 +8,11 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     A Texture 1D front end to the native D3D texture.
 /// </summary>
-public class Texture1D : Texture1DBase
-{
+public class Texture1D : Texture1DBase {
     internal Texture1D(NativeD3DDevice device, NativeTexture1DDescription description1D, params DataBox[] dataBox) :
-        base(device, description1D, dataBox)
-    {
-    }
+        base(device, description1D, dataBox) { }
 
-    internal Texture1D(NativeD3DDevice device, NativeD3DTexture1D texture) : base(device, texture)
-    {
-    }
+    internal Texture1D(NativeD3DDevice device, NativeD3DTexture1D texture) : base(device, texture) { }
 
     /// <summary>
     ///     Makes a copy of this texture.
@@ -28,8 +23,7 @@ public class Texture1D : Texture1DBase
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone()
-    {
+    public override Texture Clone() {
         return new Texture1D(GraphicsDevice, Description);
     }
 
@@ -47,8 +41,7 @@ public class Texture1D : Texture1DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description)
-    {
+    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description) {
         return new Texture1D(device, description);
     }
 
@@ -66,8 +59,7 @@ public class Texture1D : Texture1DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture)
-    {
+    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture) {
         return new Texture1D(device, texture);
     }
 
@@ -89,10 +81,14 @@ public class Texture1D : Texture1DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, int width, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, int arraySize = 1,
-        ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static Texture1D New(
+        NativeD3DDevice device,
+        int width,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        int arraySize = 1,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return New(device, width, false, format, flags, arraySize, usage);
     }
 
@@ -118,10 +114,15 @@ public class Texture1D : Texture1DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, int width, MipMapCount mipCount, PixelFormat format,
-        TextureFlags flags = TextureFlags.ShaderResource, int arraySize = 1,
-        ResourceUsage usage = ResourceUsage.Default)
-    {
+    public static Texture1D New(
+        NativeD3DDevice device,
+        int width,
+        MipMapCount mipCount,
+        PixelFormat format,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        int arraySize = 1,
+        ResourceUsage usage = ResourceUsage.Default
+    ) {
         return new Texture1D(device, NewDescription(width, format, flags, mipCount, arraySize, usage));
     }
 
@@ -146,17 +147,22 @@ public class Texture1D : Texture1DBase
     ///     The first dimension of mipMapTextures describes the number of array (Texture1D Array), second dimension is the
     ///     mipmap, the third is the texture data for a particular mipmap.
     /// </remarks>
-    public static Texture1D New<T>(NativeD3DDevice device, int width, PixelFormat format, T[] textureData,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-        where T : unmanaged
-    {
+    public static Texture1D New<T>(
+        NativeD3DDevice device,
+        int width,
+        PixelFormat format,
+        T[] textureData,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    )
+        where T : unmanaged {
         Texture1D texture = null;
         Utilities.Pin(textureData,
-            ptr =>
-            {
-                texture = new Texture1D(device, NewDescription(width, format, flags, 1, 1, usage),
-                    GetDataBox(format, width, 1, 1, textureData, ptr));
-            });
+                      ptr => {
+                          texture = new Texture1D(device,
+                                                  NewDescription(width, format, flags, 1, 1, usage),
+                                                  GetDataBox(format, width, 1, 1, textureData, ptr));
+                      });
         return texture;
     }
 
@@ -174,9 +180,12 @@ public class Texture1D : Texture1DBase
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, Image image, TextureFlags flags = TextureFlags.ShaderResource,
-        ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public static Texture1D New(
+        NativeD3DDevice device,
+        Image image,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         if (image == null)
             throw new ArgumentNullException("image");
         if (image.Description.Dimension != TextureDimension.Texture1D)
@@ -194,13 +203,16 @@ public class Texture1D : Texture1DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type 1D</exception>
     /// <returns>A texture</returns>
-    public new static Texture1D Load(NativeD3DDevice device, Stream stream,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
+    public new static Texture1D Load(
+        NativeD3DDevice device,
+        Stream stream,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
         var texture = Texture.Load(device, stream, flags, usage);
         if (!(texture is Texture1D))
             throw new ArgumentException(string.Format("Texture is not type of [Texture1D] but [{0}]",
-                texture.GetType().Name));
+                                                      texture.GetType().Name));
         return (Texture1D) texture;
     }
 
@@ -213,11 +225,13 @@ public class Texture1D : Texture1DBase
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <exception cref="ArgumentException">If the texture is not of type 1D</exception>
     /// <returns>A texture</returns>
-    public new static Texture1D Load(NativeD3DDevice device, string filePath,
-        TextureFlags flags = TextureFlags.ShaderResource, ResourceUsage usage = ResourceUsage.Immutable)
-    {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public new static Texture1D Load(
+        NativeD3DDevice device,
+        string filePath,
+        TextureFlags flags = TextureFlags.ShaderResource,
+        ResourceUsage usage = ResourceUsage.Immutable
+    ) {
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(device, stream, flags, usage);
         }
     }

@@ -12,21 +12,18 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Ref https://referencesource.microsoft.com/#System.Drawing/commonui/System/Drawing/ColorConverter.cs
 /// </summary>
-public static class Color4Extensions
-{
+public static class Color4Extensions {
     private static readonly Dictionary<string, object> Colors = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Initializes the <see cref="Color4Extensions" /> class.
     /// </summary>
-    static Color4Extensions()
-    {
+    static Color4Extensions() {
         FillConstants(Colors, typeof(Color));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetRed(this Color4 color)
-    {
+    public static float GetRed(this Color4 color) {
 #if SILKNET
         return color.X;
 #else
@@ -35,8 +32,7 @@ public static class Color4Extensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetGreen(this Color4 color)
-    {
+    public static float GetGreen(this Color4 color) {
 #if SILKNET
         return color.Y;
 #else
@@ -45,8 +41,7 @@ public static class Color4Extensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetBlue(this Color4 color)
-    {
+    public static float GetBlue(this Color4 color) {
 #if SILKNET
         return color.Z;
 #else
@@ -55,8 +50,7 @@ public static class Color4Extensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetAlpha(this Color4 color)
-    {
+    public static float GetAlpha(this Color4 color) {
 #if SILKNET
         return color.W;
 #else
@@ -65,13 +59,11 @@ public static class Color4Extensions
     }
 
 
-    private static void FillConstants(Dictionary<string, object> hash, Type enumType)
-    {
+    private static void FillConstants(Dictionary<string, object> hash, Type enumType) {
         //MethodAttributes attrs = MethodAttributes.Public | MethodAttributes.Static;
         var fields = enumType.GetFields();
 
-        for (var i = 0; i < fields.Length; i++)
-        {
+        for (var i = 0; i < fields.Length; i++) {
             var field = fields[i];
             if (field.FieldType == typeof(Color)) hash.Add(field.Name, field.GetValue(field));
         }
@@ -84,14 +76,12 @@ public static class Color4Extensions
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static Color4 ToColor4(this string color, CultureInfo culture = null)
-    {
+    public static Color4 ToColor4(this string color, CultureInfo culture = null) {
         var text = color.Trim();
         if (text.Length == 0) return Color.Transparent;
 
         var obj = GetNamedColor(text);
-        if (obj == null)
-        {
+        if (obj == null) {
             if (culture == null) culture = CultureInfo.CurrentCulture;
             var sep = culture.TextInfo.ListSeparator[0];
             var tryMappingToKnownColor = true;
@@ -101,20 +91,16 @@ public static class Color4Extensions
             // If the value is a 6 digit hex number only, then
             // we want to treat the Alpha as 255, not 0
             //
-            if (text.IndexOf(sep) == -1)
-            {
+            if (text.IndexOf(sep) == -1) {
                 // text can be '' (empty quoted string)
-                if (text.Length >= 2 && (text[0] == '\'' || text[0] == '"') && text[0] == text[text.Length - 1])
-                {
+                if (text.Length >= 2 && (text[0] == '\'' || text[0] == '"') && text[0] == text[text.Length - 1]) {
                     // In quotes means a named value
                     var colorName = text.Substring(1, text.Length - 2);
                     obj = GetNamedColor(colorName);
                     tryMappingToKnownColor = false;
-                }
-                else if ((text.Length == 7 && text[0] == '#') ||
-                         (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
-                         (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H"))))
-                {
+                } else if ((text.Length == 7 && text[0] == '#') ||
+                           (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
+                           (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H")))) {
                     // Note: ConvertFromString will raise exception if value cannot be converted.
                     obj = unchecked((int) (0xFF000000 | (uint) (int) intConverter.ConvertFromString(text))).FromArgb();
                 }
@@ -122,8 +108,7 @@ public static class Color4Extensions
 
             // Nope.  Parse the RGBA from the text.
             //
-            if (obj == null)
-            {
+            if (obj == null) {
                 var tokens = text.Split(new[] {sep});
                 var values = new int[tokens.Length];
                 for (var i = 0; i < values.Length; i++)
@@ -136,8 +121,7 @@ public static class Color4Extensions
                 // 3 -- RGB
                 // 4 -- ARGB
                 //
-                switch (values.Length)
-                {
+                switch (values.Length) {
                     case 1:
                         obj = values[0].FromArgb();
                         break;
@@ -154,8 +138,7 @@ public static class Color4Extensions
                 tryMappingToKnownColor = true;
             }
 
-            if (obj != null && tryMappingToKnownColor)
-            {
+            if (obj != null && tryMappingToKnownColor) {
                 // Now check to see if this color matches one of our known colors.
                 // If it does, then substitute it.  We can only do this for "Colors"
                 // because system colors morph with user settings.
@@ -163,8 +146,7 @@ public static class Color4Extensions
                 var targetARGB = ((Color) obj).ToArgb();
 
                 foreach (Color c in Colors.Values)
-                    if (c.ToArgb() == targetARGB)
-                    {
+                    if (c.ToArgb() == targetARGB) {
                         obj = c;
                         break;
                     }
@@ -181,8 +163,7 @@ public static class Color4Extensions
     /// </summary>
     /// <param name="argb">The ARGB.</param>
     /// <returns></returns>
-    public static Color FromArgb(this int argb)
-    {
+    public static Color FromArgb(this int argb) {
         return new Color((byte) (argb >> 16), (byte) (argb >> 8), (byte) argb, (byte) (argb >> 24));
     }
 
@@ -194,8 +175,7 @@ public static class Color4Extensions
     /// <param name="g">The g.</param>
     /// <param name="b">The b.</param>
     /// <returns></returns>
-    public static Color FromArgb(int r, int g, int b)
-    {
+    public static Color FromArgb(int r, int g, int b) {
         return new Color((byte) r, (byte) g, (byte) b);
     }
 
@@ -207,14 +187,12 @@ public static class Color4Extensions
     /// <param name="g">The g.</param>
     /// <param name="b">The b.</param>
     /// <returns></returns>
-    public static Color FromArgb(int a, int r, int g, int b)
-    {
+    public static Color FromArgb(int a, int r, int g, int b) {
         return new Color((byte) r, (byte) g, (byte) b, (byte) a);
     }
 
 
-    public static int ToArgb(this Color color)
-    {
+    public static int ToArgb(this Color color) {
         int value = color.B;
         value |= color.G << 8;
         value |= color.R << 16;
@@ -225,8 +203,7 @@ public static class Color4Extensions
 
     //private const float encodeDiv = 1f / 16777216;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float EncodeToFloat(this Color4 color)
-    {
+    public static float EncodeToFloat(this Color4 color) {
         var ex = (uint) (color.GetRed() * 255);
         var ey = (uint) (color.GetGreen() * 255);
         var ez = (uint) (color.GetBlue() * 255);
@@ -235,23 +212,20 @@ public static class Color4Extensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Encode2FloatToFloat(float a, float b)
-    {
+    public static float Encode2FloatToFloat(float a, float b) {
         var aScaled = (uint) a * 0xFFFF;
         var bScaled = (uint) b * 0xFFFF;
         var abPacked = (aScaled << 16) | (bScaled & 0xFFFF);
         return abPacked;
     }
 
-    internal static object GetNamedColor(string name)
-    {
+    internal static object GetNamedColor(string name) {
         Colors.TryGetValue(name, out var color);
         return color;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color4 ChangeIntensity(this Color4 c, float intensity)
-    {
+    public static Color4 ChangeIntensity(this Color4 c, float intensity) {
         return new Color4(c.GetRed() * intensity, c.GetGreen() * intensity, c.GetBlue() * intensity, c.GetAlpha());
     }
 }

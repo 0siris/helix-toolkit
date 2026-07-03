@@ -8,12 +8,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public sealed class PostEffectFXAA : RenderCore, IPostEffect
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public sealed class PostEffectFXAA : RenderCore, IPostEffect {
             private readonly ConstantBufferComponent modelCB;
             private string effectName = DefaultRenderTechniqueNames.PostEffectFXAA;
 
@@ -26,10 +23,11 @@ namespace HelixToolkit.SharpDX.Core
 
             private int textureSlot;
 
-            public PostEffectFXAA() : base(RenderType.GlobalEffect)
-            {
+            public PostEffectFXAA() : base(RenderType.GlobalEffect) {
                 modelCB = AddComponent(new ConstantBufferComponent(
-                    new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB, BorderEffectStruct.SizeInBytes)));
+                                           new ConstantBufferDescription(
+                                               DefaultBufferNames.BorderEffectCB,
+                                               BorderEffectStruct.SizeInBytes)));
             }
 
             /// <summary>
@@ -38,20 +36,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fxaa level.
             /// </value>
-            public FXAALevel FXAALevel
-            {
+            public FXAALevel FXAALevel {
                 get => fxaaLevel;
                 set => SetAffectsCanRenderFlag(ref fxaaLevel, value);
             }
 
-            public string EffectName
-            {
+            public string EffectName {
                 get => effectName;
                 set => SetAffectsCanRenderFlag(ref effectName, value);
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 FXAAPass = technique[DefaultPassNames.FXAAPass];
                 LUMAPass = technique[DefaultPassNames.LumaPass];
                 textureSlot =
@@ -62,18 +57,15 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref sampler);
             }
 
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return IsAttached && !string.IsNullOrEmpty(EffectName) && FXAALevel != FXAALevel.None;
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 var buffer = context.RenderHost.RenderBuffer;
                 deviceContext.SetRenderTarget(buffer.FullResPPBuffer.NextRTV);
                 var viewport = context.Viewport;
@@ -94,18 +86,15 @@ namespace HelixToolkit.SharpDX.Core
                 FXAAPass.PixelShader.BindTexture(deviceContext, textureSlot, null);
             }
 
-            private void OnUpdatePerModelStruct(RenderContext context)
-            {
-                modelStruct.Color = new Color4(
-                    1 / context.ActualWidth,
-                    1 / context.ActualHeight,
-                    modelStruct.Color.GetBlue(),
-                    modelStruct.Color.GetAlpha());
-                switch (FXAALevel)
-                {
+            private void OnUpdatePerModelStruct(RenderContext context) {
+                modelStruct.Color = new Color4(1 / context.ActualWidth,
+                                               1 / context.ActualHeight,
+                                               modelStruct.Color.GetBlue(),
+                                               modelStruct.Color.GetAlpha());
+                switch (FXAALevel) {
                     case FXAALevel.Low:
-                        modelStruct.Param.M11 = 0.25f; //fxaaQualitySubpix
-                        modelStruct.Param.M12 = 0.250f; // FxaaFloat fxaaQualityEdgeThreshold,
+                        modelStruct.Param.M11 = 0.25f;   //fxaaQualitySubpix
+                        modelStruct.Param.M12 = 0.250f;  // FxaaFloat fxaaQualityEdgeThreshold,
                         modelStruct.Param.M13 = 0.0833f; // FxaaFloat fxaaQualityEdgeThresholdMin,
                         break;
                     case FXAALevel.Medium:

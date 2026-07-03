@@ -24,8 +24,7 @@ using DoubleOrSingle = float;
 /// <summary>
 ///     Provides helper methods for mesh geometries.
 /// </summary>
-public static class MeshGeometryHelper
-{
+public static class MeshGeometryHelper {
     // Optimizing 3D Collections in WPF
     // http://blogs.msdn.com/timothyc/archive/2006/08/31/734308.aspx
     // - Remember to disconnect collections from the MeshGeometry when changing it
@@ -39,8 +38,7 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     Collection of normal vectors.
     /// </returns>
-    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh)
-    {
+    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh) {
         return CalculateNormals(mesh.Positions, mesh.TriangleIndices);
     }
 
@@ -56,13 +54,11 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     Collection of normal vectors.
     /// </returns>
-    public static Vector3DCollection CalculateNormals(IList<Point3D> positions, IList<int> triangleIndices)
-    {
+    public static Vector3DCollection CalculateNormals(IList<Point3D> positions, IList<int> triangleIndices) {
         var normals = new Vector3DCollection(positions.Count);
         for (var i = 0; i < positions.Count; i++) normals.Add(new Vector3D());
 
-        for (var i = 0; i < triangleIndices.Count; i += 3)
-        {
+        for (var i = 0; i < triangleIndices.Count; i += 3) {
             var index0 = triangleIndices[i];
             var index1 = triangleIndices[i + 1];
             var index2 = triangleIndices[i + 2];
@@ -78,8 +74,7 @@ public static class MeshGeometryHelper
             normals[index2] += w;
         }
 
-        for (var i = 0; i < normals.Count; i++)
-        {
+        for (var i = 0; i < normals.Count; i++) {
             var n = normals[i];
             n.Normalize();
             normals[i] = n;
@@ -97,15 +92,12 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The edge indices for the edges that are only used by one triangle.
     /// </returns>
-    public static Int32Collection FindBorderEdges(this MeshGeometry3D mesh)
-    {
+    public static Int32Collection FindBorderEdges(this MeshGeometry3D mesh) {
         var dict = new Dictionary<ulong, int>();
 
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
             var i0 = i * 3;
-            for (var j = 0; j < 3; j++)
-            {
+            for (var j = 0; j < 3; j++) {
                 var index0 = mesh.TriangleIndices[i0 + j];
                 var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
@@ -121,8 +113,7 @@ public static class MeshGeometryHelper
         var edges = new Int32Collection();
         foreach (var kvp in dict)
             // find edges only used by 1 triangle
-            if (kvp.Value == 1)
-            {
+            if (kvp.Value == 1) {
                 uint i0, i1;
                 ReverseKey(kvp.Key, out i0, out i1);
                 edges.Add((int) i0);
@@ -141,23 +132,19 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The edge indices (minimum index first).
     /// </returns>
-    public static Int32Collection FindEdges(this MeshGeometry3D mesh)
-    {
+    public static Int32Collection FindEdges(this MeshGeometry3D mesh) {
         var edges = new Int32Collection();
         var dict = new HashSet<ulong>();
 
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
             var i0 = i * 3;
-            for (var j = 0; j < 3; j++)
-            {
+            for (var j = 0; j < 3; j++) {
                 var index0 = mesh.TriangleIndices[i0 + j];
                 var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
                 var key = CreateKey((uint) minIndex, (uint) maxIndex);
-                if (!dict.Contains(key))
-                {
+                if (!dict.Contains(key)) {
                     edges.Add(minIndex);
                     edges.Add(maxIndex);
                     dict.Add(key);
@@ -181,12 +168,10 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The edge indices.
     /// </returns>
-    public static Int32Collection FindSharpEdges(this MeshGeometry3D mesh, double minimumAngle)
-    {
+    public static Int32Collection FindSharpEdges(this MeshGeometry3D mesh, double minimumAngle) {
         var edgeIndices = new Int32Collection();
         var edgeNormals = new Dictionary<EdgeKey, Vector3D>();
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
             var i0 = i * 3;
             var p0 = mesh.Positions[mesh.TriangleIndices[i0]];
             var p1 = mesh.Positions[mesh.TriangleIndices[i0 + 1]];
@@ -198,8 +183,7 @@ public static class MeshGeometryHelper
                 continue;
 
             triangleNormal.Normalize();
-            for (var j = 0; j < 3; j++)
-            {
+            for (var j = 0; j < 3; j++) {
                 var index0 = mesh.TriangleIndices[i0 + j];
                 var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
                 var position0 = SharedFunctions.ToVector3D(mesh.Positions[index0]);
@@ -207,22 +191,18 @@ public static class MeshGeometryHelper
                 var edgeKey = new EdgeKey(position0, position1);
                 var reverseEdgeKey = new EdgeKey(position1, position0);
                 if (edgeNormals.TryGetValue(edgeKey, out var value) ||
-                    edgeNormals.TryGetValue(reverseEdgeKey, out value))
-                {
+                    edgeNormals.TryGetValue(reverseEdgeKey, out value)) {
                     var rawDot = SharedFunctions.DotProduct(ref triangleNormal, ref value);
 
                     // Acos returns NaN if rawDot > 1 or rawDot < -1
                     var dot = Math.Max(-1, Math.Min(rawDot, 1));
 
                     var angle = 180 / Math.PI * Math.Acos(dot);
-                    if (angle > minimumAngle)
-                    {
+                    if (angle > minimumAngle) {
                         edgeIndices.Add(index0);
                         edgeIndices.Add(index1);
                     }
-                }
-                else
-                {
+                } else {
                     edgeNormals.Add(edgeKey, triangleNormal);
                 }
             }
@@ -240,8 +220,7 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     A new mesh.
     /// </returns>
-    public static MeshGeometry3D NoSharedVertices(this MeshGeometry3D input)
-    {
+    public static MeshGeometry3D NoSharedVertices(this MeshGeometry3D input) {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
         Vector3DCollection n = null;
@@ -250,8 +229,7 @@ public static class MeshGeometryHelper
         PointCollection tc = null;
         if (input.TextureCoordinates != null && input.TextureCoordinates.Count > 0) tc = new PointCollection();
 
-        for (var i = 0; i < input.TriangleIndices.Count; i += 3)
-        {
+        for (var i = 0; i < input.TriangleIndices.Count; i += 3) {
             var i0 = i;
             var i1 = i + 1;
             var i2 = i + 2;
@@ -267,15 +245,13 @@ public static class MeshGeometryHelper
             ti.Add(i0);
             ti.Add(i1);
             ti.Add(i2);
-            if (n != null)
-            {
+            if (n != null) {
                 n.Add(input.Normals[index0]);
                 n.Add(input.Normals[index1]);
                 n.Add(input.Normals[index2]);
             }
 
-            if (tc != null)
-            {
+            if (tc != null) {
                 tc.Add(input.TextureCoordinates[index0]);
                 tc.Add(input.TextureCoordinates[index1]);
                 tc.Add(input.TextureCoordinates[index2]);
@@ -302,13 +278,11 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     A simplified mesh.
     /// </returns>
-    public static MeshGeometry3D Simplify(this MeshGeometry3D mesh, DoubleOrSingle eps)
-    {
+    public static MeshGeometry3D Simplify(this MeshGeometry3D mesh, DoubleOrSingle eps) {
         // Find common positions
         var dict = new Dictionary<int, int>(); // map position index to first occurence of same position
         for (var i = 0; i < mesh.Positions.Count; i++)
-        for (var j = i + 1; j < mesh.Positions.Count; j++)
-        {
+        for (var j = i + 1; j < mesh.Positions.Count; j++) {
             if (dict.ContainsKey(j)) continue;
             var v = mesh.Positions[i] - mesh.Positions[j];
             var l2 = SharedFunctions.LengthSquared(ref v);
@@ -321,15 +295,13 @@ public static class MeshGeometryHelper
         // create new positions array
         var newIndex = new Dictionary<int, int>(); // map old index to new index
         for (var i = 0; i < mesh.Positions.Count; i++)
-            if (!dict.ContainsKey(i))
-            {
+            if (!dict.ContainsKey(i)) {
                 newIndex.Add(i, p.Count);
                 p.Add(mesh.Positions[i]);
             }
 
         // Update triangle indices
-        foreach (var index in mesh.TriangleIndices)
-        {
+        foreach (var index in mesh.TriangleIndices) {
             int j;
             ti.Add(dict.TryGetValue(index, out j) ? newIndex[j] : newIndex[index]);
         }
@@ -346,8 +318,7 @@ public static class MeshGeometryHelper
     /// </summary>
     /// <param name="mesh">The mesh.</param>
     /// <returns>Validation report or null if no issues were found.</returns>
-    public static string Validate(this MeshGeometry3D mesh)
-    {
+    public static string Validate(this MeshGeometry3D mesh) {
         var sb = new StringBuilder();
         if (mesh.Normals != null && mesh.Normals.Count != 0 && mesh.Normals.Count != mesh.Positions.Count)
             sb.AppendLine("Wrong number of normal vectors");
@@ -358,11 +329,9 @@ public static class MeshGeometryHelper
 
         if (mesh.TriangleIndices.Count % 3 != 0) sb.AppendLine("TriangleIndices not complete");
 
-        for (var i = 0; i < mesh.TriangleIndices.Count; i++)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count; i++) {
             var index = mesh.TriangleIndices[i];
-            if (index < 0 || index >= mesh.Positions.Count)
-            {
+            if (index < 0 || index >= mesh.Positions.Count) {
                 sb.AppendFormat("Wrong index {0} in triangle {1} vertex {2}", index, i / 3, i % 3);
                 sb.AppendLine();
             }
@@ -387,8 +356,7 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The <see cref="MeshGeometry3D" />.
     /// </returns>
-    public static MeshGeometry3D Cut(this MeshGeometry3D mesh, Point3D plane, Vector3D normal)
-    {
+    public static MeshGeometry3D Cut(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
         var hasTextureCoordinates = mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0;
         var hasNormals = mesh.Normals != null && mesh.Normals.Count > 0;
         var meshBuilder = new MeshBuilder(hasNormals, hasTextureCoordinates);
@@ -403,8 +371,7 @@ public static class MeshGeometryHelper
             foreach (var n in mesh.Normals)
                 meshBuilder.Normals.Add(n);
 
-        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3) {
             var index0 = mesh.TriangleIndices[i];
             var index1 = mesh.TriangleIndices[i + 1];
             var index2 = mesh.TriangleIndices[i + 2];
@@ -414,8 +381,13 @@ public static class MeshGeometryHelper
             Point[] textureCoordinates;
             int[] triangleIndices;
 
-            contourHelper.ContourFacet(index0, index1, index2, out positions, out normals, out textureCoordinates,
-                out triangleIndices);
+            contourHelper.ContourFacet(index0,
+                                       index1,
+                                       index2,
+                                       out positions,
+                                       out normals,
+                                       out textureCoordinates,
+                                       out triangleIndices);
 
             foreach (var p in positions) meshBuilder.Positions.Add(p);
 
@@ -444,25 +416,22 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The segments of the contour.
     /// </returns>
-    public static IList<Point3D> GetContourSegments(this MeshGeometry3D mesh, Point3D plane, Vector3D normal)
-    {
+    public static IList<Point3D> GetContourSegments(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
         var segments = new List<Point3D>();
         var contourHelper = new ContourHelper(plane, normal, mesh);
-        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3)
-        {
+        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3) {
             Point3D[] positions;
             Vector3D[] normals;
             Point[] textureCoordinates;
             int[] triangleIndices;
 
-            contourHelper.ContourFacet(
-                mesh.TriangleIndices[i],
-                mesh.TriangleIndices[i + 1],
-                mesh.TriangleIndices[i + 2],
-                out positions,
-                out normals,
-                out textureCoordinates,
-                out triangleIndices);
+            contourHelper.ContourFacet(mesh.TriangleIndices[i],
+                                       mesh.TriangleIndices[i + 1],
+                                       mesh.TriangleIndices[i + 2],
+                                       out positions,
+                                       out normals,
+                                       out textureCoordinates,
+                                       out triangleIndices);
             segments.AddRange(positions);
         }
 
@@ -482,8 +451,7 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     Enumerated connected contour curves.
     /// </returns>
-    public static IEnumerable<IList<Point3D>> CombineSegments(IList<Point3D> segments, DoubleOrSingle eps)
-    {
+    public static IEnumerable<IList<Point3D>> CombineSegments(IList<Point3D> segments, DoubleOrSingle eps) {
         // This is a simple, slow, naïve method - should be improved:
         // http://stackoverflow.com/questions/1436091/joining-unordered-line-segments
         var curve = new List<Point3D>();
@@ -491,22 +459,16 @@ public static class MeshGeometryHelper
 
         var segmentCount = segments.Count;
         int segment1 = -1, segment2 = -1;
-        while (segmentCount > 0)
-        {
-            if (curveCount > 0)
-            {
+        while (segmentCount > 0) {
+            if (curveCount > 0) {
                 // Find a segment that is connected to the head of the contour
                 segment1 = FindConnectedSegment(segments, curve[0], eps);
-                if (segment1 >= 0)
-                {
-                    if (segment1 % 2 == 1)
-                    {
+                if (segment1 >= 0) {
+                    if (segment1 % 2 == 1) {
                         curve.Insert(0, segments[segment1 - 1]);
                         segments.RemoveAt(segment1 - 1);
                         segments.RemoveAt(segment1 - 1);
-                    }
-                    else
-                    {
+                    } else {
                         curve.Insert(0, segments[segment1 + 1]);
                         segments.RemoveAt(segment1);
                         segments.RemoveAt(segment1);
@@ -518,16 +480,12 @@ public static class MeshGeometryHelper
 
                 // Find a segment that is connected to the tail of the contour
                 segment2 = FindConnectedSegment(segments, curve[curveCount - 1], eps);
-                if (segment2 >= 0)
-                {
-                    if (segment2 % 2 == 1)
-                    {
+                if (segment2 >= 0) {
+                    if (segment2 % 2 == 1) {
                         curve.Add(segments[segment2 - 1]);
                         segments.RemoveAt(segment2 - 1);
                         segments.RemoveAt(segment2 - 1);
-                    }
-                    else
-                    {
+                    } else {
                         curve.Add(segments[segment2 + 1]);
                         segments.RemoveAt(segment2);
                         segments.RemoveAt(segment2);
@@ -538,17 +496,14 @@ public static class MeshGeometryHelper
                 }
             }
 
-            if ((segment1 < 0 && segment2 < 0) || segmentCount == 0)
-            {
-                if (curveCount > 0)
-                {
+            if ((segment1 < 0 && segment2 < 0) || segmentCount == 0) {
+                if (curveCount > 0) {
                     yield return curve;
                     curve = new List<Point3D>();
                     curveCount = 0;
                 }
 
-                if (segmentCount > 0)
-                {
+                if (segmentCount > 0) {
                     curve.Add(segments[0]);
                     curve.Add(segments[1]);
                     curveCount += 2;
@@ -572,8 +527,7 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The create key.
     /// </returns>
-    private static ulong CreateKey(uint i0, uint i1)
-    {
+    private static ulong CreateKey(uint i0, uint i1) {
         return ((ulong) i0 << 32) + i1;
     }
 
@@ -589,8 +543,7 @@ public static class MeshGeometryHelper
     /// <param name="i1">
     ///     The i 1.
     /// </param>
-    private static void ReverseKey(ulong key, out uint i0, out uint i1)
-    {
+    private static void ReverseKey(ulong key, out uint i0, out uint i1) {
         i0 = (uint) (key >> 32);
         i1 = (uint) ((key << 32) >> 32);
     }
@@ -610,16 +563,13 @@ public static class MeshGeometryHelper
     /// <returns>
     ///     The index of the nearest point.
     /// </returns>
-    private static int FindConnectedSegment(IList<Point3D> segments, Point3D point, DoubleOrSingle eps)
-    {
+    private static int FindConnectedSegment(IList<Point3D> segments, Point3D point, DoubleOrSingle eps) {
         var best = eps;
         var result = -1;
-        for (var i = 0; i < segments.Count; i++)
-        {
+        for (var i = 0; i < segments.Count; i++) {
             var v = point - segments[i];
             var ls0 = SharedFunctions.LengthSquared(ref v);
-            if (ls0 < best)
-            {
+            if (ls0 < best) {
                 result = i;
                 best = ls0;
             }
@@ -633,14 +583,19 @@ public static class MeshGeometryHelper
     /// </summary>
     /// <param name="mesh"></param>
     /// <returns></returns>
-    public static MeshGeometry3D RemoveIsolatedVertices(this MeshGeometry3D mesh)
-    {
+    public static MeshGeometry3D RemoveIsolatedVertices(this MeshGeometry3D mesh) {
         Point3DCollection vertNew;
         Int32Collection triNew;
         PointCollection textureNew;
         Vector3DCollection normalNew;
-        RemoveIsolatedVertices(mesh.Positions, mesh.TriangleIndices, mesh.TextureCoordinates, mesh.Normals, out vertNew,
-            out triNew, out textureNew, out normalNew);
+        RemoveIsolatedVertices(mesh.Positions,
+                               mesh.TriangleIndices,
+                               mesh.TextureCoordinates,
+                               mesh.Normals,
+                               out vertNew,
+                               out triNew,
+                               out textureNew,
+                               out normalNew);
         var newMesh = new MeshGeometry3D
             {Positions = vertNew, TriangleIndices = triNew, TextureCoordinates = textureNew, Normals = normalNew};
         return newMesh;
@@ -657,11 +612,16 @@ public static class MeshGeometryHelper
     /// <param name="trianglesOut"></param>
     /// <param name="textureOut"></param>
     /// <param name="normalOut"></param>
-    public static void RemoveIsolatedVertices(IList<Point3D> vertices, IList<int> triangles, IList<Point> texture,
+    public static void RemoveIsolatedVertices(
+        IList<Point3D> vertices,
+        IList<int> triangles,
+        IList<Point> texture,
         IList<Vector3D> normals,
-        out Point3DCollection verticesOut, out Int32Collection trianglesOut, out PointCollection textureOut,
-        out Vector3DCollection normalOut)
-    {
+        out Point3DCollection verticesOut,
+        out Int32Collection trianglesOut,
+        out PointCollection textureOut,
+        out Vector3DCollection normalOut
+    ) {
         verticesOut = null;
         trianglesOut = null;
         textureOut = null;
@@ -683,15 +643,12 @@ public static class MeshGeometryHelper
         if (vertices.Count == vertToRemove.Count) return;
         var counter = 0;
         for (var i = 0; i < vertices.Count; ++i)
-            if (counter == vertToRemove.Count || i < vertToRemove[counter])
-            {
+            if (counter == vertToRemove.Count || i < vertToRemove[counter]) {
                 verticesOut.Add(vertices[i]);
                 if (texture != null) textureOut.Add(texture[i]);
                 if (normals != null) normalOut.Add(normals[i]);
                 foreach (var t in tracking[i]) trianglesOut[t] -= counter;
-            }
-            else
-            {
+            } else {
                 ++counter;
             }
 
@@ -702,35 +659,30 @@ public static class MeshGeometryHelper
     /// </summary>
     /// <param name="triangles"></param>
     /// <param name="numVerts"></param>
-    public static void RemoveOutOfRangeTriangles(this IList<int> triangles, int numVerts)
-    {
+    public static void RemoveOutOfRangeTriangles(this IList<int> triangles, int numVerts) {
         var removeOutOfRangeTriangles = new List<int>();
         for (var i = 0; i < triangles.Count; i += 3)
             if (triangles[i] >= numVerts || triangles[i + 1] >= numVerts || triangles[i + 2] >= numVerts)
                 removeOutOfRangeTriangles.Add(i);
 
-        if (removeOutOfRangeTriangles.Count > 0)
-        {
+        if (removeOutOfRangeTriangles.Count > 0) {
             removeOutOfRangeTriangles.Reverse();
             foreach (var idx in removeOutOfRangeTriangles) removeOutOfRangeTriangles.RemoveRange(idx, 3);
         }
     }
 
-    public static Point3D GetCentroid(this IList<Point3D> vertices)
-    {
+    public static Point3D GetCentroid(this IList<Point3D> vertices) {
         if (vertices.Count == 0) return default;
         var centroid = vertices[0];
         for (var i = 1; i < vertices.Count; i++) centroid += (vertices[i] - centroid) / (i + 1);
         return centroid;
     }
 
-    private struct EdgeKey
-    {
+    private struct EdgeKey {
         private readonly Vector3D position0;
         private readonly Vector3D position1;
 
-        public EdgeKey(Vector3D position0, Vector3D position1)
-        {
+        public EdgeKey(Vector3D position0, Vector3D position1) {
             this.position0 = position0;
             this.position1 = position1;
         }

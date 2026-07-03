@@ -9,15 +9,12 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public class ImmediateContextRenderer : DisposeObject, IRenderer
-        {
-            private static readonly Func<SceneNode, RenderContext, bool> updateFunc = (x, context) => { return true; };
+        public class ImmediateContextRenderer : DisposeObject, IRenderer {
+            private static readonly Func<SceneNode, RenderContext, bool> updateFunc = (x, context) => true;
 
             private readonly Stack<KeyValuePair<int, IList<SceneNode2D>>> stack2DCache1 = new(20);
             private readonly Stack<KeyValuePair<int, IList<SceneNode>>> stackCache1 = new(20);
@@ -31,10 +28,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Initializes a new instance of the <see cref="ImmediateContextRenderer" /> class.
             /// </summary>
             /// <param name="deviceResource">The deviceResource.</param>
-            public ImmediateContextRenderer(IDevice3DResources deviceResource)
-            {
+            public ImmediateContextRenderer(IDevice3DResources deviceResource) {
                 immediateContext = new DeviceContextProxy(deviceResource.NativeDeviceResources.ImmediateContext,
-                    deviceResource.NativeDeviceResources.Device);
+                                                          deviceResource.NativeDeviceResources.Device);
                 oitWeightedCore = new OrderIndependentTransparentRenderCore();
                 oitDepthPeelingCore = new OITDepthPeeling();
                 postFXAACore = new PostEffectFXAA();
@@ -56,9 +52,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderables">The renderables.</param>
             /// <param name="results">Returns list of flattened scene graph with depth index as KeyValuePair.Key</param>
             /// <returns></returns>
-            public virtual void UpdateSceneGraph(RenderContext context, FastList<SceneNode> renderables,
-                FastList<KeyValuePair<int, SceneNode>> results)
-            {
+            public virtual void UpdateSceneGraph(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                FastList<KeyValuePair<int, SceneNode>> results
+            ) {
                 renderables.PreorderDFT(context, updateFunc, results, stackCache1);
             }
 
@@ -68,13 +66,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="renderables">The renderables.</param>
             /// <returns></returns>
-            public void UpdateSceneGraph2D(RenderContext2D context, FastList<SceneNode2D> renderables)
-            {
-                renderables.PreorderDFTRun(x =>
-                {
-                    x.Update(context);
-                    return x.IsRenderable;
-                }, stack2DCache1);
+            public void UpdateSceneGraph2D(RenderContext2D context, FastList<SceneNode2D> renderables) {
+                renderables.PreorderDFTRun(x => {
+                                               x.Update(context);
+                                               return x.IsRenderable;
+                                           },
+                                           stack2DCache1);
             }
 
             /// <summary>
@@ -83,12 +80,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="lights">The lights.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void UpdateGlobalVariables(RenderContext context, FastList<SceneNode> lights,
-                ref RenderParameter parameter)
-            {
+            public virtual void UpdateGlobalVariables(
+                RenderContext context,
+                FastList<SceneNode> lights,
+                ref RenderParameter parameter
+            ) {
                 ImmediateContext.Reset();
-                if (parameter.RenderLight)
-                {
+                if (parameter.RenderLight) {
                     context.LightScene.LightModels.ResetLightCount();
                     var count = lights.Count;
                     for (var i = 0; i < count && i < Constants.MaxLights; ++i)
@@ -106,21 +104,22 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="parameter">The parameter.</param>
             /// <param name="testFrustum"></param>
             /// <returns>Number of node has been rendered</returns>
-            public virtual int RenderOpaque(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter, bool testFrustum)
-            {
+            public virtual int RenderOpaque(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter,
+                bool testFrustum
+            ) {
                 var renderedCount = 0;
                 var count = renderables.Count;
                 var frustum = context.BoundingFrustum;
                 if (!testFrustum)
-                    for (var i = 0; i < count; ++i)
-                    {
+                    for (var i = 0; i < count; ++i) {
                         renderables[i].Render(context, ImmediateContext);
                         ++renderedCount;
                     }
                 else
-                    for (var i = 0; i < count; ++i)
-                    {
+                    for (var i = 0; i < count; ++i) {
                         if (!renderables[i].TestViewFrustum(ref frustum)) continue;
                         renderables[i].Render(context, ImmediateContext);
                         ++renderedCount;
@@ -136,14 +135,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderables">The renderables.</param>
             /// <param name="parameter">The parameter.</param>
             /// <returns></returns>
-            public virtual int RenderTransparent(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter)
-            {
+            public virtual int RenderTransparent(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter
+            ) {
                 if (renderables.Count == 0) return 0;
                 if (context.RenderHost.RenderConfiguration.OITRenderType != OITRenderType.None
                     && context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0)
-                    switch (context.RenderHost.RenderConfiguration.OITRenderType)
-                    {
+                    switch (context.RenderHost.RenderConfiguration.OITRenderType) {
                         case OITRenderType.SinglePassWeighted:
                             oitWeightedCore.ExternRenderParameter = parameter;
                             oitWeightedCore.Render(context, ImmediateContext);
@@ -157,8 +157,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 var renderedCount = 0;
                 var count = renderables.Count;
-                for (var i = 0; i < count; ++i)
-                {
+                for (var i = 0; i < count; ++i) {
                     renderables[i].Render(context, ImmediateContext);
                     ++renderedCount;
                 }
@@ -173,9 +172,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="renderables">The renderables.</param>
             /// <param name="context"></param>
             /// <returns></returns>
-            public virtual void UpdateNotRenderParallel(RenderContext context,
-                FastList<KeyValuePair<int, SceneNode>> renderables)
-            {
+            public virtual void UpdateNotRenderParallel(
+                RenderContext context,
+                FastList<KeyValuePair<int, SceneNode>> renderables
+            ) {
                 var count = renderables.Count;
                 for (var i = 0; i < count; ++i) renderables[i].Value.UpdateNotRender(context);
             }
@@ -184,12 +184,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Sets the render targets.
             /// </summary>
             /// <param name="parameter">The parameter.</param>
-            public void SetRenderTargets(ref RenderParameter parameter)
-            {
+            public void SetRenderTargets(ref RenderParameter parameter) {
                 ImmediateContext.SetRenderTargets(parameter.DepthStencilView, parameter.RenderTargetView);
                 ImmediateContext.SetViewport(ref parameter.ViewportRegion);
-                ImmediateContext.SetScissorRectangle(parameter.ScissorRegion.Left, parameter.ScissorRegion.Top,
-                    parameter.ScissorRegion.Right, parameter.ScissorRegion.Bottom);
+                ImmediateContext.SetScissorRectangle(parameter.ScissorRegion.Left,
+                                                     parameter.ScissorRegion.Top,
+                                                     parameter.ScissorRegion.Right,
+                                                     parameter.ScissorRegion.Bottom);
             }
 
             /// <summary>
@@ -198,9 +199,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="renderables">The renderables.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderScene2D(RenderContext2D context, FastList<SceneNode2D> renderables,
-                ref RenderParameter2D parameter)
-            {
+            public virtual void RenderScene2D(
+                RenderContext2D context,
+                FastList<SceneNode2D> renderables,
+                ref RenderParameter2D parameter
+            ) {
                 var count = renderables.Count;
                 for (var i = 0; i < count; ++i) renderables[i].Render(context);
             }
@@ -211,13 +214,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="renderables">The renderables.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderPreProc(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter)
-            {
+            public virtual void RenderPreProc(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter
+            ) {
                 var count = renderables.Count;
                 for (var i = 0; i < count; ++i) renderables[i].Render(context, ImmediateContext);
-                if (context.SSAOEnabled)
-                {
+                if (context.SSAOEnabled) {
                     preSSAOCore.Radius = context.RenderHost.RenderConfiguration.SSAORadius;
                     preSSAOCore.Quality = context.RenderHost.RenderConfiguration.SSAOQuality;
                     preSSAOCore.Render(context, ImmediateContext);
@@ -230,9 +234,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="renderables">The renderables.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderPostProc(RenderContext context, FastList<SceneNode> renderables,
-                ref RenderParameter parameter)
-            {
+            public virtual void RenderPostProc(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                ref RenderParameter parameter
+            ) {
                 var count = renderables.Count;
                 for (var i = 0; i < count; ++i) renderables[i].Render(context, ImmediateContext);
             }
@@ -242,16 +248,18 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderToPingPongBuffer(RenderContext context, ref RenderParameter parameter)
-            {
+            public virtual void RenderToPingPongBuffer(RenderContext context, ref RenderParameter parameter) {
                 var buffer = context.RenderHost.RenderBuffer;
                 buffer.FullResPPBuffer.Initialize();
                 if (parameter.IsMSAATexture)
-                    ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture, 0,
-                        buffer.FullResPPBuffer.CurrentTexture, 0, buffer.Format);
+                    ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
+                                                        0,
+                                                        buffer.FullResPPBuffer.CurrentTexture,
+                                                        0,
+                                                        buffer.Format);
                 else
                     ImmediateContext.CopyResource(parameter.CurrentTargetTexture,
-                        buffer.FullResPPBuffer.CurrentTexture);
+                                                  buffer.FullResPPBuffer.CurrentTexture);
             }
 
             /// <summary>
@@ -262,16 +270,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="start">Start index in renderables</param>
             /// <param name="count">Number of renderables to render.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderScreenSpaced(RenderContext context, FastList<SceneNode> renderables, int start,
+            public virtual void RenderScreenSpaced(
+                RenderContext context,
+                FastList<SceneNode> renderables,
+                int start,
                 int count,
-                ref RenderParameter parameter)
-            {
-                if (count > 0)
-                {
+                ref RenderParameter parameter
+            ) {
+                if (count > 0) {
                     var buffer = context.RenderHost.RenderBuffer;
                     var depthStencilBuffer = parameter.IsMSAATexture
-                        ? buffer.DepthStencilBuffer
-                        : buffer.DepthStencilBufferNoMSAA;
+                                                 ? buffer.DepthStencilBuffer
+                                                 : buffer.DepthStencilBufferNoMSAA;
                     ImmediateContext.SetRenderTargets(depthStencilBuffer, parameter.RenderTargetView);
 
                     for (var i = start; i < start + count; ++i) renderables[i].Render(context, ImmediateContext);
@@ -283,11 +293,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderToBackBuffer(RenderContext context, ref RenderParameter parameter)
-            {
+            public virtual void RenderToBackBuffer(RenderContext context, ref RenderParameter parameter) {
                 if (context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0
-                    && context.RenderHost.RenderConfiguration.FXAALevel != FXAALevel.None)
-                {
+                    && context.RenderHost.RenderConfiguration.FXAALevel != FXAALevel.None) {
                     postFXAACore.FXAALevel = context.RenderHost.RenderConfiguration.FXAALevel;
                     postFXAACore.Render(context, ImmediateContext);
                 }
@@ -295,16 +303,17 @@ namespace HelixToolkit.SharpDX.Core
                 ImmediateContext.Flush();
                 var buffer = context.RenderHost.RenderBuffer;
                 if (parameter.IsMSAATexture)
-                    ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture, 0, buffer.BackBuffer.Resource,
-                        0, buffer.Format);
+                    ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
+                                                        0,
+                                                        buffer.BackBuffer.Resource,
+                                                        0,
+                                                        buffer.Format);
                 else
                     ImmediateContext.CopyResource(parameter.CurrentTargetTexture, buffer.BackBuffer.Resource);
             }
 
-            public void Attach(IRenderHost host)
-            {
-                if (host.FeatureLevel >= FeatureLevel.Level_11_0)
-                {
+            public void Attach(IRenderHost host) {
+                if (host.FeatureLevel >= FeatureLevel.Level_11_0) {
                     oitWeightedCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITQuad));
                     oitDepthPeelingCore.Attach(
                         host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITDepthPeeling));
@@ -313,8 +322,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            public void Detach()
-            {
+            public void Detach() {
                 stackCache1.Clear();
                 stack2DCache1.Clear();
                 oitWeightedCore.Detach();
@@ -331,16 +339,16 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="nodesWithPostEffects"></param>
             /// <param name="postProcNodes"></param>
             /// <param name="parameter">The parameter.</param>
-            public virtual void RenderScreenSpacedPostProc(RenderContext context,
+            public virtual void RenderScreenSpacedPostProc(
+                RenderContext context,
                 FastList<SceneNode> screenSpacedWithPostEffects,
                 FastList<SceneNode> nodesWithPostEffects,
-                FastList<SceneNode> postProcNodes, ref RenderParameter parameter)
-            {
+                FastList<SceneNode> postProcNodes,
+                ref RenderParameter parameter
+            ) {
                 var i = 0;
-                while (i < screenSpacedWithPostEffects.Count)
-                {
-                    if (screenSpacedWithPostEffects[i].AffectsGlobalVariable)
-                    {
+                while (i < screenSpacedWithPostEffects.Count) {
+                    if (screenSpacedWithPostEffects[i].AffectsGlobalVariable) {
                         context.RestoreGlobalTransform();
                         screenSpacedWithPostEffects[i].Render(context, ImmediateContext);
                         nodesWithPostEffects.Clear();
@@ -355,8 +363,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Detach();
                 RemoveAndDispose(ref immediateContext);
                 RemoveAndDispose(ref oitWeightedCore);

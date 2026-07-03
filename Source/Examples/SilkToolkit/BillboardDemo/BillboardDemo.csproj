@@ -1,69 +1,69 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>BillboardDemo</RootNamespace>
-        <AssemblyName>BillboardDemo</AssemblyName>
+    <RootNamespace>BillboardDemo</RootNamespace>
+    <AssemblyName>BillboardDemo</AssemblyName>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Expression.Interaction" Version="3.0.40218" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Expression.Interaction" Version="3.0.40218"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
 
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Include="Fonts\SegoeScript.fnt"
-              CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup>
+    <None Include="Fonts\SegoeScript.fnt"
+          CopyToOutputDirectory="PreserveNewest"/>
 
-        <None Include="Fonts\SegoeScript.dds"
-              CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+    <None Include="Fonts\SegoeScript.dds"
+          CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="..\..\..\..\Images\Textures\earthbump.jpg"
-                 Link="earthbump.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup>
+    <Content Include="..\..\..\..\Images\Textures\earthbump.jpg"
+             Link="earthbump.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\earthmap.jpg"
-                 Link="earthmap.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\..\Images\Textures\earthmap.jpg"
+             Link="earthmap.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\earthspec.jpg"
-                 Link="earthspec.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\..\Images\Textures\earthspec.jpg"
+             Link="earthspec.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\earthNormal.jpg"
-                 Link="earthNormal.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\..\Images\Textures\earthNormal.jpg"
+             Link="earthNormal.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\Flags.jpg"
-                 Link="Flags.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+    <Content Include="..\..\..\..\Images\Textures\Flags.jpg"
+             Link="Flags.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
 </Project>

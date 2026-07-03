@@ -2,8 +2,7 @@
 
 /// <summary>
 /// </summary>
-public interface IGeometryBufferManager : IDisposable
-{
+public interface IGeometryBufferManager : IDisposable {
     int Count { get; }
 
     /// <summary>

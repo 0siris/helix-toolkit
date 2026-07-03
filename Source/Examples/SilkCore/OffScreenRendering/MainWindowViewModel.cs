@@ -11,28 +11,26 @@ using CommunityToolkit.Mvvm;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace OffScreenRendering
-{
-    internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
-    {
-        private ImageSource image;
-        public ImageSource Image { get => image; set => SetProperty(ref image, value); }
+namespace OffScreenRendering;
 
-        public ICommand RenderCommand { get; }
+internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.ObservableObject {
+    private ImageSource image;
 
-        private readonly Renderer renderer = new Renderer();
+    public ImageSource Image {
+        get => image;
+        set => SetProperty(ref image, value);
+    }
 
-        public MainWindowViewModel()
-        {
-            RenderCommand = new RelayCommand(() =>
-            {
-                renderer.Resize(1024, 768);
-                Task.Run(() =>
-                {
-                    return renderer.Render();
-                }).ContinueWith((result) => { Image = result.Result; },
-                TaskScheduler.FromCurrentSynchronizationContext());
-            });
-        }
+    public ICommand RenderCommand { get; }
+
+    private readonly Renderer renderer = new Renderer();
+
+    public MainWindowViewModel() {
+        RenderCommand = new RelayCommand(() => {
+            renderer.Resize(1024, 768);
+            Task.Run(() => { return renderer.Render(); }).ContinueWith((result) => { Image = result.Result; },
+                                                                       TaskScheduler
+                                                                           .FromCurrentSynchronizationContext());
+        });
     }
 }

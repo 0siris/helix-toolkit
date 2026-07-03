@@ -15,8 +15,7 @@ using System.Windows.Media.Imaging;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public abstract class BillboardBase : Geometry3D, IBillboardText
-{
+public abstract class BillboardBase : Geometry3D, IBillboardText {
     private static readonly ILogger logger = LogManager.Create<BillboardBase>();
 
     private bool isInitialized;
@@ -29,11 +28,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
 
     public float Width { get; protected set; }
 
-    public bool IsInitialized
-    {
+    public bool IsInitialized {
         get => isInitialized;
-        protected set
-        {
+        protected set {
             isInitialized = value;
             if (!isInitialized)
                 //Notify to rebuild the texture or billboard vertices
@@ -47,10 +44,8 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
     ///     Draws the texture and fill the billboardverties. Called during initialize vertex buffer.
     /// </summary>
     /// <param name="deviceResources">The device resources.</param>
-    public void DrawTexture(IDeviceResources deviceResources)
-    {
-        if (!isInitialized)
-        {
+    public void DrawTexture(IDeviceResources deviceResources) {
+        if (!isInitialized) {
             if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Billboard update texture and verts");
             BillboardVertices.Clear();
             OnUpdateTextureAndBillboardVertices(deviceResources);
@@ -62,22 +57,19 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
 
     protected abstract void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources);
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
-        if (target is BillboardBase billboard)
-        {
+        if (target is BillboardBase billboard) {
             billboard.Texture = Texture;
             billboard.IsInitialized = false;
         }
     }
 
-    public void Invalidate()
-    {
+    public void Invalidate() {
         IsInitialized = false;
     }
 
-    #region HitTest
+#region HitTest
 
     /// <summary>
     ///     Hits the test.
@@ -88,8 +80,13 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
     /// <param name="originalSource">The original source.</param>
     /// <param name="fixedSize">if set to <c>true</c> [fixed size].</param>
     /// <returns></returns>
-    public abstract bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, bool fixedSize);
+    public abstract bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        bool fixedSize
+    );
 
 
     /// <summary>
@@ -101,30 +98,36 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
     /// <param name="originalSource">The original source.</param>
     /// <param name="count">The count of vertices in <see cref="BillboardBase.BillboardVertices" />.</param>
     /// <returns></returns>
-    protected bool HitTestFixedSize(HitTestContext context, ref Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, int count)
-    {
+    protected bool HitTestFixedSize(
+        HitTestContext context,
+        ref Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        int count
+    ) {
         if (BillboardVertices == null || BillboardVertices.Count == 0) return false;
         var h = false;
-        var result = new BillboardHitResult
-        {
+        var result = new BillboardHitResult {
             Distance = double.MaxValue
         };
         var visualToScreen = context.RenderMatrices.ScreenViewProjectionMatrix;
         var screenPoint = context.HitPointSP * context.RenderMatrices.DpiScale;
         if (screenPoint.X < 0 || screenPoint.Y < 0) return false;
 
-        for (var i = 0; i < count; ++i)
-        {
+        for (var i = 0; i < count; ++i) {
             var vert = BillboardVertices[i];
             var pos = vert.Position.ToVector3();
             var c = SilkMath.TransformCoordinate(pos, modelMatrix);
             var dir = c - context.RayWS.Position;
             if (SilkMath.Dot(dir, context.RayWS.Direction) < 0) continue;
-            var quad = GetScreenQuad(ref c, ref vert.OffTL, ref vert.OffTR, ref vert.OffBL, ref vert.OffBR,
-                ref visualToScreen, context.RenderMatrices.DpiScale);
-            if (quad.IsPointInQuad2D(ref screenPoint))
-            {
+            var quad = GetScreenQuad(ref c,
+                                     ref vert.OffTL,
+                                     ref vert.OffTR,
+                                     ref vert.OffBL,
+                                     ref vert.OffBR,
+                                     ref visualToScreen,
+                                     context.RenderMatrices.DpiScale);
+            if (quad.IsPointInQuad2D(ref screenPoint)) {
                 var v = c - context.RayWS.Position;
                 var dist = SilkMath.Dot(context.RayWS.Direction, v);
                 if (dist > result.Distance) continue;
@@ -137,8 +140,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
                 if (logger.IsEnabled(LogLevel.Trace))
-                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}", result.PointHit,
-                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
+                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}",
+                                    result.PointHit,
+                                    result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
             }
         }
 
@@ -146,14 +150,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         return h;
     }
 
-    protected virtual void AssignResultAdditional(BillboardHitResult result, int index)
-    {
+    protected virtual void AssignResultAdditional(BillboardHitResult result, int index) {
         result.TextInfoIndex = index;
         result.Type = Type;
     }
 
-    protected override void OnClearAllGeometryData()
-    {
+    protected override void OnClearAllGeometryData() {
         base.OnClearAllGeometryData();
         BillboardVertices?.Clear();
         (BillboardVertices as FastList<BillboardVertex>)?.TrimExcess();
@@ -168,30 +170,36 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
     /// <param name="originalSource">The original source.</param>
     /// <param name="count">The count of vertices in <see cref="BillboardBase.BillboardVertices" />.</param>
     /// <returns></returns>
-    protected bool HitTestNonFixedSize(HitTestContext context, ref Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, int count)
-    {
+    protected bool HitTestNonFixedSize(
+        HitTestContext context,
+        ref Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        int count
+    ) {
         if (BillboardVertices == null || BillboardVertices.Count == 0) return false;
         var h = false;
-        var result = new BillboardHitResult
-        {
+        var result = new BillboardHitResult {
             Distance = double.MaxValue
         };
         var viewMatrix = context.RenderMatrices.ViewMatrix;
         var viewMatrixInv = viewMatrix.PsudoInvert();
         var rayWS = context.RayWS;
-        for (var i = 0; i < count; ++i)
-        {
+        for (var i = 0; i < count; ++i) {
             var vert = BillboardVertices[i];
             var pos = vert.Position.ToVector3();
             var c = SilkMath.TransformCoordinate(pos, modelMatrix);
             var dir = c - rayWS.Position;
             if (SilkMath.Dot(dir, rayWS.Direction) < 0) continue;
-            var quad = GetHitTestQuad(ref c, ref vert.OffTL, ref vert.OffTR, ref vert.OffBL, ref vert.OffBR,
-                ref viewMatrix, ref viewMatrixInv);
+            var quad = GetHitTestQuad(ref c,
+                                      ref vert.OffTL,
+                                      ref vert.OffTR,
+                                      ref vert.OffBL,
+                                      ref vert.OffBR,
+                                      ref viewMatrix,
+                                      ref viewMatrixInv);
             if (Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.TR, ref quad.BR, out Vector3 hitPoint)
-                || Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.BR, ref quad.BL, out hitPoint))
-            {
+                || Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.BR, ref quad.BL, out hitPoint)) {
                 var dist = (rayWS.Position - hitPoint).Length;
                 if (dist > result.Distance) continue;
                 h = true;
@@ -202,8 +210,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
                 if (logger.IsEnabled(LogLevel.Trace))
-                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}", result.PointHit,
-                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
+                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}",
+                                    result.PointHit,
+                                    result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
             }
         }
 
@@ -211,16 +220,19 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         return h;
     }
 
-    protected static void GetQuadOffset(float width, float height,
-        BillboardHorizontalAlignment horizontalAlignment, BillboardVerticalAlignment verticalAlignment,
-        out Vector2 topLeft, out Vector2 bottomRight)
-    {
+    protected static void GetQuadOffset(
+        float width,
+        float height,
+        BillboardHorizontalAlignment horizontalAlignment,
+        BillboardVerticalAlignment verticalAlignment,
+        out Vector2 topLeft,
+        out Vector2 bottomRight
+    ) {
         float top = 0;
         float bottom = 0;
         float left = 0;
         float right = 0;
-        switch (horizontalAlignment)
-        {
+        switch (horizontalAlignment) {
             case BillboardHorizontalAlignment.Center:
                 left = -width / 2;
                 right = width / 2;
@@ -235,8 +247,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
                 break;
         }
 
-        switch (verticalAlignment)
-        {
+        switch (verticalAlignment) {
             case BillboardVerticalAlignment.Center:
                 top = height / 2;
                 bottom = -height / 2;
@@ -255,23 +266,20 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         bottomRight = new Vector2(right, bottom);
     }
 
-    private struct Quad
-    {
+    private struct Quad {
         public Vector3 TL;
         public Vector3 TR;
         public Vector3 BL;
         public Vector3 BR;
 
-        public Quad(ref Vector3 tl, ref Vector3 tr, ref Vector3 bl, ref Vector3 br)
-        {
+        public Quad(ref Vector3 tl, ref Vector3 tr, ref Vector3 bl, ref Vector3 br) {
             TL = tl;
             TR = tr;
             BL = bl;
             BR = br;
         }
 
-        public Quad(Vector3 tl, Vector3 tr, Vector3 bl, Vector3 br)
-        {
+        public Quad(Vector3 tl, Vector3 tr, Vector3 bl, Vector3 br) {
             TL = tl;
             TR = tr;
             BL = bl;
@@ -279,23 +287,20 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         }
     }
 
-    private struct Quad2D
-    {
+    private struct Quad2D {
         public readonly Vector2 TL;
         public readonly Vector2 TR;
         public readonly Vector2 BL;
         public readonly Vector2 BR;
 
-        public Quad2D(ref Vector2 tl, ref Vector2 tr, ref Vector2 bl, ref Vector2 br)
-        {
+        public Quad2D(ref Vector2 tl, ref Vector2 tr, ref Vector2 bl, ref Vector2 br) {
             TL = tl;
             TR = tr;
             BL = bl;
             BR = br;
         }
 
-        public Quad2D(Vector2 tl, Vector2 tr, Vector2 bl, Vector2 br)
-        {
+        public Quad2D(Vector2 tl, Vector2 tr, Vector2 bl, Vector2 br) {
             TL = tl;
             TR = tr;
             BL = bl;
@@ -303,14 +308,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         }
 
 
-        public bool IsPointInQuad2D(Vector2 point)
-        {
+        public bool IsPointInQuad2D(Vector2 point) {
             return IsPointInQuad2D(ref point);
         }
 
 
-        public bool IsPointInQuad2D(ref Vector2 point)
-        {
+        public bool IsPointInQuad2D(ref Vector2 point) {
             //var v1 = point - TL;
             //var t1 = BL - TL;
             //if(SilkMath.Dot(v1, t1) < 0)
@@ -344,10 +347,15 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         }
     }
 
-    private static Quad GetHitTestQuad(ref Vector3 center, ref Vector2 TL, ref Vector2 TR, ref Vector2 BL,
+    private static Quad GetHitTestQuad(
+        ref Vector3 center,
+        ref Vector2 TL,
+        ref Vector2 TR,
+        ref Vector2 BL,
         ref Vector2 BR,
-        ref Matrix viewMatrix, ref Matrix viewMatrixInv)
-    {
+        ref Matrix viewMatrix,
+        ref Matrix viewMatrixInv
+    ) {
         var vcenter = SilkMath.TransformCoordinate(center, viewMatrix);
         var vcX = vcenter.X;
         var vcY = vcenter.Y;
@@ -364,10 +372,15 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         return new Quad(ref tl, ref tr, ref bl, ref br);
     }
 
-    private static Quad2D GetScreenQuad(ref Vector3 center, ref Vector2 TL, ref Vector2 TR, ref Vector2 BL,
+    private static Quad2D GetScreenQuad(
+        ref Vector3 center,
+        ref Vector2 TL,
+        ref Vector2 TR,
+        ref Vector2 BL,
         ref Vector2 BR,
-        ref Matrix screenViewProjection, float scale)
-    {
+        ref Matrix screenViewProjection,
+        float scale
+    ) {
         var vcenter = SilkMath.TransformCoordinate(center, screenViewProjection);
         var p = new Vector2(vcenter.X, vcenter.Y);
         var tl = p + new Vector2(TL.X, -TL.Y) * scale;
@@ -377,5 +390,5 @@ public abstract class BillboardBase : Geometry3D, IBillboardText
         return new Quad2D(ref tl, ref tr, ref bl, ref br);
     }
 
-    #endregion
+#endregion
 }

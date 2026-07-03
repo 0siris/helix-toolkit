@@ -14,10 +14,8 @@ using Color = HelixToolkit.SharpDX.Core.Color;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public class PhongMaterialCollection : ObservableCollection<PhongMaterial>
-{
-    public PhongMaterialCollection()
-    {
+public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
+    public PhongMaterialCollection() {
         Add(PhongMaterials.Black);
         Add(PhongMaterials.BlackPlastic);
         Add(PhongMaterials.BlackRubber);
@@ -55,10 +53,8 @@ public class PhongMaterialCollection : ObservableCollection<PhongMaterial>
 
 /// <summary>
 /// </summary>
-public static class PhongMaterials
-{
-    static PhongMaterials()
-    {
+public static class PhongMaterials {
+    static PhongMaterials() {
         Materials = new PhongMaterialCollection();
     }
 
@@ -66,8 +62,7 @@ public static class PhongMaterials
 
     // factory
     public static PhongMaterial Red =>
-        new()
-        {
+        new() {
             Name = "Red",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = Color.Red,
@@ -77,8 +72,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Blue =>
-        new()
-        {
+        new() {
             Name = "Blue",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = Color.Blue,
@@ -88,8 +82,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Green =>
-        new()
-        {
+        new() {
             Name = "Green",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = Color.Green,
@@ -99,8 +92,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Orange =>
-        new()
-        {
+        new() {
             Name = "Orange",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.992157, 0.513726, 0.0),
@@ -110,8 +102,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial BlanchedAlmond =>
-        new()
-        {
+        new() {
             Name = "BlanchedAlmond",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = Color.BlanchedAlmond,
@@ -121,8 +112,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Bisque =>
-        new()
-        {
+        new() {
             Name = "Bisque",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = Color.Bisque,
@@ -132,8 +122,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Yellow =>
-        new()
-        {
+        new() {
             Name = "Yellow",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(1.0, 0.964706, 0.0),
@@ -143,8 +132,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Indigo =>
-        new()
-        {
+        new() {
             Name = "Indigo",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.0980392, 0.0, 0.458824),
@@ -154,8 +142,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Violet =>
-        new()
-        {
+        new() {
             Name = "Violet",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.635294, 0.0, 1.0),
@@ -165,8 +152,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial White =>
-        new()
-        {
+        new() {
             Name = "White",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.992157, 0.992157, 0.992157),
@@ -176,8 +162,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial PureWhite =>
-        new()
-        {
+        new() {
             Name = "PureWhite",
             AmbientColor = ToColor(1, 1, 1),
             DiffuseColor = ToColor(1, 1, 1),
@@ -187,8 +172,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Black =>
-        new()
-        {
+        new() {
             Name = "Black",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.0, 0.0, 0.0),
@@ -198,8 +182,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Gray =>
-        new()
-        {
+        new() {
             Name = "Gray",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.254902, 0.254902, 0.254902),
@@ -209,8 +192,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial MediumGray =>
-        new()
-        {
+        new() {
             Name = "MediumGray",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.454902, 0.454902, 0.454902),
@@ -220,8 +202,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial LightGray =>
-        new()
-        {
+        new() {
             Name = "LightGray",
             AmbientColor = ToColor(0.1, 0.1, 0.1),
             DiffuseColor = ToColor(0.682353, 0.682353, 0.682353),
@@ -232,8 +213,7 @@ public static class PhongMaterials
 
     // Materials from: http://globe3d.sourceforge.net/g3d_html/gl-materials__ads.htm
     public static PhongMaterial Glass =>
-        new()
-        {
+        new() {
             Name = "Glass",
             AmbientColor = ToColor(0.0, 0.0, 0.0),
             DiffuseColor = ToColor(0.588235, 0.670588, 0.729412),
@@ -243,8 +223,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Brass =>
-        new()
-        {
+        new() {
             Name = "Brass",
             AmbientColor = ToColor(0.329412, 0.223529, 0.027451),
             DiffuseColor = ToColor(0.780392, 0.568627, 0.113725),
@@ -254,8 +233,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Bronze =>
-        new()
-        {
+        new() {
             Name = "Bronze",
             AmbientColor = ToColor(0.2125, 0.1275, 0.054),
             DiffuseColor = ToColor(0.714, 0.4284, 0.18144),
@@ -265,8 +243,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial PolishedBronze =>
-        new()
-        {
+        new() {
             Name = "PolishedBronze",
             AmbientColor = ToColor(0.25, 0.148, 0.06475),
             DiffuseColor = ToColor(0.4, 0.2368, 0.1036),
@@ -276,8 +253,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Chrome =>
-        new()
-        {
+        new() {
             Name = "Chrome",
             AmbientColor = ToColor(0.25f, 0.25f, 0.25f),
             DiffuseColor = ToColor(0.4f, 0.4f, 0.4f),
@@ -287,8 +263,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Copper =>
-        new()
-        {
+        new() {
             Name = "Copper",
             AmbientColor = ToColor(0.19125, 0.0735, 0.0225),
             DiffuseColor = ToColor(0.7038, 0.27048, 0.0828),
@@ -298,8 +273,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial PolishedCopper =>
-        new()
-        {
+        new() {
             Name = "PolishedCopper",
             AmbientColor = ToColor(0.2295, 0.08825, 0.0275),
             DiffuseColor = ToColor(0.5508, 0.2118, 0.066),
@@ -309,8 +283,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Gold =>
-        new()
-        {
+        new() {
             Name = "Gold",
             AmbientColor = ToColor(0.24725, 0.1995, 0.0745),
             DiffuseColor = ToColor(0.75164, 0.60648, 0.22648),
@@ -320,8 +293,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial PolishedGold =>
-        new()
-        {
+        new() {
             Name = "PolishedGold",
             AmbientColor = ToColor(0.24725, 0.2245, 0.0645),
             DiffuseColor = ToColor(0.34615, 0.3143, 0.0903),
@@ -332,8 +304,7 @@ public static class PhongMaterials
 
 
     public static PhongMaterial Pewter =>
-        new()
-        {
+        new() {
             Name = "Pewter",
             AmbientColor = ToColor(0.105882, 0.058824, 0.113725),
             DiffuseColor = ToColor(0.427451, 0.470588, 0.541176),
@@ -343,8 +314,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Silver =>
-        new()
-        {
+        new() {
             Name = "Silver",
             AmbientColor = ToColor(0.19225, 0.19225, 0.19225),
             DiffuseColor = ToColor(0.50754, 0.50754, 0.50754),
@@ -354,8 +324,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial PolishedSilver =>
-        new()
-        {
+        new() {
             Name = "PolishedSilver",
             AmbientColor = ToColor(0.23125, 0.23125, 0.23125),
             DiffuseColor = ToColor(0.2775, 0.2775, 0.2775),
@@ -365,8 +334,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Emerald =>
-        new()
-        {
+        new() {
             Name = "Emerald",
             AmbientColor = ToColor(0.0215, 0.1745, 0.0215, 0.55),
             DiffuseColor = ToColor(0.07568, 0.61424, 0.07568, 0.55),
@@ -376,8 +344,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Jade =>
-        new()
-        {
+        new() {
             Name = "Jade",
             AmbientColor = ToColor(0.135, 0.2225, 0.1575, 0.95),
             DiffuseColor = ToColor(0.54, 0.89, 0.63, 0.95),
@@ -387,8 +354,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Obsidian =>
-        new()
-        {
+        new() {
             Name = "Obsidian",
             AmbientColor = ToColor(0.05375, 0.05, 0.06625, 0.82),
             DiffuseColor = ToColor(0.18275, 0.17, 0.22525, 0.82),
@@ -398,8 +364,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Pearl =>
-        new()
-        {
+        new() {
             Name = "Pearl",
             AmbientColor = ToColor(0.25, 0.20725, 0.20725, 0.922),
             DiffuseColor = ToColor(1.0, 0.829, 0.829, 0.922),
@@ -409,8 +374,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Ruby =>
-        new()
-        {
+        new() {
             Name = "Ruby",
             AmbientColor = ToColor(0.1745, 0.01175, 0.01175, 0.55),
             DiffuseColor = ToColor(0.61424, 0.04136, 0.04136, 0.55),
@@ -420,8 +384,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial Turquoise =>
-        new()
-        {
+        new() {
             Name = "Turquoise",
             AmbientColor = ToColor(0.1, 0.18725, 0.1745, 0.8),
             DiffuseColor = ToColor(0.396, 0.74151, 0.69102, 0.8),
@@ -431,8 +394,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial BlackPlastic =>
-        new()
-        {
+        new() {
             Name = "BlackPlastic",
             AmbientColor = ToColor(0.0, 0.0, 0.0),
             DiffuseColor = ToColor(0.01, 0.01, 0.01),
@@ -442,8 +404,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial BlackRubber =>
-        new()
-        {
+        new() {
             Name = "BlackRubber",
             AmbientColor = ToColor(0.02, 0.02, 0.02),
             DiffuseColor = ToColor(0.01, 0.01, 0.01),
@@ -453,8 +414,7 @@ public static class PhongMaterials
         };
 
     public static PhongMaterial DefaultVRML =>
-        new()
-        {
+        new() {
             Name = "DefaultVRML",
             AmbientColor = ToColor(0.2, 0.2, 0.2),
             DiffuseColor = ToColor(0.8, 0.8, 0.8),
@@ -463,14 +423,12 @@ public static class PhongMaterials
             SpecularShininess = 25.6f
         };
 
-    public static PhongMaterial GetMaterial(string materialName)
-    {
+    public static PhongMaterial GetMaterial(string materialName) {
         var mat = Materials.FirstOrDefault(x => x.Name == materialName);
         return mat != null ? mat : DefaultVRML;
     }
 
-    public static Color4 ToColor(double r, double g, double b, double a = 1.0)
-    {
+    public static Color4 ToColor(double r, double g, double b, double a = 1.0) {
         //return new Color4((float)r, (float)g, (float)b, (float)a);
         return System.Windows.Media.Color.FromScRgb((float) a, (float) r, (float) g, (float) b).ToColor4();
     }

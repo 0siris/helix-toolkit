@@ -13,8 +13,7 @@ using Media = System.Windows.Media;
 
 namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
-public static class CommonExtensions
-{
+public static class CommonExtensions {
 #if NETFX_CORE || WINUI
         public static FontWeight ToDXFontWeight(this FontWeight fontWeight)
 #else
@@ -138,10 +137,8 @@ public static class CommonExtensions
 #endif
     }
 
-    public static ExtendMode ToD2DExtendMode(this Media.GradientSpreadMethod mode)
-    {
-        switch (mode)
-        {
+    public static ExtendMode ToD2DExtendMode(this Media.GradientSpreadMethod mode) {
+        switch (mode) {
             case Media.GradientSpreadMethod.Pad:
                 return ExtendMode.Clamp;
             case Media.GradientSpreadMethod.Reflect:
@@ -153,10 +150,8 @@ public static class CommonExtensions
         }
     }
 
-    public static Gamma ToD2DColorInterpolationMode(this Media.ColorInterpolationMode mode)
-    {
-        switch (mode)
-        {
+    public static Gamma ToD2DColorInterpolationMode(this Media.ColorInterpolationMode mode) {
+        switch (mode) {
             case Media.ColorInterpolationMode.ScRgbLinearInterpolation:
                 return Gamma.Linear;
             case Media.ColorInterpolationMode.SRgbLinearInterpolation:
@@ -166,52 +161,49 @@ public static class CommonExtensions
         }
     }
 
-    public static Brush ToD2DBrush(this Media.Brush brush, D2DDeviceContext target)
-    {
+    public static Brush ToD2DBrush(this Media.Brush brush, D2DDeviceContext target) {
         if (brush is Media.SolidColorBrush solid) return new SolidColorBrush(target, solid.Color.ToColor4());
 
         if (brush is Media.LinearGradientBrush linear)
             return new LinearGradientBrush(target,
-                new LinearGradientBrushProperties
-                    {StartPoint = linear.StartPoint.ToVector2(), EndPoint = linear.EndPoint.ToVector2()},
-                new GradientStopCollection
-                (
-                    target,
-                    linear.GradientStops.Select(x => new GradientStop
-                        {Color = x.Color.ToColor4(), Position = (float) x.Offset}).ToArray(),
-                    linear.ColorInterpolationMode.ToD2DColorInterpolationMode(),
-                    linear.SpreadMethod.ToD2DExtendMode()
-                )
-            );
+                                           new LinearGradientBrushProperties {
+                                               StartPoint = linear.StartPoint.ToVector2(),
+                                               EndPoint = linear.EndPoint.ToVector2()
+                                           },
+                                           new GradientStopCollection(target,
+                                                                      linear.GradientStops.Select(x => new GradientStop {
+                                                                          Color = x.Color.ToColor4(),
+                                                                          Position = (float) x.Offset
+                                                                      }).ToArray(),
+                                                                      linear.ColorInterpolationMode
+                                                                            .ToD2DColorInterpolationMode(),
+                                                                      linear.SpreadMethod.ToD2DExtendMode()));
 #if NETFX_CORE || WINUI
 #else
 
         if (brush is Media.RadialGradientBrush radial)
             return new RadialGradientBrush(target,
-                new RadialGradientBrushProperties
-                {
-                    Center = radial.Center.ToVector2(),
-                    GradientOriginOffset = radial.GradientOrigin.ToVector2(),
-                    RadiusX = (float) radial.RadiusX,
-                    RadiusY = (float) radial.RadiusY
-                },
-                new GradientStopCollection
-                (
-                    target,
-                    radial.GradientStops.Select(x => new GradientStop
-                        {Color = x.Color.ToColor4(), Position = (float) x.Offset}).ToArray(),
-                    radial.ColorInterpolationMode.ToD2DColorInterpolationMode(),
-                    radial.SpreadMethod.ToD2DExtendMode()
-                ));
+                                           new RadialGradientBrushProperties {
+                                               Center = radial.Center.ToVector2(),
+                                               GradientOriginOffset = radial.GradientOrigin.ToVector2(),
+                                               RadiusX = (float) radial.RadiusX,
+                                               RadiusY = (float) radial.RadiusY
+                                           },
+                                           new GradientStopCollection(target,
+                                                                      radial.GradientStops.Select(x => new GradientStop {
+                                                                          Color = x.Color.ToColor4(),
+                                                                          Position = (float) x.Offset
+                                                                      }).ToArray(),
+                                                                      radial.ColorInterpolationMode
+                                                                            .ToD2DColorInterpolationMode(),
+                                                                      radial.SpreadMethod.ToD2DExtendMode()));
 #endif
 
         throw new NotImplementedException("Brush does not support yet.");
     }
 
-    public static CapStyle ToD2DCapStyle(this Media.PenLineCap cap)
-    {
-        switch (cap)
-        {
+    public static CapStyle ToD2DCapStyle(this Media.PenLineCap cap) {
+        switch (cap) {
             case Media.PenLineCap.Flat:
                 return CapStyle.Flat;
             case Media.PenLineCap.Round:
@@ -225,10 +217,8 @@ public static class CommonExtensions
         }
     }
 
-    public static LineJoin ToD2DLineJoin(this Media.PenLineJoin lineJoin)
-    {
-        switch (lineJoin)
-        {
+    public static LineJoin ToD2DLineJoin(this Media.PenLineJoin lineJoin) {
+        switch (lineJoin) {
             case Media.PenLineJoin.Bevel:
                 return LineJoin.Bevel;
             case Media.PenLineJoin.Miter:
@@ -240,8 +230,7 @@ public static class CommonExtensions
         }
     }
 #if !NETFX_CORE && !WINUI
-    public static DashStyle ToD2DDashStyle(this Media.DashStyle style)
-    {
+    public static DashStyle ToD2DDashStyle(this Media.DashStyle style) {
         if (style == Media.DashStyles.Dash) return DashStyle.Dash;
 
         if (style == Media.DashStyles.DashDot) return DashStyle.DashDot;
@@ -261,8 +250,7 @@ public static class CommonExtensions
     public static TextAlignment ToD2DTextAlignment(this System.Windows.TextAlignment alignment)
 #endif
     {
-        switch (alignment)
-        {
+        switch (alignment) {
             case System.Windows.TextAlignment.Center:
                 return TextAlignment.Center;
             case System.Windows.TextAlignment.Left:
@@ -282,8 +270,7 @@ public static class CommonExtensions
     public static FlowDirection ToD2DFlowDir(this System.Windows.FlowDirection direction)
 #endif
     {
-        switch (direction)
-        {
+        switch (direction) {
             case System.Windows.FlowDirection.LeftToRight:
                 return FlowDirection.LeftToRight;
             case System.Windows.FlowDirection.RightToLeft:

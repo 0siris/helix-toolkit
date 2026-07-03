@@ -8,22 +8,18 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderParams
-        {
-            public CrossSectionMeshRenderCore()
-            {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderParams {
+            public CrossSectionMeshRenderCore() {
                 clipParamCB = AddComponent(new ConstantBufferComponent(
-                    new ConstantBufferDescription(DefaultBufferNames.ClipParamsCB, ClipPlaneStruct.SizeInBytes)));
+                                               new ConstantBufferDescription(
+                                                   DefaultBufferNames.ClipParamsCB,
+                                                   ClipPlaneStruct.SizeInBytes)));
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
-                if (base.OnAttach(technique))
-                {
+            protected override bool OnAttach(IRenderTechnique technique) {
+                if (base.OnAttach(technique)) {
                     needsAssignVariables = true;
                     drawBackfacePass = technique[DefaultPassNames.Backface];
                     drawScreenQuadPass = technique[DefaultPassNames.ScreenQuad];
@@ -33,20 +29,17 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref backfaceRasterState);
                 base.OnDetach();
             }
 
-            protected override bool CreateRasterState(RasterizerStateDescription description, bool force)
-            {
+            protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
                 if (!base.CreateRasterState(description, force)) return false;
 
-                #region Create states
+            #region Create states
 
-                var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(new RasterizerStateDescription
-                {
+                var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(new RasterizerStateDescription {
                     FillMode = FillMode.Solid,
                     CullMode = CullMode.Front,
                     DepthBias = description.DepthBias,
@@ -60,18 +53,15 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref backfaceRasterState);
                 backfaceRasterState = newRasterState;
 
-                #endregion
+            #endregion
 
                 return true;
             }
 
-            protected override void OnRender(RenderContext renderContext, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRender(RenderContext renderContext, DeviceContextProxy deviceContext) {
                 if (needsAssignVariables)
-                    lock (clipParamCB)
-                    {
-                        if (needsAssignVariables)
-                        {
+                    lock (clipParamCB) {
+                        if (needsAssignVariables) {
                             clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int) cuttingOperation);
                             clipParamCB.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, sectionColor);
                             clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, planeEnabled);
@@ -107,7 +97,7 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.Draw(4, 0);
             }
 
-            #region Shader Variables
+        #region Shader Variables
 
             private ShaderPass drawBackfacePass;
             private ShaderPass drawScreenQuadPass;
@@ -121,9 +111,9 @@ namespace HelixToolkit.SharpDX.Core
 
             private bool needsAssignVariables = true;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             private CuttingOperation cuttingOperation = CuttingOperation.Intersect;
 
@@ -133,11 +123,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The cutting operation.
             /// </value>
-            public CuttingOperation CuttingOperation
-            {
+            public CuttingOperation CuttingOperation {
                 get => cuttingOperation;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref cuttingOperation, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int) value);
                 }
@@ -148,11 +136,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the sectionColor
             /// </summary>
-            public Color4 SectionColor
-            {
+            public Color4 SectionColor {
                 get => sectionColor;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref sectionColor, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, value);
                 }
@@ -160,11 +146,9 @@ namespace HelixToolkit.SharpDX.Core
 
             private Bool4 planeEnabled;
 
-            public Bool4 PlaneEnabled
-            {
+            public Bool4 PlaneEnabled {
                 get => planeEnabled;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref planeEnabled, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, value);
                 }
@@ -172,11 +156,9 @@ namespace HelixToolkit.SharpDX.Core
 
             private Bool4 plane5To8Enabled;
 
-            public Bool4 Plane5To8Enabled
-            {
+            public Bool4 Plane5To8Enabled {
                 get => plane5To8Enabled;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane5To8Enabled, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, value);
                 }
@@ -187,11 +169,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 1(Normal + d)
             /// </summary>
-            public Vector4 Plane1Params
-            {
+            public Vector4 Plane1Params {
                 get => plane1Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane1Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, value);
                 }
@@ -202,11 +182,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 2(Normal + d)
             /// </summary>
-            public Vector4 Plane2Params
-            {
+            public Vector4 Plane2Params {
                 get => plane2Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane2Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, value);
                 }
@@ -217,11 +195,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 3(Normal + d)
             /// </summary>
-            public Vector4 Plane3Params
-            {
+            public Vector4 Plane3Params {
                 get => plane3Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane3Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, value);
                 }
@@ -232,11 +208,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 4(Normal + d)
             /// </summary>
-            public Vector4 Plane4Params
-            {
+            public Vector4 Plane4Params {
                 get => plane4Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane4Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, value);
                 }
@@ -247,11 +221,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 5(Normal + d)
             /// </summary>
-            public Vector4 Plane5Params
-            {
+            public Vector4 Plane5Params {
                 get => plane5Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane5Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, value);
                 }
@@ -262,11 +234,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 6(Normal + d)
             /// </summary>
-            public Vector4 Plane6Params
-            {
+            public Vector4 Plane6Params {
                 get => plane6Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane6Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, value);
                 }
@@ -277,11 +247,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 7(Normal + d)
             /// </summary>
-            public Vector4 Plane7Params
-            {
+            public Vector4 Plane7Params {
                 get => plane7Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane7Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, value);
                 }
@@ -292,17 +260,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Defines the plane 8(Normal + d)
             /// </summary>
-            public Vector4 Plane8Params
-            {
+            public Vector4 Plane8Params {
                 get => plane8Params;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref plane8Params, value))
                         clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, value);
                 }
             }
 
-            #endregion
+        #endregion
         }
     }
 }

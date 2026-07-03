@@ -10,29 +10,22 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public sealed class OrderIndependentTransparentRenderCore : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             /// <summary>
             ///     Initializes a new instance of the <see cref="OrderIndependentTransparentRenderCore" /> class.
             /// </summary>
-            public OrderIndependentTransparentRenderCore() : base(RenderType.Transparent)
-            {
-            }
+            public OrderIndependentTransparentRenderCore() : base(RenderType.Transparent) { }
 
-            private bool CreateTextureResources(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private bool CreateTextureResources(RenderContext context, DeviceContextProxy deviceContext) {
                 var currSampleDesc = context.RenderHost.RenderBuffer.ColorBufferSampleDesc;
 #if MSAASEPARATE
                 hasMSAA = currSampleDesc.Count > 1 || currSampleDesc.Quality > 0;
 #endif
                 if (width != (int) context.ActualWidth || height != (int) context.ActualHeight
                                                        || sampleDesc.Count != currSampleDesc.Count ||
-                                                       sampleDesc.Quality != currSampleDesc.Quality)
-                {
+                                                       sampleDesc.Quality != currSampleDesc.Quality) {
                     RemoveAndDispose(ref colorTarget);
                     RemoveAndDispose(ref alphaTarget);
                     RemoveAndDispose(ref colorTargetNoMSAA);
@@ -67,8 +60,7 @@ namespace HelixToolkit.SharpDX.Core
                         alphaTargetNoMSAA = alphaTarget;
                     }
 #if MSAASEPARATE
-                    else
-                    {
+                    else {
                         colorDesc.SampleDescription = alphaDesc.SampleDescription = new SampleDescription(1, 0);
                         colorDesc.BindFlags = alphaDesc.BindFlags = BindFlags.ShaderResource;
                         colorTargetNoMSAA = new ShaderResourceViewProxy(Device, colorDesc);
@@ -85,37 +77,38 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void Bind(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void Bind(RenderContext context, DeviceContextProxy deviceContext) {
                 targets = deviceContext.GetRenderTargets(2);
                 deviceContext.ClearRenderTargetView(colorTarget, Color.Zero);
                 deviceContext.ClearRenderTargetView(alphaTarget, Color.White);
                 deviceContext.SetRenderTargets(context.RenderHost.DepthStencilBufferView,
-                    new RenderTargetView[] {colorTarget, alphaTarget});
+                                               new RenderTargetView[] {colorTarget, alphaTarget});
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void UnBind(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            private void UnBind(RenderContext context, DeviceContextProxy deviceContext) {
                 deviceContext.SetRenderTargets(context.RenderHost.DepthStencilBufferView, targets);
-                for (var i = 0; i < targets.Length; ++i)
-                {
+                for (var i = 0; i < targets.Length; ++i) {
                     targets[i]?.Dispose();
                     targets[i] = null;
                 }
 #if MSAASEPARATE
-                if (hasMSAA)
-                {
-                    deviceContext.ResolveSubresource(colorTarget.Resource, 0, colorTargetNoMSAA.Resource, 0,
-                        colorDesc.Format);
-                    deviceContext.ResolveSubresource(alphaTarget.Resource, 0, alphaTargetNoMSAA.Resource, 0,
-                        alphaDesc.Format);
+                if (hasMSAA) {
+                    deviceContext.ResolveSubresource(colorTarget.Resource,
+                                                     0,
+                                                     colorTargetNoMSAA.Resource,
+                                                     0,
+                                                     colorDesc.Format);
+                    deviceContext.ResolveSubresource(alphaTarget.Resource,
+                                                     0,
+                                                     alphaTargetNoMSAA.Resource,
+                                                     0,
+                                                     alphaDesc.Format);
                 }
 #endif
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 screenQuadPass = technique[DefaultPassNames.Default];
                 colorTexIndex =
                     screenQuadPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.OITColorTB);
@@ -128,8 +121,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref targetSampler);
                 width = height = 0;
                 RemoveAndDispose(ref colorTarget);
@@ -138,13 +130,11 @@ namespace HelixToolkit.SharpDX.Core
                 RemoveAndDispose(ref alphaTargetNoMSAA);
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 RenderCount = 0;
                 if (context.RenderHost.PerFrameTransparentNodes.Count == 0) return;
 
-                if (CreateTextureResources(context, deviceContext))
-                {
+                if (CreateTextureResources(context, deviceContext)) {
                     RaiseInvalidateRender();
                     return; // Skip this frame if texture resized to reduce latency.
                 }
@@ -153,18 +143,16 @@ namespace HelixToolkit.SharpDX.Core
 
                 context.OITRenderStage = OITRenderStage.SinglePassWeighted;
                 var parameter = ExternRenderParameter;
-                if (!parameter.ScissorRegion.IsEmpty)
-                {
+                if (!parameter.ScissorRegion.IsEmpty) {
                     parameter.RenderTargetView = new RenderTargetView[] {colorTarget, alphaTarget};
                     RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
-                        context.RenderHost.PerFrameTransparentNodes, ref parameter, context.EnableBoundingFrustum);
-                }
-                else
-                {
+                                                                           context.RenderHost.PerFrameTransparentNodes,
+                                                                           ref parameter,
+                                                                           context.EnableBoundingFrustum);
+                } else {
                     var frustum = context.BoundingFrustum;
                     var count = context.RenderHost.PerFrameTransparentNodes.Count;
-                    for (var i = 0; i < count; ++i)
-                    {
+                    for (var i = 0; i < count; ++i) {
                         var renderable = context.RenderHost.PerFrameTransparentNodes[i];
                         renderable.RenderCore.Render(context, deviceContext);
                         ++RenderCount;
@@ -175,14 +163,14 @@ namespace HelixToolkit.SharpDX.Core
                 UnBind(context, deviceContext);
                 screenQuadPass.BindShader(deviceContext);
                 screenQuadPass.BindStates(deviceContext,
-                    StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
+                                          StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
                 screenQuadPass.PixelShader.BindTexture(deviceContext, colorTexIndex, colorTargetNoMSAA);
                 screenQuadPass.PixelShader.BindTexture(deviceContext, alphaTexIndex, alphaTargetNoMSAA);
                 screenQuadPass.PixelShader.BindSampler(deviceContext, samplerIndex, targetSampler);
                 deviceContext.Draw(4, 0);
             }
 
-            #region Variables
+        #region Variables
 
             private ShaderResourceViewProxy colorTarget;
             private ShaderResourceViewProxy alphaTarget;
@@ -192,8 +180,7 @@ namespace HelixToolkit.SharpDX.Core
 
             private SampleDescription sampleDesc = new(1, 0);
 
-            private Texture2DDescription colorDesc = new()
-            {
+            private Texture2DDescription colorDesc = new() {
                 Format = Format.FormatR16G16B16A16Float,
                 OptionFlags = ResourceOptionFlags.None,
                 MipLevels = 1,
@@ -202,8 +189,7 @@ namespace HelixToolkit.SharpDX.Core
                 CpuAccessFlags = CpuAccessFlags.None
             };
 
-            private Texture2DDescription alphaDesc = new()
-            {
+            private Texture2DDescription alphaDesc = new() {
                 Format = Format.FormatA8Unorm,
                 OptionFlags = ResourceOptionFlags.None,
                 MipLevels = 1,
@@ -221,15 +207,15 @@ namespace HelixToolkit.SharpDX.Core
             private int colorTexIndex, alphaTexIndex, samplerIndex;
             private RenderTargetView[] targets;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             public int RenderCount { get; private set; }
 
             public RenderParameter ExternRenderParameter { get; set; }
 
-            #endregion
+        #endregion
         }
     }
 }

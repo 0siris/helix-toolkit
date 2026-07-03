@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
-        public enum TextureType
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
+        public enum TextureType {
             Texture,
             Structured,
             TextureBuffer,
@@ -20,32 +17,29 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class TextureDescription
-        {
-            public TextureDescription()
-            {
-            }
+        public sealed class TextureDescription {
+            public TextureDescription() { }
 
-            public TextureDescription(string name, ShaderStage shaderType, TextureType type)
-            {
+            public TextureDescription(string name, ShaderStage shaderType, TextureType type) {
                 Name = name;
                 ShaderType = shaderType;
                 Type = type;
             }
 
-            [DataMember] public string Name { get; set; }
+            [DataMember]
+            public string Name { get; set; }
 
-            [DataMember] public ShaderStage ShaderType { get; set; }
+            [DataMember]
+            public ShaderStage ShaderType { get; set; }
 
-            [DataMember] public TextureType Type { get; set; }
+            [DataMember]
+            public TextureType Type { get; set; }
 
-            public TextureMapping CreateMapping(int slot)
-            {
+            public TextureMapping CreateMapping(int slot) {
                 return new TextureMapping(slot, this);
             }
 
-            public TextureDescription Clone()
-            {
+            public TextureDescription Clone() {
                 return new TextureDescription(Name, ShaderType, Type);
             }
         }
@@ -53,20 +47,19 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class TextureMapping
-        {
-            public TextureMapping(int slot, TextureDescription description)
-            {
+        public sealed class TextureMapping {
+            public TextureMapping(int slot, TextureDescription description) {
                 Slot = slot;
                 Description = description;
             }
 
-            [DataMember] public int Slot { get; set; }
+            [DataMember]
+            public int Slot { get; set; }
 
-            [DataMember] public TextureDescription Description { get; set; }
+            [DataMember]
+            public TextureDescription Description { get; set; }
 
-            public TextureMapping Clone()
-            {
+            public TextureMapping Clone() {
                 return new TextureMapping(Slot, Description.Clone());
             }
         }

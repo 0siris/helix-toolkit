@@ -9,26 +9,21 @@
 
 using HelixToolkit.Wpf.SharpDX;
 
-namespace CustomShaderDemo
-{
-    using System;
-    using System.Windows;
+namespace CustomShaderDemo;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            this.InitializeComponent();
-            Closed += (s, e) => {
-                if (DataContext is IDisposable)
-                {
-                    (DataContext as IDisposable).Dispose();
-                }
-            };
-        }
+using System;
+using System.Windows;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        this.InitializeComponent();
+        Closed += (s, e) => {
+            if (DataContext is IDisposable) {
+                (DataContext as IDisposable).Dispose();
+            }
+        };
     }
-
 }

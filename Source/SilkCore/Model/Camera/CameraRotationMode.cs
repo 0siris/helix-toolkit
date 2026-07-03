@@ -8,8 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Camera rotation modes.
 /// </summary>
-public enum CameraRotationMode
-{
+public enum CameraRotationMode {
     /// <summary>
     ///     Turntable is constrained to two axes of rotation (model up and right direction)
     /// </summary>

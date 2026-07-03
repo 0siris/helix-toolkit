@@ -8,14 +8,11 @@ using System.ComponentModel;
 using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Core;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class ShadowMapNode : SceneNode
-        {
+        public class ShadowMapNode : SceneNode {
             private readonly OrthographicCameraCore orthoCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
             private readonly PerspectiveCameraCore persCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
 
@@ -38,11 +35,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The resolution.
             /// </value>
-            public Size2 Resolution
-            {
+            public Size2 Resolution {
                 get => new((RenderCore as ShadowMapCore).Width, (RenderCore as ShadowMapCore).Height);
-                set
-                {
+                set {
                     (RenderCore as ShadowMapCore).Width = value.Width;
                     (RenderCore as ShadowMapCore).Height = value.Height;
                 }
@@ -50,28 +45,24 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            public float Bias
-            {
+            public float Bias {
                 get => (RenderCore as ShadowMapCore).Bias;
                 set => (RenderCore as ShadowMapCore).Bias = value;
             }
 
             /// <summary>
             /// </summary>
-            public float Intensity
-            {
+            public float Intensity {
                 get => (RenderCore as ShadowMapCore).Intensity;
                 set => (RenderCore as ShadowMapCore).Intensity = value;
             }
 
-            public float Distance
-            {
+            public float Distance {
                 get => distance;
                 set => SetAffectsRender(ref distance, value);
             }
 
-            public float OrthoWidth
-            {
+            public float OrthoWidth {
                 get => orthoWidth;
                 set => SetAffectsRender(ref orthoWidth, value);
             }
@@ -82,13 +73,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The far field.
             /// </value>
-            public float FarField
-            {
+            public float FarField {
                 get => farField;
-                set
-                {
-                    if (SetAffectsRender(ref farField, value))
-                    {
+                set {
+                    if (SetAffectsRender(ref farField, value)) {
                         orthoCamera.FarPlaneDistance = value;
                         persCamera.FarPlaneDistance = value;
                     }
@@ -101,13 +89,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The far field.
             /// </value>
-            public float NearField
-            {
+            public float NearField {
                 get => nearField;
-                set
-                {
-                    if (SetAffectsRender(ref nearField, value))
-                    {
+                set {
+                    if (SetAffectsRender(ref nearField, value)) {
                         orthoCamera.NearPlaneDistance = value;
                         persCamera.NearPlaneDistance = value;
                     }
@@ -117,11 +102,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Distance of the directional light from origin
             /// </summary>
-            public ProjectionCameraCore LightCamera
-            {
+            public ProjectionCameraCore LightCamera {
                 get => lightCamera;
-                set
-                {
+                set {
                     if (lightCamera != null) lightCamera.PropertyChanged -= LightCamera_PropertyChanged;
                     SetAffectsRender(ref lightCamera, value);
                     if (lightCamera != null) lightCamera.PropertyChanged += LightCamera_PropertyChanged;
@@ -165,8 +148,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 var core = new ShadowMapCore();
                 core.OnUpdateLightSource += Core_OnUpdateLightSource;
                 return core;
@@ -176,8 +158,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Assigns the default values to core.
             /// </summary>
             /// <param name="core">The core.</param>
-            protected override void AssignDefaultValuesToCore(RenderCore core)
-            {
+            protected override void AssignDefaultValuesToCore(RenderCore core) {
                 base.AssignDefaultValuesToCore(core);
                 var c = core as ShadowMapCore;
                 //c.FactorPCF = (float)FactorPCF;
@@ -187,8 +168,7 @@ namespace HelixToolkit.SharpDX.Core
                 c.Height = Resolution.Height;
             }
 
-            private void LightCamera_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
+            private void LightCamera_PropertyChanged(object sender, PropertyChangedEventArgs e) {
                 InvalidateRender();
             }
 
@@ -199,8 +179,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     Return true if attached
             /// </returns>
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
                 base.OnAttach(effectsManager);
                 shadowCore = RenderCore as ShadowMapCore;
                 Invalidated += Host_SceneGraphUpdated;
@@ -208,14 +187,12 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 Invalidated -= Host_SceneGraphUpdated;
                 base.OnDetach();
             }
 
-            private void Host_SceneGraphUpdated(object sender, InvalidateTypes type)
-            {
+            private void Host_SceneGraphUpdated(object sender, InvalidateTypes type) {
                 if (type == InvalidateTypes.SceneGraph) sceneChanged = true;
             }
 
@@ -224,19 +201,16 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context"></param>
             /// <returns></returns>
-            protected override bool CanRender(RenderContext context)
-            {
+            protected override bool CanRender(RenderContext context) {
                 (RenderCore as ShadowMapCore).NeedRender =
                     base.CanRender(context) && context.RenderHost.IsShadowMapEnabled;
                 return true;
             }
 
-            private BoundingBox FindSceneBound(FastList<SceneNode> nodes)
-            {
+            private BoundingBox FindSceneBound(FastList<SceneNode> nodes) {
                 var box = new BoundingBox();
                 if (nodes.Count > 0)
-                    foreach (var node in nodes.Where(x => x is IThrowingShadow k && k.IsThrowingShadow))
-                    {
+                    foreach (var node in nodes.Where(x => x is IThrowingShadow k && k.IsThrowingShadow)) {
                         if (node.BoundsWithTransform.Minimum == node.BoundsWithTransform.Maximum) continue;
                         if (box.Minimum == box.Maximum)
                             box = node.BoundsWithTransform;
@@ -247,8 +221,7 @@ namespace HelixToolkit.SharpDX.Core
                 return box;
             }
 
-            private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir)
-            {
+            private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir) {
                 if (box.Maximum == box.Minimum) return false;
                 var center = box.Center();
                 var dist = 0.0f;
@@ -265,16 +238,14 @@ namespace HelixToolkit.SharpDX.Core
                 var farthest = Vector3.Zero;
                 var farestDist = 0f;
 
-                for (var i = 0; i < 8; ++i)
-                {
+                for (var i = 0; i < 8; ++i) {
                     SilkMath.Dot(ref plane.Normal, ref points[i], out var dot);
                     dot += plane.D;
                     if (dot > 0) continue;
                     var t = dot - plane.D;
                     var v = points[i] - t * plane.Normal;
                     var vDist = v.Length;
-                    if (vDist > farestDist)
-                    {
+                    if (vDist > farestDist) {
                         farthest = points[i];
                         farestDist = vDist;
                     }
@@ -291,38 +262,29 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            private void SetOrthoCameraParameters(ref Vector3 lookDir)
-            {
+            private void SetOrthoCameraParameters(ref Vector3 lookDir) {
                 orthoCamera.LookDirection = lookDir * distance;
                 orthoCamera.Position = -lookDir * distance;
                 orthoCamera.UpDirection = Vector3.UnitZ;
                 orthoCamera.Width = orthoWidth;
             }
 
-            private void Core_OnUpdateLightSource(object sender, ShadowMapCore.UpdateLightSourceEventArgs e)
-            {
+            private void Core_OnUpdateLightSource(object sender, ShadowMapCore.UpdateLightSourceEventArgs e) {
                 CameraCore camera = LightCamera ?? null;
-                if (LightCamera == null)
-                {
+                if (LightCamera == null) {
                     var lights = e.Context.RenderHost.PerFrameLights.Take(Constants.MaxLights);
-                    foreach (var light in lights)
-                    {
-                        if (light.LightType == LightType.Directional)
-                        {
+                    foreach (var light in lights) {
+                        if (light.LightType == LightType.Directional) {
                             var dlight = light.RenderCore as DirectionalLightCore;
                             var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
-                            if (AutoCoverCompleteScene)
-                            {
-                                if (sceneChanged || e.Context.updateSceneGraphRequested || IsSceneDynamic)
-                                {
+                            if (AutoCoverCompleteScene) {
+                                if (sceneChanged || e.Context.updateSceneGraphRequested || IsSceneDynamic) {
                                     sceneChanged = false;
                                     var boundingBox = FindSceneBound(e.Context.RenderHost.PerFrameOpaqueNodes);
                                     if (!CreateCameraFromBound(ref boundingBox, ref dir))
                                         SetOrthoCameraParameters(ref dir);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 SetOrthoCameraParameters(ref dir);
                             }
 
@@ -330,8 +292,7 @@ namespace HelixToolkit.SharpDX.Core
                             break;
                         }
 
-                        if (light.LightType == LightType.Spot)
-                        {
+                        if (light.LightType == LightType.Spot) {
                             var splight = light.RenderCore as SpotLightCore;
                             persCamera.Position = splight.Position + splight.ModelMatrix.Row4.ToVector3();
                             var look = SilkMath.TransformNormal(splight.Direction, splight.ModelMatrix);
@@ -345,26 +306,24 @@ namespace HelixToolkit.SharpDX.Core
                     }
                 }
 
-                if (camera == null)
-                {
+                if (camera == null) {
                     shadowCore.FoundLightSource = false;
-                }
-                else
-                {
+                } else {
                     shadowCore.FoundLightSource = true;
                     shadowCore.LightView = camera.CreateViewMatrix();
                     shadowCore.LightProjection = camera.CreateProjectionMatrix(shadowCore.Width / shadowCore.Height);
                 }
             }
 
-            protected override bool CanHitTest(HitTestContext context)
-            {
+            protected override bool CanHitTest(HitTestContext context) {
                 return false;
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
         }

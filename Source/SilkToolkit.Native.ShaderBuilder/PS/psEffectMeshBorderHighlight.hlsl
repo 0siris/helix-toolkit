@@ -2,8 +2,7 @@
 #include"..\Common\CommonBuffers.hlsl"
 #pragma pack_matrix( row_major )
 
-float4 main(MeshOutlinePS_INPUT input) : SV_Target
-{
+float4 main(MeshOutlinePS_INPUT input) : SV_Target {
     float4 color = texDiffuseMap.Sample(samplerSurface, input.Tex);
     float x = vResolution.z * Param._m00 * viewportScale;
     float y = vResolution.w * Param._m01 * viewportScale;
@@ -17,5 +16,4 @@ float4 main(MeshOutlinePS_INPUT input) : SV_Target
     c = max(c, texDiffuseMap.Sample(samplerSurface, input.Tex - float2(-offX, offY)));
     color = max(color, c);
     return saturate(color);
-
 }

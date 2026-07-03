@@ -7,14 +7,11 @@ using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode
-        {
+        public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
             private Vector3[] skinnedVerticesCache = new Vector3[0];
 
             /// <summary>
@@ -31,14 +28,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The bone matrices.
             /// </value>
-            public Matrix[] BoneMatrices
-            {
+            public Matrix[] BoneMatrices {
                 get => (RenderCore as BoneSkinRenderCore).BoneMatrices;
                 set => (RenderCore as BoneSkinRenderCore).BoneMatrices = value;
             }
 
-            public float[] MorphTargetWeights
-            {
+            public float[] MorphTargetWeights {
                 get => (RenderCore as BoneSkinRenderCore).MorphTargetWeights;
                 set => (RenderCore as BoneSkinRenderCore).MorphTargetWeights = value;
             }
@@ -64,26 +59,22 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new BoneSkinRenderCore();
             }
 
-            protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry)
-            {
+            protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
                 return !(EffectsManager.GeometryBufferManager.Register<BoneSkinnedMeshBufferModel>(modelGuid, geometry)
-                    is IBoneSkinMeshBufferModel buffer)
-                    ? EmptyGeometryBufferModel.Empty
-                    : new BoneSkinPreComputeBufferModel(buffer, buffer.VertexStructSize.FirstOrDefault());
+                             is IBoneSkinMeshBufferModel buffer)
+                           ? EmptyGeometryBufferModel.Empty
+                           : new BoneSkinPreComputeBufferModel(buffer, buffer.VertexStructSize.FirstOrDefault());
             }
 
-            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum)
-            {
+            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
                 return BoneMatrices.Length == 0 ? base.TestViewFrustum(ref viewFrustum) : true;
             }
 
-            protected override bool PreHitTestOnBounds(HitTestContext context)
-            {
+            protected override bool PreHitTestOnBounds(HitTestContext context) {
                 return BoneMatrices.Length == 0 ? base.PreHitTestOnBounds(context) : true;
             }
 
@@ -94,8 +85,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="effectName">Name of the effect.</param>
             /// <param name="scale">The scale.</param>
             /// <returns></returns>
-            public BoneSkinMeshNode CreateSkeletonNode(MaterialCore material, string effectName, float scale = 0.1f)
-            {
+            public BoneSkinMeshNode CreateSkeletonNode(MaterialCore material, string effectName, float scale = 0.1f) {
                 return CreateSkeletonNode(this, material, effectName, scale);
             }
 
@@ -107,11 +97,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="effectName">Name of the effect.</param>
             /// <param name="scale">The scale.</param>
             /// <returns></returns>
-            public static BoneSkinMeshNode CreateSkeletonNode(BoneSkinMeshNode node, MaterialCore material,
-                string effectName, float scale)
-            {
-                var skNode = new BoneSkinMeshNode
-                {
+            public static BoneSkinMeshNode CreateSkeletonNode(
+                BoneSkinMeshNode node,
+                MaterialCore material,
+                string effectName,
+                float scale
+            ) {
+                var skNode = new BoneSkinMeshNode {
                     Material = material,
                     IsSkeletonNode = true
                 };
@@ -126,11 +118,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="manager"></param>
             /// <returns>New array with vertex positions</returns>
-            public Vector3[] TryGetSkinnedVertices(IEffectsManager manager)
-            {
+            public Vector3[] TryGetSkinnedVertices(IEffectsManager manager) {
                 if (Geometry is BoneSkinnedMeshGeometry3D skGeometry)
-                    if (RenderCore is BoneSkinRenderCore skCore)
-                    {
+                    if (RenderCore is BoneSkinRenderCore skCore) {
                         var nativeResources = manager.NativeDeviceResources;
                         var proxy = new DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
                         var array = new Vector3[skGeometry.Positions.Count];
@@ -146,11 +136,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="manager"></param>
             /// <param name="array">Vertex positions will be copied into this array</param>
             /// <returns></returns>
-            public int TryGetSkinnedVertices(IEffectsManager manager, Vector3[] array)
-            {
+            public int TryGetSkinnedVertices(IEffectsManager manager, Vector3[] array) {
                 if (Geometry is BoneSkinnedMeshGeometry3D skGeometry)
-                    if (RenderCore is BoneSkinRenderCore skCore)
-                    {
+                    if (RenderCore is BoneSkinRenderCore skCore) {
                         var nativeResources = manager.NativeDeviceResources;
                         var proxy = new DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
                         return skCore.CopySkinnedToArray(proxy, array);
@@ -165,8 +153,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     To get latest skinned vertices, please use <see cref="TryGetSkinnedVertices(IEffectsManager)" />.
             /// </summary>
             /// <returns></returns>
-            public Vector3[] TryGetSkinnedVerticesCache()
-            {
+            public Vector3[] TryGetSkinnedVerticesCache() {
                 return skinnedVerticesCache;
             }
 
@@ -175,27 +162,22 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="i">index</param>
             /// <param name="w">weight, typically 0-1</param>
-            public void SetWeight(int i, float w)
-            {
+            public void SetWeight(int i, float w) {
                 (RenderCore as BoneSkinRenderCore).SetWeight(i, w);
             }
 
             /// <summary>
             ///     Tells the render core to update it's morph target weight buffer
             /// </summary>
-            public void WeightUpdated()
-            {
+            public void WeightUpdated() {
                 (RenderCore as BoneSkinRenderCore).InvalidateMorphTargetWeights();
                 InvalidateRender();
             }
 
-            public void SetupIdentitySkeleton()
-            {
+            public void SetupIdentitySkeleton() {
                 BoneMatrices = new[] {Matrix.Identity};
-                Bones = new[]
-                {
-                    new Bone
-                    {
+                Bones = new[] {
+                    new Bone {
                         Name = "Identity", BindPose = Matrix.Identity, InvBindPose = Matrix.Identity,
                         BoneLocalTransform = Matrix.Identity
                     }
@@ -207,39 +189,39 @@ namespace HelixToolkit.SharpDX.Core
                     geom.VertexBoneIds[i] = new BoneIds {Bone1 = 0, Weights = new Vector4(1, 0, 0, 0)};
             }
 
-            public void UpdateBoneMatrices()
-            {
+            public void UpdateBoneMatrices() {
                 BoneMatrices = new Matrix[Bones.Length];
                 BoneMatrices = BoneMatrices.Select((m, i) => Bones[i].Node.TotalModelMatrixInternal).ToArray();
             }
 
-            public void InvalidateBoneMatrices()
-            {
+            public void InvalidateBoneMatrices() {
                 (RenderCore as BoneSkinRenderCore).InvalidateBoneMatrices();
             }
 
-            public void InvalidateMorphTargetWeights()
-            {
+            public void InvalidateMorphTargetWeights() {
                 (RenderCore as BoneSkinRenderCore).InvalidateMorphTargetWeights();
             }
 
-            public bool InitializeMorphTargets(MorphTargetVertex[] mtv, int pitch)
-            {
+            public bool InitializeMorphTargets(MorphTargetVertex[] mtv, int pitch) {
                 return (RenderCore as BoneSkinRenderCore).InitializeMorphTargets(mtv, pitch);
             }
 
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 if (BoneMatrices.Length > 0 && Geometry is BoneSkinnedMeshGeometry3D skGeometry)
-                    if (RenderCore is BoneSkinRenderCore skCore)
-                    {
+                    if (RenderCore is BoneSkinRenderCore skCore) {
                         if (skinnedVerticesCache.Length < skGeometry.Positions.Count)
                             skinnedVerticesCache = new Vector3[skGeometry.Positions.Count];
                         if (skCore.CopySkinnedToArray(context.RenderMatrices.RenderHost.ImmediateDeviceContext,
-                                skinnedVerticesCache) > 0)
-                            return skGeometry.HitTestWithSkinnedVertices(context, skinnedVerticesCache,
-                                totalModelMatrix, ref hits, WrapperSource);
+                                                      skinnedVerticesCache) > 0)
+                            return skGeometry.HitTestWithSkinnedVertices(context,
+                                                                         skinnedVerticesCache,
+                                                                         totalModelMatrix,
+                                                                         ref hits,
+                                                                         WrapperSource);
                     }
 
                 return base.OnHitTest(context, totalModelMatrix, ref hits);

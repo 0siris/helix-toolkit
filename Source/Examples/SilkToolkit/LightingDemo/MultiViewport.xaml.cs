@@ -12,16 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace LightingDemo
-{
-    /// <summary>
-    /// Interaction logic for MultiViewport.xaml
-    /// </summary>
-    public partial class MultiViewport : Window
-    {
-        public MultiViewport()
-        {
-            InitializeComponent();
-        }
+namespace LightingDemo;
+
+/// <summary>
+/// Interaction logic for MultiViewport.xaml
+/// </summary>
+public partial class MultiViewport : Window {
+    public MultiViewport() {
+        InitializeComponent();
     }
 }

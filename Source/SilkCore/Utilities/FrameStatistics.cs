@@ -2,12 +2,9 @@
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Model;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
-        public interface IFrameStatistics : INotifyPropertyChanged
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
+        public interface IFrameStatistics : INotifyPropertyChanged {
             /// <summary>
             ///     Gets the average value.
             /// </summary>
@@ -43,8 +40,7 @@ namespace HelixToolkit.SharpDX.Core
             void Reset();
         }
 
-        public sealed class FrameStatistics : ObservableObject, IFrameStatistics
-        {
+        public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
             private const int RingBufferSize = 120;
             private readonly SimpleRingBuffer<double> ringBuffer = new(RingBufferSize);
 
@@ -59,13 +55,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Average latency
             /// </summary>
-            public double AverageValue
-            {
+            public double AverageValue {
                 get => averageValue;
-                private set
-                {
-                    if (Set(ref averageValue, value))
-                    {
+                private set {
+                    if (Set(ref averageValue, value)) {
                         AverageFrequency = 1000 / value;
                         OnValueChanged?.Invoke(this, new FrameStatisticsArg(value, AverageFrequency));
                     }
@@ -78,8 +71,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The average frequency.
             /// </value>
-            public double AverageFrequency
-            {
+            public double AverageFrequency {
                 get => averageFrequency;
                 private set => Set(ref averageFrequency, value);
             }
@@ -96,16 +88,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Pushes the specified latency by milliseconds.
             /// </summary>
             /// <param name="latency">The latency.</param>
-            public void Push(double latency)
-            {
-                if (latency > 1000 || latency < 0)
-                {
+            public void Push(double latency) {
+                if (latency > 1000 || latency < 0) {
                     Reset();
                     return;
                 }
 
-                if (ringBuffer.IsFull())
-                {
+                if (ringBuffer.IsFull()) {
                     total -= ringBuffer.First;
                     ringBuffer.RemoveFirst();
                 }
@@ -118,8 +107,7 @@ namespace HelixToolkit.SharpDX.Core
                 if (counter == 0) AverageValue = movingAverage;
             }
 
-            public void Reset()
-            {
+            public void Reset() {
                 AverageValue = 0;
                 movingAverage = 0;
                 counter = 0;
@@ -128,8 +116,7 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        public interface IRenderStatistics
-        {
+        public interface IRenderStatistics {
             IFrameStatistics FPSStatistics { get; }
 
             IFrameStatistics LatencyStatistics { get; }
@@ -154,8 +141,7 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public sealed class RenderStatistics : IRenderStatistics
-        {
+        public sealed class RenderStatistics : IRenderStatistics {
             private const string LineBreak = "\n---------\n";
 
             /// <summary>
@@ -230,24 +216,21 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public RenderDetail FrameDetail { get; set; } = RenderDetail.None;
 
-            public string GetDetailString()
-            {
+            public string GetDetailString() {
                 return GetDetailString(FrameDetail);
             }
 
             /// <summary>
             ///     Resets this instance.
             /// </summary>
-            public void Reset()
-            {
+            public void Reset() {
                 FPSStatistics.Reset();
                 LatencyStatistics.Reset();
                 NumTriangles = NumCore3D = NumModel3D = NumDrawCalls = 0;
                 FrustumTestTime = 0;
             }
 
-            public string GetDetailString(RenderDetail detail)
-            {
+            public string GetDetailString(RenderDetail detail) {
                 if (detail == RenderDetail.None) return string.Empty;
                 var s = string.Empty;
                 if ((detail & RenderDetail.FPS) == RenderDetail.FPS) s += GetFPS();
@@ -258,14 +241,12 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private string GetFPS()
-            {
+            private string GetFPS() {
                 return $"FPS:{Math.Round(FPSStatistics.AverageFrequency, 2)}" + LineBreak;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private string GetStatistics()
-            {
+            private string GetStatistics() {
                 return $"Render(ms): {Math.Round(LatencyStatistics.AverageValue, 4)}\n" +
                        $"NumModel3D: {NumModel3D}\n" +
                        $"NumCore3D: {NumCore3D}\n" +
@@ -274,14 +255,12 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private string GetTriangleCount()
-            {
+            private string GetTriangleCount() {
                 return $"NumTriangle: {NumTriangles}" + LineBreak;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private string GetCamera()
-            {
+            private string GetCamera() {
                 return Camera == null ? string.Empty : "Camera:\n" + Camera + LineBreak;
             }
 
@@ -291,8 +270,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     A <see cref="System.String" /> that represents this instance.
             /// </returns>
-            public override string ToString()
-            {
+            public override string ToString() {
                 return GetDetailString(RenderDetail.FPS | RenderDetail.Statistics);
             }
         }

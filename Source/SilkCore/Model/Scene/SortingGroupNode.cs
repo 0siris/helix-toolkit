@@ -6,17 +6,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         using SortStruct = KeyValuePair<float, SceneNode>;
 
         /// <summary>
         ///     Used for geometry sorting
         /// </summary>
-        public enum SortingMethod
-        {
+        public enum SortingMethod {
             /// <summary>
             ///     Sort on the distance from camera to bounding bound center.
             /// </summary>
@@ -33,8 +30,7 @@ namespace HelixToolkit.SharpDX.Core
             BoundingSphereSurface
         }
 
-        public class SortingGroupNode : GroupNode
-        {
+        public class SortingGroupNode : GroupNode {
             private readonly List<SceneNode> notSorted = new();
             private readonly List<SortStruct> sortingOpaqueCache = new();
 
@@ -80,85 +76,59 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public SortingMethod SortingMethod { get; set; } = SortingMethod.BoundingBoxCorners;
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
                 LastSortTime = 0;
                 return base.OnAttach(effectsManager);
             }
 
-            public override void UpdateNotRender(RenderContext context)
-            {
+            public override void UpdateNotRender(RenderContext context) {
                 base.UpdateNotRender(context);
                 if (!EnableSorting || ItemsInternal.Count == 0) return;
                 var currTime = Stopwatch.GetTimestamp() * 1000 / Stopwatch.Frequency;
 
-                if (currTime - LastSortTime > SortingInterval)
-                {
+                if (currTime - LastSortTime > SortingInterval) {
                     Sort(ItemsInternal, context);
                     LastSortTime = currTime;
                 }
             }
 
-            protected virtual void Sort(IList<SceneNode> nodes, RenderContext context)
-            {
+            protected virtual void Sort(IList<SceneNode> nodes, RenderContext context) {
                 sortingTransparentCache.Clear();
                 sortingOpaqueCache.Clear();
                 notSorted.Clear();
 
                 var cameraPosition = context.Camera.Position;
-                if (SortTransparentOnly)
-                {
+                if (SortTransparentOnly) {
                     for (var i = 0; i < nodes.Count; ++i)
                         if (nodes[i].RenderCore.RenderType == RenderType.Transparent)
                             sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition),
-                                nodes[i]));
+                                                                       nodes[i]));
                         else
                             notSorted.Add(nodes[i]);
 
-                    sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
-                    {
-                        return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
-                    });
-                }
-                else
-                {
+                    sortingTransparentCache.Sort((a, b) => a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0);
+                } else {
                     for (var i = 0; i < nodes.Count; ++i)
                         if (nodes[i].RenderCore.RenderType == RenderType.Transparent)
                             sortingTransparentCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition),
-                                nodes[i]));
+                                                                       nodes[i]));
                         else if (nodes[i].RenderCore.RenderType == RenderType.Opaque)
                             sortingOpaqueCache.Add(new SortStruct(GetDistance(nodes[i], ref cameraPosition), nodes[i]));
                         else
                             notSorted.Add(nodes[i]);
 
-                    if (sortingTransparentCache.Count > 50 && sortingOpaqueCache.Count > 50)
-                    {
-                        Parallel.Invoke(
-                            () =>
-                            {
-                                sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
-                                {
-                                    return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
-                                });
-                            },
-                            () =>
-                            {
-                                sortingOpaqueCache.Sort(delegate(SortStruct a, SortStruct b)
-                                {
-                                    return a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0;
-                                });
-                            });
-                    }
-                    else
-                    {
-                        sortingTransparentCache.Sort(delegate(SortStruct a, SortStruct b)
-                        {
-                            return a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0;
-                        });
-                        sortingOpaqueCache.Sort(delegate(SortStruct a, SortStruct b)
-                        {
-                            return a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0;
-                        });
+                    if (sortingTransparentCache.Count > 50 && sortingOpaqueCache.Count > 50) {
+                        Parallel.Invoke(() => {
+                                            sortingTransparentCache.Sort((a, b) => a.Key > b.Key ? -1 :
+                                                                             a.Key < b.Key ? 1 : 0);
+                                        },
+                                        () => {
+                                            sortingOpaqueCache.Sort((a, b) => a.Key > b.Key ? 1 :
+                                                                              a.Key < b.Key ? -1 : 0);
+                                        });
+                    } else {
+                        sortingTransparentCache.Sort((a, b) => a.Key > b.Key ? -1 : a.Key < b.Key ? 1 : 0);
+                        sortingOpaqueCache.Sort((a, b) => a.Key > b.Key ? 1 : a.Key < b.Key ? -1 : 0);
                     }
                 }
 
@@ -174,10 +144,8 @@ namespace HelixToolkit.SharpDX.Core
                 InvalidateSceneGraph();
             }
 
-            protected float GetDistance(SceneNode node, ref Vector3 cameraPos)
-            {
-                switch (SortingMethod)
-                {
+            protected float GetDistance(SceneNode node, ref Vector3 cameraPos) {
+                switch (SortingMethod) {
                     case SortingMethod.BoundingBoxCenter:
                         var center = (node.BoundsWithTransform.Maximum + node.BoundsWithTransform.Minimum) / 2;
                         return (cameraPos - center).LengthSquared();

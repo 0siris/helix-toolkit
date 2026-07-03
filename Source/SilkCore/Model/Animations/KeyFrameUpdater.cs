@@ -5,14 +5,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Animations
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Animations {
         /// <summary>
         /// </summary>
-        public class KeyFrameUpdater : IAnimationUpdater
-        {
+        public class KeyFrameUpdater : IAnimationUpdater {
             private readonly int BoneCount;
 
             private readonly Matrix[] currentBones;
@@ -28,8 +25,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="animation">The animation.</param>
             /// <param name="bones">The bones.</param>
-            public KeyFrameUpdater(Animation animation, IList<Bone> bones)
-            {
+            public KeyFrameUpdater(Animation animation, IList<Bone> bones) {
                 Animation = animation;
                 Name = animation.Name;
                 BoneCount = bones.Count;
@@ -60,8 +56,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="timeStamp">The time stamp (ticks).</param>
             /// <param name="frequency">The frequency (ticks per second).</param>
-            public void Update(float timeStamp, long frequency)
-            {
+            public void Update(float timeStamp, long frequency) {
                 if (Animation.BoneSkinMeshes == null || Animation.BoneSkinMeshes.Count == 0) return;
                 var timeSec = timeStamp / frequency;
                 if (timeSec < StartTime) return;
@@ -69,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
                 var timeElapsed = timeSec - StartTime;
                 var boneNode = Animation.BoneSkinMeshes[0];
                 if (timeElapsed > Animation.EndTime)
-                    switch (RepeatMode)
-                    {
+                    switch (RepeatMode) {
                         case AnimationRepeatMode.PlayOnce:
                             return;
                         case AnimationRepeatMode.PlayOnceHold:
@@ -81,14 +75,12 @@ namespace HelixToolkit.SharpDX.Core
                             return;
                     }
 
-                foreach (var frames in keyframes)
-                {
+                foreach (var frames in keyframes) {
                     var idx = AnimationUtils.FindKeyFrame(timeElapsed, frames);
                     ref var currFrame = ref frames.GetInternalArray()[idx];
                     if (currFrame.Time > timeElapsed && idx == 0) continue;
                     Debug.Assert(currFrame.Time <= timeElapsed);
-                    if (frames.Count == 1 || idx == frames.Count - 1)
-                    {
+                    if (frames.Count == 1 || idx == frames.Count - 1) {
                         tempBones[currFrame.BoneIndex] = currFrame.ToTransformMatrix();
                         continue;
                     }
@@ -107,11 +99,9 @@ namespace HelixToolkit.SharpDX.Core
                 // Apply parent bone transforms
                 // We assume here that the first bone has no parent
                 // and that each parent bone appears before children
-                for (var i = 1; i < BoneCount; i++)
-                {
+                for (var i = 1; i < BoneCount; i++) {
                     var bone = Bones[i];
-                    if (bone.ParentIndex > -1)
-                    {
+                    if (bone.ParentIndex > -1) {
                         var parentTransform = tempBones[bone.ParentIndex];
                         tempBones[i] = tempBones[i] * parentTransform;
                     }
@@ -122,13 +112,10 @@ namespace HelixToolkit.SharpDX.Core
                 OutputBones(boneNode);
             }
 
-            public void Reset()
-            {
-            }
+            public void Reset() { }
 
 
-            private void OutputBones(IBoneMatricesNode node)
-            {
+            private void OutputBones(IBoneMatricesNode node) {
                 if (node.BoneMatrices == null || node.BoneMatrices.Length != BoneCount)
                     node.BoneMatrices = currentBones.ToArray();
                 else

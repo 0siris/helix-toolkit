@@ -12,8 +12,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>
-public interface ICameraModel
-{
+public interface ICameraModel {
     /// <summary>
     /// </summary>
     bool CreateLeftHandSystem { get; set; }
@@ -38,7 +37,8 @@ public interface ICameraModel
         Point3D newPosition,
         Vector3D newDirection,
         Vector3D newUpDirection,
-        double animationTime);
+        double animationTime
+    );
 
     void StopAnimation();
     bool OnTimeStep();
@@ -94,12 +94,9 @@ public abstract class Camera :
     /// <value>
     ///     The camera internal.
     /// </value>
-    public CameraCore CameraInternal
-    {
-        get
-        {
-            if (core == null)
-            {
+    public CameraCore CameraInternal {
+        get {
+            if (core == null) {
                 core = CreatePortableCameraCore();
                 OnCoreCreated(core);
             }
@@ -112,8 +109,7 @@ public abstract class Camera :
     ///     Creates the view matrix.
     /// </summary>
     /// <returns>A <see cref="Matrix" />.</returns>
-    public Matrix CreateViewMatrix()
-    {
+    public Matrix CreateViewMatrix() {
         return CameraInternal.CreateViewMatrix();
     }
 
@@ -122,8 +118,7 @@ public abstract class Camera :
     /// </summary>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>A <see cref="Matrix" />.</returns>
-    public Matrix CreateProjectionMatrix(double aspectRatio)
-    {
+    public Matrix CreateProjectionMatrix(double aspectRatio) {
         return CameraInternal.CreateProjectionMatrix((float) aspectRatio);
     }
 
@@ -146,8 +141,7 @@ public abstract class Camera :
     /// <summary>
     ///     Called when [core created].
     /// </summary>
-    protected virtual void OnCoreCreated(CameraCore core)
-    {
+    protected virtual void OnCoreCreated(CameraCore core) {
 #if NETFX_CORE || WINUI
             core.LookDirection = this.LookDirection;
             core.Position = this.Position;
@@ -171,17 +165,14 @@ public abstract class Camera :
         Point3D newPosition,
         Vector3D newDirection,
         Vector3D newUpDirection,
-        double animationTime)
-    {
-        if (animationTime == 0)
-        {
+        double animationTime
+    ) {
+        if (animationTime == 0) {
             Position = newPosition;
             LookDirection = newDirection;
             UpDirection = newUpDirection;
             aniTime = 0;
-        }
-        else
-        {
+        } else {
 #if NETFX_CORE|| WINUI
                 targetPosition = newPosition;
                 targetLookDirection = newDirection;
@@ -205,20 +196,17 @@ public abstract class Camera :
     ///     Called when [time step] to update camera animation.
     /// </summary>
     /// <returns></returns>
-    public virtual bool OnTimeStep()
-    {
+    public virtual bool OnTimeStep() {
         var ticks = Stopwatch.GetTimestamp();
         var ellapsed = (float) (ticks - prevTicks) / Stopwatch.Frequency * 1000;
         prevTicks = ticks;
         return OnUpdateAnimation(ellapsed);
     }
 
-    protected virtual bool OnUpdateAnimation(float ellapsed)
-    {
+    protected virtual bool OnUpdateAnimation(float ellapsed) {
         if (aniTime == 0) return false;
         accumTime += ellapsed;
-        if (accumTime > aniTime)
-        {
+        if (accumTime > aniTime) {
 #if NETFX_CORE|| WINUI
                 Position = targetPosition;
                 LookDirection = targetLookDirection;
@@ -248,13 +236,11 @@ public abstract class Camera :
         return true;
     }
 
-    public void StopAnimation()
-    {
+    public void StopAnimation() {
         aniTime = 0;
     }
 
-    public static implicit operator CameraCore(Camera camera)
-    {
+    public static implicit operator CameraCore(Camera camera) {
         return camera?.CameraInternal;
     }
 }

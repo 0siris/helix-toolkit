@@ -38,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public class BillboardSingleText3D : BillboardBase
-{
+public class BillboardSingleText3D : BillboardBase {
     private readonly bool predefinedSize;
 
     /// <summary>
@@ -55,11 +54,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The text information.
     /// </value>
-    public TextInfo TextInfo
-    {
+    public TextInfo TextInfo {
         get => mTextInfo;
-        set
-        {
+        set {
             if (Set(ref mTextInfo, value)) IsInitialized = false;
         }
     }
@@ -72,11 +69,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The color of the font.
     /// </value>
-    public Color4 FontColor
-    {
+    public Color4 FontColor {
         get => mFontColor;
-        set
-        {
+        set {
             if (Set(ref mFontColor, value)) IsInitialized = false;
         }
     }
@@ -89,11 +84,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The color of the background.
     /// </value>
-    public Color4 BackgroundColor
-    {
+    public Color4 BackgroundColor {
         get => mBackgroundColor;
-        set
-        {
+        set {
             if (Set(ref mBackgroundColor, value)) IsInitialized = false;
         }
     }
@@ -106,11 +99,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The size of the font.
     /// </value>
-    public int FontSize
-    {
+    public int FontSize {
         get => mFontSize;
-        set
-        {
+        set {
             if (Set(ref mFontSize, value)) IsInitialized = false;
         }
     }
@@ -123,11 +114,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The font family.
     /// </value>
-    public string FontFamily
-    {
+    public string FontFamily {
         get => mFontFamily;
-        set
-        {
+        set {
             if (Set(ref mFontFamily, value)) IsInitialized = false;
         }
     }
@@ -150,8 +139,7 @@ public class BillboardSingleText3D : BillboardBase
 #endif
     {
         get { return mFontWeight; }
-        set
-        {
+        set {
             if (Set(ref mFontWeight, value)) IsInitialized = false;
         }
     }
@@ -177,8 +165,7 @@ public class BillboardSingleText3D : BillboardBase
 #endif
     {
         get { return mFontStyle; }
-        set
-        {
+        set {
             if (Set(ref mFontStyle, value)) IsInitialized = false;
         }
     }
@@ -191,11 +178,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The padding.
     /// </value>
-    public Thickness Padding
-    {
+    public Thickness Padding {
         get => mPadding;
-        set
-        {
+        set {
             if (Set(ref mPadding, value)) IsInitialized = false;
         }
     }
@@ -212,11 +197,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The horizontal alignment.
     /// </value>
-    public BillboardHorizontalAlignment HorizontalAlignment
-    {
+    public BillboardHorizontalAlignment HorizontalAlignment {
         get => horizontalAlignment;
-        set
-        {
+        set {
             if (Set(ref horizontalAlignment, value)) IsInitialized = false;
         }
     }
@@ -233,11 +216,9 @@ public class BillboardSingleText3D : BillboardBase
     /// <value>
     ///     The vertical alignment.
     /// </value>
-    public BillboardVerticalAlignment VerticalAlignment
-    {
+    public BillboardVerticalAlignment VerticalAlignment {
         get => verticalAlignment;
-        set
-        {
+        set {
             if (Set(ref verticalAlignment, value)) IsInitialized = false;
         }
     }
@@ -249,11 +230,9 @@ public class BillboardSingleText3D : BillboardBase
     ///     Behavior depends on whether billboard is fixed sized or not.
     ///     When billboard is fixed sized, the offset is screen spaced.
     /// </summary>
-    public Vector2 Offset
-    {
+    public Vector2 Offset {
         get => offset;
-        set
-        {
+        set {
             if (Set(ref offset, value)) IsInitialized = false;
         }
     }
@@ -261,17 +240,14 @@ public class BillboardSingleText3D : BillboardBase
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardSingleText3D" /> class.
     /// </summary>
-    public BillboardSingleText3D()
-    {
-    }
+    public BillboardSingleText3D() { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardSingleText3D" /> class.
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public BillboardSingleText3D(float width, float height)
-    {
+    public BillboardSingleText3D(float width, float height) {
         TextInfo = new TextInfo();
         Width = width;
         Height = height;
@@ -281,26 +257,20 @@ public class BillboardSingleText3D : BillboardBase
     /// <summary>
     ///     Updates the bounds.
     /// </summary>
-    public override void UpdateBounds()
-    {
-        if (TextInfo == null)
-        {
+    public override void UpdateBounds() {
+        if (TextInfo == null) {
             BoundingSphere = new BoundingSphere();
             Bound = new BoundingBox();
-        }
-        else
-        {
+        } else {
             BoundingSphere =
                 new BoundingSphere(TextInfo.Origin, (float) Math.Sqrt(Width * Width + Height * Height) / 2);
             Bound = BoundingBox.FromSphere(BoundingSphere);
         }
     }
 
-    protected override void OnAssignTo(Geometry3D target)
-    {
+    protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
-        if (target is BillboardSingleText3D billboard)
-        {
+        if (target is BillboardSingleText3D billboard) {
             billboard.BackgroundColor = BackgroundColor;
             billboard.FontColor = FontColor;
             billboard.FontFamily = FontFamily;
@@ -316,35 +286,39 @@ public class BillboardSingleText3D : BillboardBase
     ///     Called when [draw texture].
     /// </summary>
     /// <param name="deviceResources">The device resources.</param>
-    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources)
-    {
-        if (TextInfo != null && !string.IsNullOrEmpty(TextInfo.Text))
-        {
+    protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
+        if (TextInfo != null && !string.IsNullOrEmpty(TextInfo.Text)) {
             var w = Width;
             var h = Height;
 #if CORE
-            Texture = TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, FontWeight,
-                FontStyle,
-                new Vector4(Padding.Left, Padding.Top, Padding.Right, Padding.Bottom), ref w, ref h, predefinedSize,
-                deviceResources);
+            Texture = TextInfo.Text.ToBitmapStream(FontSize,
+                                                   Color.White,
+                                                   Color.Black,
+                                                   FontFamily,
+                                                   FontWeight,
+                                                   FontStyle,
+                                                   new Vector4(Padding.Left,
+                                                               Padding.Top,
+                                                               Padding.Right,
+                                                               Padding.Bottom),
+                                                   ref w,
+                                                   ref h,
+                                                   predefinedSize,
+                                                   deviceResources);
 #else
                 Texture =
  TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, ToRenderFontWeight(FontWeight), ToRenderFontStyle(FontStyle),
                     new Vector4((float)Padding.Left, (float)Padding.Top, (float)Padding.Right, (float)Padding.Bottom), ref w, ref h, predefinedSize, deviceResources);
 #endif
-            if (!predefinedSize)
-            {
+            if (!predefinedSize) {
                 Width = w;
                 Height = h;
             }
 
             DrawCharacter(TextInfo.Text, TextInfo.Origin, Width, Height, TextInfo);
-        }
-        else
-        {
+        } else {
             Texture = null;
-            if (!predefinedSize)
-            {
+            if (!predefinedSize) {
                 Width = 0;
                 Height = 0;
             }
@@ -406,8 +380,7 @@ public class BillboardSingleText3D : BillboardBase
         }
 #endif
 
-    private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info)
-    {
+    private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info) {
         GetQuadOffset(w, h, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
         var uv_tl = new Vector2(0, 0);
@@ -417,8 +390,7 @@ public class BillboardSingleText3D : BillboardBase
         var offBR = br * info.Scale;
         var offTR = new Vector2(offBR.X, offTL.Y);
         var offBL = new Vector2(offTL.X, offBR.Y);
-        BillboardVertices.Add(new BillboardVertex
-        {
+        BillboardVertices.Add(new BillboardVertex {
             Position = info.Origin.ToVector4(),
             Foreground = FontColor,
             Background = BackgroundColor,
@@ -432,21 +404,24 @@ public class BillboardSingleText3D : BillboardBase
     }
 
 
-    public override bool HitTest(HitTestContext context, Matrix modelMatrix, ref List<HitTestResult> hits,
-        object originalSource, bool fixedSize)
-    {
+    public override bool HitTest(
+        HitTestContext context,
+        Matrix modelMatrix,
+        ref List<HitTestResult> hits,
+        object originalSource,
+        bool fixedSize
+    ) {
         var rayWS = context.RayWS;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
             return false;
 
         return fixedSize
-            ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count)
-            : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count);
+                   ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count)
+                   : HitTestNonFixedSize(context, ref modelMatrix, ref hits, originalSource, BillboardVertices.Count);
     }
 
-    protected override void AssignResultAdditional(BillboardHitResult result, int index)
-    {
+    protected override void AssignResultAdditional(BillboardHitResult result, int index) {
         base.AssignResultAdditional(result, index);
         result.TextInfo = TextInfo;
         result.TextInfoIndex = index;

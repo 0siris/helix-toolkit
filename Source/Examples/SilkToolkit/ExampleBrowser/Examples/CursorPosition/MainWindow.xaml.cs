@@ -10,20 +10,17 @@
 using System.Windows;
 using ExampleBrowser;
 
-namespace CursorPosition
-{
+namespace CursorPosition;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+[Example("CursorPosition", "Shows the position of the mouse cursor in the Viewport3DX.")]
+public partial class MainWindow : Window {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Initializes a new instance of the <see cref="MainWindow"/> class.
     /// </summary>
-    [Example("CursorPosition", "Shows the position of the mouse cursor in the Viewport3DX.")]
-    public partial class MainWindow : Window
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
-        /// </summary>
-        public MainWindow()
-        {
-            this.InitializeComponent();
-        }
+    public MainWindow() {
+        this.InitializeComponent();
     }
 }

@@ -16,8 +16,7 @@ using PointCollection = List<Vector2>;
 /// <summary>
 ///     Represents a 2D polygon.
 /// </summary>
-public class Polygon
-{
+public class Polygon {
     // http://softsurfer.com/Archive/algorithm_0101/algorithm_0101.htm
     /// <summary>
     ///     The points.
@@ -28,8 +27,7 @@ public class Polygon
     ///     Gets or sets the points.
     /// </summary>
     /// <value>The points.</value>
-    public PointCollection Points
-    {
+    public PointCollection Points {
         get => points ?? (points = new PointCollection());
 
         set => points = value;
@@ -39,8 +37,7 @@ public class Polygon
     ///     Triangulate the polygon by using the sweep line algorithm
     /// </summary>
     /// <returns>An index collection.</returns>
-    public Int32Collection Triangulate()
-    {
+    public Int32Collection Triangulate() {
         return SweepLinePolygonTriangulator.Triangulate(points);
     }
 }

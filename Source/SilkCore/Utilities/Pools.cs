@@ -6,10 +6,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     Base implementation for reference counted dictionary.
         ///     <para></para>
@@ -23,16 +21,14 @@ namespace HelixToolkit.SharpDX.Core
         /// <typeparam name="TValue"></typeparam>
         /// <typeparam name="TArgument"></typeparam>
         public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : DisposeObject
-            where TValue : DisposeObject
-        {
+            where TValue : DisposeObject {
             private readonly bool autoDispose_;
             private readonly Dictionary<TKey, TValue> pool_ = new();
 
             /// <summary>
             /// </summary>
             /// <param name="autoDispose">Dispose object if no more exteranl references.</param>
-            protected ReferenceCountedDictionaryPool(bool autoDispose)
-            {
+            protected ReferenceCountedDictionaryPool(bool autoDispose) {
                 autoDispose_ = autoDispose;
             }
 
@@ -49,30 +45,23 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="argument"></param>
             /// <param name="objOut"></param>
             /// <returns>success or failed</returns>
-            public bool TryCreateOrGet(TKey key, TArgument argument, out TValue objOut)
-            {
-                if (IsDisposed)
-                {
+            public bool TryCreateOrGet(TKey key, TArgument argument, out TValue objOut) {
+                if (IsDisposed) {
                     objOut = default;
                     return false;
                 }
 
-                if (!CanCreate(ref key, ref argument))
-                {
+                if (!CanCreate(ref key, ref argument)) {
                     objOut = default;
                     return false;
                 }
 
-                do
-                {
-                    lock (pool_)
-                    {
-                        if (!pool_.TryGetValue(key, out objOut))
-                        {
+                do {
+                    lock (pool_) {
+                        if (!pool_.TryGetValue(key, out objOut)) {
                             objOut = OnCreate(ref key, ref argument);
                             pool_.Add(key, objOut);
-                            if (objOut == null)
-                            {
+                            if (objOut == null) {
                                 pool_.Remove(key);
                                 return false;
                             }
@@ -81,8 +70,7 @@ namespace HelixToolkit.SharpDX.Core
                             objOut.Disposed += (s, e) => { pool_.Remove(key); };
                         }
 
-                        if (objOut.IncRef() <= 1 || objOut.IsDisposed)
-                        {
+                        if (objOut.IncRef() <= 1 || objOut.IsDisposed) {
                             Task.Delay(1).Wait();
                             continue;
                         }
@@ -100,11 +88,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="key"></param>
             /// <param name="objOut"></param>
             /// <returns></returns>
-            public bool TryGet(TKey key, out TValue objOut)
-            {
+            public bool TryGet(TKey key, out TValue objOut) {
                 objOut = default;
-                if (IsDisposed)
-                {
+                if (IsDisposed) {
 #if DEBUG
                     throw new InvalidOperationException("Pool has been disposed.");
 #else
@@ -112,8 +98,7 @@ namespace HelixToolkit.SharpDX.Core
 #endif
                 }
 
-                lock (pool_)
-                {
+                lock (pool_) {
                     if (!pool_.TryGetValue(key, out objOut)) return false;
                     return objOut.IncRef() > 1 && !objOut.IsDisposed;
                 }
@@ -126,11 +111,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="key"></param>
             /// <param name="objOut"></param>
             /// <returns></returns>
-            public bool TryDetach(TKey key, out TValue objOut)
-            {
+            public bool TryDetach(TKey key, out TValue objOut) {
                 objOut = default;
-                if (IsDisposed)
-                {
+                if (IsDisposed) {
 #if DEBUG
                     throw new InvalidOperationException("Pool has been disposed.");
 #else
@@ -138,8 +121,7 @@ namespace HelixToolkit.SharpDX.Core
 #endif
                 }
 
-                lock (pool_)
-                {
+                lock (pool_) {
                     if (!pool_.Remove(key)) return false;
                     objOut.AddBackToPool = null;
                 }
@@ -147,11 +129,9 @@ namespace HelixToolkit.SharpDX.Core
                 return !objOut.IsDisposed;
             }
 
-            private void Item_AddBackToPool(DisposeObject e)
-            {
+            private void Item_AddBackToPool(DisposeObject e) {
                 if (autoDispose_)
-                    lock (pool_)
-                    {
+                    lock (pool_) {
                         if (e.RefCount > 1 || e.IsDisposed) return;
                         Debug.Assert(e.RefCount == 1);
                         e.AddBackToPool = null;
@@ -163,25 +143,21 @@ namespace HelixToolkit.SharpDX.Core
 
             protected abstract TValue OnCreate(ref TKey key, ref TArgument argument);
 
-            protected void Clear()
-            {
+            protected void Clear() {
                 if (IsDisposed) throw new InvalidOperationException("Pool has been disposed.");
                 TValue[] items;
-                lock (pool_)
-                {
+                lock (pool_) {
                     items = pool_.Values.ToArray();
                     pool_.Clear();
                 }
 
-                foreach (var item in items)
-                {
+                foreach (var item in items) {
                     item.Dispose();
                     Debug.Assert(item.IsDisposed);
                 }
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Clear();
                 base.OnDispose(disposeManagedResources);
             }

@@ -2,16 +2,13 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class CameraCoreExtensions
-{
-    public static BoundingFrustum CreateFrustum(this CameraCore camera, float aspectRatio)
-    {
+public static class CameraCoreExtensions {
+    public static BoundingFrustum CreateFrustum(this CameraCore camera, float aspectRatio) {
         return new BoundingFrustum(camera.CreateViewMatrix() * camera.CreateProjectionMatrix(aspectRatio));
     }
 
     // Returns whether or not the given point is the outermost point in the given direction among all points of the bounds
-    private static bool IsOutermostPointInDirection(int pointIndex, ref Vector3 direction, Vector3[] corners)
-    {
+    private static bool IsOutermostPointInDirection(int pointIndex, ref Vector3 direction, Vector3[] corners) {
         var point = corners[pointIndex];
         for (var i = 0; i < corners.Length; i++)
             if (i != pointIndex && SilkMath.Dot(direction, corners[i] - point) > 0)
@@ -22,9 +19,12 @@ public static class CameraCoreExtensions
 
     // Credit: http://wiki.unity3d.com/index.php/3d_Math_functions
     // Returns the edge points of the closest line segment between 2 lines
-    private static void FindClosestPointsOnTwoLines(ref Ray line1, ref Ray line2, out Vector3 closestPointLine1,
-        out Vector3 closestPointLine2)
-    {
+    private static void FindClosestPointsOnTwoLines(
+        ref Ray line1,
+        ref Ray line2,
+        out Vector3 closestPointLine1,
+        out Vector3 closestPointLine2
+    ) {
         var line1Direction = line1.Direction;
         var line2Direction = line2.Direction;
 
@@ -55,9 +55,14 @@ public static class CameraCoreExtensions
     /// <param name="position"></param>
     /// <param name="lookDir"></param>
     /// <param name="upDir"></param>
-    public static void ZoomExtents(this PerspectiveCameraCore camera, float aspectRatio, BoundingBox boundingBox,
-        out Vector3 position, out Vector3 lookDir, out Vector3 upDir)
-    {
+    public static void ZoomExtents(
+        this PerspectiveCameraCore camera,
+        float aspectRatio,
+        BoundingBox boundingBox,
+        out Vector3 position,
+        out Vector3 lookDir,
+        out Vector3 upDir
+    ) {
         var cameraDir = SilkMath.Normalize(camera.LookDirection);
         var cameraUp = SilkMath.Normalize(camera.UpDirection);
         var cameraRight = SilkMath.Cross(cameraDir, cameraUp);
@@ -73,8 +78,7 @@ public static class CameraCoreExtensions
         var bottomNormal = frustum.Bottom.Normal;
 
         int leftMostPoint = -1, rightMostPoint = -1, topMostPoint = -1, bottomMostPoint = -1;
-        for (var i = 0; i < corners.Length; i++)
-        {
+        for (var i = 0; i < corners.Length; i++) {
             if (leftMostPoint < 0 && IsOutermostPointInDirection(i, ref leftNormal, corners)) leftMostPoint = i;
             if (rightMostPoint < 0 && IsOutermostPointInDirection(i, ref rightNormal, corners)) rightMostPoint = i;
             if (topMostPoint < 0 && IsOutermostPointInDirection(i, ref topNormal, corners)) topMostPoint = i;
@@ -87,11 +91,13 @@ public static class CameraCoreExtensions
         plane1 = new Plane(corners[topMostPoint], topNormal);
         plane2 = new Plane(corners[bottomMostPoint], bottomNormal);
         PlaneExtensions.PlaneIntersectsPlane(ref plane1, ref plane2, out var verticalIntersection);
-        FindClosestPointsOnTwoLines(ref horizontalIntersection, ref verticalIntersection, out var closestPointLine1,
-            out var closestPointLine2);
+        FindClosestPointsOnTwoLines(ref horizontalIntersection,
+                                    ref verticalIntersection,
+                                    out var closestPointLine1,
+                                    out var closestPointLine2);
         position = SilkMath.Dot(closestPointLine1 - closestPointLine2, cameraDir) < 0
-            ? closestPointLine1
-            : closestPointLine2;
+                       ? closestPointLine1
+                       : closestPointLine2;
         upDir = cameraUp;
         var boundPlane = new Plane(boundingBox.Center(), cameraDir);
         var lookRay = new Ray(position, cameraDir);
@@ -110,17 +116,22 @@ public static class CameraCoreExtensions
     /// <param name="lookDir"></param>
     /// <param name="upDir"></param>
     /// <param name="width"></param>
-    public static void ZoomExtents(this OrthographicCameraCore camera, float aspectRatio, BoundingBox boundingBox,
-        out Vector3 position, out Vector3 lookDir, out Vector3 upDir, out float width)
-    {
+    public static void ZoomExtents(
+        this OrthographicCameraCore camera,
+        float aspectRatio,
+        BoundingBox boundingBox,
+        out Vector3 position,
+        out Vector3 lookDir,
+        out Vector3 upDir,
+        out float width
+    ) {
         float minX = float.PositiveInfinity,
-            minY = float.PositiveInfinity,
-            maxX = float.NegativeInfinity,
-            maxY = float.NegativeInfinity;
+              minY = float.PositiveInfinity,
+              maxX = float.NegativeInfinity,
+              maxY = float.NegativeInfinity;
         var corners = boundingBox.GetCorners();
         var view = camera.CreateViewMatrix();
-        foreach (var p in corners)
-        {
+        foreach (var p in corners) {
             var local = SilkMath.TransformCoordinate(p, view);
             minX = Math.Min(minX, local.X);
             minY = Math.Min(minY, local.Y);
@@ -129,8 +140,8 @@ public static class CameraCoreExtensions
         }
 
         width = aspectRatio > 1
-            ? Math.Max(maxX - minX, (maxY - minY) * aspectRatio)
-            : Math.Max((maxX - minX) / aspectRatio, maxY - minY);
+                    ? Math.Max(maxX - minX, (maxY - minY) * aspectRatio)
+                    : Math.Max((maxX - minX) / aspectRatio, maxY - minY);
         position = boundingBox.Center() - camera.LookDirection.Normalized() * width;
         lookDir = camera.LookDirection.Normalized() * width;
         upDir = camera.UpDirection;

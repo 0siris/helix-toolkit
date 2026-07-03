@@ -5,12 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
-        public sealed class ContextSharedResource : IDisposable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
+        public sealed class ContextSharedResource : IDisposable {
             public ShaderResourceViewProxy ShadowView { get; set; }
 
             public ShaderResourceViewProxy EnvironementMap { get; set; }
@@ -19,16 +16,13 @@ namespace HelixToolkit.SharpDX.Core
 
             public int EnvironmentMapMipLevels { get; set; }
 
-            #region IDisposable Support
+        #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
-            private void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
+            private void Dispose(bool disposing) {
+                if (!disposedValue) {
+                    if (disposing) {
                         ShadowView = null;
                         EnvironementMap = null;
                         SSAOMap = null;
@@ -49,15 +43,14 @@ namespace HelixToolkit.SharpDX.Core
             // }
 
             // This code added to correctly implement the disposable pattern.
-            public void Dispose()
-            {
+            public void Dispose() {
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(true);
                 // TODO: uncomment the following line if the finalizer is overridden above.
                 // GC.SuppressFinalize(this);
             }
 
-            #endregion
+        #endregion
         }
     }
 }

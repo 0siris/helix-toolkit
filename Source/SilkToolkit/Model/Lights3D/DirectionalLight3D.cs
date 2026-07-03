@@ -11,34 +11,33 @@ using HelixToolkit.Wpf.SharpDX.Model;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public sealed class DirectionalLight3D : Light3D
-{
+public sealed class DirectionalLight3D : Light3D {
     public static readonly DependencyProperty DirectionProperty =
-        DependencyProperty.Register("Direction", typeof(Vector3D), typeof(Light3D), new PropertyMetadata(new Vector3D(),
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as DirectionalLightNode).Direction =
-                    ((Vector3D) e.NewValue).ToVector3();
-            }));
+        DependencyProperty.Register("Direction",
+                                    typeof(Vector3D),
+                                    typeof(Light3D),
+                                    new PropertyMetadata(new Vector3D(),
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as DirectionalLightNode)
+                                                                 .Direction =
+                                                                 ((Vector3D) e.NewValue).ToVector3();
+                                                         }));
 
     /// <summary>
     ///     Direction of the light.
     ///     It applies to Directional Light and to Spot Light,
     ///     for all other lights it is ignored.
     /// </summary>
-    public Vector3D Direction
-    {
+    public Vector3D Direction {
         get => (Vector3D) GetValue(DirectionProperty);
         set => SetValue(DirectionProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new DirectionalLightNode();
     }
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
         (core as DirectionalLightNode).Direction = Direction.ToVector3();
     }

@@ -13,24 +13,16 @@ namespace HelixToolkit.SharpDX.Core;
     [Serializable]
     [TypeConverter(typeof(Color4CollectionConverter))]
 #endif
-public sealed class Color4Collection : FastList<Color4>
-{
-    public Color4Collection()
-    {
-    }
+public sealed class Color4Collection : FastList<Color4> {
+    public Color4Collection() { }
 
     public Color4Collection(int capacity)
-        : base(capacity)
-    {
-    }
+        : base(capacity) { }
 
     public Color4Collection(IEnumerable<Color4> items)
-        : base(items)
-    {
-    }
+        : base(items) { }
 
-    public static Color4Collection Parse(string source)
-    {
+    public static Color4Collection Parse(string source) {
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
 
         var th = new TokenizerHelper(source, formatProvider);
@@ -38,13 +30,11 @@ public sealed class Color4Collection : FastList<Color4>
 
         Color4 value;
 
-        while (th.NextToken())
-        {
-            value = new Color4(
-                Convert.ToSingle(th.GetCurrentToken(), formatProvider),
-                Convert.ToSingle(th.NextTokenRequired(), formatProvider),
-                Convert.ToSingle(th.NextTokenRequired(), formatProvider),
-                Convert.ToSingle(th.NextTokenRequired(), formatProvider));
+        while (th.NextToken()) {
+            value = new Color4(Convert.ToSingle(th.GetCurrentToken(), formatProvider),
+                               Convert.ToSingle(th.NextTokenRequired(), formatProvider),
+                               Convert.ToSingle(th.NextTokenRequired(), formatProvider),
+                               Convert.ToSingle(th.NextTokenRequired(), formatProvider));
 
             resource.Add(value);
         }
@@ -52,16 +42,18 @@ public sealed class Color4Collection : FastList<Color4>
         return resource;
     }
 
-    public string ConvertToString(string format, IFormatProvider provider)
-    {
+    public string ConvertToString(string format, IFormatProvider provider) {
         if (Count == 0) return string.Empty;
 
         var str = new StringBuilder();
-        for (var i = 0; i < Count; i++)
-        {
+        for (var i = 0; i < Count; i++) {
             //str.AppendFormat(provider, "{0:" + format + "}", this[i]);
-            str.AppendFormat(provider, "{0},{1},{2},{3}", this[i].GetRed(), this[i].GetGreen(), this[i].GetBlue(),
-                this[i].GetAlpha());
+            str.AppendFormat(provider,
+                             "{0},{1},{2},{3}",
+                             this[i].GetRed(),
+                             this[i].GetGreen(),
+                             this[i].GetBlue(),
+                             this[i].GetAlpha());
             if (i != Count - 1) str.Append(" ");
         }
 

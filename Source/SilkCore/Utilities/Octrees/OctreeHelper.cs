@@ -7,17 +7,14 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class OctreeHelper
-{
-    public static LineGeometry3D CreateOctreeLineModel(this IDynamicOctree tree)
-    {
+public static class OctreeHelper {
+    public static LineGeometry3D CreateOctreeLineModel(this IDynamicOctree tree) {
         var builder = new LineBuilder();
         tree.CreateOctreeLineModel(builder);
         return builder.ToLineGeometry3D();
     }
 
-    public static void CreateOctreeLineModel(this IDynamicOctree tree, LineBuilder builder)
-    {
+    public static void CreateOctreeLineModel(this IDynamicOctree tree, LineBuilder builder) {
         if (tree == null)
             return;
         var box = tree.Bound;
@@ -51,12 +48,10 @@ public static class OctreeHelper
                     child.CreateOctreeLineModel(builder);
     }
 
-    public static LineGeometry3D CreatePathLines(this IList<BoundingBox> path)
-    {
+    public static LineGeometry3D CreatePathLines(this IList<BoundingBox> path) {
         var verts = new Vector3[8];
         var builder = new LineBuilder();
-        foreach (var box in path)
-        {
+        foreach (var box in path) {
             verts[0] = box.Minimum;
             verts[1] = new Vector3(box.Minimum.X, box.Minimum.Y, box.Maximum.Z); //Z
             verts[2] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Minimum.Z); //Y

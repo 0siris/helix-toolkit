@@ -12,16 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace ShadowMapDemo
-{
-    /// <summary>
-    /// Interaction logic for MultiViewportWin.xaml
-    /// </summary>
-    public partial class MultiViewportWin : Window
-    {
-        public MultiViewportWin()
-        {
-            InitializeComponent();
-        }
+namespace ShadowMapDemo;
+
+/// <summary>
+/// Interaction logic for MultiViewportWin.xaml
+/// </summary>
+public partial class MultiViewportWin : Window {
+    public MultiViewportWin() {
+        InitializeComponent();
     }
 }

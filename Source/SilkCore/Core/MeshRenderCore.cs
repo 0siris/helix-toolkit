@@ -9,18 +9,13 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable {
             protected ModelStruct modelStruct = new() {World = Matrix.Identity};
 
-            protected override bool CreateRasterState(RasterizerStateDescription description, bool force)
-            {
-                if (base.CreateRasterState(description, force))
-                {
+            protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
+                if (base.CreateRasterState(description, force)) {
                     var wireframeDesc = description;
                     wireframeDesc.FillMode = FillMode.Wireframe;
                     wireframeDesc.DepthBias = -100;
@@ -35,26 +30,22 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref rasterStateWireframe);
                 base.OnDetach();
             }
 
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
             }
 
-            protected virtual void OnUpdatePerModelStruct(RenderContext context)
-            {
+            protected virtual void OnUpdatePerModelStruct(RenderContext context) {
                 modelStruct.World = ModelMatrix;
                 modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
                 modelStruct.Batched = Batched ? 1 : 0;
             }
 
-            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
                 var pass = MaterialVariables.GetPass(RenderType, context);
                 if (pass.IsNULL) return;
                 OnUpdatePerModelStruct(context);
@@ -67,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
                 DynamicReflector?.UnBindCubeMap(deviceContext);
 
-                if (RenderWireframe)
-                {
+                if (RenderWireframe) {
                     pass = materialVariables.GetWireframePass(RenderType, context);
                     if (pass.IsNULL) return;
                     pass.BindShader(deviceContext, false);
@@ -78,18 +68,15 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
                 if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
                 var pass = materialVariables.GetShadowPass(RenderType, context);
                 if (pass.IsNULL) return;
-                var v = new SimpleMeshStruct
-                {
+                var v = new SimpleMeshStruct {
                     World = ModelMatrix,
                     HasInstances = InstanceBuffer.HasElements ? 1 : 0
                 };
@@ -99,13 +86,14 @@ namespace HelixToolkit.SharpDX.Core
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            protected override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
+            protected override void OnRenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) {
                 var pass = customPass ?? materialVariables.GetDepthPass(RenderType, context);
                 if (pass.IsNULL) return;
-                var v = new SimpleMeshStruct
-                {
+                var v = new SimpleMeshStruct {
                     World = ModelMatrix,
                     HasInstances = InstanceBuffer.HasElements ? 1 : 0
                 };
@@ -115,7 +103,7 @@ namespace HelixToolkit.SharpDX.Core
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            #region Variables
+        #region Variables
 
             /// <summary>
             ///     Gets the raster state wireframe.
@@ -127,14 +115,13 @@ namespace HelixToolkit.SharpDX.Core
 
             private RasterizerStateProxy rasterStateWireframe;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             /// </summary>
-            public bool InvertNormal
-            {
+            public bool InvertNormal {
                 get => modelStruct.InvertNormal == 1 ? true : false;
                 set => SetAffectsRender(ref modelStruct.InvertNormal, value ? 1 : 0);
             }
@@ -147,8 +134,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
             /// </value>
-            public bool RenderWireframe
-            {
+            public bool RenderWireframe {
                 get => renderWireframe;
                 set => SetAffectsRender(ref renderWireframe, value);
             }
@@ -159,8 +145,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the wireframe.
             /// </value>
-            public Color4 WireframeColor
-            {
+            public Color4 WireframeColor {
                 get => modelStruct.WireframeColor;
                 set => SetAffectsRender(ref modelStruct.WireframeColor, value);
             }
@@ -187,17 +172,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Used to wrap all material resources
             /// </summary>
-            public MaterialVariable MaterialVariables
-            {
+            public MaterialVariable MaterialVariables {
                 get => materialVariables;
-                set
-                {
+                set {
                     if (SetAffectsCanRenderFlag(ref materialVariables, value))
                         materialVariables = materialVariables ?? EmptyMaterialVariable.EmptyVariable;
                 }
             }
 
-            #endregion
+        #endregion
         }
     }
 }

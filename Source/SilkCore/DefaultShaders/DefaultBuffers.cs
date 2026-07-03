@@ -3,16 +3,13 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         ///     Default buffer names from shader code. Name must match shader code to bind proper buffer
         ///     <para>Note: Constant buffer must match both name and struct size</para>
         /// </summary>
-        public static class DefaultBufferNames
-        {
+        public static class DefaultBufferNames {
             public const string GlobalTransformCB = "cbTransforms";
             public const string ModelCB = "cbMesh";
             public const string SimpleMeshCB = "cbMeshSimple";
@@ -69,7 +66,7 @@ namespace HelixToolkit.SharpDX.Core
             public const string BoneSkinSB = "skinMatrices"; // Structured Buffer
 
             public const string MTWeightsB = "morphTargetWeights"; //Buffer<float>
-            public const string MTDeltasB = "morphTargetDeltas"; //Buffer<float3>
+            public const string MTDeltasB = "morphTargetDeltas";   //Buffer<float3>
             public const string MTOffsetsB = "morphTargetOffsets"; //Buffer<int>
 
             public const string SpriteTB = "texSprite";
@@ -83,8 +80,7 @@ namespace HelixToolkit.SharpDX.Core
             public const string SSAODepthTB = "texSSAODepth";
         }
 
-        public static class DefaultSamplerStateNames
-        {
+        public static class DefaultSamplerStateNames {
             public const string SurfaceSampler = "samplerSurface";
             public const string IBLSampler = "samplerIBL";
             public const string DisplacementMapSampler = "samplerDisplace";

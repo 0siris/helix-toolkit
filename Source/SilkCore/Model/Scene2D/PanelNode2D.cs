@@ -5,24 +5,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene2D
-    {
-        public class PanelNode2D : SceneNode2D
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene2D {
+        public class PanelNode2D : SceneNode2D {
             protected readonly Dictionary<Guid, SceneNode2D> itemHashSet = new();
 
-            public PanelNode2D()
-            {
+            public PanelNode2D() {
                 ItemsInternal = new ObservableFastList<SceneNode2D>();
                 Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
             }
 
-            public virtual bool AddChildNode(SceneNode2D node)
-            {
-                if (!itemHashSet.ContainsKey(node.GUID))
-                {
+            public virtual bool AddChildNode(SceneNode2D node) {
+                if (!itemHashSet.ContainsKey(node.GUID)) {
                     itemHashSet.Add(node.GUID, node);
                     ItemsInternal.Add(node);
                     node.Parent = this;
@@ -36,10 +30,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Clears this instance.
             /// </summary>
-            public virtual void Clear()
-            {
-                for (var i = 0; i < ItemsInternal.Count; ++i)
-                {
+            public virtual void Clear() {
+                for (var i = 0; i < ItemsInternal.Count; ++i) {
                     ItemsInternal[i].Detach();
                     ItemsInternal[i].Parent = null;
                 }
@@ -53,10 +45,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="node">The node.</param>
             /// <returns></returns>
-            public virtual bool RemoveChildNode(SceneNode2D node)
-            {
-                if (itemHashSet.Remove(node.GUID))
-                {
+            public virtual bool RemoveChildNode(SceneNode2D node) {
+                if (itemHashSet.Remove(node.GUID)) {
                     node.Detach();
                     ItemsInternal.Remove(node);
                     node.Parent = null;
@@ -72,25 +62,21 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="guid">The unique identifier.</param>
             /// <param name="node">The node.</param>
             /// <returns></returns>
-            public bool TryGetNode(Guid guid, out SceneNode2D node)
-            {
+            public bool TryGetNode(Guid guid, out SceneNode2D node) {
                 return itemHashSet.TryGetValue(guid, out node);
             }
 
-            protected override bool OnAttach(IRenderHost host)
-            {
+            protected override bool OnAttach(IRenderHost host) {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(host);
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Detach();
                 base.OnDetach();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult)
-            {
+            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
                 hitResult = null;
                 if (!LayoutBoundWithTransform.Contains(mousePoint)) return false;
                 foreach (var item in ItemsInternal.Reverse())

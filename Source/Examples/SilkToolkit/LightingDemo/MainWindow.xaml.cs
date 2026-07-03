@@ -21,29 +21,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LightingDemo
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            this.DataContext = new MainViewModel();
-            Closed += (s, e) => {
-                if (DataContext is IDisposable)
-                {
-                    (DataContext as IDisposable).Dispose();
-                }
-            };
-        }
+namespace LightingDemo;
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            MultiViewport viewportWin = new MultiViewport() { DataContext = this.DataContext };
-            viewportWin.Show();
-        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        InitializeComponent();
+        this.DataContext = new MainViewModel();
+        Closed += (s, e) => {
+            if (DataContext is IDisposable) {
+                (DataContext as IDisposable).Dispose();
+            }
+        };
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e) {
+        MultiViewport viewportWin = new MultiViewport() {DataContext = this.DataContext};
+        viewportWin.Show();
     }
 }

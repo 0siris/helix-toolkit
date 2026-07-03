@@ -20,9 +20,9 @@
 // called per uv-coordinate/ouput vertex
 //--------------------------------------------------------------------------------------
 [domain("tri")]
-PSInput main(HSConstantDataOutput input, float3 barycentricCoords : SV_DomainLocation, OutputPatch<HSInput, 3> inputPatch)
-{
-    PSInput output = (PSInput) 0;
+PSInput main(HSConstantDataOutput input, float3 barycentricCoords : SV_DomainLocation,
+             OutputPatch<HSInput, 3> inputPatch) {
+    PSInput output = (PSInput)0;
 
     // --- The barycentric coordinates
     float fU = barycentricCoords.x;
@@ -37,35 +37,38 @@ PSInput main(HSConstantDataOutput input, float3 barycentricCoords : SV_DomainLoc
     float fVV3 = fVV * 3.0f;
     float fWW3 = fWW * 3.0f;
 
-	// --- Compute position from cubic control points and barycentric coords
+    // --- Compute position from cubic control points and barycentric coords
     float3 position = inputPatch[0].p * fWW * fW +
-						inputPatch[1].p * fUU * fU +
-						inputPatch[2].p * fVV * fV +
-						input.f3B210 * fWW3 * fU +
-						input.f3B120 * fW * fUU3 +
-						input.f3B201 * fWW3 * fV +
-						input.f3B021 * fUU3 * fV +
-						input.f3B102 * fW * fVV3 +
-						input.f3B012 * fU * fVV3 +
-						input.f3B111 * 6.0f * fW * fU * fV;
+            inputPatch[1].p * fUU * fU +
+            inputPatch[2].p * fVV * fV +
+            input.f3B210 * fWW3 * fU +
+            input.f3B120 * fW * fUU3 +
+            input.f3B201 * fWW3 * fV +
+            input.f3B021 * fUU3 * fV +
+            input.f3B102 * fW * fVV3 +
+            input.f3B012 * fU * fVV3 +
+            input.f3B111 * 6.0f * fW * fU * fV;
 
-	// Compute normal from barycentric coords
-    output.n = normalize(inputPatch[0].n * barycentricCoords.z + inputPatch[1].n * barycentricCoords.x + inputPatch[2].n * barycentricCoords.y);
-		
-	// --- interpolate texture coordinates
-    output.t = inputPatch[0].t * barycentricCoords.z + inputPatch[1].t * barycentricCoords.x + inputPatch[2].t * barycentricCoords.y;
-	
-	// ---  interpolated per-vertex colors
-    output.c = inputPatch[0].c * barycentricCoords.z + inputPatch[1].c * barycentricCoords.x + inputPatch[2].c * barycentricCoords.y;
+    // Compute normal from barycentric coords
+    output.n = normalize(
+        inputPatch[0].n * barycentricCoords.z + inputPatch[1].n * barycentricCoords.x + inputPatch[2].n *
+        barycentricCoords.y);
+
+    // --- interpolate texture coordinates
+    output.t = inputPatch[0].t * barycentricCoords.z + inputPatch[1].t * barycentricCoords.x + inputPatch[2].t *
+            barycentricCoords.y;
+
+    // ---  interpolated per-vertex colors
+    output.c = inputPatch[0].c * barycentricCoords.z + inputPatch[1].c * barycentricCoords.x + inputPatch[2].c *
+            barycentricCoords.y;
     output.c2 = inputPatch[0].c2;
     output.cDiffuse = vMaterialDiffuse;
-	// --- Classical vertex-shader transforms: 
-	// --- output position in the clip-space	
+    // --- Classical vertex-shader transforms: 
+    // --- output position in the clip-space	
     output.p = float4(position, 1); //mul(float4(position, 1.0f), mWorld);
     float3 vEye = vEyePos - output.p.xyz;
     output.vEye = float4(normalize(vEye), length(vEye)); //Use wp for camera->vertex direction
-    if (bHasDisplacementMap)
-    {
+    if (bHasDisplacementMap) {
         const float mipInterval = 20;
         float mipLevel = clamp((distance(output.p.xyz, vEyePos) - mipInterval) / mipInterval, 0, 6);
         float3 h = texDisplacementMap.SampleLevel(samplerDisplace, output.t, mipLevel);
@@ -73,21 +76,21 @@ PSInput main(HSConstantDataOutput input, float3 barycentricCoords : SV_DomainLoc
     }
 
     output.wp = output.p;
-    if (bHasShadowMap)
-    {
+    if (bHasShadowMap) {
         output.sp = mul(output.wp, mul(vLightView, vLightProjection));
     }
     output.p = mul(output.p, mViewProjection);
 
 
-
-    if (bHasNormalMap)
-    {
-        if (!bAutoTengent)
-        {
-			    // Compute tangent-space
-            output.t1 = normalize(inputPatch[0].t1 * barycentricCoords.z + inputPatch[1].t1 * barycentricCoords.x + inputPatch[2].t1 * barycentricCoords.y);
-            output.t2 = normalize(inputPatch[0].t2 * barycentricCoords.z + inputPatch[1].t2 * barycentricCoords.x + inputPatch[2].t2 * barycentricCoords.y);
+    if (bHasNormalMap) {
+        if (!bAutoTengent) {
+            // Compute tangent-space
+            output.t1 = normalize(
+                inputPatch[0].t1 * barycentricCoords.z + inputPatch[1].t1 * barycentricCoords.x + inputPatch[2].t1 *
+                barycentricCoords.y);
+            output.t2 = normalize(
+                inputPatch[0].t2 * barycentricCoords.z + inputPatch[1].t2 * barycentricCoords.x + inputPatch[2].t2 *
+                barycentricCoords.y);
         }
     }
     return output;

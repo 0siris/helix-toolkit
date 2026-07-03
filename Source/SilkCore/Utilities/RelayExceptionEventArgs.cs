@@ -7,21 +7,17 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     Extended <see cref="EventArgs" /> to relay an <see cref="Exception" />.
         /// </summary>
-        public class RelayExceptionEventArgs : EventArgs
-        {
+        public class RelayExceptionEventArgs : EventArgs {
             /// <summary>
             ///     Initializes a new instance of the <see cref="RelayExceptionEventArgs" /> class.
             /// </summary>
             /// <param name="exception">The <see cref="Exception" /> to be relayed.</param>
-            public RelayExceptionEventArgs(Exception exception)
-            {
+            public RelayExceptionEventArgs(Exception exception) {
                 Exception = exception;
                 Handled = false;
             }

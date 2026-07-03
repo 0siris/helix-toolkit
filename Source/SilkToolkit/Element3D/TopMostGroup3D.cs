@@ -14,13 +14,17 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     This is rendered at the same level of screen spaced group items.
 ///     Child items do not support post effects.
 /// </summary>
-public class TopMostGroup3D : GroupModel3D
-{
+public class TopMostGroup3D : GroupModel3D {
     // Using a DependencyProperty as the backing store for EnableTopMost.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty EnableTopMostProperty =
-        DependencyProperty.Register("EnableTopMost", typeof(bool), typeof(TopMostGroup3D),
-            new PropertyMetadata(true,
-                (d, e) => { ((d as Element3DCore).SceneNode as TopMostGroupNode).EnableTopMost = (bool) e.NewValue; }));
+        DependencyProperty.Register("EnableTopMost",
+                                    typeof(bool),
+                                    typeof(TopMostGroup3D),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as TopMostGroupNode)
+                                                                 .EnableTopMost = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable top most mode].
@@ -28,20 +32,17 @@ public class TopMostGroup3D : GroupModel3D
     /// <value>
     ///     <c>true</c> if [enable top most mode]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableTopMost
-    {
+    public bool EnableTopMost {
         get => (bool) GetValue(EnableTopMostProperty);
         set => SetValue(EnableTopMostProperty, value);
     }
 
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new TopMostGroupNode();
     }
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         (node as TopMostGroupNode).EnableTopMost = EnableTopMost;
         base.AssignDefaultValuesToSceneNode(node);
     }

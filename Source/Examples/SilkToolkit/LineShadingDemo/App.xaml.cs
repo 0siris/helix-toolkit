@@ -18,20 +18,13 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace LineShadingDemo
-{
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
+namespace LineShadingDemo;
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
-
-            base.OnStartup(e);          
-        }
-
-
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application {
+    protected override void OnStartup(StartupEventArgs e) {
+        base.OnStartup(e);
     }
 }

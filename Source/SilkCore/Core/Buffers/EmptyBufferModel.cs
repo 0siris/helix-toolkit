@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public sealed class EmptyGeometryBufferModel : IGeometryBufferModel
-        {
+        public sealed class EmptyGeometryBufferModel : IGeometryBufferModel {
             public static readonly IGeometryBufferModel Empty = new EmptyGeometryBufferModel();
 
             /// <summary>
@@ -46,8 +43,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The topology.
             /// </value>
-            public PrimitiveTopology Topology
-            {
+            public PrimitiveTopology Topology {
                 get => PrimitiveTopology.Undefined;
                 set { }
             }
@@ -66,8 +62,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The size of the vertex structure.
             /// </value>
-            public IEnumerable<int> VertexStructSize
-            {
+            public IEnumerable<int> VertexStructSize {
                 get { yield return 0; }
             }
 
@@ -86,38 +81,33 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="vertexBufferStartSlot">The vertex buffer start slot. Returns next available bind slot</param>
             /// <param name="deviceResources"></param>
             /// <returns></returns>
-            public bool AttachBuffers(DeviceContextProxy context, ref int vertexBufferStartSlot,
-                IDeviceResources deviceResources)
-            {
+            public bool AttachBuffers(
+                DeviceContextProxy context,
+                ref int vertexBufferStartSlot,
+                IDeviceResources deviceResources
+            ) {
                 return false;
             }
 
             /// <summary>
             ///     Releases unmanaged and - optionally - managed resources.
             /// </summary>
-            public void Dispose()
-            {
-            }
+            public void Dispose() { }
 
-            public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources)
-            {
+            public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
                 return false;
             }
 
             /// <summary>
             ///     Attaches this instance.
             /// </summary>
-            public void Attach()
-            {
-            }
+            public void Attach() { }
 
 
             /// <summary>
             ///     Detaches this instance.
             /// </summary>
-            public void Detach()
-            {
-            }
+            public void Detach() { }
 #pragma warning disable CS0067
             public event EventHandler VertexBufferUpdated;
             public event EventHandler IndexBufferUpdated;

@@ -2,25 +2,19 @@ using System.Collections.Concurrent;
 
 namespace HelixToolkit.SharpDX.Core;
 
-internal sealed class AsyncActionWaitable : DisposeObject
-{
+internal sealed class AsyncActionWaitable : DisposeObject {
     private static readonly ConcurrentBag<AsyncActionWaitable> pool = new();
     private readonly object waitable = new();
     private Action action;
 
-    private AsyncActionWaitable()
-    {
-    }
+    private AsyncActionWaitable() { }
 
-    public void SetAction(Action action)
-    {
+    public void SetAction(Action action) {
         this.action = action;
     }
 
-    public void Trigger()
-    {
-        lock (waitable)
-        {
+    public void Trigger() {
+        lock (waitable) {
             var a = action;
             action = null;
             a?.Invoke();
@@ -28,30 +22,24 @@ internal sealed class AsyncActionWaitable : DisposeObject
         }
     }
 
-    public void Wait()
-    {
-        lock (waitable)
-        {
+    public void Wait() {
+        lock (waitable) {
             if (action == null) return;
             Monitor.Wait(waitable);
         }
     }
 
-    public static AsyncActionWaitable Get()
-    {
+    public static AsyncActionWaitable Get() {
         if (!pool.TryTake(out var obj))
-            obj = new AsyncActionWaitable
-            {
+            obj = new AsyncActionWaitable {
                 AddBackToPool = Put
             };
         obj.IncRef();
         return obj;
     }
 
-    private static void Put(DisposeObject obj)
-    {
-        if (obj is AsyncActionWaitable t)
-        {
+    private static void Put(DisposeObject obj) {
+        if (obj is AsyncActionWaitable t) {
             t.action = null;
             pool.Add(t);
         }
@@ -61,8 +49,7 @@ internal sealed class AsyncActionWaitable : DisposeObject
 /// <summary>
 ///     Used to run real-time non-rendering tasks in RenderHost.
 /// </summary>
-internal sealed class AsyncActionThread : IDisposable
-{
+internal sealed class AsyncActionThread : IDisposable {
     private readonly Queue<AsyncActionWaitable> jobs = new();
     private bool disposedValue;
 
@@ -78,25 +65,21 @@ internal sealed class AsyncActionThread : IDisposable
     //     Dispose(disposing: false);
     // }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    public AsyncActionWaitable EnqueueAction(Action action)
-    {
-        if (!running || !Enabled)
-        {
+    public AsyncActionWaitable EnqueueAction(Action action) {
+        if (!running || !Enabled) {
             action.Invoke();
             return null;
         }
 
         var obj = AsyncActionWaitable.Get();
         obj.SetAction(action);
-        lock (jobs)
-        {
+        lock (jobs) {
             jobs.Enqueue(obj);
             Monitor.Pulse(jobs);
         }
@@ -104,18 +87,14 @@ internal sealed class AsyncActionThread : IDisposable
         return obj;
     }
 
-    public void Start()
-    {
+    public void Start() {
         if (jobThread != null && jobThread.IsAlive) return;
         running = true;
         Clear();
-        jobThread = new Thread(() =>
-        {
+        jobThread = new Thread(() => {
             while (running)
-                lock (jobs)
-                {
-                    while (jobs.Count > 0 && running)
-                    {
+                lock (jobs) {
+                    while (jobs.Count > 0 && running) {
                         var job = jobs.Dequeue();
                         Monitor.Exit(jobs);
                         job.Trigger();
@@ -131,14 +110,11 @@ internal sealed class AsyncActionThread : IDisposable
         jobThread.Start();
     }
 
-    public void Stop()
-    {
+    public void Stop() {
         if (!running || jobThread == null) return;
         running = false;
-        if (jobThread.IsAlive)
-        {
-            lock (jobs)
-            {
+        if (jobThread.IsAlive) {
+            lock (jobs) {
                 Monitor.Pulse(jobs);
             }
 
@@ -147,18 +123,14 @@ internal sealed class AsyncActionThread : IDisposable
         }
     }
 
-    private void Clear()
-    {
-        lock (jobs)
-        {
+    private void Clear() {
+        lock (jobs) {
             while (jobs.Count > 0) jobs.Dequeue().Dispose();
         }
     }
 
-    private void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
+    private void Dispose(bool disposing) {
+        if (!disposedValue) {
             if (disposing) Stop();
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

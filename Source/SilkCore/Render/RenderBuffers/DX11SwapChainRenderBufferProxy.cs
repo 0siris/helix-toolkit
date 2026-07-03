@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase
-        {
+        public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
             private readonly PresentParameters presentParams = new();
 
             /// <summary>
@@ -30,8 +27,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="surfacePointer">The surface pointer.</param>
             /// <param name="deviceResource"></param>
             public DX11SwapChainRenderBufferProxy(nint surfacePointer, IDeviceResources deviceResource) : base(
-                deviceResource)
-            {
+                deviceResource) {
                 surfacePtr = surfacePointer;
             }
 
@@ -41,10 +37,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="surfacePointer">The surface pointer.</param>
             /// <param name="deviceResource"></param>
             /// <param name="useDepthStencilBuffer"></param>
-            public DX11SwapChainRenderBufferProxy(nint surfacePointer, IDeviceResources deviceResource,
-                bool useDepthStencilBuffer)
-                : base(deviceResource, useDepthStencilBuffer)
-            {
+            public DX11SwapChainRenderBufferProxy(
+                nint surfacePointer,
+                IDeviceResources deviceResource,
+                bool useDepthStencilBuffer
+            )
+                : base(deviceResource, useDepthStencilBuffer) {
                 surfacePtr = surfacePointer;
             }
 
@@ -62,20 +60,19 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="width">The width.</param>
             /// <param name="height">The height.</param>
             /// <returns></returns>
-            protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height)
-            {
-                if (swapChain == null || swapChain.IsDisposed)
-                {
+            protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
+                if (swapChain == null || swapChain.IsDisposed) {
                     swapChain = CreateSwapChain(surfacePtr);
-                }
-                else
-                {
+                } else {
                     RemoveAndDispose(ref d2dTarget);
                     RemoveAndDispose(ref backBuffer);
                     DeviceResources.NativeDeviceResources.ImmediateContext.ClearState();
                     DeviceResources.NativeDeviceResources.ImmediateContext.Flush();
-                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount, width, height,
-                        swapChain.Description.ModeDescription.Format, swapChain.Description.Flags);
+                    swapChain.ResizeBuffers(swapChain.Description1.BufferCount,
+                                            width,
+                                            height,
+                                            swapChain.Description.ModeDescription.Format,
+                                            swapChain.Description.Flags);
                 }
 
                 backBuffer = new ShaderResourceViewProxy(DeviceResources, swapChain.GetBackBuffer());
@@ -84,8 +81,7 @@ namespace HelixToolkit.SharpDX.Core
                 return backBuffer;
             }
 
-            private SwapChain1 CreateSwapChain(nint surfacePointer)
-            {
+            private SwapChain1 CreateSwapChain(nint surfacePointer) {
                 var desc = CreateSwapChainDescription();
                 return new SwapChain1(desc, surfacePointer, DeviceResources.NativeDeviceResources.Device);
             }
@@ -97,12 +93,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <remarks>
             ///     This method can be overloaded in order to modify default parameters.
             /// </remarks>
-            protected virtual SwapChainDescription1 CreateSwapChainDescription()
-            {
+            protected virtual SwapChainDescription1 CreateSwapChainDescription() {
                 var sampleCount = 1;
                 var sampleQuality = 0;
-                var desc = new SwapChainDescription1
-                {
+                var desc = new SwapChainDescription1 {
                     Width = Math.Max(1, TargetWidth),
                     Height = Math.Max(1, TargetHeight),
                     // B8G8R8A8_UNorm gives us better performance 
@@ -122,23 +116,20 @@ namespace HelixToolkit.SharpDX.Core
             ///     Presents this instance.
             /// </summary>
             /// <returns></returns>
-            public override bool Present()
-            {
+            public override bool Present() {
                 return swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
             }
 
             /// <summary>
             ///     Must release swapchain at last after all its created resources have been released.
             /// </summary>
-            public void DisposeAndClear()
-            {
+            public void DisposeAndClear() {
                 RemoveAndDispose(ref d2dTarget);
                 RemoveAndDispose(ref backBuffer);
                 RemoveAndDispose(ref swapChain);
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 DisposeAndClear();
                 base.OnDispose(disposeManagedResources);
             }

@@ -7,8 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public static class BoundingFrustumExtensions
-{
+public static class BoundingFrustumExtensions {
     /// <summary>
     ///     Intersectses the specified frustum. Simplified from
     ///     https://github.com/sharpdx/SharpDX/blob/master/Source/SharpDX.Mathematics/BoundingFrustum.cs
@@ -17,10 +16,8 @@ public static class BoundingFrustumExtensions
     /// <param name="box">The box.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Intersects(ref BoundingFrustum frustum, ref BoundingBox box)
-    {
-        for (var i = 0; i < 6; i++)
-        {
+    public static bool Intersects(ref BoundingFrustum frustum, ref BoundingBox box) {
+        for (var i = 0; i < 6; i++) {
             var plane = frustum.GetPlane(i);
             GetBoxToPlanePVertexNVertex(ref box, ref plane.Normal, out var p, out var n);
             if (Collision.PlaneIntersectsPoint(ref plane, ref p) == PlaneIntersectionType.Back)
@@ -31,10 +28,8 @@ public static class BoundingFrustumExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Intersects(ref BoundingFrustum frustum, ref BoundingSphere sphere)
-    {
-        for (var i = 0; i < 6; i++)
-        {
+    public static bool Intersects(ref BoundingFrustum frustum, ref BoundingSphere sphere) {
+        for (var i = 0; i < 6; i++) {
             var plane = frustum.GetPlane(i);
             var result = plane.Intersects(ref sphere);
             if (result == PlaneIntersectionType.Back) return false;
@@ -54,11 +49,12 @@ public static class BoundingFrustumExtensions
     /// <param name="sphere">The sphere.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsInOrIntersectFrustum(ref BoundingFrustum frustum, ref BoundingBox box,
-        ref BoundingSphere sphere)
-    {
-        for (var i = 0; i < 6; i++)
-        {
+    public static bool IsInOrIntersectFrustum(
+        ref BoundingFrustum frustum,
+        ref BoundingBox box,
+        ref BoundingSphere sphere
+    ) {
+        for (var i = 0; i < 6; i++) {
             var plane = frustum.GetPlane(i);
             var sphereRet = plane.Intersects(ref sphere);
             if (sphereRet == PlaneIntersectionType.Back) return false;
@@ -75,9 +71,12 @@ public static class BoundingFrustumExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void GetBoxToPlanePVertexNVertex(ref BoundingBox box, ref Vector3 planeNormal, out Vector3 p,
-        out Vector3 n)
-    {
+    private static void GetBoxToPlanePVertexNVertex(
+        ref BoundingBox box,
+        ref Vector3 planeNormal,
+        out Vector3 p,
+        out Vector3 n
+    ) {
         p = box.Minimum;
         if (planeNormal.X >= 0)
             p.X = box.Maximum.X;

@@ -8,12 +8,9 @@ using System.Runtime.InteropServices;
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public static class ThreadBufferManagerConfig
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public static class ThreadBufferManagerConfig {
             /// <summary>
             ///     Gets or sets the maximum size to retain the buffer in memory.
             ///     If requested size is larger than this value, buffer will be temporary instead of being retained for reuse.
@@ -54,8 +51,7 @@ namespace HelixToolkit.SharpDX.Core
             public static float SizeReductionDividend { get; set; } = 2;
         }
 
-        public static class ThreadBufferManager<T> where T : unmanaged
-        {
+        public static class ThreadBufferManager<T> where T : unmanaged {
             private static readonly ILogger logger = LogManager.Create(nameof(ThreadBufferManager<T>));
 #if !NETFX_CORE
             public static readonly int StructSize = Marshal.SizeOf(typeof(T));
@@ -75,41 +71,36 @@ namespace HelixToolkit.SharpDX.Core
 
             private static long lastUsed;
 
-            public static T[] GetBuffer(int requestCount)
-            {
+            public static T[] GetBuffer(int requestCount) {
                 var array = buffer;
-                if (array == null || array.Length < requestCount)
-                {
+                if (array == null || array.Length < requestCount) {
                     float scale = 1;
                     if (requestCount < MinimumElementCount)
                         scale = 2;
                     else if (requestCount < MaximumElementCount) scale = 1.5f;
                     array = new T[(int) (requestCount * scale)];
                     if (logger.IsEnabled(LogLevel.Debug))
-                        logger.LogDebug("Created new thread buffer. Type: {0}; Size: {1} kB.", typeof(T),
-                            array.Length * StructSize / 1024);
+                        logger.LogDebug("Created new thread buffer. Type: {0}; Size: {1} kB.",
+                                        typeof(T),
+                                        array.Length * StructSize / 1024);
                 }
 
-                if (requestCount > MaximumElementCount)
-                {
+                if (requestCount > MaximumElementCount) {
                     if (logger.IsEnabled(LogLevel.Debug))
                         logger.LogDebug("Requested buffer size is larger than max retain size. Type: {0}.", typeof(T));
                     return array;
                 }
 
-                if (lastUsed == 0)
-                {
+                if (lastUsed == 0) {
                     lastUsed = Stopwatch.GetTimestamp();
                     buffer = array;
                     return array;
                 }
 
                 if (array.Length > MinimumElementCount
-                    && array.Length > ThreadBufferManagerConfig.SizeReductionDividend * requestCount)
-                {
+                    && array.Length > ThreadBufferManagerConfig.SizeReductionDividend * requestCount) {
                     var diff = Stopwatch.GetTimestamp() - lastUsed;
-                    if (diff / Stopwatch.Frequency > ThreadBufferManagerConfig.MinimumAutoReleaseThresholdSeconds)
-                    {
+                    if (diff / Stopwatch.Frequency > ThreadBufferManagerConfig.MinimumAutoReleaseThresholdSeconds) {
                         if (logger.IsEnabled(LogLevel.Debug))
                             logger.LogDebug("Disposing thread buffer. Type: {0}.", typeof(T));
                         buffer = null;

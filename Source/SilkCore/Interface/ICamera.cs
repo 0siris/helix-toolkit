@@ -9,8 +9,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Camera interface
 /// </summary>
-public interface ICamera
-{
+public interface ICamera {
     /// <summary>
     ///     Gets or sets the position.
     /// </summary>

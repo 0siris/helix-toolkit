@@ -5,15 +5,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
         /// <typeparam name="MappingType"></typeparam>
-        public sealed class MappingProxy<MappingType> : DisposeObject where MappingType : class
-        {
+        public sealed class MappingProxy<MappingType> : DisposeObject where MappingType : class {
             private readonly MappingCollection<int, string, MappingType> mappingCollection = new();
 
             /// <summary>
@@ -29,31 +26,27 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name"></param>
             /// <param name="slot"></param>
             /// <param name="mapping"></param>
-            public void AddMapping(string name, int slot, MappingType mapping)
-            {
+            public void AddMapping(string name, int slot, MappingType mapping) {
                 mappingCollection.Add(slot, name, mapping);
             }
 
             /// <summary>
             /// </summary>
             /// <param name="name"></param>
-            public void RemoveMapping(string name)
-            {
+            public void RemoveMapping(string name) {
                 mappingCollection.Remove(name);
             }
 
             /// <summary>
             /// </summary>
             /// <param name="slot"></param>
-            public void RemoveMapping(int slot)
-            {
+            public void RemoveMapping(int slot) {
                 mappingCollection.Remove(slot);
             }
 
             /// <summary>
             /// </summary>
-            public void ClearMapping()
-            {
+            public void ClearMapping() {
                 mappingCollection.Clear();
             }
 
@@ -62,8 +55,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public int TryGetBindSlot(string name)
-            {
+            public int TryGetBindSlot(string name) {
                 int item;
                 return mappingCollection.TryGetSlot(name, out item) ? item : -1;
             }
@@ -73,8 +65,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="slot"></param>
             /// <returns></returns>
-            public string TryGetName(int slot)
-            {
+            public string TryGetName(int slot) {
                 string item;
                 return mappingCollection.TryGetName(slot, out item) ? item : string.Empty;
             }
@@ -83,8 +74,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name"></param>
             /// <returns></returns>
-            public MappingType GetMapping(string name)
-            {
+            public MappingType GetMapping(string name) {
                 MappingType item;
                 if (mappingCollection.TryGetItem(name, out item)) return item;
 
@@ -95,16 +85,14 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="slot"></param>
             /// <returns></returns>
-            public MappingType GetMapping(int slot)
-            {
+            public MappingType GetMapping(int slot) {
                 MappingType item;
                 if (mappingCollection.TryGetItem(slot, out item)) return item;
 
                 return null;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 foreach (var item in mappingCollection.Datas)
                     if (item is IDisposable toDispose)
                         toDispose.Dispose();

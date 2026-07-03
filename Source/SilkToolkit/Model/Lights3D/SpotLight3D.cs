@@ -17,35 +17,53 @@ using HelixToolkit.Wpf.SharpDX.Model;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public sealed class SpotLight3D : PointLight3D
-{
+public sealed class SpotLight3D : PointLight3D {
     public static readonly DependencyProperty DirectionProperty =
-        DependencyProperty.Register("Direction", typeof(Vector3D), typeof(SpotLight3D), new PropertyMetadata(
-            new Vector3D(),
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as SpotLightNode).Direction = ((Vector3D) e.NewValue).ToVector3();
-            }));
+        DependencyProperty.Register("Direction",
+                                    typeof(Vector3D),
+                                    typeof(SpotLight3D),
+                                    new PropertyMetadata(new Vector3D(),
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
+                                                                 .Direction = ((Vector3D) e.NewValue).ToVector3();
+                                                         }));
 
     public static readonly DependencyProperty FalloffProperty =
-        DependencyProperty.Register("Falloff", typeof(double), typeof(SpotLight3D), new PropertyMetadata(1.0,
-            (d, e) => { ((d as Element3DCore).SceneNode as SpotLightNode).FallOff = (float) (double) e.NewValue; }));
+        DependencyProperty.Register("Falloff",
+                                    typeof(double),
+                                    typeof(SpotLight3D),
+                                    new PropertyMetadata(1.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as SpotLightNode).FallOff =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty InnerAngleProperty =
-        DependencyProperty.Register("InnerAngle", typeof(double), typeof(SpotLight3D), new PropertyMetadata(5.0,
-            (d, e) => { ((d as Element3DCore).SceneNode as SpotLightNode).InnerAngle = (float) (double) e.NewValue; }));
+        DependencyProperty.Register("InnerAngle",
+                                    typeof(double),
+                                    typeof(SpotLight3D),
+                                    new PropertyMetadata(5.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
+                                                                 .InnerAngle = (float) (double) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty OuterAngleProperty =
-        DependencyProperty.Register("OuterAngle", typeof(double), typeof(SpotLight3D), new PropertyMetadata(45.0,
-            (d, e) => { ((d as Element3DCore).SceneNode as SpotLightNode).OuterAngle = (float) (double) e.NewValue; }));
+        DependencyProperty.Register("OuterAngle",
+                                    typeof(double),
+                                    typeof(SpotLight3D),
+                                    new PropertyMetadata(45.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
+                                                                 .OuterAngle = (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Direction of the light.
     ///     It applies to Directional Light and to Spot Light,
     ///     for all other lights it is ignored.
     /// </summary>
-    public Vector3D Direction
-    {
+    public Vector3D Direction {
         get => (Vector3D) GetValue(DirectionProperty);
         set => SetValue(DirectionProperty, value);
     }
@@ -56,8 +74,7 @@ public sealed class SpotLight3D : PointLight3D
     ///     depends on this value.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
-    public double Falloff
-    {
+    public double Falloff {
         get => (double) GetValue(FalloffProperty);
         set => SetValue(FalloffProperty, value);
     }
@@ -66,8 +83,7 @@ public sealed class SpotLight3D : PointLight3D
     ///     Full outer angle of the spot (Phi) in degrees
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
-    public double OuterAngle
-    {
+    public double OuterAngle {
         get => (double) GetValue(OuterAngleProperty);
         set => SetValue(OuterAngleProperty, value);
     }
@@ -76,23 +92,19 @@ public sealed class SpotLight3D : PointLight3D
     ///     Full inner angle of the spot (Theta) in degrees.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
-    public double InnerAngle
-    {
+    public double InnerAngle {
         get => (double) GetValue(InnerAngleProperty);
         set => SetValue(InnerAngleProperty, value);
     }
 
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new SpotLightNode();
     }
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        if (core is SpotLightNode c)
-        {
+        if (core is SpotLightNode c) {
             c.Direction = Direction.ToVector3();
             c.InnerAngle = (float) InnerAngle;
             c.OuterAngle = (float) OuterAngle;

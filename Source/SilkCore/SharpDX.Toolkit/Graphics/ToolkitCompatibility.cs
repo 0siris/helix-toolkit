@@ -11,57 +11,46 @@ namespace SharpDX.Toolkit.Graphics;
 ///     SharpDX-compatible DXGI format value used by the legacy Toolkit image path.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 4)]
-public readonly struct Format : IEquatable<Format>
-{
-    private Format(Silk.NET.DXGI.Format value)
-    {
+public readonly struct Format : IEquatable<Format> {
+    private Format(Silk.NET.DXGI.Format value) {
         this.NativeFormat = value;
     }
 
     internal Silk.NET.DXGI.Format NativeFormat { get; }
 
-    public static implicit operator Silk.NET.DXGI.Format(Format format)
-    {
+    public static implicit operator Silk.NET.DXGI.Format(Format format) {
         return format.NativeFormat;
     }
 
-    public static implicit operator Format(Silk.NET.DXGI.Format format)
-    {
+    public static implicit operator Format(Silk.NET.DXGI.Format format) {
         return new Format(format);
     }
 
-    public static explicit operator int(Format format)
-    {
+    public static explicit operator int(Format format) {
         return (int) format.NativeFormat;
     }
 
-    public bool Equals(Format other)
-    {
+    public bool Equals(Format other) {
         return NativeFormat == other.NativeFormat;
     }
 
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         return obj is Format other && Equals(other);
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return NativeFormat.GetHashCode();
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return NativeFormat.ToString();
     }
 
-    public static bool operator ==(Format left, Format right)
-    {
+    public static bool operator ==(Format left, Format right) {
         return left.Equals(right);
     }
 
-    public static bool operator !=(Format left, Format right)
-    {
+    public static bool operator !=(Format left, Format right) {
         return !left.Equals(right);
     }
 
@@ -165,24 +154,19 @@ public readonly struct Format : IEquatable<Format>
     public static readonly Format B4G4R4A4_UNorm = Silk.NET.DXGI.Format.FormatB4G4R4A4Unorm;
 }
 
-internal static class FormatHelper
-{
-    public static bool IsValid(Format format)
-    {
+internal static class FormatHelper {
+    public static bool IsValid(Format format) {
         return format != Format.Unknown;
     }
 
-    public static bool IsVideo(Format format)
-    {
+    public static bool IsVideo(Format format) {
         var value = format.NativeFormat;
         return value >= Silk.NET.DXGI.Format.FormatAyuv
                && value <= Silk.NET.DXGI.Format.FormatV408;
     }
 
-    public static bool IsCompressed(Format format)
-    {
-        switch (format.NativeFormat)
-        {
+    public static bool IsCompressed(Format format) {
+        switch (format.NativeFormat) {
             case Silk.NET.DXGI.Format.FormatBC1Typeless:
             case Silk.NET.DXGI.Format.FormatBC1Unorm:
             case Silk.NET.DXGI.Format.FormatBC1UnormSrgb:
@@ -210,10 +194,8 @@ internal static class FormatHelper
         }
     }
 
-    public static bool IsPacked(Format format)
-    {
-        switch (format.NativeFormat)
-        {
+    public static bool IsPacked(Format format) {
+        switch (format.NativeFormat) {
             case Silk.NET.DXGI.Format.FormatR8G8B8G8Unorm:
             case Silk.NET.DXGI.Format.FormatG8R8G8B8Unorm:
             case Silk.NET.DXGI.Format.FormatYuy2:
@@ -223,21 +205,17 @@ internal static class FormatHelper
         }
     }
 
-    public static int SizeOfInBytes(PixelFormat format)
-    {
+    public static int SizeOfInBytes(PixelFormat format) {
         return SizeOfInBytes(format.Value);
     }
 
-    public static int SizeOfInBytes(Format format)
-    {
+    public static int SizeOfInBytes(Format format) {
         var bits = SizeOfInBits(format);
         return (bits + 7) / 8;
     }
 
-    public static int SizeOfInBits(Format format)
-    {
-        switch (format.NativeFormat)
-        {
+    public static int SizeOfInBits(Format format) {
+        switch (format.NativeFormat) {
             case Silk.NET.DXGI.Format.FormatR32G32B32A32Typeless:
             case Silk.NET.DXGI.Format.FormatR32G32B32A32Float:
             case Silk.NET.DXGI.Format.FormatR32G32B32A32Uint:
@@ -357,81 +335,67 @@ internal static class FormatHelper
     }
 }
 
-internal static unsafe class Utilities
-{
-    public static nint AllocateMemory(int sizeInBytes)
-    {
+internal static unsafe class Utilities {
+    public static nint AllocateMemory(int sizeInBytes) {
         return Marshal.AllocHGlobal(sizeInBytes);
     }
 
-    public static void FreeMemory(nint pointer)
-    {
+    public static void FreeMemory(nint pointer) {
         if (pointer != nint.Zero) Marshal.FreeHGlobal(pointer);
     }
 
-    public static byte[] ReadStream(Stream stream)
-    {
-        using (var memoryStream = new MemoryStream())
-        {
+    public static byte[] ReadStream(Stream stream) {
+        using (var memoryStream = new MemoryStream()) {
             stream.CopyTo(memoryStream);
             return memoryStream.ToArray();
         }
     }
 
-    public static int SizeOf<T>() where T : struct
-    {
+    public static int SizeOf<T>() where T : struct {
         return Marshal.SizeOf<T>();
     }
 
-    public static int SizeOf<T>(T[] values) where T : unmanaged
-    {
+    public static int SizeOf<T>(T[] values) where T : unmanaged {
         return values == null ? 0 : sizeof(T) * values.Length;
     }
 
-    public static void CopyMemory(nint destination, nint source, int sizeInBytes)
-    {
+    public static void CopyMemory(nint destination, nint source, int sizeInBytes) {
         Buffer.MemoryCopy(source.ToPointer(), destination.ToPointer(), sizeInBytes, sizeInBytes);
     }
 
-    public static T Read<T>(nint source) where T : unmanaged
-    {
+    public static T Read<T>(nint source) where T : unmanaged {
         return *(T*) source.ToPointer();
     }
 
-    public static void Read<T>(nint source, T[] destination, int startIndex, int count) where T : unmanaged
-    {
+    public static void Read<T>(nint source, T[] destination, int startIndex, int count) where T : unmanaged {
         if (destination == null) throw new ArgumentNullException(nameof(destination));
 
-        fixed (T* destinationPointer = &destination[startIndex])
-        {
-            Buffer.MemoryCopy(source.ToPointer(), destinationPointer, (destination.Length - startIndex) * sizeof(T),
-                count * sizeof(T));
+        fixed (T* destinationPointer = &destination[startIndex]) {
+            Buffer.MemoryCopy(source.ToPointer(),
+                              destinationPointer,
+                              (destination.Length - startIndex) * sizeof(T),
+                              count * sizeof(T));
         }
     }
 
-    public static void Write<T>(nint destination, ref T value) where T : unmanaged
-    {
+    public static void Write<T>(nint destination, ref T value) where T : unmanaged {
         *(T*) destination.ToPointer() = value;
     }
 
-    public static void Write<T>(nint destination, T[] source, int startIndex, int count) where T : unmanaged
-    {
+    public static void Write<T>(nint destination, T[] source, int startIndex, int count) where T : unmanaged {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
-        fixed (T* sourcePointer = &source[startIndex])
-        {
+        fixed (T* sourcePointer = &source[startIndex]) {
             Buffer.MemoryCopy(sourcePointer, destination.ToPointer(), count * sizeof(T), count * sizeof(T));
         }
     }
 
-    public static void Pin<T>(T[] source, Action<nint> action) where T : unmanaged
-    {
+    public static void Pin<T>(T[] source, Action<nint> action) where T : unmanaged {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
         if (action == null) throw new ArgumentNullException(nameof(action));
 
-        fixed (T* sourcePointer = source)
-        {
+        fixed (T* sourcePointer = source) {
             action((nint) sourcePointer);
         }
     }

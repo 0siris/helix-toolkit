@@ -20,8 +20,7 @@ namespace HelixToolkit.Wpf
     /// <summary>
     ///     Extension methods for strings.
     /// </summary>
-    public static class StringExtensions
-    {
+    public static class StringExtensions {
         /// <summary>
         ///     A regular expression containing "a one or more whitespaces" pattern.
         /// </summary>
@@ -32,8 +31,7 @@ namespace HelixToolkit.Wpf
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <returns>Array of strings.</returns>
-        public static string[] SplitOnWhitespace(this string input)
-        {
+        public static string[] SplitOnWhitespace(this string input) {
             return oneOrMoreWhitespaces.Split(input.Trim());
         }
 
@@ -46,11 +44,9 @@ namespace HelixToolkit.Wpf
         /// <returns>
         ///     A string.
         /// </returns>
-        public static string EnumerateToString(this IEnumerable items, string prefix = null, string separator = " ")
-        {
+        public static string EnumerateToString(this IEnumerable items, string prefix = null, string separator = " ") {
             var builder = new StringBuilder();
-            foreach (var item in items)
-            {
+            foreach (var item in items) {
                 if (builder.Length > 0) builder.Append(separator);
 
                 if (prefix != null) builder.Append(prefix);

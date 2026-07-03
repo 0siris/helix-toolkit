@@ -10,9 +10,7 @@
 // VERTEX SHADER function
 // called per incoming vertex/control point
 //--------------------------------------------------------------------------------------
-HSInput mainInstancing(VSInstancingInput input)
-{
+HSInput mainInstancing(VSInstancingInput input) {
     return main(input);
-
 }
 #endif

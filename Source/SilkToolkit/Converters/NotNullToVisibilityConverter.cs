@@ -18,13 +18,11 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     A not-null reference to Visibility value converter.
 /// </summary>
 [ValueConversion(typeof(object), typeof(Visibility))]
-public class NotNullToVisibilityConverter : IValueConverter
-{
+public class NotNullToVisibilityConverter : IValueConverter {
     /// <summary>
     ///     Initializes a new instance of the <see cref="NotNullToVisibilityConverter" /> class.
     /// </summary>
-    public NotNullToVisibilityConverter()
-    {
+    public NotNullToVisibilityConverter() {
         Inverted = false;
     }
 
@@ -51,10 +49,8 @@ public class NotNullToVisibilityConverter : IValueConverter
     /// <returns>
     ///     A converted value. If the method returns null, the valid null value is used.
     /// </returns>
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (targetType == typeof(Visibility))
-        {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+        if (targetType == typeof(Visibility)) {
             var isNotNull = value != null;
             if (isNotNull != Inverted) return Visibility.Visible;
 
@@ -82,8 +78,7 @@ public class NotNullToVisibilityConverter : IValueConverter
     /// <returns>
     ///     A converted value. If the method returns null, the valid null value is used.
     /// </returns>
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }

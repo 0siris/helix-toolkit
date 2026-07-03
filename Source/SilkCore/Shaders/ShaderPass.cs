@@ -7,15 +7,12 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         ///     Shader Pass
         /// </summary>
-        public sealed class ShaderPass : DisposeObject
-        {
+        public sealed class ShaderPass : DisposeObject {
             public static readonly ShaderPass NullPass = new();
 
             private readonly IEffectsManager effectsManager;
@@ -38,16 +35,13 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="passDescription"></param>
             /// <param name="manager"></param>
-            public ShaderPass(ShaderPassDescription passDescription, IEffectsManager manager)
-            {
+            public ShaderPass(ShaderPassDescription passDescription, IEffectsManager manager) {
                 Name = passDescription.Name;
                 effectsManager = manager;
                 if (passDescription.ShaderList != null)
-                    foreach (var shader in passDescription.ShaderList)
-                    {
+                    foreach (var shader in passDescription.ShaderList) {
                         var s = manager.ShaderManager.RegisterShader(shader);
-                        switch (shader.ShaderType)
-                        {
+                        switch (shader.ShaderType) {
                             case ShaderStage.Vertex:
                                 vertexShader = s as VertexShader;
                                 break;
@@ -70,17 +64,19 @@ namespace HelixToolkit.SharpDX.Core
                     }
 
                 blendState = passDescription.BlendStateDescription != null
-                    ? manager.StateManager.Register((BlendStateDescription) passDescription.BlendStateDescription)
-                    : BlendStateProxy.Empty;
+                                 ? manager.StateManager.Register(
+                                     (BlendStateDescription) passDescription.BlendStateDescription)
+                                 : BlendStateProxy.Empty;
 
                 depthStencilState = passDescription.DepthStencilStateDescription != null
-                    ? manager.StateManager.Register(
-                        (DepthStencilStateDescription) passDescription.DepthStencilStateDescription)
-                    : DepthStencilStateProxy.Empty;
+                                        ? manager.StateManager.Register(
+                                            (DepthStencilStateDescription) passDescription.DepthStencilStateDescription)
+                                        : DepthStencilStateProxy.Empty;
 
                 rasterState = passDescription.RasterStateDescription != null
-                    ? manager.StateManager.Register((RasterizerStateDescription) passDescription.RasterStateDescription)
-                    : RasterizerStateProxy.Empty;
+                                  ? manager.StateManager.Register(
+                                      (RasterizerStateDescription) passDescription.RasterStateDescription)
+                                  : RasterizerStateProxy.Empty;
 
                 BlendFactor = passDescription.BlendFactor;
 
@@ -96,8 +92,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="ShaderPass" /> class.
             /// </summary>
-            private ShaderPass()
-            {
+            private ShaderPass() {
                 IsNULL = true;
             }
 
@@ -180,22 +175,19 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context"></param>
             /// <param name="bindConstantBuffer"></param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindShader(DeviceContextProxy context, bool bindConstantBuffer = true)
-            {
+            public void BindShader(DeviceContextProxy context, bool bindConstantBuffer = true) {
                 context.SetShaderPass(this, bindConstantBuffer);
                 if (Layout != null) context.InputLayout = Layout;
             }
 
-            #region Set Shaders
+        #region Set Shaders
 
             /// <summary>
             ///     Sets the shader.
             /// </summary>
             /// <param name="shader">The shader.</param>
-            public void SetShader(ShaderBase shader)
-            {
-                switch (shader.ShaderType)
-                {
+            public void SetShader(ShaderBase shader) {
+                switch (shader.ShaderType) {
                     case ShaderStage.Vertex:
                         RemoveAndDispose(ref vertexShader);
                         vertexShader = shader as VertexShader ?? VertexShader.NullVertexShader;
@@ -223,7 +215,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            #endregion
+        #endregion
 
             /// <summary>
             ///     Binds the states.
@@ -231,8 +223,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="type">The type.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void BindStates(DeviceContextProxy context, StateType type)
-            {
+            public void BindStates(DeviceContextProxy context, StateType type) {
                 if (type == StateType.None || IsNULL) return;
                 if (EnumHelper.HasFlag(type, StateType.BlendState))
                     context.SetBlendState(BlendState, BlendFactor, SampleMask);
@@ -245,43 +236,39 @@ namespace HelixToolkit.SharpDX.Core
             ///     Sets the state.
             /// </summary>
             /// <param name="blendStateDesc">The blend state desc.</param>
-            public void SetState(BlendStateDescription? blendStateDesc)
-            {
+            public void SetState(BlendStateDescription? blendStateDesc) {
                 if (IsNULL) return;
                 if (BlendState != BlendStateProxy.Empty) RemoveAndDispose(ref blendState);
                 blendState = blendStateDesc != null
-                    ? effectsManager.StateManager.Register(blendStateDesc.Value)
-                    : BlendStateProxy.Empty;
+                                 ? effectsManager.StateManager.Register(blendStateDesc.Value)
+                                 : BlendStateProxy.Empty;
             }
 
             /// <summary>
             ///     Sets the state.
             /// </summary>
             /// <param name="depthStencilStateDesc">The depth stencil state desc.</param>
-            public void SetState(DepthStencilStateDescription? depthStencilStateDesc)
-            {
+            public void SetState(DepthStencilStateDescription? depthStencilStateDesc) {
                 if (IsNULL) return;
                 if (DepthStencilState != DepthStencilStateProxy.Empty) RemoveAndDispose(ref depthStencilState);
                 depthStencilState = depthStencilStateDesc != null
-                    ? effectsManager.StateManager.Register(depthStencilStateDesc.Value)
-                    : DepthStencilStateProxy.Empty;
+                                        ? effectsManager.StateManager.Register(depthStencilStateDesc.Value)
+                                        : DepthStencilStateProxy.Empty;
             }
 
             /// <summary>
             ///     Sets the state.
             /// </summary>
             /// <param name="rasterizerStateDesc">The rasterizer state desc.</param>
-            public void SetState(RasterizerStateDescription? rasterizerStateDesc)
-            {
+            public void SetState(RasterizerStateDescription? rasterizerStateDesc) {
                 if (IsNULL) return;
                 if (RasterState != RasterizerStateProxy.Empty) RemoveAndDispose(ref rasterState);
                 rasterState = rasterizerStateDesc != null
-                    ? effectsManager.StateManager.Register(rasterizerStateDesc.Value)
-                    : RasterizerStateProxy.Empty;
+                                  ? effectsManager.StateManager.Register(rasterizerStateDesc.Value)
+                                  : RasterizerStateProxy.Empty;
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 if (BlendState != BlendStateProxy.Empty) RemoveAndDispose(ref blendState);
                 if (DepthStencilState != DepthStencilStateProxy.Empty) RemoveAndDispose(ref depthStencilState);
                 if (RasterState != RasterizerStateProxy.Empty) RemoveAndDispose(ref rasterState);
@@ -295,7 +282,7 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Get Shaders
+        #region Get Shaders
 
             /// <summary>
             ///     <see cref="ShaderPass.GetShader(ShaderStage)" />
@@ -303,10 +290,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public ShaderBase GetShader(ShaderStage type)
-            {
-                switch (type)
-                {
+            public ShaderBase GetShader(ShaderStage type) {
+                switch (type) {
                     case ShaderStage.Vertex:
                         return VertexShader;
                     case ShaderStage.Pixel:
@@ -330,8 +315,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public VertexShader GetShader(VertexShaderType type)
-            {
+            public VertexShader GetShader(VertexShaderType type) {
                 return VertexShader;
             }
 
@@ -341,8 +325,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public HullShader GetShader(HullShaderType type)
-            {
+            public HullShader GetShader(HullShaderType type) {
                 return HullShader;
             }
 
@@ -352,8 +335,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public DomainShader GetShader(DomainShaderType type)
-            {
+            public DomainShader GetShader(DomainShaderType type) {
                 return DomainShader;
             }
 
@@ -363,8 +345,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public GeometryShader GetShader(GeometryShaderType type)
-            {
+            public GeometryShader GetShader(GeometryShaderType type) {
                 return GeometryShader;
             }
 
@@ -374,8 +355,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public PixelShader GetShader(PixelShaderType type)
-            {
+            public PixelShader GetShader(PixelShaderType type) {
                 return PixelShader;
             }
 
@@ -385,12 +365,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="type">The type.</param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public ComputeShader GetShader(ComputeShaderType type)
-            {
+            public ComputeShader GetShader(ComputeShaderType type) {
                 return ComputeShader;
             }
 
-            #endregion
+        #endregion
         }
     }
 }

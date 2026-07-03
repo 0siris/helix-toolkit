@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public class FrameStatisticsRenderCore : RenderCore2DBase
-        {
+        public class FrameStatisticsRenderCore : RenderCore2DBase {
             private Brush background;
             private DirectWriteFactory factory;
 
@@ -31,11 +28,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The foreground.
             /// </value>
-            public Brush Foreground
-            {
+            public Brush Foreground {
                 get => foreground;
-                set
-                {
+                set {
                     var old = foreground;
                     if (SetAffectsRender(ref foreground, value)) RemoveAndDispose(ref old);
                 }
@@ -47,11 +42,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The background.
             /// </value>
-            public Brush Background
-            {
+            public Brush Background {
                 get => background;
-                set
-                {
+                set {
                     var old = background;
                     if (SetAffectsRender(ref background, value)) RemoveAndDispose(ref old);
                 }
@@ -62,8 +55,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="target">The target.</param>
             /// <returns></returns>
-            protected override bool OnAttach(IRenderHost target)
-            {
+            protected override bool OnAttach(IRenderHost target) {
                 factory = new DirectWriteFactory();
                 format = new TextFormat(factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
                 previousStr = string.Empty;
@@ -71,8 +63,7 @@ namespace HelixToolkit.SharpDX.Core
                 return base.OnAttach(target);
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref format);
                 RemoveAndDispose(ref foreground);
                 RemoveAndDispose(ref background);
@@ -88,8 +79,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <returns>
             ///     <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
             /// </returns>
-            protected override bool CanRender(RenderContext2D context)
-            {
+            protected override bool CanRender(RenderContext2D context) {
                 return base.CanRender(context) && statistics != null && statistics.FrameDetail != RenderDetail.None;
             }
 
@@ -97,14 +87,12 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
-            protected override void OnRender(RenderContext2D context)
-            {
+            protected override void OnRender(RenderContext2D context) {
                 if (background == null)
                     Background = new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
                 if (foreground == null) Foreground = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
                 var str = statistics.GetDetailString();
-                if (str != previousStr || textLayout == null)
-                {
+                if (str != previousStr || textLayout == null) {
                     previousStr = str;
                     RemoveAndDispose(ref textLayout);
                     textLayout = new TextLayout(factory, str, format, float.MaxValue, float.MaxValue);

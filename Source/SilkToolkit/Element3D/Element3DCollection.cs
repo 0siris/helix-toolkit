@@ -18,10 +18,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Provides an observable collection of Element3D.
 /// </summary>
-public class ObservableElement3DCollection : ObservableCollection<Element3D>
-{
-    protected override void ClearItems()
-    {
+public class ObservableElement3DCollection : ObservableCollection<Element3D> {
+    protected override void ClearItems() {
         CheckReentrancy();
         var items = Items.ToArray();
         base.ClearItems();
@@ -31,10 +29,8 @@ public class ObservableElement3DCollection : ObservableCollection<Element3D>
     }
 }
 
-public class ObservableElement2DCollection : ObservableCollection<Element2D>
-{
-    protected override void ClearItems()
-    {
+public class ObservableElement2DCollection : ObservableCollection<Element2D> {
+    protected override void ClearItems() {
         CheckReentrancy();
         var items = Items.ToArray();
         base.ClearItems();

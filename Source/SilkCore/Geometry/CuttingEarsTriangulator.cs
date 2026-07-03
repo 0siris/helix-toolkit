@@ -29,8 +29,7 @@ using Int32Collection = List<int>;
 ///     <a href="http://computacion.cs.cinvestav.mx/~anzures/geom/triangulation.php"></a>
 ///     <a href="http://www.codeproject.com/KB/recipes/cspolygontriangulation.aspx"></a>
 /// </remarks>
-public static class CuttingEarsTriangulator
-{
+public static class CuttingEarsTriangulator {
     /// <summary>
     ///     The epsilon.
     /// </summary>
@@ -48,8 +47,7 @@ public static class CuttingEarsTriangulator
     /// <returns>
     ///     collection of triangle points
     /// </returns>
-    public static Int32Collection Triangulate(IList<Point> contour)
-    {
+    public static Int32Collection Triangulate(IList<Point> contour) {
         // allocate and initialize list of indices in polygon
         var result = new Int32Collection();
 
@@ -71,8 +69,7 @@ public static class CuttingEarsTriangulator
         // remove nv-2 Vertices, creating 1 triangle every time
         var count = 2 * nv; // error detection
 
-        for (var v = nv - 1; nv > 2;)
-        {
+        for (var v = nv - 1; nv > 2;) {
             // if we loop, it is probably a non-simple polygon
             if (0 >= count--)
                 // ERROR - probable bad polygon!
@@ -88,8 +85,7 @@ public static class CuttingEarsTriangulator
             var w = v + 1;
             if (nv <= w) w = 0; // next
 
-            if (Snip(contour, u, v, w, nv, V))
-            {
+            if (Snip(contour, u, v, w, nv, V)) {
                 int s, t;
 
                 // true names of the vertices
@@ -120,8 +116,7 @@ public static class CuttingEarsTriangulator
     /// </summary>
     /// <param name="contour">The contour.</param>
     /// <returns>The area.</returns>
-    private static double Area(IList<Point> contour)
-    {
+    private static double Area(IList<Point> contour) {
         var n = contour.Count;
         var area = 0.0;
         for (int p = n - 1, q = 0; q < n; p = q++) area += contour[p].X * contour[q].Y - contour[q].X * contour[p].Y;
@@ -159,9 +154,16 @@ public static class CuttingEarsTriangulator
     /// <returns>
     ///     The inside triangle.
     /// </returns>
-    private static bool InsideTriangle(double Ax, double Ay, double Bx, double By, double Cx, double Cy, double Px,
-        double Py)
-    {
+    private static bool InsideTriangle(
+        double Ax,
+        double Ay,
+        double Bx,
+        double By,
+        double Cx,
+        double Cy,
+        double Px,
+        double Py
+    ) {
         double ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
         double cCROSSap, bCROSScp, aCROSSbp;
 
@@ -197,8 +199,7 @@ public static class CuttingEarsTriangulator
     /// <param name="n">The n.</param>
     /// <param name="V">The v.</param>
     /// <returns>The snip.</returns>
-    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] V)
-    {
+    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] V) {
         int p;
         double Ax, Ay, Bx, By, Cx, Cy, Px, Py;
 
@@ -213,8 +214,7 @@ public static class CuttingEarsTriangulator
 
         if (Epsilon > (Bx - Ax) * (Cy - Ay) - (By - Ay) * (Cx - Ax)) return false;
 
-        for (p = 0; p < n; p++)
-        {
+        for (p = 0; p < n; p++) {
             if (p == u || p == v || p == w) continue;
 
             Px = contour[V[p]].X;

@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IRenderTechnique : IDisposable, IGUID
-{
+public interface IRenderTechnique : IDisposable, IGUID {
     /// <summary>
     /// </summary>
     TechniqueDescription Description { get; }

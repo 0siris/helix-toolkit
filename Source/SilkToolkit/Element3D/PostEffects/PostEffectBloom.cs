@@ -9,10 +9,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 /// </summary>
 /// <seealso cref="Element3D" />
-public class PostEffectBloom : Element3D
-{
-    protected override SceneNode OnCreateSceneNode()
-    {
+public class PostEffectBloom : Element3D {
+    protected override SceneNode OnCreateSceneNode() {
         return new NodePostEffectBloom();
     }
 
@@ -20,11 +18,9 @@ public class PostEffectBloom : Element3D
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="node">The core.</param>
-    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);
-        if (node is NodePostEffectBloom c)
-        {
+        if (node is NodePostEffectBloom c) {
             c.EffectName = EffectName;
             c.BloomCombineIntensity = (float) BloomCombineIntensity;
             c.BloomCombineSaturation = (float) BloomCombineSaturation;
@@ -35,7 +31,7 @@ public class PostEffectBloom : Element3D
         }
     }
 
-    #region Dependency Properties
+#region Dependency Properties
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -43,8 +39,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The name of the effect.
     /// </value>
-    public string EffectName
-    {
+    public string EffectName {
         get => (string) GetValue(EffectNameProperty);
         set => SetValue(EffectNameProperty, value);
     }
@@ -53,12 +48,14 @@ public class PostEffectBloom : Element3D
     ///     The effect name property
     /// </summary>
     public static readonly DependencyProperty EffectNameProperty =
-        DependencyProperty.Register("EffectName", typeof(string), typeof(PostEffectBloom),
-            new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectBloom,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).EffectName = (string) e.NewValue;
-                }));
+        DependencyProperty.Register("EffectName",
+                                    typeof(string),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectBloom,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .EffectName = (string) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the threshold color.
@@ -66,8 +63,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The threshold color.
     /// </value>
-    public Color ThresholdColor
-    {
+    public Color ThresholdColor {
         get => (Color) GetValue(ThresholdColorProperty);
         set => SetValue(ThresholdColorProperty, value);
     }
@@ -76,13 +72,15 @@ public class PostEffectBloom : Element3D
     ///     The threshold color property
     /// </summary>
     public static readonly DependencyProperty ThresholdColorProperty =
-        DependencyProperty.Register("ThresholdColor", typeof(Color), typeof(PostEffectBloom), new PropertyMetadata(
-            Color.FromArgb(0, 200, 200, 200),
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as NodePostEffectBloom).ThresholdColor =
-                    ((Color) e.NewValue).ToColor4();
-            }));
+        DependencyProperty.Register("ThresholdColor",
+                                    typeof(Color),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(Color.FromArgb(0, 200, 200, 200),
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .ThresholdColor =
+                                                                 ((Color) e.NewValue).ToColor4();
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the number of blur pass.
@@ -90,8 +88,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The number of blur pass.
     /// </value>
-    public int NumberOfBlurPass
-    {
+    public int NumberOfBlurPass {
         get => (int) GetValue(NumberOfBlurPassProperty);
         set => SetValue(NumberOfBlurPassProperty, value);
     }
@@ -100,12 +97,14 @@ public class PostEffectBloom : Element3D
     ///     The number of blur pass property
     /// </summary>
     public static readonly DependencyProperty NumberOfBlurPassProperty =
-        DependencyProperty.Register("NumberOfBlurPass", typeof(int), typeof(PostEffectBloom),
-            new PropertyMetadata(1,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).NumberOfBlurPass = (int) e.NewValue;
-                }));
+        DependencyProperty.Register("NumberOfBlurPass",
+                                    typeof(int),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(1,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .NumberOfBlurPass = (int) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the bloom extract intensity.
@@ -113,8 +112,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The bloom extract intensity.
     /// </value>
-    public double BloomExtractIntensity
-    {
+    public double BloomExtractIntensity {
         get => (double) GetValue(BloomExtractIntensityProperty);
         set => SetValue(BloomExtractIntensityProperty, value);
     }
@@ -123,13 +121,15 @@ public class PostEffectBloom : Element3D
     ///     The bloom extract intensity property
     /// </summary>
     public static readonly DependencyProperty BloomExtractIntensityProperty =
-        DependencyProperty.Register("BloomExtractIntensity", typeof(double), typeof(PostEffectBloom),
-            new PropertyMetadata(1.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).BloomExtractIntensity =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("BloomExtractIntensity",
+                                    typeof(double),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(1.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .BloomExtractIntensity =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the bloom pass intensity.
@@ -137,8 +137,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The bloom pass intensity.
     /// </value>
-    public double BloomPassIntensity
-    {
+    public double BloomPassIntensity {
         get => (double) GetValue(BloomPassIntensityProperty);
         set => SetValue(BloomPassIntensityProperty, value);
     }
@@ -147,13 +146,15 @@ public class PostEffectBloom : Element3D
     ///     The bloom pass intensity property
     /// </summary>
     public static readonly DependencyProperty BloomPassIntensityProperty =
-        DependencyProperty.Register("BloomPassIntensity", typeof(double), typeof(PostEffectBloom),
-            new PropertyMetadata(0.95,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).BloomPassIntensity =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("BloomPassIntensity",
+                                    typeof(double),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(0.95,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .BloomPassIntensity =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the bloom combine intensity.
@@ -161,8 +162,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The bloom combine intensity.
     /// </value>
-    public double BloomCombineIntensity
-    {
+    public double BloomCombineIntensity {
         get => (double) GetValue(BloomCombineIntensityProperty);
         set => SetValue(BloomCombineIntensityProperty, value);
     }
@@ -171,13 +171,15 @@ public class PostEffectBloom : Element3D
     ///     The bloom combine intensity property
     /// </summary>
     public static readonly DependencyProperty BloomCombineIntensityProperty =
-        DependencyProperty.Register("BloomCombineIntensity", typeof(double), typeof(PostEffectBloom),
-            new PropertyMetadata(0.7,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).BloomCombineIntensity =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("BloomCombineIntensity",
+                                    typeof(double),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(0.7,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .BloomCombineIntensity =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the bloom combine saturation.
@@ -185,8 +187,7 @@ public class PostEffectBloom : Element3D
     /// <value>
     ///     The bloom combine saturation.
     /// </value>
-    public double BloomCombineSaturation
-    {
+    public double BloomCombineSaturation {
         get => (double) GetValue(BloomCombineSaturationProperty);
         set => SetValue(BloomCombineSaturationProperty, value);
     }
@@ -195,13 +196,15 @@ public class PostEffectBloom : Element3D
     ///     The bloom combine saturation property
     /// </summary>
     public static readonly DependencyProperty BloomCombineSaturationProperty =
-        DependencyProperty.Register("BloomCombineSaturation", typeof(double), typeof(PostEffectBloom),
-            new PropertyMetadata(0.7,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectBloom).BloomCombineSaturation =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("BloomCombineSaturation",
+                                    typeof(double),
+                                    typeof(PostEffectBloom),
+                                    new PropertyMetadata(0.7,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectBloom)
+                                                                 .BloomCombineSaturation =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
-    #endregion
+#endregion
 }

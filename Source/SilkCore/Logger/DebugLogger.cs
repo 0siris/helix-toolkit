@@ -3,47 +3,37 @@ using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.Logger;
 
-internal class DebugLoggerFactory : ILoggerFactory
-{
-    public ILogger CreateLogger(string categoryName)
-    {
+internal class DebugLoggerFactory : ILoggerFactory {
+    public ILogger CreateLogger(string categoryName) {
         return new DebugLogger(categoryName);
     }
 
-    public void AddProvider(ILoggerProvider provider)
-    {
-    }
+    public void AddProvider(ILoggerProvider provider) { }
 
-    public void Dispose()
-    {
-    }
+    public void Dispose() { }
 }
 
 /// <summary>
 ///     A logger that writes messages in the debug output window only when a debugger is attached.
 /// </summary>
-internal sealed class DebugLogger : ILogger
-{
+internal sealed class DebugLogger : ILogger {
     private readonly string _name;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DebugLogger" /> class.
     /// </summary>
     /// <param name="name">The name of the logger.</param>
-    public DebugLogger(string name)
-    {
+    public DebugLogger(string name) {
         _name = name;
     }
 
     /// <inheritdoc />
-    public IDisposable BeginScope<TState>(TState state)
-    {
+    public IDisposable BeginScope<TState>(TState state) {
         return NullScope.Instance;
     }
 
     /// <inheritdoc />
-    public bool IsEnabled(LogLevel logLevel)
-    {
+    public bool IsEnabled(LogLevel logLevel) {
 #if DEBUG
         // If the filter is null, everything is enabled
         // unless the debugger is not attached
@@ -54,9 +44,13 @@ internal sealed class DebugLogger : ILogger
     }
 
     /// <inheritdoc />
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
-        Func<TState, Exception, string> formatter)
-    {
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception exception,
+        Func<TState, Exception, string> formatter
+    ) {
         if (!IsEnabled(logLevel)) return;
 
         if (formatter == null) throw new ArgumentNullException(nameof(formatter));
@@ -72,16 +66,11 @@ internal sealed class DebugLogger : ILogger
         Debug.WriteLine(message, _name);
     }
 
-    private sealed class NullScope : IDisposable
-    {
+    private sealed class NullScope : IDisposable {
         public static readonly NullScope Instance = new();
 
-        private NullScope()
-        {
-        }
+        private NullScope() { }
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

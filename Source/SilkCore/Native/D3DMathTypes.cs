@@ -8,40 +8,34 @@ using System.Runtime.InteropServices;
 namespace HelixToolkit.SharpDX.Core;
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Bool4
-{
+public struct Bool4 {
     private int x;
     private int y;
     private int z;
     private int w;
 
-    public bool X
-    {
+    public bool X {
         get => x != 0;
         set => x = value ? 1 : 0;
     }
 
-    public bool Y
-    {
+    public bool Y {
         get => y != 0;
         set => y = value ? 1 : 0;
     }
 
-    public bool Z
-    {
+    public bool Z {
         get => z != 0;
         set => z = value ? 1 : 0;
     }
 
-    public bool W
-    {
+    public bool W {
         get => w != 0;
         set => w = value ? 1 : 0;
     }
 }
 
-public struct FrustumCameraParams
-{
+public struct FrustumCameraParams {
     public Vector3 Position;
     public Vector3 LookAtDir;
     public Vector3 UpDir;
@@ -51,10 +45,8 @@ public struct FrustumCameraParams
     public float ZFar;
 }
 
-public struct ViewportF
-{
-    public ViewportF(float x, float y, float width, float height, float minDepth = 0, float maxDepth = 1)
-    {
+public struct ViewportF {
+    public ViewportF(float x, float y, float width, float height, float minDepth = 0, float maxDepth = 1) {
         X = x;
         Y = y;
         Width = width;
@@ -72,10 +64,8 @@ public struct ViewportF
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Size2
-{
-    public Size2(int width, int height)
-    {
+public struct Size2 {
+    public Size2(int width, int height) {
         Width = width;
         Height = height;
     }
@@ -85,10 +75,8 @@ public struct Size2
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Size2F
-{
-    public Size2F(float width, float height)
-    {
+public struct Size2F {
+    public Size2F(float width, float height) {
         Width = width;
         Height = height;
     }
@@ -96,32 +84,26 @@ public struct Size2F
     public float Width;
     public float Height;
 
-    public static bool operator ==(Size2F left, Size2F right)
-    {
+    public static bool operator ==(Size2F left, Size2F right) {
         return left.Width == right.Width && left.Height == right.Height;
     }
 
-    public static bool operator !=(Size2F left, Size2F right)
-    {
+    public static bool operator !=(Size2F left, Size2F right) {
         return !(left == right);
     }
 
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         return obj is Size2F other && this == other;
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return HashCode.Combine(Width, Height);
     }
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Rectangle
-{
-    public Rectangle(int left, int top, int width, int height)
-    {
+public struct Rectangle {
+    public Rectangle(int left, int top, int width, int height) {
         Left = left;
         Top = top;
         Width = width;
@@ -133,14 +115,12 @@ public struct Rectangle
     public int Width;
     public int Height;
 
-    public int X
-    {
+    public int X {
         get => Left;
         set => Left = value;
     }
 
-    public int Y
-    {
+    public int Y {
         get => Top;
         set => Top = value;
     }
@@ -151,17 +131,14 @@ public struct Rectangle
 
     public bool IsEmpty => Width <= 0 || Height <= 0;
 
-    public bool Intersects(Rectangle other)
-    {
+    public bool Intersects(Rectangle other) {
         return Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
     }
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct RectangleF
-{
-    public RectangleF(float left, float top, float width, float height)
-    {
+public struct RectangleF {
+    public RectangleF(float left, float top, float width, float height) {
         Left = left;
         Top = top;
         Width = width;
@@ -173,14 +150,12 @@ public struct RectangleF
     public float Width;
     public float Height;
 
-    public float Right
-    {
+    public float Right {
         get => Left + Width;
         set => Width = value - Left;
     }
 
-    public float Bottom
-    {
+    public float Bottom {
         get => Top + Height;
         set => Height = value - Top;
     }
@@ -197,38 +172,31 @@ public struct RectangleF
 
     public Vector2 Center => new(Left + Width / 2, Top + Height / 2);
 
-    public bool Contains(Vector2 point)
-    {
+    public bool Contains(Vector2 point) {
         return point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
     }
 
-    public static bool operator ==(RectangleF left, RectangleF right)
-    {
+    public static bool operator ==(RectangleF left, RectangleF right) {
         return left.Left == right.Left && left.Top == right.Top && left.Width == right.Width &&
                left.Height == right.Height;
     }
 
-    public static bool operator !=(RectangleF left, RectangleF right)
-    {
+    public static bool operator !=(RectangleF left, RectangleF right) {
         return !(left == right);
     }
 
-    public override bool Equals(object obj)
-    {
+    public override bool Equals(object obj) {
         return obj is RectangleF other && this == other;
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return HashCode.Combine(Left, Top, Width, Height);
     }
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Matrix3x2
-{
-    public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
-    {
+public struct Matrix3x2 {
+    public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32) {
         M11 = m11;
         M12 = m12;
         M21 = m21;
@@ -248,50 +216,48 @@ public struct Matrix3x2
 
     public Vector2 TranslationVector => new(M31, M32);
 
-    public static Matrix3x2 Translation(float x, float y)
-    {
+    public static Matrix3x2 Translation(float x, float y) {
         return new Matrix3x2(1, 0, 0, 1, x, y);
     }
 
-    public static Matrix3x2 Translation(Vector2 offset)
-    {
+    public static Matrix3x2 Translation(Vector2 offset) {
         return Translation(offset.X, offset.Y);
     }
 
-    public static Matrix3x2 Rotation(float angle)
-    {
+    public static Matrix3x2 Rotation(float angle) {
         var cosine = (float) Math.Cos(angle);
         var sine = (float) Math.Sin(angle);
         return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
     }
 
-    public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point)
-    {
-        return new Vector2(
-            point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
-            point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
+    public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point) {
+        return new Vector2(point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
+                           point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
     }
 
-    public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right)
-    {
-        return new Matrix3x2(
-            left.M11 * right.M11 + left.M12 * right.M21,
-            left.M11 * right.M12 + left.M12 * right.M22,
-            left.M21 * right.M11 + left.M22 * right.M21,
-            left.M21 * right.M12 + left.M22 * right.M22,
-            left.M31 * right.M11 + left.M32 * right.M21 + right.M31,
-            left.M31 * right.M12 + left.M32 * right.M22 + right.M32);
+    public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right) {
+        return new Matrix3x2(left.M11 * right.M11 + left.M12 * right.M21,
+                             left.M11 * right.M12 + left.M12 * right.M22,
+                             left.M21 * right.M11 + left.M22 * right.M21,
+                             left.M21 * right.M12 + left.M22 * right.M22,
+                             left.M31 * right.M11 + left.M32 * right.M21 + right.M31,
+                             left.M31 * right.M12 + left.M32 * right.M22 + right.M32);
     }
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Matrix3x3
-{
+public struct Matrix3x3 {
     public Matrix3x3(
-        float m11, float m12, float m13,
-        float m21, float m22, float m23,
-        float m31, float m32, float m33)
-    {
+        float m11,
+        float m12,
+        float m13,
+        float m21,
+        float m22,
+        float m23,
+        float m31,
+        float m32,
+        float m33
+    ) {
         M11 = m11;
         M12 = m12;
         M13 = m13;

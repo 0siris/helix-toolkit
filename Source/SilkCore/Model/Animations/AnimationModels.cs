@@ -5,56 +5,47 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Animations
-    {
-        public struct Bone
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Animations {
+        public struct Bone {
             public string Name;
             public SceneNode ParentNode; // Used for scene graph based node animation
-            public SceneNode Node; // Used for scene graph based node animation
-            public int ParentIndex; // Used only for array based bones
+            public SceneNode Node;       // Used for scene graph based node animation
+            public int ParentIndex;      // Used only for array based bones
             public Matrix InvBindPose;
             public Matrix BindPose;
             public Matrix BoneLocalTransform;
         }
 
-        public struct NodeAnimation
-        {
+        public struct NodeAnimation {
             public SceneNode Node; // Used for scene graph based node animation
             public FastList<Keyframe> KeyFrames;
         }
 
-        public interface IKeyFrame
-        {
+        public interface IKeyFrame {
             float Time { get; }
         }
 
-        public struct Keyframe : IKeyFrame
-        {
+        public struct Keyframe : IKeyFrame {
             public Vector3 Translation;
             public Quaternion Rotation;
             public Vector3 Scale;
             public float Time { get; set; }
             public int BoneIndex; // Used only for array based bones
 
-            public Matrix ToTransformMatrix()
-            {
+            public Matrix ToTransformMatrix() {
                 return SilkMath.Scaling(Scale) * SilkMath.RotationQuaternion(Rotation) *
                        SilkMath.Translation(Translation);
             }
         }
 
-        public struct MorphTargetKeyframe : IKeyFrame
-        {
+        public struct MorphTargetKeyframe : IKeyFrame {
             public float Weight;
             public float Time { get; set; }
             public int Index;
         }
 
-        public enum AnimationType
-        {
+        public enum AnimationType {
             Keyframe,
             Node,
             MorphTarget
@@ -62,14 +53,12 @@ namespace HelixToolkit.SharpDX.Core
 
         /// <summary>
         /// </summary>
-        public class Animation
-        {
+        public class Animation {
             /// <summary>
             ///     Initializes a new animation of the <see cref="Animation" /> class.
             /// </summary>
             /// <param name="type">The type.</param>
-            public Animation(AnimationType type)
-            {
+            public Animation(AnimationType type) {
                 AnimationType = type;
             }
 

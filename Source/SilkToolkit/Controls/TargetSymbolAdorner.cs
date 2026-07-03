@@ -21,8 +21,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <remarks>
 ///     Inspired by Google Earth...
 /// </remarks>
-public class TargetSymbolAdorner : Adorner
-{
+public class TargetSymbolAdorner : Adorner {
     /// <summary>
     ///     Initializes a new instance of the <see cref="TargetSymbolAdorner" /> class.
     /// </summary>
@@ -33,8 +32,7 @@ public class TargetSymbolAdorner : Adorner
     ///     The position.
     /// </param>
     public TargetSymbolAdorner(UIElement adornedElement, Point position)
-        : base(adornedElement)
-    {
+        : base(adornedElement) {
         Position = position;
     }
 
@@ -50,10 +48,10 @@ public class TargetSymbolAdorner : Adorner
     /// <param name="dc">
     ///     The drawing context.
     /// </param>
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence",
-        Justification = "Reviewed. Suppression is OK here.")]
-    protected override void OnRender(DrawingContext dc)
-    {
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules",
+                     "SA1407:ArithmeticExpressionsMustDeclarePrecedence",
+                     Justification = "Reviewed. Suppression is OK here.")]
+    protected override void OnRender(DrawingContext dc) {
         var lightBrush = new WpfSolidColorBrush(Colors.LightGray);
         var darkBrush = new WpfSolidColorBrush(Colors.Black);
         lightBrush.Opacity = 0.4;
@@ -61,9 +59,9 @@ public class TargetSymbolAdorner : Adorner
 
         double t1 = 6; // thickness of dark circle pen
         double t2 = 2; // thickness of light pen (circle, arcs, segments)
-        double d = 0; // distance from light circle to segments
+        double d = 0;  // distance from light circle to segments
         double l = 10; // length of segments
-        var r = 20.0; // radius of light circle
+        var r = 20.0;  // radius of light circle
 
         var r1 = r - (t1 + t2) / 2;
         var r2 = r + l;
@@ -80,21 +78,17 @@ public class TargetSymbolAdorner : Adorner
         dc.DrawArc(null, lightPen, Position, 190, 260, r4, r4);
         dc.DrawArc(null, lightPen, Position, 280, 350, r4, r4);
 
-        dc.DrawLine(
-            lightPen,
-            new Point(Position.X, Position.Y - r2),
-            new Point(Position.X, Position.Y - r3));
-        dc.DrawLine(
-            lightPen,
-            new Point(Position.X, Position.Y + r2),
-            new Point(Position.X, Position.Y + r3));
-        dc.DrawLine(
-            lightPen,
-            new Point(Position.X - r2, Position.Y),
-            new Point(Position.X - r3, Position.Y));
-        dc.DrawLine(
-            lightPen,
-            new Point(Position.X + r2, Position.Y),
-            new Point(Position.X + r3, Position.Y));
+        dc.DrawLine(lightPen,
+                    new Point(Position.X, Position.Y - r2),
+                    new Point(Position.X, Position.Y - r3));
+        dc.DrawLine(lightPen,
+                    new Point(Position.X, Position.Y + r2),
+                    new Point(Position.X, Position.Y + r3));
+        dc.DrawLine(lightPen,
+                    new Point(Position.X - r2, Position.Y),
+                    new Point(Position.X - r3, Position.Y));
+        dc.DrawLine(lightPen,
+                    new Point(Position.X + r2, Position.Y),
+                    new Point(Position.X + r3, Position.Y));
     }
 }

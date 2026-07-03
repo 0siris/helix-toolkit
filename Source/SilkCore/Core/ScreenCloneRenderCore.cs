@@ -6,15 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Render;
 
 #if !WINDOWS_UWP
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         ///     Screen duplication render-core contract.
         /// </summary>
-        public interface IScreenClone
-        {
+        public interface IScreenClone {
             /// <summary>
             ///     Gets or sets the output.
             /// </summary>
@@ -43,22 +40,18 @@ namespace HelixToolkit.SharpDX.Core
         ///     The previous implementation depended on SharpDX DXGI output duplication types. The public render-core contract
         ///     is kept so scene nodes continue to compile; real Silk.NET DXGI duplication is a separate interop edge.
         /// </remarks>
-        public class ScreenCloneRenderCore : RenderCore, IScreenClone
-        {
+        public class ScreenCloneRenderCore : RenderCore, IScreenClone {
             private Rectangle cloneRectangle;
             private int output;
             private bool stretchToFill;
 
             public ScreenCloneRenderCore()
-                : base(RenderType.Opaque)
-            {
-            }
+                : base(RenderType.Opaque) { }
 
             /// <summary>
             ///     Gets or sets the output.
             /// </summary>
-            public int Output
-            {
+            public int Output {
                 get => output;
                 set => Set(ref output, value);
             }
@@ -66,8 +59,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Gets or sets the clone rectangle.
             /// </summary>
-            public Rectangle CloneRectangle
-            {
+            public Rectangle CloneRectangle {
                 get => cloneRectangle;
                 set => Set(ref cloneRectangle, value);
             }
@@ -75,8 +67,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Gets or sets a value indicating cloned rectangle is stretched during rendering, default is false.
             /// </summary>
-            public bool StretchToFill
-            {
+            public bool StretchToFill {
                 get => stretchToFill;
                 set => Set(ref stretchToFill, value);
             }
@@ -86,23 +77,17 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public bool ShowMouseCursor { get; set; } = true;
 
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return false;
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 return true;
             }
 
-            protected override void OnDetach()
-            {
-            }
+            protected override void OnDetach() { }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
         }
     }
 }

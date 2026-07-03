@@ -6,25 +6,17 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     Render color by mesh vertex position
 /// </summary>
-public sealed class PositionColorMaterial : Material
-{
-    public PositionColorMaterial()
-    {
-    }
+public sealed class PositionColorMaterial : Material {
+    public PositionColorMaterial() { }
 
-    public PositionColorMaterial(PositionMaterialCore core) : base(core)
-    {
-    }
+    public PositionColorMaterial(PositionMaterialCore core) : base(core) { }
 
-    protected override MaterialCore OnCreateCore()
-    {
+    protected override MaterialCore OnCreateCore() {
         return PositionMaterialCore.Core;
     }
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
-        return new PositionColorMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new PositionColorMaterial {
             Name = Name
         };
     }

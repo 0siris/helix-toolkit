@@ -10,10 +10,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 /// </summary>
 /// <seealso cref="Element3D" />
-public class PostEffectMeshXRayGrid : Element3D
-{
-    protected override SceneNode OnCreateSceneNode()
-    {
+public class PostEffectMeshXRayGrid : Element3D {
+    protected override SceneNode OnCreateSceneNode() {
         return new NodePostEffectXRayGrid();
     }
 
@@ -21,11 +19,9 @@ public class PostEffectMeshXRayGrid : Element3D
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="core">The core.</param>
-    protected override void AssignDefaultValuesToSceneNode(SceneNode core)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        if (core is NodePostEffectXRayGrid c)
-        {
+        if (core is NodePostEffectXRayGrid c) {
             c.EffectName = EffectName;
             c.Color = GridColor.ToColor4();
             c.GridDensity = GridDensity;
@@ -34,18 +30,20 @@ public class PostEffectMeshXRayGrid : Element3D
         }
     }
 
-    #region Dependency Properties
+#region Dependency Properties
 
     /// <summary>
     ///     The effect name property
     /// </summary>
     public static readonly DependencyProperty EffectNameProperty =
-        DependencyProperty.Register("EffectName", typeof(string), typeof(PostEffectMeshXRayGrid),
-            new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRayGrid,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).EffectName = (string) e.NewValue;
-                }));
+        DependencyProperty.Register("EffectName",
+                                    typeof(string),
+                                    typeof(PostEffectMeshXRayGrid),
+                                    new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRayGrid,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
+                                                                 .EffectName = (string) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -53,8 +51,7 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <value>
     ///     The name of the effect.
     /// </value>
-    public string EffectName
-    {
+    public string EffectName {
         get => (string) GetValue(EffectNameProperty);
         set => SetValue(EffectNameProperty, value);
     }
@@ -63,13 +60,14 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <summary>
     ///     The outline color property
     /// </summary>
-    public static DependencyProperty GridColorProperty = DependencyProperty.Register("GridColor", typeof(Color),
+    public static DependencyProperty GridColorProperty = DependencyProperty.Register("GridColor",
+        typeof(Color),
         typeof(PostEffectMeshXRayGrid),
         new PropertyMetadata(Colors.DarkBlue,
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).Color = ((Color) e.NewValue).ToColor4();
-            }));
+                             (d, e) => {
+                                 ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).Color =
+                                     ((Color) e.NewValue).ToColor4();
+                             }));
 
     /// <summary>
     ///     Gets or sets the color of the outline.
@@ -77,8 +75,7 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <value>
     ///     The color of the outline.
     /// </value>
-    public Color GridColor
-    {
+    public Color GridColor {
         get => (Color) GetValue(GridColorProperty);
         set => SetValue(GridColorProperty, value);
     }
@@ -89,8 +86,7 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <value>
     ///     The grid density.
     /// </value>
-    public int GridDensity
-    {
+    public int GridDensity {
         get => (int) GetValue(GridDensityProperty);
         set => SetValue(GridDensityProperty, value);
     }
@@ -99,8 +95,14 @@ public class PostEffectMeshXRayGrid : Element3D
     ///     The grid density property
     /// </summary>
     public static readonly DependencyProperty GridDensityProperty =
-        DependencyProperty.Register("GridDensity", typeof(int), typeof(PostEffectMeshXRayGrid), new PropertyMetadata(8,
-            (d, e) => { ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).GridDensity = (int) e.NewValue; }));
+        DependencyProperty.Register("GridDensity",
+                                    typeof(int),
+                                    typeof(PostEffectMeshXRayGrid),
+                                    new PropertyMetadata(8,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
+                                                                 .GridDensity = (int) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets the dimming factor.
@@ -108,8 +110,7 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <value>
     ///     The dimming factor.
     /// </value>
-    public double DimmingFactor
-    {
+    public double DimmingFactor {
         get => (double) GetValue(DimmingFactorProperty);
         set => SetValue(DimmingFactorProperty, value);
     }
@@ -118,13 +119,15 @@ public class PostEffectMeshXRayGrid : Element3D
     ///     The dimming factor property
     /// </summary>
     public static readonly DependencyProperty DimmingFactorProperty =
-        DependencyProperty.Register("DimmingFactor", typeof(double), typeof(PostEffectMeshXRayGrid),
-            new PropertyMetadata(0.8,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).DimmingFactor =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("DimmingFactor",
+                                    typeof(double),
+                                    typeof(PostEffectMeshXRayGrid),
+                                    new PropertyMetadata(0.8,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
+                                                                 .DimmingFactor =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
 
     /// <summary>
@@ -133,8 +136,7 @@ public class PostEffectMeshXRayGrid : Element3D
     /// <value>
     ///     The blending factor.
     /// </value>
-    public double BlendingFactor
-    {
+    public double BlendingFactor {
         get => (double) GetValue(BlendingFactorProperty);
         set => SetValue(BlendingFactorProperty, value);
     }
@@ -143,13 +145,15 @@ public class PostEffectMeshXRayGrid : Element3D
     ///     The blending factor property
     /// </summary>
     public static readonly DependencyProperty BlendingFactorProperty =
-        DependencyProperty.Register("BlendingFactor", typeof(double), typeof(PostEffectMeshXRayGrid),
-            new PropertyMetadata(1.0,
-                (d, e) =>
-                {
-                    ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).BlendingFactor =
-                        (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("BlendingFactor",
+                                    typeof(double),
+                                    typeof(PostEffectMeshXRayGrid),
+                                    new PropertyMetadata(1.0,
+                                                         (d, e) => {
+                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
+                                                                 .BlendingFactor =
+                                                                 (float) (double) e.NewValue;
+                                                         }));
 
-    #endregion
+#endregion
 }

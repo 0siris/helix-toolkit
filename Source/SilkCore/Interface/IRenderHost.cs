@@ -19,8 +19,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IRenderHost : IGUID, IDisposable
-{
+public interface IRenderHost : IGUID, IDisposable {
     /// <summary>
     ///     Gets the device.
     /// </summary>

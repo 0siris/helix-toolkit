@@ -12,31 +12,28 @@ using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         /// <summary>
         /// </summary>
-        public abstract class MaterialVariable : DisposeObject
-        {
+        public abstract class MaterialVariable : DisposeObject {
             private static readonly ILogger logger = LogManager.Create<MaterialVariable>();
 
             public static readonly ConstantBufferDescription DefaultMeshConstantBufferDesc
                 = new(DefaultBufferNames.ModelCB,
-                    PhongPBRMaterialStruct.SizeInBytes);
+                      PhongPBRMaterialStruct.SizeInBytes);
 
             public static readonly ConstantBufferDescription DefaultPointLineConstantBufferDesc
                 = new(DefaultBufferNames.PointLineModelCB,
-                    PointLineMaterialStruct.SizeInBytes);
+                      PointLineMaterialStruct.SizeInBytes);
 
             public static readonly ConstantBufferDescription DefaultVolumeConstantBufferDesc
                 = new(DefaultBufferNames.VolumeModelCB,
-                    VolumeParamsStruct.SizeInBytes);
+                      VolumeParamsStruct.SizeInBytes);
 
             public static readonly ConstantBufferDescription DefaultNonMaterialBufferDesc
                 = new(DefaultBufferNames.SimpleMeshCB,
-                    SimpleMeshStruct.SizeInBytes);
+                      SimpleMeshStruct.SizeInBytes);
 
             private readonly MaterialCore material;
 
@@ -72,21 +69,21 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="technique">The technique.</param>
             /// <param name="meshMaterialConstantBufferDesc">The Constant Buffer description</param>
             /// <param name="materialCore"></param>
-            public MaterialVariable(IEffectsManager manager, IRenderTechnique technique,
+            public MaterialVariable(
+                IEffectsManager manager,
+                IRenderTechnique technique,
                 ConstantBufferDescription meshMaterialConstantBufferDesc,
-                MaterialCore materialCore)
-            {
+                MaterialCore materialCore
+            ) {
                 Technique = technique;
                 EffectsManager = manager;
-                if (materialCore != null)
-                {
+                if (materialCore != null) {
                     material = materialCore;
                     material.PropertyChanged += MaterialCore_PropertyChanged;
                 }
 
                 materialCBDescription = meshMaterialConstantBufferDesc;
-                if (manager != null)
-                {
+                if (manager != null) {
                     storage = manager.StructArrayPool.Register(materialCBDescription.StructSize);
                     storageId = storage.GetId();
                 }
@@ -108,8 +105,7 @@ namespace HelixToolkit.SharpDX.Core
 
             public event EventHandler UpdateNeeded;
 
-            internal void Initialize()
-            {
+            internal void Initialize() {
                 if (EffectsManager == null) return;
                 materialCB = EffectsManager.ConstantBufferPool.Register(materialCBDescription);
                 nonMaterialCB = EffectsManager.ConstantBufferPool.Register(nonMaterialCBDescription);
@@ -118,9 +114,7 @@ namespace HelixToolkit.SharpDX.Core
                 initialized = true;
             }
 
-            protected virtual void OnInitialPropertyBindings()
-            {
-            }
+            protected virtual void OnInitialPropertyBindings() { }
 
             /// <summary>
             ///     Binds the material textures, samplers, etc,.
@@ -129,12 +123,13 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="shaderPass">The shader pass.</param>
             /// <returns></returns>
-            public abstract bool BindMaterialResources(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass shaderPass);
+            public abstract bool BindMaterialResources(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass shaderPass
+            );
 
-            protected virtual void UpdateInternalVariables(DeviceContextProxy deviceContext)
-            {
-            }
+            protected virtual void UpdateInternalVariables(DeviceContextProxy deviceContext) { }
 
             /// <summary>
             ///     Gets the pass.
@@ -173,8 +168,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name">The name.</param>
             /// <returns></returns>
-            public ShaderPass GetPassByName(string name)
-            {
+            public ShaderPass GetPassByName(string name) {
                 return Technique[name];
             }
 
@@ -184,14 +178,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <typeparam name="T"></typeparam>
             /// <param name="context">The context.</param>
             /// <param name="model">The model.</param>
-            public bool UpdateMaterialStruct<T>(DeviceContextProxy context, ref T model) where T : unmanaged
-            {
+            public bool UpdateMaterialStruct<T>(DeviceContextProxy context, ref T model) where T : unmanaged {
                 if (!initialized) return false;
                 if (NeedUpdate)
-                    lock (updateLock)
-                    {
-                        if (NeedUpdate)
-                        {
+                    lock (updateLock) {
+                        if (NeedUpdate) {
                             UpdateInternalVariables(context);
                             NeedUpdate = false;
                         }
@@ -200,9 +191,10 @@ namespace HelixToolkit.SharpDX.Core
                 var structSize = UnsafeHelper.SizeOf<T>();
                 var box = materialCB.Map(context);
                 UnsafeHelper.Write(box.DataPointer, ref model);
-                var succ = storage.Read(storageId, structSize,
-                    box.DataPointer + structSize,
-                    storage.StructSize - structSize);
+                var succ = storage.Read(storageId,
+                                        structSize,
+                                        box.DataPointer + structSize,
+                                        storage.StructSize - structSize);
                 materialCB.Unmap(context);
                 return succ;
             }
@@ -214,11 +206,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="context">The context.</param>
             /// <param name="model">The model.</param>
             /// <returns></returns>
-            public bool UpdateNonMaterialStruct<T>(DeviceContextProxy context, ref T model) where T : unmanaged
-            {
+            public bool UpdateNonMaterialStruct<T>(DeviceContextProxy context, ref T model) where T : unmanaged {
                 if (!initialized) return false;
-                if (UnsafeHelper.SizeOf<T>() != nonMaterialCB.StructureSize)
-                {
+                if (UnsafeHelper.SizeOf<T>() != nonMaterialCB.StructureSize) {
                     Debug.Assert(false);
                     return false;
                 }
@@ -235,26 +225,26 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="bufferModel">Geometry buffer model.</param>
             /// <param name="instanceCount">The instance count.</param>
-            public abstract void Draw(DeviceContextProxy deviceContext, IAttachableBufferModel bufferModel,
-                int instanceCount);
+            public abstract void Draw(
+                DeviceContextProxy deviceContext,
+                IAttachableBufferModel bufferModel,
+                int instanceCount
+            );
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void InvalidateRenderer()
-            {
+            protected void InvalidateRenderer() {
                 Technique?.EffectsManager?.RaiseInvalidateRender();
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void NotifyUpdateNeeded()
-            {
+            protected void NotifyUpdateNeeded() {
                 NeedUpdate = true;
                 UpdateNeeded?.Invoke(this, EventArgs.Empty);
                 InvalidateRenderer();
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static void DrawIndexed(DeviceContextProxy context, int indexCount, int instanceCount)
-            {
+            public static void DrawIndexed(DeviceContextProxy context, int indexCount, int instanceCount) {
                 if (instanceCount <= 0)
                     context.DrawIndexed(indexCount, 0, 0);
                 else
@@ -262,8 +252,7 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static void DrawPoints(DeviceContextProxy context, int vertexCount, int instanceCount)
-            {
+            public static void DrawPoints(DeviceContextProxy context, int vertexCount, int instanceCount) {
                 if (instanceCount <= 0)
                     context.Draw(vertexCount, 0);
                 else
@@ -277,12 +266,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="value">The value.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void WriteValue<T>(string name, ref T value) where T : unmanaged
-            {
-                if (materialCB != null && materialCB.TryGetVariableByName(name, out var variable))
-                {
-                    if (UnsafeHelper.SizeOf<T>() > variable.Size)
-                    {
+            public void WriteValue<T>(string name, ref T value) where T : unmanaged {
+                if (materialCB != null && materialCB.TryGetVariableByName(name, out var variable)) {
+                    if (UnsafeHelper.SizeOf<T>() > variable.Size) {
                         var structSize = UnsafeHelper.SizeOf<T>();
                         throw new ArgumentException(
                             $"Input struct size {structSize} is larger than shader variable {variable.Name} size {variable.Size}");
@@ -290,9 +276,7 @@ namespace HelixToolkit.SharpDX.Core
 
                     if (!storage.Write(storageId, variable.StartOffset, ref value))
                         throw new ArgumentException($"Failed to write value on {name}");
-                }
-                else
-                {
+                } else {
 #if DEBUG
                     throw new ArgumentException(
                         $"Variable not found in constant buffer {materialCB.Name}. Variable = {name}");
@@ -309,22 +293,19 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="value">The value.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void WriteValue<T>(string name, T value) where T : unmanaged
-            {
+            public void WriteValue<T>(string name, T value) where T : unmanaged {
                 WriteValue(name, ref value);
             }
 
             /// <summary>
             /// </summary>
             /// <param name="disposeManagedResources"></param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 RemoveAndDispose(ref materialCB);
                 RemoveAndDispose(ref nonMaterialCB);
                 storage.ReleaseId(storageId);
                 RemoveAndDispose(ref storage);
-                if (disposeManagedResources)
-                {
+                if (disposeManagedResources) {
                     UpdateNeeded = null;
                     if (material != null) material.PropertyChanged -= MaterialCore_PropertyChanged;
                     propertyBindings.Clear();
@@ -333,27 +314,24 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region Material Property Bindings
+        #region Material Property Bindings
 
             private readonly Dictionary<string, Action> propertyBindings = new();
 
-            protected void AddPropertyBinding(string propertyName, Action action)
-            {
+            protected void AddPropertyBinding(string propertyName, Action action) {
                 propertyBindings.Add(propertyName, action);
             }
 
-            protected void TriggerPropertyAction(string propertyName)
-            {
+            protected void TriggerPropertyAction(string propertyName) {
                 if (propertyBindings.TryGetValue(propertyName, out var act)) act.Invoke();
             }
 
-            private void MaterialCore_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
+            private void MaterialCore_PropertyChanged(object sender, PropertyChangedEventArgs e) {
                 TriggerPropertyAction(e.PropertyName);
                 InvalidateRenderer();
             }
 
-            #endregion
+        #endregion
         }
     }
 }

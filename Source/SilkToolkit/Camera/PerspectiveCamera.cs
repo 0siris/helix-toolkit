@@ -8,25 +8,25 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public interface IPerspectiveCameraModel
-{
+public interface IPerspectiveCameraModel {
     double FieldOfView { get; set; }
 }
 
 /// <summary>
 ///     Represents a perspective projection camera.
 /// </summary>
-public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel
-{
+public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
     /// <summary>
     ///     The field of view property
     /// </summary>
-    public static readonly DependencyProperty FieldOfViewProperty = DependencyProperty.Register(
-        "FieldOfView", typeof(double), typeof(PerspectiveCamera), new PropertyMetadata(45.0,
-            (d, e) =>
-            {
-                ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView = (float) (double) e.NewValue;
-            }));
+    public static readonly DependencyProperty FieldOfViewProperty = DependencyProperty.Register("FieldOfView",
+        typeof(double),
+        typeof(PerspectiveCamera),
+        new PropertyMetadata(45.0,
+                             (d, e) => {
+                                 ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView =
+                                     (float) (double) e.NewValue;
+                             }));
 
     /// <summary>
     ///     Gets or sets the field of view.
@@ -34,19 +34,16 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel
     /// <value>
     ///     The field of view.
     /// </value>
-    public double FieldOfView
-    {
+    public double FieldOfView {
         get => (double) GetValue(FieldOfViewProperty);
         set => SetValue(FieldOfViewProperty, value);
     }
 
-    protected override CameraCore CreatePortableCameraCore()
-    {
+    protected override CameraCore CreatePortableCameraCore() {
         return new PerspectiveCameraCore();
     }
 
-    protected override void OnCoreCreated(CameraCore core)
-    {
+    protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
         (core as PerspectiveCameraCore).FarPlaneDistance = (float) FarPlaneDistance;
         (core as PerspectiveCameraCore).FieldOfView = (float) FieldOfView;
@@ -54,8 +51,7 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
+    protected override Freezable CreateInstanceCore() {
         return new PerspectiveCamera();
     }
 #endif

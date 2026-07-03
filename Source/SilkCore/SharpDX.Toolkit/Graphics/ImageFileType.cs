@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Image file format
 /// </summary>
-public enum ImageFileType
-{
+public enum ImageFileType {
     /// <summary>
     ///     A DDS file.
     /// </summary>

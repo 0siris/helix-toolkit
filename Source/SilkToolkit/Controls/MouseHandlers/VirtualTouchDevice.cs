@@ -20,8 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     A virtual <see cref="TouchDevice" /> enabling Windows.Forms controls to generate Touch/Manipulation-Events.
 /// </summary>
-public class VirtualTouchDevice : TouchDevice
-{
+public class VirtualTouchDevice : TouchDevice {
     private static readonly Dictionary<int, VirtualTouchDevice> Devices = new();
 
     private TouchAction lastAction;
@@ -29,53 +28,42 @@ public class VirtualTouchDevice : TouchDevice
     private Point lastPosition;
 
     private VirtualTouchDevice(int id)
-        : base(id)
-    {
-    }
+        : base(id) { }
 
     [DllImport("user32")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool RegisterTouchWindow(PointerSize hWnd, uint ulFlags);
 
-    public static bool WndProc(Visual visual, ref Message m)
-    {
-        if (m.Msg == W32.WM_TOUCH)
-        {
+    public static bool WndProc(Visual visual, ref Message m) {
+        if (m.Msg == W32.WM_TOUCH) {
             var inputCount = m.WParam.ToInt32() & 0xffff;
             var inputs = new W32.TOUCHINPUT[inputCount];
 
             if (W32.GetTouchInputInfo(m.LParam, inputCount, inputs, W32.TOUCHINPUT_SIZE))
-                for (var i = 0; i < inputCount; i++)
-                {
+                for (var i = 0; i < inputCount; i++) {
                     var input = inputs[i];
                     var position = new Point(input.x * 0.01, input.y * 0.01);
                     position = visual.PointFromScreen(position);
 
-                    if (!Devices.TryGetValue(input.dwID, out var device))
-                    {
+                    if (!Devices.TryGetValue(input.dwID, out var device)) {
                         device = new VirtualTouchDevice(input.dwID);
                         Devices.Add(input.dwID, device);
                     }
 
-                    if (!device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.DOWN))
-                    {
+                    if (!device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.DOWN)) {
                         device.SetActiveSource(PresentationSource.FromVisual(visual));
                         device.lastPosition = position;
                         device.lastAction = TouchAction.Down;
                         device.Activate();
                         device.ReportDown();
-                    }
-                    else if (device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.UP))
-                    {
+                    } else if (device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.UP)) {
                         device.lastPosition = position;
                         device.lastAction = TouchAction.Up;
                         device.ReportUp();
                         device.Deactivate();
                         Devices.Remove(input.dwID);
-                    }
-                    else if (device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.MOVE) &&
-                             device.lastPosition != position)
-                    {
+                    } else if (device.IsActive && input.dwFlags.HasFlag(W32.TOUCHEVENTF.MOVE) &&
+                               device.lastPosition != position) {
                         device.lastPosition = position;
                         device.lastAction = TouchAction.Move;
                         device.ReportMove();
@@ -90,13 +78,11 @@ public class VirtualTouchDevice : TouchDevice
         return false;
     }
 
-    public override TouchPointCollection GetIntermediateTouchPoints(IInputElement relativeTo)
-    {
+    public override TouchPointCollection GetIntermediateTouchPoints(IInputElement relativeTo) {
         return new TouchPointCollection();
     }
 
-    public override TouchPoint GetTouchPoint(IInputElement relativeTo)
-    {
+    public override TouchPoint GetTouchPoint(IInputElement relativeTo) {
         var pt = lastPosition;
         var relativeVisual = relativeTo as Visual;
         var rootVisual = ActiveSource?.RootVisual;
@@ -107,17 +93,14 @@ public class VirtualTouchDevice : TouchDevice
         return new TouchPoint(this, pt, rect, lastAction);
     }
 
-    protected override void OnCapture(IInputElement element, CaptureMode captureMode)
-    {
+    protected override void OnCapture(IInputElement element, CaptureMode captureMode) {
         Mouse.PrimaryDevice.Capture(element, captureMode);
     }
 
     // ReSharper disable InconsistentNaming
-    private static class W32
-    {
+    private static class W32 {
         [Flags]
-        public enum TOUCHEVENTF
-        {
+        public enum TOUCHEVENTF {
             MOVE = 0x0001,
             DOWN = 0x0002,
             UP = 0x0004,
@@ -127,8 +110,7 @@ public class VirtualTouchDevice : TouchDevice
             PEN = 0x0040
         }
 
-        public enum TOUCHINPUTMASKF
-        {
+        public enum TOUCHINPUTMASKF {
             TIMEFROMSYSTEM = 0x0001,
             EXTRAINFO = 0x0002,
             CONTACTAREA = 0x0004
@@ -140,9 +122,12 @@ public class VirtualTouchDevice : TouchDevice
 
         [DllImport("user32")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetTouchInputInfo(PointerSize hTouchInput, int cInputs,
+        public static extern bool GetTouchInputInfo(
+            PointerSize hTouchInput,
+            int cInputs,
             [In] [Out] TOUCHINPUT[] pInputs,
-            int cbSize);
+            int cbSize
+        );
 
         [DllImport("user32")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -150,8 +135,7 @@ public class VirtualTouchDevice : TouchDevice
 
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct TOUCHINPUT
-        {
+        public struct TOUCHINPUT {
             public int x;
             public int y;
             public PointerSize hSource;
@@ -165,8 +149,7 @@ public class VirtualTouchDevice : TouchDevice
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct POINTS
-        {
+        public struct POINTS {
             public short x;
             public short y;
         }

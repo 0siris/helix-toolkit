@@ -7,14 +7,11 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams
-        {
+        public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
             private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
 
             protected PointLineModelStruct modelStruct;
@@ -22,11 +19,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Used to wrap all material resources
             /// </summary>
-            public MaterialVariable MaterialVariables
-            {
+            public MaterialVariable MaterialVariables {
                 get => materialVariables;
-                set
-                {
+                set {
                     var old = materialVariables;
                     if (SetAffectsCanRenderFlag(ref materialVariables, value))
                         if (value == null)
@@ -34,14 +29,12 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected virtual void OnUpdatePerModelStruct()
-            {
+            protected virtual void OnUpdatePerModelStruct() {
                 modelStruct.World = ModelMatrix;
                 modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
             }
 
-            protected override bool OnUpdateCanRenderFlag()
-            {
+            protected override bool OnUpdateCanRenderFlag() {
                 return base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
             }
 
@@ -50,32 +43,27 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
                 var shaderPass = materialVariables.GetPass(RenderType, context);
                 if (shaderPass.IsNULL) return;
                 OnUpdatePerModelStruct();
                 if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
-                if (materialVariables.BindMaterialResources(context, deviceContext, shaderPass))
-                {
+                if (materialVariables.BindMaterialResources(context, deviceContext, shaderPass)) {
                     shaderPass.BindShader(deviceContext);
                     shaderPass.BindStates(deviceContext, DefaultStateBinding);
                     materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
                 }
             }
 
-            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
                 if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
                 var pass = materialVariables.GetShadowPass(RenderType, context);
                 if (pass.IsNULL) return;
-                var v = new SimpleMeshStruct
-                {
+                var v = new SimpleMeshStruct {
                     World = ModelMatrix,
                     HasInstances = InstanceBuffer.HasElements ? 1 : 0
                 };
@@ -85,15 +73,16 @@ namespace HelixToolkit.SharpDX.Core
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-            protected sealed override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
+            protected sealed override void OnRenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) {
                 var pass = customPass ?? materialVariables.GetDepthPass(RenderType, context);
                 if (pass.IsNULL) return;
                 OnUpdatePerModelStruct();
                 if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelStruct)) return;
-                if (materialVariables.BindMaterialResources(context, deviceContext, pass))
-                {
+                if (materialVariables.BindMaterialResources(context, deviceContext, pass)) {
                     pass.BindShader(deviceContext);
                     pass.BindStates(deviceContext, DefaultStateBinding);
                     materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);

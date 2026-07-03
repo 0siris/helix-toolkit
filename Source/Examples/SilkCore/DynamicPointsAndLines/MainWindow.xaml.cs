@@ -11,25 +11,21 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace DynamicPointsAndLines
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        private readonly MainViewModel viewModel = new MainViewModel();
+namespace DynamicPointsAndLines;
 
-        public MainWindow()
-        {
-            InitializeComponent();
-            this.DataContext = viewModel;
-            CompositionTarget.Rendering += this.OnCompositionTargetRendering;
-        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    private readonly MainViewModel viewModel = new MainViewModel();
 
-        private void OnCompositionTargetRendering(object sender, EventArgs e)
-        {
-            viewModel.UpdatePoints();
-        }
+    public MainWindow() {
+        InitializeComponent();
+        this.DataContext = viewModel;
+        CompositionTarget.Rendering += this.OnCompositionTargetRendering;
+    }
+
+    private void OnCompositionTargetRendering(object sender, EventArgs e) {
+        viewModel.UpdatePoints();
     }
 }

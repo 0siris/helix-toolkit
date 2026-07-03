@@ -7,14 +7,11 @@ using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Render
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Render {
         /// <summary>
         /// </summary>
-        public abstract class DX11RenderBufferProxyBase : DisposeObject
-        {
+        public abstract class DX11RenderBufferProxyBase : DisposeObject {
             /// <summary>
             ///     The back buffer
             /// </summary>
@@ -53,8 +50,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="deviceResource">The device resources.</param>
             /// <param name="useDepthStencilBuffer"></param>
-            public DX11RenderBufferProxyBase(IDeviceResources deviceResource, bool useDepthStencilBuffer = true)
-            {
+            public DX11RenderBufferProxyBase(IDeviceResources deviceResource, bool useDepthStencilBuffer = true) {
                 DeviceResources = deviceResource;
                 deviceContextPool = new DeviceContextPool(deviceResource.NativeDeviceResources.Device);
                 UseDepthStencilBuffer = useDepthStencilBuffer;
@@ -186,13 +182,10 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public event EventHandler<EventArgs> DeviceLost;
 
-            private void CreateNonMSAADepthStencilBuffer(int width, int height)
-            {
-                if (HasMSAA)
-                {
+            private void CreateNonMSAADepthStencilBuffer(int width, int height) {
+                if (HasMSAA) {
                     var depthFormat = Format.FormatD32FloatS8X24Uint;
-                    var depthdesc = new Texture2DDescription
-                    {
+                    var depthdesc = new Texture2DDescription {
                         BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource,
                         Format = depthFormat.ComputeTextureFormat(out _),
                         Width = width,
@@ -205,26 +198,21 @@ namespace HelixToolkit.SharpDX.Core
                         ArraySize = 1
                     };
                     depthStencilBufferNoMSAA = new ShaderResourceViewProxy(DeviceResources, depthdesc);
-                    depthStencilBufferNoMSAA.CreateDepthStencilView(new DepthStencilViewDescription
-                    {
+                    depthStencilBufferNoMSAA.CreateDepthStencilView(new DepthStencilViewDescription {
                         Format = depthFormat.ComputeDSVFormat(),
                         Dimension = DepthStencilViewDimension.Texture2D
                     });
-                    depthStencilBufferNoMSAA.CreateTextureView(new ShaderResourceViewDescription
-                    {
+                    depthStencilBufferNoMSAA.CreateTextureView(new ShaderResourceViewDescription {
                         Format = depthFormat.ComputeSRVFormat(),
                         Dimension = ShaderResourceViewDimension.Texture2D,
                         Texture2D = new ShaderResourceViewDescription.Texture2DResource {MipLevels = 1}
                     });
-                }
-                else
-                {
+                } else {
                     depthStencilBufferNoMSAA = depthStencilBuffer;
                 }
             }
 
-            private ShaderResourceViewProxy CreateRenderTarget(int width, int height, MSAALevel msaa)
-            {
+            private ShaderResourceViewProxy CreateRenderTarget(int width, int height, MSAALevel msaa) {
 #if MSAA
                 MSAA = msaa;
 #endif
@@ -232,107 +220,111 @@ namespace HelixToolkit.SharpDX.Core
                 TargetHeight = height;
                 DisposeBuffers();
                 ColorBufferSampleDesc = GetMSAASampleDescription();
-                OnCreateRenderTargetAndDepthBuffers(width, height, UseDepthStencilBuffer, out colorBuffer,
-                    out depthStencilBuffer);
+                OnCreateRenderTargetAndDepthBuffers(width,
+                                                    height,
+                                                    UseDepthStencilBuffer,
+                                                    out colorBuffer,
+                                                    out depthStencilBuffer);
                 CreateNonMSAADepthStencilBuffer(width, height);
                 backBuffer = OnCreateBackBuffer(width, height);
                 backBuffer.CreateRenderTargetView();
 
-                #region Initialize Texture Pool
+            #region Initialize Texture Pool
 
                 InitializeTexturePools(width, height);
 
-                #endregion
+            #endregion
 
                 Initialized = true;
                 OnNewBufferCreated?.Invoke(this, new Texture2DArgs(backBuffer));
                 return backBuffer;
             }
 
-            private void InitializeTexturePools(int width, int height)
-            {
+            private void InitializeTexturePools(int width, int height) {
                 fullResPPBuffer = new PingPongColorBuffers(Format, width, height, DeviceResources);
-                fullResDepthStencilPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = width,
-                    Height = height,
-                    ArraySize = 1,
-                    BindFlags = BindFlags.DepthStencil,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                fullResDepthStencilPool = new TexturePool(DeviceResources,
+                                                          new Texture2DDescription {
+                                                              Width = width,
+                                                              Height = height,
+                                                              ArraySize = 1,
+                                                              BindFlags = BindFlags.DepthStencil,
+                                                              CpuAccessFlags = CpuAccessFlags.None,
+                                                              Usage = ResourceUsage.Default,
+                                                              MipLevels = 1,
+                                                              OptionFlags = ResourceOptionFlags.None,
+                                                              SampleDescription = new SampleDescription(1, 0)
+                                                          });
 
-                fullResRenderTargetPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = width,
-                    Height = height,
-                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    ArraySize = 1,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                fullResRenderTargetPool = new TexturePool(DeviceResources,
+                                                          new Texture2DDescription {
+                                                              Width = width,
+                                                              Height = height,
+                                                              BindFlags = BindFlags.RenderTarget |
+                                                                          BindFlags.ShaderResource,
+                                                              CpuAccessFlags = CpuAccessFlags.None,
+                                                              Usage = ResourceUsage.Default,
+                                                              ArraySize = 1,
+                                                              MipLevels = 1,
+                                                              OptionFlags = ResourceOptionFlags.None,
+                                                              SampleDescription = new SampleDescription(1, 0)
+                                                          });
 
-                halfResDepthStencilPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = Math.Max(2, width / 2),
-                    Height = Math.Max(2, height / 2),
-                    ArraySize = 1,
-                    BindFlags = BindFlags.DepthStencil,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                halfResDepthStencilPool = new TexturePool(DeviceResources,
+                                                          new Texture2DDescription {
+                                                              Width = Math.Max(2, width / 2),
+                                                              Height = Math.Max(2, height / 2),
+                                                              ArraySize = 1,
+                                                              BindFlags = BindFlags.DepthStencil,
+                                                              CpuAccessFlags = CpuAccessFlags.None,
+                                                              Usage = ResourceUsage.Default,
+                                                              MipLevels = 1,
+                                                              OptionFlags = ResourceOptionFlags.None,
+                                                              SampleDescription = new SampleDescription(1, 0)
+                                                          });
 
-                halfResRenderTargetPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = Math.Max(2, width / 2),
-                    Height = Math.Max(2, height / 2),
-                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    ArraySize = 1,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                halfResRenderTargetPool = new TexturePool(DeviceResources,
+                                                          new Texture2DDescription {
+                                                              Width = Math.Max(2, width / 2),
+                                                              Height = Math.Max(2, height / 2),
+                                                              BindFlags = BindFlags.RenderTarget |
+                                                                          BindFlags.ShaderResource,
+                                                              CpuAccessFlags = CpuAccessFlags.None,
+                                                              Usage = ResourceUsage.Default,
+                                                              ArraySize = 1,
+                                                              MipLevels = 1,
+                                                              OptionFlags = ResourceOptionFlags.None,
+                                                              SampleDescription = new SampleDescription(1, 0)
+                                                          });
 
-                quarterResDepthStencilPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = Math.Max(2, width / 4),
-                    Height = Math.Max(2, height / 4),
-                    ArraySize = 1,
-                    BindFlags = BindFlags.DepthStencil,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                quarterResDepthStencilPool = new TexturePool(DeviceResources,
+                                                             new Texture2DDescription {
+                                                                 Width = Math.Max(2, width / 4),
+                                                                 Height = Math.Max(2, height / 4),
+                                                                 ArraySize = 1,
+                                                                 BindFlags = BindFlags.DepthStencil,
+                                                                 CpuAccessFlags = CpuAccessFlags.None,
+                                                                 Usage = ResourceUsage.Default,
+                                                                 MipLevels = 1,
+                                                                 OptionFlags = ResourceOptionFlags.None,
+                                                                 SampleDescription = new SampleDescription(1, 0)
+                                                             });
 
-                quarterResRenderTargetPool = new TexturePool(DeviceResources, new Texture2DDescription
-                {
-                    Width = Math.Max(2, width / 4),
-                    Height = Math.Max(2, height / 4),
-                    BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    Usage = ResourceUsage.Default,
-                    ArraySize = 1,
-                    MipLevels = 1,
-                    OptionFlags = ResourceOptionFlags.None,
-                    SampleDescription = new SampleDescription(1, 0)
-                });
+                quarterResRenderTargetPool = new TexturePool(DeviceResources,
+                                                             new Texture2DDescription {
+                                                                 Width = Math.Max(2, width / 4),
+                                                                 Height = Math.Max(2, height / 4),
+                                                                 BindFlags = BindFlags.RenderTarget |
+                                                                             BindFlags.ShaderResource,
+                                                                 CpuAccessFlags = CpuAccessFlags.None,
+                                                                 Usage = ResourceUsage.Default,
+                                                                 ArraySize = 1,
+                                                                 MipLevels = 1,
+                                                                 OptionFlags = ResourceOptionFlags.None,
+                                                                 SampleDescription = new SampleDescription(1, 0)
+                                                             });
             }
 
-            private void DisposeTexturePools()
-            {
+            private void DisposeTexturePools() {
                 RemoveAndDispose(ref fullResPPBuffer);
                 RemoveAndDispose(ref fullResDepthStencilPool);
                 RemoveAndDispose(ref fullResRenderTargetPool);
@@ -345,8 +337,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Disposes the buffers.
             /// </summary>
-            protected virtual void DisposeBuffers()
-            {
+            protected virtual void DisposeBuffers() {
                 DeviceContext2D.Target = null;
                 DisposeTexturePools();
                 RemoveAndDispose(ref d2dTarget);
@@ -358,14 +349,12 @@ namespace HelixToolkit.SharpDX.Core
 
             protected abstract ShaderResourceViewProxy OnCreateBackBuffer(int width, int height);
 
-            protected virtual SampleDescription GetMSAASampleDescription()
-            {
+            protected virtual SampleDescription GetMSAASampleDescription() {
                 var sampleCount = 1;
                 var sampleQuality = 0;
 #if MSAA
                 if (MSAA != MSAALevel.Disable)
-                    do
-                    {
+                    do {
                         var newSampleCount = sampleCount * 2;
                         var newSampleQuality =
                             Device.CheckMultisampleQualityLevels(Format.FormatB8G8R8A8Unorm, newSampleCount) - 1;
@@ -389,15 +378,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="colorBuffer"></param>
             /// <param name="depthStencilBuffer"></param>
             /// <returns></returns>
-            protected virtual void OnCreateRenderTargetAndDepthBuffers(int width, int height,
+            protected virtual void OnCreateRenderTargetAndDepthBuffers(
+                int width,
+                int height,
                 bool createDepthStencilBuffer,
-                out ShaderResourceViewProxy colorBuffer, out ShaderResourceViewProxy depthStencilBuffer)
-            {
+                out ShaderResourceViewProxy colorBuffer,
+                out ShaderResourceViewProxy depthStencilBuffer
+            ) {
                 var sampleDesc = ColorBufferSampleDesc;
                 var optionFlags = ResourceOptionFlags.None;
 
-                var colordesc = new Texture2DDescription
-                {
+                var colordesc = new Texture2DDescription {
                     BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
                     Format = Format,
                     Width = width,
@@ -413,10 +404,8 @@ namespace HelixToolkit.SharpDX.Core
                 colorBuffer = new ShaderResourceViewProxy(DeviceResources, colordesc);
                 colorBuffer.CreateRenderTargetView();
                 colorBuffer.CreateTextureView();
-                if (createDepthStencilBuffer)
-                {
-                    var depthdesc = new Texture2DDescription
-                    {
+                if (createDepthStencilBuffer) {
+                    var depthdesc = new Texture2DDescription {
                         BindFlags = BindFlags.DepthStencil,
                         Format = Format.FormatD32FloatS8X24Uint.ComputeTextureFormat(out var canUseAsShaderResource),
                         Width = width,
@@ -431,25 +420,20 @@ namespace HelixToolkit.SharpDX.Core
                     canUseAsShaderResource &= !HasMSAA;
                     if (canUseAsShaderResource) depthdesc.BindFlags |= BindFlags.ShaderResource;
                     depthStencilBuffer = new ShaderResourceViewProxy(DeviceResources, depthdesc);
-                    depthStencilBuffer.CreateDepthStencilView(
-                        new DepthStencilViewDescription
-                        {
-                            Format = depthdesc.Format.ComputeDSVFormat(),
-                            Dimension = HasMSAA
-                                ? DepthStencilViewDimension.Texture2DMultisampled
-                                : DepthStencilViewDimension.Texture2D
-                        });
+                    depthStencilBuffer.CreateDepthStencilView(new DepthStencilViewDescription {
+                        Format = depthdesc.Format.ComputeDSVFormat(),
+                        Dimension = HasMSAA
+                                        ? DepthStencilViewDimension.Texture2DMultisampled
+                                        : DepthStencilViewDimension.Texture2D
+                    });
                     if (canUseAsShaderResource)
-                        depthStencilBuffer.CreateTextureView(new ShaderResourceViewDescription
-                        {
+                        depthStencilBuffer.CreateTextureView(new ShaderResourceViewDescription {
                             Format = depthdesc.Format.ComputeSRVFormat(),
                             Dimension = ShaderResourceViewDimension.Texture2D,
                             Texture2D = new ShaderResourceViewDescription.Texture2DResource
                                 {MipLevels = depthdesc.MipLevels}
                         });
-                }
-                else
-                {
+                } else {
                     depthStencilBuffer = null;
                 }
             }
@@ -457,10 +441,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Sets the default render-targets
             /// </summary>
-            public void SetDefaultRenderTargets(DeviceContextProxy context, bool isColorBuffer = true)
-            {
+            public void SetDefaultRenderTargets(DeviceContextProxy context, bool isColorBuffer = true) {
                 context.SetRenderTargets(isColorBuffer ? depthStencilBuffer : null,
-                    new RenderTargetView[] {isColorBuffer ? colorBuffer : backBuffer});
+                                         new RenderTargetView[] {isColorBuffer ? colorBuffer : backBuffer});
                 //context.OutputMerger.SetTargets(depthStencilBuffer, new RenderTargetView[] { isColorBuffer ? colorBuffer : backBuffer });
                 context.SetViewport(0, 0, TargetWidth, TargetHeight);
                 context.SetScissorRectangle(0, 0, TargetWidth, TargetHeight);
@@ -470,8 +453,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Clears the render target binding.
             /// </summary>
             /// <param name="context">The context.</param>
-            public void ClearRenderTargetBinding(DeviceContextProxy context)
-            {
+            public void ClearRenderTargetBinding(DeviceContextProxy context) {
                 context.ClearRenderTagetBindings();
             }
 
@@ -480,8 +462,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="color">The color.</param>
-            public void ClearRenderTarget(DeviceContextProxy context, Color4 color)
-            {
+            public void ClearRenderTarget(DeviceContextProxy context, Color4 color) {
                 ClearRenderTarget(context, color, true, true);
             }
 
@@ -492,14 +473,17 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="color"></param>
             /// <param name="clearBackBuffer"></param>
             /// <param name="clearDepthStencilBuffer"></param>
-            public void ClearRenderTarget(DeviceContextProxy context, Color4 color, bool clearBackBuffer,
-                bool clearDepthStencilBuffer)
-            {
+            public void ClearRenderTarget(
+                DeviceContextProxy context,
+                Color4 color,
+                bool clearBackBuffer,
+                bool clearDepthStencilBuffer
+            ) {
                 if (clearBackBuffer) context.ClearRenderTargetView(colorBuffer, color);
 
                 if (clearDepthStencilBuffer)
                     context.ClearDepthStencilView(depthStencilBuffer,
-                        DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil);
+                                                  DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil);
             }
 
             /// <summary>
@@ -509,8 +493,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="height">The height.</param>
             /// <param name="msaa">The msaa.</param>
             /// <returns></returns>
-            public ShaderResourceViewProxy Initialize(int width, int height, MSAALevel msaa)
-            {
+            public ShaderResourceViewProxy Initialize(int width, int height, MSAALevel msaa) {
 #if MSAA
                 return CreateRenderTarget(width, height, msaa);
 #else
@@ -524,8 +507,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="width"></param>
             /// <param name="height"></param>
             /// <returns></returns>
-            public virtual ShaderResourceViewProxy Resize(int width, int height)
-            {
+            public virtual ShaderResourceViewProxy Resize(int width, int height) {
 #if MSAA
                 return CreateRenderTarget(width, height, MSAA);
 #else
@@ -537,8 +519,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Begins the draw.
             /// </summary>
             /// <returns></returns>
-            public virtual bool BeginDraw()
-            {
+            public virtual bool BeginDraw() {
                 return Initialized;
             }
 
@@ -546,8 +527,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Ends the draw.
             /// </summary>
             /// <returns></returns>
-            public virtual bool EndDraw()
-            {
+            public virtual bool EndDraw() {
                 return true;
             }
 
@@ -555,8 +535,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Presents this drawing..
             /// </summary>
             /// <returns></returns>
-            public virtual bool Present()
-            {
+            public virtual bool Present() {
                 return true;
             }
 
@@ -567,8 +546,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to
             ///     release only unmanaged resources.
             /// </param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 OnNewBufferCreated = null;
                 DeviceLost = null;
                 DisposeBuffers();
@@ -578,19 +556,18 @@ namespace HelixToolkit.SharpDX.Core
                 base.OnDispose(disposeManagedResources);
             }
 
-            #region ERROR HANDLING
+        #region ERROR HANDLING
 
             /// <summary>
             ///     Raises the on device lost.
             /// </summary>
-            protected void RaiseOnDeviceLost()
-            {
+            protected void RaiseOnDeviceLost() {
                 DeviceLost?.Invoke(this, EventArgs.Empty);
             }
 
-            #endregion
+        #endregion
 
-            #region Offscreen Texture Pools
+        #region Offscreen Texture Pools
 
             private PingPongColorBuffers fullResPPBuffer;
             public PingPongColorBuffers FullResPPBuffer => fullResPPBuffer;
@@ -613,7 +590,7 @@ namespace HelixToolkit.SharpDX.Core
             private TexturePool quarterResRenderTargetPool;
             public TexturePool QuarterResRenderTargetPool => quarterResRenderTargetPool;
 
-            #endregion
+        #endregion
         }
     }
 }

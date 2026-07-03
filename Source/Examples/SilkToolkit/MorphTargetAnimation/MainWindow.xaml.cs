@@ -7,29 +7,25 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace MorphTargetAnimationDemo
-{
-    using System;
-    using System.Windows;
+namespace MorphTargetAnimationDemo;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        private MainViewModel mvm;
+using System;
+using System.Windows;
 
-        public MainWindow()
-        {
-            InitializeComponent();
-            mvm = new MainViewModel();
-            this.DataContext = mvm;
-            Closed += (s, e) => {
-                if (DataContext is IDisposable)
-                {
-                    (DataContext as IDisposable).Dispose();
-                }
-            };
-        }
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    private MainViewModel mvm;
+
+    public MainWindow() {
+        InitializeComponent();
+        mvm = new MainViewModel();
+        this.DataContext = mvm;
+        Closed += (s, e) => {
+            if (DataContext is IDisposable) {
+                (DataContext as IDisposable).Dispose();
+            }
+        };
     }
 }

@@ -1,15 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Utilities
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Utilities {
         /// <summary>
         ///     A simple curcular ring buffer implementation
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public sealed class SimpleRingBuffer<T>
-        {
+        public sealed class SimpleRingBuffer<T> {
             private readonly T[] buffer;
             private readonly int bufferSize;
             private int first;
@@ -20,8 +17,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Constructor
             /// </summary>
             /// <param name="size"></param>
-            public SimpleRingBuffer(int size)
-            {
+            public SimpleRingBuffer(int size) {
                 buffer = new T[size];
                 bufferSize = size;
             }
@@ -50,8 +46,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="item"></param>
             /// <returns>If buffer full, return false</returns>
-            public void Add(T item)
-            {
+            public void Add(T item) {
                 if (IsFull()) RemoveFirst();
                 buffer[next] = item;
                 last = next;
@@ -63,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Remove the last element added into the buffer
             /// </summary>
             /// <returns></returns>
-            public bool RemoveLast()
-            {
+            public bool RemoveLast() {
                 if (IsEmpty()) return false;
 
                 next = DecLast();
@@ -78,8 +72,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Remove the first element added into the buffer
             /// </summary>
             /// <returns></returns>
-            public bool RemoveFirst()
-            {
+            public bool RemoveFirst() {
                 if (IsEmpty()) return false;
 
                 buffer[first] = default;
@@ -92,8 +85,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     If buffer is full
             /// </summary>
             /// <returns></returns>
-            public bool IsFull()
-            {
+            public bool IsFull() {
                 return Count == bufferSize;
             }
 
@@ -102,35 +94,30 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool IsEmpty()
-            {
+            public bool IsEmpty() {
                 return Count == 0;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int IncLast()
-            {
+            private int IncLast() {
                 return (next + 1) % bufferSize;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int DecLast()
-            {
+            private int DecLast() {
                 var prev = next - 1;
                 return prev >= 0 ? prev : bufferSize - 1;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int IncFirst()
-            {
+            private int IncFirst() {
                 return (first + 1) % bufferSize;
             }
 
             /// <summary>
             ///     Reset
             /// </summary>
-            public void Clear()
-            {
+            public void Clear() {
                 Array.Clear(buffer, 0, bufferSize);
                 first = next = 0;
                 last = -1;

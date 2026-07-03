@@ -10,24 +10,24 @@
         mc:Ignorable="d"
         Title="SharpDX in WPF (Workitem 10053)" Height="500" Width="800">
     <Window.DataContext>
-        <local:MainViewModel/>
+        <local:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <ResourceDictionary Source="Resources.xaml"/>
+        <ResourceDictionary Source="Resources.xaml" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
             <!--<RowDefinition Height="Auto"/>-->
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0" VerticalAlignment="Top">
             <Menu.Background>
-                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke"/>
+                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </Menu.Background>
             <MenuItem Header="View">
-                <MenuItem Header="Zoom extents" Command="hx:ViewportCommands.ZoomExtents"/>
+                <MenuItem Header="Zoom extents" Command="hx:ViewportCommands.ZoomExtents" />
             </MenuItem>
         </Menu>
 
@@ -64,36 +64,44 @@
                 <hx:ManipulationBinding Command="hx:ViewportCommands.Pan" Gesture="TwoFingerPan" />
                 <hx:ManipulationBinding Command="hx:ViewportCommands.Zoom" Gesture="Pinch" />
             </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="Black"/>
-            <hx:DirectionalLight3D Color="White" Direction="-2,-5,-2"/>
-            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model1Transform}" Material="{x:Static hx:PhongMaterials.Red}"/>
-            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model2Transform}" Material="{x:Static hx:PhongMaterials.Green}"/>
-            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model3Transform}" Material="{x:Static hx:PhongMaterials.Blue}"/>
-            <hx:LineGeometryModel3D Geometry="{StaticResource Lines}" Transform="{StaticResource Model1Transform}" Color="Black" Thickness="1.5"/>
+            <hx:AmbientLight3D Color="Black" />
+            <hx:DirectionalLight3D Color="White" Direction="-2,-5,-2" />
+            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model1Transform}"
+                                    Material="{x:Static hx:PhongMaterials.Red}" />
+            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model2Transform}"
+                                    Material="{x:Static hx:PhongMaterials.Green}" />
+            <hx:MeshGeometryModel3D Geometry="{StaticResource Model}" Transform="{StaticResource Model3Transform}"
+                                    Material="{x:Static hx:PhongMaterials.Blue}" />
+            <hx:LineGeometryModel3D Geometry="{StaticResource Lines}" Transform="{StaticResource Model1Transform}"
+                                    Color="Black" Thickness="1.5" />
         </hx:Viewport3DX>
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
             <StatusBar.Background>
-                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke"/>
+                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>
             <StatusBarItem>
-                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}"/>
+                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left"
+                           Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.Position, StringFormat=Position: \{0:0.0\}}"/>
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.Position, StringFormat=Position: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}"/>
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.LookDirection, StringFormat=LookDirection: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}"/>
+                <TextBlock
+                    Text="{Binding ElementName=Viewport, Path=Camera.UpDirection, StringFormat=UpDirection: \{0:0.0\}}" />
             </StatusBarItem>
-            <Separator/>
+            <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding ElementName=Viewport, Path=Items.Count, StringFormat=Children: \{0\}}"/>
+                <TextBlock Text="{Binding ElementName=Viewport, Path=Items.Count, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

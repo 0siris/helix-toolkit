@@ -83,8 +83,9 @@
                 FillMode="{Binding FillMode}"
                 Geometry="{Binding SphereModel}"
                 Material="{Binding SphereMaterial}" />
-            <hx:PointMaterialGeometryModel3D Geometry="{Binding PointModel}" Material="{Binding CustomPointMaterial}" Transform="{Binding PointTransform}"/>
-            <hx:ContinuousRender3D/>
+            <hx:PointMaterialGeometryModel3D Geometry="{Binding PointModel}" Material="{Binding CustomPointMaterial}"
+                                             Transform="{Binding PointTransform}" />
+            <hx:ContinuousRender3D />
         </hx:Viewport3DX>
 
         <StackPanel
@@ -97,7 +98,8 @@
             <CheckBox Margin="5" IsChecked="{Binding ElementName=dataVisual, Path=RenderWireframe}">Show Wireframe</CheckBox>
             <StackPanel Orientation="Horizontal">
                 <Label>Height Scale:</Label>
-                <TextBlock VerticalAlignment="Center" Text="{Binding ElementName=dataVisual, Path=HeightScale, StringFormat=N2}" />
+                <TextBlock VerticalAlignment="Center"
+                           Text="{Binding ElementName=dataVisual, Path=HeightScale, StringFormat=N2}" />
             </StackPanel>
             <Slider
                 Margin="0,0,0,5"

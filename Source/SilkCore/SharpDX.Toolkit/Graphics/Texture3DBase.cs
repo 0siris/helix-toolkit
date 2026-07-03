@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Abstract class front end to the native D3D Texture3D.
 /// </summary>
-public abstract class Texture3DBase : Texture
-{
+public abstract class Texture3DBase : Texture {
     /// <summary>
     /// </summary>
     protected new readonly NativeD3DTexture3D Resource;
@@ -26,8 +25,7 @@ public abstract class Texture3DBase : Texture
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
     protected internal Texture3DBase(NativeD3DDevice device, NativeTexture3DDescription description3D)
-        : base(device, description3D)
-    {
+        : base(device, description3D) {
         Resource = device.CreateTexture3D(description3D);
         Initialize(Resource);
     }
@@ -44,10 +42,12 @@ public abstract class Texture3DBase : Texture
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    protected internal Texture3DBase(NativeD3DDevice device, NativeTexture3DDescription description3D,
-        DataBox[] dataRectangles)
-        : base(device, description3D)
-    {
+    protected internal Texture3DBase(
+        NativeD3DDevice device,
+        NativeTexture3DDescription description3D,
+        DataBox[] dataRectangles
+    )
+        : base(device, description3D) {
         Resource = device.CreateTexture3D(description3D, dataRectangles);
         Initialize(Resource);
     }
@@ -64,8 +64,7 @@ public abstract class Texture3DBase : Texture
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
     protected internal Texture3DBase(NativeD3DDevice device, NativeD3DTexture3D texture)
-        : base(device, texture.Description)
-    {
+        : base(device, texture.Description) {
         Resource = texture;
         Initialize(Resource);
     }
@@ -80,14 +79,19 @@ public abstract class Texture3DBase : Texture
     /// <param name="mipCount"></param>
     /// <param name="usage"></param>
     /// <returns></returns>
-    protected static NativeTexture3DDescription NewDescription(int width, int height, int depth, PixelFormat format,
-        TextureFlags textureFlags, int mipCount, ResourceUsage usage)
-    {
+    protected static NativeTexture3DDescription NewDescription(
+        int width,
+        int height,
+        int depth,
+        PixelFormat format,
+        TextureFlags textureFlags,
+        int mipCount,
+        ResourceUsage usage
+    ) {
         if ((textureFlags & TextureFlags.UnorderedAccess) != 0)
             usage = ResourceUsage.Default;
 
-        var desc = new NativeTexture3DDescription
-        {
+        var desc = new NativeTexture3DDescription {
             Width = width,
             Height = height,
             Depth = depth,
@@ -106,8 +110,7 @@ public abstract class Texture3DBase : Texture
         return desc;
     }
 
-    protected override void Dispose(bool disposeManagedResources)
-    {
+    protected override void Dispose(bool disposeManagedResources) {
         Resource?.Dispose();
         base.Dispose(disposeManagedResources);
     }

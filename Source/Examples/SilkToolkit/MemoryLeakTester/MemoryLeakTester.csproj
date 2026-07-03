@@ -1,63 +1,63 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 
-        <RootNamespace>MemoryLeakTester</RootNamespace>
-        <AssemblyName>MemoryLeakTester</AssemblyName>
+    <RootNamespace>MemoryLeakTester</RootNamespace>
+    <AssemblyName>MemoryLeakTester</AssemblyName>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
 
-        <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
-        <ProjectReference Include="..\BoneSkinDemo\BoneSkinDemo.csproj" />
-        <ProjectReference Include="..\CrossSectionDemo\CrossSectionDemo.csproj" />
-        <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
-        <ProjectReference Include="..\DynamicTextureDemo\DynamicTextureDemo.csproj" />
-        <ProjectReference Include="..\EnvironmentMapDemo\EnvironmentMapDemo.csproj" />
-        <ProjectReference Include="..\InstancingDemo\InstancingDemo.csproj" />
-        <ProjectReference Include="..\LightingDemo\LightingDemo.csproj" />
-        <ProjectReference Include="..\LineShadingDemo\LineShadingDemo.csproj" />
-        <ProjectReference Include="..\MaterialDemo\MaterialDemo.csproj" />
-        <ProjectReference Include="..\OctreeDemo\OctreeDemo.csproj" />
-        <ProjectReference Include="..\ParticleSystemDemo\ParticleSystemDemo.csproj" />
-        <ProjectReference Include="..\ShadowMapDemo\ShadowMapDemo.csproj" />
-        <ProjectReference Include="..\SimpleDemo\SimpleDemo.csproj" />
-        <ProjectReference Include="..\TemplateDemo\TemplateDemo.csproj" />
-        <ProjectReference Include="..\TessellationDemo\TessellationDemo.csproj" />
-        <ProjectReference Include="..\XRayDemo\XRayDemo.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\BoneSkinDemo\BoneSkinDemo.csproj"/>
+    <ProjectReference Include="..\CrossSectionDemo\CrossSectionDemo.csproj"/>
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
+    <ProjectReference Include="..\DynamicTextureDemo\DynamicTextureDemo.csproj"/>
+    <ProjectReference Include="..\EnvironmentMapDemo\EnvironmentMapDemo.csproj"/>
+    <ProjectReference Include="..\InstancingDemo\InstancingDemo.csproj"/>
+    <ProjectReference Include="..\LightingDemo\LightingDemo.csproj"/>
+    <ProjectReference Include="..\LineShadingDemo\LineShadingDemo.csproj"/>
+    <ProjectReference Include="..\MaterialDemo\MaterialDemo.csproj"/>
+    <ProjectReference Include="..\OctreeDemo\OctreeDemo.csproj"/>
+    <ProjectReference Include="..\ParticleSystemDemo\ParticleSystemDemo.csproj"/>
+    <ProjectReference Include="..\ShadowMapDemo\ShadowMapDemo.csproj"/>
+    <ProjectReference Include="..\SimpleDemo\SimpleDemo.csproj"/>
+    <ProjectReference Include="..\TemplateDemo\TemplateDemo.csproj"/>
+    <ProjectReference Include="..\TessellationDemo\TessellationDemo.csproj"/>
+    <ProjectReference Include="..\XRayDemo\XRayDemo.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-        <PackageReference Include="Expression.Interaction" Version="3.0.40218" />
-        <PackageReference Include="Fody" Version="6.2.1" />
-        <PackageReference Include="PropertyChanged.Fody" Version="3.2.8" />
-        <PackageReference Include="PropertyTools.Wpf" Version="3.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
+    <PackageReference Include="Expression.Interaction" Version="3.0.40218"/>
+    <PackageReference Include="Fody" Version="6.2.1"/>
+    <PackageReference Include="PropertyChanged.Fody" Version="3.2.8"/>
+    <PackageReference Include="PropertyTools.Wpf" Version="3.0.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
 
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs"/>
+  </ItemGroup>
 
 </Project>

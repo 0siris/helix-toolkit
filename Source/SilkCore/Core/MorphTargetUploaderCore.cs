@@ -8,12 +8,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        internal class MorphTargetUploaderCore : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        internal class MorphTargetUploaderCore : RenderCore {
             private readonly ConstantBufferComponent cbMorphTarget;
 
             private int[] morphTargetOffsets = Array.Empty<int>();
@@ -33,8 +30,7 @@ namespace HelixToolkit.SharpDX.Core
             private bool weightUpdated;
 
             public MorphTargetUploaderCore()
-                : base(RenderType.None)
-            {
+                : base(RenderType.None) {
                 NeedUpdate = false;
 
                 //Setup cbuffer
@@ -42,13 +38,10 @@ namespace HelixToolkit.SharpDX.Core
                 cbMorphTarget = AddComponent(new ConstantBufferComponent(cbd));
             }
 
-            public float[] MorphTargetWeights
-            {
+            public float[] MorphTargetWeights {
                 get => morphTargetWeights;
-                set
-                {
-                    if (SetAffectsRender(ref morphTargetWeights, value ?? Array.Empty<float>()))
-                    {
+                set {
+                    if (SetAffectsRender(ref morphTargetWeights, value ?? Array.Empty<float>())) {
                         weightUpdated = true;
                         WeightsChanged?.Invoke(this, EventArgs.Empty);
                     }
@@ -61,27 +54,23 @@ namespace HelixToolkit.SharpDX.Core
             public ImmutableBufferProxy MTOffsetsB => mtOffsetsB;
             public event EventHandler WeightsChanged;
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext)
-            {
-                if (weightUpdated)
-                {
+            protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
+                if (weightUpdated) {
                     MTWeightsB.UploadDataToBuffer(deviceContext, morphTargetWeights, morphTargetWeights.Length, 0);
                     weightUpdated = false;
                 }
 
-                if (setDeltas)
-                {
+                if (setDeltas) {
                     //Setup deltas buffer
                     var c = morphTargetsDeltas.Length;
                     MTDeltasB.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
                     RemoveAndDispose(ref mtDeltasSRV);
                     //Handle deltas srv
                     mtDeltasSRV = new ShaderResourceViewProxy(MTDeltasB.Buffer,
-                        MTDeltasB.Buffer.Device.CreateShaderResourceView(MTDeltasB.Buffer));
+                                                              MTDeltasB.Buffer.Device.CreateShaderResourceView(
+                                                                  MTDeltasB.Buffer));
                     mtDeltasSRV.CreateTextureView();
 
                     //Setup offsets buffer
@@ -90,15 +79,15 @@ namespace HelixToolkit.SharpDX.Core
                     RemoveAndDispose(ref mtOffsetsSRV);
                     //Handle offsets srv
                     mtOffsetsSRV = new ShaderResourceViewProxy(MTOffsetsB.Buffer,
-                        MTOffsetsB.Buffer.Device.CreateShaderResourceView(MTOffsetsB.Buffer));
+                                                               MTOffsetsB.Buffer.Device.CreateShaderResourceView(
+                                                                   MTOffsetsB.Buffer));
                     mtOffsetsSRV.CreateTextureView();
 
 
                     setDeltas = false;
                 }
 
-                if (setCBuffer)
-                {
+                if (setCBuffer) {
                     //Set Values
                     cbMorphTarget.WriteValue(mtCount, 0);
                     cbMorphTarget.WriteValue(mtPitch, sizeof(int));
@@ -110,44 +99,39 @@ namespace HelixToolkit.SharpDX.Core
                 cbMorphTarget.Upload(deviceContext);
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 mtWeightsB = new StructuredBufferProxy(sizeof(float), false);
-                mtDeltasB = new ImmutableBufferProxy(sizeof(float) * 3, BindFlags.ShaderResource,
-                    ResourceOptionFlags.BufferStructured);
-                mtOffsetsB = new ImmutableBufferProxy(sizeof(int), BindFlags.ShaderResource,
-                    ResourceOptionFlags.BufferStructured);
+                mtDeltasB = new ImmutableBufferProxy(sizeof(float) * 3,
+                                                     BindFlags.ShaderResource,
+                                                     ResourceOptionFlags.BufferStructured);
+                mtOffsetsB = new ImmutableBufferProxy(sizeof(int),
+                                                      BindFlags.ShaderResource,
+                                                      ResourceOptionFlags.BufferStructured);
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref mtWeightsB);
                 RemoveAndDispose(ref mtDeltasB);
                 RemoveAndDispose(ref mtOffsetsB);
             }
 
-            public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot)
-            {
-                if (hasMorphTarget)
-                {
+            public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot) {
+                if (hasMorphTarget) {
                     devCtx.SetShaderResource(VertexShader.Type, weightsSlot, MTWeightsB);
                     devCtx.SetShaderResource(VertexShader.Type, deltasSlot, mtDeltasSRV);
                     devCtx.SetShaderResource(VertexShader.Type, offsetsSlot, mtOffsetsSRV);
                 }
             }
 
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 if (disposeManagedResources)
                     WeightsChanged = null;
                 base.OnDispose(disposeManagedResources);
             }
 
-            public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch)
-            {
-                if (targets == null || targets.Length == 0)
-                {
+            public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch) {
+                if (targets == null || targets.Length == 0) {
                     mtCount = 0;
                     mtPitch = 0;
                     return true;
@@ -171,12 +155,10 @@ namespace HelixToolkit.SharpDX.Core
                 var current = 1;
                 for (var i = 0; i < targets.Length; i++)
                     //Skip if 0 delta
-                    if (targets[i].deltaNormal == zv && targets[i].deltaPosition == zv && targets[i].deltaTangent == zv)
-                    {
+                    if (targets[i].deltaNormal == zv && targets[i].deltaPosition == zv &&
+                        targets[i].deltaTangent == zv) {
                         morphTargetOffsets[i] = 0;
-                    }
-                    else
-                    {
+                    } else {
                         morphTargetOffsets[i] = current * 3;
 
                         mtdList.Add(targets[i].deltaPosition);
@@ -195,14 +177,12 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            public void SetWeight(int i, float w)
-            {
+            public void SetWeight(int i, float w) {
                 MorphTargetWeights[i] = w;
                 InvalidateWeight();
             }
 
-            public void InvalidateWeight()
-            {
+            public void InvalidateWeight() {
                 weightUpdated = true;
                 WeightsChanged?.Invoke(this, EventArgs.Empty);
             }

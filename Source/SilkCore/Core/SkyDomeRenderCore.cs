@@ -7,19 +7,15 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams
-        {
+        public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
             /// <summary>
             ///     Initializes a new instance of the <see cref="SkyBoxRenderCore" /> class.
             /// </summary>
-            public SkyDomeRenderCore()
-            {
+            public SkyDomeRenderCore() {
                 RasterDescription = DefaultRasterDescriptions.RSSkyDome;
             }
 
@@ -28,10 +24,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="technique">The technique.</param>
             /// <returns></returns>
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
-                if (base.OnAttach(technique))
-                {
+            protected override bool OnAttach(IRenderTechnique technique) {
+                if (base.OnAttach(technique)) {
                     DefaultShaderPass = technique[DefaultPassNames.Default];
                     OnDefaultPassChanged(DefaultShaderPass);
                     skyBuffer = new SkyDomeBufferModel();
@@ -45,12 +39,10 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            private void UpdateTexture()
-            {
+            private void UpdateTexture() {
                 MipMapLevels = 0;
                 RemoveAndDispose(ref cubeTextureRes);
-                if (CubeTexture != null)
-                {
+                if (CubeTexture != null) {
                     cubeTextureRes = new ShaderResourceViewProxy(Device);
                     cubeTextureRes.CreateView(cubeTexture);
                     if (cubeTextureRes.TextureView != null && cubeTextureRes.TextureView.Description.Dimension ==
@@ -59,8 +51,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 MipMapLevels = 0;
                 RemoveAndDispose(ref textureSampler);
                 RemoveAndDispose(ref cubeTextureRes);
@@ -73,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [default pass changed].
             /// </summary>
             /// <param name="pass">The pass.</param>
-            protected void OnDefaultPassChanged(ShaderPass pass)
-            {
+            protected void OnDefaultPassChanged(ShaderPass pass) {
                 cubeTextureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
                 textureSamplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderCubeTextureSamplerName);
             }
@@ -84,8 +74,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="context">The context.</param>
             /// <param name="deviceContext">The device context.</param>
-            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
                 context.SharedResource.EnvironementMap = cubeTextureRes;
                 context.SharedResource.EnvironmentMapMipLevels = MipMapLevels;
                 if (SkipRendering) return;
@@ -96,51 +85,49 @@ namespace HelixToolkit.SharpDX.Core
                 deviceContext.DrawIndexed(GeometryBuffer.IndexBuffer.ElementCount, 0, 0);
             }
 
-            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext)
-            {
-            }
+            protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected sealed override void OnRenderDepth(RenderContext context, DeviceContextProxy deviceContext,
-                ShaderPass customPass)
-            {
-            }
+            protected sealed override void OnRenderDepth(
+                RenderContext context,
+                DeviceContextProxy deviceContext,
+                ShaderPass customPass
+            ) { }
 
             /// <summary>
             /// </summary>
-            private sealed class SkyDomeBufferModel : MeshGeometryBufferModel<Vector3>
-            {
-                public SkyDomeBufferModel() : base(SilkMath.Vector3SizeInBytes)
-                {
+            private sealed class SkyDomeBufferModel : MeshGeometryBufferModel<Vector3> {
+                public SkyDomeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
                     Topology = PrimitiveTopology.TriangleList;
                 }
 
-                protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                    int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
-                {
+                protected override void OnCreateVertexBuffer(
+                    DeviceContextProxy context,
+                    IElementsBufferProxy buffer,
+                    int bufferIndex,
+                    Geometry3D geometry,
+                    IDeviceResources deviceResources
+                ) {
                     if (bufferIndex == 0 && geometry != null && geometry.Positions != null &&
                         geometry.Positions.Count > 0)
                         buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
                 }
             }
 
-            #region Default Mesh
+        #region Default Mesh
 
             private static readonly MeshGeometry3D SphereMesh;
 
-            static SkyDomeRenderCore()
-            {
+            static SkyDomeRenderCore() {
                 var builder = new MeshBuilder(false, false);
                 builder.AddSphere(Vector3.Zero);
                 SphereMesh = builder.ToMesh();
             }
 
-            #endregion
+        #endregion
 
-            #region Variables
+        #region Variables
 
             private ShaderResourceViewProxy cubeTextureRes;
             private int cubeTextureSlot;
@@ -149,9 +136,9 @@ namespace HelixToolkit.SharpDX.Core
             private ShaderPass DefaultShaderPass;
             private SkyDomeBufferModel skyBuffer;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             private TextureModel cubeTexture;
 
@@ -161,11 +148,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The cube texture.
             /// </value>
-            public TextureModel CubeTexture
-            {
+            public TextureModel CubeTexture {
                 get => cubeTexture;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref cubeTexture, value) && IsAttached) UpdateTexture();
                 }
             }
@@ -186,13 +171,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The sampler description.
             /// </value>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
-                set
-                {
-                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
-                    {
+                set {
+                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached) {
                         var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
                         RemoveAndDispose(ref textureSampler);
                         textureSampler = newSampler;
@@ -221,7 +203,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             public bool SkipRendering { get; set; }
 
-            #endregion
+        #endregion
         }
     }
 }

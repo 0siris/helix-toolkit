@@ -9,58 +9,81 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public class DynamicReflectionMap3D : GroupModel3D
-{
+public class DynamicReflectionMap3D : GroupModel3D {
     /// <summary>
     ///     The enable reflector property
     /// </summary>
     public static readonly DependencyProperty EnableReflectorProperty =
-        DependencyProperty.Register("EnableReflector", typeof(bool), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(true,
-                (d, e) => { ((d as Element3D).SceneNode as IDynamicReflector).EnableReflector = (bool) e.NewValue; }));
+        DependencyProperty.Register("EnableReflector",
+                                    typeof(bool),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .EnableReflector = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The size property
     /// </summary>
     public static readonly DependencyProperty SizeProperty =
-        DependencyProperty.Register("Size", typeof(int), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(256,
-                (d, e) => { ((d as Element3D).SceneNode as IDynamicReflector).FaceSize = (int) e.NewValue; }));
+        DependencyProperty.Register("Size",
+                                    typeof(int),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(256,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .FaceSize = (int) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The far field property
     /// </summary>
     public static readonly DependencyProperty FarFieldProperty =
-        DependencyProperty.Register("FarField", typeof(double), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(100.0,
-                (d, e) =>
-                {
-                    ((d as Element3D).SceneNode as IDynamicReflector).FarField = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("FarField",
+                                    typeof(double),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(100.0,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .FarField = (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The near field property
     /// </summary>
     public static readonly DependencyProperty NearFieldProperty =
-        DependencyProperty.Register("NearField", typeof(double), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(0.1,
-                (d, e) =>
-                {
-                    ((d as Element3D).SceneNode as IDynamicReflector).NearField = (float) (double) e.NewValue;
-                }));
+        DependencyProperty.Register("NearField",
+                                    typeof(double),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(0.1,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .NearField = (float) (double) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     The is left handed property
     /// </summary>
     public static readonly DependencyProperty IsLeftHandedProperty =
-        DependencyProperty.Register("IsLeftHanded", typeof(bool), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(false,
-                (d, e) => { ((d as Element3D).SceneNode as IDynamicReflector).IsLeftHanded = (bool) e.NewValue; }));
+        DependencyProperty.Register("IsLeftHanded",
+                                    typeof(bool),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .IsLeftHanded = (bool) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty IsDynamicSceneProperty =
-        DependencyProperty.Register("IsDynamicScene", typeof(bool), typeof(DynamicReflectionMap3D),
-            new PropertyMetadata(false,
-                (d, e) => { ((d as Element3D).SceneNode as IDynamicReflector).IsDynamicScene = (bool) e.NewValue; }));
+        DependencyProperty.Register("IsDynamicScene",
+                                    typeof(bool),
+                                    typeof(DynamicReflectionMap3D),
+                                    new PropertyMetadata(false,
+                                                         (d, e) => {
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
+                                                                 .IsDynamicScene = (bool) e.NewValue;
+                                                         }));
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable reflector].
@@ -68,8 +91,7 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     <c>true</c> if [enable reflector]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableReflector
-    {
+    public bool EnableReflector {
         get => (bool) GetValue(EnableReflectorProperty);
         set => SetValue(EnableReflectorProperty, value);
     }
@@ -81,8 +103,7 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     The size.
     /// </value>
-    public int Size
-    {
+    public int Size {
         get => (int) GetValue(SizeProperty);
         set => SetValue(SizeProperty, value);
     }
@@ -94,8 +115,7 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     The far field.
     /// </value>
-    public double FarField
-    {
+    public double FarField {
         get => (double) GetValue(FarFieldProperty);
         set => SetValue(FarFieldProperty, value);
     }
@@ -107,8 +127,7 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     The near field.
     /// </value>
-    public double NearField
-    {
+    public double NearField {
         get => (double) GetValue(NearFieldProperty);
         set => SetValue(NearFieldProperty, value);
     }
@@ -120,8 +139,7 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     <c>true</c> if this instance is left handed; otherwise, <c>false</c>.
     /// </value>
-    public bool IsLeftHanded
-    {
+    public bool IsLeftHanded {
         get => (bool) GetValue(IsLeftHandedProperty);
         set => SetValue(IsLeftHandedProperty, value);
     }
@@ -135,22 +153,18 @@ public class DynamicReflectionMap3D : GroupModel3D
     /// <value>
     ///     <c>true</c> if this instance is dynamic scene; otherwise, <c>false</c>.
     /// </value>
-    public bool IsDynamicScene
-    {
+    public bool IsDynamicScene {
         get => (bool) GetValue(IsDynamicSceneProperty);
         set => SetValue(IsDynamicSceneProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode()
-    {
+    protected override SceneNode OnCreateSceneNode() {
         return new DynamicReflectionNode();
     }
 
-    protected override void AssignDefaultValuesToSceneNode(SceneNode node)
-    {
+    protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);
-        if (node is DynamicReflectionNode n)
-        {
+        if (node is DynamicReflectionNode n) {
             n.IsDynamicScene = IsDynamicScene;
             n.IsLeftHanded = IsLeftHanded;
             n.NearField = (float) NearField;

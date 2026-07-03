@@ -8,8 +8,7 @@ namespace SharpDX.Toolkit.Graphics;
 /// <summary>
 ///     Defines the dimension of a texture.
 /// </summary>
-public enum TextureDimension
-{
+public enum TextureDimension {
     /// <summary>
     ///     The texture dimension is 1D.
     /// </summary>

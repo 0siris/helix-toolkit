@@ -12,10 +12,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         Use this model to invalidate rendering in each frame and keep render host busy.
 ///     </para>
 /// </summary>
-public sealed class ContinuousRender3D : Element3D
-{
-    protected override SceneNode OnCreateSceneNode()
-    {
+public sealed class ContinuousRender3D : Element3D {
+    protected override SceneNode OnCreateSceneNode() {
         return new ContinuousRenderNode();
     }
 }

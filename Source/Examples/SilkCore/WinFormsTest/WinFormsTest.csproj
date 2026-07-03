@@ -1,41 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWindowsForms>true</UseWindowsForms>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
 
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\SilkAssimp\SilkAssimp.csproj" />
-        <ProjectReference Include="..\..\..\SilkCore\SilkCore.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SilkAssimp\SilkAssimp.csproj"/>
+    <ProjectReference Include="..\..\..\SilkCore\SilkCore.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="..\..\..\..\Images\Textures\TextureCheckerboard2.jpg"
-                 Link="TextureCheckerboard2.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup>
+    <Content Include="..\..\..\..\Images\Textures\TextureCheckerboard2.jpg"
+             Link="TextureCheckerboard2.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\Textures\TextureCheckerboard2_dot3.jpg"
-                 Link="TextureCheckerboard2_dot3.jpg"
-                 CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\..\Images\Textures\TextureCheckerboard2_dot3.jpg"
+             Link="TextureCheckerboard2_dot3.jpg"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="..\..\..\..\Images\EnvironmentMaps\Cubemap_Grandcanyon.dds"
-                 Link="Cubemap_Grandcanyon.dds"
-                 CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\..\Images\EnvironmentMaps\Cubemap_Grandcanyon.dds"
+             Link="Cubemap_Grandcanyon.dds"
+             CopyToOutputDirectory="PreserveNewest"/>
 
-        <Content Include="cimgui.dll"
-                 CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+    <Content Include="cimgui.dll"
+             CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="ImGui.NET" Version="1.87.3" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.87.3"/>
+  </ItemGroup>
 
 </Project>

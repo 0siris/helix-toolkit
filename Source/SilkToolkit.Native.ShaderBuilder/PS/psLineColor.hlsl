@@ -3,8 +3,7 @@
 
 #include"..\Common\DataStructs.hlsl"
 
-float4 main(PSInputPS input) : SV_Target
-{
+float4 main(PSInputPS input) : SV_Target {
     return input.c;
 }
 

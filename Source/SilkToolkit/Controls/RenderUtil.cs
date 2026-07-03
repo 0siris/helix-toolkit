@@ -13,8 +13,7 @@ using Direct3D11 = global::SharpDX.Direct3D11;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public static class RenderUtil
-{
+public static class RenderUtil {
 #if SYSTEM_DRAWING
         /// <summary>
         /// 

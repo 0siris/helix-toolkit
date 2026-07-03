@@ -1,25 +1,19 @@
 ﻿using System.Runtime.Serialization;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class SamplerMapping
-        {
+        public sealed class SamplerMapping {
             /// <summary>
             ///     The shader type
             /// </summary>
             [DataMember] public ShaderStage ShaderType;
 
-            public SamplerMapping()
-            {
-            }
+            public SamplerMapping() { }
 
-            public SamplerMapping(int slot, string name, ShaderStage type)
-            {
+            public SamplerMapping(int slot, string name, ShaderStage type) {
                 Slot = slot;
                 Name = name;
                 ShaderType = type;
@@ -43,8 +37,7 @@ namespace HelixToolkit.SharpDX.Core
             [DataMember]
             public int Slot { get; set; }
 
-            public SamplerMapping Clone()
-            {
+            public SamplerMapping Clone() {
                 return new SamplerMapping(Slot, Name, ShaderType);
             }
         }

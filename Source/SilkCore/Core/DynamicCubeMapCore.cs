@@ -11,35 +11,29 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
         /// <summary>
         /// </summary>
-        public class DynamicCubeMapCore : RenderCore, IDynamicReflector
-        {
+        public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             /// <summary>
             ///     Initializes a new instance of the <see cref="DynamicCubeMapCore" /> class.
             /// </summary>
-            public DynamicCubeMapCore() : base(RenderType.PreProc)
-            {
-                modelCB = AddComponent(new ConstantBufferComponent(
-                    new ConstantBufferDescription(DefaultBufferNames.GlobalTransformCB,
-                        GlobalTransformStruct.SizeInBytes)));
+            public DynamicCubeMapCore() : base(RenderType.PreProc) {
+                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+                                                                       DefaultBufferNames.GlobalTransformCB,
+                                                                       GlobalTransformStruct.SizeInBytes)));
                 UpdateTargets();
             }
 
-            private bool CreateCubeMapResources()
-            {
+            private bool CreateCubeMapResources() {
                 if (textureDesc.Width == faceSize && cubeMap != null && !cubeMap.IsDisposed) return false;
                 textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = FaceSize;
 
                 RemoveAndDispose(ref cubeMap);
                 cubeMap = new ShaderResourceViewProxy(Device, textureDesc);
 
-                var srvDesc = new ShaderResourceViewDescription
-                {
+                var srvDesc = new ShaderResourceViewDescription {
                     Format = textureDesc.Format,
                     Dimension = ShaderResourceViewDimension.TextureCube,
                     TextureCube = new ShaderResourceViewDescription.TextureCubeResource
@@ -47,16 +41,14 @@ namespace HelixToolkit.SharpDX.Core
                 };
                 cubeMap.CreateView(srvDesc);
 
-                var rtsDesc = new RenderTargetViewDescription
-                {
+                var rtsDesc = new RenderTargetViewDescription {
                     Format = textureDesc.Format,
                     Dimension = RenderTargetViewDimension.Texture2DArray,
                     Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource
                         {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
                 };
 
-                for (var i = 0; i < 6; ++i)
-                {
+                for (var i = 0; i < 6; ++i) {
                     RemoveAndDispose(ref cubeRTVs[i]);
                     rtsDesc.Texture2DArray.FirstArraySlice = i;
                     cubeRTVs[i] = Device.CreateRenderTargetView(CubeMap.Resource, rtsDesc);
@@ -64,8 +56,7 @@ namespace HelixToolkit.SharpDX.Core
 
                 RemoveAndDispose(ref cubeDSV);
                 cubeDSV = new ShaderResourceViewProxy(Device, dsvTextureDesc);
-                var dsvDesc = new DepthStencilViewDescription
-                {
+                var dsvDesc = new DepthStencilViewDescription {
                     Format = dsvTextureDesc.Format,
                     Dimension = DepthStencilViewDimension.Texture2DArray,
                     Flags = DepthStencilViewFlags.None,
@@ -73,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
                         {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
                 };
 
-                for (var i = 0; i < 6; ++i)
-                {
+                for (var i = 0; i < 6; ++i) {
                     RemoveAndDispose(ref cubeDSVs[i]);
                     dsvDesc.Texture2DArray.FirstArraySlice = i;
                     cubeDSVs[i] = Device.CreateDepthStencilView(cubeDSV.Resource, dsvDesc);
@@ -83,8 +73,7 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 DefaultShaderPass = technique[DefaultShaderPassName];
                 contextPool = technique.EffectsManager.DeviceContextPool;
                 textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
@@ -92,14 +81,12 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref textureSampler);
                 RemoveAndDispose(ref cubeMap);
                 RemoveAndDispose(ref cubeDSV);
                 textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = 0;
-                for (var i = 0; i < 6; ++i)
-                {
+                for (var i = 0; i < 6; ++i) {
                     RemoveAndDispose(ref cubeRTVs[i]);
                     RemoveAndDispose(ref cubeDSVs[i]);
                 }
@@ -107,11 +94,9 @@ namespace HelixToolkit.SharpDX.Core
                 contextPool = null;
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 if (!enableReflector) return;
-                if (CreateCubeMapResources())
-                {
+                if (CreateCubeMapResources()) {
                     RaiseInvalidateRender();
                     return; // Skip this frame if texture resized to reduce latency.
                 }
@@ -125,58 +110,54 @@ namespace HelixToolkit.SharpDX.Core
 #if TEST
                 for (int index = 0; index < 6; ++index)
 #else
-                Parallel.For(0, 6, index =>
+                Parallel.For(0,
+                             6,
+                             index =>
 #endif
-                    {
-                        try
-                        {
-                            var ctx = contextPool.Get();
-                            ctx.ClearRenderTargetView(cubeRTVs[index], context.RenderHost.ClearColor);
-                            ctx.ClearDepthStencilView(cubeDSVs[index], DepthStencilClearFlags.Depth);
-                            ctx.SetRenderTarget(cubeDSVs[index], cubeRTVs[index]);
-                            ctx.SetViewport(0, 0, FaceSize, FaceSize);
-                            ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
-                            var transforms = new GlobalTransformStruct();
-                            transforms.Projection = cubeFaceCameras.Cameras[index].Projection;
-                            transforms.View = cubeFaceCameras.Cameras[index].View;
-                            transforms.Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize);
-                            transforms.ViewProjection = transforms.View * transforms.Projection;
+                             {
+                                 try {
+                                     var ctx = contextPool.Get();
+                                     ctx.ClearRenderTargetView(cubeRTVs[index], context.RenderHost.ClearColor);
+                                     ctx.ClearDepthStencilView(cubeDSVs[index], DepthStencilClearFlags.Depth);
+                                     ctx.SetRenderTarget(cubeDSVs[index], cubeRTVs[index]);
+                                     ctx.SetViewport(0, 0, FaceSize, FaceSize);
+                                     ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
+                                     var transforms = new GlobalTransformStruct();
+                                     transforms.Projection = cubeFaceCameras.Cameras[index].Projection;
+                                     transforms.View = cubeFaceCameras.Cameras[index].View;
+                                     transforms.Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize);
+                                     transforms.ViewProjection = transforms.View * transforms.Projection;
 
-                            modelCB.Upload(ctx, ref transforms);
+                                     modelCB.Upload(ctx, ref transforms);
 
-                            var frustum = new BoundingFrustum(transforms.ViewProjection);
-                            //Render opaque
-                            for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodes.Count; ++i)
-                            {
-                                var node = context.RenderHost.PerFrameOpaqueNodes[i];
-                                if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) &&
-                                    node.TestViewFrustum(ref frustum)) node.Render(context, ctx);
-                            }
+                                     var frustum = new BoundingFrustum(transforms.ViewProjection);
+                                     //Render opaque
+                                     for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodes.Count; ++i) {
+                                         var node = context.RenderHost.PerFrameOpaqueNodes[i];
+                                         if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) &&
+                                             node.TestViewFrustum(ref frustum)) node.Render(context, ctx);
+                                     }
 
-                            //Render particle
-                            for (var i = 0; i < context.RenderHost.PerFrameParticleNodes.Count; ++i)
-                            {
-                                var node = context.RenderHost.PerFrameParticleNodes[i];
-                                if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) &&
-                                    node.TestViewFrustum(ref frustum)) node.Render(context, ctx);
-                            }
+                                     //Render particle
+                                     for (var i = 0; i < context.RenderHost.PerFrameParticleNodes.Count; ++i) {
+                                         var node = context.RenderHost.PerFrameParticleNodes[i];
+                                         if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) &&
+                                             node.TestViewFrustum(ref frustum)) node.Render(context, ctx);
+                                     }
 
-                            commands[index] = ctx.FinishCommandList(true);
-                            contextPool.Put(ctx);
-                        }
-                        catch (Exception ex)
-                        {
-                            exception = ex;
-                        }
-                    }
+                                     commands[index] = ctx.FinishCommandList(true);
+                                     contextPool.Put(ctx);
+                                 } catch (Exception ex) {
+                                     exception = ex;
+                                 }
+                             }
 #if !TEST
                 );
 #endif
                 context.IsInvertCullMode = false;
                 if (exception != null) throw exception;
                 for (var i = 0; i < commands.Length; ++i)
-                    if (commands[i] != null)
-                    {
+                    if (commands[i] != null) {
                         deviceContext.ExecuteCommandList(commands[i], true);
                         Disposer.RemoveAndDispose(ref commands[i]);
                     }
@@ -185,22 +166,28 @@ namespace HelixToolkit.SharpDX.Core
                 context.UpdatePerFrameData(true, false, deviceContext);
             }
 
-            private void UpdateTargets()
-            {
-                for (var i = 0; i < 6; ++i)
-                {
+            private void UpdateTargets() {
+                for (var i = 0; i < 6; ++i) {
                     targets[i] = center + lookVector[i];
                     cubeFaceCameras.Cameras[i].View =
                         (IsLeftHanded
-                            ? SilkMath.LookAtLH(center, targets[i], upVectors[i])
-                            : SilkMath.LookAtRH(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
+                             ? SilkMath.LookAtLH(center, targets[i], upVectors[i])
+                             : SilkMath.LookAtRH(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
                     cubeFaceCameras.Cameras[i].Projection = IsLeftHanded
-                        ? SilkMath.PerspectiveFovLH((float) Math.PI * 0.5f, 1, NearField, FarField)
-                        : SilkMath.PerspectiveFovRH((float) Math.PI * 0.5f, 1, NearField, FarField);
+                                                                ? SilkMath.PerspectiveFovLH(
+                                                                    (float) Math.PI * 0.5f,
+                                                                    1,
+                                                                    NearField,
+                                                                    FarField)
+                                                                : SilkMath.PerspectiveFovRH(
+                                                                    (float) Math.PI * 0.5f,
+                                                                    1,
+                                                                    NearField,
+                                                                    FarField);
                 }
             }
 
-            #region
+        #region
 
             private readonly Vector3[] targets = new Vector3[6];
 
@@ -213,8 +200,7 @@ namespace HelixToolkit.SharpDX.Core
             private readonly CubeFaceCamerasStruct cubeFaceCameras = new() {Cameras = new CubeFaceCamera[6]};
 
             // Create the cube map TextureCube (array of 6 textures)
-            private Texture2DDescription textureDesc = new()
-            {
+            private Texture2DDescription textureDesc = new() {
                 Format = Format.FormatR8G8B8A8Unorm,
                 ArraySize = 6, // 6-sides of the cube
                 BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget,
@@ -225,8 +211,7 @@ namespace HelixToolkit.SharpDX.Core
                 CpuAccessFlags = CpuAccessFlags.None
             };
 
-            private Texture2DDescription dsvTextureDesc = new()
-            {
+            private Texture2DDescription dsvTextureDesc = new() {
                 Format = Format.FormatD16Unorm,
                 BindFlags = BindFlags.DepthStencil,
                 Usage = ResourceUsage.Default,
@@ -252,9 +237,9 @@ namespace HelixToolkit.SharpDX.Core
             private readonly CommandList[] commands = new CommandList[6];
             private readonly ConstantBufferComponent modelCB;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             public HashSet<Guid> IgnoredGuid { get; } = new();
             private ShaderResourceViewProxy cubeMap;
@@ -269,16 +254,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable reflector]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableReflector
-            {
+            public bool EnableReflector {
                 get => enableReflector;
                 set => SetAffectsRender(ref enableReflector, value);
             }
 
             private int faceSize = 256;
 
-            public int FaceSize
-            {
+            public int FaceSize {
                 get => faceSize;
                 set => SetAffectsRender(ref faceSize, value);
             }
@@ -289,11 +272,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Name of the default pass inside a technique.
             ///     <para>Default: <see cref="DefaultPassNames.Default" /></para>
             /// </summary>
-            public string DefaultShaderPassName
-            {
+            public string DefaultShaderPassName {
                 get => defaultPassName;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref defaultPassName, value) && IsAttached)
                         DefaultShaderPass = EffectTechnique[value];
                 }
@@ -303,13 +284,10 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            protected ShaderPass DefaultShaderPass
-            {
+            protected ShaderPass DefaultShaderPass {
                 get => defaultShaderPass;
-                private set
-                {
-                    if (SetAffectsRender(ref defaultShaderPass, value))
-                    {
+                private set {
+                    if (SetAffectsRender(ref defaultShaderPass, value)) {
                         cubeTextureSlot =
                             value.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
                         textureSamplerSlot =
@@ -327,13 +305,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The sampler description.
             /// </value>
-            public SamplerStateDescription SamplerDescription
-            {
+            public SamplerStateDescription SamplerDescription {
                 get => samplerDescription;
-                set
-                {
-                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached)
-                    {
+                set {
+                    if (SetAffectsRender(ref samplerDescription, value) && IsAttached) {
                         var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
                         RemoveAndDispose(ref textureSampler);
                         textureSampler = newSampler;
@@ -349,11 +324,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this coordinate system is left handed; otherwise, <c>false</c>.
             /// </value>
-            public bool IsLeftHanded
-            {
+            public bool IsLeftHanded {
                 get => isleftHanded;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref isleftHanded, value)) UpdateTargets();
                 }
             }
@@ -366,11 +339,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The near field.
             /// </value>
-            public float NearField
-            {
+            public float NearField {
                 get => nearField;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref nearField, value)) UpdateTargets();
                 }
             }
@@ -383,11 +354,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The far field.
             /// </value>
-            public float FarField
-            {
+            public float FarField {
                 get => farField;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref farField, value)) UpdateTargets();
                 }
             }
@@ -400,11 +369,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The center.
             /// </value>
-            public Vector3 Center
-            {
+            public Vector3 Center {
                 get => center;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref center, value)) UpdateTargets();
                 }
             }
@@ -435,15 +402,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if this instance is dynamic scene; otherwise, <c>false</c>.
             /// </value>
-            public bool IsDynamicScene
-            {
+            public bool IsDynamicScene {
                 get => isDynamicScene;
                 set => SetAffectsRender(ref isDynamicScene, value);
             }
 
-            #endregion Properties
+        #endregion Properties
 
-            #region IReflector
+        #region IReflector
 
             private SamplerStateProxy[] currSampler;
             private ShaderResourceView[] currRes;
@@ -452,12 +418,10 @@ namespace HelixToolkit.SharpDX.Core
             ///     Binds the cube map.
             /// </summary>
             /// <param name="deviceContext">The device context.</param>
-            public void BindCubeMap(DeviceContextProxy deviceContext)
-            {
+            public void BindCubeMap(DeviceContextProxy deviceContext) {
                 currSampler = deviceContext.GetSampler(PixelShader.Type, textureSamplerSlot, 1);
                 currRes = deviceContext.GetShaderResources(PixelShader.Type, cubeTextureSlot, 1);
-                if (EnableReflector)
-                {
+                if (EnableReflector) {
                     deviceContext.SetShaderResource(PixelShader.Type, cubeTextureSlot, CubeMap);
                     deviceContext.SetSampler(PixelShader.Type, textureSamplerSlot, textureSampler);
                 }
@@ -467,8 +431,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Uns the bind cube map.
             /// </summary>
             /// <param name="deviceContext">The device context.</param>
-            public void UnBindCubeMap(DeviceContextProxy deviceContext)
-            {
+            public void UnBindCubeMap(DeviceContextProxy deviceContext) {
                 deviceContext.SetShaderResources(PixelShader.Type, cubeTextureSlot, currRes);
                 deviceContext.SetSamplers(PixelShader.Type, textureSamplerSlot, currSampler);
                 for (var i = 0; i < currSampler.Length; ++i) Disposer.RemoveAndDispose(ref currSampler[i]);
@@ -477,7 +440,7 @@ namespace HelixToolkit.SharpDX.Core
                 currRes = null;
             }
 
-            #endregion IReflector
+        #endregion IReflector
         }
     }
 }

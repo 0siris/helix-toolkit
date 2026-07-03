@@ -7,8 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public struct DefaultRenderTechniqueNames
-{
+public struct DefaultRenderTechniqueNames {
     /// <summary>
     /// </summary>
     public const string Mesh = "RenderMesh";
@@ -120,8 +119,7 @@ public struct DefaultRenderTechniqueNames
 
 /// <summary>
 /// </summary>
-public struct DefaultPassNames
-{
+public struct DefaultPassNames {
     /// <summary>
     /// </summary>
     public const string Default = "Default";
@@ -188,7 +186,7 @@ public struct DefaultPassNames
     /// </summary>
     public const string OITPass = "MeshOITPass";
 
-    #region Deep peeling
+#region Deep peeling
 
     public const string OITDepthPeelingInit = "OITDepthPeelingFirst";
 
@@ -198,7 +196,7 @@ public struct DefaultPassNames
 
     public const string OITDepthPeelingFinal = "OITDepthPeelingFinal";
 
-    #endregion
+#endregion
 
     /// <summary>
     ///     The oit pass PBR
@@ -326,8 +324,7 @@ public struct DefaultPassNames
 
 /// <summary>
 /// </summary>
-public struct DefaultParticlePassNames
-{
+public struct DefaultParticlePassNames {
     /// <summary>
     ///     The insert
     /// </summary>
@@ -351,8 +348,7 @@ public struct DefaultParticlePassNames
 //}
 /// <summary>
 /// </summary>
-public struct DeferredRenderTechniqueNames
-{
+public struct DeferredRenderTechniqueNames {
     /// <summary>
     ///     The deferred
     /// </summary>

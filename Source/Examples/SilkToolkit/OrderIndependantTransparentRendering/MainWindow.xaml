@@ -73,20 +73,25 @@
                 Reset Camera
             </Button>
             <CheckBox Foreground="White" IsChecked="{Binding ShowWireframe}">Show Wireframe</CheckBox>
-            <ComboBox ItemsSource="{Binding MaterialTypes}" SelectedItem="{Binding MaterialType}"/>
+            <ComboBox ItemsSource="{Binding MaterialTypes}" SelectedItem="{Binding MaterialType}" />
             <ComboBox ItemsSource="{Binding OITRenderTypes}" SelectedItem="{Binding OITRenderType}"></ComboBox>
             <StackPanel Orientation="Vertical" IsEnabled="{Binding OITDepthPeelModeEnabled}" Margin="2, 4">
                 <Label Foreground="White">Depth Peeling Iteration:</Label>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="White" Width="14" Text="{Binding ElementName=view, Path=OITDepthPeelingIteration}"></TextBlock>
-                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=view, Path=OITDepthPeelingIteration}" Width="100"/>
+                    <TextBlock Foreground="White" Width="14"
+                               Text="{Binding ElementName=view, Path=OITDepthPeelingIteration}">
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=view, Path=OITDepthPeelingIteration}"
+                            Width="100" />
                 </StackPanel>
             </StackPanel>
             <StackPanel Orientation="Vertical" IsEnabled="{Binding OITWeightedModeEnabled}">
-                <ComboBox ItemsSource="{Binding OITWeights}" SelectedItem="{Binding ElementName=view, Path=OITWeightMode}" />
+                <ComboBox ItemsSource="{Binding OITWeights}"
+                          SelectedItem="{Binding ElementName=view, Path=OITWeightMode}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Power:</TextBlock>
-                    <TextBlock Foreground="#FFF400" Text="{Binding ElementName=view, Path=OITWeightPower, StringFormat={}{0:#,0.0}}" />
+                    <TextBlock Foreground="#FFF400"
+                               Text="{Binding ElementName=view, Path=OITWeightPower, StringFormat={}{0:#,0.0}}" />
                 </StackPanel>
                 <Slider
                     LargeChange="1"
@@ -96,8 +101,9 @@
                     Value="{Binding ElementName=view, Path=OITWeightPower}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Slope:</TextBlock>
-                    <TextBlock Foreground="#FFF400" Text="{Binding ElementName=view, Path=OITWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
-                </StackPanel>                
+                    <TextBlock Foreground="#FFF400"
+                               Text="{Binding ElementName=view, Path=OITWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
+                </StackPanel>
             </StackPanel>
 
             <Slider
@@ -107,22 +113,22 @@
                 SmallChange="0.5"
                 Value="{Binding ElementName=view, Path=OITWeightDepthSlope}" />
             <CheckBox Foreground="White" IsChecked="{Binding HighlightSeparated}">HighlightSeparated</CheckBox>
-            <Separator/>
+            <Separator />
             <TextBlock>
-                <Run Text="Red Plane Opacity: " Foreground="White"/>
-                <Run Text="{Binding RedPlaneOpacity}" Foreground="Yellow"/>
+                <Run Text="Red Plane Opacity: " Foreground="White" />
+                <Run Text="{Binding RedPlaneOpacity}" Foreground="Yellow" />
             </TextBlock>
-            <Slider Minimum="0" Maximum="100" Value="{Binding RedPlaneOpacity}"/>
+            <Slider Minimum="0" Maximum="100" Value="{Binding RedPlaneOpacity}" />
             <TextBlock>
-                <Run Text="Green Plane Opacity: " Foreground="White"/>
-                <Run Text="{Binding GreenPlaneOpacity}" Foreground="Yellow"/>
+                <Run Text="Green Plane Opacity: " Foreground="White" />
+                <Run Text="{Binding GreenPlaneOpacity}" Foreground="Yellow" />
             </TextBlock>
-            <Slider Minimum="0" Maximum="100" Value="{Binding GreenPlaneOpacity}"/>
+            <Slider Minimum="0" Maximum="100" Value="{Binding GreenPlaneOpacity}" />
             <TextBlock>
-                <Run Text="Blue Plane Opacity: " Foreground="White"/>
-                <Run Text="{Binding BluePlaneOpacity}" Foreground="Yellow"/>
+                <Run Text="Blue Plane Opacity: " Foreground="White" />
+                <Run Text="{Binding BluePlaneOpacity}" Foreground="Yellow" />
             </TextBlock>
-            <Slider Minimum="0" Maximum="100" Value="{Binding BluePlaneOpacity}"/>
+            <Slider Minimum="0" Maximum="100" Value="{Binding BluePlaneOpacity}" />
         </StackPanel>
     </Grid>
 </Window>

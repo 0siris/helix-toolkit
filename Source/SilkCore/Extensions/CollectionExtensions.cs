@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
     using System.Reflection.Emit;
 #endif
 
-public static class CollectionExtensions
-{
+public static class CollectionExtensions {
 #if NETFX_CORE
     /// <summary>
     ///     Gets the internal array of a <see cref="List{T}" />.
@@ -19,13 +18,11 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of the elements.</typeparam>
     /// <param name="list">The respective list.</param>
     /// <returns>The internal array of the list.</returns>
-    public static T[] GetInternalArray<T>(this List<T> list)
-    {
+    public static T[] GetInternalArray<T>(this List<T> list) {
         return list.ToArray();
     }
 
-    public static T[] GetArrayByType<T>(this IList<T> list)
-    {
+    public static T[] GetArrayByType<T>(this IList<T> list) {
         T[] array;
         if (list is T[] t)
             array = t;
@@ -103,8 +100,7 @@ public static class CollectionExtensions
     /// <param name="dict">The respective dictionary.</param>
     /// <param name="key">The respective key.</param>
     /// <returns>The value if exists, else <c>null</c>.</returns>
-    public static V Get<K, V>(this IDictionary<K, V> dict, K key)
-    {
+    public static V Get<K, V>(this IDictionary<K, V> dict, K key) {
         V val;
         if (dict.TryGetValue(key, out val)) return val;
 

@@ -7,8 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IElementsBufferModel : IVertexExtraBufferModel
-{
+public interface IElementsBufferModel : IVertexExtraBufferModel {
     /// <summary>
     ///     Gets a value indicating whether this instance has elements.
     /// </summary>
@@ -39,8 +38,7 @@ public interface IElementsBufferModel : IVertexExtraBufferModel
 /// <summary>
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IElementsBufferModel<T> : IElementsBufferModel
-{
+public interface IElementsBufferModel<T> : IElementsBufferModel {
     /// <summary>
     ///     Gets or sets the elements.
     /// </summary>

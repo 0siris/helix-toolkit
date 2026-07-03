@@ -4,8 +4,7 @@
 #include"..\Common\DataStructs.hlsl"
 #include"..\Common\Common.hlsl"
 
-void makeQuad(out float4 points[4], in float4 posA, in float w, in float h)
-{
+void makeQuad(out float4 points[4], in float4 posA, in float w, in float h) {
     // Bring A and B in window space
     float2 Aw = projToWindow(posA);
     float w2 = w * 0.5 * DpiScale;
@@ -24,8 +23,7 @@ void makeQuad(out float4 points[4], in float4 posA, in float w, in float h)
     points[2] = windowToProj(B1w, posA.z, posA.w);
 }
 
-void makeNonFixedQuad(out float4 points[4], in float4 posA, in float w, in float h)
-{
+void makeNonFixedQuad(out float4 points[4], in float4 posA, in float w, in float h) {
     // Bring A and B in window space
     float2 Aw = posA.xy;
     float w2 = w * 0.5;
@@ -45,32 +43,29 @@ void makeNonFixedQuad(out float4 points[4], in float4 posA, in float w, in float
 }
 
 [maxvertexcount(4)]
-void main(point GSInputPS input[1], inout TriangleStream<PSInputPS> outStream)
-{
-    PSInputPS output = (PSInputPS) 0;
-    output.vEye = input[0].vEye;   
+void main(point GSInputPS input[1], inout TriangleStream<PSInputPS> outStream) {
+    PSInputPS output = (PSInputPS)0;
+    output.vEye = input[0].vEye;
     output.c = input[0].c;
-    float4 spriteCorners[4] = { (float4) 0, (float4) 0, (float4) 0, (float4) 0 };
-    if(fixedSize)
-        makeQuad(spriteCorners, input[0].p, pfParams.x, pfParams.y);
-    else
-        makeNonFixedQuad(spriteCorners, mul(input[0].wp, mView), pfParams.x, pfParams.y);
-    output.p = spriteCorners[0];    
+    float4 spriteCorners[4] = {(float4)0, (float4)0, (float4)0, (float4)0};
+    if (fixedSize) makeQuad(spriteCorners, input[0].p, pfParams.x, pfParams.y);
+    else makeNonFixedQuad(spriteCorners, mul(input[0].wp, mView), pfParams.x, pfParams.y);
+    output.p = spriteCorners[0];
     output.t = float3(1, 1, 1);
     outStream.Append(output);
-    
+
     output.p = spriteCorners[1];
     output.t = float3(1, -1, 1);
     outStream.Append(output);
- 
+
     output.p = spriteCorners[2];
     output.t = float3(-1, 1, 1);
     outStream.Append(output);
-    
+
     output.p = spriteCorners[3];
     output.t = float3(-1, -1, 1);
     outStream.Append(output);
-    
+
     outStream.RestartStrip();
 }
 #endif

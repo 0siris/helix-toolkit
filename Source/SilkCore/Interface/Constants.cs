@@ -16,34 +16,21 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 ///     Used for static function overloading
 /// </summary>
-public struct VertexShaderType
-{
-}
+public struct VertexShaderType { }
 
-public struct HullShaderType
-{
-}
+public struct HullShaderType { }
 
-public struct DomainShaderType
-{
-}
+public struct DomainShaderType { }
 
-public struct GeometryShaderType
-{
-}
+public struct GeometryShaderType { }
 
-public struct PixelShaderType
-{
-}
+public struct PixelShaderType { }
 
-public struct ComputeShaderType
-{
-}
+public struct ComputeShaderType { }
 
 /// <summary>
 /// </summary>
-public static class Constants
-{
+public static class Constants {
     public const int MaxLights = 8;
 
     /// <summary>
@@ -71,8 +58,7 @@ public static class Constants
     internal static readonly ReadOnlyObservableFastList<SceneNode2D> EmptyReadOnlyRenderable2DArray;
     public static readonly IList<RenderCore2D> EmptyCore2D = new RenderCore2D[0];
 
-    static Constants()
-    {
+    static Constants() {
         EmptyReadOnlyRenderableArray = new ReadOnlyObservableFastList<SceneNode>(EmptyRenderableArray);
         EmptyReadOnlyRenderable2DArray = new ReadOnlyObservableFastList<SceneNode2D>(EmptyRenderable2D);
     }
@@ -83,10 +69,8 @@ public static class Constants
     /// <param name="type"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ToIndex(this ShaderStage type)
-    {
-        switch (type)
-        {
+    public static int ToIndex(this ShaderStage type) {
+        switch (type) {
             case ShaderStage.Vertex:
                 return VertexIdx;
             case ShaderStage.Hull:
@@ -110,10 +94,8 @@ public static class Constants
     /// <param name="index">The index.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ShaderStage ToShaderStage(this int index)
-    {
-        switch (index)
-        {
+    public static ShaderStage ToShaderStage(this int index) {
+        switch (index) {
             case VertexIdx:
                 return ShaderStage.Vertex;
             case DomainIdx:
@@ -137,10 +119,8 @@ public static class Constants
     /// <param name="stage">The stage.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ShaderBase GetNullShader(ShaderStage stage)
-    {
-        switch (stage)
-        {
+    public static ShaderBase GetNullShader(ShaderStage stage) {
+        switch (stage) {
             case ShaderStage.Vertex:
                 return VertexShader.NullVertexShader;
             case ShaderStage.Domain:

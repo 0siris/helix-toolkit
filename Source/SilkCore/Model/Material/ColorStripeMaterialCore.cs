@@ -6,13 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model {
         [DataContract]
-        public class ColorStripeMaterialCore : MaterialCore
-        {
+        public class ColorStripeMaterialCore : MaterialCore {
             private SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
 
             private IList<Color4> colorStripeX;
@@ -30,8 +27,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the diffuse.
             /// </value>
-            public Color4 DiffuseColor
-            {
+            public Color4 DiffuseColor {
                 get => diffuseColor;
                 set => Set(ref diffuseColor, value);
             }
@@ -42,8 +38,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color stripe x.
             /// </value>
-            public IList<Color4> ColorStripeX
-            {
+            public IList<Color4> ColorStripeX {
                 get => colorStripeX;
                 set => Set(ref colorStripeX, value);
             }
@@ -54,8 +49,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color stripe y.
             /// </value>
-            public IList<Color4> ColorStripeY
-            {
+            public IList<Color4> ColorStripeY {
                 get => colorStripeY;
                 set => Set(ref colorStripeY, value);
             }
@@ -66,8 +60,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [color stripe x enabled]; otherwise, <c>false</c>.
             /// </value>
-            public bool ColorStripeXEnabled
-            {
+            public bool ColorStripeXEnabled {
                 get => colorStripeXEnabled;
                 set => Set(ref colorStripeXEnabled, value);
             }
@@ -78,8 +71,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [color stripe y enabled]; otherwise, <c>false</c>.
             /// </value>
-            public bool ColorStripeYEnabled
-            {
+            public bool ColorStripeYEnabled {
                 get => colorStripeYEnabled;
                 set => Set(ref colorStripeYEnabled, value);
             }
@@ -90,15 +82,15 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     DiffuseMapSampler
             /// </value>
-            public SamplerStateDescription ColorStripeSampler
-            {
+            public SamplerStateDescription ColorStripeSampler {
                 get => colorStripeSampler;
                 set => Set(ref colorStripeSampler, value);
             }
 
-            public override MaterialVariable CreateMaterialVariables(IEffectsManager manager,
-                IRenderTechnique technique)
-            {
+            public override MaterialVariable CreateMaterialVariables(
+                IEffectsManager manager,
+                IRenderTechnique technique
+            ) {
                 return new ColorStripeMaterialVariables(manager, technique, this);
             }
         }

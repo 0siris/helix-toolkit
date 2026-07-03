@@ -6,14 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core2D
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core2D {
         /// <summary>
         /// </summary>
-        public class PathRenderCore2D : ShapeRenderCore2DBase
-        {
+        public class PathRenderCore2D : ShapeRenderCore2DBase {
             private List<Figure> figures = new();
 
             private D2DFillMode fillMode = D2DFillMode.Alternate;
@@ -34,11 +31,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The figures.
             /// </value>
-            public List<Figure> Figures
-            {
+            public List<Figure> Figures {
                 get => figures;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref figures, value)) isGeometryChanged = true;
                 }
             }
@@ -49,11 +44,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The fill mode.
             /// </value>
-            public D2DFillMode FillMode
-            {
+            public D2DFillMode FillMode {
                 get => fillMode;
-                set
-                {
+                set {
                     if (SetAffectsRender(ref fillMode, value)) isGeometryChanged = true;
                 }
             }
@@ -63,8 +56,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="host">The host.</param>
             /// <returns></returns>
-            protected override bool OnAttach(IRenderHost host)
-            {
+            protected override bool OnAttach(IRenderHost host) {
                 isGeometryChanged = true;
                 return base.OnAttach(host);
             }
@@ -73,17 +65,15 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [render].
             /// </summary>
             /// <param name="context">The context.</param>
-            [SuppressMessage("Microsoft.Usage", "CA2202: Do not dispose objects multiple times",
-                Justification = "False positive.")]
-            protected override void OnRender(RenderContext2D context)
-            {
-                if (isGeometryChanged)
-                {
+            [SuppressMessage("Microsoft.Usage",
+                             "CA2202: Do not dispose objects multiple times",
+                             Justification = "False positive.")]
+            protected override void OnRender(RenderContext2D context) {
+                if (isGeometryChanged) {
                     RemoveAndDispose(ref geometry);
                     if (Figures == null || Figures.Count == 0) return;
                     geometry = new PathGeometry(context.DeviceResources.Factory2D);
-                    using (var sink = geometry.Open())
-                    {
+                    using (var sink = geometry.Open()) {
                         sink.SetFillMode(FillMode);
                         foreach (var figure in Figures) figure.Create(sink);
                         sink.Close();
@@ -97,8 +87,7 @@ namespace HelixToolkit.SharpDX.Core
                 if (FillBrush != null) context.DeviceContext.FillGeometry(geometry, FillBrush);
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref geometry);
                 base.OnDetach();
             }

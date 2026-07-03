@@ -13,11 +13,9 @@ using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID
 using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
 using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture3D>;
 
-namespace HelixToolkit.SharpDX.Core
-{
+namespace HelixToolkit.SharpDX.Core {
     [Flags]
-    public enum BindFlags
-    {
+    public enum BindFlags {
         None = 0,
         VertexBuffer = 1,
         IndexBuffer = 2,
@@ -30,23 +28,20 @@ namespace HelixToolkit.SharpDX.Core
     }
 
     [Flags]
-    public enum CpuAccessFlags
-    {
+    public enum CpuAccessFlags {
         None = 0,
         Write = 0x10000,
         Read = 0x20000
     }
 
-    public enum ResourceUsage
-    {
+    public enum ResourceUsage {
         Default = 0,
         Immutable = 1,
         Dynamic = 2,
         Staging = 3
     }
 
-    public enum DriverType
-    {
+    public enum DriverType {
         Unknown = 0,
         Hardware = 1,
         Reference = 2,
@@ -56,8 +51,7 @@ namespace HelixToolkit.SharpDX.Core
     }
 
     [Flags]
-    public enum ResourceOptionFlags
-    {
+    public enum ResourceOptionFlags {
         None = 0,
         GenerateMipMaps = 1,
         Shared = 2,
@@ -70,8 +64,7 @@ namespace HelixToolkit.SharpDX.Core
         GdiCompatible = 512
     }
 
-    public enum MapMode
-    {
+    public enum MapMode {
         Read = 1,
         Write = 2,
         ReadWrite = 3,
@@ -80,14 +73,12 @@ namespace HelixToolkit.SharpDX.Core
     }
 
     [Flags]
-    public enum MapFlags
-    {
+    public enum MapFlags {
         None = 0,
         DoNotWait = 0x100000
     }
 
-    public struct BufferDescription
-    {
+    public struct BufferDescription {
         public int SizeInBytes;
         public BindFlags BindFlags;
         public CpuAccessFlags CpuAccessFlags;
@@ -96,10 +87,8 @@ namespace HelixToolkit.SharpDX.Core
         public int StructureByteStride;
     }
 
-    public struct VertexBufferBinding
-    {
-        public VertexBufferBinding(Buffer buffer, int stride, int offset)
-        {
+    public struct VertexBufferBinding {
+        public VertexBufferBinding(Buffer buffer, int stride, int offset) {
             Buffer = buffer;
             Stride = stride;
             Offset = offset;
@@ -110,20 +99,17 @@ namespace HelixToolkit.SharpDX.Core
         public int Offset;
     }
 
-    public struct SampleDescription
-    {
+    public struct SampleDescription {
         public int Count;
         public int Quality;
 
-        public SampleDescription(int count, int quality)
-        {
+        public SampleDescription(int count, int quality) {
             Count = count;
             Quality = quality;
         }
     }
 
-    public struct Texture1DDescription
-    {
+    public struct Texture1DDescription {
         public int Width;
         public int MipLevels;
         public int ArraySize;
@@ -134,8 +120,7 @@ namespace HelixToolkit.SharpDX.Core
         public ResourceUsage Usage;
     }
 
-    public struct Texture2DDescription
-    {
+    public struct Texture2DDescription {
         public int Width;
         public int Height;
         public int MipLevels;
@@ -148,8 +133,7 @@ namespace HelixToolkit.SharpDX.Core
         public ResourceUsage Usage;
     }
 
-    public struct Texture3DDescription
-    {
+    public struct Texture3DDescription {
         public int Width;
         public int Height;
         public int Depth;
@@ -161,51 +145,43 @@ namespace HelixToolkit.SharpDX.Core
         public ResourceUsage Usage;
     }
 
-    public struct RenderTargetViewDescription
-    {
+    public struct RenderTargetViewDescription {
         public Format Format;
         public RenderTargetViewDimension Dimension;
         public Texture2DResource Texture2D;
         public Texture2DArrayResource Texture2DArray;
 
-        public struct Texture2DResource
-        {
+        public struct Texture2DResource {
             public int MipSlice;
         }
 
-        public struct Texture2DArrayResource
-        {
+        public struct Texture2DArrayResource {
             public int MipSlice;
             public int FirstArraySlice;
             public int ArraySize;
         }
     }
 
-    public struct DepthStencilViewDescription
-    {
+    public struct DepthStencilViewDescription {
         public Format Format;
         public DepthStencilViewDimension Dimension;
         public DepthStencilViewFlags Flags;
         public Texture2DResource Texture2D;
         public Texture2DArrayResource Texture2DArray;
 
-        public struct Texture2DResource
-        {
+        public struct Texture2DResource {
             public int MipSlice;
         }
 
-        public struct Texture2DArrayResource
-        {
+        public struct Texture2DArrayResource {
             public int MipSlice;
             public int FirstArraySlice;
             public int ArraySize;
         }
     }
 
-    public struct DataBox
-    {
-        public DataBox(nint dataPointer, int rowPitch, int slicePitch)
-        {
+    public struct DataBox {
+        public DataBox(nint dataPointer, int rowPitch, int slicePitch) {
             DataPointer = dataPointer;
             RowPitch = rowPitch;
             SlicePitch = slicePitch;
@@ -217,10 +193,8 @@ namespace HelixToolkit.SharpDX.Core
         public bool IsEmpty => DataPointer == nint.Zero;
     }
 
-    public struct Half4
-    {
-        public Half4(float x, float y, float z, float w)
-        {
+    public struct Half4 {
+        public Half4(float x, float y, float z, float w) {
             X = (Half) x;
             Y = (Half) y;
             Z = (Half) z;
@@ -232,14 +206,12 @@ namespace HelixToolkit.SharpDX.Core
         public Half Z;
         public Half W;
 
-        public static implicit operator Half4(Vector4 value)
-        {
+        public static implicit operator Half4(Vector4 value) {
             return new Half4(value.X, value.Y, value.Z, value.W);
         }
     }
 
-    public struct ResourceRegion
-    {
+    public struct ResourceRegion {
         public int Left;
         public int Top;
         public int Front;
@@ -247,10 +219,8 @@ namespace HelixToolkit.SharpDX.Core
         public int Bottom;
         public int Back;
 
-        internal Box ToSilkBox()
-        {
-            return new Box
-            {
+        internal Box ToSilkBox() {
+            return new Box {
                 Left = (uint) Left,
                 Top = (uint) Top,
                 Front = (uint) Front,
@@ -261,10 +231,8 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed class DataStream : IDisposable
-    {
-        public DataStream(nint dataPointer, int length, bool canRead, bool canWrite)
-        {
+    public sealed class DataStream : IDisposable {
+        public DataStream(nint dataPointer, int length, bool canRead, bool canWrite) {
             DataPointer = dataPointer;
             Length = length;
             CanRead = canRead;
@@ -283,14 +251,12 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             IsDisposed = true;
         }
 
         public unsafe T Read<T>()
-            where T : unmanaged
-        {
+            where T : unmanaged {
             if (DataPointer == nint.Zero) return default;
 
             var value = *(T*) (DataPointer + Position);
@@ -299,16 +265,12 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public unsafe class Resource : IDisposable
-    {
+    public unsafe class Resource : IDisposable {
         private SilkD3D11ResourcePtr nativeResource;
 
-        protected Resource()
-        {
-        }
+        protected Resource() { }
 
-        internal Resource(SilkD3D11ResourcePtr nativeResource)
-        {
+        internal Resource(SilkD3D11ResourcePtr nativeResource) {
             this.nativeResource = nativeResource;
         }
 
@@ -320,8 +282,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public bool IsDisposed { get; private set; }
 
-        public virtual void Dispose()
-        {
+        public virtual void Dispose() {
             if (IsDisposed) return;
 
             if (nativeResource.Handle != null) nativeResource.Dispose();
@@ -329,26 +290,20 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class Buffer : Resource
-    {
+    public sealed unsafe class Buffer : Resource {
         private SilkD3D11BufferPtr nativeBuffer;
 
-        internal Buffer(SilkD3D11BufferPtr nativeBuffer, NativeD3DDevice device, BufferDescription description)
-        {
+        internal Buffer(SilkD3D11BufferPtr nativeBuffer, NativeD3DDevice device, BufferDescription description) {
             this.nativeBuffer = nativeBuffer;
             Device = device;
             Description = description;
         }
 
         public Buffer(DeviceContextProxy context, BufferDescription description)
-            : this(context.NativeDevice.CreateBuffer(description), context.NativeDevice, description)
-        {
-        }
+            : this(context.NativeDevice.CreateBuffer(description), context.NativeDevice, description) { }
 
         public Buffer(DeviceContextProxy context, nint initialData, BufferDescription description)
-            : this(context.NativeDevice.CreateBuffer(description, initialData), context.NativeDevice, description)
-        {
-        }
+            : this(context.NativeDevice.CreateBuffer(description, initialData), context.NativeDevice, description) { }
 
         internal ID3D11Buffer* BufferHandle => nativeBuffer.Handle;
 
@@ -363,16 +318,13 @@ namespace HelixToolkit.SharpDX.Core
         public BufferDescription Description { get; }
 
         public static Buffer Create<T>(DeviceContextProxy context, T[] data, BufferDescription description)
-            where T : unmanaged
-        {
-            fixed (T* dataPtr = data)
-            {
+            where T : unmanaged {
+            fixed (T* dataPtr = data) {
                 return new Buffer(context, (nint) dataPtr, description);
             }
         }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             if (IsDisposed) return;
 
             nativeBuffer.Dispose();
@@ -380,13 +332,14 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class Texture1D : Resource
-    {
+    public sealed unsafe class Texture1D : Resource {
         private SilkD3D11Texture1DPtr nativeTexture;
 
-        internal Texture1D(SilkD3D11Texture1DPtr nativeTexture, NativeD3DDevice device,
-            Texture1DDescription description)
-        {
+        internal Texture1D(
+            SilkD3D11Texture1DPtr nativeTexture,
+            NativeD3DDevice device,
+            Texture1DDescription description
+        ) {
             this.nativeTexture = nativeTexture;
             Device = device;
             Description = description;
@@ -402,8 +355,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public Texture1DDescription Description { get; }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             if (IsDisposed) return;
 
             nativeTexture.Dispose();
@@ -411,14 +363,15 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class Texture2D : Resource
-    {
+    public sealed unsafe class Texture2D : Resource {
         private static readonly Guid DxgiResourceGuid = new("035f3ab4-482e-4e50-b41f-8a7f8bd8960b");
         private SilkD3D11Texture2DPtr nativeTexture;
 
-        internal Texture2D(SilkD3D11Texture2DPtr nativeTexture, NativeD3DDevice device,
-            Texture2DDescription description)
-        {
+        internal Texture2D(
+            SilkD3D11Texture2DPtr nativeTexture,
+            NativeD3DDevice device,
+            Texture2DDescription description
+        ) {
             this.nativeTexture = nativeTexture;
             Device = device;
             Description = description;
@@ -434,25 +387,20 @@ namespace HelixToolkit.SharpDX.Core
 
         public Texture2DDescription Description { get; }
 
-        public nint GetSharedHandle()
-        {
+        public nint GetSharedHandle() {
             IDXGIResource* resource = null;
             var resourceGuid = DxgiResourceGuid;
             SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**) &resource));
-            try
-            {
+            try {
                 void* sharedHandle = null;
                 SilkMarshal.ThrowHResult(resource->GetSharedHandle(&sharedHandle));
                 return (nint) sharedHandle;
-            }
-            finally
-            {
+            } finally {
                 resource->Release();
             }
         }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             if (IsDisposed) return;
 
             nativeTexture.Dispose();
@@ -460,13 +408,14 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    public sealed unsafe class Texture3D : Resource
-    {
+    public sealed unsafe class Texture3D : Resource {
         private SilkD3D11Texture3DPtr nativeTexture;
 
-        internal Texture3D(SilkD3D11Texture3DPtr nativeTexture, NativeD3DDevice device,
-            Texture3DDescription description)
-        {
+        internal Texture3D(
+            SilkD3D11Texture3DPtr nativeTexture,
+            NativeD3DDevice device,
+            Texture3DDescription description
+        ) {
             this.nativeTexture = nativeTexture;
             Device = device;
             Description = description;
@@ -482,8 +431,7 @@ namespace HelixToolkit.SharpDX.Core
 
         public Texture3DDescription Description { get; }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             if (IsDisposed) return;
 
             nativeTexture.Dispose();
@@ -491,14 +439,10 @@ namespace HelixToolkit.SharpDX.Core
         }
     }
 
-    namespace Native
-    {
-        internal static class D3DResourceConversions
-        {
-            public static BufferDesc ToSilkDesc(this BufferDescription description)
-            {
-                return new BufferDesc
-                {
+    namespace Native {
+        internal static class D3DResourceConversions {
+            public static BufferDesc ToSilkDesc(this BufferDescription description) {
+                return new BufferDesc {
                     ByteWidth = (uint) description.SizeInBytes,
                     Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
                     BindFlags = (uint) description.BindFlags,
@@ -508,10 +452,8 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static Texture1DDesc ToSilkDesc(this Texture1DDescription description)
-            {
-                return new Texture1DDesc
-                {
+            public static Texture1DDesc ToSilkDesc(this Texture1DDescription description) {
+                return new Texture1DDesc {
                     Width = (uint) description.Width,
                     MipLevels = (uint) description.MipLevels,
                     ArraySize = (uint) description.ArraySize,
@@ -523,17 +465,15 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static Texture2DDesc ToSilkDesc(this Texture2DDescription description)
-            {
-                return new Texture2DDesc
-                {
+            public static Texture2DDesc ToSilkDesc(this Texture2DDescription description) {
+                return new Texture2DDesc {
                     Width = (uint) description.Width,
                     Height = (uint) description.Height,
                     MipLevels = (uint) description.MipLevels,
                     ArraySize = (uint) description.ArraySize,
                     Format = description.Format,
                     SampleDesc = new SampleDesc((uint) description.SampleDescription.Count,
-                        (uint) description.SampleDescription.Quality),
+                                                (uint) description.SampleDescription.Quality),
                     Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
                     BindFlags = (uint) description.BindFlags,
                     CPUAccessFlags = (uint) description.CpuAccessFlags,
@@ -541,10 +481,8 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static Texture3DDesc ToSilkDesc(this Texture3DDescription description)
-            {
-                return new Texture3DDesc
-                {
+            public static Texture3DDesc ToSilkDesc(this Texture3DDescription description) {
+                return new Texture3DDesc {
                     Width = (uint) description.Width,
                     Height = (uint) description.Height,
                     Depth = (uint) description.Depth,
@@ -557,18 +495,15 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public static Map ToSilkMap(this MapMode mode)
-            {
+            public static Map ToSilkMap(this MapMode mode) {
                 return (Map) mode;
             }
 
-            public static uint ToSilkMapFlags(this MapFlags flags)
-            {
+            public static uint ToSilkMapFlags(this MapFlags flags) {
                 return (uint) flags;
             }
 
-            public static unsafe DataBox ToDataBox(this MappedSubresource mapped)
-            {
+            public static unsafe DataBox ToDataBox(this MappedSubresource mapped) {
                 return new DataBox((nint) mapped.PData, (int) mapped.RowPitch, (int) mapped.DepthPitch);
             }
         }

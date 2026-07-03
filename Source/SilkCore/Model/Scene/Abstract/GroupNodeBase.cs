@@ -6,16 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public abstract class GroupNodeBase : SceneNode
-        {
-            public enum Operation
-            {
+        public abstract class GroupNodeBase : SceneNode {
+            public enum Operation {
                 Add,
                 Remove,
                 Clear
@@ -27,8 +23,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Initializes a new instance of the <see cref="GroupNodeBase" /> class.
             /// </summary>
-            public GroupNodeBase()
-            {
+            public GroupNodeBase() {
                 ItemsInternal = new ObservableFastList<SceneNode>();
                 Items = new ReadOnlyObservableFastList<SceneNode>(ItemsInternal);
             }
@@ -37,16 +32,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Initializes a new instance of the <see cref="GroupNodeBase" /> class.
             /// </summary>
             /// <param name="name">The name.</param>
-            public GroupNodeBase(string name) : this()
-            {
+            public GroupNodeBase(string name) : this() {
                 Name = name;
             }
 
-            public override IRenderHost RenderHost
-            {
+            public override IRenderHost RenderHost {
                 get => renderHost;
-                set
-                {
+                set {
                     renderHost = value;
                     foreach (var sceneNode in ItemsInternal)
                         sceneNode.RenderHost = renderHost;
@@ -72,17 +64,14 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="node">The node.</param>
             /// <returns></returns>
             /// <exception cref="System.ArgumentException">SceneNode already attach to a different node</exception>
-            public bool AddChildNode(SceneNode node)
-            {
-                if (node != null && !itemHashSet.ContainsKey(node.GUID))
-                {
+            public bool AddChildNode(SceneNode node) {
+                if (node != null && !itemHashSet.ContainsKey(node.GUID)) {
                     itemHashSet.Add(node.GUID, node);
                     ItemsInternal.Add(node);
                     if (node.Parent != null && node.Parent != this)
                         throw new ArgumentException("SceneNode already attach to a different node");
                     node.Parent = this;
-                    if (IsAttached)
-                    {
+                    if (IsAttached) {
                         node.Attach(EffectsManager);
                         node.RenderHost = RenderHost;
                         InvalidateSceneGraph();
@@ -100,8 +89,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="fromIndex">From index.</param>
             /// <param name="toIndex">To index.</param>
-            public void MoveChildNode(int fromIndex, int toIndex)
-            {
+            public void MoveChildNode(int fromIndex, int toIndex) {
                 ItemsInternal.Move(fromIndex, toIndex);
                 if (IsAttached) InvalidateSceneGraph();
             }
@@ -112,14 +100,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="index">The index.</param>
             /// <param name="node">The node.</param>
             /// <returns></returns>
-            public bool InsertChildNode(int index, SceneNode node)
-            {
+            public bool InsertChildNode(int index, SceneNode node) {
                 if (node == null || node.IsAttached || itemHashSet.ContainsKey(node.GUID)) return false;
                 itemHashSet.Add(node.GUID, node);
                 ItemsInternal.Insert(index, node);
                 node.Parent = this;
-                if (IsAttached)
-                {
+                if (IsAttached) {
                     node.Attach(EffectsManager);
                     InvalidateSceneGraph();
                 }
@@ -134,8 +120,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="targetGroup">The target group.</param>
             /// <param name="node">The node.</param>
             /// <returns></returns>
-            public bool TransferChildNode(SceneNode node, GroupNodeBase targetGroup)
-            {
+            public bool TransferChildNode(SceneNode node, GroupNodeBase targetGroup) {
                 if (targetGroup == this || !itemHashSet.Remove(node.GUID)) return false;
                 ItemsInternal.Remove(node);
                 node.Parent = null;
@@ -149,10 +134,8 @@ namespace HelixToolkit.SharpDX.Core
             ///     manually.
             /// </summary>
             /// <param name="detachChildren">Whether to detach the child nodes automatically after removing. Default = true.</param>
-            public void Clear(bool detachChildren = true)
-            {
-                for (var i = 0; i < ItemsInternal.Count; ++i)
-                {
+            public void Clear(bool detachChildren = true) {
+                for (var i = 0; i < ItemsInternal.Count; ++i) {
                     if (detachChildren) ItemsInternal[i].Detach();
                     ItemsInternal[i].Parent = null;
                 }
@@ -168,10 +151,8 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="node">The node.</param>
             /// <param name="detachChild">Whether to detach the child node automatically after removing. Default = true.</param>
             /// <returns></returns>
-            public bool RemoveChildNode(SceneNode node, bool detachChild = true)
-            {
-                if (node != null && itemHashSet.Remove(node.GUID))
-                {
+            public bool RemoveChildNode(SceneNode node, bool detachChild = true) {
+                if (node != null && itemHashSet.Remove(node.GUID)) {
                     if (detachChild) node.Detach();
                     ItemsInternal.Remove(node);
                     node.Parent = null;
@@ -189,8 +170,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="guid">The unique identifier.</param>
             /// <param name="node">The node.</param>
             /// <returns></returns>
-            public bool TryGetNode(Guid guid, out SceneNode node)
-            {
+            public bool TryGetNode(Guid guid, out SceneNode node) {
                 return itemHashSet.TryGetValue(guid, out node);
             }
 
@@ -199,10 +179,8 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="effectsManager">The effectsManager.</param>
             /// <returns></returns>
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
-                if (base.OnAttach(effectsManager))
-                {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
+                if (base.OnAttach(effectsManager)) {
                     for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(effectsManager);
                     return true;
                 }
@@ -213,8 +191,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [detach].
             /// </summary>
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Detach();
                 base.OnDetach();
             }
@@ -226,9 +203,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="totalModelMatrix">The total model matrix.</param>
             /// <param name="hits">The hits.</param>
             /// <returns></returns>
-            protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 var hit = false;
                 foreach (var c in ItemsInternal)
                     if (c.HitTest(context, ref hits))
@@ -241,22 +220,19 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [dispose].
             /// </summary>
             /// <param name="disposeManagedResources">if set to <c>true</c> [dispose managed resources].</param>
-            protected override void OnDispose(bool disposeManagedResources)
-            {
+            protected override void OnDispose(bool disposeManagedResources) {
                 Cleared = null;
                 foreach (var c in ItemsInternal) c?.Dispose();
                 base.OnDispose(disposeManagedResources);
             }
 
-            public sealed class OnChildNodeChangedArgs : EventArgs
-            {
+            public sealed class OnChildNodeChangedArgs : EventArgs {
                 /// <summary>
                 ///     Initializes a new instance of the <see cref="OnChildNodeChangedArgs" /> class.
                 /// </summary>
                 /// <param name="node">The node.</param>
                 /// <param name="operation">if set to <c>true</c> [add or remove].</param>
-                public OnChildNodeChangedArgs(SceneNode node, Operation operation)
-                {
+                public OnChildNodeChangedArgs(SceneNode node, Operation operation) {
                     Node = node;
                     Operation = operation;
                 }
@@ -277,8 +253,7 @@ namespace HelixToolkit.SharpDX.Core
                 /// </value>
                 public Operation Operation { get; private set; }
 
-                public static implicit operator SceneNode(OnChildNodeChangedArgs args)
-                {
+                public static implicit operator SceneNode(OnChildNodeChangedArgs args) {
                     return args.Node;
                 }
             }

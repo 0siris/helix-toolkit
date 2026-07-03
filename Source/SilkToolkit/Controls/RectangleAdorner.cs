@@ -20,8 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 ///     An adorner showing a rectangle with a crosshair in the middle. This is shown when zooming a rectangle.
 /// </summary>
-public class RectangleAdorner : Adorner
-{
+public class RectangleAdorner : Adorner {
     /// <summary>
     ///     The cross hair size.
     /// </summary>
@@ -70,10 +69,9 @@ public class RectangleAdorner : Adorner
         WpfColor color2,
         double thickness1 = 1.0,
         double thickness2 = 1.0,
-        double crossHairSize = 10)
-        : this(adornedElement, rectangle, color1, color2, thickness1, thickness2, crossHairSize, DashStyles.Dash)
-    {
-    }
+        double crossHairSize = 10
+    )
+        : this(adornedElement, rectangle, color1, color2, thickness1, thickness2, crossHairSize, DashStyles.Dash) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleAdorner" /> class.
@@ -110,9 +108,9 @@ public class RectangleAdorner : Adorner
         double thickness1,
         double thickness2,
         double crossHairSize,
-        WpfDashStyle dashStyle2)
-        : base(adornedElement)
-    {
+        WpfDashStyle dashStyle2
+    )
+        : base(adornedElement) {
         if (adornedElement == null) throw new ArgumentNullException("adornedElement");
 
         Rectangle = rectangle;
@@ -136,13 +134,10 @@ public class RectangleAdorner : Adorner
     /// <summary>
     ///     Gets or sets Rectangle.
     /// </summary>
-    public Rect Rectangle
-    {
+    public Rect Rectangle {
         get => rectangle;
-        set
-        {
-            if (rectangle != value)
-            {
+        set {
+            if (rectangle != value) {
                 rectangle = value;
                 InvalidateVisual();
             }
@@ -155,8 +150,7 @@ public class RectangleAdorner : Adorner
     /// <param name="dc">
     ///     The dc.
     /// </param>
-    protected override void OnRender(DrawingContext dc)
-    {
+    protected override void OnRender(DrawingContext dc) {
         var halfPenWidth = pen.Thickness / 2;
 
         var mx = (Rectangle.Left + Rectangle.Right) / 2;
@@ -164,11 +158,10 @@ public class RectangleAdorner : Adorner
         mx = (int) mx + halfPenWidth;
         my = (int) my + halfPenWidth;
 
-        var rect = new Rect(
-            (int) Rectangle.Left + halfPenWidth,
-            (int) Rectangle.Top + halfPenWidth,
-            (int) Rectangle.Width,
-            (int) Rectangle.Height);
+        var rect = new Rect((int) Rectangle.Left + halfPenWidth,
+                            (int) Rectangle.Top + halfPenWidth,
+                            (int) Rectangle.Width,
+                            (int) Rectangle.Height);
 
         // Create a guidelines set
         /*GuidelineSet guidelines = new GuidelineSet();
@@ -183,8 +176,7 @@ public class RectangleAdorner : Adorner
         dc.DrawRectangle(null, pen, rect);
         dc.DrawRectangle(null, pen2, rect);
 
-        if (crossHairSize > 0)
-        {
+        if (crossHairSize > 0) {
             dc.DrawLine(pen, new Point(mx, my - crossHairSize), new Point(mx, my + crossHairSize));
             dc.DrawLine(pen, new Point(mx - crossHairSize, my), new Point(mx + crossHairSize, my));
             dc.DrawLine(pen2, new Point(mx, my - crossHairSize), new Point(mx, my + crossHairSize));

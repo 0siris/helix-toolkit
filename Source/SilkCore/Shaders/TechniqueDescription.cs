@@ -5,28 +5,22 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Shaders
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Shaders {
         /// <summary>
         /// </summary>
         [DataContract]
-        public sealed class TechniqueDescription
-        {
+        public sealed class TechniqueDescription {
             /// <summary>
             ///     Initializes a new instance of the <see cref="TechniqueDescription" /> class.
             /// </summary>
-            public TechniqueDescription()
-            {
-            }
+            public TechniqueDescription() { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="TechniqueDescription" /> class.
             /// </summary>
             /// <param name="name">The name.</param>
-            public TechniqueDescription(string name)
-            {
+            public TechniqueDescription(string name) {
                 Name = name;
             }
 
@@ -36,8 +30,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="inputLayout">The input layout.</param>
             public TechniqueDescription(string name, InputLayoutDescription inputLayout)
-                : this(name)
-            {
+                : this(name) {
                 InputLayoutDescription = inputLayout;
             }
 
@@ -47,10 +40,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The name.</param>
             /// <param name="inputLayout">The input layout.</param>
             /// <param name="shaderPasses">The shader passes.</param>
-            public TechniqueDescription(string name, InputLayoutDescription inputLayout,
-                IList<ShaderPassDescription> shaderPasses)
-                : this(name, inputLayout)
-            {
+            public TechniqueDescription(
+                string name,
+                InputLayoutDescription inputLayout,
+                IList<ShaderPassDescription> shaderPasses
+            )
+                : this(name, inputLayout) {
                 PassDescriptions = shaderPasses;
             }
 
@@ -87,14 +82,10 @@ namespace HelixToolkit.SharpDX.Core
         /// <summary>
         /// </summary>
         [DataContract(Name = @"ShaderPassDescription")]
-        public sealed class ShaderPassDescription
-        {
-            public ShaderPassDescription()
-            {
-            }
+        public sealed class ShaderPassDescription {
+            public ShaderPassDescription() { }
 
-            public ShaderPassDescription(string name)
-            {
+            public ShaderPassDescription(string name) {
                 Name = name;
             }
 
@@ -118,16 +109,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     Only used for data serialization
             /// </summary>
             [DataMember(Name = @"BlendStateDescSerialization")]
-            public BlendStateDataContract? BlendStateDescSerialization
-            {
-                get
-                {
+            public BlendStateDataContract? BlendStateDescSerialization {
+                get {
                     if (BlendStateDescription == null) return null;
 
                     return new BlendStateDataContract((BlendStateDescription) BlendStateDescription);
                 }
-                set
-                {
+                set {
                     if (value == null)
                         BlendStateDescription = null;
                     else
@@ -179,17 +167,14 @@ namespace HelixToolkit.SharpDX.Core
             ///     Only used for data serialization
             /// </summary>
             [DataMember(Name = @"DepthStencilStateDescSerialization")]
-            public DepthStencilStateDataContract? DepthStencilStateDescSerialization
-            {
-                get
-                {
+            public DepthStencilStateDataContract? DepthStencilStateDescSerialization {
+                get {
                     if (DepthStencilStateDescription == null) return null;
 
                     return new DepthStencilStateDataContract(
                         (DepthStencilStateDescription) DepthStencilStateDescription);
                 }
-                set
-                {
+                set {
                     if (value == null)
                         DepthStencilStateDescription = null;
                     else
@@ -209,16 +194,13 @@ namespace HelixToolkit.SharpDX.Core
             ///     The rasterizer state data contract.
             /// </value>
             [DataMember(Name = @"RasterizerStateDescSerialization")]
-            public RasterizerStateDataContract? RasterizerStateDescSerialization
-            {
-                get
-                {
+            public RasterizerStateDataContract? RasterizerStateDescSerialization {
+                get {
                     if (RasterStateDescription == null) return null;
 
                     return new RasterizerStateDataContract((RasterizerStateDescription) RasterStateDescription);
                 }
-                set
-                {
+                set {
                     if (value == null)
                         RasterStateDescription = null;
                     else
@@ -233,23 +215,24 @@ namespace HelixToolkit.SharpDX.Core
             public InputLayoutDescription InputLayoutDescription { get; set; }
         }
 
-        #region Serializable descriptions
+    #region Serializable descriptions
 
         [DataContract(Name = @"DepthStencilOperationDataContract")]
-        public struct DepthStencilOperationDataContract
-        {
-            [DataMember(Name = @"FailOperation")] public int FailOperation { get; set; }
+        public struct DepthStencilOperationDataContract {
+            [DataMember(Name = @"FailOperation")]
+            public int FailOperation { get; set; }
 
             [DataMember(Name = @"DepthFailOperation")]
             public int DepthFailOperation { get; set; }
 
-            [DataMember(Name = @"PassOperation")] public int PassOperation { get; set; }
-            [DataMember(Name = @"Comparison")] public int Comparison { get; set; }
+            [DataMember(Name = @"PassOperation")]
+            public int PassOperation { get; set; }
 
-            public DepthStencilOperationDescription ToDepthStencilOperationDescription()
-            {
-                return new DepthStencilOperationDescription
-                {
+            [DataMember(Name = @"Comparison")]
+            public int Comparison { get; set; }
+
+            public DepthStencilOperationDescription ToDepthStencilOperationDescription() {
+                return new DepthStencilOperationDescription {
                     FailOperation = (StencilOperation) FailOperation,
                     DepthFailOperation = (StencilOperation) DepthFailOperation,
                     PassOperation = (StencilOperation) PassOperation,
@@ -257,8 +240,7 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public DepthStencilOperationDataContract(DepthStencilOperationDescription desc)
-            {
+            public DepthStencilOperationDataContract(DepthStencilOperationDescription desc) {
                 FailOperation = (int) desc.FailOperation;
                 DepthFailOperation = (int) desc.DepthFailOperation;
                 PassOperation = (int) desc.PassOperation;
@@ -267,10 +249,12 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         [DataContract(Name = @"DepthStencilStateDataContract")]
-        public struct DepthStencilStateDataContract
-        {
-            [DataMember(Name = @"IsDepthEnabled")] public bool IsDepthEnabled { get; set; }
-            [DataMember(Name = @"DepthWriteMask")] public int DepthWriteMask { get; set; }
+        public struct DepthStencilStateDataContract {
+            [DataMember(Name = @"IsDepthEnabled")]
+            public bool IsDepthEnabled { get; set; }
+
+            [DataMember(Name = @"DepthWriteMask")]
+            public int DepthWriteMask { get; set; }
 
             [DataMember(Name = @"DepthComparison")]
             public int DepthComparison { get; set; }
@@ -284,11 +268,13 @@ namespace HelixToolkit.SharpDX.Core
             [DataMember(Name = @"StencilWriteMask")]
             public byte StencilWriteMask { get; set; }
 
-            [DataMember(Name = @"FrontFace")] public DepthStencilOperationDataContract FrontFace { get; set; }
-            [DataMember(Name = @"BackFace")] public DepthStencilOperationDataContract BackFace { get; set; }
+            [DataMember(Name = @"FrontFace")]
+            public DepthStencilOperationDataContract FrontFace { get; set; }
 
-            public DepthStencilStateDataContract(DepthStencilStateDescription desc)
-            {
+            [DataMember(Name = @"BackFace")]
+            public DepthStencilOperationDataContract BackFace { get; set; }
+
+            public DepthStencilStateDataContract(DepthStencilStateDescription desc) {
                 IsDepthEnabled = desc.IsDepthEnabled;
                 IsStencilEnabled = desc.IsStencilEnabled;
                 DepthWriteMask = (int) desc.DepthWriteMask;
@@ -299,10 +285,8 @@ namespace HelixToolkit.SharpDX.Core
                 BackFace = new DepthStencilOperationDataContract(desc.BackFace);
             }
 
-            public DepthStencilStateDescription ToDepthStencilStateDescription()
-            {
-                return new DepthStencilStateDescription
-                {
+            public DepthStencilStateDescription ToDepthStencilStateDescription() {
+                return new DepthStencilStateDescription {
                     IsDepthEnabled = IsDepthEnabled,
                     DepthWriteMask = (DepthWriteMask) DepthWriteMask,
                     DepthComparison = (Comparison) DepthComparison,
@@ -316,16 +300,21 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         [DataContract(Name = @"RasterizerStateDataContract")]
-        public struct RasterizerStateDataContract
-        {
-            [DataMember(Name = @"FillMode")] public int FillMode { get; set; }
-            [DataMember(Name = @"CullMode")] public int CullMode { get; set; }
+        public struct RasterizerStateDataContract {
+            [DataMember(Name = @"FillMode")]
+            public int FillMode { get; set; }
+
+            [DataMember(Name = @"CullMode")]
+            public int CullMode { get; set; }
 
             [DataMember(Name = @"IsFrontCounterClockwise")]
             public bool IsFrontCounterClockwise { get; set; }
 
-            [DataMember(Name = @"DepthBias")] public int DepthBias { get; set; }
-            [DataMember(Name = @"DepthBiasClamp")] public float DepthBiasClamp { get; set; }
+            [DataMember(Name = @"DepthBias")]
+            public int DepthBias { get; set; }
+
+            [DataMember(Name = @"DepthBiasClamp")]
+            public float DepthBiasClamp { get; set; }
 
             [DataMember(Name = @"SlopeScaledDepthBias")]
             public float SlopeScaledDepthBias { get; set; }
@@ -342,10 +331,8 @@ namespace HelixToolkit.SharpDX.Core
             [DataMember(Name = @"IsAntialiasedLineEnabled")]
             public bool IsAntialiasedLineEnabled { get; set; }
 
-            public RasterizerStateDescription ToRasterizerStateDescription()
-            {
-                return new RasterizerStateDescription
-                {
+            public RasterizerStateDescription ToRasterizerStateDescription() {
+                return new RasterizerStateDescription {
                     FillMode = (FillMode) FillMode,
                     CullMode = (CullMode) CullMode,
                     IsFrontCounterClockwise = IsFrontCounterClockwise,
@@ -359,8 +346,7 @@ namespace HelixToolkit.SharpDX.Core
                 };
             }
 
-            public RasterizerStateDataContract(RasterizerStateDescription desc)
-            {
+            public RasterizerStateDataContract(RasterizerStateDescription desc) {
                 FillMode = (int) desc.FillMode;
                 CullMode = (int) desc.CullMode;
                 DepthBias = desc.DepthBias;
@@ -375,18 +361,17 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         [DataContract(Name = @"BlendStateDataContract")]
-        public struct BlendStateDataContract
-        {
+        public struct BlendStateDataContract {
             [DataMember(Name = @"AlphaToCoverageEnable")]
             public bool AlphaToCoverageEnable { get; set; }
 
             [DataMember(Name = @"IndependentBlendEnable")]
             public bool IndependentBlendEnable { get; set; }
 
-            [DataMember(Name = @"RenderTarget")] public RenderTargetBlendDataContract[] RenderTarget { get; set; }
+            [DataMember(Name = @"RenderTarget")]
+            public RenderTargetBlendDataContract[] RenderTarget { get; set; }
 
-            public BlendStateDataContract(BlendStateDescription desc)
-            {
+            public BlendStateDataContract(BlendStateDescription desc) {
                 AlphaToCoverageEnable = desc.AlphaToCoverageEnable;
                 IndependentBlendEnable = desc.IndependentBlendEnable;
                 RenderTarget = new RenderTargetBlendDataContract[desc.RenderTarget.Length];
@@ -394,10 +379,8 @@ namespace HelixToolkit.SharpDX.Core
                     RenderTarget[i] = new RenderTargetBlendDataContract(desc.RenderTarget[i]);
             }
 
-            public BlendStateDescription ToBlendStateDescription()
-            {
-                var desc = new BlendStateDescription
-                {
+            public BlendStateDescription ToBlendStateDescription() {
+                var desc = new BlendStateDescription {
                     AlphaToCoverageEnable = AlphaToCoverageEnable,
                     IndependentBlendEnable = IndependentBlendEnable
                 };
@@ -408,15 +391,18 @@ namespace HelixToolkit.SharpDX.Core
         }
 
         [DataContract(Name = @"RenderTargetBlendDataContract")]
-        public struct RenderTargetBlendDataContract
-        {
-            [DataMember(Name = @"IsBlendEnabled")] public bool IsBlendEnabled { get; set; }
-            [DataMember(Name = @"SourceBlend")] public int SourceBlend { get; set; }
+        public struct RenderTargetBlendDataContract {
+            [DataMember(Name = @"IsBlendEnabled")]
+            public bool IsBlendEnabled { get; set; }
+
+            [DataMember(Name = @"SourceBlend")]
+            public int SourceBlend { get; set; }
 
             [DataMember(Name = @"DestinationBlend")]
             public int DestinationBlend { get; set; }
 
-            [DataMember(Name = @"BlendOperation")] public int BlendOperation { get; set; }
+            [DataMember(Name = @"BlendOperation")]
+            public int BlendOperation { get; set; }
 
             [DataMember(Name = @"SourceAlphaBlend")]
             public int SourceAlphaBlend { get; set; }
@@ -430,8 +416,7 @@ namespace HelixToolkit.SharpDX.Core
             [DataMember(Name = @"RenderTargetWriteMask")]
             public int RenderTargetWriteMask { get; set; }
 
-            public RenderTargetBlendDataContract(RenderTargetBlendDescription desc)
-            {
+            public RenderTargetBlendDataContract(RenderTargetBlendDescription desc) {
                 IsBlendEnabled = desc.IsBlendEnabled;
                 SourceBlend = (int) desc.SourceBlend;
                 DestinationBlend = (int) desc.DestinationBlend;
@@ -442,10 +427,8 @@ namespace HelixToolkit.SharpDX.Core
                 RenderTargetWriteMask = (int) desc.RenderTargetWriteMask;
             }
 
-            public RenderTargetBlendDescription ToRenderTargetBlendDescription()
-            {
-                return new RenderTargetBlendDescription
-                {
+            public RenderTargetBlendDescription ToRenderTargetBlendDescription() {
+                return new RenderTargetBlendDescription {
                     IsBlendEnabled = IsBlendEnabled,
                     SourceBlend = (BlendOption) SourceBlend,
                     DestinationBlend = (BlendOption) DestinationBlend,
@@ -458,6 +441,6 @@ namespace HelixToolkit.SharpDX.Core
             }
         }
 
-        #endregion
+    #endregion
     }
 }

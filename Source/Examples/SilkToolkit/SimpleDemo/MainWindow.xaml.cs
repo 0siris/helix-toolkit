@@ -7,27 +7,22 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SimpleDemo
-{
-    using HelixToolkit.Wpf.SharpDX.Utilities;
-    using System;
-    using System.Windows;
+namespace SimpleDemo;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            this.InitializeComponent();
-            Closed += (s, e) => {
-                if (DataContext is IDisposable)
-                {
-                    (DataContext as IDisposable).Dispose();
-                }
-            };                           
-        }
+using HelixToolkit.Wpf.SharpDX.Utilities;
+using System;
+using System.Windows;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window {
+    public MainWindow() {
+        this.InitializeComponent();
+        Closed += (s, e) => {
+            if (DataContext is IDisposable) {
+                (DataContext as IDisposable).Dispose();
+            }
+        };
     }
-
 }

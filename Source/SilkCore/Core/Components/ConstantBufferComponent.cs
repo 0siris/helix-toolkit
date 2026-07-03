@@ -10,14 +10,11 @@ using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core.Components
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core.Components {
         /// <summary>
         /// </summary>
-        public sealed class ConstantBufferComponent : CoreComponent
-        {
+        public sealed class ConstantBufferComponent : CoreComponent {
             private static readonly ILogger logger = LogManager.Create<ConstantBufferComponent>();
             private readonly ConstantBufferDescription bufferDesc;
             private readonly object lck = new();
@@ -30,8 +27,7 @@ namespace HelixToolkit.SharpDX.Core
             ///     Initializes a new instance of the <see cref="ConstantBufferComponent" /> class.
             /// </summary>
             /// <param name="desc">The desc.</param>
-            public ConstantBufferComponent(ConstantBufferDescription desc)
-            {
+            public ConstantBufferComponent(ConstantBufferDescription desc) {
                 bufferDesc = desc;
             }
 
@@ -40,8 +36,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="name">The name.</param>
             /// <param name="structSize">Size of the structure.</param>
-            public ConstantBufferComponent(string name, int structSize)
-            {
+            public ConstantBufferComponent(string name, int structSize) {
                 bufferDesc = new ConstantBufferDescription(name, structSize);
             }
 
@@ -53,12 +48,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public ConstantBufferProxy ModelConstBuffer => modelConstBuffer;
 
-            protected override void OnAttach(IRenderTechnique technique)
-            {
-                lock (lck)
-                {
-                    if (bufferDesc != null)
-                    {
+            protected override void OnAttach(IRenderTechnique technique) {
+                lock (lck) {
+                    if (bufferDesc != null) {
                         modelConstBuffer = technique.ConstantBufferPool.Register(bufferDesc);
                         storage = technique.EffectsManager.StructArrayPool.Register(bufferDesc.StructSize);
                         storageId = storage.GetId();
@@ -68,10 +60,8 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override void OnDetach()
-            {
-                lock (lck)
-                {
+            protected override void OnDetach() {
+                lock (lck) {
                     RemoveAndDispose(ref modelConstBuffer);
                     storage.ReleaseId(storageId);
                     RemoveAndDispose(ref storage);
@@ -84,12 +74,9 @@ namespace HelixToolkit.SharpDX.Core
             ///     Uploads the specified device context. This uploads internal byte buffer only.
             /// </summary>
             /// <param name="deviceContext">The device context.</param>
-            public bool Upload(DeviceContextProxy deviceContext)
-            {
-                lock (lck)
-                {
-                    if (IsValid && IsAttached)
-                    {
+            public bool Upload(DeviceContextProxy deviceContext) {
+                lock (lck) {
+                    if (IsValid && IsAttached) {
                         var array = storage.GetArray();
                         var off = storage.GetOffSet(storageId);
                         ModelConstBuffer.UploadDataToBuffer(deviceContext, array, ModelConstBuffer.StructureSize, off);
@@ -108,15 +95,11 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="deviceContext">The device context.</param>
             /// <param name="data">The data.</param>
             /// <returns></returns>
-            public bool Upload<T>(DeviceContextProxy deviceContext, ref T data) where T : unmanaged
-            {
-                lock (lck)
-                {
-                    if (IsValid && IsAttached)
-                    {
+            public bool Upload<T>(DeviceContextProxy deviceContext, ref T data) where T : unmanaged {
+                lock (lck) {
+                    if (IsValid && IsAttached) {
                         var structSize = UnsafeHelper.SizeOf<T>();
-                        if (ModelConstBuffer.Buffer.Description.SizeInBytes < structSize)
-                        {
+                        if (ModelConstBuffer.Buffer.Description.SizeInBytes < structSize) {
 #if DEBUG
                             throw new ArgumentOutOfRangeException(
                                 $"Try to write value out of range. StructureSize {structSize}" +
@@ -127,8 +110,7 @@ namespace HelixToolkit.SharpDX.Core
                         }
 
                         var box = ModelConstBuffer.Map(deviceContext);
-                        unsafe
-                        {
+                        unsafe {
                             var pBuf = (byte*) box.DataPointer.ToPointer();
                             *(T*) pBuf = data;
                         }
@@ -148,17 +130,12 @@ namespace HelixToolkit.SharpDX.Core
             /// <param name="name">The variable name.</param>
             /// <param name="value">The value.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void WriteValueByName<T>(string name, T value) where T : unmanaged
-            {
+            public void WriteValueByName<T>(string name, T value) where T : unmanaged {
                 if (IsValid && IsAttached)
-                    lock (lck)
-                    {
-                        if (IsValid && IsAttached)
-                        {
-                            if (ModelConstBuffer.TryGetVariableByName(name, out var variable))
-                            {
-                                if (UnsafeHelper.SizeOf<T>() > variable.Size)
-                                {
+                    lock (lck) {
+                        if (IsValid && IsAttached) {
+                            if (ModelConstBuffer.TryGetVariableByName(name, out var variable)) {
+                                if (UnsafeHelper.SizeOf<T>() > variable.Size) {
                                     var structSize = UnsafeHelper.SizeOf<T>();
                                     throw new ArgumentException(
                                         $"Input struct size {structSize} is larger than shader variable {variable.Name} size {variable.Size}");
@@ -166,9 +143,7 @@ namespace HelixToolkit.SharpDX.Core
 
                                 if (!storage.Write(storageId, variable.StartOffset, ref value))
                                     throw new ArgumentException($"Failed to write value on {name}");
-                            }
-                            else
-                            {
+                            } else {
 #if DEBUG
                                 throw new ArgumentException(
                                     $"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
@@ -186,23 +161,18 @@ namespace HelixToolkit.SharpDX.Core
             /// <typeparam name="T"></typeparam>
             /// <param name="value">The value.</param>
             /// <param name="offset">The offset.</param>
-            public void WriteValue<T>(T value, int offset) where T : unmanaged
-            {
+            public void WriteValue<T>(T value, int offset) where T : unmanaged {
                 if (IsValid && IsAttached)
-                    lock (lck)
-                    {
+                    lock (lck) {
                         if (IsValid && IsAttached) storage.Write(storageId, offset, ref value);
                     }
             }
 
-            public bool ReadValueByName<T>(string name, out T value) where T : unmanaged
-            {
+            public bool ReadValueByName<T>(string name, out T value) where T : unmanaged {
                 var v = default(T);
                 if (IsValid && IsAttached)
-                    lock (lck)
-                    {
-                        if (IsValid && IsAttached)
-                        {
+                    lock (lck) {
+                        if (IsValid && IsAttached) {
                             if (ModelConstBuffer.TryGetVariableByName(name, out var variable))
                                 return storage.Read(storageId, variable.StartOffset, out value);
 #if DEBUG
@@ -220,12 +190,10 @@ namespace HelixToolkit.SharpDX.Core
                 return false;
             }
 
-            public bool ReadValue<T>(int offset, out T value) where T : unmanaged
-            {
+            public bool ReadValue<T>(int offset, out T value) where T : unmanaged {
                 var v = default(T);
                 if (IsValid && IsAttached)
-                    lock (lck)
-                    {
+                    lock (lck) {
                         if (IsValid && IsAttached) return storage.Read(storageId, offset, out value);
                     }
 

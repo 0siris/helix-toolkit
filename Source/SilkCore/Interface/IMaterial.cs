@@ -10,8 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IMaterial : INotifyPropertyChanged
-{
+public interface IMaterial : INotifyPropertyChanged {
     string Name { get; set; }
 
     Guid Guid { get; }
@@ -21,8 +20,7 @@ public interface IMaterial : INotifyPropertyChanged
 
 /// <summary>
 /// </summary>
-public interface IMaterialVariablePool : IDisposable
-{
+public interface IMaterialVariablePool : IDisposable {
     int Count { get; }
 
     MaterialVariable Register(IMaterial material, IRenderTechnique technique);

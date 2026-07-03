@@ -12,12 +12,9 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Core
-    {
-        public sealed class VolumeRenderCore : RenderCore
-        {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Core {
+        public sealed class VolumeRenderCore : RenderCore {
             private static readonly MeshGeometry3D BoxMesh;
             private readonly ConstantBufferComponent modelCB;
             private int backTexSlot;
@@ -30,12 +27,9 @@ namespace HelixToolkit.SharpDX.Core
             private ModelMatrices modelMatrices;
             private ShaderPass volumePass;
 
-            static VolumeRenderCore()
-            {
-                BoxMesh = new MeshGeometry3D
-                {
-                    Positions = new Vector3Collection
-                    {
+            static VolumeRenderCore() {
+                BoxMesh = new MeshGeometry3D {
+                    Positions = new Vector3Collection {
                         new Vector3(-0.5f, -0.5f, -0.5f),
                         new Vector3(0.5f, -0.5f, -0.5f),
                         new Vector3(-0.5f, 0.5f, -0.5f),
@@ -45,8 +39,7 @@ namespace HelixToolkit.SharpDX.Core
                         new Vector3(-0.5f, 0.5f, 0.5f),
                         new Vector3(0.5f, 0.5f, 0.5f)
                     },
-                    Indices = new IntCollection
-                    {
+                    Indices = new IntCollection {
                         0, 2, 3,
                         3, 1, 0,
                         4, 5, 7,
@@ -64,21 +57,18 @@ namespace HelixToolkit.SharpDX.Core
             }
 
             public VolumeRenderCore()
-                : base(RenderType.Particle)
-            {
+                : base(RenderType.Particle) {
                 modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                    DefaultBufferNames.VolumeModelCB,
-                    VolumeParamsStruct.SizeInBytes)));
+                                                                       DefaultBufferNames.VolumeModelCB,
+                                                                       VolumeParamsStruct.SizeInBytes)));
             }
 
             /// <summary>
             ///     Used to wrap all material resources
             /// </summary>
-            public MaterialVariable MaterialVariables
-            {
+            public MaterialVariable MaterialVariables {
                 get => materialVariables;
-                set
-                {
+                set {
                     var old = materialVariables;
                     if (SetAffectsCanRenderFlag(ref materialVariables, value))
                         if (value == null)
@@ -86,8 +76,7 @@ namespace HelixToolkit.SharpDX.Core
                 }
             }
 
-            protected override bool OnAttach(IRenderTechnique technique)
-            {
+            protected override bool OnAttach(IRenderTechnique technique) {
                 buffer = new VolumeCubeBufferModel();
                 buffer.Geometry = BoxMesh;
                 buffer.Topology = PrimitiveTopology.TriangleList;
@@ -97,25 +86,24 @@ namespace HelixToolkit.SharpDX.Core
                 return true;
             }
 
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 RemoveAndDispose(ref buffer);
             }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext)
-            {
-                using (var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float))
-                {
+            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+                using (var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float)) {
                     var slot = 0;
                     using (var depth =
-                           context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint))
-                    {
+                           context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
                         deviceContext.ClearDepthStencilView(depth,
-                            DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 1);
+                                                            DepthStencilClearFlags.Depth |
+                                                            DepthStencilClearFlags.Stencil,
+                                                            1,
+                                                            1);
                         deviceContext.ClearRenderTargetView(back, new Color4(0, 0, 0, 0));
                         BindTarget(depth, back, deviceContext, (int) context.ActualWidth, (int) context.ActualHeight);
 
-                        #region Render box back face and set stencil buffer to 0
+                    #region Render box back face and set stencil buffer to 0
 
                         modelMatrices.Update(ref ModelMatrix);
                         if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelMatrices)) return;
@@ -124,13 +112,12 @@ namespace HelixToolkit.SharpDX.Core
                         cubeBackPass.BindStates(deviceContext, StateType.All);
                         deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
 
-                        #endregion
+                    #endregion
 
-                        #region Render all mesh Positions onto off-screen texture region with stencil = 0 only
+                    #region Render all mesh Positions onto off-screen texture region with stencil = 0 only
 
                         if (context.RenderHost.PerFrameOpaqueNodesInFrustum.Count > 0)
-                            for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i)
-                            {
+                            for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
                                 var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
                                 var meshPass = mesh.EffectTechnique[DefaultPassNames.Positions];
                                 if (meshPass.IsNULL) continue;
@@ -141,15 +128,14 @@ namespace HelixToolkit.SharpDX.Core
                                 mesh.RenderCustom(context, deviceContext);
                             }
 
-                        #endregion
+                    #endregion
                     }
 
-                    #region Render box back face again and do actual volume sampling
+                #region Render box back face again and do actual volume sampling
 
                     context.RenderHost.SetDefaultRenderTargets(false);
                     var pass = materialVariables.GetPass(RenderType.Opaque, context);
-                    if (pass != volumePass)
-                    {
+                    if (pass != volumePass) {
                         volumePass = pass;
                         backTexSlot =
                             volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
@@ -164,29 +150,30 @@ namespace HelixToolkit.SharpDX.Core
                     volumePass.BindStates(deviceContext, StateType.All);
                     deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
 
-                    #endregion
+                #endregion
 
                     volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
                 }
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static void BindTarget(DepthStencilView dsv, RenderTargetView targetView,
-                DeviceContextProxy context, int width, int height)
-            {
+            private static void BindTarget(
+                DepthStencilView dsv,
+                RenderTargetView targetView,
+                DeviceContextProxy context,
+                int width,
+                int height
+            ) {
                 context.SetRenderTargets(dsv, targetView == null ? null : new[] {targetView});
             }
 
             [StructLayout(LayoutKind.Sequential, Pack = 4)]
-            private struct ModelMatrices
-            {
+            private struct ModelMatrices {
                 public Matrix ModelMatrix;
                 public Matrix ModelMatrixInv;
 
-                public void Update(ref Matrix modelMatrix)
-                {
-                    if (ModelMatrix != modelMatrix)
-                    {
+                public void Update(ref Matrix modelMatrix) {
+                    if (ModelMatrix != modelMatrix) {
                         ModelMatrix = modelMatrix;
                         ModelMatrixInv = modelMatrix.Inverted();
                     }
@@ -195,16 +182,18 @@ namespace HelixToolkit.SharpDX.Core
 
             /// <summary>
             /// </summary>
-            private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3>
-            {
-                public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes)
-                {
+            private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3> {
+                public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
                     Topology = PrimitiveTopology.TriangleList;
                 }
 
-                protected override void OnCreateVertexBuffer(DeviceContextProxy context, IElementsBufferProxy buffer,
-                    int bufferIndex, Geometry3D geometry, IDeviceResources deviceResources)
-                {
+                protected override void OnCreateVertexBuffer(
+                    DeviceContextProxy context,
+                    IElementsBufferProxy buffer,
+                    int bufferIndex,
+                    Geometry3D geometry,
+                    IDeviceResources deviceResources
+                ) {
                     // -- set geometry if given
                     if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
                         buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);

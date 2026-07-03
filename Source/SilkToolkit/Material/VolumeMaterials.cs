@@ -10,86 +10,98 @@ using HelixToolkit.SharpDX.Core.Shaders;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMaterial
-{
+public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMaterial {
     public static readonly DependencyProperty SamplerProperty =
-        DependencyProperty.Register("Sampler", typeof(SamplerStateDescription), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(DefaultSamplers.VolumeSampler,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as VolumeTextureDDS3DMaterialCore).Sampler =
-                        (SamplerStateDescription) e.NewValue;
-                }));
+        DependencyProperty.Register("Sampler",
+                                    typeof(SamplerStateDescription),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(DefaultSamplers.VolumeSampler,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              VolumeTextureDDS3DMaterialCore).Sampler =
+                                                                 (SamplerStateDescription) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty SampleDistanceProperty =
-        DependencyProperty.Register("SampleDistance", typeof(double), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(1.0,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).SampleDistance =
-                        (double) e.NewValue;
-                }));
+        DependencyProperty.Register("SampleDistance",
+                                    typeof(double),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(1.0,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).SampleDistance =
+                                                                 (double) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty MaxIterationsProperty =
-        DependencyProperty.Register("MaxIterations", typeof(int), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(int.MaxValue,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).MaxIterations = (int) e.NewValue;
-                }));
+        DependencyProperty.Register("MaxIterations",
+                                    typeof(int),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(int.MaxValue,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).MaxIterations = (int) e.NewValue;
+                                                         }));
 
 
     public static readonly DependencyProperty IterationOffsetProperty =
-        DependencyProperty.Register("IterationOffset", typeof(int), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(0,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).IterationOffset =
-                        (int) e.NewValue;
-                }));
+        DependencyProperty.Register("IterationOffset",
+                                    typeof(int),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(0,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).IterationOffset =
+                                                                 (int) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty IsoValueProperty =
-        DependencyProperty.Register("IsoValue", typeof(double), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(0.0,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).IsoValue = (double) e.NewValue;
-                }));
+        DependencyProperty.Register("IsoValue",
+                                    typeof(double),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(0.0,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).IsoValue = (double) e.NewValue;
+                                                         }));
 
 
     public static readonly DependencyProperty ColorProperty =
-        DependencyProperty.Register("Color4", typeof(Color4), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(new Color4(1, 1, 1, 1),
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).Color = (Color4) e.NewValue;
-                }));
+        DependencyProperty.Register("Color4",
+                                    typeof(Color4),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(new Color4(1, 1, 1, 1),
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).Color = (Color4) e.NewValue;
+                                                         }));
 
     public static readonly DependencyProperty TransferMapProperty =
-        DependencyProperty.Register("TransferMap", typeof(Color4[]), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).TransferMap =
-                        (Color4[]) e.NewValue;
-                }));
+        DependencyProperty.Register("TransferMap",
+                                    typeof(Color4[]),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).TransferMap =
+                                                                 (Color4[]) e.NewValue;
+                                                         }));
 
     // Using a DependencyProperty as the backing store for EnablePlaneAlignment.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty EnablePlaneAlignmentProperty =
-        DependencyProperty.Register("EnablePlaneAlignment", typeof(bool), typeof(VolumeTextureMaterialBase),
-            new PropertyMetadata(true,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureMaterialBase).Core as IVolumeTextureMaterial).EnablePlaneAlignment =
-                        (bool) e.NewValue;
-                }));
+        DependencyProperty.Register("EnablePlaneAlignment",
+                                    typeof(bool),
+                                    typeof(VolumeTextureMaterialBase),
+                                    new PropertyMetadata(true,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureMaterialBase).Core as
+                                                              IVolumeTextureMaterial).EnablePlaneAlignment =
+                                                                 (bool) e.NewValue;
+                                                         }));
 
-    public VolumeTextureMaterialBase()
-    {
-    }
+    public VolumeTextureMaterialBase() { }
 
-    public VolumeTextureMaterialBase(IVolumeTextureMaterial core) : base(core as MaterialCore)
-    {
+    public VolumeTextureMaterialBase(IVolumeTextureMaterial core) : base(core as MaterialCore) {
         SampleDistance = core.SampleDistance;
         MaxIterations = core.MaxIterations;
         Sampler = core.Sampler;
@@ -100,8 +112,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
         EnablePlaneAlignment = core.EnablePlaneAlignment;
     }
 
-    public SamplerStateDescription Sampler
-    {
+    public SamplerStateDescription Sampler {
         get => (SamplerStateDescription) GetValue(SamplerProperty);
         set => SetValue(SamplerProperty, value);
     }
@@ -112,8 +123,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The size of the step.
     /// </value>
-    public double SampleDistance
-    {
+    public double SampleDistance {
         get => (double) GetValue(SampleDistanceProperty);
         set => SetValue(SampleDistanceProperty, value);
     }
@@ -125,8 +135,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The iterations.
     /// </value>
-    public int MaxIterations
-    {
+    public int MaxIterations {
         get => (int) GetValue(MaxIterationsProperty);
         set => SetValue(MaxIterationsProperty, value);
     }
@@ -138,8 +147,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The iteration offset.
     /// </value>
-    public int IterationOffset
-    {
+    public int IterationOffset {
         get => (int) GetValue(IterationOffsetProperty);
         set => SetValue(IterationOffsetProperty, value);
     }
@@ -152,8 +160,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The iso value.
     /// </value>
-    public double IsoValue
-    {
+    public double IsoValue {
         get => (double) GetValue(IsoValueProperty);
         set => SetValue(IsoValueProperty, value);
     }
@@ -165,8 +172,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The color.
     /// </value>
-    public Color4 Color
-    {
+    public Color4 Color {
         get => (Color4) GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
@@ -178,15 +184,13 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The gradient map.
     /// </value>
-    public Color4[] TransferMap
-    {
+    public Color4[] TransferMap {
         get => (Color4[]) GetValue(TransferMapProperty);
         set => SetValue(TransferMapProperty, value);
     }
 
 
-    public bool EnablePlaneAlignment
-    {
+    public bool EnablePlaneAlignment {
         get => (bool) GetValue(EnablePlaneAlignmentProperty);
         set => SetValue(EnablePlaneAlignmentProperty, value);
     }
@@ -196,23 +200,21 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
 ///     Default Volume Texture Material. Supports 3D DDS memory stream as
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
-public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase
-{
+public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
     public static readonly DependencyProperty TextureProperty =
-        DependencyProperty.Register("Texture", typeof(TextureModel), typeof(VolumeTextureDDS3DMaterial),
-            new PropertyMetadata(null,
-                (d, e) =>
-                {
-                    ((d as VolumeTextureDDS3DMaterial).Core as VolumeTextureDDS3DMaterialCore).VolumeTexture =
-                        (TextureModel) e.NewValue;
-                }));
+        DependencyProperty.Register("Texture",
+                                    typeof(TextureModel),
+                                    typeof(VolumeTextureDDS3DMaterial),
+                                    new PropertyMetadata(null,
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureDDS3DMaterial).Core as
+                                                              VolumeTextureDDS3DMaterialCore).VolumeTexture =
+                                                                 (TextureModel) e.NewValue;
+                                                         }));
 
-    public VolumeTextureDDS3DMaterial()
-    {
-    }
+    public VolumeTextureDDS3DMaterial() { }
 
-    public VolumeTextureDDS3DMaterial(VolumeTextureDDS3DMaterialCore core) : base(core)
-    {
+    public VolumeTextureDDS3DMaterial(VolumeTextureDDS3DMaterialCore core) : base(core) {
         Texture = core.VolumeTexture;
     }
 
@@ -222,16 +224,13 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture
-    {
+    public TextureModel Texture {
         get => (TextureModel) GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore()
-    {
-        return new VolumeTextureDDS3DMaterialCore
-        {
+    protected override MaterialCore OnCreateCore() {
+        return new VolumeTextureDDS3DMaterialCore {
             Name = Name,
             VolumeTexture = Texture,
             SampleDistance = SampleDistance,
@@ -246,10 +245,8 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
-        return new VolumeTextureDDS3DMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new VolumeTextureDDS3DMaterial {
             Name = Name,
             Texture = Texture,
             SampleDistance = SampleDistance,
@@ -273,23 +270,21 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase
 ///         Pixel Byte[] is equal to Width * Height * Depth * BytesPerPixel.
 ///     </para>
 /// </summary>
-public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase
-{
+public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
     public static readonly DependencyProperty TextureProperty =
-        DependencyProperty.Register("Texture", typeof(VolumeTextureParams), typeof(VolumeTextureRawDataMaterial),
-            new PropertyMetadata(new VolumeTextureParams(),
-                (d, e) =>
-                {
-                    ((d as VolumeTextureRawDataMaterial).Core as VolumeTextureRawDataMaterialCore).VolumeTexture =
-                        (VolumeTextureParams) e.NewValue;
-                }));
+        DependencyProperty.Register("Texture",
+                                    typeof(VolumeTextureParams),
+                                    typeof(VolumeTextureRawDataMaterial),
+                                    new PropertyMetadata(new VolumeTextureParams(),
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureRawDataMaterial).Core as
+                                                              VolumeTextureRawDataMaterialCore).VolumeTexture =
+                                                                 (VolumeTextureParams) e.NewValue;
+                                                         }));
 
-    public VolumeTextureRawDataMaterial()
-    {
-    }
+    public VolumeTextureRawDataMaterial() { }
 
-    public VolumeTextureRawDataMaterial(VolumeTextureRawDataMaterialCore core) : base(core)
-    {
+    public VolumeTextureRawDataMaterial(VolumeTextureRawDataMaterialCore core) : base(core) {
         Texture = core.VolumeTexture;
     }
 
@@ -299,16 +294,13 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase
     /// <value>
     ///     The texture.
     /// </value>
-    public VolumeTextureParams Texture
-    {
+    public VolumeTextureParams Texture {
         get => (VolumeTextureParams) GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore()
-    {
-        return new VolumeTextureRawDataMaterialCore
-        {
+    protected override MaterialCore OnCreateCore() {
+        return new VolumeTextureRawDataMaterialCore {
             Name = Name,
             VolumeTexture = Texture,
             SampleDistance = SampleDistance,
@@ -323,10 +315,8 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
-        return new VolumeTextureRawDataMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new VolumeTextureRawDataMaterial {
             Name = Name,
             Texture = Texture,
             SampleDistance = SampleDistance,
@@ -350,24 +340,21 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase
 ///         Pixel Byte[] is equal to Width * Height * Depth * BytesPerPixel.
 ///     </para>
 /// </summary>
-public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase
-{
+public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
     public static readonly DependencyProperty TextureProperty =
-        DependencyProperty.Register("Texture", typeof(VolumeTextureGradientParams),
-            typeof(VolumeTextureDiffuseMaterial),
-            new PropertyMetadata(new VolumeTextureGradientParams(),
-                (d, e) =>
-                {
-                    ((d as VolumeTextureDiffuseMaterial).Core as VolumeTextureDiffuseMaterialCore).VolumeTexture =
-                        (VolumeTextureGradientParams) e.NewValue;
-                }));
+        DependencyProperty.Register("Texture",
+                                    typeof(VolumeTextureGradientParams),
+                                    typeof(VolumeTextureDiffuseMaterial),
+                                    new PropertyMetadata(new VolumeTextureGradientParams(),
+                                                         (d, e) => {
+                                                             ((d as VolumeTextureDiffuseMaterial).Core as
+                                                              VolumeTextureDiffuseMaterialCore).VolumeTexture =
+                                                                 (VolumeTextureGradientParams) e.NewValue;
+                                                         }));
 
-    public VolumeTextureDiffuseMaterial()
-    {
-    }
+    public VolumeTextureDiffuseMaterial() { }
 
-    public VolumeTextureDiffuseMaterial(VolumeTextureDiffuseMaterialCore core) : base(core)
-    {
+    public VolumeTextureDiffuseMaterial(VolumeTextureDiffuseMaterialCore core) : base(core) {
         Texture = core.VolumeTexture;
     }
 
@@ -377,16 +364,13 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase
     /// <value>
     ///     The texture.
     /// </value>
-    public VolumeTextureGradientParams Texture
-    {
+    public VolumeTextureGradientParams Texture {
         get => (VolumeTextureGradientParams) GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore()
-    {
-        return new VolumeTextureDiffuseMaterialCore
-        {
+    protected override MaterialCore OnCreateCore() {
+        return new VolumeTextureDiffuseMaterialCore {
             Name = Name,
             VolumeTexture = Texture,
             SampleDistance = SampleDistance,
@@ -401,10 +385,8 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase
     }
 
 #if !NETFX_CORE && !WINUI
-    protected override Freezable CreateInstanceCore()
-    {
-        return new VolumeTextureDiffuseMaterial
-        {
+    protected override Freezable CreateInstanceCore() {
+        return new VolumeTextureDiffuseMaterial {
             Name = Name,
             Texture = Texture,
             SampleDistance = SampleDistance,

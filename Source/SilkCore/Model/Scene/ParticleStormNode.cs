@@ -7,20 +7,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    namespace Model.Scene
-    {
+namespace HelixToolkit.SharpDX.Core {
+    namespace Model.Scene {
         /// <summary>
         /// </summary>
-        public class ParticleStormNode : SceneNode, IInstancing, IBoundable
-        {
+        public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
             private volatile bool blendChanged = true;
 
             private bool enableViewFrustumCheck = true;
 
-            public ParticleStormNode()
-            {
+            public ParticleStormNode() {
                 HasBound = true;
             }
 
@@ -30,8 +26,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
             /// </value>
-            public bool EnableViewFrustumCheck
-            {
+            public bool EnableViewFrustumCheck {
                 get => enableViewFrustumCheck && HasBound;
                 set => enableViewFrustumCheck = value;
             }
@@ -46,8 +41,7 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public IElementsBufferModel<Matrix> InstanceBuffer { get; } = new MatrixInstanceBufferModel();
 
-            private void OnBlendStateChanged()
-            {
+            private void OnBlendStateChanged() {
                 blendChanged = true;
             }
 
@@ -55,18 +49,15 @@ namespace HelixToolkit.SharpDX.Core
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
-            protected override RenderCore OnCreateRenderCore()
-            {
+            protected override RenderCore OnCreateRenderCore() {
                 return new ParticleRenderCore();
             }
 
-            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
-            {
+            protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
                 return effectsManager[DefaultRenderTechniqueNames.ParticleStorm];
             }
 
-            protected override bool OnAttach(IEffectsManager effectsManager)
-            {
+            protected override bool OnAttach(IEffectsManager effectsManager) {
                 base.OnAttach(effectsManager);
                 InstanceBuffer.Initialize();
                 InstanceBuffer.Elements = Instances;
@@ -78,14 +69,11 @@ namespace HelixToolkit.SharpDX.Core
             ///     Updates the specified context.
             /// </summary>
             /// <param name="context">The context.</param>
-            public override void Update(RenderContext context)
-            {
+            public override void Update(RenderContext context) {
                 base.Update(context);
-                if (blendChanged)
-                {
+                if (blendChanged) {
                     var desc = new BlendStateDescription();
-                    desc.RenderTarget[0] = new RenderTargetBlendDescription
-                    {
+                    desc.RenderTarget[0] = new RenderTargetBlendDescription {
                         IsBlendEnabled = true,
                         BlendOperation = Blend,
                         AlphaBlendOperation = AlphaBlend,
@@ -99,35 +87,28 @@ namespace HelixToolkit.SharpDX.Core
                     blendChanged = false;
                 }
 
-                if (boundChanged)
-                {
+                if (boundChanged) {
                     UpdateBounds();
                     boundChanged = false;
                 }
             }
 
-            private void UpdateBounds(bool transformOnly = false)
-            {
-                if (!transformOnly)
-                {
+            private void UpdateBounds(bool transformOnly = false) {
+                if (!transformOnly) {
                     originalBound = new BoundingBox(DomainBoundMin, DomainBoundMax);
                     originalBoundsSphere = BoundingSphereExtensions.FromBox(originalBound);
                     BoundingBox newBound;
                     BoundingSphere newBoundSphere;
-                    if (HasInstances)
-                    {
+                    if (HasInstances) {
                         newBound = OriginalBounds.Transform(Instances[0]);
                         newBoundSphere = OriginalBoundsSphere.TransformBoundingSphere(Instances[0]);
-                        foreach (var instance in Instances)
-                        {
+                        foreach (var instance in Instances) {
                             var b = OriginalBounds.Transform(instance);
                             BoundingBox.Merge(ref newBound, ref b, out newBound);
                             var bs = OriginalBoundsSphere.TransformBoundingSphere(instance);
                             BoundingSphereExtensions.Merge(ref newBoundSphere, ref bs, out newBoundSphere);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         newBound = OriginalBounds;
                         newBoundSphere = OriginalBoundsSphere;
                     }
@@ -152,8 +133,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <summary>
             ///     Called when [detach].
             /// </summary>
-            protected override void OnDetach()
-            {
+            protected override void OnDetach() {
                 InstanceBuffer.Dispose();
                 base.OnDetach();
             }
@@ -163,24 +143,24 @@ namespace HelixToolkit.SharpDX.Core
             /// </summary>
             /// <param name="viewFrustum">The view frustum.</param>
             /// <returns></returns>
-            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum)
-            {
+            public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
                 if (!EnableViewFrustumCheck) return true;
                 return BoundingFrustumExtensions.Intersects(ref viewFrustum, ref boundsWithTransform);
             }
 
-            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits)
-            {
+            public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
                 return false;
             }
 
-            protected sealed override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix,
-                ref List<HitTestResult> hits)
-            {
+            protected sealed override bool OnHitTest(
+                HitTestContext context,
+                Matrix totalModelMatrix,
+                ref List<HitTestResult> hits
+            ) {
                 return false;
             }
 
-            #region Properties
+        #region Properties
 
             /// <summary>
             ///     Gets or sets the particle count.
@@ -188,8 +168,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The particle count.
             /// </value>
-            public int ParticleCount
-            {
+            public int ParticleCount {
                 get => particleCore.ParticleCount;
                 set => particleCore.ParticleCount = value;
             }
@@ -200,8 +179,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The emitter location.
             /// </value>
-            public Vector3 EmitterLocation
-            {
+            public Vector3 EmitterLocation {
                 get => particleCore.EmitterLocation;
                 set => particleCore.EmitterLocation = value;
             }
@@ -212,8 +190,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The emitter radius.
             /// </value>
-            public float EmitterRadius
-            {
+            public float EmitterRadius {
                 get => particleCore.EmitterRadius;
                 set => particleCore.EmitterRadius = value;
             }
@@ -224,8 +201,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The consumer location.
             /// </value>
-            public Vector3 ConsumerLocation
-            {
+            public Vector3 ConsumerLocation {
                 get => particleCore.ConsumerLocation;
                 set => particleCore.ConsumerLocation = value;
             }
@@ -236,8 +212,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The consumer radius.
             /// </value>
-            public float ConsumerRadius
-            {
+            public float ConsumerRadius {
                 get => particleCore.ConsumerRadius;
                 set => particleCore.ConsumerRadius = value;
             }
@@ -248,8 +223,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The consumer gravity.
             /// </value>
-            public float ConsumerGravity
-            {
+            public float ConsumerGravity {
                 get => particleCore.ConsumerGravity;
                 set => particleCore.ConsumerGravity = value;
             }
@@ -260,11 +234,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The initial energy.
             /// </value>
-            public float InitialEnergy
-            {
+            public float InitialEnergy {
                 get => particleCore.InitialEnergy;
-                set
-                {
+                set {
                     particleCore.InitialEnergy = value;
                     particleCore.UpdateInsertThrottle();
                 }
@@ -276,8 +248,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The energy dissipation rate.
             /// </value>
-            public float EnergyDissipationRate
-            {
+            public float EnergyDissipationRate {
                 get => particleCore.EnergyDissipationRate;
                 set => particleCore.EnergyDissipationRate = value;
             }
@@ -288,8 +259,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The random vector generator.
             /// </value>
-            public IRandomVector RandomVectorGenerator
-            {
+            public IRandomVector RandomVectorGenerator {
                 get => particleCore.VectorGenerator;
                 set => particleCore.VectorGenerator = value;
             }
@@ -300,8 +270,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The particle texture.
             /// </value>
-            public TextureModel ParticleTexture
-            {
+            public TextureModel ParticleTexture {
                 get => particleCore.ParticleTexture;
                 set => particleCore.ParticleTexture = value;
             }
@@ -312,8 +281,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The number texture column.
             /// </value>
-            public uint NumTextureColumn
-            {
+            public uint NumTextureColumn {
                 get => particleCore.NumTextureColumn;
                 set => particleCore.NumTextureColumn = value;
             }
@@ -324,8 +292,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The number texture row.
             /// </value>
-            public uint NumTextureRow
-            {
+            public uint NumTextureRow {
                 get => particleCore.NumTextureRow;
                 set => particleCore.NumTextureRow = value;
             }
@@ -336,8 +303,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The size of the particle.
             /// </value>
-            public Vector2 ParticleSize
-            {
+            public Vector2 ParticleSize {
                 get => particleCore.ParticleSize;
                 set => particleCore.ParticleSize = value;
             }
@@ -348,8 +314,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The initial velocity.
             /// </value>
-            public float InitialVelocity
-            {
+            public float InitialVelocity {
                 get => particleCore.InitialVelocity;
                 set => particleCore.InitialVelocity = value;
             }
@@ -360,8 +325,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The initialize acceleration.
             /// </value>
-            public Vector3 InitAcceleration
-            {
+            public Vector3 InitAcceleration {
                 get => particleCore.InitialAcceleration;
                 set => particleCore.InitialAcceleration = value;
             }
@@ -374,13 +338,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The domain bound maximum.
             /// </value>
-            public Vector3 DomainBoundMax
-            {
+            public Vector3 DomainBoundMax {
                 get => domainBoundMax;
-                set
-                {
-                    if (Set(ref domainBoundMax, value))
-                    {
+                set {
+                    if (Set(ref domainBoundMax, value)) {
                         particleCore.DomainBoundMax = value;
                         boundChanged = true;
                     }
@@ -395,13 +356,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The domain bound minimum.
             /// </value>
-            public Vector3 DomainBoundMin
-            {
+            public Vector3 DomainBoundMin {
                 get => domainBoundMin;
-                set
-                {
-                    if (Set(ref domainBoundMin, value))
-                    {
+                set {
+                    if (Set(ref domainBoundMin, value)) {
                         particleCore.DomainBoundMin = value;
                         boundChanged = true;
                     }
@@ -414,8 +372,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [cumulate at bound]; otherwise, <c>false</c>.
             /// </value>
-            public bool CumulateAtBound
-            {
+            public bool CumulateAtBound {
                 get => particleCore.CumulateAtBound;
                 set => particleCore.CumulateAtBound = value;
             }
@@ -426,8 +383,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The color of the blend.
             /// </value>
-            public Color4 BlendColor
-            {
+            public Color4 BlendColor {
                 get => particleCore.ParticleBlendColor;
                 set => particleCore.ParticleBlendColor = value;
             }
@@ -438,8 +394,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     <c>true</c> if [animate sprite by energy]; otherwise, <c>false</c>.
             /// </value>
-            public bool AnimateSpriteByEnergy
-            {
+            public bool AnimateSpriteByEnergy {
                 get => particleCore.AnimateSpriteByEnergy;
                 set => particleCore.AnimateSpriteByEnergy = value;
             }
@@ -450,8 +405,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The turbulance.
             /// </value>
-            public float Turbulance
-            {
+            public float Turbulance {
                 get => particleCore.Turbulance;
                 set => particleCore.Turbulance = value;
             }
@@ -464,11 +418,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The blend.
             /// </value>
-            public BlendOperation Blend
-            {
+            public BlendOperation Blend {
                 get => blend;
-                set
-                {
+                set {
                     if (Set(ref blend, value)) OnBlendStateChanged();
                 }
             }
@@ -481,11 +433,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The alpha blend.
             /// </value>
-            public BlendOperation AlphaBlend
-            {
+            public BlendOperation AlphaBlend {
                 get => alphaBlend;
-                set
-                {
+                set {
                     if (Set(ref alphaBlend, value)) OnBlendStateChanged();
                 }
             }
@@ -498,11 +448,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The source blend.
             /// </value>
-            public BlendOption SourceBlend
-            {
+            public BlendOption SourceBlend {
                 get => sourceBlend;
-                set
-                {
+                set {
                     if (Set(ref sourceBlend, value)) OnBlendStateChanged();
                 }
             }
@@ -515,11 +463,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The dest blend.
             /// </value>
-            public BlendOption DestBlend
-            {
+            public BlendOption DestBlend {
                 get => destBlend;
-                set
-                {
+                set {
                     if (Set(ref destBlend, value)) OnBlendStateChanged();
                 }
             }
@@ -532,11 +478,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The source alpha blend.
             /// </value>
-            public BlendOption SourceAlphaBlend
-            {
+            public BlendOption SourceAlphaBlend {
                 get => sourceAlphaBlend;
-                set
-                {
+                set {
                     if (Set(ref sourceAlphaBlend, value)) OnBlendStateChanged();
                 }
             }
@@ -549,11 +493,9 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The dest alpha blend.
             /// </value>
-            public BlendOption DestAlphaBlend
-            {
+            public BlendOption DestAlphaBlend {
                 get => destAlphaBlend;
-                set
-                {
+                set {
                     if (Set(ref destAlphaBlend, value)) OnBlendStateChanged();
                 }
             }
@@ -564,8 +506,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The blend factor.
             /// </value>
-            public Color4 BlendFactor
-            {
+            public Color4 BlendFactor {
                 get => particleCore.BlendFactor;
                 set => particleCore.BlendFactor = value;
             }
@@ -576,8 +517,7 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The sample mask.
             /// </value>
-            public int SampleMask
-            {
+            public int SampleMask {
                 get => particleCore.SampleMask;
                 set => particleCore.SampleMask = value;
             }
@@ -590,13 +530,10 @@ namespace HelixToolkit.SharpDX.Core
             /// <value>
             ///     The instances.
             /// </value>
-            public IList<Matrix> Instances
-            {
+            public IList<Matrix> Instances {
                 get => instances;
-                set
-                {
-                    if (Set(ref instances, value))
-                    {
+                set {
+                    if (Set(ref instances, value)) {
                         InstanceBuffer.Elements = value;
                         boundChanged = true;
                     }
@@ -611,9 +548,9 @@ namespace HelixToolkit.SharpDX.Core
             /// </value>
             public bool HasInstances => InstanceBuffer.HasElements;
 
-            #endregion
+        #endregion
 
-            #region IBoundable
+        #region IBoundable
 
             private BoundingBox originalBound = MaxBound;
             public override BoundingBox OriginalBounds => originalBound;
@@ -635,7 +572,7 @@ namespace HelixToolkit.SharpDX.Core
 
             protected volatile bool boundChanged = true;
 
-            #endregion
+        #endregion
         }
     }
 }

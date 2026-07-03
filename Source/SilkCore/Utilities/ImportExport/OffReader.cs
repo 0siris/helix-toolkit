@@ -30,13 +30,11 @@ using Point3D = Vector3;
 ///     http://paulbourke.net/dataformats/off/
 /// </remarks>
 [Obsolete("Suggest to use HelixToolkit.SharpDX.Assimp")]
-public class OffReader : IModelReader
-{
+public class OffReader : IModelReader {
     /// <summary>
     ///     Initializes a new instance of the <see cref="OffReader" /> class.
     /// </summary>
-    public OffReader()
-    {
+    public OffReader() {
         Vertices = new List<Point3D>();
 
         // this.VertexColors = new List<Color>();
@@ -66,10 +64,8 @@ public class OffReader : IModelReader
     /// <param name="path">The path.</param>
     /// <param name="info">The model info.</param>
     /// <returns>The model.</returns>
-    public Object3DGroup Read(string path, ModelInfo info = default)
-    {
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
+    public Object3DGroup Read(string path, ModelInfo info = default) {
+        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Read(s, info);
         }
     }
@@ -80,8 +76,7 @@ public class OffReader : IModelReader
     /// <param name="s">The stream.</param>
     /// <param name="info">The model info.</param>
     /// <returns>The model.</returns>
-    public Object3DGroup Read(Stream s, ModelInfo info = default)
-    {
+    public Object3DGroup Read(Stream s, ModelInfo info = default) {
         Load(s);
         return BuildModel(info);
     }
@@ -95,8 +90,7 @@ public class OffReader : IModelReader
     /// <returns>
     ///     A MeshGeometry3D.
     /// </returns>
-    public MeshGeometry3D CreateMeshGeometry3D(ModelInfo info = default)
-    {
+    public MeshGeometry3D CreateMeshGeometry3D(ModelInfo info = default) {
         var mb = new MeshBuilder(info.Normals, info.Tangents);
         foreach (var p in Vertices) mb.Positions.Add(p);
 
@@ -112,16 +106,14 @@ public class OffReader : IModelReader
     ///     The model info.
     /// </param>
     /// <returns>A Model3D group.</returns>
-    public Object3DGroup BuildModel(ModelInfo info = default)
-    {
+    public Object3DGroup BuildModel(ModelInfo info = default) {
         Object3DGroup modelGroup = null;
 
         modelGroup = new Object3DGroup();
         var g = CreateMeshGeometry3D(info);
         var gm = new Object3D {Geometry = g, Transform = new List<Matrix>()};
 
-        gm.Material = new PhongMaterialCore
-        {
+        gm.Material = new PhongMaterialCore {
             Name = "DefaultVRML",
             AmbientColor = new Color(0.2f, 0.2f, 0.2f),
             DiffuseColor = new Color(0.8f, 0.8f, 0.8f),
@@ -140,10 +132,8 @@ public class OffReader : IModelReader
     /// <param name="s">
     ///     The stream.
     /// </param>
-    private void Load(Stream s)
-    {
-        using (var reader = new StreamReader(s))
-        {
+    private void Load(Stream s) {
+        using (var reader = new StreamReader(s)) {
             var containsNormals = false;
             var containsTextureCoordinates = false;
             var containsColors = false;
@@ -155,24 +145,21 @@ public class OffReader : IModelReader
             var numberOfFaces = 0;
             // int numberOfEdges = 0;
 
-            while (!reader.EndOfStream)
-            {
+            while (!reader.EndOfStream) {
                 var line = reader.ReadLine();
                 if (line == null) break;
 
                 line = line.Trim();
                 if (line.StartsWith("#") || line.Length == 0) continue;
 
-                if (nextLineContainsVertexDimension)
-                {
+                if (nextLineContainsVertexDimension) {
                     var values = GetIntValues(line);
                     vertexDimension = values[0];
                     nextLineContainsVertexDimension = false;
                     continue;
                 }
 
-                if (line.Contains("OFF"))
-                {
+                if (line.Contains("OFF")) {
                     containsNormals = line.Contains("N");
                     containsColors = line.Contains("C");
                     containsTextureCoordinates = line.Contains("ST");
@@ -184,8 +171,7 @@ public class OffReader : IModelReader
                     continue;
                 }
 
-                if (nextLineContainsNumberOfVertices)
-                {
+                if (nextLineContainsNumberOfVertices) {
                     var values = GetIntValues(line);
                     numberOfVertices = values[0];
                     numberOfFaces = values[1];
@@ -195,8 +181,7 @@ public class OffReader : IModelReader
                     continue;
                 }
 
-                if (Vertices.Count < numberOfVertices)
-                {
+                if (Vertices.Count < numberOfVertices) {
                     var x = new double[vertexDimension];
                     var values = GetValues(line);
                     var i = 0;
@@ -211,8 +196,7 @@ public class OffReader : IModelReader
                         for (var j = 0; j < vertexDimension; j++)
                             n[j] = values[i++];
 
-                    if (containsColors)
-                    {
+                    if (containsColors) {
                         // read color
                     }
 
@@ -225,15 +209,13 @@ public class OffReader : IModelReader
                     continue;
                 }
 
-                if (Faces.Count < numberOfFaces)
-                {
+                if (Faces.Count < numberOfFaces) {
                     var values = GetIntValues(line);
                     var nv = values[0];
                     var vertices = new int[nv];
                     for (var i = 0; i < nv; i++) vertices[i] = values[i + 1];
 
-                    if (containsColors)
-                    {
+                    if (containsColors) {
                         // read colorspec
                     }
 
@@ -252,8 +234,7 @@ public class OffReader : IModelReader
     /// <returns>
     ///     Array of integer values.
     /// </returns>
-    private static int[] GetIntValues(string input)
-    {
+    private static int[] GetIntValues(string input) {
         var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
         var result = new int[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i]);
@@ -270,8 +251,7 @@ public class OffReader : IModelReader
     /// <returns>
     ///     Array of double values.
     /// </returns>
-    private static double[] GetValues(string input)
-    {
+    private static double[] GetValues(string input) {
         var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = double.Parse(fields[i], CultureInfo.InvariantCulture);
@@ -288,8 +268,7 @@ public class OffReader : IModelReader
     /// <returns>
     ///     A line without comments.
     /// </returns>
-    private static string RemoveComments(string input)
-    {
+    private static string RemoveComments(string input) {
         var commentIndex = input.IndexOf('#');
         if (commentIndex >= 0) return input.Substring(0, commentIndex);
 

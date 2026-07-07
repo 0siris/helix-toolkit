@@ -2,14 +2,13 @@
 
 Stand: 1. Juli 2026
 Branch: `feature/wpf-sharpdx`
-Letzter bekannter Commit: `b108e3473 feat(core): introduce CameraController and assembly descriptions`
 
-Aktueller Working Tree enthält noch nicht committete SilkToolkit-Arbeit:
+Aktueller Umbaukontext betrifft vor allem:
 
 - `Source/SilkToolkit.slnx`
 - `Source/SilkCore/SilkCore.csproj`
 - `Source/HelixToolkit.Native.ShaderBuilder/HelixToolkit.Native.ShaderBuilder.csproj`
-- untracked Build-Artefakt:
+- Build-Artefakt:
   `Source/Examples/WPF.SharpDX/DeferredShadingDemo/FodyWeavers.xsd`
 
 ## Ziel
@@ -708,11 +707,13 @@ git status --short
 ## Nächster Schritt
 
 Der separate Demo-Migrationsblock ist abgearbeitet. Aktueller nächster Schritt
-ist die SilkToolkit-Übergabe zu finalisieren:
+ist, den Umbau zu entrümpeln und das Rauschen zu minimieren:
 
-1. Offene SilkToolkit-Änderungen committen.
-2. Runtime-Smokes aus `Source/SilkToolkit.slnx` starten:
+1. Überflüssige Dateien, alte Projektkanten und Build-Artefakte entfernen.
+2. Verbliebene SharpDX-/Legacy-Referenzen nur dort behalten, wo sie bewusst
+   als Kompatibilitätsname gebraucht werden.
+3. Runtime-Smokes aus `Source/SilkToolkit.slnx` starten:
    `SimpleDemo`, `FileLoadDemo`, `DeferredShadingDemo`, `ScreenSpaceDemo`,
    `OffScreenRendering`, `WinFormsTest`.
-3. Danach entscheiden, ob historische `HelixToolkit.SharpDX.*`-Projektmappen
+4. Danach entscheiden, ob historische `HelixToolkit.SharpDX.*`-Projektmappen
    weiter gepflegt oder nur noch als Vergleichsstand behalten werden.

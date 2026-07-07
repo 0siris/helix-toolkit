@@ -14,10 +14,12 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
+using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -25,6 +27,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </summary>
 /// <seealso cref="System.Windows.Controls.Image" />
 public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
+    private static readonly ILogger logger = LogManager.Create<DPFSurfaceSwapChain>();
     private readonly CompositionTargetEx compositionTarget = new();
 
     private readonly Image image = new() {
@@ -233,6 +236,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
             return true;
         }
 
+        logger.LogError(exception, "Render canvas exception.");
         var args = new RelayExceptionEventArgs(exception);
         ExceptionOccurred(this, args);
         return args.Handled;

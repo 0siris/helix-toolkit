@@ -110,6 +110,14 @@ namespace HelixToolkit.SharpDX.Core {
                     if (info.DataType == TextureDataType.Stream && info.IsCompressed) {
                         CreateView(info.Texture, createSRV, enableAutoGenMipMap);
                         succeeded = resource != null;
+                    } else if (info.DataType == TextureDataType.ByteArray && info.Dimension == 2) {
+                        CreateView(info.TextureRaw,
+                                   info.Width,
+                                   info.Height,
+                                   info.PixelFormat,
+                                   createSRV,
+                                   enableAutoGenMipMap);
+                        succeeded = resource != null;
                     }
                 } finally {
                     texture.Complete(info, succeeded);
@@ -224,6 +232,8 @@ namespace HelixToolkit.SharpDX.Core {
             public void CreateView<T>(T[] array, Format format, bool createSRV = true, bool generateMipMaps = true)
                 where T : unmanaged {
                 TextureFormat = format;
+                if (array == null) return;
+                CreateView(array, array.Length, format, createSRV, generateMipMaps);
             }
 
             public void CreateView<T>(
@@ -235,6 +245,12 @@ namespace HelixToolkit.SharpDX.Core {
             )
                 where T : unmanaged {
                 TextureFormat = format;
+                if (array == null || length <= 0) return;
+                unsafe {
+                    fixed (T* arrayPtr = array) {
+                        CreateView((nint) arrayPtr, length, format, sizeof(T), createSRV, generateMipMaps);
+                    }
+                }
             }
 
             public void CreateView(
@@ -244,7 +260,7 @@ namespace HelixToolkit.SharpDX.Core {
                 bool createSRV = true,
                 bool generateMipMaps = true
             ) {
-                TextureFormat = format;
+                CreateView(dataPtr, width, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
             }
 
             public void CreateView<T>(
@@ -257,6 +273,12 @@ namespace HelixToolkit.SharpDX.Core {
             )
                 where T : unmanaged {
                 TextureFormat = format;
+                if (array == null) return;
+                unsafe {
+                    fixed (T* arrayPtr = array) {
+                        CreateView((nint) arrayPtr, width, height, format, sizeof(T), createSRV, generateMipMaps);
+                    }
+                }
             }
 
             public void CreateView(
@@ -267,7 +289,7 @@ namespace HelixToolkit.SharpDX.Core {
                 bool createSRV = true,
                 bool generateMipMaps = true
             ) {
-                TextureFormat = format;
+                CreateView(dataPtr, width, height, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
             }
 
             public void CreateView<T>(
@@ -311,6 +333,93 @@ namespace HelixToolkit.SharpDX.Core {
                            GetFormatSizeInBytes(format),
                            createSRV,
                            generateMipMaps);
+            }
+
+            private void CreateView(
+                nint dataPtr,
+                int width,
+                Format format,
+                int bytesPerPixel,
+                bool createSRV,
+                bool generateMipMaps
+            ) {
+                TextureFormat = format;
+                if (nativeDevice == null || dataPtr == nint.Zero || width <= 0 || bytesPerPixel <= 0) return;
+
+                RemoveAndDispose(ref textureView);
+                RemoveAndDispose(ref resource);
+
+                var desc = new Texture1DDescription {
+                    Width = width,
+                    ArraySize = 1,
+                    MipLevels = 1,
+                    Format = format,
+                    BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    OptionFlags = ResourceOptionFlags.None,
+                    Usage = ResourceUsage.Immutable
+                };
+                resource = nativeDevice.CreateTexture1D(desc, new[] {new DataBox(dataPtr, width * bytesPerPixel, 0)});
+
+                if (createSRV) {
+                    var srvDesc = new ShaderResourceViewDescription {
+                        Format = format,
+                        Dimension = ShaderResourceViewDimension.Texture1D,
+                        Texture1D = new ShaderResourceViewDescription.Texture1DResource {
+                            MostDetailedMip = 0,
+                            MipLevels = 1
+                        }
+                    };
+                    CreateTextureView(ref srvDesc);
+                }
+            }
+
+            private void CreateView(
+                nint dataPtr,
+                int width,
+                int height,
+                Format format,
+                int bytesPerPixel,
+                bool createSRV,
+                bool generateMipMaps
+            ) {
+                TextureFormat = format;
+                if (nativeDevice == null || dataPtr == nint.Zero || width <= 0 || height <= 0 ||
+                    bytesPerPixel <= 0) return;
+
+                RemoveAndDispose(ref textureView);
+                RemoveAndDispose(ref resource);
+
+                var desc = new Texture2DDescription {
+                    Width = width,
+                    Height = height,
+                    MipLevels = 1,
+                    ArraySize = 1,
+                    Format = format,
+                    SampleDescription = new SampleDescription(1, 0),
+                    BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    OptionFlags = ResourceOptionFlags.None,
+                    Usage = ResourceUsage.Immutable
+                };
+                resource = nativeDevice.CreateTexture2D(desc,
+                                                        new[] {
+                                                            new DataBox(dataPtr,
+                                                                        width * bytesPerPixel,
+                                                                        width * height * bytesPerPixel)
+                                                        });
+
+                if (createSRV) {
+                    var srvDesc = new ShaderResourceViewDescription {
+                        Format = format,
+                        Dimension = ShaderResourceViewDimension.Texture2D,
+                        Texture2D = new ShaderResourceViewDescription.Texture2DResource {
+                            MostDetailedMip = 0,
+                            MipLevels = 1
+                        }
+                    };
+                    CreateTextureView(ref srvDesc);
+                }
             }
 
             private void CreateView(
@@ -364,6 +473,8 @@ namespace HelixToolkit.SharpDX.Core {
                     Format.FormatR8Unorm           => 1,
                     Format.FormatR16Unorm          => 2,
                     Format.FormatR32Float          => 4,
+                    Format.FormatR8G8B8A8Unorm     => 4,
+                    Format.FormatB8G8R8A8Unorm     => 4,
                     Format.FormatR16G16B16A16Float => 8,
                     Format.FormatR32G32B32A32Float => 16,
                     _                              => 0

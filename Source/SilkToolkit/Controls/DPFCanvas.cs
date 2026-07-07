@@ -245,6 +245,7 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
             return true;
         }
 
+        logger.LogError(exception, "Render canvas exception.");
         var args = new RelayExceptionEventArgs(exception);
         ExceptionOccurred(this, args);
         return args.Handled;

@@ -45,6 +45,12 @@
 
   <ItemGroup>
     <None Remove="Resources\*.cso"/>
+    <EmbeddedResource Include="..\SilkToolkit\Textures\arial.dds">
+      <LogicalName>SilkCore.Resources.arial.dds</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SilkToolkit\Textures\arial.fnt">
+      <LogicalName>SilkCore.Resources.arial.fnt</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="PrepareGeneratedShaderResources"

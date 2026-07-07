@@ -80,7 +80,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (base.OnAttach(effectsManager)) {
                     var material = ViewBoxMeshModel.Material as ViewCubeMaterialCore;
                     if (material.DiffuseMap == null)
-                        material.DiffuseMap = ViewBoxTexture ?? new TextureModel(BitmapExtensions.CreateViewBoxTexture(
+                        material.DiffuseMap = ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
                                                       effectsManager,
                                                       "F",
                                                       "B",
@@ -99,8 +99,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                       Color.White,
                                                       Color.White,
                                                       Color.White,
-                                                      Color.White),
-                                                  true);
+                                                      Color.White);
                     return true;
                 }
 

@@ -4,8 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Text;
+using System.Runtime.InteropServices;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
 using Microsoft.Extensions.Logging;
@@ -488,6 +490,113 @@ public static class BitmapExtensions {
                                             })) {
             return bmp.ToMemoryStream(deviceResources);
         }
+    }
+
+    public static TextureModel CreateViewBoxTextureModel(
+        IDevice2DResources deviceResources,
+        string front,
+        string back,
+        string left,
+        string right,
+        string top,
+        string down,
+        Color4 frontFaceColor,
+        Color4 backFaceColor,
+        Color4 leftFaceColor,
+        Color4 rightFaceColor,
+        Color4 topFaceColor,
+        Color4 bottomFaceColor,
+        Color4 frontTextColor,
+        Color4 backTextColor,
+        Color4 leftTextColor,
+        Color4 rightTextColor,
+        Color4 topTextColor,
+        Color4 bottomTextColor,
+        string fontFamily = "Arial",
+        FontWeight fontWeight = FontWeight.SemiBold,
+        FontStyle fontStyle = FontStyle.Normal,
+        int fontSize = 64,
+        int faceSize = 100
+    ) {
+        using (var bmp = CreateBitmapStream(deviceResources,
+                                            faceSize * 6,
+                                            faceSize,
+                                            Direct2DImageFormat.Bmp,
+                                            target => {
+                                                target.Clear(new Color4(0, 0, 0, 1));
+                                                var faceRect = new RectangleF(0, 0, faceSize, faceSize);
+                                                var faceColors = new[] {
+                                                    frontFaceColor, backFaceColor, leftFaceColor, rightFaceColor,
+                                                    topFaceColor, bottomFaceColor
+                                                };
+                                                var textColors = new[] {
+                                                    frontTextColor, backTextColor, leftTextColor, rightTextColor,
+                                                    topTextColor, bottomTextColor
+                                                };
+                                                var texts = new[] {front, back, right, left, top, down};
+                                                for (var i = 0; i < 6; ++i) {
+                                                    using (var layout = texts[i].GetTextLayoutMetrices(deviceResources,
+                                                               fontSize,
+                                                               fontFamily,
+                                                               fontWeight,
+                                                               fontStyle,
+                                                               faceSize,
+                                                               faceSize)) {
+                                                        var metrices = layout.Metrics;
+                                                        var offset = new Vector2(
+                                                            (faceSize - metrices.WidthIncludingTrailingWhitespace) / 2,
+                                                            (faceSize - metrices.Height) / 2);
+                                                        offset.X += faceRect.Left;
+                                                        using (var brush = new SolidColorBrush(target, faceColors[i])) {
+                                                            target.FillRectangle(faceRect, brush);
+                                                        }
+
+                                                        using (var brush = new SolidColorBrush(target, textColors[i])) {
+                                                            target.DrawTextLayout(offset, layout, brush);
+                                                        }
+                                                    }
+
+                                                    faceRect.Left += faceSize;
+                                                    faceRect.Width = faceSize;
+                                                }
+                                            })) {
+            return bmp.ToTextureModel(deviceResources);
+        }
+    }
+
+    private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
+        if (bitmap == null) return null;
+
+        var width = Math.Max(1, bitmap.Width);
+        var height = Math.Max(1, bitmap.Height);
+        var pixels = new byte[width * height * 4];
+
+        if (bitmap.Texture != null
+            && deviceResources is IDeviceResources resources
+            && resources.NativeDeviceResources?.ImmediateContext != null
+            && ScreenCapture.CaptureTexture(new DeviceContextProxy(resources.NativeDeviceResources.ImmediateContext,
+                                                                   resources.NativeDeviceResources.Device),
+                                            bitmap.Texture,
+                                            out var stagingTexture)) {
+            var disposeStaging = !ReferenceEquals(stagingTexture, bitmap.Texture);
+            try {
+                var context = resources.NativeDeviceResources.ImmediateContext;
+                var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
+                try {
+                    for (var row = 0; row < height; ++row)
+                        Marshal.Copy(nint.Add(data.DataPointer, row * data.RowPitch),
+                                     pixels,
+                                     row * width * 4,
+                                     width * 4);
+                } finally {
+                    context.UnmapSubresource(stagingTexture, 0);
+                }
+            } finally {
+                if (disposeStaging) stagingTexture.Dispose();
+            }
+        }
+
+        return new TextureModel(pixels, Format.FormatB8G8R8A8Unorm, width, height);
     }
 
     /// <summary>

@@ -99,7 +99,7 @@ namespace HelixToolkit.SharpDX.Core {
                 lock (lck) {
                     if (IsValid && IsAttached) {
                         var structSize = UnsafeHelper.SizeOf<T>();
-                        if (ModelConstBuffer.Buffer.Description.SizeInBytes < structSize) {
+                        if (ModelConstBuffer.StructureSize < structSize) {
 #if DEBUG
                             throw new ArgumentOutOfRangeException(
                                 $"Try to write value out of range. StructureSize {structSize}" +

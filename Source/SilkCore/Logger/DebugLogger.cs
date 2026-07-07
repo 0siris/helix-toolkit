@@ -34,6 +34,8 @@ internal sealed class DebugLogger : ILogger {
 
     /// <inheritdoc />
     public bool IsEnabled(LogLevel logLevel) {
+        if (logLevel >= LogLevel.Error && logLevel != LogLevel.None) return true;
+
 #if DEBUG
         // If the filter is null, everything is enabled
         // unless the debugger is not attached
@@ -64,6 +66,7 @@ internal sealed class DebugLogger : ILogger {
         if (exception != null) message += Environment.NewLine + Environment.NewLine + exception;
 
         Debug.WriteLine(message, _name);
+        if (logLevel >= LogLevel.Error) Console.Error.WriteLine($"{_name}: {message}");
     }
 
     private sealed class NullScope : IDisposable {

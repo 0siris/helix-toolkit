@@ -389,11 +389,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (EnableSharingModelMode && SharedModelContainer != null)
                     SharedModelContainer.CurrentRenderHost = this;
                 viewport.Attach(this);
-#if DX11_1
                 renderContext = CreateRenderContext();
-#else
-                renderContext = CreateRenderContext();
-#endif
 
                 renderContext2D = CreateRenderContext2D(deviceResources.DeviceContext2D);
             }

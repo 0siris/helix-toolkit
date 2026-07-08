@@ -9,14 +9,9 @@
 
 namespace HelixToolkit.Wpf;
 
-#if SHARPDX || SILKNET
 using Point = Vector2;
 using Int32Collection = List<int>;
 
-#else
-    using System.Windows;
-    using System.Windows.Media;
-#endif
 
 #pragma warning disable 0436
 /// <summary>

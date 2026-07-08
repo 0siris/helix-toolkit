@@ -7,9 +7,6 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
-#if DX11_1
-#else
-#endif
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Render {

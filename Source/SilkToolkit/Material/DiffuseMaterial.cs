@@ -208,11 +208,9 @@ public class DiffuseMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return CloneMaterial();
     }
-#endif
 }
 
 public class DiffuseMaterialCollection : ObservableCollection<DiffuseMaterial> {

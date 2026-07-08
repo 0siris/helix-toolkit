@@ -9,10 +9,6 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-#if !NETFX_CORE
-    [Serializable]
-    [TypeConverter(typeof(Color4CollectionConverter))]
-#endif
 public sealed class Color4Collection : FastList<Color4> {
     public Color4Collection() { }
 

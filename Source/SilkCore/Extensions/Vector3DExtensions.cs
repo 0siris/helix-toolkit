@@ -57,13 +57,6 @@ public static class VectorExtensions {
         return new Color4(vector.X, vector.Y, vector.Z, w);
     }
 
-#if !SILKNET
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color4 ToColor4(this Color3 vector, float alpha = 1f)
-        {
-            return new Color4(vector.Red, vector.Green, vector.Blue, alpha);
-        }
-#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color4 ToColor4(this Vector2 vector, float z = 1f, float w = 1f) {
@@ -81,15 +74,6 @@ public static class VectorExtensions {
         var length = vector.Length;
         return length > 0 ? vector / length : vector;
     }
-#if !SILKNET
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color4 Normalized(this Color4 vector)
-        {
-            var v = vector.ToVector3();
-            v.Normalize();
-            return v.ToColor4();
-        }
-#endif
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Inverted(this Matrix m) {
         m.Invert();

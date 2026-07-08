@@ -9,9 +9,6 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
-#if !NETFX_CORE
-    [Serializable]
-#endif
 [DataContract]
 public class MeshGeometry3D : Geometry3D {
     private static readonly PropertyChangedEventArgs textureCoordChangedArgs = new(nameof(TextureCoordinates));

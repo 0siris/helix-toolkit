@@ -1973,40 +1973,6 @@ public class DefaultEffectsManager : EffectsManager {
             }
         };
 
-#if !NETFX_CORE
-            var renderScreenDup = new TechniqueDescription(DefaultRenderTechniqueNames.ScreenDuplication)
-            {
-                InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
-                PassDescriptions = new[]
-                {
-                    new ShaderPassDescription(DefaultPassNames.Default)
-                    {
-                        ShaderList = new[]
-                        {
-                            DefaultVSShaderDescriptions.VSScreenDup,
-                            DefaultPSShaderDescriptions.PSScreenDup
-                        },
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                        RasterStateDescription = DefaultRasterDescriptions.RSScreenDuplication,
-                        Topology = PrimitiveTopology.TriangleStrip
-                    },
-                    new ShaderPassDescription(DefaultPassNames.ScreenQuad)
-                    {
-                        ShaderList = new[]
-                        {
-                            DefaultVSShaderDescriptions.VSScreenDupCursor,
-                            DefaultPSShaderDescriptions.PSScreenDup
-                        },
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSScreenDupCursorBlend,
-                        BlendFactor = new Color4(0,0,0,0),
-                        RasterStateDescription = DefaultRasterDescriptions.RSScreenDuplication,
-                        Topology = PrimitiveTopology.TriangleStrip
-                    }
-                }
-            };
-#endif
         yield return renderMesh;
         yield return renderMeshBatched;
         yield return renderMeshInstancing;
@@ -2030,8 +1996,5 @@ public class DefaultEffectsManager : EffectsManager {
         yield return volume3D;
         yield return ssao;
         yield return meshOITDepthPeeling;
-#if !NETFX_CORE
-            yield return renderScreenDup;
-#endif
     }
 }

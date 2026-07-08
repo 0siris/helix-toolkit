@@ -6,9 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Animations;
 
 namespace HelixToolkit.SharpDX.Core;
-#if !NETFX_CORE
-    [Serializable]
-#endif
 public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
     private IList<BoneIds> vertexBoneIds;
 

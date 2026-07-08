@@ -480,9 +480,7 @@ public class PhongMaterial : Material {
     ///     Gets or sets a color that represents how the material reflects System.Windows.Media.Media3D.AmbientLight.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 AmbientColor {
         get { return (Color4) GetValue(AmbientColorProperty); }
         set { SetValue(AmbientColorProperty, value); }
@@ -492,9 +490,7 @@ public class PhongMaterial : Material {
     ///     Gets or sets the diffuse color for the material.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 DiffuseColor {
         get { return (Color4) GetValue(DiffuseColorProperty); }
         set { SetValue(DiffuseColorProperty, value); }
@@ -504,9 +500,7 @@ public class PhongMaterial : Material {
     ///     Gets or sets the emissive color for the material.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 EmissiveColor {
         get { return (Color4) GetValue(EmissiveColorProperty); }
         set { SetValue(EmissiveColorProperty, value); }
@@ -515,9 +509,7 @@ public class PhongMaterial : Material {
     /// <summary>
     ///     A fake parameter for reflectivity of the environment map
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 ReflectiveColor {
         get { return (Color4) GetValue(ReflectiveColorProperty); }
         set { SetValue(ReflectiveColorProperty, value); }
@@ -527,9 +519,7 @@ public class PhongMaterial : Material {
     ///     Gets or sets the specular color for the material.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 SpecularColor {
         get { return (Color4) GetValue(SpecularColorProperty); }
         set { SetValue(SpecularColorProperty, value); }
@@ -599,9 +589,7 @@ public class PhongMaterial : Material {
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Vector4Converter))]
-#endif
     public Vector4 DisplacementMapScaleMask {
         get { return (Vector4) GetValue(DisplacementMapScaleMaskProperty); }
         set { SetValue(DisplacementMapScaleMaskProperty, value); }
@@ -799,11 +787,9 @@ public class PhongMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return CloneMaterial();
     }
-#endif
 
     protected override MaterialCore OnCreateCore() {
         return new PhongMaterialCore {

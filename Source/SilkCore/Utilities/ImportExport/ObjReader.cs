@@ -13,11 +13,7 @@ using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.SharpDX.Core;
 
-#if NETFX_CORE
 using FileFormatException = Exception;
-#endif
-#if CORE
-#endif
 using ObjColor = Color4;
 using Object3DGroup = List<Object3D>;
 using Point = Vector2;
@@ -372,11 +368,7 @@ public class ObjReader : IModelReader {
     /// </returns>
     private static ObjColor ColorParse(string values) {
         var fields = Split(values);
-#if NETFX_CORE
         return new ObjColor((float) fields[0], (float) fields[1], (float) fields[2], 1);
-#else
-            return System.Windows.Media.Color.FromRgb((byte)(fields[0] * 255), (byte)(fields[1] * 255), (byte)(fields[2] * 255)).ToColor4();
-#endif
     }
 
     /// <summary>

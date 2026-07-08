@@ -67,23 +67,12 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     }
 
     private void SceneNode_OnDetached(object sender, EventArgs e) {
-#if NETFX_CORE || WINUI
-            if(Dispatcher != null)
-            {
-                if (Dispatcher.HasThreadAccess)
-                {
-                    OnDetached();
-                }
-            }
-
-#else
         if (Dispatcher != null && Dispatcher.Thread.IsAlive) {
             if (Dispatcher.CheckAccess())
                 OnDetached();
             else
                 Dispatcher.Invoke(() => { OnDetached(); });
         }
-#endif
     }
 
     private void SceneNode_OnAttached(object sender, EventArgs e) {
@@ -123,7 +112,6 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     public void InvalidateRender() {
         SceneNode.InvalidateRender();
     }
-#if !NETFX_CORE && !WINUI
     public void InvalidateMeasure() {
         SceneNode.InvalidateMeasure();
     }
@@ -131,17 +119,6 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     public void InvalidateArrange() {
         SceneNode.InvalidateArrange();
     }
-#else
-        public new void InvalidateMeasure()
-        {
-            SceneNode.InvalidateMeasure();
-        }
-
-        public new void InvalidateArrange()
-        {
-            SceneNode.InvalidateArrange();
-        }
-#endif
 
 
     public static implicit operator SceneNode2D(Element2DCore e) {

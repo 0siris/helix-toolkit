@@ -1,4 +1,3 @@
-#if SILKNET
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -470,4 +469,3 @@ internal static class SilkNetMathExtensions {
         return success;
     }
 }
-#endif

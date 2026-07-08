@@ -237,14 +237,12 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     private void Initialize(int adapterIndex) {
         logger.LogInformation("Adapter Index = {0}", adapterIndex);
         AdapterIndex = Math.Max(0, adapterIndex);
-#if DX11
         DriverType = EnableSoftwareRendering ? DriverType.Warp : DriverType.Hardware;
         RemoveAndDispose(ref nativeDeviceResources);
         nativeDeviceResources = SilkD3D11DeviceFactory.CreateDefault(AdapterIndex,
                                                                      DriverType == DriverType.Warp
                                                                          ? SilkDriverType.Warp
                                                                          : SilkDriverType.Hardware);
-#endif
 
         logger.LogInformation("Direct3D device initilized. DriverType: {0}; FeatureLevel: {1}",
                               DriverType,

@@ -5,11 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using SharpDX.Toolkit.Graphics;
 
-#if NETFX_CORE
 
-#else
-using System.Windows.Media.Imaging;
-#endif
 
 namespace HelixToolkit.SharpDX.Core;
 
@@ -114,18 +110,6 @@ public class BillboardSingleImage3D : BillboardBase {
             if (Set(ref offset, value)) IsInitialized = false;
         }
     }
-#if !NETFX_CORE
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BillboardSingleImage3D"/> class.
-        /// </summary>
-        /// <param name="bitmapSource">The bitmap source.</param>
-        public BillboardSingleImage3D(BitmapSource bitmapSource)
-        {
-            this.Texture = bitmapSource.ToMemoryStream();
-            Width = bitmapSource.PixelWidth;
-            Height = bitmapSource.PixelHeight;
-        }
-#endif
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardSingleImage3D" /> class.
     /// </summary>

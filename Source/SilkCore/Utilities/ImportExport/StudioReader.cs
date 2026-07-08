@@ -1,25 +1,11 @@
 using System.Text;
 using HelixToolkit.SharpDX.Core.Model;
 
-#if !NETFX_CORE
-using System.Windows.Media.Imaging;
-using MediaColor = System.Windows.Media.Color;
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
     using Object3DGroup = List<Object3D>;
-#if CORE
     using PhongMaterial = PhongMaterialCore;
-#endif
-#if NETFX_CORE
     using FileFormatException = Exception;
-#endif
 
     /// <summary>
     ///     Ported from HelixToolkit.Wpf
@@ -678,39 +664,13 @@ namespace HelixToolkit.UWP
                         return stream;
                     }
                 }
-#if NETFX_CORE
                 return null;
-#else
-                    return BitMapSoureFromFallBack(fallBackColor);
-#endif
             } catch (Exception ex) //Not really nice
             {
                 throw new FileFormatException(ex.Message);
             }
         }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Creates FallBack Bitmapsource http://stackoverflow.com/questions/10637064/create-bitmapimage-and-apply-to-it-a-specific-color
-        /// </summary>
-        /// <param name="fallBackColor"></param>
-        /// <returns></returns>
-        private static Stream BitMapSoureFromFallBack(Color fallBackColor)
-        {
-            //List<MediaColor> colors = new List<System.Windows.Media.Color>() { MediaColor.FromArgb(fallBackColor.A, fallBackColor.R, fallBackColor.G, fallBackColor.B) };
-            var color = MediaColor.FromArgb(fallBackColor.A, fallBackColor.R, fallBackColor.G, fallBackColor.G);
-            var colors = new List<System.Windows.Media.Color>();
-            colors.Add(color);
-            var palette = new BitmapPalette(colors);
-            var width = 128;
-            var height = 128;
-            var stride = width / 8;
-            var pixels = new byte[height * stride];
-            var bitmap =
- BitmapSource.Create(10, 10, 96, 96, System.Windows.Media.PixelFormats.Indexed1, palette, pixels, stride);
-            return bitmap.ToMemoryStream();
-        }
-#endif
         /// <summary>
         ///     Reads a material map.
         /// </summary>

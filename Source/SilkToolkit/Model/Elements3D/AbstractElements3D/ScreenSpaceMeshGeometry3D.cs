@@ -242,12 +242,8 @@ namespace HelixToolkit.Wpf.SharpDX {
 
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {
-#if !COREWPF
-        using Model.Scene2D;
-#else
         using HelixToolkit.SharpDX.Core;
         using HelixToolkit.SharpDX.Core.Model.Scene2D;
-#endif
         using HorizontalAlignment = HorizontalAlignment;
         using VerticalAlignment = VerticalAlignment;
         using Thickness = Thickness;

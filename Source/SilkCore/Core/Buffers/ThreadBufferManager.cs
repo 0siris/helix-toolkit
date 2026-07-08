@@ -53,11 +53,7 @@ namespace HelixToolkit.SharpDX.Core {
 
         public static class ThreadBufferManager<T> where T : unmanaged {
             private static readonly ILogger logger = LogManager.Create(nameof(ThreadBufferManager<T>));
-#if !NETFX_CORE
-            public static readonly int StructSize = Marshal.SizeOf(typeof(T));
-#else
             public static readonly int StructSize = Marshal.SizeOf<T>();
-#endif
 
             private const int MByteToByte = 1024 * 1024;
 

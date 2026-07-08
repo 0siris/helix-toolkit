@@ -24,38 +24,22 @@ public static class Color4Extensions {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float GetRed(this Color4 color) {
-#if SILKNET
         return color.X;
-#else
-            return color.Red;
-#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float GetGreen(this Color4 color) {
-#if SILKNET
         return color.Y;
-#else
-            return color.Green;
-#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float GetBlue(this Color4 color) {
-#if SILKNET
         return color.Z;
-#else
-            return color.Blue;
-#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float GetAlpha(this Color4 color) {
-#if SILKNET
         return color.W;
-#else
-            return color.Alpha;
-#endif
     }
 
 

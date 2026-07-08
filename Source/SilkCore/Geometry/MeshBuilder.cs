@@ -195,13 +195,6 @@ public class MeshBuilder {
     /// </summary>
     private static readonly ThreadLocal<Dictionary<int, IList<Point>>> ClosedCircleCache =
         new(() => new Dictionary<int, IList<Point>>());
-#if !NETFX_CORE
-        /// <summary>
-        /// The unit sphere cache.
-        /// </summary>
-        private static readonly ThreadLocal<Dictionary<int, MeshGeometry3D>> UnitSphereCache =
- new ThreadLocal<Dictionary<int, MeshGeometry3D>>(() => new Dictionary<int, MeshGeometry3D>());
-#endif
 
 #endregion Static and Const
 
@@ -438,41 +431,6 @@ public class MeshBuilder {
         return circleSegment;
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Gets a unit sphere from the cache.
-        /// </summary>
-        /// <param name="subdivisions">
-        /// The number of subdivisions.
-        /// </param>
-        /// <returns>
-        /// A unit sphere mesh.
-        /// </returns>
-        private static MeshGeometry3D GetUnitSphere(int subdivisions)
-        {
-            if (UnitSphereCache.Value.ContainsKey(subdivisions))
-            {
-                return UnitSphereCache.Value[subdivisions];
-            }
-
-            var mb = new MeshBuilder(false, false);
-            mb.AddRegularIcosahedron(new Point3D(), 1, false);
-            for (var i = 0; i < subdivisions; i++)
-            {
-                mb.SubdivideLinear();
-            }
-
-            for (var i = 0; i < mb.positions.Count; i++)
-            {
-                var v = mb.Positions[i].ToVector3D();
-                v.Normalize();
-                mb.Positions[i] = SharedFunctions.ToPoint3D(ref v);
-            }
-            var mesh = mb.ToMesh();
-            UnitSphereCache.Value[subdivisions] = mesh;
-            return mesh;
-        }
-#endif
 
     /// <summary>
     ///     Calculate the Mesh's Normals
@@ -660,21 +618,6 @@ public class MeshBuilder {
         }
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Calculate the Tangents for a MeshGeometry3D.
-        /// </summary>
-        /// <param name="meshGeometry">The MeshGeometry3D.</param>
-        public static void ComputeTangents(MeshGeometry3D meshGeometry)
-        {
-            Vector3DCollection t1, t2;
-            ComputeTangents(meshGeometry.Positions, meshGeometry.Normals, meshGeometry.TextureCoordinates, meshGeometry.TriangleIndices, out t1, out t2);
-#if SHARPDX || SILKNET
-            meshGeometry.Tangents = new Vector3DCollection(t1);
-            meshGeometry.BiTangents = new Vector3DCollection(t2);
-#endif
-        }
-#endif
 
     /// <summary>
     ///     Calculate the Normals and Tangents for all MeshFaces.
@@ -745,53 +688,6 @@ public class MeshBuilder {
         AddRevolvedGeometry(pc, null, point1, dir, thetaDiv);
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Adds the edges of a bounding box as pipes.
-        /// </summary>
-        /// <param name="boundingBox">
-        /// The bounding box.
-        /// </param>
-        /// <param name="diameter">
-        /// The diameter of the cylinders.
-        /// </param>
-        public void AddBoundingBox(Rect3D boundingBox, double diameter)
-        {
-            var p0 =
- new Point3D((DoubleOrSingle)boundingBox.X, (DoubleOrSingle)boundingBox.Y, (DoubleOrSingle)boundingBox.Z);
-            var p1 =
- new Point3D((DoubleOrSingle)boundingBox.X, (DoubleOrSingle)boundingBox.Y + (DoubleOrSingle)boundingBox.SizeY, (DoubleOrSingle)boundingBox.Z);
-            var p2 =
- new Point3D((DoubleOrSingle)boundingBox.X + (DoubleOrSingle)boundingBox.SizeX, (DoubleOrSingle)boundingBox.Y + (DoubleOrSingle)boundingBox.SizeY, (DoubleOrSingle)boundingBox.Z);
-            var p3 =
- new Point3D((DoubleOrSingle)boundingBox.X + (DoubleOrSingle)boundingBox.SizeX, (DoubleOrSingle)boundingBox.Y, (DoubleOrSingle)boundingBox.Z);
-            var p4 =
- new Point3D((DoubleOrSingle)boundingBox.X, (DoubleOrSingle)boundingBox.Y, (DoubleOrSingle)boundingBox.Z + (DoubleOrSingle)boundingBox.SizeZ);
-            var p5 =
- new Point3D((DoubleOrSingle)boundingBox.X, (DoubleOrSingle)boundingBox.Y + (DoubleOrSingle)boundingBox.SizeY, (DoubleOrSingle)boundingBox.Z + (DoubleOrSingle)boundingBox.SizeZ);
-            var p6 =
- new Point3D((DoubleOrSingle)boundingBox.X + (DoubleOrSingle)boundingBox.SizeX, (DoubleOrSingle)boundingBox.Y + (DoubleOrSingle)boundingBox.SizeY, (DoubleOrSingle)boundingBox.Z + (DoubleOrSingle)boundingBox.SizeZ);
-            var p7 =
- new Point3D((DoubleOrSingle)boundingBox.X + (DoubleOrSingle)boundingBox.SizeX, (DoubleOrSingle)boundingBox.Y, (DoubleOrSingle)boundingBox.Z + (DoubleOrSingle)boundingBox.SizeZ);
-
-            Action<Point3D, Point3D> addEdge = (c1, c2) => this.AddPipe(c1, c2, 0, diameter, 10);
-
-            addEdge(p0, p1);
-            addEdge(p1, p2);
-            addEdge(p2, p3);
-            addEdge(p3, p0);
-
-            addEdge(p4, p5);
-            addEdge(p5, p6);
-            addEdge(p6, p7);
-            addEdge(p7, p4);
-
-            addEdge(p0, p4);
-            addEdge(p1, p5);
-            addEdge(p2, p6);
-            addEdge(p3, p7);
-        }
-#endif
 
     /// <summary>
     ///     Adds a box aligned with the X, Y and Z axes.
@@ -812,21 +708,6 @@ public class MeshBuilder {
         AddBox(center, xlength, ylength, zlength, BoxFaces.All);
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Adds a box aligned with the X, Y and Z axes.
-        /// </summary>
-        /// <param name="rectangle">
-        /// The 3-D "rectangle".
-        /// </param>
-        /// <param name="faces">The faces to include.</param>
-        public void AddBox(Rect3D rectangle, BoxFaces faces = BoxFaces.All)
-        {
-            this.AddBox(
-                new Point3D((DoubleOrSingle)(rectangle.X + (rectangle.SizeX * 0.5f)), (DoubleOrSingle)(rectangle.Y + (rectangle.SizeY * 0.5f)), (DoubleOrSingle)(rectangle.Z + (rectangle.SizeZ * 0.5f))),
-                (DoubleOrSingle)rectangle.SizeX, (DoubleOrSingle)rectangle.SizeY, (DoubleOrSingle)rectangle.SizeZ, faces);
-        }
-#endif
 
     /// <summary>
     ///     Adds a box with the specified faces, aligned with the X, Y and Z axes.
@@ -2595,34 +2476,6 @@ public class MeshBuilder {
         AddEllipsoid(center, radius, radius, radius, thetaDiv, phiDiv);
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Adds a sphere (by subdividing a regular icosahedron).
-        /// </summary>
-        /// <param name="center">
-        /// The center of the sphere.
-        /// </param>
-        /// <param name="radius">
-        /// The radius of the sphere.
-        /// </param>
-        /// <param name="subdivisions">
-        /// The number of triangular subdivisions of the original icosahedron.
-        /// </param>
-        /// <remarks>
-        /// See <a href="http://www.fho-emden.de/~hoffmann/ikos27042002.pdf">link</a>.
-        /// </remarks>
-        public void AddSubdivisionSphere(Point3D center, double radius, int subdivisions)
-        {
-            var p0 = this.positions.Count;
-            this.Append(GetUnitSphere(subdivisions));
-            var p1 = this.positions.Count;
-            for (var i = p0; i < p1; i++)
-            {
-                var pVec = (Vector3D)this.positions[i];
-                this.positions[i] = center + ((DoubleOrSingle)radius * pVec);
-            }
-        }
-#endif
 
     /// <summary>
     ///     Adds a surface of revolution.
@@ -3526,23 +3379,6 @@ public class MeshBuilder {
         Append(mesh.positions, mesh.triangleIndices, mesh.normals, mesh.textureCoordinates);
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Appends the specified mesh.
-        /// </summary>
-        /// <param name="mesh">
-        /// The mesh.
-        /// </param>
-        public void Append(MeshGeometry3D mesh)
-        {
-            if (mesh == null)
-            {
-                throw new ArgumentNullException(nameof(mesh));
-            }
-
-            this.Append(mesh.Positions, mesh.TriangleIndices, this.normals != null ? mesh.Normals : null, this.textureCoordinates != null ? mesh.TextureCoordinates : null);
-        }
-#endif
 
     /// <summary>
     ///     Appends the specified points and triangles.
@@ -3620,11 +3456,7 @@ public class MeshBuilder {
         var index0 = positions.Count;
         positions.Add(newCornerPoint);
 
-#if SHARPDX || SILKNET
         var plane = new Plane(newCornerPoint, cornerNormal);
-#else
-            var plane = new Plane3D(newCornerPoint, cornerNormal);
-#endif
 
         var ntri = triangleIndices.Count;
 
@@ -3698,29 +3530,6 @@ public class MeshBuilder {
         NoSharedVertices();
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// Checks the performance limits.
-        /// </summary>
-        /// <remarks>
-        /// See <a href="https://msdn.microsoft.com/en-us/library/bb613553(v=vs.100).aspx">MSDN</a>.
-        /// Try to keep mesh sizes under these limits:
-        /// Positions : 20,001 point instances
-        /// TriangleIndices : 60,003 integer instances
-        /// </remarks>
-        public void CheckPerformanceLimits()
-        {
-            if (this.positions.Count > 20000)
-            {
-                Trace.WriteLine(string.Format("Too many positions ({0}).", this.positions.Count));
-            }
-
-            if (this.triangleIndices.Count > 60002)
-            {
-                Trace.WriteLine(string.Format("Too many triangle indices ({0}).", this.triangleIndices.Count));
-            }
-        }
-#endif
 
     /// <summary>
     ///     Finds the average normal to the specified corner (experimental code).
@@ -4038,7 +3847,6 @@ public class MeshBuilder {
 
 #region Exporter Functions
 
-#if SHARPDX || SILKNET
     /// <summary>
     ///     Generate a MeshGeometry3D from the generated Data.
     /// </summary>
@@ -4155,62 +3963,6 @@ public class MeshBuilder {
             }
         }
 
-#endif
-#else
-        /// <summary>
-        /// Converts the geometry to a <see cref="MeshGeometry3D"/> .
-        /// </summary>
-        /// <param name="freeze">
-        /// freeze the mesh if set to <c>true</c> .
-        /// </param>
-        /// <returns>
-        /// A mesh geometry.
-        /// </returns>
-        public MeshGeometry3D ToMesh(bool freeze = false)
-        {
-            if (this.triangleIndices.Count == 0)
-            {
-                var emptyGeometry = new MeshGeometry3D();
-                if (freeze)
-                {
-                    emptyGeometry.Freeze();
-                }
-
-                return emptyGeometry;
-            }
-
-            if (this.normals != null && this.normals.Count != this.positions.Count)
-            {
-                throw new InvalidOperationException(WrongNumberOfNormals);
-            }
-
-            if (this.textureCoordinates != null && this.textureCoordinates.Count != this.positions.Count)
-            {
-                throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
-            }
-
-            var mg = new MeshGeometry3D
-            {
-                Positions = new Point3DCollection(this.positions),
-                TriangleIndices = new Int32Collection(this.triangleIndices)
-            };
-            if (this.normals != null)
-            {
-                mg.Normals = new Vector3DCollection(this.normals);
-            }
-
-            if (this.textureCoordinates != null)
-            {
-                mg.TextureCoordinates = new PointCollection(this.textureCoordinates);
-            }
-
-            if (freeze)
-            {
-                mg.Freeze();
-            }
-
-            return mg;
-        }
 #endif
 
 #endregion Exporter Functions

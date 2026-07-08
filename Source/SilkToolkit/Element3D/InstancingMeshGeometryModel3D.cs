@@ -32,17 +32,9 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(null,
                              (s, e) => {
                                  var d = s as InstancingMeshGeometryModel3D;
-#if NETFX_CORE || WINUI
-                d.AttachChild(null);
-                if(e.NewValue is Element3D elem)
-                {
-                    d.AttachChild(elem);
-                }
-#else
                                  if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
 
                                  if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
-#endif
                                  (d.SceneNode as InstancingMeshNode).OctreeManager =
                                      e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
                              }));
@@ -87,14 +79,4 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
     protected override SceneNode OnCreateSceneNode() {
         return new InstancingMeshNode();
     }
-#if NETFX_CORE
-        protected override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if(OctreeManager is Element3D elem)
-            {
-                AttachChild(elem);
-            }
-        }
-#endif
 }

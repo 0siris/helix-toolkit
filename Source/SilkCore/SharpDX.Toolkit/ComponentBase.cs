@@ -45,9 +45,6 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     ///     Gets or sets the tag associated to this object.
     /// </summary>
     /// <value>The tag.</value>
-#if !CORE
-        [Browsable(false)]
-#endif
     [DefaultValue(null)]
     public object Tag {
         get { return tag; }

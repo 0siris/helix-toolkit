@@ -71,7 +71,6 @@ public class TransformManipulator3D : GroupElement3D {
             Geometry = TranslationXGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
-#if !NETFX_CORE && !WINUI
         translationY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
         translationZ.Transform = new Media3D.MatrixTransform3D(rotationZMatrix.ToMatrix3D());
         translationX.Mouse3DDown += Translation_Mouse3DDown;
@@ -83,19 +82,6 @@ public class TransformManipulator3D : GroupElement3D {
         translationX.Mouse3DUp += Manipulation_Mouse3DUp;
         translationY.Mouse3DUp += Manipulation_Mouse3DUp;
         translationZ.Mouse3DUp += Manipulation_Mouse3DUp;
-#else
-            translationY.HxTransform3D = rotationYMatrix;
-            translationZ.HxTransform3D = rotationZMatrix;
-            translationX.OnMouse3DDown += Translation_Mouse3DDown;
-            translationY.OnMouse3DDown += Translation_Mouse3DDown;
-            translationZ.OnMouse3DDown += Translation_Mouse3DDown;
-            translationX.OnMouse3DMove += Translation_Mouse3DMove;
-            translationY.OnMouse3DMove += Translation_Mouse3DMove;
-            translationZ.OnMouse3DMove += Translation_Mouse3DMove;
-            translationX.OnMouse3DUp += Manipulation_Mouse3DUp;
-            translationY.OnMouse3DUp += Manipulation_Mouse3DUp;
-            translationZ.OnMouse3DUp += Manipulation_Mouse3DUp;
-#endif
 
         translationGroup = new GroupModel3D();
         translationGroup.Children.Add(translationX);
@@ -119,7 +105,6 @@ public class TransformManipulator3D : GroupElement3D {
             Geometry = RotationXGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
-#if !NETFX_CORE && !WINUI
         rotationY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
         rotationZ.Transform = new Media3D.MatrixTransform3D(rotationZMatrix.ToMatrix3D());
         rotationX.Mouse3DDown += Rotation_Mouse3DDown;
@@ -131,19 +116,6 @@ public class TransformManipulator3D : GroupElement3D {
         rotationX.Mouse3DUp += Manipulation_Mouse3DUp;
         rotationY.Mouse3DUp += Manipulation_Mouse3DUp;
         rotationZ.Mouse3DUp += Manipulation_Mouse3DUp;
-#else
-            rotationY.HxTransform3D = rotationYMatrix;
-            rotationZ.HxTransform3D = rotationZMatrix;
-            rotationX.OnMouse3DDown += Rotation_Mouse3DDown;
-            rotationY.OnMouse3DDown += Rotation_Mouse3DDown;
-            rotationZ.OnMouse3DDown += Rotation_Mouse3DDown;
-            rotationX.OnMouse3DMove += Rotation_Mouse3DMove;
-            rotationY.OnMouse3DMove += Rotation_Mouse3DMove;
-            rotationZ.OnMouse3DMove += Rotation_Mouse3DMove;
-            rotationX.OnMouse3DUp += Manipulation_Mouse3DUp;
-            rotationY.OnMouse3DUp += Manipulation_Mouse3DUp;
-            rotationZ.OnMouse3DUp += Manipulation_Mouse3DUp;
-#endif
 
         rotationGroup = new GroupModel3D();
         rotationGroup.Children.Add(rotationX);
@@ -167,7 +139,6 @@ public class TransformManipulator3D : GroupElement3D {
             Geometry = ScalingGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
-#if !NETFX_CORE && !WINUI
         scaleY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
         scaleZ.Transform = new Media3D.MatrixTransform3D(rotationZMatrix.ToMatrix3D());
         scaleX.Mouse3DDown += Scaling_Mouse3DDown;
@@ -179,19 +150,6 @@ public class TransformManipulator3D : GroupElement3D {
         scaleX.Mouse3DUp += Manipulation_Mouse3DUp;
         scaleY.Mouse3DUp += Manipulation_Mouse3DUp;
         scaleZ.Mouse3DUp += Manipulation_Mouse3DUp;
-#else
-            scaleY.HxTransform3D = rotationYMatrix;
-            scaleZ.HxTransform3D = rotationZMatrix;
-            scaleX.OnMouse3DDown += Scaling_Mouse3DDown;
-            scaleY.OnMouse3DDown += Scaling_Mouse3DDown;
-            scaleZ.OnMouse3DDown += Scaling_Mouse3DDown;
-            scaleX.OnMouse3DMove += Scaling_Mouse3DMove;
-            scaleY.OnMouse3DMove += Scaling_Mouse3DMove;
-            scaleZ.OnMouse3DMove += Scaling_Mouse3DMove;
-            scaleX.OnMouse3DUp += Manipulation_Mouse3DUp;
-            scaleY.OnMouse3DUp += Manipulation_Mouse3DUp;
-            scaleZ.OnMouse3DUp += Manipulation_Mouse3DUp;
-#endif
 
         scaleGroup = new GroupModel3D();
         scaleGroup.Children.Add(scaleX);
@@ -290,21 +248,13 @@ public class TransformManipulator3D : GroupElement3D {
         if (target == null) return;
         targetMatrix = SilkMath.Translation(-centerOffset) * scaleMatrix * rotationMatrix *
                        SilkMath.Translation(centerOffset) * SilkMath.Translation(translationVector);
-#if !NETFX_CORE && !WINUI
         target.Transform = new Media3D.MatrixTransform3D(targetMatrix.ToMatrix3D());
-#else
-            target.HxTransform3D = targetMatrix;
-#endif
     }
 
     private void OnUpdateSelfTransform() {
         var m = SilkMath.Translation(centerOffset + translationVector);
         m.M11 = m.M22 = m.M33 = (float) sizeScale;
-#if !NETFX_CORE && !WINUI
         ctrlGroup.Transform = new Media3D.MatrixTransform3D(m.ToMatrix3D());
-#else
-            ctrlGroup.HxTransform3D = m;
-#endif
     }
 
     protected override SceneNode OnCreateSceneNode() {
@@ -617,9 +567,7 @@ public class TransformManipulator3D : GroupElement3D {
                                                          }));
 
 
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Vector3Converter))]
-#endif
     public Vector3 CenterOffset {
         get { return (Vector3) GetValue(CenterOffsetProperty); }
         set { SetValue(CenterOffsetProperty, value); }

@@ -9,10 +9,6 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-#if !NETFX_CORE
-    [Serializable]
-    [TypeConverter(typeof(Vector3CollectionConverter))]
-#endif
 public sealed class Vector3Collection : FastList<Vector3> {
     public Vector3Collection() { }
 

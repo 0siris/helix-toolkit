@@ -1,8 +1,6 @@
 ﻿namespace HelixToolkit.SharpDX.Core;
 
 using Mesh3DGroup = List<Object3D>;
-#if NETFX_CORE
-#endif
 
 /// <summary>
 ///     Polygon File Format Reader.

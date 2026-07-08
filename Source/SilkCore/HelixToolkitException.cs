@@ -7,19 +7,12 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-#if SHARPDX
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.Wpf
-#endif
 {
 #pragma warning disable 0436
     /// <summary>
     ///     Represents errors that occurs in the Helix 3D Toolkit.
     /// </summary>
-#if !NETFX_CORE
-    [Serializable]
-#endif
     public class HelixToolkitException : Exception {
         /// <summary>
         ///     Initializes a new instance of the <see cref="HelixToolkitException" /> class.

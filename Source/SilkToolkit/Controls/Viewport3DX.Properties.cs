@@ -1061,7 +1061,6 @@ public partial class Viewport3DX {
                                  viewport.CameraController.ZoomSensitivity = (double) e.NewValue;
                              }));
 
-#if MSAA
     /// <summary>
     ///     Set MSAA Level
     /// </summary>
@@ -1074,7 +1073,6 @@ public partial class Viewport3DX {
                                  if (viewport.renderHostInternal != null)
                                      viewport.renderHostInternal.MSAA = (MSAALevel) e.NewValue;
                              }));
-#endif
 
     /// <summary>
     ///     The is move enabled property.
@@ -2525,7 +2523,6 @@ public partial class Viewport3DX {
         set => SetValue(ZoomSensitivityProperty, value);
     }
 
-#if MSAA
     /// <summary>
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
@@ -2533,7 +2530,6 @@ public partial class Viewport3DX {
         get => (MSAALevel) GetValue(MSAAProperty);
         set => SetValue(MSAAProperty, value);
     }
-#endif
     /// <summary>
     ///     Rotate around this fixed rotation point only.<see cref="FixedRotationPointEnabled" />
     /// </summary>

@@ -54,12 +54,8 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         typeof(ProjectionCamera),
         new PropertyMetadata(new Vector3D(0, 0, -5),
                              (d, e) => {
-#if NETFX_CORE|| WINUI
-                ((d as Camera).CameraInternal as ProjectionCameraCore).LookDirection = (Vector3D)e.NewValue;
-#else
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).LookDirection =
                                      ((Vector3D) e.NewValue).ToVector3();
-#endif
                              }));
 
     /// <summary>
@@ -84,12 +80,8 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         typeof(ProjectionCamera),
         new PropertyMetadata(new Point3D(0, 0, +5),
                              (d, e) => {
-#if NETFX_CORE|| WINUI
-                ((d as Camera).CameraInternal as ProjectionCameraCore).Position = (Point3D)e.NewValue;
-#else
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).Position =
                                      ((Point3D) e.NewValue).ToVector3();
-#endif
                              }));
 
     /// <summary>
@@ -100,12 +92,8 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         typeof(ProjectionCamera),
         new PropertyMetadata(new Vector3D(0, 1, 0),
                              (d, e) => {
-#if NETFX_CORE|| WINUI
-                ((d as Camera).CameraInternal as ProjectionCameraCore).UpDirection = (Vector3D)e.NewValue;
-#else
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).UpDirection =
                                      ((Vector3D) e.NewValue).ToVector3();
-#endif
                              }));
 
     /// <summary>

@@ -244,7 +244,6 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new VolumeTextureDDS3DMaterial {
             Name = Name,
@@ -259,7 +258,6 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
             EnablePlaneAlignment = EnablePlaneAlignment
         };
     }
-#endif
 }
 
 /// <summary>
@@ -314,7 +312,6 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new VolumeTextureRawDataMaterial {
             Name = Name,
@@ -329,7 +326,6 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
             EnablePlaneAlignment = EnablePlaneAlignment
         };
     }
-#endif
 }
 
 /// <summary>
@@ -384,7 +380,6 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new VolumeTextureDiffuseMaterial {
             Name = Name,
@@ -399,5 +394,4 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
             EnablePlaneAlignment = EnablePlaneAlignment
         };
     }
-#endif
 }

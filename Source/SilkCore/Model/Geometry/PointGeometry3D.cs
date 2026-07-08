@@ -6,9 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
-#if !NETFX_CORE
-    [Serializable]
-#endif
 public class PointGeometry3D : Geometry3D {
     public IEnumerable<Point> Points {
         get {

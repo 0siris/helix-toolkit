@@ -14,11 +14,9 @@ public sealed class PositionColorMaterial : Material {
     protected override MaterialCore OnCreateCore() {
         return PositionMaterialCore.Core;
     }
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new PositionColorMaterial {
             Name = Name
         };
     }
-#endif
 }

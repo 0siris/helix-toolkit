@@ -4,10 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Core2D;
-#if !NETFX_CORE
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-#endif
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Model.Scene2D {
@@ -46,40 +42,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) {
-#if !NETFX_CORE
-                var originalPosition = stream.CanSeek ? stream.Position : 0;
-                try
-                {
-                    if (stream.CanSeek)
-                    {
-                        stream.Position = 0;
-                    }
-                    var decoder =
- BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-                    if (decoder.Frames.Count == 0)
-                    {
-                        return null;
-                    }
-                    BitmapSource source = decoder.Frames[0];
-                    if (source.Format != PixelFormats.Pbgra32)
-                    {
-                        source = new FormatConvertedBitmap(source, PixelFormats.Pbgra32, null, 0);
-                    }
-                    var stride = source.PixelWidth * 4;
-                    var pixels = new byte[stride * source.PixelHeight];
-                    source.CopyPixels(pixels, stride, 0);
-                    return context.DeviceContext.CreateBitmap(pixels, source.PixelWidth, source.PixelHeight, stride);
-                }
-                finally
-                {
-                    if (stream.CanSeek)
-                    {
-                        stream.Position = originalPosition;
-                    }
-                }
-#else
                 return new Bitmap(default);
-#endif
             }
 
             public override void Update(RenderContext2D context) {

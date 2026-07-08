@@ -3,38 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-#if CORE
 using Thickness = HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness;
 
-#else
-#if NETFX_CORE
-    using Windows.UI.Xaml;
-    using Media = Windows.UI.Xaml.Media;
-    using Windows.UI.Text;
-    using PlatformFontWeight = Windows.UI.Text.FontWeight;
-    using PlatformFontStyle = Windows.UI.Text.FontStyle;
-#else
-using System.Windows;
-using Media = System.Windows.Media;
-using PlatformFontWeight = System.Windows.FontWeight;
-using PlatformFontStyle = System.Windows.FontStyle;
-#endif
-#endif
-#if !NETFX_CORE
-using RenderFontStyle = HelixToolkit.Wpf.SharpDX.FontStyle;
-using RenderFontWeight = HelixToolkit.Wpf.SharpDX.FontWeight;
-#else
-#if !CORE
-using RenderFontStyle = HelixToolkit.UWP.FontStyle;
-using RenderFontWeight = HelixToolkit.UWP.FontWeight;
-#endif
-#endif
 
 namespace HelixToolkit.SharpDX.Core;
 
-#if !CORE
-    using Extensions;
-#endif
 
 /// <summary>
 /// </summary>
@@ -121,48 +94,28 @@ public class BillboardSingleText3D : BillboardBase {
         }
     }
 
-#if CORE
     private FontWeight mFontWeight = FontWeight.Normal;
-#else
-        private PlatformFontWeight mFontWeight = FontWeights.Normal;
-#endif
     /// <summary>
     ///     Gets or sets the font weight.
     /// </summary>
     /// <value>
     ///     The font weight.
     /// </value>
-#if CORE
     public FontWeight FontWeight
-#else
-        public PlatformFontWeight FontWeight
-#endif
     {
         get { return mFontWeight; }
         set {
             if (Set(ref mFontWeight, value)) IsInitialized = false;
         }
     }
-#if CORE
     private FontStyle mFontStyle = FontStyle.Normal;
-#else
-#if NETFX_CORE
-        private PlatformFontStyle mFontStyle = PlatformFontStyle.Normal;
-#else
-        private PlatformFontStyle mFontStyle = FontStyles.Normal;
-#endif
-#endif
     /// <summary>
     ///     Gets or sets the font style.
     /// </summary>
     /// <value>
     ///     The font style.
     /// </value>
-#if CORE
     public FontStyle FontStyle
-#else
-        public PlatformFontStyle FontStyle
-#endif
     {
         get { return mFontStyle; }
         set {
@@ -290,7 +243,6 @@ public class BillboardSingleText3D : BillboardBase {
         if (TextInfo != null && !string.IsNullOrEmpty(TextInfo.Text)) {
             var w = Width;
             var h = Height;
-#if CORE
             Texture = TextInfo.Text.ToBitmapStream(FontSize,
                                                    Color.White,
                                                    Color.Black,
@@ -305,11 +257,6 @@ public class BillboardSingleText3D : BillboardBase {
                                                    ref h,
                                                    predefinedSize,
                                                    deviceResources);
-#else
-                Texture =
- TextInfo.Text.ToBitmapStream(FontSize, Color.White, Color.Black, FontFamily, ToRenderFontWeight(FontWeight), ToRenderFontStyle(FontStyle),
-                    new Vector4((float)Padding.Left, (float)Padding.Top, (float)Padding.Right, (float)Padding.Bottom), ref w, ref h, predefinedSize, deviceResources);
-#endif
             if (!predefinedSize) {
                 Width = w;
                 Height = h;
@@ -327,58 +274,6 @@ public class BillboardSingleText3D : BillboardBase {
         TextInfo?.UpdateTextInfo(Width, Height);
     }
 
-#if !CORE
-        private static RenderFontWeight ToRenderFontWeight(PlatformFontWeight fontWeight)
-        {
-#if NETFX_CORE
-            var weight = fontWeight.Weight;
-#else
-            var weight = fontWeight.ToOpenTypeWeight();
-#endif
-            if (weight >= 900)
-            {
-                return RenderFontWeight.Black;
-            }
-            if (weight >= 800)
-            {
-                return RenderFontWeight.ExtraBold;
-            }
-            if (weight >= 700)
-            {
-                return RenderFontWeight.Bold;
-            }
-            if (weight >= 600)
-            {
-                return RenderFontWeight.SemiBold;
-            }
-            if (weight >= 500)
-            {
-                return RenderFontWeight.Medium;
-            }
-            if (weight >= 400)
-            {
-                return RenderFontWeight.Normal;
-            }
-            if (weight >= 300)
-            {
-                return RenderFontWeight.Light;
-            }
-            if (weight >= 200)
-            {
-                return RenderFontWeight.ExtraLight;
-            }
-            return RenderFontWeight.Thin;
-        }
-
-        private static RenderFontStyle ToRenderFontStyle(PlatformFontStyle fontStyle)
-        {
-#if NETFX_CORE
-            return fontStyle == PlatformFontStyle.Italic ? RenderFontStyle.Italic : fontStyle == PlatformFontStyle.Oblique ? RenderFontStyle.Oblique : RenderFontStyle.Normal;
-#else
-            return fontStyle == FontStyles.Italic ? RenderFontStyle.Italic : fontStyle == FontStyles.Oblique ? RenderFontStyle.Oblique : RenderFontStyle.Normal;
-#endif
-        }
-#endif
 
     private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info) {
         GetQuadOffset(w, h, HorizontalAlignment, VerticalAlignment, out var tl, out var br);

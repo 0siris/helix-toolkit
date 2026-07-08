@@ -175,7 +175,6 @@ public class ColorStripeMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new ColorStripeMaterial {
             DiffuseColor = DiffuseColor,
@@ -187,5 +186,4 @@ public class ColorStripeMaterial : Material {
             Name = Name
         };
     }
-#endif
 }

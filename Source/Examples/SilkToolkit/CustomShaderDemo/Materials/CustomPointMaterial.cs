@@ -25,11 +25,9 @@ public class CustomPointMaterial : PointMaterial {
         };
     }
 
-#if !NETFX_CORE
     protected override Freezable CreateInstanceCore() {
         return new CustomPointMaterial() {
             Name = Name
         };
     }
-#endif
 }

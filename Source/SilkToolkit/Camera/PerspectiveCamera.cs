@@ -50,9 +50,7 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
         (core as PerspectiveCameraCore).NearPlaneDistance = (float) NearPlaneDistance;
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new PerspectiveCamera();
     }
-#endif
 }

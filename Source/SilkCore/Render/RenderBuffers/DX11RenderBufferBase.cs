@@ -116,12 +116,10 @@ namespace HelixToolkit.SharpDX.Core {
             ///     The format.
             /// </value>
             public Format Format { get; set; } = Format.FormatB8G8R8A8Unorm;
-#if MSAA
             /// <summary>
             ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
             /// </summary>
             public MSAALevel MSAA { get; private set; } = MSAALevel.Disable;
-#endif
             /// <summary>
             ///     The currently used Direct3D Device
             /// </summary>
@@ -213,9 +211,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             private ShaderResourceViewProxy CreateRenderTarget(int width, int height, MSAALevel msaa) {
-#if MSAA
                 MSAA = msaa;
-#endif
                 TargetWidth = width;
                 TargetHeight = height;
                 DisposeBuffers();
@@ -352,7 +348,6 @@ namespace HelixToolkit.SharpDX.Core {
             protected virtual SampleDescription GetMSAASampleDescription() {
                 var sampleCount = 1;
                 var sampleQuality = 0;
-#if MSAA
                 if (MSAA != MSAALevel.Disable)
                     do {
                         var newSampleCount = sampleCount * 2;
@@ -366,7 +361,6 @@ namespace HelixToolkit.SharpDX.Core {
                         sampleQuality = newSampleQuality;
                         if (sampleCount == (int) MSAA) break;
                     } while (sampleCount < 32);
-#endif
                 return new SampleDescription(sampleCount, sampleQuality);
             }
 
@@ -494,11 +488,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="msaa">The msaa.</param>
             /// <returns></returns>
             public ShaderResourceViewProxy Initialize(int width, int height, MSAALevel msaa) {
-#if MSAA
                 return CreateRenderTarget(width, height, msaa);
-#else
-                return CreateRenderTarget(width, height, MSAALevel.Disable);
-#endif
             }
 
             /// <summary>
@@ -508,11 +498,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="height"></param>
             /// <returns></returns>
             public virtual ShaderResourceViewProxy Resize(int width, int height) {
-#if MSAA
                 return CreateRenderTarget(width, height, MSAA);
-#else
-                return CreateRenderTarget(width, height, MSAALevel.Disable);
-#endif
             }
 
             /// <summary>

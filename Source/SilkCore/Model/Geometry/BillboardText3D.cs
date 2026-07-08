@@ -8,14 +8,6 @@ using System.Collections.Specialized;
 using System.Reflection;
 using Cyotek.Drawing.BitmapFont;
 
-#if CORE
-#else
-#if NETFX_CORE
-using Media = Windows.UI.Xaml.Media;
-#else
-using Media = System.Windows.Media;
-#endif
-#endif
 
 namespace HelixToolkit.SharpDX.Core;
 
@@ -97,9 +89,6 @@ public class TextInfo {
     }
 }
 
-#if !NETFX_CORE
-    [Serializable]
-#endif
 public class BillboardText3D : BillboardBase {
     private const float textureScale = 0.66f;
     private const string FontName = "arial";
@@ -108,39 +97,12 @@ public class BillboardText3D : BillboardBase {
     private ObservableCollection<TextInfo> textInfo = new();
 
     static BillboardText3D() {
-#if CORE
         var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
         var fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt");
         bmpFont = new BitmapFont();
         bmpFont.Load(fontInfo);
         var font = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.dds");
         TextureStatic = font;
-#else
-#if !NETFX_CORE
-            var assembly = Assembly.GetExecutingAssembly();
-
-            //Read the texture description           
-            var texDescriptionStream = assembly.GetManifestResourceStream($"SilkToolkit.Textures.{FontName}.fnt");
-
-            bmpFont = new BitmapFont();
-            bmpFont.Load(texDescriptionStream);// BitmapFontLoader.LoadFontFromFile(texDescriptionFilePath);
-            texDescriptionStream.Dispose();
-            //Read the texture          
-            var texImageStream = assembly.GetManifestResourceStream($"SilkToolkit.Textures.{FontName}.dds");
-            TextureStatic = MemoryStream.Synchronized(texImageStream);
-#else
-            var packageFolder = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
-            var sampleFile =
- global::SharpDX.IO.NativeFile.ReadAllBytes(packageFolder + $"\\HelixToolkit.UWP\\Resources\\{FontName}.fnt");
-            bmpFont = new BitmapFont();
-            var fileStream = new MemoryStream(sampleFile);
-            bmpFont.Load(fileStream);
-
-            var texFile =
- global::SharpDX.IO.NativeFile.ReadAllBytes(packageFolder + $"\\HelixToolkit.UWP\\Resources\\{FontName}.dds");
-            TextureStatic = new MemoryStream(texFile);         
-#endif
-#endif
     }
 
     public BillboardText3D() {

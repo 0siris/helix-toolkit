@@ -1,4 +1,3 @@
-#if SILKNET
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -400,4 +399,3 @@ internal static unsafe class Utilities {
         }
     }
 }
-#endif

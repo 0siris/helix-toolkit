@@ -39,13 +39,11 @@ public class PointMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new PointMaterial {
             Name = Name
         };
     }
-#endif
 
 #region Dependency Properties
 

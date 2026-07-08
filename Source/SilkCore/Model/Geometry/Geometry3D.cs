@@ -10,9 +10,6 @@ using HelixToolkit.SharpDX.Core.Model;
 namespace HelixToolkit.SharpDX.Core;
 
 
-#if !NETFX_CORE
-    [Serializable]
-#endif
 [DataContract]
 public abstract class Geometry3D : ObservableObject, IGUID {
     public const string VertexBuffer = "VertexBuffer";
@@ -59,9 +56,6 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         }
     }
 
-#if !NETFX_CORE
-        [NonSerialized]
-#endif
     private BoundingBox bound;
 
     /// <summary>
@@ -73,9 +67,6 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         set => Set(ref bound, value);
     }
 
-#if !NETFX_CORE
-        [NonSerialized]
-#endif
     private BoundingSphere boundingSphere;
 
     /// <summary>

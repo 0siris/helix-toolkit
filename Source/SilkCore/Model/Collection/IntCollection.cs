@@ -9,10 +9,6 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-#if !NETFX_CORE
-    [Serializable]
-    [TypeConverter(typeof(IntCollectionConverter))]
-#endif
 public sealed class IntCollection : FastList<int> {
     public IntCollection() { }
 

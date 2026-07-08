@@ -11,11 +11,7 @@ using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 
-#if SHARPDX
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.Wpf
-#endif
 {
     /// <summary>
     ///     Extension methods for strings.

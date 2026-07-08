@@ -44,7 +44,6 @@ public class LineMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new LineMaterial {
             Name = Name,
@@ -60,7 +59,6 @@ public class LineMaterial : Material {
             FixedSize = FixedSize
         };
     }
-#endif
 
 #region Dependency Properties
 

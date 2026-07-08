@@ -10,12 +10,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <!-- SHARPDX keeps the legacy Core namespace surface until SilkToolkit is compile-ready. -->
-    <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DefineConstants>TRACE;NETFX_CORE;CORE;SHARPDX;SILKNET;DX11;MSAA;DX11_1</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

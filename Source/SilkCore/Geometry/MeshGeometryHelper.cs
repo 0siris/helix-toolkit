@@ -258,12 +258,8 @@ public static class MeshGeometryHelper {
             }
         }
 
-#if SHARPDX || SILKNET
         return new MeshGeometry3D
             {Positions = p, TriangleIndices = new IntCollection(ti), Normals = n, TextureCoordinates = tc};
-#else
-            return new MeshGeometry3D { Positions = p, TriangleIndices = ti, Normals = n, TextureCoordinates = tc };
-#endif
     }
 
     /// <summary>
@@ -305,11 +301,7 @@ public static class MeshGeometryHelper {
             int j;
             ti.Add(dict.TryGetValue(index, out j) ? newIndex[j] : newIndex[index]);
         }
-#if SHARPDX || SILKNET
         var result = new MeshGeometry3D {Positions = p, TriangleIndices = new IntCollection(ti)};
-#else
-            var result = new MeshGeometry3D { Positions = p, TriangleIndices = ti };
-#endif
         return result;
     }
 

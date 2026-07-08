@@ -164,11 +164,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
         get => (int) GetValue(MinObjectSizeToSplitProperty);
         set => SetValue(MinObjectSizeToSplitProperty, value);
     }
-#if NETFX_CORE || WINUI
-        private IAsyncAction octreeOpt;
-#else
     private DispatcherOperation octreeOpt;
-#endif
     private bool enableOctreeOutput;
     private IOctreeManager manager;
 
@@ -183,7 +179,6 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
             if (manager == null) {
                 manager = OnCreateManager();
                 manager.OnOctreeCreated += (s, e) => {
-#if !NETFX_CORE && !WINUI
                     if (octreeOpt != null && octreeOpt.Status == DispatcherOperationStatus.Pending) octreeOpt.Abort();
                     if (enableOctreeOutput)
                         octreeOpt = Dispatcher.BeginInvoke(DispatcherPriority.Background,
@@ -191,19 +186,6 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                                                Octree = null;
                                                                Octree = e.Octree;
                                                            }));
-#else
-                        if (octreeOpt != null && octreeOpt.Status != AsyncStatus.Completed)
-                        {
-                            octreeOpt?.Cancel();
-                        }
-                        if (enableOctreeOutput)
-                        {
-                            octreeOpt = Dispatcher.RunAsync(CoreDispatcherPriority.Low, ()=> {
-                                this.Octree = null;
-                                this.Octree = e.Octree;
-                            });
-                        }
-#endif
                 };
             }
 

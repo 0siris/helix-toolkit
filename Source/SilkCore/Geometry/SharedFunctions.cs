@@ -18,20 +18,12 @@ internal static class SharedFunctions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3D CrossProduct(ref Vector3D first, ref Vector3D second) {
-#if SHARPDX || SILKNET
         return SilkMath.Cross(first, second);
-#else
-            return Vector3D.CrossProduct(first, second);
-#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3D CrossProduct(Vector3D first, Vector3D second) {
-#if SHARPDX || SILKNET
         return SilkMath.Cross(first, second);
-#else
-            return Vector3D.CrossProduct(first, second);
-#endif
     }
 
     /// <summary>
@@ -82,28 +74,6 @@ internal static class SharedFunctions {
         return (DoubleOrSingle) Math.Sqrt(LengthSquared(ref vector));
     }
 
-#if !NETFX_CORE
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.Media3D.Point3D ToPoint3D(ref Vector3D vector)
-        {
-            return new System.Windows.Media.Media3D.Point3D(vector.X, vector.Y, vector.Z);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.Media3D.Vector3D ToVector3D(ref Vector3D vector)
-        {
-            return new System.Windows.Media.Media3D.Vector3D(vector.X, vector.Y, vector.Z);
-        }
-#endif
     /// <summary>
     /// </summary>
     /// <param name="vector"></param>
@@ -112,65 +82,6 @@ internal static class SharedFunctions {
     public static Vector3D ToVector3D(Point3D vector) {
         return new Vector3D(vector.X, vector.Y, vector.Z);
     }
-#if SHARPDX || SILKNET
-#if !NETFX_CORE
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Point3D ToPoint3D(ref System.Windows.Media.Media3D.Vector3D vector)
-        {
-            return new Point3D((DoubleOrSingle)vector.X, (DoubleOrSingle)vector.Y, (DoubleOrSingle)vector.Z);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3D ToVector3D(ref System.Windows.Media.Media3D.Vector3D vector)
-        {
-            return new Vector3D((DoubleOrSingle)vector.X, (DoubleOrSingle)vector.Y, (DoubleOrSingle)vector.Z);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.Media3D.Vector3DCollection ToVector3DCollection(SharpDX.Vector3Collection collection)
-        {
-            return new System.Windows.Media.Media3D.Vector3DCollection(collection.Select(v => ToVector3D(ref v)));
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.Media3D.Point3DCollection ToPoint3DCollection(SharpDX.Vector3Collection collection)
-        {
-            return new System.Windows.Media.Media3D.Point3DCollection(collection.Select(v => ToPoint3D(ref v)));
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.PointCollection ToPointCollection(SharpDX.Vector2Collection collection)
-        {
-            return new System.Windows.Media.PointCollection(collection.Select(v => new System.Windows.Point(v.X, v.Y)));
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Windows.Media.Int32Collection ToInt32Collection(SharpDX.IntCollection collection)
-        {
-            return new System.Windows.Media.Int32Collection(collection);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mesh"></param>
-        /// <returns></returns>
-        public static System.Windows.Media.Media3D.MeshGeometry3D ToMeshGeometry3D(SharpDX.MeshGeometry3D mesh)
-        {
-            return new System.Windows.Media.Media3D.MeshGeometry3D()
-            {
-                Normals = ToVector3DCollection(mesh.Normals),
-                Positions = ToPoint3DCollection(mesh.Positions),
-                TextureCoordinates = ToPointCollection(mesh.TextureCoordinates),
-                TriangleIndices = ToInt32Collection(mesh.TriangleIndices)
-            };
-        }
-#endif
     /// <summary>
     ///     Finds the intersection between the plane and a line.
     /// </summary>
@@ -194,5 +105,4 @@ internal static class SharedFunctions {
         var u = (SilkMath.Dot(la, plane.Normal) + plane.D) / d;
         return la + u * (lb - la);
     }
-#endif
 }

@@ -39,71 +39,6 @@ public class ParticleStormModel3D : Element3D {
         get => (int) GetValue(ParticleCountProperty);
         set => SetValue(ParticleCountProperty, value);
     }
-#if NETFX_CORE || WINUI
-        public static DependencyProperty EmitterLocationProperty =
- DependencyProperty.Register("EmitterLocation", typeof(Vector3), typeof(ParticleStormModel3D),
-            new PropertyMetadata(DefaultEmitterLocation,
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as ParticleStormNode).EmitterLocation = (Vector3)e.NewValue;
-            }
-            ));
-
-        public Vector3 EmitterLocation
-        {
-            set
-            {
-                SetValue(EmitterLocationProperty, value);
-            }
-            get
-            {
-                return (Vector3)GetValue(EmitterLocationProperty);
-            }
-        }
-
-        public static DependencyProperty ConsumerLocationProperty =
- DependencyProperty.Register("ConsumerLocation", typeof(Vector3), typeof(ParticleStormModel3D),
-            new PropertyMetadata(DefaultConsumerLocation,
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as ParticleStormNode).ConsumerLocation = (Vector3)e.NewValue;
-            }
-            ));
-
-        public Vector3 ConsumerLocation
-        {
-            set
-            {
-                SetValue(ConsumerLocationProperty, value);
-            }
-            get
-            {
-                return (Vector3)GetValue(ConsumerLocationProperty);
-            }
-        }
-
-        public static DependencyProperty ParticleBoundsProperty =
- DependencyProperty.Register("ParticleBounds", typeof(BoundingBox), typeof(ParticleStormModel3D),
-            new PropertyMetadata(new BoundingBox(new Vector3D(-50, -50, -50), new Vector3D(50, 50, 50)),
-            (d, e) =>
-            {
-                var bound = (BoundingBox)e.NewValue;
-                ((d as Element3DCore).SceneNode as ParticleStormNode).DomainBoundMax = bound.Maximum;
-                ((d as Element3DCore).SceneNode as ParticleStormNode).DomainBoundMin = bound.Minimum;
-            }));
-
-        public BoundingBox ParticleBounds
-        {
-            set
-            {
-                SetValue(ParticleBoundsProperty, value);
-            }
-            get
-            {
-                return (BoundingBox)GetValue(ParticleBoundsProperty);
-            }
-        }
-#else
     public static DependencyProperty EmitterLocationProperty = DependencyProperty.Register("EmitterLocation",
         typeof(Media3D.Point3D),
         typeof(ParticleStormModel3D),
@@ -152,7 +87,6 @@ public class ParticleStormModel3D : Element3D {
         get => (Media3D.Rect3D) GetValue(ParticleBoundsProperty);
         set => SetValue(ParticleBoundsProperty, value);
     }
-#endif
 
     public static DependencyProperty EmitterRadiusProperty = DependencyProperty.Register("EmitterRadius",
         typeof(double),
@@ -312,16 +246,6 @@ public class ParticleStormModel3D : Element3D {
         set => SetValue(InitialVelocityProperty, value);
     }
 
-#if NETFX_CORE || WINUI
-        public static DependencyProperty AccelerationProperty =
- DependencyProperty.Register("Acceleration", typeof(Vector3D), typeof(ParticleStormModel3D),
-            new PropertyMetadata(DefaultAcceleration,
-            (d, e) =>
-            {
-                ((d as Element3DCore).SceneNode as ParticleStormNode).InitAcceleration = (Vector3D)e.NewValue;
-            }
-            ));
-#else
     public static DependencyProperty AccelerationProperty = DependencyProperty.Register("Acceleration",
         typeof(Vector3D),
         typeof(ParticleStormModel3D),
@@ -330,7 +254,6 @@ public class ParticleStormModel3D : Element3D {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).InitAcceleration =
                                      ((Vector3D) e.NewValue).ToVector3();
                              }));
-#endif
 
     public Vector3D Acceleration {
         get => (Vector3D) GetValue(AccelerationProperty);
@@ -614,13 +537,6 @@ public class ParticleStormModel3D : Element3D {
             c.DestAlphaBlend = DestAlphaBlend;
             c.SampleMask = SampleMask;
             c.BlendColor = BlendColor.ToColor4();
-#if NETFX_CORE || WINUI
-                c.EmitterLocation = EmitterLocation;
-                c.ConsumerLocation = ConsumerLocation;
-                c.InitAcceleration = Acceleration;
-                c.DomainBoundMax = ParticleBounds.Maximum;
-                c.DomainBoundMin = ParticleBounds.Minimum;
-#else
             c.EmitterLocation = EmitterLocation.ToVector3();
             c.ConsumerLocation = ConsumerLocation.ToVector3();
             c.InitAcceleration = Acceleration.ToVector3();
@@ -630,7 +546,6 @@ public class ParticleStormModel3D : Element3D {
             c.DomainBoundMin = new Vector3((float) (ParticleBounds.Location.X - ParticleBounds.SizeX / 2),
                                            (float) (ParticleBounds.Location.Y - ParticleBounds.SizeY / 2),
                                            (float) (ParticleBounds.Location.Z - ParticleBounds.SizeZ / 2));
-#endif
         }
     }
 }

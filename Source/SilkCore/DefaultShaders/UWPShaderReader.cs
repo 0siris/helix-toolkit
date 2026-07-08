@@ -13,7 +13,6 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
             public byte[] Read(string name) {
-#if CORE
                 var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
                 var shaderStream = assembly.GetManifestResourceStream($"SilkCore.Resources.{name}.cso");
                 if (shaderStream == null)
@@ -22,29 +21,6 @@ namespace HelixToolkit.SharpDX.Core {
                     shaderStream.CopyTo(memory);
                     return memory.ToArray();
                 }
-#else
-#if NETFX_CORE
-                var filePath =
- Windows.ApplicationModel.Package.Current.InstalledLocation.Path + $"\\HelixToolkit.UWP\\Resources\\{name}.cso";
-                if (!File.Exists(filePath))
-                {
-                    throw new FileNotFoundException($"Shader byte code was not found: {name}", filePath);
-                }
-                var byteCode = global::SharpDX.IO.NativeFile.ReadAllBytes(filePath);
-                if(byteCode == null)
-                {
-                    throw new FileNotFoundException($"Shader byte code was not found: {name}", filePath);
-                }
-                return byteCode;
-#else
-                var byteCode = Properties.Resources.ResourceManager.GetObject(name) as byte[];
-                if (byteCode == null)
-                {
-                    throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");
-                }
-                return byteCode;
-#endif
-#endif
             }
         }
 

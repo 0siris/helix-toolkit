@@ -6,11 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
-#if NETFX_CORE
 
-#else
-using System.Windows.Media.Imaging;
-#endif
 
 
 namespace HelixToolkit.SharpDX.Core;

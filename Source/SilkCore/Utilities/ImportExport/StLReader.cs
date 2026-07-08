@@ -12,25 +12,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HelixToolkit.SharpDX.Core.Model;
 
-#if !NETFX_CORE
-using System.Windows.Threading;
-using Color = System.Windows.Media.Color;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 
 namespace HelixToolkit.SharpDX.Core;
-#else
-using Vector3D = Silk.NET.Maths.Vector3D<float>;
-namespace HelixToolkit.UWP
-#endif
-#endif
 using Mesh3DGroup = List<Object3D>;
 using Point3D = Color3;
-#if NETFX_CORE
 using FileFormatException = Exception;
-#endif
 
 /// <summary>
 ///     Provides an importer for StereoLithography .StL files.
@@ -171,11 +157,7 @@ public class StLReader : ModelReader {
         var x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         var y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         var z = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
-#if !NETFX_CORE
-            return new Vector3D(x, y, z);
-#else
         return new Color3((float) x, (float) y, (float) z);
-#endif
     }
 
     /// <summary>
@@ -369,11 +351,7 @@ public class StLReader : ModelReader {
             red = attrib[2].Equals('1') ? red + 8 : red;
             red = attrib[1].Equals('1') ? red + 16 : red;
             var r = red * 8;
-#if !NETFX_CORE
-                var currentColor = Color.FromRgb(Convert.ToByte(r), Convert.ToByte(g), Convert.ToByte(b));
-#else
             var currentColor = new Color(r / 255f, g / 255f, b / 255f);
-#endif
             if (!Equals(lastColor, currentColor)) {
                 lastColor = currentColor;
                 index++;

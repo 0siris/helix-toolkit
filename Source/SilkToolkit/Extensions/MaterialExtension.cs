@@ -134,26 +134,3 @@ namespace HelixToolkit.Wpf.SharpDX {
     }
 }
 
-#if !COREWPF && !WINUI
-#if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX.Model
-#else
-namespace HelixToolkit.UWP.Model
-#endif
-{
-    public partial class PhongMaterialCore
-    {
-        public static implicit operator PhongMaterial(PhongMaterialCore core)
-        {
-            return MaterialExtension.ConvertToPhongMaterial(core);
-        }
-    }
-    public partial class PBRMaterialCore
-    {
-        public static implicit operator PBRMaterial(PBRMaterialCore core)
-        {
-            return MaterialExtension.ConvertToPBRMaterial(core);
-        }
-    }
-}
-#endif

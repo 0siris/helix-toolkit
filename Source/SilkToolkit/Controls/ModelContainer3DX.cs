@@ -40,9 +40,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     public ModelContainer3DX() {
         IsHitTestVisible = false;
-#if !NETFX_CORE && !WINUI
         Visibility = Visibility.Collapsed;
-#endif
     }
 
     /// <summary>
@@ -269,9 +267,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     The color of the clear.
     /// </value>
     /// <exception cref="NotImplementedException"></exception>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 ClearColor {
         get { return currentRenderHost != null ? currentRenderHost.ClearColor : Color.White; }
         set { throw new NotImplementedException(); }

@@ -96,30 +96,18 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
 
     private void UpdateCameraPositionByWidth(double newWidth) {
         var ratio = newWidth / Width;
-#if !NETFX_CORE && !WINUI
         var dir = LookDirection.ToVector3();
         var target = Target.ToVector3();
-#else
-            var dir = LookDirection;
-            var target = Target;
-#endif
         var dist = dir.Length;
         var newDist = dist * ratio;
         dir.Normalize();
         var position = target - dir * (float) newDist;
         var lookDir = dir * (float) newDist;
-#if !NETFX_CORE && !WINUI
         Position = position.ToPoint3D();
         LookDirection = lookDir.ToVector3D();
-#else
-            Position = position;
-            LookDirection = lookDir;
-#endif
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return new OrthographicCamera();
     }
-#endif
 }

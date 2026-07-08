@@ -238,7 +238,6 @@ namespace HelixToolkit.SharpDX.Core {
                 return base.ToString() + "\n" + string.Format(CultureInfo.InvariantCulture, "Width:\t{0:0.###}", Width);
             }
 
-#if CORE
             private float oldWidth;
             private float targetWidth;
             private float accumTime;
@@ -286,7 +285,6 @@ namespace HelixToolkit.SharpDX.Core {
                 Position = position;
                 LookDirection = lookDir;
             }
-#endif
         }
 
         public class PerspectiveCameraCore : ProjectionCameraCore {

@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-#if !CORE
 
 using System;
 using System.Linq;
@@ -14,59 +13,8 @@ using Media = System.Windows.Media;
 namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 public static class CommonExtensions {
-#if NETFX_CORE || WINUI
-        public static FontWeight ToDXFontWeight(this FontWeight fontWeight)
-#else
     public static FontWeight ToDXFontWeight(this System.Windows.FontWeight fontWeight)
-#endif
     {
-#if NETFX_CORE || WINUI
-            var w = fontWeight.Weight;
-            if (w == FontWeights.Black.Weight)
-            {
-                return FontWeight.Black;
-            }
-            else if (w == FontWeights.Bold.Weight)
-            {
-                return FontWeight.Bold;
-            }
-            else if (w == FontWeights.ExtraBlack.Weight)
-            {
-                return FontWeight.Black;
-            }
-            else if (w == FontWeights.ExtraBold.Weight)
-            {
-                return FontWeight.ExtraBold;
-            }
-            else if (w == FontWeights.ExtraLight.Weight)
-            {
-                return FontWeight.ExtraLight;
-            }
-            else if (w == FontWeights.Light.Weight)
-            {
-                return FontWeight.Light;
-            }
-            else if (w == FontWeights.Medium.Weight)
-            {
-                return FontWeight.Medium;
-            }
-            else if (w == FontWeights.Normal.Weight)
-            {
-                return FontWeight.Normal;
-            }
-            else if (w == FontWeights.SemiBold.Weight)
-            {
-                return FontWeight.SemiBold;
-            }
-            else if (w == FontWeights.Thin.Weight)
-            {
-                return FontWeight.Thin;
-            }
-            else
-            {
-                return FontWeight.Normal;
-            }
-#else
         if (fontWeight == FontWeights.Black) return FontWeight.Black;
 
         if (fontWeight == FontWeights.Bold) return FontWeight.Bold;
@@ -100,33 +48,10 @@ public static class CommonExtensions {
         if (fontWeight == FontWeights.UltraLight) return FontWeight.ExtraLight;
 
         return FontWeight.Normal;
-#endif
     }
 
-#if NETFX_CORE || WINUI
-        public static FontStyle ToDXFontStyle(this FontStyle style)
-#else
     public static FontStyle ToDXFontStyle(this System.Windows.FontStyle style)
-#endif
     {
-#if NETFX_CORE || WINUI
-            if (style == FontStyle.Italic)
-            {
-                return FontStyle.Italic;
-            }
-            else if (style == FontStyle.Normal)
-            {
-                return FontStyle.Normal;
-            }
-            else if (style == FontStyle.Oblique)
-            {
-                return FontStyle.Oblique;
-            }
-            else
-            {
-                return FontStyle.Normal;
-            }
-#else
         if (style == FontStyles.Italic) return FontStyle.Italic;
 
         if (style == FontStyles.Normal) return FontStyle.Normal;
@@ -134,7 +59,6 @@ public static class CommonExtensions {
         if (style == FontStyles.Oblique) return FontStyle.Oblique;
 
         return FontStyle.Normal;
-#endif
     }
 
     public static ExtendMode ToD2DExtendMode(this Media.GradientSpreadMethod mode) {
@@ -178,8 +102,6 @@ public static class CommonExtensions {
                                                                       linear.ColorInterpolationMode
                                                                             .ToD2DColorInterpolationMode(),
                                                                       linear.SpreadMethod.ToD2DExtendMode()));
-#if NETFX_CORE || WINUI
-#else
 
         if (brush is Media.RadialGradientBrush radial)
             return new RadialGradientBrush(target,
@@ -197,7 +119,6 @@ public static class CommonExtensions {
                                                                       radial.ColorInterpolationMode
                                                                             .ToD2DColorInterpolationMode(),
                                                                       radial.SpreadMethod.ToD2DExtendMode()));
-#endif
 
         throw new NotImplementedException("Brush does not support yet.");
     }
@@ -229,7 +150,6 @@ public static class CommonExtensions {
                 return LineJoin.Bevel;
         }
     }
-#if !NETFX_CORE && !WINUI
     public static DashStyle ToD2DDashStyle(this Media.DashStyle style) {
         if (style == Media.DashStyles.Dash) return DashStyle.Dash;
 
@@ -241,14 +161,8 @@ public static class CommonExtensions {
 
         return DashStyle.Solid;
     }
-#else
-#endif
 
-#if NETFX_CORE || WINUI
-        public static TextAlignment ToD2DTextAlignment(this TextAlignment alignment)
-#else
     public static TextAlignment ToD2DTextAlignment(this System.Windows.TextAlignment alignment)
-#endif
     {
         switch (alignment) {
             case System.Windows.TextAlignment.Center:
@@ -264,11 +178,7 @@ public static class CommonExtensions {
         }
     }
 
-#if NETFX_CORE || WINUI
-        public static FlowDirection ToD2DFlowDir(this FlowDirection direction)
-#else
     public static FlowDirection ToD2DFlowDir(this System.Windows.FlowDirection direction)
-#endif
     {
         switch (direction) {
             case System.Windows.FlowDirection.LeftToRight:
@@ -280,4 +190,3 @@ public static class CommonExtensions {
         }
     }
 }
-#endif

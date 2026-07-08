@@ -59,9 +59,7 @@ public interface IRenderHost : IGUID, IDisposable {
     ///     <c>true</c> if this instance is shadow map enabled; otherwise, <c>false</c>.
     /// </value>
     bool IsShadowMapEnabled { get; set; }
-#if MSAA
     MSAALevel MSAA { get; set; }
-#endif
     /// <summary>
     ///     Gets or sets the viewport.
     /// </summary>

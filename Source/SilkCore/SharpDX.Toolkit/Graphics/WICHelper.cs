@@ -4,69 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
-#if !NETFX_CORE
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-#endif
 
 namespace SharpDX.Toolkit.Graphics;
 
 internal static class WICHelper {
     public static Image LoadFromWICMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
-#if !NETFX_CORE
-            if (pSource == IntPtr.Zero || size <= 0)
-            {
-                return null;
-            }
-
-            var encoded = new byte[size];
-            Marshal.Copy(pSource, encoded, 0, size);
-
-            try
-            {
-                using (var stream = new MemoryStream(encoded, false))
-                {
-                    var decoder = BitmapDecoder.Create(
-                        stream,
-                        BitmapCreateOptions.PreservePixelFormat,
-                        BitmapCacheOption.OnLoad);
-                    if (decoder.Frames.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    BitmapSource source = decoder.Frames[0];
-                    if (source.Format != PixelFormats.Bgra32)
-                    {
-                        source = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
-                    }
-
-                    var stride = checked(source.PixelWidth * 4);
-                    var image = Image.New2D(
-                        source.PixelWidth,
-                        source.PixelHeight,
-                        1,
-                        PixelFormat.B8G8R8A8.UNorm);
-                    source.CopyPixels(Int32Rect.Empty, image.DataPointer, image.TotalSizeInBytes, stride);
-                    if (handle.HasValue)
-                    {
-                        handle.Value.Free();
-                    }
-                    return image;
-                }
-            }
-            catch (FileFormatException)
-            {
-                return null;
-            }
-            catch (NotSupportedException)
-            {
-                return null;
-            }
-#else
         throw new NotSupportedException("WIC loading is not ported to the Silk.NET backend yet.");
-#endif
     }
 
     public static void SaveGifToWICMemory(
@@ -131,19 +74,7 @@ internal static class WICHelper {
         Stream imageStream,
         ImageFileType fileType
     ) {
-#if !NETFX_CORE
-            var pixels = new byte[checked(width * height * 4)];
-            for (var row = 0; row < height; ++row)
-            {
-                Marshal.Copy(IntPtr.Add(data, row * rowPitch), pixels, row * width * 4, width * 4);
-            }
-            var source = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * 4);
-            var encoder = CreateEncoder(fileType);
-            encoder.Frames.Add(BitmapFrame.Create(source));
-            encoder.Save(imageStream);
-#else
         throw new NotSupportedException("WIC saving is only supported by the WPF target.");
-#endif
     }
 
     private static void SaveToWICMemory(
@@ -193,19 +124,4 @@ internal static class WICHelper {
         throw new NotSupportedException($"WIC saving does not support pixel format {source.Format}.");
     }
 
-#if !NETFX_CORE
-        private static BitmapEncoder CreateEncoder(ImageFileType fileType)
-        {
-            return fileType switch
-            {
-                ImageFileType.Bmp => new BmpBitmapEncoder(),
-                ImageFileType.Gif => new GifBitmapEncoder(),
-                ImageFileType.Jpg => new JpegBitmapEncoder(),
-                ImageFileType.Png => new PngBitmapEncoder(),
-                ImageFileType.Tiff => new TiffBitmapEncoder(),
-                ImageFileType.Wmp => new WmpBitmapEncoder(),
-                _ => throw new NotSupportedException($"WIC saving does not support {fileType}.")
-            };
-        }
-#endif
 }

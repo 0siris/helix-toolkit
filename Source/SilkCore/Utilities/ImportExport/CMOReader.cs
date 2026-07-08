@@ -151,22 +151,9 @@ using System.Text;
 using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Model;
 
-#if !NETFX_CORE
-using System.Windows;
-namespace HelixToolkit.Wpf.SharpDX
-#else
-#if CORE
 namespace HelixToolkit.SharpDX.Core
-#else
-namespace HelixToolkit.UWP
-#endif
-#endif
 {
-#if NETFX_CORE
-#endif
-#if CORE
     using PhongMaterial = PhongMaterialCore;
-#endif
 
     public class AnimationHierarchy : IGUID {
         public Dictionary<string, Animation> Animations = new();
@@ -516,11 +503,7 @@ namespace HelixToolkit.UWP
 
         private static T ByteArrayToStructure<T>(byte[] bytes) where T : unmanaged {
             var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-#if NETFX_CORE
             var stuff = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-#else
-            var stuff = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-#endif
             handle.Free();
             return stuff;
         }

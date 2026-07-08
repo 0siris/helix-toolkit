@@ -48,11 +48,7 @@ public interface ICameraModel {
 ///     Specifies what portion of the 3D scene is rendered by the Viewport3DX element.
 /// </summary>
 public abstract class Camera :
-#if !NETFX_CORE && !WINUI
     Animatable, ICameraModel
-#else
-        DependencyObject, ICameraModel
-#endif
 {
     /// <summary>
     ///     Gets or sets the position.
@@ -142,15 +138,9 @@ public abstract class Camera :
     ///     Called when [core created].
     /// </summary>
     protected virtual void OnCoreCreated(CameraCore core) {
-#if NETFX_CORE || WINUI
-            core.LookDirection = this.LookDirection;
-            core.Position = this.Position;
-            core.UpDirection = this.UpDirection;
-#else
         core.LookDirection = LookDirection.ToVector3();
         core.Position = Position.ToVector3();
         core.UpDirection = UpDirection.ToVector3();
-#endif
         core.CreateLeftHandSystem = CreateLeftHandSystem;
     }
 
@@ -173,15 +163,9 @@ public abstract class Camera :
             UpDirection = newUpDirection;
             aniTime = 0;
         } else {
-#if NETFX_CORE|| WINUI
-                targetPosition = newPosition;
-                targetLookDirection = newDirection;
-                targetUpDirection = newUpDirection;
-#else
             targetPosition = newPosition.ToVector3();
             targetLookDirection = newDirection.ToVector3();
             targetUpDirection = newUpDirection.ToVector3();
-#endif
             oldPosition = CameraInternal.Position;
             oldLookDir = CameraInternal.LookDirection;
             oldUpDir = CameraInternal.UpDirection;
@@ -207,15 +191,9 @@ public abstract class Camera :
         if (aniTime == 0) return false;
         accumTime += ellapsed;
         if (accumTime > aniTime) {
-#if NETFX_CORE|| WINUI
-                Position = targetPosition;
-                LookDirection = targetLookDirection;
-                UpDirection = targetUpDirection;
-#else
             Position = targetPosition.ToPoint3D();
             LookDirection = targetLookDirection.ToVector3D();
             UpDirection = targetUpDirection.ToVector3D();
-#endif
             aniTime = 0;
             return false;
         }
@@ -224,15 +202,9 @@ public abstract class Camera :
         var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
         var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
         var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);
-#if NETFX_CORE|| WINUI
-                Position = nextPos;
-                LookDirection = nextLook;
-                UpDirection = nextUp;
-#else
         Position = nextPos.ToPoint3D();
         LookDirection = nextLook.ToVector3D();
         UpDirection = nextUp.ToVector3D();
-#endif
         return true;
     }
 

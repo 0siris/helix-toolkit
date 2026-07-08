@@ -531,9 +531,7 @@ public class PBRMaterial : Material {
     ///     Gets or sets the diffuse color for the material.
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Color4Converter))]
-#endif
     public Color4 AlbedoColor {
         get { return (Color4) GetValue(AlbedoColorProperty); }
         set { SetValue(AlbedoColorProperty, value); }
@@ -675,9 +673,7 @@ public class PBRMaterial : Material {
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
-#if !NETFX_CORE && !WINUI
     [TypeConverter(typeof(Vector4Converter))]
-#endif
     public Vector4 DisplacementMapScaleMask {
         get { return (Vector4) GetValue(DisplacementMapScaleMaskProperty); }
         set { SetValue(DisplacementMapScaleMaskProperty, value); }
@@ -898,11 +894,9 @@ public class PBRMaterial : Material {
         };
     }
 
-#if !NETFX_CORE && !WINUI
     protected override Freezable CreateInstanceCore() {
         return CloneMaterial();
     }
-#endif
 
     public virtual PBRMaterial CloneMaterial() {
         return new PBRMaterial {

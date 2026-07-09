@@ -20,6 +20,10 @@ okf_version: "0.1"
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading integration.
 * [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support project.
 
+## Backlog
+
+* [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Parallel opt-in Direct3D12 backend migration plan.
+
 ## References
 
 * [OKF Specification](/references/okf-spec.md) - Local OKF v0.1 draft reference used for this bundle.

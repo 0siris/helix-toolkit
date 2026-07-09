@@ -13,4 +13,4 @@
 * **Update**: Added SilkCore embedded DXIL loading through `UWPShaderBytePool.ReadDxil`.
 * **Update**: Enabled full ShaderBuilder DXIL generation during normal builds via `DxcCompileAll=true`.
 * **Update**: Added isolated SilkCore Direct3D12 native device/command/fence/root-signature foundation.
-* **Creation**: Added backlog concept for the parallel opt-in DX12 migration plan.
+* **Creation**: Added backlog concept for the second pure-WPF `IRenderCanvas` implementation (`DPFCanvasSwapChain` + `HwndSwapChainHost`) as a switchable alternative to the WinForms-based `DPFSurfaceSwapChain`.

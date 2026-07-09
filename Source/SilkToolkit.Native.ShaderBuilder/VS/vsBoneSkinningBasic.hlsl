@@ -18,8 +18,8 @@ VSSkinnedOutput main(VSSkinnedInput input, uint vertexID : SV_VertexID) {
             inputt1 += morphTargetDeltas[o + 2] * morphTargetWeights[j];
         }
         //Fixup after morph targets
-        normalize(inputn);  //Could probably remove this
-        normalize(inputt1); //Could probably remove this
+        inputn = normalize(inputn);  //Could probably remove this
+        inputt1 = normalize(inputt1); //Could probably remove this
         inputt2 = cross(inputn, inputt1);
     }
 

@@ -153,7 +153,7 @@ float4 FloatToRGB(float v) {
 
 float RGBToFloat(float4 c) {
     c *= 255;
-    uint v = (uint)c.r << 16 + (uint)c.g << 8 + (uint)c.b;
+    uint v = ((uint)c.r << 16) + ((uint)c.g << 8) + (uint)c.b;
     return v;
 }
 

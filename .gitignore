@@ -206,6 +206,7 @@ FakesAssemblies/
 **/.idea/**
 /Source/MigrationBackup/**
 **/*.cso
+**/*.dxil
 
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.obj
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.objz

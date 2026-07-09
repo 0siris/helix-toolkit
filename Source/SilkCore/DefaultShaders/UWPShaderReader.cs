@@ -14,9 +14,20 @@ namespace HelixToolkit.SharpDX.Core {
         public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
             public byte[] Read(string name) {
                 var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
-                var shaderStream = assembly.GetManifestResourceStream($"SilkCore.Resources.{name}.cso");
+                return ReadResource(assembly, $"SilkCore.Resources.{name}.cso", $"{name}.cso");
+            }
+
+            public byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
+                var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
+                return ReadResource(assembly,
+                                    $"SilkCore.Resources.DX12.{stage}.{name}.{entryPoint}.dxil",
+                                    $"{stage}\\{name}.{entryPoint}.dxil");
+            }
+
+            private static byte[] ReadResource(Assembly assembly, string resourceName, string fileName) {
+                var shaderStream = assembly.GetManifestResourceStream(resourceName);
                 if (shaderStream == null)
-                    throw new FileNotFoundException($"Shader byte code was not found: {name}", $"{name}.cso");
+                    throw new FileNotFoundException($"Shader byte code was not found: {resourceName}", fileName);
                 using (var memory = new MemoryStream()) {
                     shaderStream.CopyTo(memory);
                     return memory.ToArray();
@@ -29,7 +40,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         public static class UWPShaderBytePool {
             public static Dictionary<string, byte[]> Dict = new();
-            internal static readonly IShaderByteCodeReader InternalByteCodeReader = new HelixToolkitByteCodeReader();
+            internal static readonly HelixToolkitByteCodeReader InternalByteCodeReader = new();
 
             public static byte[] Read(string name, IShaderByteCodeReader reader = null) {
                 lock (Dict) {
@@ -43,6 +54,18 @@ namespace HelixToolkit.SharpDX.Core {
                                 Dict.Add(name, byteCode);
                             }
                         }
+
+                    return byteCode;
+                }
+            }
+
+            public static byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
+                var key = $"DX12/{stage}/{name}/{entryPoint}";
+                lock (Dict) {
+                    if (!Dict.TryGetValue(key, out var byteCode)) {
+                        byteCode = InternalByteCodeReader.ReadDxil(stage, name, entryPoint);
+                        Dict.Add(key, byteCode);
+                    }
 
                     return byteCode;
                 }

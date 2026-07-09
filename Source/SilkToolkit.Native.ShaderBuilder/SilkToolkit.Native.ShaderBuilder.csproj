@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);CS2008</NoWarn>
+    <DxcCompileAll>true</DxcCompileAll>
   </PropertyGroup>
 
   <ItemGroup>
@@ -353,10 +355,22 @@
 
   <ItemGroup>
     <PackageReference Include="JeremyAnsel.HLSL.Targets" Version="1.0.13"/>
+    <PackageReference Include="Microsoft.Direct3D.DXC" Version="1.9.2602.24" PrivateAssets="all" GeneratePathProperty="true"/>
   </ItemGroup>
+
+  <Import Project="..\SilkToolkit.ShaderBuild\SilkToolkit.ShaderBuild.targets"/>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="echo Copy *.cso to SilkCore\Resources&#xD;&#xA;for /d %25%25D in (&quot;$(OutDir)*&quot;) do xcopy /y /f /i /q &quot;%25%25~fD\*.cso&quot; &quot;$(ProjectDir)..\SilkCore\Resources&quot;&#xD;&#xA;"/>
+  </Target>
+
+  <Target Name="CopyDxcShadersToSilkCoreResources"
+          AfterTargets="Build"
+          Condition="'@(DxcShader)' != ''">
+    <RemoveDir Directories="$(ProjectDir)..\SilkCore\Resources\DX12"/>
+    <Copy SourceFiles="@(DxcShader->'%(ObjectFileOutput)')"
+          DestinationFiles="@(DxcShader->'$(ProjectDir)..\SilkCore\Resources\DX12\%(RelativeDir)%(Filename).%(EntryPointName).dxil')"
+          SkipUnchangedFiles="true"/>
   </Target>
 
 </Project>

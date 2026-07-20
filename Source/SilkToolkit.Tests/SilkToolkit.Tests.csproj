@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="10.0.1" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all"/>
+    <PackageReference Include="xunit.v3" Version="3.2.2"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SilkToolkit\SilkToolkit.csproj"/>
+  </ItemGroup>
+
+  <Target Name="CopyPresentationFrameworkForCoverlet"
+          BeforeTargets="InstrumentModules;InstrumentModulesNoBuild"
+          DependsOnTargets="ProcessFrameworkReferences"
+          Condition="'$(CollectCoverage)' == 'true'">
+    <ItemGroup>
+      <_WindowsDesktopFramework Include="@(KnownFrameworkReference)"
+                                Condition="'%(Identity)' == 'Microsoft.WindowsDesktop.App' and '%(TargetFramework)' == 'net10.0'"/>
+      <_CoverletWpfReference Include="@(_WindowsDesktopFramework->'$(NetCoreRoot)shared\Microsoft.WindowsDesktop.App\%(LatestRuntimeFrameworkVersion)\PresentationFramework.dll')"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(_CoverletWpfReference)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true"/>
+  </Target>
+
+  <Target Name="RemovePresentationFrameworkAfterCoverlet"
+          AfterTargets="GenerateCoverageResultAfterTest"
+          Condition="'$(CollectCoverage)' == 'true'">
+    <Delete Files="$(TargetDir)PresentationFramework.dll"/>
+  </Target>
+</Project>

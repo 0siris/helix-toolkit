@@ -1,0 +1,80 @@
+name: Silk tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore Source\SilkToolkit.slnx
+
+      - name: Build
+        run: dotnet build Source\SilkToolkit.slnx --configuration Release --no-restore
+
+      - name: Test and collect coverage
+        shell: pwsh
+        run: |
+          $results = Join-Path $PWD 'TestResults'
+          $coverage = Join-Path $results 'Coverage'
+          New-Item -ItemType Directory -Force -Path $coverage | Out-Null
+
+          $tests = @(
+            @{ Name = 'SilkCore'; Path = 'Source\SilkCore.Tests\SilkCore.Tests.csproj'; Assembly = 'SilkCore' }
+            @{ Name = 'SilkToolkit'; Path = 'Source\SilkToolkit.Tests\SilkToolkit.Tests.csproj'; Assembly = 'SilkToolkit' }
+            @{ Name = 'SilkAssimp'; Path = 'Source\SilkAssimp.Tests\SilkAssimp.Tests.csproj'; Assembly = 'SilkAssimp' }
+          )
+
+          foreach ($test in $tests) {
+            dotnet test $test.Path --configuration Release --no-build `
+              --filter 'Category!=Hardware&Category!=DX12' `
+              --logger "trx;LogFileName=$($test.Name).trx" `
+              --results-directory $results `
+              '-p:CollectCoverage=true' `
+              "-p:CoverletOutput=$coverage\$($test.Name)" `
+              '-p:CoverletOutputFormat=cobertura' `
+              "-p:Include=[$($test.Assembly)]*"
+
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Summarize coverage
+        if: always()
+        shell: pwsh
+        run: |
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value '## Silk line coverage'
+          $files = @(Get-ChildItem 'TestResults\Coverage\*.cobertura.xml' -ErrorAction SilentlyContinue)
+
+          if ($files.Count -eq 0) {
+            Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value 'No coverage files were produced.'
+            Write-Output '::warning::No Silk coverage files were produced.'
+          }
+
+          foreach ($file in $files) {
+            [xml]$report = Get-Content -LiteralPath $file.FullName -Raw
+            $percent = [math]::Round([double]$report.coverage.'line-rate' * 100, 2)
+            $assembly = $file.BaseName -replace '\.cobertura$', ''
+            Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "- $assembly`: $percent%"
+
+            if ($percent -lt 70) {
+              Write-Output "::warning file=$($file.FullName)::Line coverage for $assembly is $percent% (target: 70%)."
+            }
+          }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: silk-test-results
+          path: TestResults/**
+          if-no-files-found: warn

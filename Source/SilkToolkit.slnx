@@ -4,6 +4,11 @@
     <Project Path="SilkAssimp/SilkAssimp.csproj" />
     <Project Path="SilkCore/SilkCore.csproj" />
     <Project Path="SilkToolkit/SilkToolkit.csproj" />
+    <Folder Name="/Tests/">
+        <Project Path="SilkAssimp.Tests/SilkAssimp.Tests.csproj" />
+        <Project Path="SilkCore.Tests/SilkCore.Tests.csproj" />
+        <Project Path="SilkToolkit.Tests/SilkToolkit.Tests.csproj" />
+    </Folder>
     <Folder Name="/Examples/">
         <Project Path="Examples/SilkCore/CoreWpfTest/CoreWpfTest.csproj" />
         <Project Path="Examples/SilkCore/DynamicPointsAndLines/DynamicPointsAndLines.csproj" />

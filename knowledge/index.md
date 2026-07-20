@@ -20,6 +20,10 @@ okf_version: "0.1"
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading integration.
 * [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support project.
 
+## Testing
+
+* [Silk Test Strategy](/testing/silk-tests.md) - xUnit v3 projects, categories, local commands, and non-blocking coverage reporting.
+
 ## Backlog
 
 * [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Parallel opt-in Direct3D12 backend migration plan.

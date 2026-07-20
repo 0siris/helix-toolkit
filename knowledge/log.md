@@ -14,3 +14,7 @@
 * **Update**: Enabled full ShaderBuilder DXIL generation during normal builds via `DxcCompileAll=true`.
 * **Update**: Added isolated SilkCore Direct3D12 native device/command/fence/root-signature foundation.
 * **Creation**: Added backlog concept for the second pure-WPF `IRenderCanvas` implementation (`DPFCanvasSwapChain` + `HwndSwapChainHost`) as a switchable alternative to the WinForms-based `DPFSurfaceSwapChain`.
+
+## 2026-07-20
+
+* **Creation**: Added the xUnit v3 test strategy for SilkCore, SilkToolkit, and SilkAssimp, including local commands and non-blocking 70% coverage reporting.

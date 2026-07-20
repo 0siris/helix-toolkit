@@ -9,14 +9,16 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 # Solution
 
-`Source/SilkToolkit.slnx` is the current solution file in this workspace. It includes four main library/support projects and example applications.
+`Source/SilkToolkit.slnx` is the current solution file in this workspace. It includes four main library/support projects, three test projects, and example applications.
 
 | Project | Target framework | Role |
 |---------|------------------|------|
-| [SilkCore](/projects/silkcore.md) | `net10.0` | Core renderer and runtime library. |
+| [SilkCore](/projects/silkcore.md) | `net10.0-windows` | Core renderer and runtime library. |
 | [SilkToolkit](/projects/silktoolkit.md) | `net10.0-windows` | Windows/WPF-facing toolkit layer. |
-| [SilkAssimp](/projects/silkassimp.md) | `net10.0` | Assimp model loading integration. |
+| [SilkAssimp](/projects/silkassimp.md) | `net10.0-windows` | Assimp model loading integration. |
 | [ShaderBuilder](/projects/shaderbuilder.md) | `netstandard2.0` | HLSL shader build support. |
+
+The `/Tests/` solution folder contains `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests`; each references its matching production project.
 
 # Project Graph
 
@@ -36,6 +38,7 @@ Examples under `Source/Examples/SilkCore` and `Source/Examples/SilkToolkit` refe
 
 * [Repository](/repository.md)
 * [Build](/build.md)
+* [Silk Test Strategy](/testing/silk-tests.md)
 
 # Citations
 

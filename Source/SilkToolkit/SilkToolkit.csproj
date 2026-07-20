@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
+    <InternalsVisibleTo Include="SilkToolkit.Tests" />
   </ItemGroup>
 
   <ItemGroup>

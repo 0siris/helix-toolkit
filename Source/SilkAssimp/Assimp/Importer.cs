@@ -341,6 +341,8 @@ public partial class Importer : IDisposable {
 #region Private Methods
 
     private ErrorCode BuildScene(Scene assimpScene, out HelixToolkitScene scene) {
+        Clear();
+        ErrorCode = ErrorCode.None;
         scene = null;
         if (assimpScene == null) {
             ErrorCode |= ErrorCode.Failed;

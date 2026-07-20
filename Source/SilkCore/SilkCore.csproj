@@ -42,6 +42,7 @@
     <ProjectReference Include="..\SilkToolkit.Native.ShaderBuilder\SilkToolkit.Native.ShaderBuilder.csproj"
                       ReferenceOutputAssembly="false"
                       PrivateAssets="all"/>
+    <InternalsVisibleTo Include="SilkCore.Tests" />
   </ItemGroup>
 
   <ItemGroup>

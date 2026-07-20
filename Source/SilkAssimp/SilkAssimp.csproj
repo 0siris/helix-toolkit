@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
+    <InternalsVisibleTo Include="SilkAssimp.Tests" />
   </ItemGroup>
 
   <ItemGroup>

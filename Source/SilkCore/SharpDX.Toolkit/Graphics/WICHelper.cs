@@ -4,12 +4,55 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using HelixToolkit.Logger;
+using Microsoft.Extensions.Logging;
 
 namespace SharpDX.Toolkit.Graphics;
 
 internal static class WICHelper {
+    private static readonly ILogger logger = LogManager.Create(nameof(WICHelper));
+
+    /// <summary>
+    ///     Loads the first frame of an image supported by WIC.
+    /// </summary>
+    /// <remarks>Animated GIFs and multi-page TIFFs are intentionally loaded as frame 0 only.</remarks>
     public static Image LoadFromWICMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
-        throw new NotSupportedException("WIC loading is not ported to the Silk.NET backend yet.");
+        if (pSource == nint.Zero || size <= 0) return null;
+
+        var encoded = new byte[size];
+        Marshal.Copy(pSource, encoded, 0, size);
+        try {
+            using var stream = new MemoryStream(encoded, false);
+            var decoder = BitmapDecoder.Create(stream,
+                                               BitmapCreateOptions.PreservePixelFormat,
+                                               BitmapCacheOption.OnLoad);
+            if (decoder.Frames.Count == 0) return null;
+            if (decoder.Frames.Count > 1)
+                logger.LogWarning("WIC image contains {FrameCount} frames; only frame 0 is loaded.", decoder.Frames.Count);
+
+            BitmapSource source = decoder.Frames[0];
+            if (source.Format != PixelFormats.Bgra32)
+                source = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
+
+            var stride = checked(source.PixelWidth * 4);
+            var image = Image.New2D(source.PixelWidth, source.PixelHeight, 1, PixelFormat.B8G8R8A8.UNorm);
+            try {
+                source.CopyPixels(Int32Rect.Empty, image.DataPointer, image.TotalSizeInBytes, stride);
+                return image;
+            } catch {
+                image.Dispose();
+                throw;
+            }
+        } catch (FileFormatException ex) {
+            logger.LogWarning(ex, "WIC could not decode the image data.");
+            return null;
+        } catch (NotSupportedException ex) {
+            logger.LogWarning(ex, "WIC does not support the image data.");
+            return null;
+        }
     }
 
     public static void SaveGifToWICMemory(
@@ -74,7 +117,13 @@ internal static class WICHelper {
         Stream imageStream,
         ImageFileType fileType
     ) {
-        throw new NotSupportedException("WIC saving is only supported by the WPF target.");
+        var pixels = new byte[checked(width * height * 4)];
+        for (var row = 0; row < height; ++row)
+            Marshal.Copy(nint.Add(data, row * rowPitch), pixels, row * width * 4, width * 4);
+        var source = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * 4);
+        var encoder = CreateEncoder(fileType);
+        encoder.Frames.Add(BitmapFrame.Create(source));
+        encoder.Save(imageStream);
     }
 
     private static void SaveToWICMemory(
@@ -122,6 +171,18 @@ internal static class WICHelper {
         }
 
         throw new NotSupportedException($"WIC saving does not support pixel format {source.Format}.");
+    }
+
+    private static BitmapEncoder CreateEncoder(ImageFileType fileType) {
+        return fileType switch {
+            ImageFileType.Bmp => new BmpBitmapEncoder(),
+            ImageFileType.Gif => new GifBitmapEncoder(),
+            ImageFileType.Jpg => new JpegBitmapEncoder(),
+            ImageFileType.Png => new PngBitmapEncoder(),
+            ImageFileType.Tiff => new TiffBitmapEncoder(),
+            ImageFileType.Wmp => new WmpBitmapEncoder(),
+            _ => throw new NotSupportedException($"WIC saving does not support {fileType}.")
+        };
     }
 
 }

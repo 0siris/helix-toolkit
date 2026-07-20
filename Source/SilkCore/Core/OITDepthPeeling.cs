@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 #define MSAASEPARATE
 
-using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -157,8 +156,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             protected override bool OnAttach(IRenderTechnique technique) {
                 finalPass = technique[DefaultPassNames.OITDepthPeelingFinal];
-                Debug.Assert(!finalPass.IsNULL);
-                return true;
+                return !finalPass.IsNULL;
             }
 
             protected override void OnDetach() {

@@ -276,7 +276,13 @@ namespace HelixToolkit.SharpDX.Core {
                 if (array == null) return;
                 unsafe {
                     fixed (T* arrayPtr = array) {
-                        CreateView((nint) arrayPtr, width, height, format, sizeof(T), createSRV, generateMipMaps);
+                        CreateView((nint) arrayPtr,
+                                   width,
+                                   height,
+                                   format,
+                                   GetFormatSizeInBytes(format),
+                                   createSRV,
+                                   generateMipMaps);
                     }
                 }
             }

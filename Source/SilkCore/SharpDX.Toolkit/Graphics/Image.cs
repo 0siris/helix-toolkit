@@ -90,11 +90,11 @@ public sealed class Image : Component {
     static Image() {
         Register(ImageFileType.Dds, DDSHelper.LoadFromDDSMemory, DDSHelper.SaveToDDSStream);
         Register(ImageFileType.Gif, WICHelper.LoadFromWICMemory, WICHelper.SaveGifToWICMemory);
-        Register(ImageFileType.Tiff, WICHelper.LoadFromWICMemory, WICHelper.SaveTiffToWICMemory);
-        Register(ImageFileType.Bmp, WICHelper.LoadFromWICMemory, WICHelper.SaveBmpToWICMemory);
-        Register(ImageFileType.Jpg, WICHelper.LoadFromWICMemory, WICHelper.SaveJpgToWICMemory);
-        Register(ImageFileType.Png, WICHelper.LoadFromWICMemory, WICHelper.SavePngToWICMemory);
-        Register(ImageFileType.Wmp, WICHelper.LoadFromWICMemory, WICHelper.SaveWmpToWICMemory);
+        Register(ImageFileType.Tiff, null, WICHelper.SaveTiffToWICMemory);
+        Register(ImageFileType.Bmp, null, WICHelper.SaveBmpToWICMemory);
+        Register(ImageFileType.Jpg, null, WICHelper.SaveJpgToWICMemory);
+        Register(ImageFileType.Png, null, WICHelper.SavePngToWICMemory);
+        Register(ImageFileType.Wmp, null, WICHelper.SaveWmpToWICMemory);
     }
 
     private Image() { }
@@ -437,6 +437,7 @@ public sealed class Image : Component {
     /// <remarks>
     ///     If <paramref name="makeACopy" /> is set to false, the returned image is now the holder of the unmanaged
     ///     pointer and will release it on Dispose.
+    ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
     public static Image Load(DataPointer dataBuffer, bool makeACopy = false) {
         return Load(dataBuffer.Pointer, dataBuffer.Size, makeACopy);
@@ -455,6 +456,7 @@ public sealed class Image : Component {
     /// <remarks>
     ///     If <paramref name="makeACopy" /> is set to false, the returned image is now the holder of the unmanaged
     ///     pointer and will release it on Dispose.
+    ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
     public static Image Load(nint dataPointer, int dataSize, bool makeACopy = false) {
         return Load(dataPointer, dataSize, makeACopy, null);
@@ -465,18 +467,15 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="buffer">Reference to a managed buffer.</param>
     /// <returns>An new image.</returns>
-    /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+    /// <remarks>
+    ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
+    ///     Animated GIFs and multi-page TIFFs load frame 0 only.
+    /// </remarks>
     public static unsafe Image Load(byte[] buffer) {
         if (buffer == null)
             throw new ArgumentNullException("buffer");
 
         var size = buffer.Length;
-
-        // If buffer is allocated on Large Object Heap, then we are going to pin it instead of making a copy.
-        if (size > 85 * 1024) {
-            var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            return Load(handle.AddrOfPinnedObject(), size, false, handle);
-        }
 
         fixed (void* pbuffer = buffer) {
             return Load((nint) pbuffer, size, true);
@@ -488,7 +487,10 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="imageStream">The image stream.</param>
     /// <returns>An new image.</returns>
-    /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+    /// <remarks>
+    ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
+    ///     Animated GIFs and multi-page TIFFs load frame 0 only.
+    /// </remarks>
     public static Image Load(Stream imageStream) {
         return Load(Utilities.ReadStream(imageStream));
     }
@@ -498,7 +500,10 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="fileName">The filename.</param>
     /// <returns>An new image.</returns>
-    /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+    /// <remarks>
+    ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
+    ///     Animated GIFs and multi-page TIFFs load frame 0 only.
+    /// </remarks>
     public static Image Load(string fileName) {
         using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             return Load(stream);

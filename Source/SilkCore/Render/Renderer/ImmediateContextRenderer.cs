@@ -149,10 +149,13 @@ namespace HelixToolkit.SharpDX.Core {
                             oitWeightedCore.Render(context, ImmediateContext);
                             return oitWeightedCore.RenderCount;
                         case OITRenderType.DepthPeeling:
-                            oitDepthPeelingCore.ExternRenderParameter = parameter;
-                            oitDepthPeelingCore.PeelingIteration = context.OITDepthPeelingIteration;
-                            oitDepthPeelingCore.Render(context, ImmediateContext);
-                            return oitDepthPeelingCore.RenderCount;
+                            if (oitDepthPeelingCore.IsAttached) {
+                                oitDepthPeelingCore.ExternRenderParameter = parameter;
+                                oitDepthPeelingCore.PeelingIteration = context.OITDepthPeelingIteration;
+                                oitDepthPeelingCore.Render(context, ImmediateContext);
+                                return oitDepthPeelingCore.RenderCount;
+                            }
+                            break;
                     }
 
                 var renderedCount = 0;

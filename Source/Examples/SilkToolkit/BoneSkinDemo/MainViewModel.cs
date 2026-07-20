@@ -140,7 +140,7 @@ public class MainViewModel : BaseViewModel {
         importer.Configuration.CreateSkeletonForBoneSkinningMesh = true;
         importer.Configuration.SkeletonSizeScale = 0.04f;
         importer.Configuration.GlobalScale = 0.1f;
-        scene = importer.Load("Solus_The_Knight.fbx");
+        scene = importer.Load("Solus The Knight\\Solus_The_Knight.fbx");
         ModelGroup.AddNode(scene.Root);
         Animations = scene.Animations.Select(x => x.Name).ToArray();
         foreach (var node in scene.Root.Items.Traverse(false)) {

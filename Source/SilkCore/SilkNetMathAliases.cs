@@ -1,3 +1,4 @@
+global using System.IO;
 global using BoundingSphere = Silk.NET.Maths.Sphere<float>;
 global using Color4 = Silk.NET.Maths.Vector4D<float>;
 global using Color3 = Silk.NET.Maths.Vector3D<float>;

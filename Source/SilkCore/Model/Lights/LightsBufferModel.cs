@@ -49,20 +49,30 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UploadToBuffer(IBufferProxy buffer, DeviceContextProxy context) {
-                if (buffer.StructureSize == SizeInBytes) {
-                    var dataBox = context.MapSubresource(buffer.Buffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                    if (dataBox.IsEmpty) return;
-                    var ptr = UnsafeHelper.Write(dataBox.DataPointer, Lights, 0, Lights.Length);
-                    ptr = UnsafeHelper.Write(ptr, AmbientLight);
-                    ptr = UnsafeHelper.Write(ptr, LightCount);
-                    ptr = UnsafeHelper.Write(ptr, HasEnvironmentMap ? 1 : 0);
-                    ptr = UnsafeHelper.Write(ptr, EnvironmentMapMipLevels);
-                    context.UnmapSubresource(buffer.Buffer, 0);
-                } else {
+                if (buffer.StructureSize != SizeInBytes) {
 #if DEBUG
                     throw new ArgumentException("Buffer type or size do not match the model requirement");
 #endif
+                    return;
                 }
+
+                if (buffer is ConstantBufferProxy constantBuffer) {
+                    constantBuffer.UploadDataToBuffer(context, Upload);
+                    return;
+                }
+
+                var dataBox = context.MapSubresource(buffer.Buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                if (dataBox.IsEmpty) return;
+                Upload(dataBox);
+                context.UnmapSubresource(buffer.Buffer, 0);
+            }
+
+            private void Upload(DataBox dataBox) {
+                var ptr = UnsafeHelper.Write(dataBox.DataPointer, Lights, 0, Lights.Length);
+                ptr = UnsafeHelper.Write(ptr, AmbientLight);
+                ptr = UnsafeHelper.Write(ptr, LightCount);
+                ptr = UnsafeHelper.Write(ptr, HasEnvironmentMap ? 1 : 0);
+                UnsafeHelper.Write(ptr, EnvironmentMapMipLevels);
             }
         }
     }

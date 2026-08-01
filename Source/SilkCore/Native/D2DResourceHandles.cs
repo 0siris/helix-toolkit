@@ -38,7 +38,8 @@ namespace HelixToolkit.SharpDX.Core {
             public virtual void Dispose() {
                 if (IsDisposed) return;
 
-                if (NativeResource is IDisposable disposable) disposable.Dispose();
+                if (NativeResource is IDisposable disposable) 
+                    disposable.Dispose();
 
                 IsDisposed = true;
             }

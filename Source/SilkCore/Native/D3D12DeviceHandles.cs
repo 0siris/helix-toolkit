@@ -14,243 +14,234 @@ using SilkD3D12PipelineStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D1
 using SilkD3D12RootSignaturePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12RootSignature>;
 using SilkD3DBlobPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Core.Native.ID3D10Blob>;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Native {
-        public sealed unsafe class SilkD3D12Device : IDisposable {
-            private SilkD3D12DevicePtr nativeDevice;
+namespace HelixToolkit.SharpDX.Core.Native;
 
-            internal SilkD3D12Device(SilkD3D12DevicePtr nativeDevice, SilkFeatureLevel featureLevel) {
-                if (nativeDevice.Handle == null) throw new ArgumentNullException(nameof(nativeDevice));
+public sealed unsafe class SilkD3D12Device : IDisposable {
+    private SilkD3D12DevicePtr nativeDevice;
 
-                this.nativeDevice = nativeDevice;
-                FeatureLevel = featureLevel;
-            }
+    internal SilkD3D12Device(SilkD3D12DevicePtr nativeDevice, SilkFeatureLevel featureLevel) {
+        if (nativeDevice.Handle == null) throw new ArgumentNullException(nameof(nativeDevice));
 
-            public nint NativePointer => (nint) nativeDevice.Handle;
+        this.nativeDevice = nativeDevice;
+        FeatureLevel = featureLevel;
+    }
 
-            internal ID3D12Device* Handle => nativeDevice.Handle;
+    public nint NativePointer => (nint) nativeDevice.Handle;
 
-            internal ref SilkD3D12DevicePtr NativeDevice => ref nativeDevice;
+    internal ID3D12Device* Handle => nativeDevice.Handle;
 
-            public SilkFeatureLevel FeatureLevel { get; }
+    internal ref SilkD3D12DevicePtr NativeDevice => ref nativeDevice;
 
-            public bool IsDisposed { get; private set; }
+    public SilkFeatureLevel FeatureLevel { get; }
 
-            public SilkD3D12CommandQueue CreateCommandQueue(
-                CommandListType type = CommandListType.Direct
-            ) {
-                var desc = new CommandQueueDesc {
-                    Type = type,
-                    Priority = (int) CommandQueuePriority.Normal,
-                    Flags = CommandQueueFlags.None,
-                    NodeMask = 0
-                };
+    public bool IsDisposed { get; private set; }
 
-                SilkMarshal.ThrowHResult(nativeDevice.CreateCommandQueue<ID3D12CommandQueue>(in desc, out var queue));
-                return new SilkD3D12CommandQueue(queue);
-            }
+    public SilkD3D12CommandQueue CreateCommandQueue(
+        CommandListType type = CommandListType.Direct
+    ) {
+        var desc = new CommandQueueDesc {
+            Type = type,
+            Priority = (int) CommandQueuePriority.Normal,
+            Flags = CommandQueueFlags.None,
+            NodeMask = 0
+        };
 
-            public SilkD3D12CommandContext CreateCommandContext(
-                CommandListType type = CommandListType.Direct
-            ) {
-                SilkMarshal.ThrowHResult(
-                    nativeDevice.CreateCommandAllocator<ID3D12CommandAllocator>(type, out var allocator));
+        SilkMarshal.ThrowHResult(nativeDevice.CreateCommandQueue<ID3D12CommandQueue>(in desc, out var queue));
+        return new SilkD3D12CommandQueue(queue);
+    }
 
-                SilkMarshal.ThrowHResult(
-                    nativeDevice.CreateCommandList<ID3D12CommandAllocator,
-                                                   ID3D12PipelineState,
-                                                   ID3D12GraphicsCommandList>(
-                        0,
-                        type,
-                        allocator,
-                        default(SilkD3D12PipelineStatePtr),
-                        out var commandList));
+    public SilkD3D12CommandContext CreateCommandContext(
+        CommandListType type = CommandListType.Direct
+    ) {
+        SilkMarshal.ThrowHResult(nativeDevice.CreateCommandAllocator<ID3D12CommandAllocator>(type, out var allocator));
 
-                SilkMarshal.ThrowHResult(commandList.Close());
-                return new SilkD3D12CommandContext(allocator, commandList);
-            }
+        SilkMarshal.ThrowHResult(nativeDevice.CreateCommandList<ID3D12CommandAllocator,
+                                     ID3D12PipelineState,
+                                     ID3D12GraphicsCommandList>(0,
+                                                                type,
+                                                                allocator,
+                                                                default(SilkD3D12PipelineStatePtr),
+                                                                out var commandList));
 
-            public SilkD3D12Fence CreateFence(ulong initialValue = 0) {
-                SilkMarshal.ThrowHResult(
-                    nativeDevice.CreateFence<ID3D12Fence>(initialValue, FenceFlags.None, out var fence));
-                return new SilkD3D12Fence(fence, initialValue);
-            }
+        SilkMarshal.ThrowHResult(commandList.Close());
+        return new SilkD3D12CommandContext(allocator, commandList);
+    }
 
-            public SilkD3D12RootSignature CreateEmptyRootSignature(
-                RootSignatureFlags flags = RootSignatureFlags.AllowInputAssemblerInputLayout
-            ) {
-                var desc = new RootSignatureDesc {
-                    NumParameters = 0,
-                    PParameters = null,
-                    NumStaticSamplers = 0,
-                    PStaticSamplers = null,
-                    Flags = flags
-                };
+    public SilkD3D12Fence CreateFence(ulong initialValue = 0) {
+        SilkMarshal.ThrowHResult(nativeDevice.CreateFence<ID3D12Fence>(initialValue, FenceFlags.None, out var fence));
+        return new SilkD3D12Fence(fence, initialValue);
+    }
 
-                SilkD3DBlobPtr signature = default;
-                SilkD3DBlobPtr errors = default;
-                SilkMarshal.ThrowHResult(
-                    SilkD3D12DeviceFactory.Api.SerializeRootSignature<ID3D10Blob, ID3D10Blob>(
-                        in desc,
-                        D3DRootSignatureVersion.Version1,
-                        ref signature,
-                        ref errors));
+    public SilkD3D12RootSignature CreateEmptyRootSignature(
+        RootSignatureFlags flags = RootSignatureFlags.AllowInputAssemblerInputLayout
+    ) {
+        var desc = new RootSignatureDesc {
+            NumParameters = 0,
+            PParameters = null,
+            NumStaticSamplers = 0,
+            PStaticSamplers = null,
+            Flags = flags
+        };
 
-                try {
-                    SilkMarshal.ThrowHResult(
-                        nativeDevice.CreateRootSignature<ID3D12RootSignature>(0,
-                                                                              signature.Handle->GetBufferPointer(),
-                                                                              signature.Handle->GetBufferSize(),
-                                                                              out var rootSignature));
-                    return new SilkD3D12RootSignature(rootSignature);
-                } finally {
-                    errors.Dispose();
-                    signature.Dispose();
-                }
-            }
+        SilkD3DBlobPtr signature = default;
+        SilkD3DBlobPtr errors = default;
+        SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.Api.SerializeRootSignature<ID3D10Blob, ID3D10Blob>(in desc,
+                                     D3DRootSignatureVersion.Version1,
+                                     ref signature,
+                                     ref errors));
 
-            public void Dispose() {
-                if (IsDisposed) return;
-
-                nativeDevice.Dispose();
-                IsDisposed = true;
-            }
+        try {
+            SilkMarshal.ThrowHResult(nativeDevice.CreateRootSignature<ID3D12RootSignature>(0,
+                                         signature.Handle->GetBufferPointer(),
+                                         signature.Handle->GetBufferSize(),
+                                         out var rootSignature));
+            return new SilkD3D12RootSignature(rootSignature);
+        } finally {
+            errors.Dispose();
+            signature.Dispose();
         }
+    }
 
-        public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
-            private SilkD3D12CommandQueuePtr nativeQueue;
+    public void Dispose() {
+        if (IsDisposed) return;
 
-            internal SilkD3D12CommandQueue(SilkD3D12CommandQueuePtr nativeQueue) {
-                if (nativeQueue.Handle == null) throw new ArgumentNullException(nameof(nativeQueue));
+        nativeDevice.Dispose();
+        IsDisposed = true;
+    }
+}
 
-                this.nativeQueue = nativeQueue;
-            }
+public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
+    private SilkD3D12CommandQueuePtr nativeQueue;
 
-            public nint NativePointer => (nint) nativeQueue.Handle;
+    internal SilkD3D12CommandQueue(SilkD3D12CommandQueuePtr nativeQueue) {
+        if (nativeQueue.Handle == null) throw new ArgumentNullException(nameof(nativeQueue));
 
-            internal ID3D12CommandQueue* Handle => nativeQueue.Handle;
+        this.nativeQueue = nativeQueue;
+    }
 
-            internal ref SilkD3D12CommandQueuePtr NativeQueue => ref nativeQueue;
+    public nint NativePointer => (nint) nativeQueue.Handle;
 
-            public bool IsDisposed { get; private set; }
+    internal ID3D12CommandQueue* Handle => nativeQueue.Handle;
 
-            public ulong Signal(SilkD3D12Fence fence) {
-                if (fence == null) throw new ArgumentNullException(nameof(fence));
+    internal ref SilkD3D12CommandQueuePtr NativeQueue => ref nativeQueue;
 
-                var value = fence.NextValue();
-                SilkMarshal.ThrowHResult(nativeQueue.Signal(fence.NativeFence, value));
-                return value;
-            }
+    public bool IsDisposed { get; private set; }
 
-            public void Dispose() {
-                if (IsDisposed) return;
+    public ulong Signal(SilkD3D12Fence fence) {
+        if (fence == null) throw new ArgumentNullException(nameof(fence));
 
-                nativeQueue.Dispose();
-                IsDisposed = true;
-            }
-        }
+        var value = fence.NextValue();
+        SilkMarshal.ThrowHResult(nativeQueue.Signal(fence.NativeFence, value));
+        return value;
+    }
 
-        public sealed unsafe class SilkD3D12RootSignature : IDisposable {
-            private SilkD3D12RootSignaturePtr nativeRootSignature;
+    public void Dispose() {
+        if (IsDisposed) return;
 
-            internal SilkD3D12RootSignature(SilkD3D12RootSignaturePtr nativeRootSignature) {
-                if (nativeRootSignature.Handle == null) throw new ArgumentNullException(nameof(nativeRootSignature));
+        nativeQueue.Dispose();
+        IsDisposed = true;
+    }
+}
 
-                this.nativeRootSignature = nativeRootSignature;
-            }
+public sealed unsafe class SilkD3D12RootSignature : IDisposable {
+    private SilkD3D12RootSignaturePtr nativeRootSignature;
 
-            public nint NativePointer => (nint) nativeRootSignature.Handle;
+    internal SilkD3D12RootSignature(SilkD3D12RootSignaturePtr nativeRootSignature) {
+        if (nativeRootSignature.Handle == null) throw new ArgumentNullException(nameof(nativeRootSignature));
 
-            internal ID3D12RootSignature* Handle => nativeRootSignature.Handle;
+        this.nativeRootSignature = nativeRootSignature;
+    }
 
-            internal ref SilkD3D12RootSignaturePtr NativeRootSignature => ref nativeRootSignature;
+    public nint NativePointer => (nint) nativeRootSignature.Handle;
 
-            public bool IsDisposed { get; private set; }
+    internal ID3D12RootSignature* Handle => nativeRootSignature.Handle;
 
-            public void Dispose() {
-                if (IsDisposed) return;
+    internal ref SilkD3D12RootSignaturePtr NativeRootSignature => ref nativeRootSignature;
 
-                nativeRootSignature.Dispose();
-                IsDisposed = true;
-            }
-        }
+    public bool IsDisposed { get; private set; }
 
-        public sealed unsafe class SilkD3D12CommandContext : IDisposable {
-            private SilkD3D12CommandAllocatorPtr commandAllocator;
-            private SilkD3D12CommandListPtr commandList;
+    public void Dispose() {
+        if (IsDisposed) return;
 
-            internal SilkD3D12CommandContext(
-                SilkD3D12CommandAllocatorPtr commandAllocator,
-                SilkD3D12CommandListPtr commandList
-            ) {
-                if (commandAllocator.Handle == null) throw new ArgumentNullException(nameof(commandAllocator));
-                if (commandList.Handle == null) throw new ArgumentNullException(nameof(commandList));
+        nativeRootSignature.Dispose();
+        IsDisposed = true;
+    }
+}
 
-                this.commandAllocator = commandAllocator;
-                this.commandList = commandList;
-            }
+public sealed unsafe class SilkD3D12CommandContext : IDisposable {
+    private SilkD3D12CommandAllocatorPtr commandAllocator;
+    private SilkD3D12CommandListPtr commandList;
 
-            public nint AllocatorPointer => (nint) commandAllocator.Handle;
+    internal SilkD3D12CommandContext(
+        SilkD3D12CommandAllocatorPtr commandAllocator,
+        SilkD3D12CommandListPtr commandList
+    ) {
+        if (commandAllocator.Handle == null) throw new ArgumentNullException(nameof(commandAllocator));
+        if (commandList.Handle == null) throw new ArgumentNullException(nameof(commandList));
 
-            public nint CommandListPointer => (nint) commandList.Handle;
+        this.commandAllocator = commandAllocator;
+        this.commandList = commandList;
+    }
 
-            internal ref SilkD3D12CommandAllocatorPtr CommandAllocator => ref commandAllocator;
+    public nint AllocatorPointer => (nint) commandAllocator.Handle;
 
-            internal ref SilkD3D12CommandListPtr CommandList => ref commandList;
+    public nint CommandListPointer => (nint) commandList.Handle;
 
-            public bool IsDisposed { get; private set; }
+    internal ref SilkD3D12CommandAllocatorPtr CommandAllocator => ref commandAllocator;
 
-            public void Reset() {
-                SilkMarshal.ThrowHResult(commandAllocator.Reset());
-                SilkMarshal.ThrowHResult(commandList.Reset(commandAllocator, default(SilkD3D12PipelineStatePtr)));
-            }
+    internal ref SilkD3D12CommandListPtr CommandList => ref commandList;
 
-            public void Close() {
-                SilkMarshal.ThrowHResult(commandList.Close());
-            }
+    public bool IsDisposed { get; private set; }
 
-            public void Dispose() {
-                if (IsDisposed) return;
+    public void Reset() {
+        SilkMarshal.ThrowHResult(commandAllocator.Reset());
+        SilkMarshal.ThrowHResult(commandList.Reset(commandAllocator, default(SilkD3D12PipelineStatePtr)));
+    }
 
-                commandList.Dispose();
-                commandAllocator.Dispose();
-                IsDisposed = true;
-            }
-        }
+    public void Close() {
+        SilkMarshal.ThrowHResult(commandList.Close());
+    }
 
-        public sealed unsafe class SilkD3D12Fence : IDisposable {
-            private SilkD3D12FencePtr nativeFence;
-            private ulong currentValue;
+    public void Dispose() {
+        if (IsDisposed) return;
 
-            internal SilkD3D12Fence(SilkD3D12FencePtr nativeFence, ulong initialValue) {
-                if (nativeFence.Handle == null) throw new ArgumentNullException(nameof(nativeFence));
+        commandList.Dispose();
+        commandAllocator.Dispose();
+        IsDisposed = true;
+    }
+}
 
-                this.nativeFence = nativeFence;
-                currentValue = initialValue;
-            }
+public sealed unsafe class SilkD3D12Fence : IDisposable {
+    private SilkD3D12FencePtr nativeFence;
+    private ulong currentValue;
 
-            public nint NativePointer => (nint) nativeFence.Handle;
+    internal SilkD3D12Fence(SilkD3D12FencePtr nativeFence, ulong initialValue) {
+        if (nativeFence.Handle == null) throw new ArgumentNullException(nameof(nativeFence));
 
-            internal ID3D12Fence* Handle => nativeFence.Handle;
+        this.nativeFence = nativeFence;
+        currentValue = initialValue;
+    }
 
-            internal ref SilkD3D12FencePtr NativeFence => ref nativeFence;
+    public nint NativePointer => (nint) nativeFence.Handle;
 
-            public ulong CurrentValue => currentValue;
+    internal ID3D12Fence* Handle => nativeFence.Handle;
 
-            public ulong CompletedValue => nativeFence.GetCompletedValue();
+    internal ref SilkD3D12FencePtr NativeFence => ref nativeFence;
 
-            public bool IsDisposed { get; private set; }
+    public ulong CurrentValue => currentValue;
 
-            internal ulong NextValue() {
-                return ++currentValue;
-            }
+    public ulong CompletedValue => nativeFence.GetCompletedValue();
 
-            public void Dispose() {
-                if (IsDisposed) return;
+    public bool IsDisposed { get; private set; }
 
-                nativeFence.Dispose();
-                IsDisposed = true;
-            }
-        }
+    internal ulong NextValue() {
+        return ++currentValue;
+    }
+
+    public void Dispose() {
+        if (IsDisposed) return;
+
+        nativeFence.Dispose();
+        IsDisposed = true;
     }
 }

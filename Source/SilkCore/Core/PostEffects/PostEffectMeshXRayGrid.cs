@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -120,15 +120,15 @@ namespace HelixToolkit.SharpDX.Core {
                 modelStruct.Param.M13 = blendingFactor;
             }
 
-        #region Variables
+            #region Variables
 
-            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = new();
+            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = [];
             private readonly ConstantBufferComponent modelCB;
             private BorderEffectStruct modelStruct;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private string effectName = DefaultRenderTechniqueNames.PostEffectMeshXRayGrid;
 
@@ -213,7 +213,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => SetAffectsRender(ref useDepthOcclusion, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

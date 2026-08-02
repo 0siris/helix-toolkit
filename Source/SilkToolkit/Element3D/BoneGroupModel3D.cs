@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.Wpf.SharpDX;
@@ -17,7 +17,7 @@ public sealed class BoneGroupModel3D : GroupModel3D {
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as BoneGroupNode)
-                                                                 .BoneMatrices = (Matrix[]) e.NewValue;
+                                                                 .BoneMatrices = (Matrix[])e.NewValue;
                                                          }));
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed class BoneGroupModel3D : GroupModel3D {
     ///     The bone matrices.
     /// </value>
     public Matrix[] BoneMatrices {
-        get => (Matrix[]) GetValue(BoneMatricesProperty);
+        get => (Matrix[])GetValue(BoneMatricesProperty);
         set => SetValue(BoneMatricesProperty, value);
     }
 

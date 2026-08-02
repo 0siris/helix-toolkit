@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
 
@@ -7,7 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 /// </summary>
 public static class IViewportExtensions {
-    public static readonly HitTestResult[] EmptyHits = new HitTestResult[0];
+    public static readonly HitTestResult[] EmptyHits = [];
 
     [ThreadStatic] private static readonly Stack<IEnumerator<SceneNode>> stackCache = new();
 
@@ -72,7 +72,7 @@ public static class IViewportExtensions {
         hits?.Clear();
         if (viewport.RenderHost != null) {
             if (!viewport.UnProject(position, out var ray)) return false;
-            if (hits == null) hits = new List<HitTestResult>();
+            hits ??= [];
             var hitContext = new HitTestContext(viewport.RenderHost.RenderContext, ref ray, ref position);
             foreach (var element in viewport.Renderables) element.HitTest(hitContext, ref hits);
             hits.Sort();
@@ -242,7 +242,7 @@ public static class IViewportExtensions {
         return viewport.RenderHost != null && viewport.RenderHost.RenderContext != null
                    ? viewport.RenderHost.RenderContext.ViewMatrix * viewport.RenderHost.RenderContext.ProjectionMatrix
                    : viewport.CameraCore.CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                                                (float) viewport.ViewportRectangle.Height);
+                                                                (float)viewport.ViewportRectangle.Height);
     }
 
     /// <summary>
@@ -255,7 +255,7 @@ public static class IViewportExtensions {
         return viewport.RenderHost != null && viewport.RenderHost.RenderContext != null
                    ? viewport.RenderHost.RenderContext.ProjectionMatrix
                    : viewport.CameraCore.CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                                                (float) viewport.ViewportRectangle.Height);
+                                                                (float)viewport.ViewportRectangle.Height);
     }
 
     /// <summary>
@@ -269,9 +269,9 @@ public static class IViewportExtensions {
     /// </param>
     public static void Traverse(this IViewport3DX viewport, Action<SceneNode> action) {
         viewport.Renderables.PreorderDFT(node => {
-                                             action(node);
-                                             return true;
-                                         },
+            action(node);
+            return true;
+        },
                                          stackCache);
     }
 
@@ -311,9 +311,9 @@ public static class IViewportExtensions {
         var bounds = firstModel.BoundsWithTransform;
 
         foreach (var renderable in viewport.Renderables.PreorderDFT(r => {
-                     if (r.Visible && !(r is ScreenSpacedNode)) return true;
-                     return false;
-                 }))
+            if (r.Visible && !(r is ScreenSpacedNode)) return true;
+            return false;
+        }))
             if (renderable is IBoundable r)
                 if (r.HasBound && r.BoundsWithTransform.Maximum != maxVector)
                     bounds = BoundingBox.Merge(bounds, r.BoundsWithTransform);

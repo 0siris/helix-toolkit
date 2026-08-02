@@ -1,25 +1,25 @@
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Core;
 using System;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using System.Threading.Tasks;
-using System.Threading;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace DynamicTextureDemo;
 
@@ -76,7 +76,7 @@ public class MainViewModel : BaseViewModel {
 
     //public MeshGeometry3D Other { get; private set; }
     public Color AmbientLightColor { get; set; }
-    DispatcherTimer timer = new DispatcherTimer();
+    private DispatcherTimer timer = new DispatcherTimer();
 
     public bool DynamicTexture { set; get; } = true;
     public bool DynamicVertices { set; get; } = false;
@@ -164,7 +164,7 @@ public class MainViewModel : BaseViewModel {
         initialPosition = Model.Positions;
         initialIndicies = Model.Indices;
 
-    #region Point Model
+        #region Point Model
 
         PointModel = new PointGeometry3D() {
             IsDynamic = true, Positions = Model.Positions
@@ -181,11 +181,11 @@ public class MainViewModel : BaseViewModel {
 
         PointModel.Colors = colors;
 
-    #endregion
+        #endregion
 
-    #region Line Model
+        #region Line Model
 
-        LineModel = new LineGeometry3D() {IsDynamic = true, Positions = new Vector3Collection(PointModel.Positions)};
+        LineModel = new LineGeometry3D() { IsDynamic = true, Positions = new Vector3Collection(PointModel.Positions) };
         LineModel.Positions.Add(Vector3.Zero);
         var indices = new IntCollection(count * 2);
         for (int i = 0; i < count; ++i) {
@@ -196,22 +196,22 @@ public class MainViewModel : BaseViewModel {
         LineModel.Indices = indices;
         colors = new Color4Collection(LineModel.Positions.Count);
         for (int i = 0; i < count; ++i) {
-            colors.Add(new Color4((float) i / count, 1 - (float) i / count, 0, 1));
+            colors.Add(new Color4((float)i / count, 1 - (float)i / count, 0, 1));
         }
 
         colors.Add(Colors.Blue.ToColor4());
         LineModel.Colors = colors;
-        LineMaterial = new LineArrowHeadMaterial() {Color = Colors.White, Thickness = 0.5, ArrowSize = 0.02};
+        LineMaterial = new LineArrowHeadMaterial() { Color = Colors.White, Thickness = 0.5, ArrowSize = 0.02 };
 
-    #endregion
+        #endregion
 
         var token = cts.Token;
         Task.Run(() => {
-                     while (!token.IsCancellationRequested) {
-                         Timer_Tick();
-                         Task.Delay(16).Wait();
-                     }
-                 },
+            while (!token.IsCancellationRequested) {
+                Timer_Tick();
+                Task.Delay(16).Wait();
+            }
+        },
                  token);
         //timer.Interval = TimeSpan.FromMilliseconds(16);
         //timer.Tick += Timer_Tick;
@@ -241,50 +241,51 @@ public class MainViewModel : BaseViewModel {
             }
 
             context.Send((o) => {
-                             if (!AnimateUVOffset) {
-                                 Model.TextureCoordinates = texture;
-                                 if (ReverseInnerRotation) {
-                                     var texture1 = new Vector2Collection(texture);
-                                     texture1.Reverse();
-                                     InnerModel.TextureCoordinates = texture1;
-                                 } else {
-                                     InnerModel.TextureCoordinates = texture;
-                                 }
-                             } else {
-                                 ModelMaterial.UVTransform = new UVTransform(0,
-                                                                             Vector2.One,
-                                                                             ModelMaterial.UVTransform.Translation +
-                                                                             new Vector2(0.005f, -0.01f));
-                                 InnerModelMaterial.UVTransform = new UVTransform(0,
-                                     Vector2.One,
-                                     InnerModelMaterial.UVTransform.Translation +
-                                     new Vector2(-0.01f, 0.005f));
-                             }
-                         },
+                if (!AnimateUVOffset) {
+                    Model.TextureCoordinates = texture;
+                    if (ReverseInnerRotation) {
+                        var texture1 = new Vector2Collection(texture);
+                        texture1.Reverse();
+                        InnerModel.TextureCoordinates = texture1;
+                    } else {
+                        InnerModel.TextureCoordinates = texture;
+                    }
+                } else {
+                    ModelMaterial.UVTransform = new UVTransform(0,
+                                                                Vector2.One,
+                                                                ModelMaterial.UVTransform.Translation +
+                                                                new Vector2(0.005f, -0.01f));
+                    InnerModelMaterial.UVTransform = new UVTransform(0,
+                        Vector2.One,
+                        InnerModelMaterial.UVTransform.Translation +
+                        new Vector2(-0.01f, 0.005f));
+                }
+            },
                          null);
         }
 
         if (DynamicVertices) {
             var positions = new Vector3Collection(initialPosition);
             for (int i = 0; i < positions.Count; ++i) {
-                var off = (float) Math.Sin(Math.PI * (float) (counter + i) / 64);
+                var off = (float)Math.Sin(Math.PI * (float)(counter + i) / 64);
                 var p = positions[i];
                 p *= 0.8f + off * 0.2f;
                 positions[i] = p;
             }
 
-            var linePositions = new Vector3Collection(positions);
-            linePositions.Add(Vector3.Zero);
+            var linePositions = new Vector3Collection(positions) {
+                Vector3.Zero
+            };
             //var normals =  MeshGeometryHelper.CalculateNormals(positions, initialIndicies);
             //var innerNormals =  new Vector3Collection(normals.Select(x => { return x * -1; }));
             context.Send((o) => {
-                             //Model.Normals = normals;
-                             //InnerModel.Normals = innerNormals;
-                             //Model.Positions = positions;
-                             //InnerModel.Positions = positions;
-                             PointModel.Positions = positions;
-                             LineModel.Positions = linePositions;
-                         },
+                //Model.Normals = normals;
+                //InnerModel.Normals = innerNormals;
+                //Model.Positions = positions;
+                //InnerModel.Positions = positions;
+                PointModel.Positions = positions;
+                LineModel.Positions = linePositions;
+            },
                          null);
         }
 
@@ -306,9 +307,9 @@ public class MainViewModel : BaseViewModel {
 
             indices.RemoveRange(0, removedIndex);
             context.Send((o) => {
-                             Model.Indices = indices;
-                             InnerModel.Indices = indices;
-                         },
+                Model.Indices = indices;
+                InnerModel.Indices = indices;
+            },
                          null);
         }
 
@@ -334,9 +335,9 @@ public class MainViewModel : BaseViewModel {
             }
 
             context.Send((o) => {
-                             PointModel.Colors = colors;
-                             LineModel.Colors = lineColors;
-                         },
+                PointModel.Colors = colors;
+                LineModel.Colors = lineColors;
+            },
                          null);
         }
     }

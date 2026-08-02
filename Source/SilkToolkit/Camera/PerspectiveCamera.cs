@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -25,7 +25,7 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
         new PropertyMetadata(45.0,
                              (d, e) => {
                                  ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -35,7 +35,7 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
     ///     The field of view.
     /// </value>
     public double FieldOfView {
-        get => (double) GetValue(FieldOfViewProperty);
+        get => (double)GetValue(FieldOfViewProperty);
         set => SetValue(FieldOfViewProperty, value);
     }
 
@@ -45,9 +45,9 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
-        (core as PerspectiveCameraCore).FarPlaneDistance = (float) FarPlaneDistance;
-        (core as PerspectiveCameraCore).FieldOfView = (float) FieldOfView;
-        (core as PerspectiveCameraCore).NearPlaneDistance = (float) NearPlaneDistance;
+        (core as PerspectiveCameraCore).FarPlaneDistance = (float)FarPlaneDistance;
+        (core as PerspectiveCameraCore).FieldOfView = (float)FieldOfView;
+        (core as PerspectiveCameraCore).NearPlaneDistance = (float)NearPlaneDistance;
     }
 
     protected override Freezable CreateInstanceCore() {

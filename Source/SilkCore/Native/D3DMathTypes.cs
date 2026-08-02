@@ -225,8 +225,8 @@ public struct Matrix3x2 {
     }
 
     public static Matrix3x2 Rotation(float angle) {
-        var cosine = (float) Math.Cos(angle);
-        var sine = (float) Math.Sin(angle);
+        var cosine = (float)Math.Cos(angle);
+        var sine = (float)Math.Sin(angle);
         return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
     }
 

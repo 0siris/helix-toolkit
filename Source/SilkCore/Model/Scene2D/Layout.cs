@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -56,6 +56,10 @@ namespace HelixToolkit.SharpDX.Core {
 
             public static implicit operator Vector4(Thickness t) {
                 return new Vector4(t.Left, t.Top, t.Right, t.Bottom);
+            }
+
+            public override bool Equals(object obj) {
+                return obj is Thickness && Equals((Thickness)obj);
             }
         }
     }

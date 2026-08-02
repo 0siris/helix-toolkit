@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Media;
 
 namespace HelixToolkit.Wpf.SharpDX {
@@ -24,14 +24,14 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             private void CompositionTarget_Rendering(object sender, EventArgs e) {
-                var args = (RenderingEventArgs) e;
+                var args = (RenderingEventArgs)e;
                 if (args.RenderingTime == _last)
                     return;
                 _last = args.RenderingTime;
                 _FrameUpdating?.Invoke(sender, args);
             }
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
@@ -63,7 +63,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

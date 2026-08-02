@@ -36,12 +36,12 @@ namespace HelixToolkit.Wpf.SharpDX {
             private bool foregroundChanged = true;
 
             public WpfBrush Foreground {
-                get => (WpfBrush) GetValue(ForegroundProperty);
+                get => (WpfBrush)GetValue(ForegroundProperty);
                 set => SetValue(ForegroundProperty, value);
             }
 
             public WpfBrush Background {
-                get => (WpfBrush) GetValue(BackgroundProperty);
+                get => (WpfBrush)GetValue(BackgroundProperty);
                 set => SetValue(BackgroundProperty, value);
             }
 
@@ -58,13 +58,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                 base.OnUpdate(context);
                 if (foregroundChanged) {
                     (SceneNode as FrameStatisticsNode2D).Foreground =
-                        Foreground != null ? Foreground.ToD2DBrush(context.DeviceContext) : null;
+                        Foreground?.ToD2DBrush(context.DeviceContext);
                     foregroundChanged = false;
                 }
 
                 if (backgroundChanged) {
                     (SceneNode as FrameStatisticsNode2D).Background =
-                        Background != null ? Background.ToD2DBrush(context.DeviceContext) : null;
+                        Background?.ToD2DBrush(context.DeviceContext);
                     backgroundChanged = false;
                 }
             }

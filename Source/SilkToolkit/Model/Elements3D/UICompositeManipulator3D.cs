@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UICompositeManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -25,7 +25,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateX.IsRendering = (bool) e.NewValue; }));
+                             (d, e) => { (d as UICompositeManipulator3D).rotateX.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can rotate y property.
@@ -34,7 +34,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateY.IsRendering = (bool) e.NewValue; }));
+                             (d, e) => { (d as UICompositeManipulator3D).rotateY.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can rotate z property.
@@ -43,7 +43,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateZ.IsRendering = (bool) e.NewValue; }));
+                             (d, e) => { (d as UICompositeManipulator3D).rotateZ.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can translate x property.
@@ -53,7 +53,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateX.IsRendering = (bool) e.NewValue;
+                                 (d as UICompositeManipulator3D).translateX.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -64,7 +64,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateY.IsRendering = (bool) e.NewValue;
+                                 (d as UICompositeManipulator3D).translateY.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -75,7 +75,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         typeof(UICompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateZ.IsRendering = (bool) e.NewValue;
+                                 (d as UICompositeManipulator3D).translateZ.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -108,36 +108,33 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     public UICompositeManipulator3D() {
         OnSceneNodeCreated += (s, e) => { e.Node.Attached += SceneNode_OnAttached; };
-        translateX = new UITranslateManipulator3D {Direction = new Vector3(1, 0, 0), Material = DiffuseMaterials.Red};
-        translateY = new UITranslateManipulator3D {Direction = new Vector3(0, 1, 0), Material = DiffuseMaterials.Green};
-        translateZ = new UITranslateManipulator3D {Direction = new Vector3(0, 0, 1), Material = DiffuseMaterials.Blue};
-        rotateX = new UIRotateManipulator3D
-            {Axis = new Vector3(1, 0, 0), Length = 0.05, Material = DiffuseMaterials.Red};
-        rotateY = new UIRotateManipulator3D
-            {Axis = new Vector3(0, 1, 0), Length = 0.05, Material = DiffuseMaterials.Green};
-        rotateZ = new UIRotateManipulator3D
-            {Axis = new Vector3(0, 0, 1), Length = 0.05, Material = DiffuseMaterials.Blue};
+        translateX = new UITranslateManipulator3D { Direction = new Vector3(1, 0, 0), Material = DiffuseMaterials.Red };
+        translateY = new UITranslateManipulator3D { Direction = new Vector3(0, 1, 0), Material = DiffuseMaterials.Green };
+        translateZ = new UITranslateManipulator3D { Direction = new Vector3(0, 0, 1), Material = DiffuseMaterials.Blue };
+        rotateX = new UIRotateManipulator3D { Axis = new Vector3(1, 0, 0), Length = 0.05, Material = DiffuseMaterials.Red };
+        rotateY = new UIRotateManipulator3D { Axis = new Vector3(0, 1, 0), Length = 0.05, Material = DiffuseMaterials.Green };
+        rotateZ = new UIRotateManipulator3D { Axis = new Vector3(0, 0, 1), Length = 0.05, Material = DiffuseMaterials.Blue };
 
         // bind UITranslateManipulators3D.TargetTransform to this.Transform            
         BindingOperations.SetBinding(translateX,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(translateY,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(translateZ,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
 
         BindingOperations.SetBinding(rotateX,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(rotateY,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(rotateZ,
                                      UIManipulator3D.TargetTransformProperty,
-                                     new Binding("TargetTransform") {Source = this});
+                                     new Binding("TargetTransform") { Source = this });
 
         //BindingOperations.SetBinding(this.translateX, UIManipulator3D.TransformProperty, new Binding("TargetTransform") { Source = this });
         //BindingOperations.SetBinding(this.translateY, UIManipulator3D.TransformProperty, new Binding("TargetTransform") { Source = this });
@@ -150,7 +147,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
         // bind this.Transform to this.TargetTransform (TwoWay)
         BindingOperations.SetBinding(this,
                                      TransformProperty,
-                                     new Binding("TargetTransform") {Source = this, Mode = BindingMode.TwoWay});
+                                     new Binding("TargetTransform") { Source = this, Mode = BindingMode.TwoWay });
 
         Children.Clear();
         Children.Add(translateX);
@@ -165,7 +162,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     ///     Gets or sets TargetTransform.
     /// </summary>
     public Transform3D TargetTransform {
-        get => (Transform3D) GetValue(TargetTransformProperty);
+        get => (Transform3D)GetValue(TargetTransformProperty);
         set => SetValue(TargetTransformProperty, value);
     }
 
@@ -174,7 +171,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can rotate X; otherwise, <c>false</c> . </value>
     public bool CanRotateX {
-        get => (bool) GetValue(CanRotateXProperty);
+        get => (bool)GetValue(CanRotateXProperty);
         set => SetValue(CanRotateXProperty, value);
     }
 
@@ -183,7 +180,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can rotate Y; otherwise, <c>false</c> . </value>
     public bool CanRotateY {
-        get => (bool) GetValue(CanRotateYProperty);
+        get => (bool)GetValue(CanRotateYProperty);
         set => SetValue(CanRotateYProperty, value);
     }
 
@@ -192,7 +189,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can rotate Z; otherwise, <c>false</c> . </value>
     public bool CanRotateZ {
-        get => (bool) GetValue(CanRotateZProperty);
+        get => (bool)GetValue(CanRotateZProperty);
         set => SetValue(CanRotateZProperty, value);
     }
 
@@ -201,7 +198,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can translate X; otherwise, <c>false</c> . </value>
     public bool CanTranslateX {
-        get => (bool) GetValue(CanTranslateXProperty);
+        get => (bool)GetValue(CanTranslateXProperty);
         set => SetValue(CanTranslateXProperty, value);
     }
 
@@ -210,7 +207,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Y; otherwise, <c>false</c> . </value>
     public bool CanTranslateY {
-        get => (bool) GetValue(CanTranslateYProperty);
+        get => (bool)GetValue(CanTranslateYProperty);
         set => SetValue(CanTranslateYProperty, value);
     }
 
@@ -219,7 +216,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Z; otherwise, <c>false</c> . </value>
     public bool CanTranslateZ {
-        get => (bool) GetValue(CanTranslateZProperty);
+        get => (bool)GetValue(CanTranslateZProperty);
         set => SetValue(CanTranslateZProperty, value);
     }
 
@@ -228,7 +225,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     /// <value> The diameter. </value>
     public double Diameter {
-        get => (double) GetValue(DiameterProperty);
+        get => (double)GetValue(DiameterProperty);
         set => SetValue(DiameterProperty, value);
     }
 
@@ -243,8 +240,8 @@ public class UICompositeManipulator3D : CompositeModel3D {
     ///     Source Visual3D which receives the manipulator transforms.
     /// </param>
     public void Bind(GeometryModel3D source) {
-        BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") {Source = source});
-        BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") {Source = source});
+        BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") { Source = source });
+        BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") { Source = source });
     }
 
     /// <summary>

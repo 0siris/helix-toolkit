@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -48,7 +48,7 @@ namespace HelixToolkit.SharpDX.Core {
                     IsDepthClipEnabled = IsDepthClipEnabled,
                     IsFrontCounterClockwise = FrontCCW,
                     IsMultisampleEnabled = IsMSAAEnabled,
-                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled
+                    IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
                 };
             }
 
@@ -64,7 +64,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return (Geometry as MeshGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource);
             }
 
-        #region Properties
+            #region Properties
 
             private bool frontCCW = true;
 
@@ -140,7 +140,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => (RenderCore as IDynamicReflectable).DynamicReflector = value;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

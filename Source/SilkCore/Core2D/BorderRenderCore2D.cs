@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -8,7 +8,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class BorderRenderCore2D : RenderCore2DBase {
-            private readonly PathRenderCore2D[] borderRenderCore = new PathRenderCore2D[4] {new(), new(), new(), new()};
+            private readonly PathRenderCore2D[] borderRenderCore = [new(), new(), new(), new()];
 
             private Brush background;
 
@@ -122,8 +122,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <param name="context">The context.</param>
             protected override void OnRender(RenderContext2D context) {
-                var roundRect = new RoundedRectangle
-                    {Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius};
+                var roundRect = new RoundedRectangle { Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius };
                 if (Background != null) context.DeviceContext.FillRoundedRectangle(roundRect, Background);
                 var thickness = BorderThickness * context.DpiScale;
                 if (thickness.LengthSquared() > 0 && StrokeBrush != null && StrokeStyle != null) {

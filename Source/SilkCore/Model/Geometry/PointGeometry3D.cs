@@ -6,10 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
+
 public class PointGeometry3D : Geometry3D {
     public IEnumerable<Point> Points {
         get {
-            for (var i = 0; i < Positions.Count; ++i) yield return new Point {P0 = Positions[i]};
+            for (var i = 0; i < Positions.Count; ++i) yield return new Point { P0 = Positions[i] };
         }
     }
 
@@ -36,7 +37,7 @@ public class PointGeometry3D : Geometry3D {
 
         var clickPoint = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
 
-        var result = new HitTestResult {IsValid = false, Distance = double.MaxValue};
+        var result = new HitTestResult { IsValid = false, Distance = double.MaxValue };
         var maxDist = hitThickness;
         var lastDist = double.MaxValue;
         var index = 0;

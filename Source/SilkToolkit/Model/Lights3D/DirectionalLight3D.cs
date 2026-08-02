@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DirectionalLight3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -20,7 +20,7 @@ public sealed class DirectionalLight3D : Light3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as DirectionalLightNode)
                                                                  .Direction =
-                                                                 ((Vector3D) e.NewValue).ToVector3();
+                                                                 ((Vector3D)e.NewValue).ToVector3();
                                                          }));
 
     /// <summary>
@@ -29,7 +29,7 @@ public sealed class DirectionalLight3D : Light3D {
     ///     for all other lights it is ignored.
     /// </summary>
     public Vector3D Direction {
-        get => (Vector3D) GetValue(DirectionProperty);
+        get => (Vector3D)GetValue(DirectionProperty);
         set => SetValue(DirectionProperty, value);
     }
 

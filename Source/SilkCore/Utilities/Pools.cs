@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -23,7 +23,7 @@ namespace HelixToolkit.SharpDX.Core {
         public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : DisposeObject
             where TValue : DisposeObject {
             private readonly bool autoDispose_;
-            private readonly Dictionary<TKey, TValue> pool_ = new();
+            private readonly Dictionary<TKey, TValue> pool_ = [];
 
             /// <summary>
             /// </summary>
@@ -147,7 +147,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (IsDisposed) throw new InvalidOperationException("Pool has been disposed.");
                 TValue[] items;
                 lock (pool_) {
-                    items = pool_.Values.ToArray();
+                    items = [.. pool_.Values];
                     pool_.Clear();
                 }
 

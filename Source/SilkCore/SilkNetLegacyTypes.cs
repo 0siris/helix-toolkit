@@ -258,7 +258,7 @@ namespace HelixToolkit.SharpDX.Core {
         private static byte ToByte(float value) {
             if (value <= 0) return 0;
             if (value >= 1) return 255;
-            return (byte) (value * 255f);
+            return (byte)(value * 255f);
         }
 
         public Color4 ToColor4() {
@@ -323,7 +323,7 @@ namespace HelixToolkit.SharpDX.Core {
         }
 
         public Vector3[] GetCorners() {
-            return new[] {
+            return [
                 new Vector3(Minimum.X, Maximum.Y, Maximum.Z),
                 new Vector3(Maximum.X, Maximum.Y, Maximum.Z),
                 new Vector3(Maximum.X, Minimum.Y, Maximum.Z),
@@ -332,7 +332,7 @@ namespace HelixToolkit.SharpDX.Core {
                 new Vector3(Maximum.X, Maximum.Y, Minimum.Z),
                 new Vector3(Maximum.X, Minimum.Y, Minimum.Z),
                 new Vector3(Minimum.X, Minimum.Y, Minimum.Z)
-            };
+            ];
         }
 
         public ContainmentType Contains(Vector3 point) {
@@ -384,7 +384,7 @@ namespace HelixToolkit.SharpDX.Core {
     }
 
     public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>> {
-        private readonly Dictionary<(K, T), V> dictionary = new();
+        private readonly Dictionary<(K, T), V> dictionary = [];
 
         public IEnumerable<V> Values => dictionary.Values;
 
@@ -672,7 +672,7 @@ namespace HelixToolkit.UWP {
         private static byte ToByte(float value) {
             if (value <= 0) return 0;
             if (value >= 1) return 255;
-            return (byte) (value * 255f);
+            return (byte)(value * 255f);
         }
 
         public Color4 ToColor4() {
@@ -737,7 +737,7 @@ namespace HelixToolkit.UWP {
         }
 
         public Vector3[] GetCorners() {
-            return new[] {
+            return [
                 new Vector3(Minimum.X, Maximum.Y, Maximum.Z),
                 new Vector3(Maximum.X, Maximum.Y, Maximum.Z),
                 new Vector3(Maximum.X, Minimum.Y, Maximum.Z),
@@ -746,7 +746,7 @@ namespace HelixToolkit.UWP {
                 new Vector3(Maximum.X, Maximum.Y, Minimum.Z),
                 new Vector3(Maximum.X, Minimum.Y, Minimum.Z),
                 new Vector3(Minimum.X, Minimum.Y, Minimum.Z)
-            };
+            ];
         }
 
         public ContainmentType Contains(Vector3 point) {
@@ -798,7 +798,7 @@ namespace HelixToolkit.UWP {
     }
 
     public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>> {
-        private readonly Dictionary<(K, T), V> dictionary = new();
+        private readonly Dictionary<(K, T), V> dictionary = [];
 
         public IEnumerable<V> Values => dictionary.Values;
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
-            private Vector3[] skinnedVerticesCache = new Vector3[0];
+            private Vector3[] skinnedVerticesCache = [];
 
             /// <summary>
             ///     Gets or sets a value indicating whether this node is used to show skeleton. Only used as an indication.
@@ -71,11 +71,11 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
-                return BoneMatrices.Length == 0 ? base.TestViewFrustum(ref viewFrustum) : true;
+                return BoneMatrices.Length != 0 || base.TestViewFrustum(ref viewFrustum);
             }
 
             protected override bool PreHitTestOnBounds(HitTestContext context) {
-                return BoneMatrices.Length == 0 ? base.PreHitTestOnBounds(context) : true;
+                return BoneMatrices.Length != 0 || base.PreHitTestOnBounds(context);
             }
 
             /// <summary>
@@ -105,11 +105,11 @@ namespace HelixToolkit.SharpDX.Core {
             ) {
                 var skNode = new BoneSkinMeshNode {
                     Material = material,
-                    IsSkeletonNode = true
+                    IsSkeletonNode = true,
+                    Geometry = BoneSkinnedMeshGeometry3D.CreateSkeletonMesh(node.Bones, scale),
+                    PostEffects = effectName,
+                    Bones = node.Bones
                 };
-                skNode.Geometry = BoneSkinnedMeshGeometry3D.CreateSkeletonMesh(node.Bones, scale);
-                skNode.PostEffects = effectName;
-                skNode.Bones = node.Bones;
                 return skNode;
             }
 
@@ -175,23 +175,23 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public void SetupIdentitySkeleton() {
-                BoneMatrices = new[] {Matrix.Identity};
-                Bones = new[] {
+                BoneMatrices = [Matrix.Identity];
+                Bones = [
                     new Bone {
                         Name = "Identity", BindPose = Matrix.Identity, InvBindPose = Matrix.Identity,
                         BoneLocalTransform = Matrix.Identity
                     }
-                };
+                ];
 
                 var geom = Geometry as BoneSkinnedMeshGeometry3D;
                 geom.VertexBoneIds = new BoneIds[geom.Positions.Count];
                 for (var i = 0; i < geom.VertexBoneIds.Count; i++)
-                    geom.VertexBoneIds[i] = new BoneIds {Bone1 = 0, Weights = new Vector4(1, 0, 0, 0)};
+                    geom.VertexBoneIds[i] = new BoneIds { Bone1 = 0, Weights = new Vector4(1, 0, 0, 0) };
             }
 
             public void UpdateBoneMatrices() {
                 BoneMatrices = new Matrix[Bones.Length];
-                BoneMatrices = BoneMatrices.Select((m, i) => Bones[i].Node.TotalModelMatrixInternal).ToArray();
+                BoneMatrices = [.. BoneMatrices.Select((m, i) => Bones[i].Node.TotalModelMatrixInternal)];
             }
 
             public void InvalidateBoneMatrices() {

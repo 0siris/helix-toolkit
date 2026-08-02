@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -37,7 +37,7 @@ namespace HelixToolkit.SharpDX.Core {
             protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
                 if (!base.CreateRasterState(description, force)) return false;
 
-            #region Create states
+                #region Create states
 
                 var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(new RasterizerStateDescription {
                     FillMode = FillMode.Solid,
@@ -53,7 +53,7 @@ namespace HelixToolkit.SharpDX.Core {
                 RemoveAndDispose(ref backfaceRasterState);
                 backfaceRasterState = newRasterState;
 
-            #endregion
+                #endregion
 
                 return true;
             }
@@ -62,7 +62,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (needsAssignVariables)
                     lock (clipParamCB) {
                         if (needsAssignVariables) {
-                            clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int) cuttingOperation);
+                            clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)cuttingOperation);
                             clipParamCB.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, sectionColor);
                             clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, planeEnabled);
                             clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, plane5To8Enabled);
@@ -97,7 +97,7 @@ namespace HelixToolkit.SharpDX.Core {
                 deviceContext.Draw(4, 0);
             }
 
-        #region Shader Variables
+            #region Shader Variables
 
             private ShaderPass drawBackfacePass;
             private ShaderPass drawScreenQuadPass;
@@ -111,9 +111,9 @@ namespace HelixToolkit.SharpDX.Core {
 
             private bool needsAssignVariables = true;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private CuttingOperation cuttingOperation = CuttingOperation.Intersect;
 
@@ -127,7 +127,7 @@ namespace HelixToolkit.SharpDX.Core {
                 get => cuttingOperation;
                 set {
                     if (SetAffectsRender(ref cuttingOperation, value))
-                        clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int) value);
+                        clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)value);
                 }
             }
 
@@ -268,7 +268,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion
+            #endregion
         }
     }
 }

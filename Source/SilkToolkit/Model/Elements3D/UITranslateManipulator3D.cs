@@ -15,8 +15,8 @@ using HelixToolkit.Wpf.SharpDX.Utilities;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-using TranslateTransform3D = TranslateTransform3D;
 using MatrixTransform3D = MatrixTransform3D;
+using TranslateTransform3D = TranslateTransform3D;
 
 /// <summary>
 ///     A translate manipulator.
@@ -62,7 +62,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
     /// </summary>
     /// <value> The diameter. </value>
     public double Diameter {
-        get => (double) GetValue(DiameterProperty);
+        get => (double)GetValue(DiameterProperty);
         set => SetValue(DiameterProperty, value);
     }
 
@@ -72,7 +72,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
     /// <value> The direction. </value>
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 Direction {
-        get => (Vector3) GetValue(DirectionProperty);
+        get => (Vector3)GetValue(DirectionProperty);
         set => SetValue(DirectionProperty, value);
     }
 
@@ -81,7 +81,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
     /// </summary>
     /// <value> The length. </value>
     public double Length {
-        get => (double) GetValue(LengthProperty);
+        get => (double)GetValue(LengthProperty);
         set => SetValue(LengthProperty, value);
     }
 
@@ -93,7 +93,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
         var p0 = Offset; // new Vector3(0, 0, 0);
         var d = Direction;
         d.Normalize();
-        var p1 = p0 + d * (float) Length;
+        var p1 = p0 + d * (float)Length;
         mb.AddArrow(p0, p1, Diameter, 2, 64);
         Geometry = mb.ToMeshGeometry3D();
     }

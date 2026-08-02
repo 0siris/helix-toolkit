@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -65,9 +65,10 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override void OnAttached() {
-                bufferModel = new Sprite2DBufferModel();
-                bufferModel.Sprites = Sprites;
-                bufferModel.SpriteCount = SpriteCount;
+                bufferModel = new Sprite2DBufferModel {
+                    Sprites = Sprites,
+                    SpriteCount = SpriteCount
+                };
                 if (texture != null)
                     (RenderCore as Sprite2DRenderCore).UpdateTexture(texture,
                                                                      EffectTechnique.EffectsManager

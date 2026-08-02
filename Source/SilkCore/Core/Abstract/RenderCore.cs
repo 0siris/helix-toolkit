@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
-            private readonly List<CoreComponent> components = new();
+            private readonly List<CoreComponent> components = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="RenderCore" /> class.
@@ -193,7 +193,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             /// </summary>
@@ -284,7 +284,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public bool IsAttached { get; private set; }
 
-        #endregion
+            #endregion
         }
     }
 }

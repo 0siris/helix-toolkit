@@ -8,8 +8,8 @@ namespace HelixToolkit.SharpDX.Core {
             private InputLayoutProxy currInputLayout;
 
             public PrimitiveTopology PrimitiveTopology {
-                get => (PrimitiveTopology) nativeDeviceContext.PrimitiveTopology;
-                set => nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology) value;
+                get => (PrimitiveTopology)nativeDeviceContext.PrimitiveTopology;
+                set => nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology)value;
             }
 
             public InputLayoutProxy InputLayout {

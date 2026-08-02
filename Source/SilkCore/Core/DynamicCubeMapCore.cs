@@ -36,16 +36,14 @@ namespace HelixToolkit.SharpDX.Core {
                 var srvDesc = new ShaderResourceViewDescription {
                     Format = textureDesc.Format,
                     Dimension = ShaderResourceViewDimension.TextureCube,
-                    TextureCube = new ShaderResourceViewDescription.TextureCubeResource
-                        {MostDetailedMip = 0, MipLevels = -1}
+                    TextureCube = new ShaderResourceViewDescription.TextureCubeResource { MostDetailedMip = 0, MipLevels = -1 }
                 };
                 cubeMap.CreateView(srvDesc);
 
                 var rtsDesc = new RenderTargetViewDescription {
                     Format = textureDesc.Format,
                     Dimension = RenderTargetViewDimension.Texture2DArray,
-                    Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource
-                        {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
+                    Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource { MipSlice = 0, FirstArraySlice = 0, ArraySize = 1 }
                 };
 
                 for (var i = 0; i < 6; ++i) {
@@ -60,8 +58,7 @@ namespace HelixToolkit.SharpDX.Core {
                     Format = dsvTextureDesc.Format,
                     Dimension = DepthStencilViewDimension.Texture2DArray,
                     Flags = DepthStencilViewFlags.None,
-                    Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource
-                        {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
+                    Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource { MipSlice = 0, FirstArraySlice = 0, ArraySize = 1 }
                 };
 
                 for (var i = 0; i < 6; ++i) {
@@ -122,10 +119,11 @@ namespace HelixToolkit.SharpDX.Core {
                                      ctx.SetRenderTarget(cubeDSVs[index], cubeRTVs[index]);
                                      ctx.SetViewport(0, 0, FaceSize, FaceSize);
                                      ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
-                                     var transforms = new GlobalTransformStruct();
-                                     transforms.Projection = cubeFaceCameras.Cameras[index].Projection;
-                                     transforms.View = cubeFaceCameras.Cameras[index].View;
-                                     transforms.Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize);
+                                     var transforms = new GlobalTransformStruct {
+                                         Projection = cubeFaceCameras.Cameras[index].Projection,
+                                         View = cubeFaceCameras.Cameras[index].View,
+                                         Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize)
+                                     };
                                      transforms.ViewProjection = transforms.View * transforms.Projection;
 
                                      modelCB.Upload(ctx, ref transforms);
@@ -175,29 +173,27 @@ namespace HelixToolkit.SharpDX.Core {
                              : SilkMath.LookAtRH(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
                     cubeFaceCameras.Cameras[i].Projection = IsLeftHanded
                                                                 ? SilkMath.PerspectiveFovLH(
-                                                                    (float) Math.PI * 0.5f,
+                                                                    (float)Math.PI * 0.5f,
                                                                     1,
                                                                     NearField,
                                                                     FarField)
                                                                 : SilkMath.PerspectiveFovRH(
-                                                                    (float) Math.PI * 0.5f,
+                                                                    (float)Math.PI * 0.5f,
                                                                     1,
                                                                     NearField,
                                                                     FarField);
                 }
             }
 
-        #region
+            #region
 
             private readonly Vector3[] targets = new Vector3[6];
 
-            private readonly Vector3[] lookVector = new Vector3[6]
-                {Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ};
+            private readonly Vector3[] lookVector = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
 
-            private readonly Vector3[] upVectors = new Vector3[6]
-                {Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY};
+            private readonly Vector3[] upVectors = [Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY];
 
-            private readonly CubeFaceCamerasStruct cubeFaceCameras = new() {Cameras = new CubeFaceCamera[6]};
+            private readonly CubeFaceCamerasStruct cubeFaceCameras = new() { Cameras = new CubeFaceCamera[6] };
 
             // Create the cube map TextureCube (array of 6 textures)
             private Texture2DDescription textureDesc = new() {
@@ -237,11 +233,11 @@ namespace HelixToolkit.SharpDX.Core {
             private readonly CommandList[] commands = new CommandList[6];
             private readonly ConstantBufferComponent modelCB;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
-            public HashSet<Guid> IgnoredGuid { get; } = new();
+            public HashSet<Guid> IgnoredGuid { get; } = [];
             private ShaderResourceViewProxy cubeMap;
 
             public ShaderResourceViewProxy CubeMap => cubeMap;
@@ -407,9 +403,9 @@ namespace HelixToolkit.SharpDX.Core {
                 set => SetAffectsRender(ref isDynamicScene, value);
             }
 
-        #endregion Properties
+            #endregion Properties
 
-        #region IReflector
+            #region IReflector
 
             private SamplerStateProxy[] currSampler;
             private ShaderResourceView[] currRes;
@@ -440,7 +436,7 @@ namespace HelixToolkit.SharpDX.Core {
                 currRes = null;
             }
 
-        #endregion IReflector
+            #endregion IReflector
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="CrossSectionMeshGeometryModel3D.cs" company="Helix Toolkit">
+// <copyright file="CrossSectionMeshGeometryModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 // </copyright>
 
@@ -18,7 +18,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         return new CrossSectionMeshNode();
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     Gets or sets the cutting operation.
@@ -27,7 +27,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     ///     The cutting operation.
     /// </value>
     public CuttingOperation CuttingOperation {
-        get => (CuttingOperation) GetValue(CuttingOperationProperty);
+        get => (CuttingOperation)GetValue(CuttingOperationProperty);
         set => SetValue(CuttingOperationProperty, value);
     }
 
@@ -42,7 +42,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as CrossSectionMeshNode)
                                                                  .CuttingOperation =
-                                                                 (CuttingOperation) e.NewValue;
+                                                                 (CuttingOperation)e.NewValue;
                                                          }));
 
 
@@ -59,14 +59,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).CrossSectionColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
     ///     Gets or sets the CrossSectionColor
     /// </summary>
     public Media.Color CrossSectionColor {
-        get => (Media.Color) GetValue(CrossSectionColorProperty);
+        get => (Media.Color)GetValue(CrossSectionColorProperty);
         set => SetValue(CrossSectionColorProperty, value);
     }
 
@@ -79,14 +79,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane1 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane1 {
-        get => (bool) GetValue(EnablePlane1Property);
+        get => (bool)GetValue(EnablePlane1Property);
         set => SetValue(EnablePlane1Property, value);
     }
 
@@ -99,14 +99,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane2 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane2 {
-        get => (bool) GetValue(EnablePlane2Property);
+        get => (bool)GetValue(EnablePlane2Property);
         set => SetValue(EnablePlane2Property, value);
     }
 
@@ -119,14 +119,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane3 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane3 {
-        get => (bool) GetValue(EnablePlane3Property);
+        get => (bool)GetValue(EnablePlane3Property);
         set => SetValue(EnablePlane3Property, value);
     }
 
@@ -139,14 +139,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane4 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane4 {
-        get => (bool) GetValue(EnablePlane4Property);
+        get => (bool)GetValue(EnablePlane4Property);
         set => SetValue(EnablePlane4Property, value);
     }
 
@@ -159,14 +159,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane5 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane5 {
-        get => (bool) GetValue(EnablePlane5Property);
+        get => (bool)GetValue(EnablePlane5Property);
         set => SetValue(EnablePlane5Property, value);
     }
 
@@ -179,14 +179,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane6 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane6 {
-        get => (bool) GetValue(EnablePlane6Property);
+        get => (bool)GetValue(EnablePlane6Property);
         set => SetValue(EnablePlane6Property, value);
     }
 
@@ -199,14 +199,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane7 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane7 {
-        get => (bool) GetValue(EnablePlane7Property);
+        get => (bool)GetValue(EnablePlane7Property);
         set => SetValue(EnablePlane7Property, value);
     }
 
@@ -219,14 +219,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CrossSectionMeshNode).EnablePlane8 =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
     ///     Enable CrossSection Plane
     /// </summary>
     public bool EnablePlane8 {
-        get => (bool) GetValue(EnablePlane8Property);
+        get => (bool)GetValue(EnablePlane8Property);
         set => SetValue(EnablePlane8Property, value);
     }
 
@@ -238,14 +238,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane1 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane1 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane1
     /// </summary>
     public Plane Plane1 {
-        get => (Plane) GetValue(Plane1Property);
+        get => (Plane)GetValue(Plane1Property);
         set => SetValue(Plane1Property, value);
     }
 
@@ -257,14 +257,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane2 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane2 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane2
     /// </summary>
     public Plane Plane2 {
-        get => (Plane) GetValue(Plane2Property);
+        get => (Plane)GetValue(Plane2Property);
         set => SetValue(Plane2Property, value);
     }
 
@@ -276,14 +276,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane3 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane3 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane3
     /// </summary>
     public Plane Plane3 {
-        get => (Plane) GetValue(Plane3Property);
+        get => (Plane)GetValue(Plane3Property);
         set => SetValue(Plane3Property, value);
     }
 
@@ -295,14 +295,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane4 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane4 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane4
     /// </summary>
     public Plane Plane4 {
-        get => (Plane) GetValue(Plane4Property);
+        get => (Plane)GetValue(Plane4Property);
         set => SetValue(Plane4Property, value);
     }
 
@@ -314,14 +314,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane5 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane5 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane5
     /// </summary>
     public Plane Plane5 {
-        get => (Plane) GetValue(Plane5Property);
+        get => (Plane)GetValue(Plane5Property);
         set => SetValue(Plane5Property, value);
     }
 
@@ -333,14 +333,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane6 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane6 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane6
     /// </summary>
     public Plane Plane6 {
-        get => (Plane) GetValue(Plane6Property);
+        get => (Plane)GetValue(Plane6Property);
         set => SetValue(Plane6Property, value);
     }
 
@@ -352,14 +352,14 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane7 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane7 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane7
     /// </summary>
     public Plane Plane7 {
-        get => (Plane) GetValue(Plane7Property);
+        get => (Plane)GetValue(Plane7Property);
         set => SetValue(Plane7Property, value);
     }
 
@@ -371,16 +371,16 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(CrossSectionMeshGeometryModel3D),
         new PropertyMetadata(new Plane(),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane8 = (Plane) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as CrossSectionMeshNode).Plane8 = (Plane)e.NewValue;
                              }));
 
     /// <summary>
     ///     Gets or sets the Plane8
     /// </summary>
     public Plane Plane8 {
-        get => (Plane) GetValue(Plane8Property);
+        get => (Plane)GetValue(Plane8Property);
         set => SetValue(Plane8Property, value);
     }
 
-#endregion
+    #endregion
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -60,13 +60,13 @@ public static class Color4Extensions {
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static Color4 ToColor4(this string color, CultureInfo culture = null) {
+    public static Color4 ToColor4(this string color, CultureInfo? culture = null) {
         var text = color.Trim();
         if (text.Length == 0) return Color.Transparent;
 
         var obj = GetNamedColor(text);
         if (obj == null) {
-            if (culture == null) culture = CultureInfo.CurrentCulture;
+            culture ??= CultureInfo.CurrentCulture;
             var sep = culture.TextInfo.ListSeparator[0];
             var tryMappingToKnownColor = true;
 
@@ -86,17 +86,17 @@ public static class Color4Extensions {
                            (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
                            (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H")))) {
                     // Note: ConvertFromString will raise exception if value cannot be converted.
-                    obj = unchecked((int) (0xFF000000 | (uint) (int) intConverter.ConvertFromString(text))).FromArgb();
+                    obj = unchecked((int)(0xFF000000 | (uint)(int)intConverter.ConvertFromString(text))).FromArgb();
                 }
             }
 
             // Nope.  Parse the RGBA from the text.
             //
             if (obj == null) {
-                var tokens = text.Split(new[] {sep});
+                var tokens = text.Split([sep]);
                 var values = new int[tokens.Length];
                 for (var i = 0; i < values.Length; i++)
-                    values[i] = unchecked((int) intConverter.ConvertFromString(tokens[i]));
+                    values[i] = unchecked((int)intConverter.ConvertFromString(tokens[i]));
 
                 // We should now have a number of parsed integer values.
                 // We support 1, 3, or 4 arguments:
@@ -127,7 +127,7 @@ public static class Color4Extensions {
                 // If it does, then substitute it.  We can only do this for "Colors"
                 // because system colors morph with user settings.
                 //
-                var targetARGB = ((Color) obj).ToArgb();
+                var targetARGB = ((Color)obj).ToArgb();
 
                 foreach (Color c in Colors.Values)
                     if (c.ToArgb() == targetARGB) {
@@ -138,7 +138,7 @@ public static class Color4Extensions {
         }
 
         if (obj == null) throw new ArgumentException($"Invalid Color string {text}");
-        return (Color) obj;
+        return (Color)obj;
     }
 
 
@@ -148,7 +148,7 @@ public static class Color4Extensions {
     /// <param name="argb">The ARGB.</param>
     /// <returns></returns>
     public static Color FromArgb(this int argb) {
-        return new Color((byte) (argb >> 16), (byte) (argb >> 8), (byte) argb, (byte) (argb >> 24));
+        return new Color((byte)(argb >> 16), (byte)(argb >> 8), (byte)argb, (byte)(argb >> 24));
     }
 
 
@@ -160,7 +160,7 @@ public static class Color4Extensions {
     /// <param name="b">The b.</param>
     /// <returns></returns>
     public static Color FromArgb(int r, int g, int b) {
-        return new Color((byte) r, (byte) g, (byte) b);
+        return new Color((byte)r, (byte)g, (byte)b);
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ public static class Color4Extensions {
     /// <param name="b">The b.</param>
     /// <returns></returns>
     public static Color FromArgb(int a, int r, int g, int b) {
-        return new Color((byte) r, (byte) g, (byte) b, (byte) a);
+        return new Color((byte)r, (byte)g, (byte)b, (byte)a);
     }
 
 
@@ -188,17 +188,17 @@ public static class Color4Extensions {
     //private const float encodeDiv = 1f / 16777216;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float EncodeToFloat(this Color4 color) {
-        var ex = (uint) (color.GetRed() * 255);
-        var ey = (uint) (color.GetGreen() * 255);
-        var ez = (uint) (color.GetBlue() * 255);
+        var ex = (uint)(color.GetRed() * 255);
+        var ey = (uint)(color.GetGreen() * 255);
+        var ez = (uint)(color.GetBlue() * 255);
         var v = (ex << 16) | (ey << 8) | ez;
         return v;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Encode2FloatToFloat(float a, float b) {
-        var aScaled = (uint) a * 0xFFFF;
-        var bScaled = (uint) b * 0xFFFF;
+        var aScaled = (uint)a * 0xFFFF;
+        var bScaled = (uint)b * 0xFFFF;
         var abPacked = (aScaled << 16) | (bScaled & 0xFFFF);
         return abPacked;
     }

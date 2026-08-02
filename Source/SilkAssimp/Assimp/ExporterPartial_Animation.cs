@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -22,7 +22,7 @@ public partial class Exporter {
             };
             foreach (var f in animations[i].NodeAnimationCollection) {
                 if (f.Node == null || string.IsNullOrEmpty(f.Node.Name)) {
-                    logger.LogWarning("Node Animation NodeName is empty. AnimationName:{0}", ani.Name);
+                    Logger.Warn("Node Animation NodeName is empty. AnimationName:{Value0}", ani.Name);
                     continue;
                 }
 

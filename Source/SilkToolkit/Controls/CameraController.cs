@@ -384,11 +384,11 @@ public class CameraController {
         InitializeBindings();
         Viewport = viewport;
         Viewport.SizeChanged += (s, e) => {
-            Width = (int) e.NewSize.Width;
-            Height = (int) e.NewSize.Height;
+            Width = (int)e.NewSize.Width;
+            Height = (int)e.NewSize.Height;
         };
-        Width = (int) viewport.Width;
-        Height = (int) viewport.Height;
+        Width = (int)viewport.Width;
+        Height = (int)viewport.Height;
     }
 
     /// <summary>
@@ -396,7 +396,7 @@ public class CameraController {
     /// </summary>
     internal Stack<Cursor> CursorHistory { get; } = new();
 
-    internal List<MouseGestureHandler> MouseHandlers { get; } = new();
+    internal List<MouseGestureHandler> MouseHandlers { get; } = [];
 
     /// <summary>
     ///     Gets ActualCamera.
@@ -573,14 +573,14 @@ public class CameraController {
         PushCameraSetting();
         if (IsInertiaEnabled) {
             rotationPoint3D = CameraTarget;
-            rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
+            rotationPosition = new Vector2((float)Viewport.ActualWidth / 2, (float)Viewport.ActualHeight / 2);
             rotationSpeed.X += dx * 40;
             rotationSpeed.Y += dy * 40;
         } else if (FixedRotationPointEnabled) {
-            rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
+            rotationPosition = new Vector2((float)Viewport.ActualWidth / 2, (float)Viewport.ActualHeight / 2);
             rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
         } else {
-            rotationPosition = new Vector2((float) Viewport.ActualWidth / 2, (float) Viewport.ActualHeight / 2);
+            rotationPosition = new Vector2((float)Viewport.ActualWidth / 2, (float)Viewport.ActualHeight / 2);
             rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
         }
 
@@ -1127,49 +1127,48 @@ public class CameraController {
         if (!shift)
             switch (e.Key) {
                 case Key.Left:
-                    AddRotateForce(-1 * f * (float) LeftRightRotationSensitivity, 0);
+                    AddRotateForce(-1 * f * (float)LeftRightRotationSensitivity, 0);
                     e.Handled = true;
                     break;
                 case Key.Right:
-                    AddRotateForce(1 * f * (float) LeftRightRotationSensitivity, 0);
+                    AddRotateForce(1 * f * (float)LeftRightRotationSensitivity, 0);
                     e.Handled = true;
                     break;
                 case Key.Up:
-                    AddRotateForce(0, -1 * f * (float) UpDownRotationSensitivity);
+                    AddRotateForce(0, -1 * f * (float)UpDownRotationSensitivity);
                     e.Handled = true;
                     break;
                 case Key.Down:
-                    AddRotateForce(0, 1 * f * (float) UpDownRotationSensitivity);
+                    AddRotateForce(0, 1 * f * (float)UpDownRotationSensitivity);
                     e.Handled = true;
                     break;
-            }
-        else
+            } else
             switch (e.Key) {
                 case Key.Left:
-                    AddPanForce(-5 * f * (float) LeftRightPanSensitivity, 0);
+                    AddPanForce(-5 * f * (float)LeftRightPanSensitivity, 0);
                     e.Handled = true;
                     break;
                 case Key.Right:
-                    AddPanForce(5 * f * (float) LeftRightPanSensitivity, 0);
+                    AddPanForce(5 * f * (float)LeftRightPanSensitivity, 0);
                     e.Handled = true;
                     break;
                 case Key.Up:
-                    AddPanForce(0, -5 * f * (float) UpDownPanSensitivity);
+                    AddPanForce(0, -5 * f * (float)UpDownPanSensitivity);
                     e.Handled = true;
                     break;
                 case Key.Down:
-                    AddPanForce(0, 5 * f * (float) UpDownPanSensitivity);
+                    AddPanForce(0, 5 * f * (float)UpDownPanSensitivity);
                     e.Handled = true;
                     break;
             }
 
         switch (e.Key) {
             case Key.PageUp:
-                AddZoomForce(-0.1f * f * (float) PageUpDownZoomSensitivity);
+                AddZoomForce(-0.1f * f * (float)PageUpDownZoomSensitivity);
                 e.Handled = true;
                 break;
             case Key.PageDown:
-                AddZoomForce(0.1f * f * (float) PageUpDownZoomSensitivity);
+                AddZoomForce(0.1f * f * (float)PageUpDownZoomSensitivity);
                 e.Handled = true;
                 break;
             case Key.Back:
@@ -1180,22 +1179,22 @@ public class CameraController {
 
         switch (e.Key) {
             case Key.W:
-                AddMoveForce(0, 0, 0.1f * f * (float) MoveSensitivity);
+                AddMoveForce(0, 0, 0.1f * f * (float)MoveSensitivity);
                 break;
             case Key.A:
-                AddMoveForce(-0.1f * f * (float) LeftRightPanSensitivity, 0, 0);
+                AddMoveForce(-0.1f * f * (float)LeftRightPanSensitivity, 0, 0);
                 break;
             case Key.S:
-                AddMoveForce(0, 0, -0.1f * f * (float) MoveSensitivity);
+                AddMoveForce(0, 0, -0.1f * f * (float)MoveSensitivity);
                 break;
             case Key.D:
-                AddMoveForce(0.1f * f * (float) LeftRightPanSensitivity, 0, 0);
+                AddMoveForce(0.1f * f * (float)LeftRightPanSensitivity, 0, 0);
                 break;
             case Key.Z:
-                AddMoveForce(0, -0.1f * f * (float) LeftRightPanSensitivity, 0);
+                AddMoveForce(0, -0.1f * f * (float)LeftRightPanSensitivity, 0);
                 break;
             case Key.Q:
-                AddMoveForce(0, 0.1f * f * (float) LeftRightPanSensitivity, 0);
+                AddMoveForce(0, 0.1f * f * (float)LeftRightPanSensitivity, 0);
                 break;
         }
     }
@@ -1232,11 +1231,11 @@ public class CameraController {
     /// </param>
     private void OnTimeStep(long ticks) {
         if (lastTick == 0) lastTick = ticks;
-        var time = (float) (ticks - lastTick) / Stopwatch.Frequency;
+        var time = (float)(ticks - lastTick) / Stopwatch.Frequency;
         time = time == 0 ? 0.016f : time;
         time = Math.Min(time, 0.05f); // Clamp the maximum time elapse to prevent over shooting
         // should be independent of time
-        var factor = IsInertiaEnabled ? (float) Clamp(Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
+        var factor = IsInertiaEnabled ? (float)Clamp(Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
         var needUpdate = false;
 
         if (rotationSpeed.LengthSquared() > 0.1f) {
@@ -1367,12 +1366,12 @@ public class CameraController {
         ZoomExtents();
     }
 
-#region TouchGesture
+    #region TouchGesture
 
     public bool EnableTouchRotate { get; set; } = true;
     public bool EnablePinchZoom { get; set; } = true;
     public bool EnableThreeFingerPan { get; set; } = true;
     public bool PinchZoomAtCenter { get; set; } = false;
 
-#endregion
+    #endregion
 }

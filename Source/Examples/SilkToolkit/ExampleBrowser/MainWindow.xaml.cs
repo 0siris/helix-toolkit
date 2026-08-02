@@ -29,7 +29,7 @@ public partial class MainWindow {
     public MainWindow() {
         this.InitializeComponent();
         this.DataContext = this;
-        this.Examples = this.GetExamples(this.GetType().Assembly).ToArray();
+        this.Examples = [.. this.GetExamples(this.GetType().Assembly)];
     }
 
     /// <summary>
@@ -46,12 +46,12 @@ public partial class MainWindow {
     /// <param name="path">The output path.</param>
     /// <param name="delay">The delay before capturing the window (in milliseconds).</param>
     private static void CreateThumbnail(Window window, int width, string path, double delay) {
-        var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(delay)};
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(delay) };
         timer.Tick += (s, a) => {
-            var bitmap = ScreenCapture.Capture((int) window.Left,
-                                               (int) window.Top,
-                                               (int) window.ActualWidth,
-                                               (int) window.ActualHeight);
+            var bitmap = ScreenCapture.Capture((int)window.Left,
+                                               (int)window.Top,
+                                               (int)window.ActualWidth,
+                                               (int)window.ActualHeight);
             var newHeight = width * bitmap.Height / bitmap.Width;
             var resizedBitmap = BitmapTools.Resize(bitmap, width, newHeight);
             resizedBitmap.Save(path);
@@ -66,7 +66,7 @@ public partial class MainWindow {
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
     private void ListBoxMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-        var lb = (ListBox) sender;
+        var lb = (ListBox)sender;
         var example = lb.SelectedItem as Example;
         if (example != null) {
             var window = example.Create();

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -29,7 +29,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Camera).CameraInternal as ProjectionCameraCore)
-                                                                 .CreateLeftHandSystem = (bool) e.NewValue;
+                                                                 .CreateLeftHandSystem = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -43,7 +43,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
                                                          (d, e) => {
                                                              ((d as Camera).CameraInternal as ProjectionCameraCore)
                                                                  .FarPlaneDistance =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -55,7 +55,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         new PropertyMetadata(new Vector3D(0, 0, -5),
                              (d, e) => {
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).LookDirection =
-                                     ((Vector3D) e.NewValue).ToVector3();
+                                     ((Vector3D)e.NewValue).ToVector3();
                              }));
 
     /// <summary>
@@ -69,7 +69,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
                                                          (d, e) => {
                                                              ((d as Camera).CameraInternal as ProjectionCameraCore)
                                                                  .NearPlaneDistance =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -81,7 +81,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         new PropertyMetadata(new Point3D(0, 0, +5),
                              (d, e) => {
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).Position =
-                                     ((Point3D) e.NewValue).ToVector3();
+                                     ((Point3D)e.NewValue).ToVector3();
                              }));
 
     /// <summary>
@@ -93,7 +93,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
         new PropertyMetadata(new Vector3D(0, 1, 0),
                              (d, e) => {
                                  ((d as Camera).CameraInternal as ProjectionCameraCore).UpDirection =
-                                     ((Vector3D) e.NewValue).ToVector3();
+                                     ((Vector3D)e.NewValue).ToVector3();
                              }));
 
     /// <summary>
@@ -111,7 +111,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     <c>true</c> if creating a left hand system; otherwise, <c>false</c>.
     /// </value>
     public override bool CreateLeftHandSystem {
-        get => (bool) GetValue(CreateLeftHandSystemProperty);
+        get => (bool)GetValue(CreateLeftHandSystemProperty);
         set => SetValue(CreateLeftHandSystemProperty, value);
     }
 
@@ -122,7 +122,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     The far plane distance.
     /// </value>
     public double FarPlaneDistance {
-        get => (double) GetValue(FarPlaneDistanceProperty);
+        get => (double)GetValue(FarPlaneDistanceProperty);
         set => SetValue(FarPlaneDistanceProperty, value);
     }
 
@@ -133,7 +133,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     The look direction.
     /// </value>
     public override Vector3D LookDirection {
-        get => (Vector3D) GetValue(LookDirectionProperty);
+        get => (Vector3D)GetValue(LookDirectionProperty);
         set => SetValue(LookDirectionProperty, value);
     }
 
@@ -144,7 +144,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     The near plane distance.
     /// </value>
     public double NearPlaneDistance {
-        get => (double) GetValue(NearPlaneDistanceProperty);
+        get => (double)GetValue(NearPlaneDistanceProperty);
         set => SetValue(NearPlaneDistanceProperty, value);
     }
 
@@ -155,7 +155,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     The position.
     /// </value>
     public override Point3D Position {
-        get => (Point3D) GetValue(PositionProperty);
+        get => (Point3D)GetValue(PositionProperty);
         set => SetValue(PositionProperty, value);
     }
 
@@ -166,7 +166,7 @@ public abstract class ProjectionCamera : Camera, IProjectionCameraModel {
     ///     Up direction.
     /// </value>
     public override Vector3D UpDirection {
-        get => (Vector3D) GetValue(UpDirectionProperty);
+        get => (Vector3D)GetValue(UpDirectionProperty);
         set => SetValue(UpDirectionProperty, value);
     }
 }

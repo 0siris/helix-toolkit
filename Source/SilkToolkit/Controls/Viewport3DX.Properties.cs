@@ -33,9 +33,8 @@ public partial class Viewport3DX {
         typeof(Viewport3DX),
         new PropertyMetadata(Colors.White,
                              (s, e) => {
-                                 if (((Viewport3DX) s).renderHostInternal != null)
-                                     ((Viewport3DX) s).renderHostInternal.ClearColor =
-                                         ((WpfColor) e.NewValue).ToColor4();
+                                 ((Viewport3DX)s).renderHostInternal?.ClearColor =
+                                         ((WpfColor)e.NewValue).ToColor4();
                              }));
 
     public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register("RenderTechnique",
@@ -43,7 +42,7 @@ public partial class Viewport3DX {
         typeof(Viewport3DX),
         new PropertyMetadata(null,
                              (s, e) => {
-                                 ((Viewport3DX) s).RenderTechniquePropertyChanged((IRenderTechnique) e.NewValue);
+                                 ((Viewport3DX)s).RenderTechniquePropertyChanged((IRenderTechnique)e.NewValue);
                              }));
 
     /// <summary>
@@ -65,7 +64,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(0.93,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.InertiaFactor = (double) e.NewValue;
+                                 viewport.CameraController.InertiaFactor = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -77,7 +76,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(CameraMode.Inspect,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.CameraMode = (CameraMode) e.NewValue;
+                                 viewport.CameraController.CameraMode = (CameraMode)e.NewValue;
                              }));
 
     /// <summary>
@@ -98,7 +97,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(CameraRotationMode.Turntable,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.CameraRotationMode = (CameraRotationMode) e.NewValue;
+                                 viewport.CameraController.CameraRotationMode = (CameraRotationMode)e.NewValue;
                              }));
 
     /// <summary>
@@ -111,7 +110,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(Cursors.ScrollNS,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ChangeFieldOfViewCursor = (Cursor) e.NewValue;
+                                 viewport.CameraController.ChangeFieldOfViewCursor = (Cursor)e.NewValue;
                              }));
 
     /// <summary>
@@ -308,7 +307,7 @@ public partial class Viewport3DX {
         typeof(IEffectsManager),
         typeof(Viewport3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((Viewport3DX) s).EffectsManagerPropertyChanged()));
+                             (s, e) => ((Viewport3DX)s).EffectsManagerPropertyChanged()));
 
     /// <summary>
     ///     The field of view text property.
@@ -351,7 +350,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.InfiniteSpin = (bool) e.NewValue;
+                                 viewport.CameraController.InfiniteSpin = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -404,8 +403,7 @@ public partial class Viewport3DX {
         typeof(Viewport3DX),
         new PropertyMetadata(false,
                              (s, e) => {
-                                 if (((Viewport3DX) s).renderHostInternal != null)
-                                     ((Viewport3DX) s).renderHostInternal.IsShadowMapEnabled = (bool) e.NewValue;
+                                 ((Viewport3DX)s).renderHostInternal?.IsShadowMapEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -418,7 +416,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.IsChangeFieldOfViewEnabled = (bool) e.NewValue;
+                                 viewport.CameraController.IsChangeFieldOfViewEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -432,7 +430,7 @@ public partial class Viewport3DX {
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              viewport.CameraController.IsInertiaEnabled =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -444,7 +442,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.IsPanEnabled = (bool) e.NewValue;
+                                 viewport.CameraController.IsPanEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -457,7 +455,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.IsRotationEnabled = (bool) e.NewValue;
+                                 viewport.CameraController.IsRotationEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -471,7 +469,7 @@ public partial class Viewport3DX {
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              viewport.CameraController.EnableTouchRotate =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -484,7 +482,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.EnablePinchZoom = (bool) e.NewValue;
+                                 viewport.CameraController.EnablePinchZoom = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -498,7 +496,7 @@ public partial class Viewport3DX {
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              viewport.CameraController.PinchZoomAtCenter =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -512,7 +510,7 @@ public partial class Viewport3DX {
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              viewport.CameraController.EnableThreeFingerPan =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -524,7 +522,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.IsZoomEnabled = (bool) e.NewValue;
+                                 viewport.CameraController.IsZoomEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -537,7 +535,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.LeftRightPanSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.LeftRightPanSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -550,7 +548,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.LeftRightRotationSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.LeftRightRotationSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -563,7 +561,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(120.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.MaximumFieldOfView = (double) e.NewValue;
+                                 viewport.CameraController.MaximumFieldOfView = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -576,7 +574,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(10.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.MinimumFieldOfView = (double) e.NewValue;
+                                 viewport.CameraController.MinimumFieldOfView = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -588,7 +586,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(new Vector3D(0, 1, 0),
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ModelUpDirection = ((Vector3D) e.NewValue).ToVector3();
+                                 viewport.CameraController.ModelUpDirection = ((Vector3D)e.NewValue).ToVector3();
                              }));
 
     /// <summary>
@@ -597,7 +595,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty OrthographicProperty = DependencyProperty.Register("Orthographic",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false, (s, e) => ((Viewport3DX) s).OrthographicChanged()));
+        new PropertyMetadata(false, (s, e) => ((Viewport3DX)s).OrthographicChanged()));
 
     /// <summary>
     ///     The orthographic toggle gesture property.
@@ -618,7 +616,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.PageUpDownZoomSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.PageUpDownZoomSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -630,7 +628,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(Cursors.Hand,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.PanCursor = (Cursor) e.NewValue;
+                                 viewport.CameraController.PanCursor = (Cursor)e.NewValue;
                              }));
 
     /// <summary>
@@ -643,7 +641,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.RotateAroundMouseDownPoint = (bool) e.NewValue;
+                                 viewport.CameraController.RotateAroundMouseDownPoint = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -655,7 +653,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(Cursors.SizeAll,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.RotateCursor = (Cursor) e.NewValue;
+                                 viewport.CameraController.RotateCursor = (Cursor)e.NewValue;
                              }));
 
     /// <summary>
@@ -668,7 +666,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.RotationSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.RotationSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -680,7 +678,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  if ((d as Viewport3DX).renderHostInternal != null) {
-                                     if ((bool) e.NewValue)
+                                     if ((bool)e.NewValue)
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail |= RenderDetail.Camera;
                                      else
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail &= ~RenderDetail.Camera;
@@ -696,7 +694,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ShowCameraTarget = (bool) e.NewValue;
+                                 viewport.CameraController.ShowCameraTarget = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -717,7 +715,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  if ((d as Viewport3DX).renderHostInternal != null) {
-                                     if ((bool) e.NewValue)
+                                     if ((bool)e.NewValue)
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail |= RenderDetail.FPS;
                                      else
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail &= ~RenderDetail.FPS;
@@ -733,7 +731,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  if ((d as Viewport3DX).renderHostInternal != null) {
-                                     if ((bool) e.NewValue)
+                                     if ((bool)e.NewValue)
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail |=
                                              RenderDetail.Statistics;
                                      else
@@ -752,7 +750,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  if ((d as Viewport3DX).renderHostInternal != null) {
-                                     if ((bool) e.NewValue)
+                                     if ((bool)e.NewValue)
                                          (d as Viewport3DX).renderHostInternal.ShowRenderDetail |=
                                              RenderDetail.TriangleInfo;
                                      else
@@ -779,7 +777,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(200,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.SpinReleaseTime = (int) e.NewValue;
+                                 viewport.CameraController.SpinReleaseTime = (int)e.NewValue;
                              }));
 
     /// <summary>
@@ -856,7 +854,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.UpDownPanSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.UpDownPanSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -869,7 +867,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.UpDownRotationSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.UpDownRotationSensitivity = (double)e.NewValue;
                              }));
 
     // Using a DependencyProperty as the backing store for AllowUpDownRotation.  This enables animation, styling, binding, etc...
@@ -881,7 +879,7 @@ public partial class Viewport3DX {
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              var allowX = viewport.cameraController.AllowRotateXY.X;
-                                                             float allowY = (bool) e.NewValue ? 1 : 0;
+                                                             float allowY = (bool)e.NewValue ? 1 : 0;
                                                              viewport.CameraController.AllowRotateXY =
                                                                  new Vector2(allowX, allowY);
                                                          }));
@@ -894,7 +892,7 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             float allowX = (bool) e.NewValue ? 1 : 0;
+                                                             float allowX = (bool)e.NewValue ? 1 : 0;
                                                              var allowY = viewport.cameraController.AllowRotateXY.Y;
                                                              viewport.CameraController.AllowRotateXY =
                                                                  new Vector2(allowX, allowY);
@@ -908,7 +906,7 @@ public partial class Viewport3DX {
         "UseDefaultGestures",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(true, (s, e) => ((Viewport3DX) s).UseDefaultGesturesChanged()));
+        new PropertyMetadata(true, (s, e) => ((Viewport3DX)s).UseDefaultGesturesChanged()));
 
     /// <summary>
     ///     The view cube texture. It must be a 6x1 (ex: 600x100) ratio image. You can also use
@@ -977,7 +975,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(false,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomAroundMouseDownPoint = (bool) e.NewValue;
+                                 viewport.CameraController.ZoomAroundMouseDownPoint = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -989,7 +987,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(Cursors.SizeNS,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomCursor = (Cursor) e.NewValue;
+                                 viewport.CameraController.ZoomCursor = (Cursor)e.NewValue;
                              }));
 
     /// <summary>
@@ -1002,7 +1000,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(double.PositiveInfinity,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomDistanceLimitFar = (double) e.NewValue;
+                                 viewport.CameraController.ZoomDistanceLimitFar = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -1015,7 +1013,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(0.001,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomDistanceLimitNear = (double) e.NewValue;
+                                 viewport.CameraController.ZoomDistanceLimitNear = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -1037,7 +1035,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(Cursors.SizeNWSE,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomRectangleCursor = (Cursor) e.NewValue;
+                                 viewport.CameraController.ZoomRectangleCursor = (Cursor)e.NewValue;
                              }));
 
     /// <summary>
@@ -1058,7 +1056,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.ZoomSensitivity = (double) e.NewValue;
+                                 viewport.CameraController.ZoomSensitivity = (double)e.NewValue;
                              }));
 
     /// <summary>
@@ -1070,8 +1068,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(MSAALevel.Disable,
                              (s, e) => {
                                  var viewport = s as Viewport3DX;
-                                 if (viewport.renderHostInternal != null)
-                                     viewport.renderHostInternal.MSAA = (MSAALevel) e.NewValue;
+                                 viewport.renderHostInternal?.MSAA = (MSAALevel)e.NewValue;
                              }));
 
     /// <summary>
@@ -1083,7 +1080,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(true,
                              (d, e) => {
                                  var viewport = d as Viewport3DX;
-                                 viewport.CameraController.IsMoveEnabled = (bool) e.NewValue;
+                                 viewport.CameraController.IsMoveEnabled = (bool)e.NewValue;
                              }));
 
 
@@ -1097,7 +1094,7 @@ public partial class Viewport3DX {
         new PropertyMetadata(new Point3D(),
                              (d, e) => {
                                  (d as Viewport3DX).CameraController.FixedRotationPoint =
-                                     ((Point3D) e.NewValue).ToVector3();
+                                     ((Point3D)e.NewValue).ToVector3();
                              }));
 
     /// <summary>
@@ -1109,7 +1106,7 @@ public partial class Viewport3DX {
         typeof(Viewport3DX),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 (d as Viewport3DX).CameraController.FixedRotationPointEnabled = (bool) e.NewValue;
+                                 (d as Viewport3DX).CameraController.FixedRotationPointEnabled = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -1119,7 +1116,7 @@ public partial class Viewport3DX {
         "EnableMouseButtonHitTest",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(true, (d, e) => { (d as Viewport3DX).enableMouseButtonHitTest = (bool) e.NewValue; }));
+        new PropertyMetadata(true, (d, e) => { (d as Viewport3DX).enableMouseButtonHitTest = (bool)e.NewValue; }));
 
     /// <summary>
     ///     Manually move camera to look at a point in 3D space
@@ -1131,7 +1128,7 @@ public partial class Viewport3DX {
         new FrameworkPropertyMetadata(new Point3D(),
                                       (d, e) => { },
                                       (d, e) => {
-                                          (d as Viewport3DX).LookAt((Point3D) e);
+                                          (d as Viewport3DX).LookAt((Point3D)e);
                                           return e;
                                       }) {
             BindsTwoWayByDefault = false
@@ -1148,7 +1145,7 @@ public partial class Viewport3DX {
                                                            (s, e) => {
                                                                var viewport = s as Viewport3DX;
                                                                if (viewport.renderHostInternal != null)
-                                                                   viewport.EnableRenderFrustum = (bool) e.NewValue;
+                                                                   viewport.EnableRenderFrustum = (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -1173,9 +1170,8 @@ public partial class Viewport3DX {
                                       new PropertyMetadata(false,
                                                            (s, e) => {
                                                                var viewport = s as Viewport3DX;
-                                                               if (viewport.renderHostInternal != null)
-                                                                   viewport.renderHostInternal.EnableSharingModelMode =
-                                                                       (bool) e.NewValue;
+                                                               viewport.renderHostInternal?.EnableSharingModelMode =
+                                                                       (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -1193,10 +1189,9 @@ public partial class Viewport3DX {
                                                                if (e.NewValue is IModelContainer n)
                                                                    n.AttachViewport3DX(viewport);
                                                                viewport.SharedModelContainerInternal =
-                                                                   (IModelContainer) e.NewValue;
-                                                               if (viewport.renderHostInternal != null)
-                                                                   viewport.renderHostInternal.SharedModelContainer =
-                                                                       (IModelContainer) e.NewValue;
+                                                                   (IModelContainer)e.NewValue;
+                                                               viewport.renderHostInternal?.SharedModelContainer =
+                                                                       (IModelContainer)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -1237,7 +1232,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .RenderD2D = (bool) e.NewValue;
+                                                                         .RenderD2D = (bool)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1252,9 +1247,8 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             if (viewport.renderHostInternal != null)
-                                                                 viewport.renderHostInternal.RenderConfiguration
-                                                                         .AutoUpdateOctree = (bool) e.NewValue;
+                                                             viewport.renderHostInternal?.RenderConfiguration
+                                                                         .AutoUpdateOctree = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -1270,7 +1264,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITRenderType = (OITRenderType) e.NewValue;
+                                                                         .OITRenderType = (OITRenderType)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1287,7 +1281,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITWeightPower = (float) (double) e.NewValue;
+                                                                         .OITWeightPower = (float)(double)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1306,7 +1300,7 @@ public partial class Viewport3DX {
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
                                                                          .OITWeightDepthSlope =
-                                                                     (float) (double) e.NewValue;
+                                                                     (float)(double)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1325,7 +1319,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITWeightMode = (OITWeightMode) e.NewValue;
+                                                                         .OITWeightMode = (OITWeightMode)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1339,7 +1333,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITDepthPeelingIteration = (int) e.NewValue;
+                                                                         .OITDepthPeelingIteration = (int)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1356,7 +1350,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .FXAALevel = (FXAALevel) e.NewValue;
+                                                                         .FXAALevel = (FXAALevel)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1384,7 +1378,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .EnableRenderOrder = (bool) e.NewValue;
+                                                                         .EnableRenderOrder = (bool)e.NewValue;
                                                                  viewport.renderHostInternal
                                                                          .InvalidatePerFrameRenderables();
                                                              }
@@ -1402,7 +1396,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .EnableSSAO = (bool) e.NewValue;
+                                                                         .EnableSSAO = (bool)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1420,7 +1414,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAORadius = (float) (double) e.NewValue;
+                                                                         .SSAORadius = (float)(double)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1434,7 +1428,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAOIntensity = (float) (double) e.NewValue;
+                                                                         .SSAOIntensity = (float)(double)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1451,7 +1445,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAOQuality = (SSAOQuality) e.NewValue;
+                                                                         .SSAOQuality = (SSAOQuality)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1467,10 +1461,9 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(6,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             if (viewport.renderHostInternal != null)
-                                                                 viewport.renderHostInternal.RenderConfiguration
+                                                             viewport.renderHostInternal?.RenderConfiguration
                                                                          .MinimumUpdateCount =
-                                                                     (uint) Math.Max(0, (int) e.NewValue);
+                                                                     (uint)Math.Max(0, (int)e.NewValue);
                                                          }));
 
     /// <summary>
@@ -1494,7 +1487,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.hostPresenter != null &&
                                                                  viewport.hostPresenter.Content is IRenderCanvas canvas)
-                                                                 canvas.DpiScale = (double) e.NewValue;
+                                                                 canvas.DpiScale = (double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -1509,7 +1502,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.hostPresenter != null &&
                                                                  viewport.hostPresenter.Content is IRenderCanvas canvas)
-                                                                 canvas.EnableDpiScale = (bool) e.NewValue;
+                                                                 canvas.EnableDpiScale = (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty IncreaseSwapchainFPSProperty =
@@ -1522,7 +1515,7 @@ public partial class Viewport3DX {
                                                              if (viewport.hostPresenter != null &&
                                                                  viewport.hostPresenter.Content is DPFSurfaceSwapChain
                                                                      surface)
-                                                                 surface.IncreaseFPS = (bool) e.NewValue;
+                                                                 surface.IncreaseFPS = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -1537,7 +1530,7 @@ public partial class Viewport3DX {
     ///     Background WpfColor
     /// </summary>
     public WpfColor BackgroundColor {
-        get => (WpfColor) GetValue(BackgroundColorProperty);
+        get => (WpfColor)GetValue(BackgroundColorProperty);
         set => SetValue(BackgroundColorProperty, value);
     }
 
@@ -1548,7 +1541,7 @@ public partial class Viewport3DX {
     ///     The camera.
     /// </value>
     public Camera Camera {
-        get => (Camera) GetValue(CameraProperty);
+        get => (Camera)GetValue(CameraProperty);
 
         set => SetValue(CameraProperty, value);
     }
@@ -1565,7 +1558,7 @@ public partial class Viewport3DX {
     ///     The camera inertia factor.
     /// </value>
     public double CameraInertiaFactor {
-        get => (double) GetValue(CameraInertiaFactorProperty);
+        get => (double)GetValue(CameraInertiaFactorProperty);
 
         set => SetValue(CameraInertiaFactorProperty, value);
     }
@@ -1577,7 +1570,7 @@ public partial class Viewport3DX {
     ///     The camera mode.
     /// </value>
     public CameraMode CameraMode {
-        get => (CameraMode) GetValue(CameraModeProperty);
+        get => (CameraMode)GetValue(CameraModeProperty);
 
         set => SetValue(CameraModeProperty, value);
     }
@@ -1589,7 +1582,7 @@ public partial class Viewport3DX {
     ///     The camera rotation mode.
     /// </value>
     public CameraRotationMode CameraRotationMode {
-        get => (CameraRotationMode) GetValue(CameraRotationModeProperty);
+        get => (CameraRotationMode)GetValue(CameraRotationModeProperty);
 
         set => SetValue(CameraRotationModeProperty, value);
     }
@@ -1601,7 +1594,7 @@ public partial class Viewport3DX {
     ///     The change field of view cursor.
     /// </value>
     public Cursor ChangeFieldOfViewCursor {
-        get => (Cursor) GetValue(ChangeFieldOfViewCursorProperty);
+        get => (Cursor)GetValue(ChangeFieldOfViewCursorProperty);
 
         set => SetValue(ChangeFieldOfViewCursorProperty, value);
     }
@@ -1614,7 +1607,7 @@ public partial class Viewport3DX {
     ///     The horizontal position.
     /// </value>
     public double CoordinateSystemHorizontalPosition {
-        get => (double) GetValue(CoordinateSystemHorizontalPositionProperty);
+        get => (double)GetValue(CoordinateSystemHorizontalPositionProperty);
 
         set => SetValue(CoordinateSystemHorizontalPositionProperty, value);
     }
@@ -1626,7 +1619,7 @@ public partial class Viewport3DX {
     ///     The color of the coordinate system label.
     /// </value>
     public WpfColor CoordinateSystemLabelForeground {
-        get => (WpfColor) GetValue(CoordinateSystemLabelForegroundProperty);
+        get => (WpfColor)GetValue(CoordinateSystemLabelForegroundProperty);
 
         set => SetValue(CoordinateSystemLabelForegroundProperty, value);
     }
@@ -1638,7 +1631,7 @@ public partial class Viewport3DX {
     ///     The coordinate system label X.
     /// </value>
     public string CoordinateSystemLabelX {
-        get => (string) GetValue(CoordinateSystemLabelXProperty);
+        get => (string)GetValue(CoordinateSystemLabelXProperty);
 
         set => SetValue(CoordinateSystemLabelXProperty, value);
     }
@@ -1650,7 +1643,7 @@ public partial class Viewport3DX {
     ///     The coordinate system label Y.
     /// </value>
     public string CoordinateSystemLabelY {
-        get => (string) GetValue(CoordinateSystemLabelYProperty);
+        get => (string)GetValue(CoordinateSystemLabelYProperty);
 
         set => SetValue(CoordinateSystemLabelYProperty, value);
     }
@@ -1662,7 +1655,7 @@ public partial class Viewport3DX {
     ///     The coordinate system label Z.
     /// </value>
     public string CoordinateSystemLabelZ {
-        get => (string) GetValue(CoordinateSystemLabelZProperty);
+        get => (string)GetValue(CoordinateSystemLabelZProperty);
 
         set => SetValue(CoordinateSystemLabelZProperty, value);
     }
@@ -1674,7 +1667,7 @@ public partial class Viewport3DX {
     ///     The coordinate system color X.
     /// </value>
     public WpfColor CoordinateSystemAxisXColor {
-        get => (WpfColor) GetValue(CoordinateSystemAxisXColorProperty);
+        get => (WpfColor)GetValue(CoordinateSystemAxisXColorProperty);
 
         set => SetValue(CoordinateSystemAxisXColorProperty, value);
     }
@@ -1686,7 +1679,7 @@ public partial class Viewport3DX {
     ///     The coordinate system color T.
     /// </value>
     public WpfColor CoordinateSystemAxisYColor {
-        get => (WpfColor) GetValue(CoordinateSystemAxisYColorProperty);
+        get => (WpfColor)GetValue(CoordinateSystemAxisYColorProperty);
 
         set => SetValue(CoordinateSystemAxisYColorProperty, value);
     }
@@ -1698,7 +1691,7 @@ public partial class Viewport3DX {
     ///     The coordinate system color Z.
     /// </value>
     public WpfColor CoordinateSystemAxisZColor {
-        get => (WpfColor) GetValue(CoordinateSystemAxisZColorProperty);
+        get => (WpfColor)GetValue(CoordinateSystemAxisZColorProperty);
 
         set => SetValue(CoordinateSystemAxisZColorProperty, value);
     }
@@ -1711,7 +1704,7 @@ public partial class Viewport3DX {
     ///     The vertical position.
     /// </value>
     public double CoordinateSystemVerticalPosition {
-        get => (double) GetValue(CoordinateSystemVerticalPositionProperty);
+        get => (double)GetValue(CoordinateSystemVerticalPositionProperty);
 
         set => SetValue(CoordinateSystemVerticalPositionProperty, value);
     }
@@ -1723,7 +1716,7 @@ public partial class Viewport3DX {
     ///     The width of the coordinate system viewport.
     /// </value>
     public double CoordinateSystemSize {
-        get => (double) GetValue(CoordinateSystemSizeProperty);
+        get => (double)GetValue(CoordinateSystemSizeProperty);
 
         set => SetValue(CoordinateSystemSizeProperty, value);
     }
@@ -1736,7 +1729,7 @@ public partial class Viewport3DX {
     /// </value>
     [Obsolete("EnableCurrentPosition is now obsolete, please use EnableCursorPosition instead", false)]
     public bool EnableCurrentPosition {
-        get => (bool) GetValue(EnableCurrentPositionProperty);
+        get => (bool)GetValue(EnableCurrentPositionProperty);
 
         set => SetValue(EnableCurrentPositionProperty, value);
     }
@@ -1752,7 +1745,7 @@ public partial class Viewport3DX {
     /// </remarks>
     [Obsolete("CurrentPosition is now obsolete, please use CursorPosition instead", false)]
     public Point3D CurrentPosition {
-        get => (Point3D) GetValue(CurrentPositionProperty);
+        get => (Point3D)GetValue(CurrentPositionProperty);
 
         set => SetValue(CurrentPositionProperty, value);
     }
@@ -1764,7 +1757,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if calculation is enabled; otherwise, <c>false</c> .
     /// </value>
     public bool EnableCursorPosition {
-        get => (bool) GetValue(EnableCursorPositionProperty);
+        get => (bool)GetValue(EnableCursorPositionProperty);
 
         set => SetValue(EnableCursorPositionProperty, value);
     }
@@ -1779,7 +1772,7 @@ public partial class Viewport3DX {
     ///     The <see cref="EnableCursorPosition" /> property must be set to true to enable updating of this property.
     /// </remarks>
     public Point3D? CursorPosition {
-        get => (Point3D?) GetValue(CursorPositionProperty);
+        get => (Point3D?)GetValue(CursorPositionProperty);
 
         private set => SetValue(CursorPositionProperty, value);
     }
@@ -1794,7 +1787,7 @@ public partial class Viewport3DX {
     ///     The <see cref="EnableCursorPosition" /> property must be set to <c>true</c> to enable updating of this property.
     /// </remarks>
     public Point3D? CursorOnElementPosition {
-        get => (Point3D?) GetValue(CursorOnElementPositionProperty);
+        get => (Point3D?)GetValue(CursorOnElementPositionProperty);
 
         private set => SetValue(CursorOnElementPositionProperty, value);
     }
@@ -1807,13 +1800,13 @@ public partial class Viewport3DX {
     ///     The default camera.
     /// </value>
     public ProjectionCamera DefaultCamera {
-        get => (ProjectionCamera) GetValue(DefaultCameraProperty);
+        get => (ProjectionCamera)GetValue(DefaultCameraProperty);
 
         set => SetValue(DefaultCameraProperty, value);
     }
 
     public IRenderTechnique RenderTechnique {
-        get => (IRenderTechnique) GetValue(RenderTechniqueProperty);
+        get => (IRenderTechnique)GetValue(RenderTechniqueProperty);
         set => SetValue(RenderTechniqueProperty, value);
     }
 
@@ -1824,7 +1817,7 @@ public partial class Viewport3DX {
     ///     The field of view text.
     /// </value>
     public string FieldOfViewText {
-        get => (string) GetValue(FieldOfViewTextProperty);
+        get => (string)GetValue(FieldOfViewTextProperty);
 
         set => SetValue(FieldOfViewTextProperty, value);
     }
@@ -1836,7 +1829,7 @@ public partial class Viewport3DX {
     ///     The frame rate.
     /// </value>
     public double FrameRate {
-        get => (double) GetValue(FrameRateProperty);
+        get => (double)GetValue(FrameRateProperty);
 
         set => SetValue(FrameRateProperty, value);
     }
@@ -1848,7 +1841,7 @@ public partial class Viewport3DX {
     ///     The frame rate text.
     /// </value>
     public string FrameRateText {
-        get => (string) GetValue(FrameRateTextProperty);
+        get => (string)GetValue(FrameRateTextProperty);
 
         set => SetValue(FrameRateTextProperty, value);
     }
@@ -1860,7 +1853,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if infinite spin is enabled; otherwise, <c>false</c> .
     /// </value>
     public bool InfiniteSpin {
-        get => (bool) GetValue(InfiniteSpinProperty);
+        get => (bool)GetValue(InfiniteSpinProperty);
 
         set => SetValue(InfiniteSpinProperty, value);
     }
@@ -1872,7 +1865,7 @@ public partial class Viewport3DX {
     ///     The info background.
     /// </value>
     public WpfBrush InfoBackground {
-        get => (WpfBrush) GetValue(InfoBackgroundProperty);
+        get => (WpfBrush)GetValue(InfoBackgroundProperty);
 
         set => SetValue(InfoBackgroundProperty, value);
     }
@@ -1884,7 +1877,7 @@ public partial class Viewport3DX {
     ///     The foreground brush.
     /// </value>
     public WpfBrush InfoForeground {
-        get => (WpfBrush) GetValue(InfoForegroundProperty);
+        get => (WpfBrush)GetValue(InfoForegroundProperty);
 
         set => SetValue(InfoForegroundProperty, value);
     }
@@ -1896,7 +1889,7 @@ public partial class Viewport3DX {
     ///     The message text.
     /// </value>
     public string MessageText {
-        get => (string) GetValue(MessageTextProperty);
+        get => (string)GetValue(MessageTextProperty);
 
         set => SetValue(MessageTextProperty, value);
     }
@@ -1905,7 +1898,7 @@ public partial class Viewport3DX {
     ///     Gets or sets the <see cref="System.Exception" /> that occured at rendering subsystem.
     /// </summary>
     public Exception RenderException {
-        get => (Exception) GetValue(RenderExceptionProperty);
+        get => (Exception)GetValue(RenderExceptionProperty);
         set => SetValue(RenderExceptionProperty, value);
     }
 
@@ -1916,7 +1909,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if change field of view is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsChangeFieldOfViewEnabled {
-        get => (bool) GetValue(IsChangeFieldOfViewEnabledProperty);
+        get => (bool)GetValue(IsChangeFieldOfViewEnabledProperty);
 
         set => SetValue(IsChangeFieldOfViewEnabledProperty, value);
     }
@@ -1926,7 +1919,7 @@ public partial class Viewport3DX {
     /// </summary>
     /// <value><c>true</c> if inertia is enabled; otherwise, <c>false</c>.</value>
     public bool IsInertiaEnabled {
-        get => (bool) GetValue(IsInertiaEnabledProperty);
+        get => (bool)GetValue(IsInertiaEnabledProperty);
 
         set => SetValue(IsInertiaEnabledProperty, value);
     }
@@ -1938,7 +1931,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if pan is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsPanEnabled {
-        get => (bool) GetValue(IsPanEnabledProperty);
+        get => (bool)GetValue(IsPanEnabledProperty);
 
         set => SetValue(IsPanEnabledProperty, value);
     }
@@ -1950,7 +1943,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if rotation is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsRotationEnabled {
-        get => (bool) GetValue(IsRotationEnabledProperty);
+        get => (bool)GetValue(IsRotationEnabledProperty);
 
         set => SetValue(IsRotationEnabledProperty, value);
     }
@@ -1962,7 +1955,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable touch rotate]; otherwise, <c>false</c>.
     /// </value>
     public bool IsTouchRotateEnabled {
-        get => (bool) GetValue(IsTouchRotateEnabledProperty);
+        get => (bool)GetValue(IsTouchRotateEnabledProperty);
         set => SetValue(IsTouchRotateEnabledProperty, value);
     }
 
@@ -1973,7 +1966,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if pinch zoom is enabled; otherwise, <c>false</c> .
     /// </value>
     public bool IsPinchZoomEnabled {
-        get => (bool) GetValue(IsPinchZoomEnabledProperty);
+        get => (bool)GetValue(IsPinchZoomEnabledProperty);
 
         set => SetValue(IsPinchZoomEnabledProperty, value);
     }
@@ -1986,7 +1979,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [pinch zoom at center]; otherwise, <c>false</c>.
     /// </value>
     public bool PinchZoomAtCenter {
-        get => (bool) GetValue(PinchZoomAtCenterProperty);
+        get => (bool)GetValue(PinchZoomAtCenterProperty);
         set => SetValue(PinchZoomAtCenterProperty, value);
     }
 
@@ -1997,7 +1990,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable three finger panning]; otherwise, <c>false</c>.
     /// </value>
     public bool IsThreeFingerPanningEnabled {
-        get => (bool) GetValue(IsThreeFingerPanningEnabledProperty);
+        get => (bool)GetValue(IsThreeFingerPanningEnabledProperty);
         set => SetValue(IsThreeFingerPanningEnabledProperty, value);
     }
 
@@ -2008,7 +2001,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if zoom is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsZoomEnabled {
-        get => (bool) GetValue(IsZoomEnabledProperty);
+        get => (bool)GetValue(IsZoomEnabledProperty);
 
         set => SetValue(IsZoomEnabledProperty, value);
     }
@@ -2023,7 +2016,7 @@ public partial class Viewport3DX {
     ///     Use -1 to invert the pan direction.
     /// </remarks>
     public double LeftRightPanSensitivity {
-        get => (double) GetValue(LeftRightPanSensitivityProperty);
+        get => (double)GetValue(LeftRightPanSensitivityProperty);
 
         set => SetValue(LeftRightPanSensitivityProperty, value);
     }
@@ -2038,7 +2031,7 @@ public partial class Viewport3DX {
     ///     Use -1 to invert the rotation direction.
     /// </remarks>
     public double LeftRightRotationSensitivity {
-        get => (double) GetValue(LeftRightRotationSensitivityProperty);
+        get => (double)GetValue(LeftRightRotationSensitivityProperty);
 
         set => SetValue(LeftRightRotationSensitivityProperty, value);
     }
@@ -2050,7 +2043,7 @@ public partial class Viewport3DX {
     ///     The maximum field of view.
     /// </value>
     public double MaximumFieldOfView {
-        get => (double) GetValue(MaximumFieldOfViewProperty);
+        get => (double)GetValue(MaximumFieldOfViewProperty);
 
         set => SetValue(MaximumFieldOfViewProperty, value);
     }
@@ -2062,7 +2055,7 @@ public partial class Viewport3DX {
     ///     The minimum field of view.
     /// </value>
     public double MinimumFieldOfView {
-        get => (double) GetValue(MinimumFieldOfViewProperty);
+        get => (double)GetValue(MinimumFieldOfViewProperty);
 
         set => SetValue(MinimumFieldOfViewProperty, value);
     }
@@ -2074,7 +2067,7 @@ public partial class Viewport3DX {
     ///     The model up direction.
     /// </value>
     public Vector3D ModelUpDirection {
-        get => (Vector3D) GetValue(ModelUpDirectionProperty);
+        get => (Vector3D)GetValue(ModelUpDirectionProperty);
 
         set => SetValue(ModelUpDirectionProperty, value);
     }
@@ -2086,7 +2079,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if orthographic; otherwise, <c>false</c> .
     /// </value>
     public bool Orthographic {
-        get => (bool) GetValue(OrthographicProperty);
+        get => (bool)GetValue(OrthographicProperty);
 
         set => SetValue(OrthographicProperty, value);
     }
@@ -2101,7 +2094,7 @@ public partial class Viewport3DX {
     ///     Use -1 to invert the zoom direction.
     /// </remarks>
     public double PageUpDownZoomSensitivity {
-        get => (double) GetValue(PageUpDownZoomSensitivityProperty);
+        get => (double)GetValue(PageUpDownZoomSensitivityProperty);
 
         set => SetValue(PageUpDownZoomSensitivityProperty, value);
     }
@@ -2113,7 +2106,7 @@ public partial class Viewport3DX {
     ///     The pan cursor.
     /// </value>
     public Cursor PanCursor {
-        get => (Cursor) GetValue(PanCursorProperty);
+        get => (Cursor)GetValue(PanCursorProperty);
 
         set => SetValue(PanCursorProperty, value);
     }
@@ -2125,7 +2118,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if rotating around mouse down point; otherwise, <c>false</c>.
     /// </value>
     public bool RotateAroundMouseDownPoint {
-        get => (bool) GetValue(RotateAroundMouseDownPointProperty);
+        get => (bool)GetValue(RotateAroundMouseDownPointProperty);
 
         set => SetValue(RotateAroundMouseDownPointProperty, value);
     }
@@ -2137,7 +2130,7 @@ public partial class Viewport3DX {
     ///     The rotate cursor.
     /// </value>
     public Cursor RotateCursor {
-        get => (Cursor) GetValue(RotateCursorProperty);
+        get => (Cursor)GetValue(RotateCursorProperty);
 
         set => SetValue(RotateCursorProperty, value);
     }
@@ -2149,7 +2142,7 @@ public partial class Viewport3DX {
     ///     The rotation sensitivity.
     /// </value>
     public double RotationSensitivity {
-        get => (double) GetValue(RotationSensitivityProperty);
+        get => (double)GetValue(RotationSensitivityProperty);
 
         set => SetValue(RotationSensitivityProperty, value);
     }
@@ -2161,7 +2154,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if camera info should be shown; otherwise, <c>false</c> .
     /// </value>
     public bool ShowCameraInfo {
-        get => (bool) GetValue(ShowCameraInfoProperty);
+        get => (bool)GetValue(ShowCameraInfoProperty);
 
         set => SetValue(ShowCameraInfoProperty, value);
     }
@@ -2173,7 +2166,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if camera target should be shown; otherwise, <c>false</c> .
     /// </value>
     public bool ShowCameraTarget {
-        get => (bool) GetValue(ShowCameraTargetProperty);
+        get => (bool)GetValue(ShowCameraTargetProperty);
 
         set => SetValue(ShowCameraTargetProperty, value);
     }
@@ -2185,7 +2178,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if coordinate system should be shown; otherwise, <c>false</c> .
     /// </value>
     public bool ShowCoordinateSystem {
-        get => (bool) GetValue(ShowCoordinateSystemProperty);
+        get => (bool)GetValue(ShowCoordinateSystemProperty);
 
         set => SetValue(ShowCoordinateSystemProperty, value);
     }
@@ -2197,7 +2190,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if frame rate should be shown; otherwise, <c>false</c> .
     /// </value>
     public bool ShowFrameRate {
-        get => (bool) GetValue(ShowFrameRateProperty);
+        get => (bool)GetValue(ShowFrameRateProperty);
 
         set => SetValue(ShowFrameRateProperty, value);
     }
@@ -2206,7 +2199,7 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating whether to show the total number of triangles in the scene.
     /// </summary>
     public bool ShowTriangleCountInfo {
-        get => (bool) GetValue(ShowTriangleCountInfoProperty);
+        get => (bool)GetValue(ShowTriangleCountInfoProperty);
 
         set => SetValue(ShowTriangleCountInfoProperty, value);
     }
@@ -2218,7 +2211,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if the view cube should be shown; otherwise, <c>false</c> .
     /// </value>
     public bool ShowViewCube {
-        get => (bool) GetValue(ShowViewCubeProperty);
+        get => (bool)GetValue(ShowViewCubeProperty);
 
         set => SetValue(ShowViewCubeProperty, value);
     }
@@ -2230,7 +2223,7 @@ public partial class Viewport3DX {
     ///     The spin release time (in milliseconds).
     /// </value>
     public int SpinReleaseTime {
-        get => (int) GetValue(SpinReleaseTimeProperty);
+        get => (int)GetValue(SpinReleaseTimeProperty);
 
         set => SetValue(SpinReleaseTimeProperty, value);
     }
@@ -2242,7 +2235,7 @@ public partial class Viewport3DX {
     ///     The sub title.
     /// </value>
     public string SubTitle {
-        get => (string) GetValue(SubTitleProperty);
+        get => (string)GetValue(SubTitleProperty);
 
         set => SetValue(SubTitleProperty, value);
     }
@@ -2254,7 +2247,7 @@ public partial class Viewport3DX {
     ///     The size of the sub title.
     /// </value>
     public double SubTitleSize {
-        get => (double) GetValue(SubTitleSizeProperty);
+        get => (double)GetValue(SubTitleSizeProperty);
 
         set => SetValue(SubTitleSizeProperty, value);
     }
@@ -2266,7 +2259,7 @@ public partial class Viewport3DX {
     ///     The text brush.
     /// </value>
     public WpfBrush TextBrush {
-        get => (WpfBrush) GetValue(TextBrushProperty);
+        get => (WpfBrush)GetValue(TextBrushProperty);
 
         set => SetValue(TextBrushProperty, value);
     }
@@ -2278,7 +2271,7 @@ public partial class Viewport3DX {
     ///     The title.
     /// </value>
     public string Title {
-        get => (string) GetValue(TitleProperty);
+        get => (string)GetValue(TitleProperty);
 
         set => SetValue(TitleProperty, value);
     }
@@ -2290,7 +2283,7 @@ public partial class Viewport3DX {
     ///     The title background.
     /// </value>
     public WpfBrush TitleBackground {
-        get => (WpfBrush) GetValue(TitleBackgroundProperty);
+        get => (WpfBrush)GetValue(TitleBackgroundProperty);
 
         set => SetValue(TitleBackgroundProperty, value);
     }
@@ -2302,7 +2295,7 @@ public partial class Viewport3DX {
     ///     The title font family.
     /// </value>
     public string TitleFontFamily {
-        get => (string) GetValue(TitleFontFamilyProperty);
+        get => (string)GetValue(TitleFontFamilyProperty);
 
         set => SetValue(TitleFontFamilyProperty, value);
     }
@@ -2314,7 +2307,7 @@ public partial class Viewport3DX {
     ///     The size of the title.
     /// </value>
     public double TitleSize {
-        get => (double) GetValue(TitleSizeProperty);
+        get => (double)GetValue(TitleSizeProperty);
 
         set => SetValue(TitleSizeProperty, value);
     }
@@ -2329,7 +2322,7 @@ public partial class Viewport3DX {
     ///     Use -1 to invert the pan direction.
     /// </remarks>
     public double UpDownPanSensitivity {
-        get => (double) GetValue(UpDownPanSensitivityProperty);
+        get => (double)GetValue(UpDownPanSensitivityProperty);
 
         set => SetValue(UpDownPanSensitivityProperty, value);
     }
@@ -2344,7 +2337,7 @@ public partial class Viewport3DX {
     ///     Use -1 to invert the rotation direction.
     /// </remarks>
     public double UpDownRotationSensitivity {
-        get => (double) GetValue(UpDownRotationSensitivityProperty);
+        get => (double)GetValue(UpDownRotationSensitivityProperty);
 
         set => SetValue(UpDownRotationSensitivityProperty, value);
     }
@@ -2356,7 +2349,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if default gestures should be used; otherwise, <c>false</c>.
     /// </value>
     public bool UseDefaultGestures {
-        get => (bool) GetValue(UseDefaultGesturesProperty);
+        get => (bool)GetValue(UseDefaultGesturesProperty);
 
         set => SetValue(UseDefaultGesturesProperty, value);
     }
@@ -2370,7 +2363,7 @@ public partial class Viewport3DX {
     ///     The view cube texture.
     /// </value>
     public TextureModel ViewCubeTexture {
-        get => (TextureModel) GetValue(ViewCubeTextureProperty);
+        get => (TextureModel)GetValue(ViewCubeTextureProperty);
 
         set => SetValue(ViewCubeTextureProperty, value);
     }
@@ -2383,7 +2376,7 @@ public partial class Viewport3DX {
     ///     The horizontal position.
     /// </value>
     public double ViewCubeHorizontalPosition {
-        get => (double) GetValue(ViewCubeHorizontalPositionProperty);
+        get => (double)GetValue(ViewCubeHorizontalPositionProperty);
 
         set => SetValue(ViewCubeHorizontalPositionProperty, value);
     }
@@ -2395,7 +2388,7 @@ public partial class Viewport3DX {
     ///     Boolean for enable or disable.
     /// </value>
     public bool IsViewCubeEdgeClicksEnabled {
-        get => (bool) GetValue(IsViewCubeEdgeClicksEnabledProperty);
+        get => (bool)GetValue(IsViewCubeEdgeClicksEnabledProperty);
         set => SetValue(IsViewCubeEdgeClicksEnabledProperty, value);
     }
 
@@ -2406,7 +2399,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if this instance is view cube mover enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsViewCubeMoverEnabled {
-        get => (bool) GetValue(IsViewCubeMoverEnabledProperty);
+        get => (bool)GetValue(IsViewCubeMoverEnabledProperty);
         set => SetValue(IsViewCubeMoverEnabledProperty, value);
     }
 
@@ -2418,7 +2411,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if coordinate system mover enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsCoordinateSystemMoverEnabled {
-        get => (bool) GetValue(IsCoordinateSystemMoverEnabledProperty);
+        get => (bool)GetValue(IsCoordinateSystemMoverEnabledProperty);
         set => SetValue(IsCoordinateSystemMoverEnabledProperty, value);
     }
 
@@ -2430,7 +2423,7 @@ public partial class Viewport3DX {
     ///     The vertical position.
     /// </value>
     public double ViewCubeVerticalPosition {
-        get => (double) GetValue(ViewCubeVerticalPositionProperty);
+        get => (double)GetValue(ViewCubeVerticalPositionProperty);
 
         set => SetValue(ViewCubeVerticalPositionProperty, value);
     }
@@ -2442,7 +2435,7 @@ public partial class Viewport3DX {
     ///     The width of the view cube viewport.
     /// </value>
     public double ViewCubeSize {
-        get => (double) GetValue(ViewCubeSizeProperty);
+        get => (double)GetValue(ViewCubeSizeProperty);
 
         set => SetValue(ViewCubeSizeProperty, value);
     }
@@ -2454,7 +2447,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if zooming around the mouse down point; otherwise, <c>false</c>.
     /// </value>
     public bool ZoomAroundMouseDownPoint {
-        get => (bool) GetValue(ZoomAroundMouseDownPointProperty);
+        get => (bool)GetValue(ZoomAroundMouseDownPointProperty);
 
         set => SetValue(ZoomAroundMouseDownPointProperty, value);
     }
@@ -2466,7 +2459,7 @@ public partial class Viewport3DX {
     ///     The zoom cursor.
     /// </value>
     public Cursor ZoomCursor {
-        get => (Cursor) GetValue(ZoomCursorProperty);
+        get => (Cursor)GetValue(ZoomCursorProperty);
 
         set => SetValue(ZoomCursorProperty, value);
     }
@@ -2475,7 +2468,7 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating the far distance limit for zoom.
     /// </summary>
     public double ZoomDistanceLimitFar {
-        get => (double) GetValue(ZoomDistanceLimitFarProperty);
+        get => (double)GetValue(ZoomDistanceLimitFarProperty);
 
         set => SetValue(ZoomDistanceLimitFarProperty, value);
     }
@@ -2484,7 +2477,7 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating the near distance limit for zoom.
     /// </summary>
     public double ZoomDistanceLimitNear {
-        get => (double) GetValue(ZoomDistanceLimitNearProperty);
+        get => (double)GetValue(ZoomDistanceLimitNearProperty);
 
         set => SetValue(ZoomDistanceLimitNearProperty, value);
     }
@@ -2494,7 +2487,7 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating whether to Zoom extents when the control has loaded.
     /// </summary>
     public bool ZoomExtentsWhenLoaded {
-        get => (bool) GetValue(ZoomExtentsWhenLoadedProperty);
+        get => (bool)GetValue(ZoomExtentsWhenLoadedProperty);
 
         set => SetValue(ZoomExtentsWhenLoadedProperty, value);
     }
@@ -2506,7 +2499,7 @@ public partial class Viewport3DX {
     ///     The zoom rectangle cursor.
     /// </value>
     public Cursor ZoomRectangleCursor {
-        get => (Cursor) GetValue(ZoomRectangleCursorProperty);
+        get => (Cursor)GetValue(ZoomRectangleCursorProperty);
 
         set => SetValue(ZoomRectangleCursorProperty, value);
     }
@@ -2518,7 +2511,7 @@ public partial class Viewport3DX {
     ///     The zoom sensitivity.
     /// </value>
     public double ZoomSensitivity {
-        get => (double) GetValue(ZoomSensitivityProperty);
+        get => (double)GetValue(ZoomSensitivityProperty);
 
         set => SetValue(ZoomSensitivityProperty, value);
     }
@@ -2527,14 +2520,14 @@ public partial class Viewport3DX {
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
     public MSAALevel MSAA {
-        get => (MSAALevel) GetValue(MSAAProperty);
+        get => (MSAALevel)GetValue(MSAAProperty);
         set => SetValue(MSAAProperty, value);
     }
     /// <summary>
     ///     Rotate around this fixed rotation point only.<see cref="FixedRotationPointEnabled" />
     /// </summary>
     public Point3D FixedRotationPoint {
-        get => (Point3D) GetValue(FixedRotationPointProperty);
+        get => (Point3D)GetValue(FixedRotationPointProperty);
         set => SetValue(FixedRotationPointProperty, value);
     }
 
@@ -2543,7 +2536,7 @@ public partial class Viewport3DX {
     ///     <see cref="CameraMode" /> = Inspect
     /// </summary>
     public bool FixedRotationPointEnabled {
-        get => (bool) GetValue(FixedRotationPointEnabledProperty);
+        get => (bool)GetValue(FixedRotationPointEnabledProperty);
         set => SetValue(FixedRotationPointEnabledProperty, value);
     }
 
@@ -2551,7 +2544,7 @@ public partial class Viewport3DX {
     ///     Enable mouse button hit test
     /// </summary>
     public bool EnableMouseButtonHitTest {
-        get => (bool) GetValue(EnableMouseButtonHitTestProperty);
+        get => (bool)GetValue(EnableMouseButtonHitTestProperty);
         set => SetValue(EnableMouseButtonHitTestProperty, value);
     }
 
@@ -2561,7 +2554,7 @@ public partial class Viewport3DX {
     ///     looking at.
     /// </summary>
     public Point3D ManualLookAtPoint {
-        get => (Point3D) GetValue(ManualLookAtPointProperty);
+        get => (Point3D)GetValue(ManualLookAtPointProperty);
         set => SetValue(ManualLookAtPointProperty, value);
     }
 
@@ -2569,7 +2562,7 @@ public partial class Viewport3DX {
     ///     Enable render frustum to skip rendering model if model is out of the camera bounding frustum
     /// </summary>
     public bool EnableRenderFrustum {
-        get => (bool) GetValue(EnableRenderFrustumProperty);
+        get => (bool)GetValue(EnableRenderFrustumProperty);
         set => SetValue(EnableRenderFrustumProperty, value);
     }
 
@@ -2580,7 +2573,7 @@ public partial class Viewport3DX {
     ///     <para>Note: Only if draw calls > 3000 to be benefit according to the online performance test.</para>
     /// </summary>
     public bool EnableDeferredRendering {
-        get => (bool) GetValue(EnableDeferredRenderingProperty);
+        get => (bool)GetValue(EnableDeferredRenderingProperty);
         set => SetValue(EnableDeferredRenderingProperty, value);
     }
 
@@ -2588,7 +2581,7 @@ public partial class Viewport3DX {
     ///     Used to create multiple viewport with shared models.
     /// </summary>
     public bool EnableSharedModelMode {
-        get => (bool) GetValue(EnableSharedModelModeProperty);
+        get => (bool)GetValue(EnableSharedModelModeProperty);
         set => SetValue(EnableSharedModelModeProperty, value);
     }
 
@@ -2596,7 +2589,7 @@ public partial class Viewport3DX {
     ///     Binding to the element inherit with <see cref="IModelContainer" />
     /// </summary>
     public IModelContainer SharedModelContainer {
-        get => (IModelContainer) GetValue(SharedModelContainerProperty);
+        get => (IModelContainer)GetValue(SharedModelContainerProperty);
         set => SetValue(SharedModelContainerProperty, value);
     }
 
@@ -2621,7 +2614,7 @@ public partial class Viewport3DX {
     ///     <para>Note: Enable deferred rendering will use seperate rendering thread or rendering.</para>
     /// </summary>
     public bool EnableSwapChainRendering {
-        get => (bool) GetValue(EnableSwapChainRenderingProperty);
+        get => (bool)GetValue(EnableSwapChainRenderingProperty);
         set => SetValue(EnableSwapChainRenderingProperty, value);
     }
 
@@ -2632,7 +2625,7 @@ public partial class Viewport3DX {
     ///     The content2 d.
     /// </value>
     public Element2D Content2D {
-        get => (Element2D) GetValue(Content2DProperty);
+        get => (Element2D)GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
 
@@ -2643,7 +2636,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [show frame details]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowFrameDetails {
-        get => (bool) GetValue(ShowFrameDetailsProperty);
+        get => (bool)GetValue(ShowFrameDetailsProperty);
         set => SetValue(ShowFrameDetailsProperty, value);
     }
 
@@ -2654,7 +2647,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [render d2d]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableD2DRendering {
-        get => (bool) GetValue(EnableD2DRenderingProperty);
+        get => (bool)GetValue(EnableD2DRenderingProperty);
         set => SetValue(EnableD2DRenderingProperty, value);
     }
 
@@ -2665,7 +2658,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable automatic octree update]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoOctreeUpdate {
-        get => (bool) GetValue(EnableAutoOctreeUpdateProperty);
+        get => (bool)GetValue(EnableAutoOctreeUpdateProperty);
         set => SetValue(EnableAutoOctreeUpdateProperty, value);
     }
 
@@ -2674,7 +2667,7 @@ public partial class Viewport3DX {
     /// </summary>
     /// <value> <c>true</c> if move is enabled; otherwise, <c>false</c> . </value>
     public bool IsMoveEnabled {
-        get => (bool) GetValue(IsMoveEnabledProperty);
+        get => (bool)GetValue(IsMoveEnabledProperty);
 
         set => SetValue(IsMoveEnabledProperty, value);
     }
@@ -2684,7 +2677,7 @@ public partial class Viewport3DX {
     ///     <see cref="MaterialGeometryModel3D.IsTransparent" />, <see cref="BillboardTextModel3D.IsTransparent" />
     /// </summary>
     public OITRenderType OITRenderMode {
-        get => (OITRenderType) GetValue(OITRenderModeProperty);
+        get => (OITRenderType)GetValue(OITRenderModeProperty);
         set => SetValue(OITRenderModeProperty, value);
     }
 
@@ -2699,7 +2692,7 @@ public partial class Viewport3DX {
     ///     The oit weight depth slope.
     /// </value>
     public double OITWeightDepthSlope {
-        get => (double) GetValue(OITWeightDepthSlopeProperty);
+        get => (double)GetValue(OITWeightDepthSlopeProperty);
         set => SetValue(OITWeightDepthSlopeProperty, value);
     }
 
@@ -2712,7 +2705,7 @@ public partial class Viewport3DX {
     ///     The oit weight power.
     /// </value>
     public double OITWeightPower {
-        get => (double) GetValue(OITWeightPowerProperty);
+        get => (double)GetValue(OITWeightPowerProperty);
         set => SetValue(OITWeightPowerProperty, value);
     }
 
@@ -2725,12 +2718,12 @@ public partial class Viewport3DX {
     ///     The oit weight mode.
     /// </value>
     public OITWeightMode OITWeightMode {
-        get => (OITWeightMode) GetValue(OITWeightModeProperty);
+        get => (OITWeightMode)GetValue(OITWeightModeProperty);
         set => SetValue(OITWeightModeProperty, value);
     }
 
     public int OITDepthPeelingIteration {
-        get => (int) GetValue(OITDepthPeelingIterationProperty);
+        get => (int)GetValue(OITDepthPeelingIterationProperty);
         set => SetValue(OITDepthPeelingIterationProperty, value);
     }
 
@@ -2741,7 +2734,7 @@ public partial class Viewport3DX {
     ///     The enable fxaa.
     /// </value>
     public FXAALevel FXAALevel {
-        get => (FXAALevel) GetValue(FXAALevelProperty);
+        get => (FXAALevel)GetValue(FXAALevelProperty);
         set => SetValue(FXAALevelProperty, value);
     }
 
@@ -2752,7 +2745,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable design time rendering]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDesignModeRendering {
-        get => (bool) GetValue(EnableDesignModeRenderingProperty);
+        get => (bool)GetValue(EnableDesignModeRenderingProperty);
         set => SetValue(EnableDesignModeRenderingProperty, value);
     }
 
@@ -2765,7 +2758,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable manual render order]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableRenderOrder {
-        get => (bool) GetValue(EnableRenderOrderProperty);
+        get => (bool)GetValue(EnableRenderOrderProperty);
         set => SetValue(EnableRenderOrderProperty, value);
     }
 
@@ -2777,7 +2770,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable ssao]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableSSAO {
-        get => (bool) GetValue(EnableSSAOProperty);
+        get => (bool)GetValue(EnableSSAOProperty);
         set => SetValue(EnableSSAOProperty, value);
     }
 
@@ -2788,7 +2781,7 @@ public partial class Viewport3DX {
     ///     The ssao sampling radius.
     /// </value>
     public double SSAOSamplingRadius {
-        get => (double) GetValue(SSAOSamplingRadiusProperty);
+        get => (double)GetValue(SSAOSamplingRadiusProperty);
         set => SetValue(SSAOSamplingRadiusProperty, value);
     }
 
@@ -2799,7 +2792,7 @@ public partial class Viewport3DX {
     ///     The ssao intensity.
     /// </value>
     public double SSAOIntensity {
-        get => (double) GetValue(SSAOIntensityProperty);
+        get => (double)GetValue(SSAOIntensityProperty);
         set => SetValue(SSAOIntensityProperty, value);
     }
 
@@ -2811,7 +2804,7 @@ public partial class Viewport3DX {
     ///     The ssao quality.
     /// </value>
     public SSAOQuality SSAOQuality {
-        get => (SSAOQuality) GetValue(SSAOQualityProperty);
+        get => (SSAOQuality)GetValue(SSAOQualityProperty);
         set => SetValue(SSAOQualityProperty, value);
     }
 
@@ -2824,7 +2817,7 @@ public partial class Viewport3DX {
     ///     The minimum update count.
     /// </value>
     public int MinimumUpdateCount {
-        get => (int) GetValue(MinimumUpdateCountProperty);
+        get => (int)GetValue(MinimumUpdateCountProperty);
         set => SetValue(MinimumUpdateCountProperty, value);
     }
 
@@ -2835,7 +2828,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [allow up down rotation]; otherwise, <c>false</c>.
     /// </value>
     public bool AllowUpDownRotation {
-        get => (bool) GetValue(AllowUpDownRotationProperty);
+        get => (bool)GetValue(AllowUpDownRotationProperty);
         set => SetValue(AllowUpDownRotationProperty, value);
     }
 
@@ -2846,7 +2839,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [allow left right rotation]; otherwise, <c>false</c>.
     /// </value>
     public bool AllowLeftRightRotation {
-        get => (bool) GetValue(AllowLeftRightRotationProperty);
+        get => (bool)GetValue(AllowLeftRightRotationProperty);
         set => SetValue(AllowLeftRightRotationProperty, value);
     }
 
@@ -2858,7 +2851,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if the viewport belongs to the first parent window; otherwise, <c>false</c>
     /// </value>
     public bool BelongsToParentWindow {
-        get => (bool) GetValue(BelongsToParentWindowProperty);
+        get => (bool)GetValue(BelongsToParentWindowProperty);
         set => SetValue(BelongsToParentWindowProperty, value);
     }
 
@@ -2869,7 +2862,7 @@ public partial class Viewport3DX {
     ///     The dpi scale.
     /// </value>
     public double DpiScale {
-        get => (double) GetValue(DpiScaleProperty);
+        get => (double)GetValue(DpiScaleProperty);
         set => SetValue(DpiScaleProperty, value);
     }
 
@@ -2883,7 +2876,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if [enable dpi scale]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDpiScale {
-        get => (bool) GetValue(EnableDpiScaleProperty);
+        get => (bool)GetValue(EnableDpiScaleProperty);
         set => SetValue(EnableDpiScaleProperty, value);
     }
 
@@ -2893,7 +2886,7 @@ public partial class Viewport3DX {
     ///     Default is enabled.
     /// </summary>
     public bool IncreaseSwapchainFPS {
-        get => (bool) GetValue(IncreaseSwapchainFPSProperty);
+        get => (bool)GetValue(IncreaseSwapchainFPSProperty);
         set => SetValue(IncreaseSwapchainFPSProperty, value);
     }
 
@@ -2901,7 +2894,7 @@ public partial class Viewport3DX {
     ///     Gets or sets the <see cref="IEffectsManager" />.
     /// </summary>
     public IEffectsManager EffectsManager {
-        get => (IEffectsManager) GetValue(EffectsManagerProperty);
+        get => (IEffectsManager)GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 
@@ -2924,7 +2917,7 @@ public partial class Viewport3DX {
     ///     <c>true</c> if deferred shading is enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsShadowMappingEnabled {
-        get => (bool) GetValue(IsShadowMappingEnabledProperty);
+        get => (bool)GetValue(IsShadowMappingEnabledProperty);
         set => SetValue(IsShadowMappingEnabledProperty, value);
     }
 

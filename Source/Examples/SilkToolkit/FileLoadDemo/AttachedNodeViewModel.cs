@@ -1,11 +1,11 @@
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 
 namespace FileLoadDemo;
 

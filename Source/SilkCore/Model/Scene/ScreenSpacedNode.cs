@@ -26,7 +26,7 @@ namespace HelixToolkit.SharpDX.Core {
         public class ScreenSpacedNode : GroupNode {
             private readonly ScreenSpacedContext screenSpacedContext = new();
 
-            private List<HitTestResult> screenSpaceHits = new();
+            private List<HitTestResult> screenSpaceHits = [];
 
             public ScreenSpacedNode() {
                 AffectsGlobalVariable = true;
@@ -99,7 +99,7 @@ namespace HelixToolkit.SharpDX.Core {
                 screenSpaceHits.Clear();
                 var spHitContext = new HitTestContext(screenSpacedContext, newRay, hitSP);
                 if (base.OnHitTest(spHitContext, totalModelMatrix, ref screenSpaceHits)) {
-                    if (hits == null) hits = new List<HitTestResult>();
+                    hits ??= [];
                     hits.Clear();
                     hits.AddRange(screenSpaceHits);
                     return true;
@@ -120,8 +120,8 @@ namespace HelixToolkit.SharpDX.Core {
                            viewportSize / 2;
                 var offy = context.RenderMatrices.ActualHeight / 2 * (1 - screenSpaceCore.RelativeScreenLocationY) -
                            viewportSize / 2;
-                offx = Math.Max(0, Math.Min(offx, (int) (context.RenderMatrices.ActualWidth - viewportSize)));
-                offy = Math.Max(0, Math.Min(offy, (int) (context.RenderMatrices.ActualHeight - viewportSize)));
+                offx = Math.Max(0, Math.Min(offx, (int)(context.RenderMatrices.ActualWidth - viewportSize)));
+                offy = Math.Max(0, Math.Min(offy, (int)(context.RenderMatrices.ActualHeight - viewportSize)));
 
                 var px = p.X - offx;
                 var py = p.Y - offy;
@@ -206,7 +206,7 @@ namespace HelixToolkit.SharpDX.Core {
 
                 public float FarPlane { get; set; }
 
-                public CameraCore Camera => RenderHost != null ? RenderHost.RenderContext.Camera : null;
+                public CameraCore Camera => RenderHost?.RenderContext.Camera;
 
                 public Matrix ViewMatrix { get; set; }
 
@@ -253,7 +253,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets the relative screen location x.
@@ -341,7 +341,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => (RenderCore as IScreenSpacedRenderParams).NearPlane = value;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

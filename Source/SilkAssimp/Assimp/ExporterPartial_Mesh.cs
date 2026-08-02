@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -64,7 +64,7 @@ public partial class Exporter {
     }
 
     private ulong GetMaterialGeoKey(int materialIndex, int geometryIndex) {
-        var key = ((ulong) materialIndex << 32) | (uint) geometryIndex;
+        var key = ((ulong)materialIndex << 32) | (uint)geometryIndex;
         return key;
     }
 
@@ -77,19 +77,19 @@ public partial class Exporter {
         var assimpMesh =
             new Mesh(string.IsNullOrEmpty(info.Name)
                          ? $"Mesh_{Interlocked.Increment(ref MeshIndexForNoName)}"
-                         : info.Name) {MaterialIndex = info.MaterialIndex};
+                         : info.Name) { MaterialIndex = info.MaterialIndex };
         if (info.Mesh.Positions != null && info.Mesh.Positions.Count > 0)
             assimpMesh.Vertices.AddRange(info.Mesh.Positions.Select(x => x.ToAssimpVector3D()));
 
         if (info.Mesh.Indices != null && info.Mesh.Indices.Count > 0)
             for (var i = 0; i < info.Mesh.Indices.Count; i += 3)
-                assimpMesh.Faces.Add(new Face(new[] {
+                assimpMesh.Faces.Add(new Face([
                     info.Mesh.Indices[i], info.Mesh.Indices[i + 1], info.Mesh.Indices[i + 2]
-                }));
+                ]));
 
         if (info.Mesh.Colors != null && info.Mesh.Colors.Count > 0)
             assimpMesh.VertexColorChannels[0] =
-                new List<Color4D>(info.Mesh.Colors.Select(x => x.ToAssimpColor4D()));
+                [.. info.Mesh.Colors.Select(x => x.ToAssimpColor4D())];
         if (info.Mesh is MeshGeometry3D mesh) {
             assimpMesh.PrimitiveType = PrimitiveType.Triangle;
             if (mesh.Normals != null && mesh.Normals.Count > 0) {
@@ -102,7 +102,7 @@ public partial class Exporter {
 
             if (mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0)
                 assimpMesh.TextureCoordinateChannels[0] =
-                    new List<Vector3D>(mesh.TextureCoordinates.Select(x => x.ToAssimpVector3D()));
+                    [.. mesh.TextureCoordinates.Select(x => x.ToAssimpVector3D())];
             if (info.Bones != null &&
                 mesh is BoneSkinnedMeshGeometry3D boneSkinMesh
                 && boneSkinMesh.VertexBoneIds.Count == boneSkinMesh.Positions.Count) {
@@ -144,7 +144,7 @@ public partial class Exporter {
         } else if (info.Mesh is LineGeometry3D lgeo) {
             assimpMesh.PrimitiveType = PrimitiveType.Line;
         } else {
-            logger.LogWarning("Geometry type does not support yet. Type: {0}", info.Mesh.GetType().Name);
+            Logger.Warn("Geometry type does not support yet. Type: {Value0}", info.Mesh.GetType().Name);
         }
 
         return assimpMesh;
@@ -198,7 +198,7 @@ public partial class Exporter {
             string name,
             int meshIndex,
             int materialIndex,
-            Bone[] bones = null
+            Bone[]? bones = null
         ) {
             Mesh = mesh;
             MaterialMeshKey = materialMeshKey;

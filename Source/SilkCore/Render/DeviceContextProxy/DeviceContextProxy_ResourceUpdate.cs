@@ -110,7 +110,7 @@ namespace HelixToolkit.SharpDX.Core {
                     NativeContext.UpdateSubresource(resource,
                                                     subresource,
                                                     region,
-                                                    (nint) dataPtr,
+                                                    (nint)dataPtr,
                                                     rowPitch,
                                                     depthPitch);
                 }
@@ -130,7 +130,7 @@ namespace HelixToolkit.SharpDX.Core {
                     NativeContext.UpdateSubresource(resource,
                                                     subresource,
                                                     region,
-                                                    (nint) dataPtr,
+                                                    (nint)dataPtr,
                                                     rowPitch,
                                                     depthPitch);
                 }

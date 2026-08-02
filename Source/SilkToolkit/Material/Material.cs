@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -17,7 +17,7 @@ public abstract class Material : Freezable {
                                     typeof(Material),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             (d as Material).Core.Name = (string) e.NewValue;
+                                                             (d as Material).Core.Name = (string)e.NewValue;
                                                          }));
 
     private MaterialCore core;
@@ -38,13 +38,13 @@ public abstract class Material : Freezable {
 
     public MaterialCore Core {
         get {
-            if (core == null) core = OnCreateCore();
+            core ??= OnCreateCore();
             return core;
         }
     }
 
     public string Name {
-        get => (string) GetValue(NameProperty);
+        get => (string)GetValue(NameProperty);
         set => SetValue(NameProperty, value);
     }
 

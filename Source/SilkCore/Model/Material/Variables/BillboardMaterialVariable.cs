@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -60,7 +60,7 @@ namespace HelixToolkit.SharpDX.Core {
                 AddPropertyBinding(nameof(BillboardMaterialCore.Type),
                                    () => {
                                        WriteValue(PointLineMaterialStruct.ParamsStr,
-                                                  new Vector4((int) materialCore.Type, 0, 0, 0));
+                                                  new Vector4((int)materialCore.Type, 0, 0, 0));
                                    });
                 AddPropertyBinding(nameof(BillboardMaterialCore.SamplerDescription),
                                    () => {
@@ -122,14 +122,14 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Private Variables
+            #region Private Variables
 
             private readonly int textureSamplerSlot;
             private readonly int shaderTextureSlot;
             private SamplerStateProxy textureSampler;
             private readonly BillboardMaterialCore materialCore;
 
-        #endregion
+            #endregion
         }
     }
 }

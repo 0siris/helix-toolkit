@@ -149,7 +149,7 @@ namespace HelixToolkit.SharpDX.Core {
         public static class DefaultInputLayout {
             /// <summary>
             /// </summary>
-            public static readonly InputElement[] VSInput = new[] {
+            public static readonly InputElement[] VSInput = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("NORMAL", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("TANGENT", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
@@ -185,9 +185,9 @@ namespace HelixToolkit.SharpDX.Core {
                                  3,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
-            public static InputElement[] VSMeshBatchedInput = new[] {
+            public static InputElement[] VSMeshBatchedInput = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("NORMAL", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("TANGENT", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
@@ -195,11 +195,11 @@ namespace HelixToolkit.SharpDX.Core {
                 new InputElement("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 1, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0)
-            };
+            ];
 
             /// <summary>
             /// </summary>
-            public static readonly InputElement[] VSInputInstancing = new[] {
+            public static readonly InputElement[] VSInputInstancing = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("NORMAL", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("TANGENT", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
@@ -256,7 +256,7 @@ namespace HelixToolkit.SharpDX.Core {
                                  4,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input bone skinned basic.
@@ -264,18 +264,18 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input bone skinned basic.
             /// </value>
-            public static readonly InputElement[] VSInputBoneSkinnedBasic = new[] {
+            public static readonly InputElement[] VSInputBoneSkinnedBasic = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("NORMAL", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("TANGENT", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("BINORMAL", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0),
                 new InputElement("BONEIDS", 0, Format.FormatR32G32B32A32Sint, InputElement.AppendAligned, 1),
                 new InputElement("BONEWEIGHTS", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 1)
-            };
+            ];
 
             /// <summary>
             /// </summary>
-            public static readonly InputElement[] VSInputPoint = new[] {
+            public static readonly InputElement[] VSInputPoint = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 //INSTANCING: die 4 texcoords sind die matrix, die mit jedem buffer reinwandern
@@ -307,11 +307,11 @@ namespace HelixToolkit.SharpDX.Core {
                                  1,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
             /// <summary>
             /// </summary>
-            public static readonly InputElement[] VSInputBillboard = new[] {
+            public static readonly InputElement[] VSInputBillboard = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 1, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
@@ -350,7 +350,7 @@ namespace HelixToolkit.SharpDX.Core {
                                  1,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input billboard instancing.
@@ -358,7 +358,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input billboard instancing.
             /// </value>
-            public static readonly InputElement[] VSInputBillboardInstancing = new[] {
+            public static readonly InputElement[] VSInputBillboardInstancing = [
                 new InputElement("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 1, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
@@ -418,7 +418,7 @@ namespace HelixToolkit.SharpDX.Core {
                                  2,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input particle.
@@ -426,7 +426,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input particle.
             /// </value>
-            public static readonly InputElement[] VSInputParticle = new[] {
+            public static readonly InputElement[] VSInputParticle = [
                 new InputElement("TEXCOORD",
                                  1,
                                  Format.FormatR32G32B32A32Float,
@@ -455,7 +455,7 @@ namespace HelixToolkit.SharpDX.Core {
                                  0,
                                  InputClassification.PerInstanceData,
                                  1)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input skybox.
@@ -463,9 +463,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input skybox.
             /// </value>
-            public static readonly InputElement[] VSInputSkybox = new[] {
+            public static readonly InputElement[] VSInputSkybox = [
                 new InputElement("SV_POSITION", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input sprite 2d.
@@ -473,11 +473,11 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input sprite 2d.
             /// </value>
-            public static readonly InputElement[] VSInputSprite2D = new[] {
+            public static readonly InputElement[] VSInputSprite2D = [
                 new InputElement("POSITION", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
                 new InputElement("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
                 new InputElement("COLOR", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0)
-            };
+            ];
 
             /// <summary>
             ///     Gets the vs input volume3d.
@@ -485,9 +485,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vs input volume3d.
             /// </value>
-            public static readonly InputElement[] VSInputVolume3D = new[] {
+            public static readonly InputElement[] VSInputVolume3D = [
                 new InputElement("SV_POSITION", 0, Format.FormatR32G32B32Float, InputElement.AppendAligned, 0)
-            };
+            ];
         }
 
         /// <summary>

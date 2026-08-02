@@ -10,14 +10,14 @@ using System;
 using System.Windows.Media.Animation;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
@@ -94,10 +94,10 @@ public class MainViewModel : BaseViewModel {
         get { return renderNormalMap; }
     }
 
-    public string[] TextureFiles { get; } = new string[] {
+    public string[] TextureFiles { get; } = [
         @"TextureCheckerboard2.jpg", @"TextureCheckerboard3.jpg", @"TextureNoise1.jpg", @"TextureNoise1_dot3.jpg",
         @"TextureCheckerboard2_dot3.jpg"
-    };
+    ];
 
     private string selectedDiffuseTexture = @"TextureCheckerboard2.jpg";
 
@@ -143,13 +143,11 @@ public class MainViewModel : BaseViewModel {
 
     public MSAALevel MSAA { set; get; } = MSAALevel.Disable;
 
-    public MSAALevel[] MSAAs { get; } = new MSAALevel[]
-        {MSAALevel.Disable, MSAALevel.Two, MSAALevel.Four, MSAALevel.Eight, MSAALevel.Maximum};
+    public MSAALevel[] MSAAs { get; } = [MSAALevel.Disable, MSAALevel.Two, MSAALevel.Four, MSAALevel.Eight, MSAALevel.Maximum];
 
     public FXAALevel FXAA { set; get; } = FXAALevel.None;
 
-    public FXAALevel[] FXAAs { get; } = new FXAALevel[]
-        {FXAALevel.None, FXAALevel.Low, FXAALevel.Medium, FXAALevel.High, FXAALevel.Ultra};
+    public FXAALevel[] FXAAs { get; } = [FXAALevel.None, FXAALevel.Low, FXAALevel.Medium, FXAALevel.High, FXAALevel.Ultra];
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
         Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)

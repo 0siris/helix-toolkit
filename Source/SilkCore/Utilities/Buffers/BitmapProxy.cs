@@ -25,7 +25,7 @@ namespace HelixToolkit.SharpDX.Core {
                 D2DDeviceContext context,
                 Size2 size,
                 D2DBitmapProperties properties,
-                object nativeBitmap = null
+                object? nativeBitmap = null
             ) {
                 Properties = properties;
                 Context = context;
@@ -98,7 +98,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Format format,
                 D2DAlphaMode alphaMode = D2DAlphaMode.Premultiplied,
                 D2DBitmapOptions options = D2DBitmapOptions.Target | D2DBitmapOptions.CannotDraw,
-                D2DColorContext colorContext = null
+                D2DColorContext? colorContext = null
             ) {
                 // Make sure that the texture to create is a render target.
                 options |= D2DBitmapOptions.Target;

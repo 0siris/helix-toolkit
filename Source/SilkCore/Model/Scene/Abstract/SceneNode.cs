@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -41,10 +41,10 @@ namespace HelixToolkit.SharpDX.Core {
             public SceneNode() {
                 WrapperSource = this;
                 renderCore = new Lazy<RenderCore>(() => {
-                                                      core = OnCreateRenderCore();
-                                                      core.InvalidateRender += RenderCore_OnInvalidateRenderer;
-                                                      return core;
-                                                  },
+                    core = OnCreateRenderCore();
+                    core.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                    return core;
+                },
                                                   true);
             }
 
@@ -248,7 +248,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IViewport3DX viewport,
                 Vector2 pos,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 MouseDown?.Invoke(this, new SceneNodeMouseDownArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
@@ -257,7 +257,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IViewport3DX viewport,
                 Vector2 pos,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 MouseMove?.Invoke(this, new SceneNodeMouseMoveArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
@@ -266,7 +266,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IViewport3DX viewport,
                 Vector2 pos,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 MouseUp?.Invoke(this, new SceneNodeMouseUpArgs(viewport, pos, this, hit, originalInputEventArgs));
             }
@@ -301,7 +301,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return true;
             }
 
-        #region Properties
+            #region Properties
 
             private static readonly string NodeStr = "Node";
 
@@ -553,7 +553,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public bool AffectsGlobalVariable { get; protected set; } = false;
 
-        #region Handling Transforms
+            #region Handling Transforms
 
             /// <summary>
             ///     Transforms the changed.
@@ -571,9 +571,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public event EventHandler<TransformArgs> ModelTransformChanged;
 
-        #endregion Handling Transforms
+            #endregion Handling Transforms
 
-        #region RenderCore
+            #region RenderCore
 
             private readonly Lazy<RenderCore> renderCore;
             public RenderCore RenderCore => renderCore.Value;
@@ -628,7 +628,7 @@ namespace HelixToolkit.SharpDX.Core {
                 InvalidateRender();
             }
 
-        #endregion RenderCore
+            #endregion RenderCore
 
             /// <summary>
             ///     Gets or sets the wrapper source used for such as hit test model, etc. The wrapper must set this so the
@@ -660,9 +660,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public bool IsInFrustum { get; internal set; }
 
-        #endregion Properties
+            #endregion Properties
 
-        #region Events
+            #region Events
 
             public event EventHandler<StringArgs> NameChanged;
 
@@ -702,9 +702,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public event EventHandler<InvalidateTypes> Invalidated;
 
-        #endregion Events
+            #endregion Events
 
-        #region Rendering
+            #region Rendering
 
             /// <summary>
             /// </summary>
@@ -768,9 +768,9 @@ namespace HelixToolkit.SharpDX.Core {
                 return true;
             }
 
-        #endregion Rendering
+            #endregion Rendering
 
-        #region Hit Test
+            #region Hit Test
 
             /// <summary>
             ///     Hits the test.
@@ -808,9 +808,9 @@ namespace HelixToolkit.SharpDX.Core {
                 ref List<HitTestResult> hits
             );
 
-        #endregion Hit Test
+            #endregion Hit Test
 
-        #region IBoundable
+            #region IBoundable
 
             /// <summary>
             ///     The maximum bound
@@ -930,9 +930,9 @@ namespace HelixToolkit.SharpDX.Core {
                 BoundSphereChanged?.Invoke(this, args);
             }
 
-        #endregion IBoundable
+            #endregion IBoundable
 
-        #region POST EFFECT
+            #region POST EFFECT
 
             /// <summary>
             ///     Gets or sets the post effects.
@@ -940,7 +940,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The post effects.
             /// </value>
-            private readonly Dictionary<string, IEffectAttributes> postEffectNames = new();
+            private readonly Dictionary<string, IEffectAttributes> postEffectNames = [];
 
             /// <summary>
             ///     Gets the post effect names.
@@ -1007,9 +1007,9 @@ namespace HelixToolkit.SharpDX.Core {
                 InvalidateRender();
             }
 
-        #endregion
+            #endregion
 
-        #region ModeMatrixLock
+            #region ModeMatrixLock
 
             public bool IsModelMatrixLocked => modelMatrixKey is not null;
 
@@ -1042,10 +1042,10 @@ namespace HelixToolkit.SharpDX.Core {
                 public Guid Key { get; }
             }
 
-        #endregion
+            #endregion
         }
 
-    #region Mouse Events Args
+        #region Mouse Events Args
 
         public class SceneNodeMouseDownArgs : EventArgs {
             public SceneNodeMouseDownArgs(
@@ -1053,7 +1053,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Vector2 pos,
                 SceneNode node,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 Viewport = viewport;
                 Position = pos;
@@ -1079,7 +1079,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Vector2 pos,
                 SceneNode node,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 Viewport = viewport;
                 Position = pos;
@@ -1105,7 +1105,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Vector2 pos,
                 SceneNode node,
                 HitTestResult hit,
-                object originalInputEventArgs = null
+                object? originalInputEventArgs = null
             ) {
                 Viewport = viewport;
                 Position = pos;
@@ -1125,6 +1125,6 @@ namespace HelixToolkit.SharpDX.Core {
             public object OriginalInputEventArgs { get; }
         }
 
-    #endregion
+        #endregion
     }
 }

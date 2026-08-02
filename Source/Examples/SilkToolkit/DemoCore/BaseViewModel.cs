@@ -11,9 +11,9 @@ namespace DemoCore;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
-using System.IO;
 
 /// <summary>
 /// Base ViewModel for Demo Applications?
@@ -89,10 +89,10 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
     protected BaseViewModel() {
         // camera models
-        CameraModelCollection = new List<string>() {
+        CameraModelCollection = [
             Orthographic,
             Perspective,
-        };
+        ];
 
         // on camera changed callback
         CameraModelChanged += (s, e) => {
@@ -121,7 +121,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue = false; // To detect redundant calls
 
@@ -157,5 +157,5 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

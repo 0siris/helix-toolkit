@@ -19,12 +19,12 @@ namespace HelixToolkit.SharpDX.Core {
         /// <typeparam name="T"></typeparam>
         public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
             public const int OctantSize = 8;
-            private static readonly ILogger logger = LogManager.Create<StaticOctree<T>>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             private static readonly ObjectPool<Stack<KeyValuePair<int, int>>> hitStackPool
                 = new(() => new Stack<KeyValuePair<int, int>>(), 10);
 
-            private readonly List<BoundingBox> hitPathBoundingBoxes = new();
+            private readonly List<BoundingBox> hitPathBoundingBoxes = [];
 
             private OctantArray octants;
 
@@ -77,14 +77,14 @@ namespace HelixToolkit.SharpDX.Core {
 #endif
                 Objects = GetObjects();
                 octants = new OctantArray(GetMaxBound(), Objects.Length);
-                TreeTraversal(new Stack<KeyValuePair<int, int>>(), index => { BuildSubTree(index); });
+                TreeTraversal(new Stack<KeyValuePair<int, int>>(), BuildSubTree);
                 octants.Compact();
                 TreeBuilt = true;
                 Bound = octants[0].Bound;
 #if DEBUG
                 tick = Stopwatch.GetTimestamp() - tick;
-                logger.LogDebug("Build static tree time = {0}; Total = {1}",
-                                (double) tick / Stopwatch.Frequency * 1000,
+                Logger.Debug("Build static tree time = {Value0}; Total = {Value1}",
+                                (double)tick / Stopwatch.Frequency * 1000,
                                 octants.Count);
 #endif
             }
@@ -167,7 +167,7 @@ namespace HelixToolkit.SharpDX.Core {
                 ref List<HitTestResult> hits,
                 float hitThickness
             ) {
-                if (hits == null) hits = new List<HitTestResult>();
+                hits ??= [];
                 hitPathBoundingBoxes.Clear();
                 var hitStack = hitStackPool.GetObject();
                 hitStack.Clear();
@@ -249,7 +249,7 @@ namespace HelixToolkit.SharpDX.Core {
                 ref BoundingSphere sphere,
                 ref List<HitTestResult> points
             ) {
-                if (points == null) points = new List<HitTestResult>();
+                points ??= [];
                 var hitStack = hitStackPool.GetObject();
                 hitStack.Clear();
                 var isHit = false;
@@ -303,7 +303,7 @@ namespace HelixToolkit.SharpDX.Core {
                 ref List<HitTestResult> results,
                 float heuristicSearchFactor = 1f
             ) {
-                if (results == null) results = new List<HitTestResult>();
+                results ??= [];
                 var hitStack = hitStackPool.GetObject();
                 hitStack.Clear();
                 var sphere = new BoundingSphere(point, float.MaxValue);
@@ -328,7 +328,7 @@ namespace HelixToolkit.SharpDX.Core {
                             isHit |= nodeHit;
                             if (isIntersect) {
                                 if (results.Count > 0)
-                                    sphere.Radius = (float) results[0].Distance * heuristicSearchFactor;
+                                    sphere.Radius = (float)results[0].Distance * heuristicSearchFactor;
                                 if (octant.HasChildren) {
                                     hitStack.Push(new KeyValuePair<int, int>(parent, curr));
                                     parent = octant.Index;
@@ -455,7 +455,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                          childOctantIdx,
                                                          octantBounds[childOctantIdx],
                                                          ref octant)) {
-                                            logger.LogDebug("Failed to add child");
+                                            Logger.Debug("Failed to add child");
                                             break;
                                         }
 
@@ -517,13 +517,13 @@ namespace HelixToolkit.SharpDX.Core {
             public static BoundingBox[] CreateOctants(ref BoundingBox box, float minSize) {
                 var dimensions = box.Maximum - box.Minimum;
                 if (dimensions == Vector3.Zero || dimensions.X < minSize || dimensions.Y < minSize ||
-                    dimensions.Z < minSize) return new BoundingBox[0];
+                    dimensions.Z < minSize) return [];
                 var half = dimensions / 2.0f;
                 var center = box.Minimum + half;
                 var minimum = box.Minimum;
                 var maximum = box.Maximum;
                 //Create subdivided regions for each octant
-                return new[] {
+                return [
                     new BoundingBox(minimum, center),
                     new BoundingBox(new Vector3(center.X, minimum.Y, minimum.Z),
                                     new Vector3(maximum.X, center.Y, center.Z)),
@@ -538,7 +538,7 @@ namespace HelixToolkit.SharpDX.Core {
                     new BoundingBox(center, maximum),
                     new BoundingBox(new Vector3(minimum.X, center.Y, center.Z),
                                     new Vector3(center.X, maximum.Y, maximum.Z))
-                };
+                ];
             }
 
             /// <summary>
@@ -561,7 +561,7 @@ namespace HelixToolkit.SharpDX.Core {
             public void TreeTraversal(
                 Stack<KeyValuePair<int, int>> stack,
                 Action<int> process,
-                Func<int, bool> canVisitChildren = null
+                Func<int, bool>? canVisitChildren = null
             ) {
                 var parent = -1;
                 var curr = -1;
@@ -748,7 +748,7 @@ namespace HelixToolkit.SharpDX.Core {
                             break;
                     }
 
-                    if (value >= 0) ActiveNode |= (byte) (1 << index);
+                    if (value >= 0) ActiveNode |= (byte)(1 << index);
                 }
 
                 /// <summary>
@@ -773,7 +773,7 @@ namespace HelixToolkit.SharpDX.Core {
                 /// </returns>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public bool HasChildAtIndex(int index) {
-                    return (ActiveNode & (byte) (1 << index)) != 0;
+                    return (ActiveNode & (byte)(1 << index)) != 0;
                 }
             }
 
@@ -858,7 +858,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region Special Tests
+            #region Special Tests
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected static bool BoxContainsBox(ref BoundingBox source, ref BoundingBox target) {
@@ -876,7 +876,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return distance > sphere.Radius * sphere.Radius;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

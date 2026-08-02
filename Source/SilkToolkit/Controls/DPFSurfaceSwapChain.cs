@@ -27,7 +27,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </summary>
 /// <seealso cref="System.Windows.Controls.Image" />
 public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
-    private static readonly ILogger logger = LogManager.Create<DPFSurfaceSwapChain>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     private readonly CompositionTargetEx compositionTarget = new();
 
     private readonly Image image = new() {
@@ -82,7 +82,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         get => enableDpiScale;
         set {
             enableDpiScale = value;
-            if (RenderHost != null) RenderHost.DpiScale = value ? (float) DpiScale : 1;
+            RenderHost?.DpiScale = value ? (float)DpiScale : 1;
         }
     }
 
@@ -92,7 +92,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     }
 
     private void DPFSurfaceSwapChain_DpiScaleChanged(object sender, double e) {
-        if (RenderHost != null) RenderHost.DpiScale = EnableDpiScale ? (float) e : 1;
+        RenderHost?.DpiScale = EnableDpiScale ? (float)e : 1;
     }
 
     private void SetupVisual(bool attachedToWindow) {
@@ -110,7 +110,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
 
     private void SetupRenderHost(IRenderHost host) {
         RenderHost = host;
-        RenderHost.DpiScale = EnableDpiScale ? (float) DpiScale : 1;
+        RenderHost.DpiScale = EnableDpiScale ? (float)DpiScale : 1;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
         RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
@@ -176,7 +176,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     /// <summary>
     /// </summary>
     private bool StartD3D() {
-        RenderHost.StartD3D((int) ActualWidth, (int) ActualHeight);
+        RenderHost.StartD3D((int)ActualWidth, (int)ActualHeight);
         return true;
     }
 
@@ -207,19 +207,19 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         if (resizeOperation != null && resizeOperation.Status == DispatcherOperationStatus.Pending)
             resizeOperation.Abort();
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                                                 (Action) (() => {
-                                                                  if (IsLoaded)
-                                                                      try {
-                                                                          RenderHost?.Resize(
-                                                                              (int) ActualWidth,
-                                                                              (int) ActualHeight);
-                                                                      } catch (Exception ex) {
-                                                                          if (!HandleExceptionOccured(ex))
-                                                                              MessageBox.Show(
-                                                                                  $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
-                                                                                  "Error");
-                                                                      }
-                                                              }));
+                                                 (Action)(() => {
+                                                     if (IsLoaded)
+                                                         try {
+                                                             RenderHost?.Resize(
+                                                                 (int)ActualWidth,
+                                                                 (int)ActualHeight);
+                                                         } catch (Exception ex) {
+                                                             if (!HandleExceptionOccured(ex))
+                                                                 MessageBox.Show(
+                                                                     $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
+                                                                     "Error");
+                                                         }
+                                                 }));
     }
 
     /// <summary>
@@ -236,17 +236,17 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
             return true;
         }
 
-        logger.LogError(exception, "Render canvas exception.");
+        Logger.Error(exception, "Render canvas exception.");
         var args = new RelayExceptionEventArgs(exception);
         ExceptionOccurred(this, args);
         return args.Handled;
     }
 
     private static bool IsDeviceLost(int hresult) {
-        return hresult == unchecked((int) 0x887A0005)
-               || hresult == unchecked((int) 0x887A0006)
-               || hresult == unchecked((int) 0x887A0007)
-               || hresult == unchecked((int) 0x887A0026);
+        return hresult == unchecked((int)0x887A0005)
+               || hresult == unchecked((int)0x887A0006)
+               || hresult == unchecked((int)0x887A0007)
+               || hresult == unchecked((int)0x887A0026);
     }
 
     public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
@@ -308,7 +308,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -332,5 +332,5 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         Dispose(true);
     }
 
-#endregion
+    #endregion
 }

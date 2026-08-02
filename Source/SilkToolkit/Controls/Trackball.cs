@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Trackball.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -207,7 +207,7 @@ public class Trackball {
         var x = point.X / (width / 2); // Scale so bounds map to [0,0] - [2,2]
         var y = point.Y / (height / 2);
 
-        x = x - 1; // Translate 0,0 to the center
+        x--; // Translate 0,0 to the center
         y = 1 - y; // Flip so +Y is up instead of down
 
         var z2 = 1 - x * x - y * y; // z^2 = 1 - x^2 - y^2

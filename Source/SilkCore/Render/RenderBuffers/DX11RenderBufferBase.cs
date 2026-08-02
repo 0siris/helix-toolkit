@@ -203,7 +203,7 @@ namespace HelixToolkit.SharpDX.Core {
                     depthStencilBufferNoMSAA.CreateTextureView(new ShaderResourceViewDescription {
                         Format = depthFormat.ComputeSRVFormat(),
                         Dimension = ShaderResourceViewDimension.Texture2D,
-                        Texture2D = new ShaderResourceViewDescription.Texture2DResource {MipLevels = 1}
+                        Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = 1 }
                     });
                 } else {
                     depthStencilBufferNoMSAA = depthStencilBuffer;
@@ -225,11 +225,11 @@ namespace HelixToolkit.SharpDX.Core {
                 backBuffer = OnCreateBackBuffer(width, height);
                 backBuffer.CreateRenderTargetView();
 
-            #region Initialize Texture Pool
+                #region Initialize Texture Pool
 
                 InitializeTexturePools(width, height);
 
-            #endregion
+                #endregion
 
                 Initialized = true;
                 OnNewBufferCreated?.Invoke(this, new Texture2DArgs(backBuffer));
@@ -359,7 +359,7 @@ namespace HelixToolkit.SharpDX.Core {
 
                         sampleCount = newSampleCount;
                         sampleQuality = newSampleQuality;
-                        if (sampleCount == (int) MSAA) break;
+                        if (sampleCount == (int)MSAA) break;
                     } while (sampleCount < 32);
                 return new SampleDescription(sampleCount, sampleQuality);
             }
@@ -424,8 +424,7 @@ namespace HelixToolkit.SharpDX.Core {
                         depthStencilBuffer.CreateTextureView(new ShaderResourceViewDescription {
                             Format = depthdesc.Format.ComputeSRVFormat(),
                             Dimension = ShaderResourceViewDimension.Texture2D,
-                            Texture2D = new ShaderResourceViewDescription.Texture2DResource
-                                {MipLevels = depthdesc.MipLevels}
+                            Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = depthdesc.MipLevels }
                         });
                 } else {
                     depthStencilBuffer = null;
@@ -437,7 +436,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public void SetDefaultRenderTargets(DeviceContextProxy context, bool isColorBuffer = true) {
                 context.SetRenderTargets(isColorBuffer ? depthStencilBuffer : null,
-                                         new RenderTargetView[] {isColorBuffer ? colorBuffer : backBuffer});
+                                         [isColorBuffer ? colorBuffer : backBuffer]);
                 //context.OutputMerger.SetTargets(depthStencilBuffer, new RenderTargetView[] { isColorBuffer ? colorBuffer : backBuffer });
                 context.SetViewport(0, 0, TargetWidth, TargetHeight);
                 context.SetScissorRectangle(0, 0, TargetWidth, TargetHeight);
@@ -542,7 +541,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region ERROR HANDLING
+            #region ERROR HANDLING
 
             /// <summary>
             ///     Raises the on device lost.
@@ -551,9 +550,9 @@ namespace HelixToolkit.SharpDX.Core {
                 DeviceLost?.Invoke(this, EventArgs.Empty);
             }
 
-        #endregion
+            #endregion
 
-        #region Offscreen Texture Pools
+            #region Offscreen Texture Pools
 
             private PingPongColorBuffers fullResPPBuffer;
             public PingPongColorBuffers FullResPPBuffer => fullResPPBuffer;
@@ -576,7 +575,7 @@ namespace HelixToolkit.SharpDX.Core {
             private TexturePool quarterResRenderTargetPool;
             public TexturePool QuarterResRenderTargetPool => quarterResRenderTargetPool;
 
-        #endregion
+            #endregion
         }
     }
 }

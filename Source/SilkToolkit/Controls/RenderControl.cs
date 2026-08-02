@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010-2014 SharpDX - Alexandre Mutel
+// Copyright (c) 2010-2014 SharpDX - Alexandre Mutel
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <summary>
             ///     Initializes a new instance of the <see cref="RenderControl" /> class.
             /// </summary>
-            public RenderControl(Visual hostVisual = null) {
+            public RenderControl(Visual? hostVisual = null) {
                 this.hostVisual = hostVisual;
                 SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque | ControlStyles.UserPaint, true);
                 UpdateStyles();
@@ -60,8 +60,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             protected override void OnPaint(PaintEventArgs e) {
                 base.OnPaint(e);
                 if (DesignMode) {
-                    if (fontForDesignMode == null)
-                        fontForDesignMode = new Font(new FontFamily("Calibri"),
+                    fontForDesignMode ??= new Font(new FontFamily("Calibri"),
                                                      24,
                                                      System.Drawing.FontStyle.Regular);
 

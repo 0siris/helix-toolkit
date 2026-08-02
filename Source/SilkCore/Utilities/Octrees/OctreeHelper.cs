@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OctreeHelper.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -44,8 +44,7 @@ public static class OctreeHelper {
 
         if (tree.HasChildren)
             foreach (var child in tree.ChildNodes)
-                if (child != null)
-                    child.CreateOctreeLineModel(builder);
+                child?.CreateOctreeLineModel(builder);
     }
 
     public static LineGeometry3D CreatePathLines(this IList<BoundingBox> path) {

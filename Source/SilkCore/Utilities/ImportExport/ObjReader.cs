@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ObjReader.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -74,15 +74,15 @@ public class ObjReader : IModelReader {
 
         DefaultColor = new ObjColor(1f, 0.84313726f, 0f, 1f);
 
-        Points = new List<Point3D>();
-        Colors = new List<Color4>();
-        TextureCoordinates = new List<Point>();
-        Normals = new List<Vector3D>();
+        Points = [];
+        Colors = [];
+        TextureCoordinates = [];
+        Normals = [];
 
-        Groups = new List<Group>();
-        Materials = new Dictionary<string, MaterialDefinition>();
+        Groups = [];
+        Materials = [];
 
-        smoothingGroupMaps = new Dictionary<long, Dictionary<Tuple<int, int, int>, int>>();
+        smoothingGroupMaps = [];
     }
 
     /// <summary>
@@ -209,9 +209,8 @@ public class ObjReader : IModelReader {
         TexturePath = Path.GetDirectoryName(path);
         ModelInfo = info;
 
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Read(s);
-        }
+        using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Read(s);
     }
 
     /// <summary>
@@ -351,10 +350,9 @@ public class ObjReader : IModelReader {
     /// </remarks>
     public Object3DGroup ReadZ(string path) {
         TexturePath = Path.GetDirectoryName(path);
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            var deflateStream = new GZipStream(s, CompressionMode.Decompress, true);
-            return Read(deflateStream);
-        }
+        using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var deflateStream = new GZipStream(s, CompressionMode.Decompress, true);
+        return Read(deflateStream);
     }
 
     /// <summary>
@@ -368,7 +366,7 @@ public class ObjReader : IModelReader {
     /// </returns>
     private static ObjColor ColorParse(string values) {
         var fields = Split(values);
-        return new ObjColor((float) fields[0], (float) fields[1], (float) fields[2], 1);
+        return new ObjColor((float)fields[0], (float)fields[1], (float)fields[2], 1);
     }
 
     /// <summary>
@@ -394,7 +392,7 @@ public class ObjReader : IModelReader {
     ///     List of input.
     /// </returns>
     private static IList<double> Split(string input) {
-        var fields = input.Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = input.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = DoubleParse(fields[i]);
 
@@ -491,11 +489,11 @@ public class ObjReader : IModelReader {
         // If a smoothing group is defined, get the map from obj-file-index to current-group-vertex-index.
         if (currentSmoothingGroup != 0)
             if (!smoothingGroupMaps.TryGetValue(currentSmoothingGroup, out smoothingGroupMap)) {
-                smoothingGroupMap = new Dictionary<Tuple<int, int, int>, int>();
+                smoothingGroupMap = [];
                 smoothingGroupMaps.Add(currentSmoothingGroup, smoothingGroupMap);
             }
 
-        var fields = values.Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = values.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
         var faceIndices = new List<int>();
         foreach (var field in fields) {
             if (string.IsNullOrEmpty(field)) continue;
@@ -621,9 +619,9 @@ public class ObjReader : IModelReader {
     private void AddNormal(string values) {
         var fields = Split(values);
         if (SwitchYZ)
-            Normals.Add(new Vector3D((float) fields[0], (float) -fields[2], (float) fields[1]));
+            Normals.Add(new Vector3D((float)fields[0], (float)-fields[2], (float)fields[1]));
         else
-            Normals.Add(new Vector3D((float) fields[0], (float) fields[1], (float) fields[2]));
+            Normals.Add(new Vector3D((float)fields[0], (float)fields[1], (float)fields[2]));
     }
 
     /// <summary>
@@ -634,7 +632,7 @@ public class ObjReader : IModelReader {
     /// </param>
     private void AddTexCoord(string values) {
         var fields = Split(values);
-        TextureCoordinates.Add(new Point((float) fields[0], 1 - (float) fields[1]));
+        TextureCoordinates.Add(new Point((float)fields[0], 1 - (float)fields[1]));
     }
 
     /// <summary>
@@ -646,14 +644,14 @@ public class ObjReader : IModelReader {
     private void AddVertex(string values) {
         var fields = Split(values);
         if (SwitchYZ)
-            Points.Add(new Point3D((float) fields[0], (float) -fields[2], (float) fields[1]));
+            Points.Add(new Point3D((float)fields[0], (float)-fields[2], (float)fields[1]));
         else
-            Points.Add(new Point3D((float) fields[0], (float) fields[1], (float) fields[2]));
+            Points.Add(new Point3D((float)fields[0], (float)fields[1], (float)fields[2]));
         if (fields.Count >= 6) {
             if (fields.Count == 6)
-                Colors.Add(new Color4((float) fields[3], (float) fields[4], (float) fields[5], 1f));
+                Colors.Add(new Color4((float)fields[3], (float)fields[4], (float)fields[5], 1f));
             else
-                Colors.Add(new Color4((float) fields[3], (float) fields[4], (float) fields[5], (float) fields[6]));
+                Colors.Add(new Color4((float)fields[3], (float)fields[4], (float)fields[5], (float)fields[6]));
         }
     }
 
@@ -666,8 +664,8 @@ public class ObjReader : IModelReader {
     private Object3DGroup BuildModel() {
         var modelGroup = new Object3DGroup();
         foreach (var g in Groups)
-        foreach (var gm in g.CreateModels(ModelInfo))
-            modelGroup.Add(gm);
+            foreach (var gm in g.CreateModels(ModelInfo))
+                modelGroup.Add(gm);
 
         return modelGroup;
     }
@@ -704,88 +702,86 @@ public class ObjReader : IModelReader {
     private void LoadMaterialLib(string mtlFile) {
         var path = PathHelpers.GetFullPath(TexturePath, mtlFile);
         if (!File.Exists(path)) return;
-        using (var fileStream = File.OpenRead(path)) {
-            using (var mreader = new StreamReader(fileStream)) {
-                MaterialDefinition currentMaterial = null;
+        using var fileStream = File.OpenRead(path);
+        using var mreader = new StreamReader(fileStream);
+        MaterialDefinition currentMaterial = null;
 
-                while (!mreader.EndOfStream) {
-                    var line = mreader.ReadLine();
-                    if (line == null) break;
+        while (!mreader.EndOfStream) {
+            var line = mreader.ReadLine();
+            if (line == null) break;
 
-                    line = line.Trim();
+            line = line.Trim();
 
-                    if (line.StartsWith("#") || line.Length == 0) continue;
+            if (line.StartsWith("#") || line.Length == 0) continue;
 
-                    string keyword, value;
-                    SplitLine(line, out keyword, out value);
+            string keyword, value;
+            SplitLine(line, out keyword, out value);
 
-                    switch (keyword.ToLower()) {
-                        case "newmtl":
-                            if (value != null) {
-                                if (Materials.ContainsKey(value)) {
-                                    currentMaterial = null;
-                                } else {
-                                    currentMaterial = new MaterialDefinition();
-                                    Materials.Add(value, currentMaterial);
-                                }
-                            }
-
-                            break;
-                        case "ka":
-                            if (currentMaterial != null && value != null) currentMaterial.Ambient = ColorParse(value);
-
-                            break;
-                        case "kd":
-                            if (currentMaterial != null && value != null) currentMaterial.Diffuse = ColorParse(value);
-
-                            break;
-                        case "ks":
-                            if (currentMaterial != null && value != null) currentMaterial.Specular = ColorParse(value);
-
-                            break;
-                        case "ns":
-                            if (currentMaterial != null && value != null)
-                                currentMaterial.SpecularCoefficient = DoubleParse(value);
-
-                            break;
-                        case "d":
-                            if (currentMaterial != null && value != null)
-                                currentMaterial.Dissolved = DoubleParse(value);
-
-                            break;
-                        case "tr":
-                            if (!SkipTransparencyValues && currentMaterial != null && value != null)
-                                currentMaterial.Dissolved = DoubleParse(value);
-
-                            break;
-                        case "illum":
-                            if (currentMaterial != null && value != null)
-                                currentMaterial.Illumination = int.Parse(value);
-
-                            break;
-                        case "map_ka":
-                            if (currentMaterial != null) currentMaterial.AmbientMap = value;
-
-                            break;
-                        case "map_kd":
-                            if (currentMaterial != null) currentMaterial.DiffuseMap = value;
-
-                            break;
-                        case "map_ks":
-                            if (currentMaterial != null) currentMaterial.SpecularMap = value;
-
-                            break;
-                        case "map_d":
-                            if (currentMaterial != null) currentMaterial.AlphaMap = value;
-
-                            break;
-                        case "map_bump":
-                        case "bump":
-                            if (currentMaterial != null) currentMaterial.BumpMap = value;
-
-                            break;
+            switch (keyword.ToLower()) {
+                case "newmtl":
+                    if (value != null) {
+                        if (Materials.ContainsKey(value)) {
+                            currentMaterial = null;
+                        } else {
+                            currentMaterial = new MaterialDefinition();
+                            Materials.Add(value, currentMaterial);
+                        }
                     }
-                }
+
+                    break;
+                case "ka":
+                    if (currentMaterial != null && value != null) currentMaterial.Ambient = ColorParse(value);
+
+                    break;
+                case "kd":
+                    if (currentMaterial != null && value != null) currentMaterial.Diffuse = ColorParse(value);
+
+                    break;
+                case "ks":
+                    if (currentMaterial != null && value != null) currentMaterial.Specular = ColorParse(value);
+
+                    break;
+                case "ns":
+                    if (currentMaterial != null && value != null)
+                        currentMaterial.SpecularCoefficient = DoubleParse(value);
+
+                    break;
+                case "d":
+                    if (currentMaterial != null && value != null)
+                        currentMaterial.Dissolved = DoubleParse(value);
+
+                    break;
+                case "tr":
+                    if (!SkipTransparencyValues && currentMaterial != null && value != null)
+                        currentMaterial.Dissolved = DoubleParse(value);
+
+                    break;
+                case "illum":
+                    if (currentMaterial != null && value != null)
+                        currentMaterial.Illumination = int.Parse(value);
+
+                    break;
+                case "map_ka":
+                    currentMaterial?.AmbientMap = value;
+
+                    break;
+                case "map_kd":
+                    currentMaterial?.DiffuseMap = value;
+
+                    break;
+                case "map_ks":
+                    currentMaterial?.SpecularMap = value;
+
+                    break;
+                case "map_d":
+                    currentMaterial?.AlphaMap = value;
+
+                    break;
+                case "map_bump":
+                case "bump":
+                    currentMaterial?.BumpMap = value;
+
+                    break;
             }
         }
     }
@@ -825,9 +821,9 @@ public class ObjReader : IModelReader {
         /// </param>
         public Group(string name) {
             Name = name;
-            meshBuilders = new List<MeshBuilder>();
-            materials = new List<PhongMaterialCore>();
-            vertexColors = new List<Color4Collection>();
+            meshBuilders = [];
+            materials = [];
+            vertexColors = [];
             AddMesh();
         }
 
@@ -859,8 +855,8 @@ public class ObjReader : IModelReader {
         public void AddMesh() {
             var meshBuilder = new MeshBuilder(true);
             meshBuilders.Add(meshBuilder);
-            vertexColors.Add(new Color4Collection());
-            materials.Add(new PhongMaterialCore {DiffuseColor = new ObjColor(0, 1, 0, 1)});
+            vertexColors.Add([]);
+            materials.Add(new PhongMaterialCore { DiffuseColor = new ObjColor(0, 1, 0, 1) });
         }
 
         /// <summary>
@@ -875,7 +871,7 @@ public class ObjReader : IModelReader {
                 yield return new Object3D {
                     Geometry = mesh,
                     Material = materials[i],
-                    Transform = new List<Matrix>()
+                    Transform = []
                 };
             }
         }
@@ -980,7 +976,7 @@ public class ObjReader : IModelReader {
         ///     The material.
         /// </returns>
         public PhongMaterialCore GetMaterial(string texturePath) {
-            if (Material == null) Material = CreateMaterial(texturePath);
+            Material ??= CreateMaterial(texturePath);
             //this.Material.Freeze();
             return Material;
         }
@@ -1023,11 +1019,11 @@ public class ObjReader : IModelReader {
                 AmbientColor = Ambient,
                 //AmbientMap = this.AmbientMap,
 
-                DiffuseColor = new Color4(Diffuse.GetRed(), Diffuse.GetGreen(), Diffuse.GetBlue(), (float) Dissolved),
+                DiffuseColor = new Color4(Diffuse.GetRed(), Diffuse.GetGreen(), Diffuse.GetBlue(), (float)Dissolved),
                 DiffuseMap = diffuseMapMS,
 
                 SpecularColor = Specular,
-                SpecularShininess = (float) SpecularCoefficient,
+                SpecularShininess = (float)SpecularCoefficient,
                 SpecularColorMap = specularMapMS,
 
                 NormalMap = bumpMapMS,

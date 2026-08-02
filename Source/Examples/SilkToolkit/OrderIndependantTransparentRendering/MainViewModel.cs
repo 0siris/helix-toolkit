@@ -6,16 +6,16 @@
 
 namespace OrderIndependentTransparentRendering;
 
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Media3D = System.Windows.Media.Media3D;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Model;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public enum MaterialType {
@@ -108,14 +108,11 @@ public class MainViewModel : BaseViewModel {
         get => materialType;
     }
 
-    public OITWeightMode[] OITWeights { get; } = new OITWeightMode[]
-        {OITWeightMode.Linear0, OITWeightMode.Linear1, OITWeightMode.Linear2, OITWeightMode.NonLinear};
+    public OITWeightMode[] OITWeights { get; } = [OITWeightMode.Linear0, OITWeightMode.Linear1, OITWeightMode.Linear2, OITWeightMode.NonLinear];
 
-    public OITRenderType[] OITRenderTypes { get; } = new OITRenderType[]
-        {OITRenderType.None, OITRenderType.DepthPeeling, OITRenderType.SinglePassWeighted};
+    public OITRenderType[] OITRenderTypes { get; } = [OITRenderType.None, OITRenderType.DepthPeeling, OITRenderType.SinglePassWeighted];
 
-    public MaterialType[] MaterialTypes { get; } = new MaterialType[]
-        {MaterialType.BlinnPhong, MaterialType.PBR, MaterialType.Diffuse};
+    public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.PBR, MaterialType.Diffuse];
 
     private int redPlaneOpacity = 60;
 
@@ -161,7 +158,7 @@ public class MainViewModel : BaseViewModel {
     private readonly Random rnd = new Random();
 
     public MainViewModel() {
-        this.ModelGeometry = new ObservableElement3DCollection();
+        this.ModelGeometry = [];
         EffectsManager = new DefaultEffectsManager();
         Camera = new OrthographicCamera() {
             LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -50, -50),
@@ -197,13 +194,14 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void BuildPlanes() {
-        PlaneGeometry = new ObservableElement3DCollection();
+        PlaneGeometry = [];
         var builder = new MeshBuilder(true);
         builder.AddBox(new Vector3(0, 0, 0), 15, 15, 0.5);
         var mesh = builder.ToMesh();
 
-        var material = new PhongMaterial();
-        material.DiffuseColor = new Color4(1, 0, 0, RedPlaneOpacity / 100f);
+        var material = new PhongMaterial {
+            DiffuseColor = new Color4(1, 0, 0, RedPlaneOpacity / 100f)
+        };
 
         var model = new MeshGeometryModel3D() {
             Geometry = mesh,
@@ -214,8 +212,9 @@ public class MainViewModel : BaseViewModel {
         };
         PlaneGeometry.Add(model);
 
-        material = new PhongMaterial();
-        material.DiffuseColor = new Color4(0, 1, 0, GreenPlaneOpacity / 100f);
+        material = new PhongMaterial {
+            DiffuseColor = new Color4(0, 1, 0, GreenPlaneOpacity / 100f)
+        };
 
         model = new MeshGeometryModel3D() {
             Geometry = mesh,
@@ -226,8 +225,9 @@ public class MainViewModel : BaseViewModel {
         };
         PlaneGeometry.Add(model);
 
-        material = new PhongMaterial();
-        material.DiffuseColor = new Color4(0, 0, 1, BluePlaneOpacity / 100f);
+        material = new PhongMaterial {
+            DiffuseColor = new Color4(0, 0, 1, BluePlaneOpacity / 100f)
+        };
 
         model = new MeshGeometryModel3D() {
             Geometry = mesh,
@@ -239,18 +239,21 @@ public class MainViewModel : BaseViewModel {
         PlaneGeometry.Add(model);
     }
 
+    [Obsolete]
     public void Load3ds(string path) {
         var reader = new StudioReader();
         var objCol = reader.Read(path);
         AttachModelList(objCol);
     }
 
+    [Obsolete]
     public void LoadObj(string path) {
         var reader = new ObjReader();
         var objCol = reader.Read(path);
         AttachModelList(objCol);
     }
 
+    [Obsolete]
     public void LoadStl(string path) {
         var reader = new StLReader();
         var objCol = reader.Read(path);
@@ -264,14 +267,14 @@ public class MainViewModel : BaseViewModel {
             ob.Geometry.UpdateOctree();
             Task.Delay(50).Wait(); //Only for async loading demo
             context.Post((o) => {
-                             var s = new MeshGeometryModel3D {
-                                 Geometry = ob.Geometry,
-                                 IsTransparent = true,
-                                 DepthBias = -100
-                             };
-                             UpdateMaterial(s);
-                             this.ModelGeometry.Add(s);
-                         },
+                var s = new MeshGeometryModel3D {
+                    Geometry = ob.Geometry,
+                    IsTransparent = true,
+                    DepthBias = -100
+                };
+                UpdateMaterial(s);
+                this.ModelGeometry.Add(s);
+            },
                          null);
         }
     }
@@ -285,11 +288,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void UpdateMaterial(MeshGeometryModel3D mesh) {
-        var diffuse = new Color4();
-        diffuse.X = (float) rnd.NextDouble();
-        diffuse.Y = (float) rnd.NextDouble();
-        diffuse.Z = (float) rnd.NextDouble();
-        diffuse.W = 0.6f;
+        var diffuse = new Color4 {
+            X = (float)rnd.NextDouble(),
+            Y = (float)rnd.NextDouble(),
+            Z = (float)rnd.NextDouble(),
+            W = 0.6f
+        };
         Material material = null;
         switch (materialType) {
             case MaterialType.BlinnPhong:

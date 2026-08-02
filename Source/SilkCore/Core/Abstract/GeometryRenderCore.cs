@@ -9,7 +9,7 @@ using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core {
-    
+
     namespace Core {
         /// <summary>
         /// </summary>
@@ -47,7 +47,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set {
                     var old = field;
                     if (SetAffectsCanRenderFlag(ref field, value)) {
-                        if (old != null) old.ElementChanged -= OnElementChanged;
+                        old?.ElementChanged -= OnElementChanged;
                         if (field != null)
                             field.ElementChanged += OnElementChanged;
                         else

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -47,7 +47,7 @@ namespace HelixToolkit.SharpDX.Core {
                                        WriteValue(PointLineMaterialStruct.ParamsStr,
                                                   new Vector4(material.Width,
                                                               material.Height,
-                                                              (int) material.Figure,
+                                                              (int)material.Figure,
                                                               material.FigureRatio));
                                    });
                 AddPropertyBinding(nameof(PointMaterialCore.Height),
@@ -55,7 +55,7 @@ namespace HelixToolkit.SharpDX.Core {
                                        WriteValue(PointLineMaterialStruct.ParamsStr,
                                                   new Vector4(material.Width,
                                                               material.Height,
-                                                              (int) material.Figure,
+                                                              (int)material.Figure,
                                                               material.FigureRatio));
                                    });
                 AddPropertyBinding(nameof(PointMaterialCore.Figure),
@@ -63,7 +63,7 @@ namespace HelixToolkit.SharpDX.Core {
                                        WriteValue(PointLineMaterialStruct.ParamsStr,
                                                   new Vector4(material.Width,
                                                               material.Height,
-                                                              (int) material.Figure,
+                                                              (int)material.Figure,
                                                               material.FigureRatio));
                                    });
                 AddPropertyBinding(nameof(PointMaterialCore.FigureRatio),
@@ -71,7 +71,7 @@ namespace HelixToolkit.SharpDX.Core {
                                        WriteValue(PointLineMaterialStruct.ParamsStr,
                                                   new Vector4(material.Width,
                                                               material.Height,
-                                                              (int) material.Figure,
+                                                              (int)material.Figure,
                                                               material.FigureRatio));
                                    });
                 AddPropertyBinding(nameof(PointMaterialCore.EnableDistanceFading),

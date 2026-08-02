@@ -11,13 +11,13 @@ using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using TriangleNet.Geometry;
 using TriangleNet.Meshing;
-using LineSegment = System.Windows.Media.LineSegment;
-using Point = System.Windows.Point;
-using Vector2 = Silk.NET.Maths.Vector2D<float>;
-using Vector3D = Silk.NET.Maths.Vector3D<float>;
-using Point3D = Silk.NET.Maths.Vector3D<float>;
 using FontStyle = System.Windows.FontStyle;
 using FontWeight = System.Windows.FontWeight;
+using LineSegment = System.Windows.Media.LineSegment;
+using Point = System.Windows.Point;
+using Point3D = Silk.NET.Maths.Vector3D<float>;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3D = Silk.NET.Maths.Vector3D<float>;
 
 public static class Extensions {
     public static void ExtrudeText(
@@ -45,7 +45,7 @@ public static class Extensions {
                 var isHole = i != outlines.Count - 1 && IsPointInPolygon(outerOutline, outline[0]);
                 polygon.AddContour(outline.Select(p => new Vertex(p.X, p.Y)), marker++, isHole);
                 builder.AddExtrudedSegments(
-                    outline.ToSegments().Select(x => new Vector2((float) x.X, (float) x.Y)).ToList(),
+                    [.. outline.ToSegments().Select(x => new Vector2((float)x.X, (float)x.Y))],
                     textDirection,
                     p0,
                     p1);
@@ -85,7 +85,7 @@ public static class Extensions {
     }
 
     public static Point3D Project(this Vertex v, Point3D p0, Vector3D x, Vector3D y, Vector3D z, double h) {
-        return p0 + x * (float) v.X - y * (float) v.Y + z * (float) h;
+        return p0 + x * (float)v.X - y * (float)v.Y + z * (float)h;
     }
 
     public static double AreaOfSegment(this Point[] segment) {
@@ -127,6 +127,7 @@ public static class Extensions {
         }
     }
 
+    [Obsolete]
     public static IEnumerable<IList<Point[]>> GetTextOutlines(
         string text,
         string fontName,
@@ -171,7 +172,7 @@ public static class Extensions {
     }
 
     public static Point[] ToPolyLine(this PathFigure figure) {
-        var outline = new List<Point> {figure.StartPoint};
+        var outline = new List<Point> { figure.StartPoint };
         var previousPoint = figure.StartPoint;
         foreach (var segment in figure.Segments) {
             var polyline = segment as PolyLineSegment;
@@ -217,14 +218,14 @@ public static class Extensions {
             throw new NotImplementedException();
         }
 
-        return outline.ToArray();
+        return [.. outline];
     }
 
     private static IEnumerable<Point> FlattenBezier(Point p1, Point p2, Point p3, Point p4, int n) {
         // http://tsunami.cis.usouthal.edu/~hain/general/Publications/Bezier/bezier%20cccg04%20paper.pdf
         // http://en.wikipedia.org/wiki/De_Casteljau's_algorithm
         for (int i = 1; i <= n; i++) {
-            var t = (double) i / n;
+            var t = (double)i / n;
             var u = 1 - t;
             yield return new Point(
                 (u * u * u * p1.X) + (3 * t * u * u * p2.X) + (3 * t * t * u * p3.X) + (t * t * t * p4.X),

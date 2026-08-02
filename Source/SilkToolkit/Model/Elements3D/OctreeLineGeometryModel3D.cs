@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using Media = System.Windows.Media;
@@ -51,17 +51,17 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
     }
 
     public IOctreeBasic Octree {
-        get => (IOctreeBasic) GetValue(OctreeProperty);
+        get => (IOctreeBasic)GetValue(OctreeProperty);
         set => SetValue(OctreeProperty, value);
     }
 
     public Media.Color LineColor {
-        get => (Media.Color) GetValue(LineColorProperty);
+        get => (Media.Color)GetValue(LineColorProperty);
         set => SetValue(LineColorProperty, value);
     }
 
     public Media.Color HitLineColor {
-        get => (Media.Color) GetValue(HitLineColorProperty);
+        get => (Media.Color)GetValue(HitLineColorProperty);
         set => SetValue(HitLineColorProperty, value);
     }
 

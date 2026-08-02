@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -30,8 +30,8 @@ public partial class Importer {
         var maxCount = Math.Max(posCount, Math.Max(rotCount, scaleCount));
         var ret = new FastList<Animations.Keyframe>(maxCount);
         if (posCount != rotCount || rotCount != scaleCount) {
-            if (logger.IsEnabled(LogLevel.Trace))
-                logger.LogTrace("Animation Channel is non-uniform lengths. Position={0}; Rotation={1}; Scale={2};" +
+            if (Logger.IsEnabled(LogLevel.Trace))
+                Logger.Verbose("Animation Channel is non-uniform lengths. Position={Value0}; Rotation={Value1}; Scale={Value2};" +
                                 " Trying to automatically create uniform animation keys",
                                 posCount,
                                 rotCount,
@@ -48,7 +48,7 @@ public partial class Importer {
 
             for (var x = 0; x < maxCount && i < posCount && j < rotCount && k < scaleCount; ++x) {
                 ret.Add(new Animations.Keyframe {
-                    Time = (float) (minT / ticksPerSecond),
+                    Time = (float)(minT / ticksPerSecond),
                     Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
                     Rotation = channel.RotationKeys[j].Value.ToSharpDXQuaternion(),
                     Scale = channel.ScalingKeys[k].Value.ToSharpDXVector3()
@@ -67,7 +67,7 @@ public partial class Importer {
         } else {
             for (var i = 0; i < posCount; ++i)
                 ret.Add(new Animations.Keyframe {
-                    Time = (float) (channel.PositionKeys[i].Time / ticksPerSecond),
+                    Time = (float)(channel.PositionKeys[i].Time / ticksPerSecond),
                     Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
                     Rotation = channel.RotationKeys[i].Value.ToSharpDXQuaternion(),
                     Scale = channel.ScalingKeys[i].Value.ToSharpDXVector3()
@@ -120,9 +120,7 @@ public partial class Importer {
             }
 
         if (scene.AssimpScene.HasAnimations) {
-            var hasBoneSkinnedMesh = scene.Meshes.Where(x => x.Mesh is BoneSkinnedMeshGeometry3D).Count() > 0
-                                         ? true
-                                         : false;
+            var hasBoneSkinnedMesh = scene.Meshes.Where(x => x.Mesh is BoneSkinnedMeshGeometry3D).Count() > 0;
             var animationList = new List<Animations.Animation>(scene.AssimpScene.AnimationCount);
             if (Configuration.EnableParallelProcessing)
                 Parallel.ForEach(scene.AssimpScene.Animations,
@@ -161,13 +159,13 @@ public partial class Importer {
         out Animations.Animation hxAni
     ) {
         if (ani.TicksPerSecond == 0) {
-            logger.LogWarning("Animation TicksPerSecond is 0. Set to {0}", configuration.TickesPerSecond);
+            Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
             ani.TicksPerSecond = configuration.TickesPerSecond;
         }
 
         hxAni = new Animations.Animation(SharpDX.Core.Animations.AnimationType.Node) {
             StartTime = 0,
-            EndTime = (float) (ani.DurationInTicks / ani.TicksPerSecond),
+            EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
             Name = ani.Name,
             NodeAnimationCollection = new List<Animations.NodeAnimation>(ani.NodeAnimationChannelCount)
         };
@@ -206,18 +204,18 @@ public partial class Importer {
         out List<Animations.Animation> hxAnis
     ) {
         if (ani.TicksPerSecond == 0) {
-            logger.LogWarning("Animation TicksPerSecond is 0. Set to {0}", configuration.TickesPerSecond);
+            Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
             ani.TicksPerSecond = configuration.TickesPerSecond;
         }
 
-        hxAnis = new List<Animations.Animation>();
+        hxAnis = [];
         if (ani.MeshMorphAnimationChannelCount > 0) {
             foreach (var aniChannel in ani.MeshMorphAnimationChannels) {
                 var hxAni = new Animations.Animation(SharpDX.Core.Animations.AnimationType.MorphTarget) {
                     StartTime = 0,
-                    EndTime = (float) (ani.DurationInTicks / ani.TicksPerSecond),
+                    EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
                     Name = ani.Name,
-                    MorphTargetKeyframes = new List<Animations.MorphTargetKeyframe>()
+                    MorphTargetKeyframes = []
                 };
 
                 //Reference node (removes "*0", i don't know why but its there sometimes)
@@ -234,8 +232,8 @@ public partial class Importer {
                     for (var i = 0; i < key.Values.Count; i++)
                         hxAni.MorphTargetKeyframes.Add(new Animations.MorphTargetKeyframe {
                             Index = key.Values[i],
-                            Weight = (float) key.Weights[i],
-                            Time = (float) key.Time / (float) ani.TicksPerSecond
+                            Weight = (float)key.Weights[i],
+                            Time = (float)key.Time / (float)ani.TicksPerSecond
                         });
 
                 if (searchBoneSkinMeshNode) FindBoneSkinMeshes(hxAni);
@@ -258,13 +256,13 @@ public partial class Importer {
 
             if (node.Parent != null)
                 node = node.Parent;
-            animation.BoneSkinMeshes = new List<Animations.IBoneMatricesNode>();
+            animation.BoneSkinMeshes = [];
             animation.RootNode = node;
             foreach (var n in SceneNodes[0].Items.PreorderDFT(m => true))
                 if (n is Animations.IBoneMatricesNode boneNode)
                     animation.BoneSkinMeshes.Add(boneNode);
         } else if (animation.MorphTargetKeyframes != null && animation.MorphTargetKeyframes.Count > 0) {
-            animation.BoneSkinMeshes = new List<Animations.IBoneMatricesNode>();
+            animation.BoneSkinMeshes = [];
             if (animation.RootNode is Animations.IBoneMatricesNode bnode) animation.BoneSkinMeshes.Add(bnode);
         }
     }

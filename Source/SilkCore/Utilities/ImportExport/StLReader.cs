@@ -14,9 +14,10 @@ using HelixToolkit.SharpDX.Core.Model;
 
 
 namespace HelixToolkit.SharpDX.Core;
+
+using FileFormatException = Exception;
 using Mesh3DGroup = List<Object3D>;
 using Point3D = Color3;
-using FileFormatException = Exception;
 
 /// <summary>
 ///     Provides an importer for StereoLithography .StL files.
@@ -50,8 +51,8 @@ public class StLReader : ModelReader {
     ///     Initializes a new instance of the <see cref="StLReader" /> class.
     /// </summary>
     public StLReader() {
-        Meshes = new List<MeshBuilder>();
-        Materials = new List<MaterialCore>();
+        Meshes = [];
+        Materials = [];
     }
 
     /// <summary>
@@ -157,7 +158,7 @@ public class StLReader : ModelReader {
         var x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         var y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         var z = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
-        return new Color3((float) x, (float) y, (float) z);
+        return new Color3((float)x, (float)y, (float)z);
     }
 
     /// <summary>
@@ -358,7 +359,7 @@ public class StLReader : ModelReader {
             }
 
             if (Materials.Count < index + 1)
-                Materials.Add(new PhongMaterialCore {DiffuseColor = currentColor.ToColor4()});
+                Materials.Add(new PhongMaterialCore { DiffuseColor = currentColor.ToColor4() });
         } else {
             if (Materials.Count < index + 1) Materials.Add(DefaultMaterial);
         }

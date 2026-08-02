@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
@@ -14,11 +14,11 @@ public class BoneSkinMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(BoneMatricesStruct.DefaultBones,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as BoneSkinMeshNode).BoneMatrices =
-                                     (Matrix[]) e.NewValue;
+                                     (Matrix[])e.NewValue;
                              }));
 
     public Matrix[] BoneMatrices {
-        get => (Matrix[]) GetValue(BoneMatricesProperty);
+        get => (Matrix[])GetValue(BoneMatricesProperty);
         set => SetValue(BoneMatricesProperty, value);
     }
 

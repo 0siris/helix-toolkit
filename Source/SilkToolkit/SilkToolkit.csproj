@@ -45,6 +45,10 @@
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
     <InternalsVisibleTo Include="SilkToolkit.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Textures\arial.dds">

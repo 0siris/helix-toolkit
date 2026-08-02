@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -62,7 +62,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public int Slot { get; set; }
 
-            public List<ConstantBufferVariable> Variables { get; } = new();
+            public List<ConstantBufferVariable> Variables { get; } = [];
 
             public ConstantBufferProxy CreateBuffer() {
                 return new ConstantBufferProxy(this);

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public partial class DefaultRenderHost : DX11RenderHostBase {
-            private static readonly ILogger logger = LogManager.Create<DefaultRenderHost>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private readonly AsyncActionThread parallelThread = new();
             private AsyncActionWaitable asyncTask;
             private Action FrustumTestAction;
@@ -44,7 +44,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <returns></returns>
             protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
-                logger.LogInformation("Creating DX11Texture2DRenderBufferProxy");
+                Logger.Info("Creating DX11Texture2DRenderBufferProxy");
                 return new DX11Texture2DRenderBufferProxy(EffectsManager);
             }
 
@@ -59,12 +59,12 @@ namespace HelixToolkit.SharpDX.Core {
                 if (invalidateSceneGraph) {
                     viewportRenderables.AddRange(Viewport.Renderables);
                     renderer.UpdateSceneGraph(RenderContext, viewportRenderables, perFrameFlattenedScene);
-                    if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Flatten Scene Graph");
+                    if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Flatten Scene Graph");
                 }
 
                 var sceneCount = perFrameFlattenedScene.Count;
                 if (invalidatePerFrameRenderables) {
-                    if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Get PerFrameRenderables");
+                    if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Get PerFrameRenderables");
                     var isInScreenSpacedGroup = false;
                     var screenSpacedGroupDepth = int.MaxValue;
                     for (var i = 0; i < sceneCount;) {
@@ -176,7 +176,7 @@ namespace HelixToolkit.SharpDX.Core {
                 var ft = Stopwatch.GetTimestamp();
                 FrustumTestAction();
                 ft = Stopwatch.GetTimestamp() - ft;
-                renderStatistics.FrustumTestTime = (float) ft / Stopwatch.Frequency;
+                renderStatistics.FrustumTestTime = (float)ft / Stopwatch.Frequency;
                 CollectPostEffectNodes();
                 if ((ShowRenderDetail & RenderDetail.TriangleInfo) == RenderDetail.TriangleInfo)
                     getTriangleCountTask = parallelThread.EnqueueAction(() => {
@@ -228,7 +228,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="time">The time.</param>
             protected override void OnRender(TimeSpan time) {
                 var renderParameter = new RenderParameter {
-                    RenderTargetView = new[] {RenderTargetBufferView},
+                    RenderTargetView = [RenderTargetBufferView],
                     DepthStencilView = DepthStencilBufferView,
                     CurrentTargetTexture = RenderBuffer.ColorBuffer.Resource,
                     IsMSAATexture = RenderBuffer.ColorBufferSampleDesc.Count > 1,
@@ -391,7 +391,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Called when [ending d3 d].
             /// </summary>
             protected override void OnEndingD3D() {
-                logger.LogInformation("On Ending D3D");
+                Logger.Info("On Ending D3D");
                 asyncTask?.Wait();
                 getTriangleCountTask?.Wait();
                 getPostEffectCoreTask?.Wait();
@@ -410,7 +410,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region FrustumTest
+            #region FrustumTest
 
             protected void SetupFrustumTestFunctions() {
                 if (!EnableRenderFrustum)
@@ -437,7 +437,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion
+            #endregion
         }
     }
 }

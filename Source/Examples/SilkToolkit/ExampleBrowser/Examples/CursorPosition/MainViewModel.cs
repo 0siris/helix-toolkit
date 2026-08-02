@@ -11,11 +11,11 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CursorPosition;
 
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }

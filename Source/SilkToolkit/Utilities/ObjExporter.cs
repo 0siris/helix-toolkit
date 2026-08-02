@@ -31,7 +31,7 @@ public class ObjExporter : Exporter {
     /// <summary>
     ///     The exported materials.
     /// </summary>
-    private readonly Dictionary<MaterialCore, string> exportedMaterials = new();
+    private readonly Dictionary<MaterialCore, string> exportedMaterials = [];
 
     /// <summary>
     ///     The mwriter.
@@ -143,7 +143,7 @@ public class ObjExporter : Exporter {
     /// </param>
     protected override void ExportModel(MeshNode model, Transform3D transform) {
         if (model.GeometryValid && model.Material != null) {
-            if (transform == null) transform = Transform3D.Identity;
+            transform ??= Transform3D.Identity;
             writer.WriteLine("o object{0}", objectNo++);
             writer.WriteLine("g group{0}", groupNo++);
 

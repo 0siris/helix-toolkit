@@ -11,14 +11,14 @@ namespace HelixToolkit.SharpDX.Core {
 
             public BoundableNodeOctree(
                 List<SceneNode> objList,
-                Stack<KeyValuePair<int, IDynamicOctree[]>> queueCache = null
+                Stack<KeyValuePair<int, IDynamicOctree[]>>? queueCache = null
             )
                 : this(objList, null, queueCache) { }
 
             public BoundableNodeOctree(
                 List<SceneNode> objList,
                 OctreeBuildParameter paramter,
-                Stack<KeyValuePair<int, IDynamicOctree[]>> queueCache = null
+                Stack<KeyValuePair<int, IDynamicOctree[]>>? queueCache = null
             )
                 : base(null, paramter, queueCache) {
                 Objects = objList;

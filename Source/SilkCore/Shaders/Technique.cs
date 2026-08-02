@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -8,8 +8,8 @@ using HelixToolkit.SharpDX.Core.ShaderManager;
 namespace HelixToolkit.SharpDX.Core {
     namespace Shaders {
         public sealed class Technique : DisposeObject, IRenderTechnique {
-            private readonly Dictionary<string, Lazy<ShaderPass>> passDict = new();
-            private readonly List<Lazy<ShaderPass>> passList = new();
+            private readonly Dictionary<string, Lazy<ShaderPass>> passDict = [];
+            private readonly List<Lazy<ShaderPass>> passList = [];
             private InputLayoutProxy layout;
 
             /// <summary>
@@ -23,8 +23,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (description.InputLayoutDescription != null && description.PassDescriptions != null)
                     if (description.PassDescriptions != null)
                         foreach (var desc in description.PassDescriptions) {
-                            if (desc.InputLayoutDescription == null)
-                                desc.InputLayoutDescription = description.InputLayoutDescription;
+                            desc.InputLayoutDescription ??= description.InputLayoutDescription;
                             var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, manager), true);
                             passDict.Add(desc.Name, pass);
                             passList.Add(pass);
@@ -32,7 +31,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public static IRenderTechnique NullTechnique { get; } =
-                new Technique(new TechniqueDescription {IsNull = true}, null);
+                new Technique(new TechniqueDescription { IsNull = true }, null);
 
             /// <summary>
             ///     Gets the unique identifier.

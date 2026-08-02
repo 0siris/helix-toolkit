@@ -27,7 +27,7 @@ public partial class MainWindow : Window {
 
         var target = view1.Camera.Position + view1.Camera.LookDirection;
         var distance = view1.Camera.LookDirection.Length;
-        lookDirection *= (float) distance;
+        lookDirection *= (float)distance;
         var newPosition = target.ToVector3() - lookDirection;
         view1.Camera.AnimateTo(newPosition.ToPoint3D(), lookDirection.ToVector3D(), upDirection.ToVector3D(), 500);
     }

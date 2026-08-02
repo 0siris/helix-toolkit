@@ -44,6 +44,10 @@
                       PrivateAssets="all"/>
     <InternalsVisibleTo Include="SilkCore.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\*.cso"/>

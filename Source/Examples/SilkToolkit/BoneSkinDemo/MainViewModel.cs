@@ -3,19 +3,19 @@ Model: Sphere Bot Rusty Version. Author: 3DHaupt. Source : https://sketchfab.com
 Model: Character. Source : https://github.com/spazzarama/Direct3D-Rendering-Cookbook
 */
 
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Animations;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Media3D = System.Windows.Media.Media3D;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace BoneSkinDemo;
@@ -70,8 +70,9 @@ public class MainViewModel : BaseViewModel {
             if (SetValue(ref selectedAnimation, value)) {
                 reset = true;
                 var curr = scene.Animations.Where(x => x.Name == value).FirstOrDefault();
-                animationUpdater = new NodeAnimationUpdater(curr);
-                animationUpdater.RepeatMode = selectedRepeatMode;
+                animationUpdater = new NodeAnimationUpdater(curr) {
+                    RepeatMode = selectedRepeatMode
+                };
             }
         }
         get { return selectedAnimation; }
@@ -83,7 +84,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref selectedRepeatMode, value)) {
                 reset = true;
-                if (animationUpdater != null) animationUpdater.RepeatMode = value;
+                animationUpdater?.RepeatMode = value;
             }
         }
         get { return selectedRepeatMode; }
@@ -91,14 +92,13 @@ public class MainViewModel : BaseViewModel {
 
     public Media3D.Transform3D ModelTransform { private set; get; }
 
-    public LineGeometry3D HitLineGeometry { get; } = new LineGeometry3D() {IsDynamic = true};
+    public LineGeometry3D HitLineGeometry { get; } = new LineGeometry3D() { IsDynamic = true };
 
     public string[] Animations { set; get; }
 
-    public GridPattern[] GridTypes { get; } = new GridPattern[] {GridPattern.Tile, GridPattern.Grid};
+    public GridPattern[] GridTypes { get; } = [GridPattern.Tile, GridPattern.Grid];
 
-    public AnimationRepeatMode[] RepeatModes { get; } = new AnimationRepeatMode[]
-        {AnimationRepeatMode.Loop, AnimationRepeatMode.PlayOnce, AnimationRepeatMode.PlayOnceHold};
+    public AnimationRepeatMode[] RepeatModes { get; } = [AnimationRepeatMode.Loop, AnimationRepeatMode.PlayOnce, AnimationRepeatMode.PlayOnceHold];
 
     private const int NumSegments = 100;
     private const int Theta = 24;
@@ -109,8 +109,8 @@ public class MainViewModel : BaseViewModel {
     private bool reset = true;
     private HelixToolkitScene scene;
     private NodeAnimationUpdater animationUpdater;
-    private List<BoneSkinMeshNode> boneSkinNodes = new List<BoneSkinMeshNode>();
-    private List<BoneSkinMeshNode> skeletonNodes = new List<BoneSkinMeshNode>();
+    private List<BoneSkinMeshNode> boneSkinNodes = [];
+    private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new CompositionTargetEx();
 
     public MainViewModel() {
@@ -125,12 +125,8 @@ public class MainViewModel : BaseViewModel {
             NearPlaneDistance = 1,
             FarPlaneDistance = 2000
         };
-        HitLineGeometry.Positions = new Vector3Collection(2);
-        HitLineGeometry.Positions.Add(Vector3.Zero);
-        HitLineGeometry.Positions.Add(Vector3.Zero);
-        HitLineGeometry.Indices = new IntCollection(2);
-        HitLineGeometry.Indices.Add(0);
-        HitLineGeometry.Indices.Add(1);
+        HitLineGeometry.Positions = [Vector3.Zero, Vector3.Zero];
+        HitLineGeometry.Indices = [0, 1];
         LoadFile();
         compositeHelper.Rendering += CompositeHelper_Rendering;
     }
@@ -142,7 +138,7 @@ public class MainViewModel : BaseViewModel {
         importer.Configuration.GlobalScale = 0.1f;
         scene = importer.Load("Solus The Knight\\Solus_The_Knight.fbx");
         ModelGroup.AddNode(scene.Root);
-        Animations = scene.Animations.Select(x => x.Name).ToArray();
+        Animations = [.. scene.Animations.Select(x => x.Name)];
         foreach (var node in scene.Root.Items.Traverse(false)) {
             if (node is BoneSkinMeshNode m) {
                 if (!m.IsSkeletonNode) {

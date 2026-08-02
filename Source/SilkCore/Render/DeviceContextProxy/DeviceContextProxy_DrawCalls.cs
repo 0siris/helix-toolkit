@@ -16,12 +16,12 @@ namespace HelixToolkit.SharpDX.Core {
                 return total;
             }
 
-        #region DrawCall
+            #region DrawCall
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Draw(int vertexCount, int startVertexLocation) {
                 ++NumberOfDrawCalls;
-                nativeDeviceContext.Draw((uint) vertexCount, (uint) startVertexLocation);
+                nativeDeviceContext.Draw((uint)vertexCount, (uint)startVertexLocation);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -33,7 +33,7 @@ namespace HelixToolkit.SharpDX.Core {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void DrawIndexed(int indexCount, int startIndexLocation, int baseVertexLocation) {
                 ++NumberOfDrawCalls;
-                nativeDeviceContext.DrawIndexed((uint) indexCount, (uint) startIndexLocation, baseVertexLocation);
+                nativeDeviceContext.DrawIndexed((uint)indexCount, (uint)startIndexLocation, baseVertexLocation);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,11 +45,11 @@ namespace HelixToolkit.SharpDX.Core {
                 int startInstanceLocation
             ) {
                 ++NumberOfDrawCalls;
-                nativeDeviceContext.DrawIndexedInstanced((uint) indexCountPerInstance,
-                                                         (uint) instanceCount,
-                                                         (uint) startIndexLocation,
+                nativeDeviceContext.DrawIndexedInstanced((uint)indexCountPerInstance,
+                                                         (uint)instanceCount,
+                                                         (uint)startIndexLocation,
                                                          baseVertexLocation,
-                                                         (uint) startInstanceLocation);
+                                                         (uint)startInstanceLocation);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,27 +65,27 @@ namespace HelixToolkit.SharpDX.Core {
                 int startInstanceLocation
             ) {
                 ++NumberOfDrawCalls;
-                nativeDeviceContext.DrawInstanced((uint) vertexCountPerInstance,
-                                                  (uint) instanceCount,
-                                                  (uint) startVertexLocation,
-                                                  (uint) startInstanceLocation);
+                nativeDeviceContext.DrawInstanced((uint)vertexCountPerInstance,
+                                                  (uint)instanceCount,
+                                                  (uint)startVertexLocation,
+                                                  (uint)startInstanceLocation);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void DrawInstancedIndirect(Buffer bufferForArgs, int alignedByteOffsetForArgs) {
-                NativeContext.DrawInstancedIndirect(bufferForArgs, (uint) alignedByteOffsetForArgs);
+                NativeContext.DrawInstancedIndirect(bufferForArgs, (uint)alignedByteOffsetForArgs);
             }
 
-        #endregion DrawCall
+            #endregion DrawCall
 
-        #region Dispatch
+            #region Dispatch
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispatch(int threadGroupCountX, int threadGroupCountY, int threadGroupCountZ) {
                 ++NumberOfDrawCalls;
-                nativeDeviceContext.Dispatch((uint) threadGroupCountX,
-                                             (uint) threadGroupCountY,
-                                             (uint) threadGroupCountZ);
+                nativeDeviceContext.Dispatch((uint)threadGroupCountX,
+                                             (uint)threadGroupCountY,
+                                             (uint)threadGroupCountZ);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -93,9 +93,9 @@ namespace HelixToolkit.SharpDX.Core {
                 throw new NotSupportedException("Indirect dispatch calls require the native buffer wrapper migration.");
             }
 
-        #endregion Dispatch
+            #endregion Dispatch
 
-        #region CommandList
+            #region CommandList
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CommandList FinishCommandList(bool restoreState) {
@@ -107,7 +107,7 @@ namespace HelixToolkit.SharpDX.Core {
                 nativeDeviceContext.ExecuteCommandList(commandList, restoreContextState);
             }
 
-        #endregion CommandList
+            #endregion CommandList
         }
     }
 }

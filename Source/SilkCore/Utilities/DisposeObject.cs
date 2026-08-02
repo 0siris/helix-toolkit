@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -76,7 +76,7 @@ public abstract class DisposeObject : IDisposable {
         return true;
     }
 
-#region IDisposible
+    #region IDisposible
 
     public int RefCount => AtomicHelper.Read(ref refCounter_);
 
@@ -154,5 +154,5 @@ public abstract class DisposeObject : IDisposable {
         }
     }
 
-#endregion
+    #endregion
 }

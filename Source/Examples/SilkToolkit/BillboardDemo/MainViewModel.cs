@@ -1,8 +1,5 @@
 //Flag.jpg image is created by Luis_molinero - Freepik.com
 
-using Cyotek.Drawing.BitmapFont;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +9,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Cyotek.Drawing.BitmapFont;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
 using Color = BillboardDemo.BillboardColors;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using D2DFontStyle = HelixToolkit.SharpDX.Core.FontStyle;
@@ -62,7 +62,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
     };
 
     public BillboardText3D LandmarkBillboards { get; }
-        = new BillboardText3D() {IsDynamic = true}; // Mark dynamic because it will change frequently
+        = new BillboardText3D() { IsDynamic = true }; // Mark dynamic because it will change frequently
 
     public BillboardText3D LandmarkBillboards2 { get; }
     public BillboardImage3D BatchedText { private set; get; }
@@ -130,12 +130,12 @@ public class MainViewModel : DemoCore.BaseViewModel {
                                                               Direct2DImageFormat.Bmp,
                                                               new Vector2(0, 0),
                                                               new Vector2(0, 128),
-                                                              new GradientStop[] {
+                                                              [
                                                                   new GradientStop()
                                                                       {Color = Color.DarkBlue, Position = 0f},
                                                                   new GradientStop()
                                                                       {Color = Color.Black, Position = 1f}
-                                                              });
+                                                              ]);
 
         FlagsBillboard = new BillboardImage3D(TextureModel.Create("Flags.jpg"));
         foreach (var info in FlagsCollection.Flags.Where(x => x.Position != Vector3.Zero)) {
@@ -156,8 +156,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
         linebuilder.AddLine(Vector3.Zero, Vector3.UnitY * 6);
         linebuilder.AddLine(Vector3.Zero, Vector3.UnitZ * 6);
         AxisLines = linebuilder.ToLineGeometry3D();
-        AxisLines.Colors = new Color4Collection()
-            {Color.Red, Color.Red, Color.Green, Color.Green, Color.Blue, Color.Blue};
+        AxisLines.Colors = [Color.Red, Color.Red, Color.Green, Color.Green, Color.Blue, Color.Blue];
         var texts = new TextInfoExt[] {
             new TextInfoExt() {
                 Text = "右", Origin = Vector3.UnitX * 8, Foreground = Color.Red, Size = 16,
@@ -194,15 +193,15 @@ public class MainViewModel : DemoCore.BaseViewModel {
             Scale = scale
         });
         LandmarkBillboards.TextInfo.Add(new TextInfo("Equator",
-                                                     new Vector3((float) Math.Cos(Math.PI / 6) * offset,
-                                                                 -(float) Math.Sin(Math.PI / 6) * offset,
+                                                     new Vector3((float)Math.Cos(Math.PI / 6) * offset,
+                                                                 -(float)Math.Sin(Math.PI / 6) * offset,
                                                                  0)) {
             Foreground = Color.White,
             Scale = scale
         });
         LandmarkBillboards.TextInfo.Add(new TextInfo("Equator",
-                                                     new Vector3(-(float) Math.Cos(Math.PI / 6) * offset,
-                                                                 -(float) Math.Sin(Math.PI / 6) * offset,
+                                                     new Vector3(-(float)Math.Cos(Math.PI / 6) * offset,
+                                                                 -(float)Math.Sin(Math.PI / 6) * offset,
                                                                  0)) {
             Foreground = Color.White,
             Scale = scale
@@ -363,7 +362,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     private void UpdateSelectedFlagBillboard(Flag flag) {
         if (flag.Position != Vector3.Zero) {
-            SelectedFlagBillboard.TextInfo = new TextInfo(flag.Name, flag.Position) {Scale = 0.015f};
+            SelectedFlagBillboard.TextInfo = new TextInfo(flag.Name, flag.Position) { Scale = 0.015f };
         } else {
             SelectedFlagBillboard.TextInfo = null;
         }

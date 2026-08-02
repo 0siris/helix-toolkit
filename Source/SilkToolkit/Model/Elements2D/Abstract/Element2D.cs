@@ -1,4 +1,4 @@
-﻿#if DEBUG
+#if DEBUG
 //#define DEBUGMOUSEEVENT
 #endif
 
@@ -40,7 +40,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 #endif
             }
 
-        #region Dependency Properties
+            #region Dependency Properties
 
             /// <summary>
             /// </summary>
@@ -51,13 +51,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(Visibility.Visible,
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode.Visibility =
-                                                                         ((Visibility) e.NewValue).ToD2DVisibility();
+                                                                         ((Visibility)e.NewValue).ToD2DVisibility();
                                                                  }));
 
             /// <summary>
             /// </summary>
             public Visibility Visibility {
-                get => (Visibility) GetValue(VisibilityProperty);
+                get => (Visibility)GetValue(VisibilityProperty);
                 set => SetValue(VisibilityProperty, value);
             }
 
@@ -68,11 +68,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(true,
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode.IsHitTestVisible =
-                                                                         (bool) e.NewValue;
+                                                                         (bool)e.NewValue;
                                                                  }));
 
             public bool IsHitTestVisible {
-                get => (bool) GetValue(IsHitTestVisibleProperty);
+                get => (bool)GetValue(IsHitTestVisibleProperty);
                 set => SetValue(IsHitTestVisibleProperty, value);
             }
 
@@ -86,10 +86,10 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(false,
                                                                  (d, e) => {
                                                                      var model = d as Element2D;
-                                                                     model.SceneNode.IsMouseOver = (bool) e.NewValue;
+                                                                     model.SceneNode.IsMouseOver = (bool)e.NewValue;
                                                                      model.OnMouseOverChanged(
-                                                                         (bool) e.NewValue,
-                                                                         (bool) e.OldValue);
+                                                                         (bool)e.NewValue,
+                                                                         (bool)e.OldValue);
                                                                      model.InvalidateRender();
                                                                  }));
 
@@ -100,7 +100,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     <c>true</c> if this instance is mouse over2 d; otherwise, <c>false</c>.
             /// </value>
             public new bool IsMouseOver {
-                get => (bool) GetValue(IsMouseOverProperty);
+                get => (bool)GetValue(IsMouseOverProperty);
                 set => SetValue(IsMouseOverProperty, value);
             }
 
@@ -109,11 +109,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(double.PositiveInfinity,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.Width = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.Width = (float)(double)e.NewValue;
                                      }));
 
             public double Width {
-                get => (double) GetValue(WidthProperty);
+                get => (double)GetValue(WidthProperty);
                 set => SetValue(WidthProperty, value);
             }
 
@@ -122,11 +122,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(double.PositiveInfinity,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.Height = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.Height = (float)(double)e.NewValue;
                                      }));
 
             public double Height {
-                get => (double) GetValue(HeightProperty);
+                get => (double)GetValue(HeightProperty);
                 set => SetValue(HeightProperty, value);
             }
 
@@ -135,11 +135,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(0.0,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.MinimumWidth = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.MinimumWidth = (float)(double)e.NewValue;
                                      }));
 
             public double MinimumWidth {
-                get => (double) GetValue(MinimumWidthProperty);
+                get => (double)GetValue(MinimumWidthProperty);
                 set => SetValue(MinimumWidthProperty, value);
             }
 
@@ -149,11 +149,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(0.0,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.MinimumHeight = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.MinimumHeight = (float)(double)e.NewValue;
                                      }));
 
             public double MinimumHeight {
-                get => (double) GetValue(MinimumHeightProperty);
+                get => (double)GetValue(MinimumHeightProperty);
                 set => SetValue(MinimumHeightProperty, value);
             }
 
@@ -162,11 +162,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(double.PositiveInfinity,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.MaximumWidth = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.MaximumWidth = (float)(double)e.NewValue;
                                      }));
 
             public double MaximumWidth {
-                get => (double) GetValue(MaximumWidthProperty);
+                get => (double)GetValue(MaximumWidthProperty);
                 set => SetValue(MaximumWidthProperty, value);
             }
 
@@ -176,17 +176,17 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Element2D),
                 new PropertyMetadata(double.PositiveInfinity,
                                      (d, e) => {
-                                         (d as Element2DCore).SceneNode.MaximumHeight = (float) (double) e.NewValue;
+                                         (d as Element2DCore).SceneNode.MaximumHeight = (float)(double)e.NewValue;
                                      }));
 
             public double MaximumHeight {
-                get => (double) GetValue(MaximumHeightProperty);
+                get => (double)GetValue(MaximumHeightProperty);
                 set => SetValue(MaximumHeightProperty, value);
             }
 
 
             public HorizontalAlignment HorizontalAlignment {
-                get => (HorizontalAlignment) GetValue(HorizontalAlignmentProperty);
+                get => (HorizontalAlignment)GetValue(HorizontalAlignmentProperty);
                 set => SetValue(HorizontalAlignmentProperty, value);
             }
 
@@ -199,13 +199,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode
                                                                          .HorizontalAlignment =
-                                                                         ((HorizontalAlignment) e.NewValue)
+                                                                         ((HorizontalAlignment)e.NewValue)
                                                                          .ToD2DHorizontalAlignment();
                                                                  }));
 
 
             public VerticalAlignment VerticalAlignment {
-                get => (VerticalAlignment) GetValue(VerticalAlignmentProperty);
+                get => (VerticalAlignment)GetValue(VerticalAlignmentProperty);
                 set => SetValue(VerticalAlignmentProperty, value);
             }
 
@@ -217,13 +217,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(VerticalAlignment.Stretch,
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode.VerticalAlignment =
-                                                                         ((VerticalAlignment) e.NewValue)
+                                                                         ((VerticalAlignment)e.NewValue)
                                                                          .ToD2DVerticalAlignment();
                                                                  }));
 
 
             public Thickness Margin {
-                get => (Thickness) GetValue(MarginProperty);
+                get => (Thickness)GetValue(MarginProperty);
                 set => SetValue(MarginProperty, value);
             }
 
@@ -234,7 +234,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(new Thickness(),
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode.Margin =
-                                                                         ((Thickness) e.NewValue).ToD2DThickness();
+                                                                         ((Thickness)e.NewValue).ToD2DThickness();
                                                                  }));
 
             public static readonly DependencyProperty TransformProperty =
@@ -246,7 +246,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                      (d as Element2DCore).SceneNode.ModelMatrix =
                                                                          e.NewValue == null
                                                                              ? Matrix3x2.Identity
-                                                                             : ((Media.Transform) e.NewValue).Value
+                                                                             : ((Media.Transform)e.NewValue).Value
                                                                              .ToMatrix3x2();
                                                                  }));
 
@@ -254,14 +254,14 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     Render transform
             /// </summary>
             public Media.Transform Transform {
-                get => (Media.Transform) GetValue(TransformProperty);
+                get => (Media.Transform)GetValue(TransformProperty);
 
                 set => SetValue(TransformProperty, value);
             }
 
 
             public Point RenderTransformOrigin {
-                get => (Point) GetValue(RenderTransformOriginProperty);
+                get => (Point)GetValue(RenderTransformOriginProperty);
                 set => SetValue(RenderTransformOriginProperty, value);
             }
 
@@ -273,11 +273,11 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode
                                                                          .RenderTransformOrigin =
-                                                                         ((Point) e.NewValue).ToVector2();
+                                                                         ((Point)e.NewValue).ToVector2();
                                                                  }));
 
             public bool EnableBitmapCache {
-                get => (bool) GetValue(EnableBitmapCacheProperty);
+                get => (bool)GetValue(EnableBitmapCacheProperty);
                 set => SetValue(EnableBitmapCacheProperty, value);
             }
 
@@ -288,13 +288,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(false,
                                                                  (d, e) => {
                                                                      (d as Element2DCore).SceneNode.EnableBitmapCache =
-                                                                         (bool) e.NewValue;
+                                                                         (bool)e.NewValue;
                                                                  }));
 
-        #endregion
+            #endregion
 
 
-        #region Events
+            #region Events
 
             public delegate void Mouse2DRoutedEventHandler(object sender, Mouse2DEventArgs e);
 
@@ -353,7 +353,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 remove => RemoveHandler(MouseLeave2DEvent, value);
             }
 
-        #endregion
+            #endregion
         }
 
         public class Mouse2DEventArgs : RoutedEventArgs {
@@ -362,8 +362,8 @@ namespace HelixToolkit.Wpf.SharpDX {
                 object source,
                 HitTest2DResult hitTestResult,
                 Point position,
-                Viewport3DX viewport = null,
-                InputEventArgs inputArgs = null
+                Viewport3DX? viewport = null,
+                InputEventArgs? inputArgs = null
             )
                 : base(routedEvent, source) {
                 HitTest2DResult = hitTestResult;
@@ -372,7 +372,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 InputArgs = inputArgs;
             }
 
-            public Mouse2DEventArgs(RoutedEvent routedEvent, object source, Viewport3DX viewport = null)
+            public Mouse2DEventArgs(RoutedEvent routedEvent, object source, Viewport3DX? viewport = null)
                 : base(routedEvent, source) {
                 Viewport = viewport;
             }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@ namespace HelixToolkit.SharpDX.Core;
 ///     caller is no longer needed to use this buffer. The released id will be reused by an new caller.
 /// </summary>
 public sealed unsafe class ArrayStorage : DisposeObject {
-    private static readonly ILogger logger = LogManager.Create<ArrayStorage>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     public static int MinArraySize = 1024 * 4;
     public static int MaxArraySizeExpoentialIncrement = 1024 * 1024;
     private readonly FastList<byte> binaryArray = new(MinArraySize);
@@ -36,24 +36,24 @@ public sealed unsafe class ArrayStorage : DisposeObject {
             rwLock.EnterWriteLock();
             binaryArray.Resize(newSize, false);
             rwLock.ExitWriteLock();
-            if (logger.IsEnabled(LogLevel.Debug))
-                logger.LogDebug("Resize struct array to {0} * {1} = {2}", StructSize, id + 1, binaryArray.Count);
+            if (Logger.IsEnabled(LogLevel.Debug))
+                Logger.Debug("Resize struct array to {Value0} * {Value1} = {Value2}", StructSize, id + 1, binaryArray.Count);
         }
 
-        if (logger.IsEnabled(LogLevel.Debug))
-            logger.LogDebug("Getting new id [{0}] on struct size [{1}].", id, StructSize);
+        if (Logger.IsEnabled(LogLevel.Debug))
+            Logger.Debug("Getting new id [{Value0}] on struct size [{Value1}].", id, StructSize);
         return id;
     }
 
     public void ReleaseId(int id) {
-        if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Release id [{0}] on struct size [{1}].", id, StructSize);
+        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Release id [{Value0}] on struct size [{Value1}].", id, StructSize);
         idHelper.ReleaseId(id);
         Clear(id);
     }
 
     public void Clear(int id) {
         if (id < 0) {
-            logger.LogError("Invalid Id {0}", id);
+            Logger.Error("Invalid Id {Value0}", id);
             return;
         }
 
@@ -71,7 +71,7 @@ public sealed unsafe class ArrayStorage : DisposeObject {
 
     public bool Write(int id, int offset, nint data, int dataLength) {
         if (id < 0) {
-            logger.LogError("Invalid Id {0}", id);
+            Logger.Error("Invalid Id {Value0}", id);
             return false;
         }
 
@@ -134,7 +134,7 @@ public sealed unsafe class ArrayStorage : DisposeObject {
 
         var array = binaryArray.GetInternalArray();
         fixed (byte* pArray = &array[offsetInArray]) {
-            value = *(T*) pArray;
+            value = *(T*)pArray;
         }
 
         return true;
@@ -183,7 +183,7 @@ public sealed class StructArrayPool : DisposeObject, IStructArrayPool {
     }
 
     private sealed class ArrayPoolStorage : ReferenceCountedDictionaryPool<int, ArrayStorage, int> {
-        private static readonly ILogger logger = LogManager.Create<ArrayPoolStorage>();
+        private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
         public ArrayPoolStorage() : base(true) { }
 
@@ -192,7 +192,7 @@ public sealed class StructArrayPool : DisposeObject, IStructArrayPool {
         }
 
         protected override ArrayStorage OnCreate(ref int key, ref int argument) {
-            logger.LogInformation("Creating new struct array with size {0}", argument);
+            Logger.Info("Creating new struct array with size {Value0}", argument);
             return new ArrayStorage(argument);
         }
     }

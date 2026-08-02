@@ -46,43 +46,43 @@ public struct PixelFormat : IEquatable<PixelFormat> {
     /// <summary>
     /// </summary>
     public static class A8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.A8_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class B5G5R5A1 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.B5G5R5A1_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class B5G6R5 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.B5G6R5_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class B8G8R8A8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -96,13 +96,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.B8G8R8A8_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class B8G8R8X8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -116,13 +116,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.B8G8R8X8_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC1 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -136,13 +136,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.BC1_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC2 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -156,13 +156,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.BC2_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC3 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -176,13 +176,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.BC3_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC4 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -196,13 +196,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.BC4_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC5 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -216,25 +216,25 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.BC5_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC6H {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
         public static readonly PixelFormat Typeless = new(Format.BC6H_Typeless);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class BC7 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -248,13 +248,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.BC7_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R10G10B10A2 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -268,25 +268,25 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R10G10B10A2_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R11G11B10 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
         public static readonly PixelFormat Float = new(Format.R11G11B10_Float);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R16 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -312,13 +312,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R16_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R16G16 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -344,13 +344,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R16G16_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R16G16B16A16 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -376,13 +376,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R16G16B16A16_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R32 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -400,13 +400,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UInt = new(Format.R32_UInt);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R32G32 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -424,13 +424,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UInt = new(Format.R32G32_UInt);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R32G32B32 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -448,13 +448,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UInt = new(Format.R32G32B32_UInt);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R32G32B32A32 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -472,13 +472,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UInt = new(Format.R32G32B32A32_UInt);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -500,13 +500,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R8_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R8G8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -528,13 +528,13 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNorm = new(Format.R8G8_UNorm);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
     /// </summary>
     public static class R8G8B8A8 {
-    #region Constants and Fields
+        #region Constants and Fields
 
         /// <summary>
         /// </summary>
@@ -560,7 +560,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
         /// </summary>
         public static readonly PixelFormat UNormSRgb = new(Format.R8G8B8A8_UNorm_SRgb);
 
-    #endregion
+        #endregion
     }
 
     /// <summary>
@@ -608,7 +608,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj))
             return false;
-        return obj is PixelFormat && Equals((PixelFormat) obj);
+        return obj is PixelFormat && Equals((PixelFormat)obj);
     }
 
     /// <summary>

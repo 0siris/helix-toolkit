@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -42,7 +42,7 @@ public partial class Importer {
 
                     //Bones
                     if (mesh.AssimpMesh.HasBones) {
-                        mn.Bones = mesh.AssimpMesh.Bones.Select(x => new Animations.Bone {
+                        mn.Bones = [.. mesh.AssimpMesh.Bones.Select(x => new Animations.Bone {
                             Name = x.Name,
                             BindPose = x.OffsetMatrix.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor)
                                         .Inverted(),
@@ -50,7 +50,7 @@ public partial class Importer {
                             InvBindPose =
                                 x.OffsetMatrix.ToSharpDXMatrix(configuration
                                                                    .IsSourceMatrixColumnMajor) //Documented at https://github.com/assimp/assimp/pull/1803
-                        }).ToArray();
+                        })];
                     } else {
                         mn.Geometry = mesh.Mesh;
                         mn.SetupIdentitySkeleton();
@@ -79,7 +79,7 @@ public partial class Importer {
                                              }));
 
                         mn.MorphTargetWeights = new float[attCount];
-                        mn.InitializeMorphTargets(mtv.ToArray(), mesh.AssimpMesh.VertexCount);
+                        mn.InitializeMorphTargets([.. mtv], mesh.AssimpMesh.VertexCount);
                     }
 
                     mnode = mn;
@@ -143,24 +143,24 @@ public partial class Importer {
             else if (mesh.Faces[i].IndexCount == 4) builder.AddTriangleFan(mesh.Faces[i].Indices);
         }
 
-        var hMesh = new MeshGeometry3D {Positions = hVertices, Indices = builder.TriangleIndices};
+        var hMesh = new MeshGeometry3D { Positions = hVertices, Indices = builder.TriangleIndices };
         if (mesh.HasNormals && mesh.Normals.Count == hMesh.Positions.Count)
-            hMesh.Normals = new Vector3Collection(mesh.Normals.Select(x => {
+            hMesh.Normals = [.. mesh.Normals.Select(x => {
                 var normal = x.ToSharpDXVector3();
                 return normal.Length > 0 ? normal / normal.Length : normal;
-            }));
+            })];
         else
             hMesh.Normals = hMesh.CalculateNormals();
         if (mesh.HasVertexColors(0))
             hMesh.Colors =
-                new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
+                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A))];
         if (mesh.HasTextureCoords(0))
             hMesh.TextureCoordinates =
-                new Vector2Collection(mesh.TextureCoordinateChannels[0].Select(x => x.ToSharpDXVector2()));
+                [.. mesh.TextureCoordinateChannels[0].Select(x => x.ToSharpDXVector2())];
         if (mesh.HasTangentBasis && mesh.Tangents.Count == hMesh.Positions.Count &&
             mesh.BiTangents.Count == hMesh.Positions.Count) {
-            hMesh.Tangents = new Vector3Collection(mesh.Tangents.Select(x => x.ToSharpDXVector3()));
-            hMesh.BiTangents = new Vector3Collection(mesh.BiTangents.Select(x => x.ToSharpDXVector3()));
+            hMesh.Tangents = [.. mesh.Tangents.Select(x => x.ToSharpDXVector3())];
+            hMesh.BiTangents = [.. mesh.BiTangents.Select(x => x.ToSharpDXVector3())];
         } else {
             builder.Normals = hMesh.Normals;
             builder.TextureCoordinates = hMesh.TextureCoordinates;
@@ -192,7 +192,7 @@ public partial class Importer {
                 for (var i = 0; i < mesh.Bones[j].VertexWeightCount; ++i) {
                     var vWeight = mesh.Bones[j].VertexWeights[i];
                     if (vWeight.VertexID >= accumArray.Length) {
-                        logger.LogWarning("Bone weight index is out of range. Num verts: {0}; Bone vert index: {1}",
+                        Logger.Warn("Bone weight index is out of range. Num verts: {Value0}; Bone vert index: {Value1}",
                                           accumArray.Length,
                                           vWeight.VertexID);
                         continue;
@@ -218,8 +218,8 @@ public partial class Importer {
                             id.Weights.W = vWeight.Weight;
                             break;
                         default:
-                            logger.LogWarning(
-                                "Bone index count {0} is out of range. Maximum 4 bone indices per vertex are supported.",
+                            Logger.Warn(
+                                "Bone index count {Value0} is out of range. Maximum 4 bone indices per vertex are supported.",
                                 currIdx);
                             break;
                     }
@@ -235,9 +235,9 @@ public partial class Importer {
     /// <returns></returns>
     protected virtual PointGeometry3D OnCreateHelixPoint(Mesh mesh) {
         var hVertices = new Vector3Collection(mesh.Vertices.Select(x => x.ToSharpDXVector3()));
-        var hMesh = new PointGeometry3D {Positions = hVertices};
+        var hMesh = new PointGeometry3D { Positions = hVertices };
         if (mesh.HasVertexColors(0))
-            hMesh.Colors = new Color4Collection(mesh.VertexColorChannels[0].Select(x => x.ToSharpDXColor4()));
+            hMesh.Colors = [.. mesh.VertexColorChannels[0].Select(x => x.ToSharpDXColor4())];
         return hMesh;
     }
 
@@ -249,10 +249,10 @@ public partial class Importer {
     protected virtual LineGeometry3D OnCreateHelixLine(Mesh mesh) {
         var hVertices = new Vector3Collection(mesh.Vertices.Select(x => x.ToSharpDXVector3()));
         var hIndices = new IntCollection(mesh.Faces.SelectMany(x => x.Indices));
-        var hMesh = new LineGeometry3D {Positions = hVertices, Indices = hIndices};
+        var hMesh = new LineGeometry3D { Positions = hVertices, Indices = hIndices };
         if (mesh.HasVertexColors(0))
             hMesh.Colors =
-                new Color4Collection(mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A)));
+                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A))];
         return hMesh;
     }
 

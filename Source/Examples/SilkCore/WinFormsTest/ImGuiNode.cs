@@ -1,29 +1,29 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ImGuiNET;
 using Format = Silk.NET.DXGI.Format;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 
 namespace HelixToolkit.SharpDX.Core.Model;
 
-using Core.Components;
-using Shaders;
 using Core;
+using Core.Components;
 using Model.Scene;
 using Render;
+using Shaders;
 using Utilities;
 
 public class ImGuiNode : SceneNode {
-#region Custom Render Technique
+    #region Custom Render Technique
 
     public const string ImGuiRenderTechnique = "ImGuiRender";
 
-    public static InputElement[] VSInputImGui2D { get; } = new InputElement[] {
+    public static InputElement[] VSInputImGui2D { get; } = [
         new InputElement("POSITION", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
         new InputElement("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
         new InputElement("COLOR", 0, Format.FormatR8G8B8A8Unorm, InputElement.AppendAligned, 0),
-    };
+    ];
 
     public static readonly TechniqueDescription RenderTechnique;
 
@@ -46,11 +46,11 @@ public class ImGuiNode : SceneNode {
         };
     }
 
-#endregion
+    #endregion
 
     private ImGui2DBufferModel bufferModel;
 
-    private IntPtr fontAtlasID = (IntPtr) 1;
+    private IntPtr fontAtlasID = (IntPtr)1;
 
     private bool newFrame = false;
 
@@ -84,13 +84,13 @@ public class ImGuiNode : SceneNode {
         }
 
         var io = ImGui.GetIO();
-        io.DisplaySize = new System.Numerics.Vector2((int) (context.ActualWidth * context.DpiScale),
-                                                     (int) (context.ActualHeight * context.DpiScale));
+        io.DisplaySize = new System.Numerics.Vector2((int)(context.ActualWidth * context.DpiScale),
+                                                     (int)(context.ActualHeight * context.DpiScale));
         if (previousTime == TimeSpan.Zero) {
             previousTime = context.TimeStamp;
         }
 
-        io.Framerate = (float) (context.TimeStamp - previousTime).TotalSeconds;
+        io.Framerate = (float)(context.TimeStamp - previousTime).TotalSeconds;
         previousTime = context.TimeStamp;
         ImGui.NewFrame();
         UpdatingImGuiUI?.Invoke(this, EventArgs.Empty);
@@ -187,7 +187,7 @@ public sealed class ImGuiRenderCore : RenderCore {
         spritePass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
         deviceContext.SetViewport(0, 0, io.DisplaySize.X, io.DisplaySize.Y);
 
-    #region Render
+        #region Render
 
         unsafe {
             var draw_data = ImGui.GetDrawData();
@@ -197,19 +197,19 @@ public sealed class ImGuiRenderCore : RenderCore {
             for (int n = 0; n < draw_data.CmdListsCount; n++) {
                 var cmd_list = draw_data.CmdListsRange[n];
                 for (int cmd_i = 0; cmd_i < cmd_list.CmdBuffer.Size; cmd_i++) {
-                    var pcmd = &(((ImDrawCmd*) cmd_list.CmdBuffer.Data)[cmd_i]);
+                    var pcmd = &(((ImDrawCmd*)cmd_list.CmdBuffer.Data)[cmd_i]);
                     if (pcmd->UserCallback != IntPtr.Zero) { } else {
-                        deviceContext.SetScissorRectangle((int) pcmd->ClipRect.X,
-                                                          (int) pcmd->ClipRect.Y,
-                                                          (int) (pcmd->ClipRect.Z),
-                                                          (int) (pcmd->ClipRect.W));
+                        deviceContext.SetScissorRectangle((int)pcmd->ClipRect.X,
+                                                          (int)pcmd->ClipRect.Y,
+                                                          (int)(pcmd->ClipRect.Z),
+                                                          (int)(pcmd->ClipRect.W));
 
-                        deviceContext.DrawIndexed((int) pcmd->ElemCount,
+                        deviceContext.DrawIndexed((int)pcmd->ElemCount,
                                                   idx_offset,
                                                   vtx_offset);
                     }
 
-                    idx_offset += (int) pcmd->ElemCount;
+                    idx_offset += (int)pcmd->ElemCount;
                 }
 
                 vtx_offset += cmd_list.VtxBuffer.Size;
@@ -259,7 +259,7 @@ public sealed class ImGuiRenderCore : RenderCore {
                                                           int vCount = cmd_list.VtxBuffer.Size * sizeof(ImDrawVert);
                                                           ptr = UnsafeHelper.Write(
                                                               ptr,
-                                                              (IntPtr) cmd_list.VtxBuffer.Data,
+                                                              (IntPtr)cmd_list.VtxBuffer.Data,
                                                               0,
                                                               vCount);
                                                       }
@@ -272,7 +272,7 @@ public sealed class ImGuiRenderCore : RenderCore {
                                                          int iCount = cmd_list.IdxBuffer.Size * sizeof(ushort);
                                                          ptr = UnsafeHelper.Write(
                                                              ptr,
-                                                             (IntPtr) cmd_list.IdxBuffer.Data,
+                                                             (IntPtr)cmd_list.IdxBuffer.Data,
                                                              0,
                                                              iCount);
                                                      }

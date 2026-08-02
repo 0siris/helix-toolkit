@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -11,7 +11,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class SwapChainRenderHost : DefaultRenderHost {
-            private static readonly ILogger logger = LogManager.Create<SwapChainRenderHost>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             protected readonly nint surface;
 
             /// <summary>
@@ -37,7 +37,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <returns></returns>
             protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
-                logger.LogInformation("Creating DX11SwapChainRenderBufferProxy");
+                Logger.Info("Creating DX11SwapChainRenderBufferProxy");
                 return new DX11SwapChainRenderBufferProxy(surface, EffectsManager);
             }
         }

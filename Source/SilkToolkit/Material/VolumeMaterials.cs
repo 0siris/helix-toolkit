@@ -19,7 +19,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               VolumeTextureDDS3DMaterialCore).Sampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty SampleDistanceProperty =
@@ -30,7 +30,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               IVolumeTextureMaterial).SampleDistance =
-                                                                 (double) e.NewValue;
+                                                                 (double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty MaxIterationsProperty =
@@ -40,7 +40,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                     new PropertyMetadata(int.MaxValue,
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
-                                                              IVolumeTextureMaterial).MaxIterations = (int) e.NewValue;
+                                                              IVolumeTextureMaterial).MaxIterations = (int)e.NewValue;
                                                          }));
 
 
@@ -52,7 +52,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               IVolumeTextureMaterial).IterationOffset =
-                                                                 (int) e.NewValue;
+                                                                 (int)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty IsoValueProperty =
@@ -62,7 +62,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
-                                                              IVolumeTextureMaterial).IsoValue = (double) e.NewValue;
+                                                              IVolumeTextureMaterial).IsoValue = (double)e.NewValue;
                                                          }));
 
 
@@ -73,7 +73,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                     new PropertyMetadata(new Color4(1, 1, 1, 1),
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
-                                                              IVolumeTextureMaterial).Color = (Color4) e.NewValue;
+                                                              IVolumeTextureMaterial).Color = (Color4)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty TransferMapProperty =
@@ -84,7 +84,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               IVolumeTextureMaterial).TransferMap =
-                                                                 (Color4[]) e.NewValue;
+                                                                 (Color4[])e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for EnablePlaneAlignment.  This enables animation, styling, binding, etc...
@@ -96,7 +96,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               IVolumeTextureMaterial).EnablePlaneAlignment =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     public VolumeTextureMaterialBase() { }
@@ -113,7 +113,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     }
 
     public SamplerStateDescription Sampler {
-        get => (SamplerStateDescription) GetValue(SamplerProperty);
+        get => (SamplerStateDescription)GetValue(SamplerProperty);
         set => SetValue(SamplerProperty, value);
     }
 
@@ -124,7 +124,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The size of the step.
     /// </value>
     public double SampleDistance {
-        get => (double) GetValue(SampleDistanceProperty);
+        get => (double)GetValue(SampleDistanceProperty);
         set => SetValue(SampleDistanceProperty, value);
     }
 
@@ -136,7 +136,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The iterations.
     /// </value>
     public int MaxIterations {
-        get => (int) GetValue(MaxIterationsProperty);
+        get => (int)GetValue(MaxIterationsProperty);
         set => SetValue(MaxIterationsProperty, value);
     }
 
@@ -148,7 +148,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The iteration offset.
     /// </value>
     public int IterationOffset {
-        get => (int) GetValue(IterationOffsetProperty);
+        get => (int)GetValue(IterationOffsetProperty);
         set => SetValue(IterationOffsetProperty, value);
     }
 
@@ -161,7 +161,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The iso value.
     /// </value>
     public double IsoValue {
-        get => (double) GetValue(IsoValueProperty);
+        get => (double)GetValue(IsoValueProperty);
         set => SetValue(IsoValueProperty, value);
     }
 
@@ -173,7 +173,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The color.
     /// </value>
     public Color4 Color {
-        get => (Color4) GetValue(ColorProperty);
+        get => (Color4)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
@@ -185,13 +185,13 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     ///     The gradient map.
     /// </value>
     public Color4[] TransferMap {
-        get => (Color4[]) GetValue(TransferMapProperty);
+        get => (Color4[])GetValue(TransferMapProperty);
         set => SetValue(TransferMapProperty, value);
     }
 
 
     public bool EnablePlaneAlignment {
-        get => (bool) GetValue(EnablePlaneAlignmentProperty);
+        get => (bool)GetValue(EnablePlaneAlignmentProperty);
         set => SetValue(EnablePlaneAlignmentProperty, value);
     }
 }
@@ -209,7 +209,7 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
                                                          (d, e) => {
                                                              ((d as VolumeTextureDDS3DMaterial).Core as
                                                               VolumeTextureDDS3DMaterialCore).VolumeTexture =
-                                                                 (TextureModel) e.NewValue;
+                                                                 (TextureModel)e.NewValue;
                                                          }));
 
     public VolumeTextureDDS3DMaterial() { }
@@ -225,7 +225,7 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
     ///     The texture.
     /// </value>
     public TextureModel Texture {
-        get => (TextureModel) GetValue(TextureProperty);
+        get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
@@ -277,7 +277,7 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
                                                          (d, e) => {
                                                              ((d as VolumeTextureRawDataMaterial).Core as
                                                               VolumeTextureRawDataMaterialCore).VolumeTexture =
-                                                                 (VolumeTextureParams) e.NewValue;
+                                                                 (VolumeTextureParams)e.NewValue;
                                                          }));
 
     public VolumeTextureRawDataMaterial() { }
@@ -293,7 +293,7 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
     ///     The texture.
     /// </value>
     public VolumeTextureParams Texture {
-        get => (VolumeTextureParams) GetValue(TextureProperty);
+        get => (VolumeTextureParams)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
@@ -345,7 +345,7 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
                                                          (d, e) => {
                                                              ((d as VolumeTextureDiffuseMaterial).Core as
                                                               VolumeTextureDiffuseMaterialCore).VolumeTexture =
-                                                                 (VolumeTextureGradientParams) e.NewValue;
+                                                                 (VolumeTextureGradientParams)e.NewValue;
                                                          }));
 
     public VolumeTextureDiffuseMaterial() { }
@@ -361,7 +361,7 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
     ///     The texture.
     /// </value>
     public VolumeTextureGradientParams Texture {
-        get => (VolumeTextureGradientParams) GetValue(TextureProperty);
+        get => (VolumeTextureGradientParams)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 

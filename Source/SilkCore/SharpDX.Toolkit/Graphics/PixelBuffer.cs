@@ -111,8 +111,8 @@ public sealed class PixelBuffer {
         if (BufferStride == pixelBuffer.BufferStride) {
             Utilities.CopyMemory(pixelBuffer.DataPointer, DataPointer, BufferStride);
         } else {
-            var srcPointer = (byte*) DataPointer;
-            var dstPointer = (byte*) pixelBuffer.DataPointer;
+            var srcPointer = (byte*)DataPointer;
+            var dstPointer = (byte*)pixelBuffer.DataPointer;
             var rowStride = Math.Min(RowStride, pixelBuffer.RowStride);
 
             // Copy per scanline
@@ -135,7 +135,7 @@ public sealed class PixelBuffer {
     ///     Caution, this method doesn't check bounding.
     /// </remarks>
     public unsafe T GetPixel<T>(int x, int y) where T : unmanaged {
-        return Utilities.Read<T>(new nint((byte*) DataPointer + RowStride * y + x * PixelSize));
+        return Utilities.Read<T>(new nint((byte*)DataPointer + RowStride * y + x * PixelSize));
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ public sealed class PixelBuffer {
     ///     Caution, this method doesn't check bounding.
     /// </remarks>
     public unsafe void SetPixel<T>(int x, int y, T value) where T : unmanaged {
-        Utilities.Write(new nint((byte*) DataPointer + RowStride * y + x * PixelSize), ref value);
+        Utilities.Write(new nint((byte*)DataPointer + RowStride * y + x * PixelSize), ref value);
     }
 
     /// <summary>
@@ -205,7 +205,7 @@ public sealed class PixelBuffer {
     ///     the pixels from.
     /// </remarks>
     public unsafe void GetPixels<T>(T[] pixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged {
-        var pixelPointer = (byte*) DataPointer + yOffset * RowStride;
+        var pixelPointer = (byte*)DataPointer + yOffset * RowStride;
         if (isStrictRowStride) {
             Utilities.Read(new nint(pixelPointer), pixels, 0, pixelCount);
         } else {
@@ -251,7 +251,7 @@ public sealed class PixelBuffer {
     ///     the pixels from.
     /// </remarks>
     public unsafe void SetPixels<T>(T[] sourcePixels, int yOffset, int pixelIndex, int pixelCount) where T : unmanaged {
-        var pixelPointer = (byte*) DataPointer + yOffset * RowStride;
+        var pixelPointer = (byte*)DataPointer + yOffset * RowStride;
         if (isStrictRowStride) {
             Utilities.Write(new nint(pixelPointer), sourcePixels, 0, pixelCount);
         } else {

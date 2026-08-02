@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,10 +13,10 @@ namespace HelixToolkit.SharpDX.Core.Assimp;
 
 public partial class Exporter : IDisposable {
     private const string ToUpperDictString = @"..\";
-    private static readonly ILogger logger = LogManager.Create<Exporter>();
-    protected readonly Dictionary<Geometry3D, int> geometryCollection = new();
-    protected readonly Dictionary<MaterialCore, int> materialCollection = new();
-    protected readonly Dictionary<ulong, MeshInfo> meshInfos = new();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
+    protected readonly Dictionary<Geometry3D, int> geometryCollection = [];
+    protected readonly Dictionary<MaterialCore, int> materialCollection = [];
+    protected readonly Dictionary<ulong, MeshInfo> meshInfos = [];
     private IList<Animations.Animation>? animations;
 
     private int MaterialIndexForNoName;
@@ -24,7 +24,7 @@ public partial class Exporter : IDisposable {
 
     static Exporter() {
         using (var temp = new AssimpContext()) {
-            SupportedFormats = temp.GetSupportedExportFormats().ToArray();
+            SupportedFormats = [.. temp.GetSupportedExportFormats()];
         }
 
         var builder = new StringBuilder();
@@ -75,13 +75,13 @@ public partial class Exporter : IDisposable {
         if (configuration.FlipWindingOrder) postProcessing |= PostProcessSteps.FlipWindingOrder;
         try {
             if (!exporter.ExportFile(scene, filePath, formatId, postProcessing)) {
-                logger.LogError("Export failed. FilePath: {0}; Format: {1}", filePath, formatId);
+                Logger.Error("Export failed. FilePath: {Value0}; Format: {Value1}", [filePath, formatId]);
                 return ErrorCode.Failed;
             }
 
             return ErrorCode.Succeed;
         } catch (Exception ex) {
-            logger.LogError(ex.Message);
+            Logger.Error(ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
         } finally {
             if (!useExtern) exporter.Dispose();
@@ -116,7 +116,7 @@ public partial class Exporter : IDisposable {
             blob = exporter.ExportToBlob(scene, formatId, postProcessing);
             return ErrorCode.Succeed;
         } catch (Exception ex) {
-            logger.LogError(ex.Message);
+            Logger.Error(ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
         } finally {
             if (!useExtern) exporter.Dispose();
@@ -161,7 +161,7 @@ public partial class Exporter : IDisposable {
                 } else if (s is Model.Scene.GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
                 } else {
-                    logger.LogWarning("Current node type does not support yet. Type: {0}", s.GetType().Name);
+                    Logger.Warn("Current node type does not support yet. Type: {Value0}", s.GetType().Name);
                 }
 
             if (group.Metadata != null)
@@ -171,7 +171,7 @@ public partial class Exporter : IDisposable {
             var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
             if (meshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
         } else {
-            logger.LogWarning("Current node type does not support yet. Type: {0}", current.GetType().Name);
+            Logger.Warn("Current node type does not support yet. Type: {Value0}", current.GetType().Name);
         }
 
         return node;
@@ -190,7 +190,7 @@ public partial class Exporter : IDisposable {
             if (node is Model.Scene.GeometryNode geo) {
                 var info = OnCreateMeshInfo(geo);
                 if (info == null) {
-                    logger.LogWarning("Create Mesh info failed. Node Name: {0}", geo.Name);
+                    Logger.Warn("Create Mesh info failed. Node Name: {Value0}", geo.Name);
                     continue;
                 }
 
@@ -211,7 +211,7 @@ public partial class Exporter : IDisposable {
         MaterialIndexForNoName = MeshIndexForNoName = 0;
     }
 
-#region Inner Classes
+    #region Inner Classes
 
     /// <summary>
     /// </summary>
@@ -237,9 +237,9 @@ public partial class Exporter : IDisposable {
         public MeshInfo[] Meshes;
     }
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets the supported formats.
@@ -273,9 +273,9 @@ public partial class Exporter : IDisposable {
         }
     }
 
-#endregion
+    #endregion
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -306,5 +306,5 @@ public partial class Exporter : IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

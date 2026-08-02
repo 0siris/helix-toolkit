@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -16,15 +16,15 @@ namespace HelixToolkit.SharpDX.Core.Assimp;
 /// <summary>
 /// </summary>
 public partial class Importer : IDisposable {
-    private static readonly ILogger logger = LogManager.Create<Importer>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    public static readonly string[] SupportedTextureFormats = {
+    public static readonly string[] SupportedTextureFormats = [
         "bmp", "jpg", "jpeg", "png", "dds", "tiff", "wmp", "gif"
-    };
+    ];
 
     protected static readonly HashSet<string> SupportedTextureFormatDict;
-    private readonly Dictionary<string, EmbeddedTexture> embeddedTextureDict = new();
-    private readonly List<EmbeddedTexture> embeddedTextures = new();
+    private readonly Dictionary<string, EmbeddedTexture> embeddedTextureDict = [];
+    private readonly List<EmbeddedTexture> embeddedTextures = [];
 
     private int MaterialIndexForNoName;
     private int MeshIndexForNoName;
@@ -42,12 +42,12 @@ public partial class Importer : IDisposable {
         foreach (var s in SupportedFormats) builder.Append($"(*{s})|*{s}|");
 
         SupportedFormatsString = builder.ToString(0, builder.Length - 1);
-        SupportedTextureFormatDict = new HashSet<string>(SupportedTextureFormats);
+        SupportedTextureFormatDict = [.. SupportedTextureFormats];
     }
 
     public event EventHandler<Exception> AssimpExceptionOccurred;
 
-#region Inner Classes
+    #region Inner Classes
 
     /// <summary>
     /// </summary>
@@ -73,9 +73,9 @@ public partial class Importer : IDisposable {
         public MeshInfo[] Meshes;
     }
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets the supported formats.
@@ -115,7 +115,7 @@ public partial class Importer : IDisposable {
     /// <value>
     ///     The scene nodes.
     /// </value>
-    public List<Model.Scene.SceneNode> SceneNodes { get; } = new();
+    public List<Model.Scene.SceneNode> SceneNodes { get; } = [];
 
     /// <summary>
     ///     Gets the animations.
@@ -123,7 +123,7 @@ public partial class Importer : IDisposable {
     /// <value>
     ///     The animations.
     /// </value>
-    public List<Animations.Animation> Animations { get; } = new();
+    public List<Animations.Animation> Animations { get; } = [];
 
     /// <summary>
     ///     Gets or sets the error code.
@@ -133,9 +133,9 @@ public partial class Importer : IDisposable {
     /// </value>
     public ErrorCode ErrorCode { get; protected set; }
 
-#endregion
+    #endregion
 
-#region Public Methods
+    #region Public Methods
 
     /// <summary>
     ///     Loads the model specified file path.
@@ -218,7 +218,7 @@ public partial class Importer : IDisposable {
 
             return BuildScene(assimpScene, out scene);
         } catch (Exception ex) {
-            logger.LogError(ex.Message);
+            Logger.Error(ex.Message);
             ErrorCode = ErrorCode.Failed;
             AssimpExceptionOccurred?.Invoke(this, ex);
             return ErrorCode;
@@ -252,7 +252,7 @@ public partial class Importer : IDisposable {
         string filePath,
         string formatHint,
         out HelixToolkitScene scene,
-        ITexturePathResolver texturePathResolver = null
+        ITexturePathResolver? texturePathResolver = null
     ) {
         path = filePath;
         ErrorCode = ErrorCode.None;
@@ -280,7 +280,7 @@ public partial class Importer : IDisposable {
             var assimpScene = importer.ImportFileFromStream(fileStream, postProcess, formatHint);
             return BuildScene(assimpScene, out scene);
         } catch (Exception ex) {
-            logger.LogError(ex.Message);
+            Logger.Error(ex.Message);
             ErrorCode = ErrorCode.Failed;
             AssimpExceptionOccurred?.Invoke(this, ex);
             return ErrorCode;
@@ -302,16 +302,16 @@ public partial class Importer : IDisposable {
         Scene assimpScene,
         string filePath,
         out HelixToolkitScene scene,
-        ITexturePathResolver texturePathResolver = null
+        ITexturePathResolver? texturePathResolver = null
     ) {
         path = filePath;
         Configuration.TexturePathResolver = texturePathResolver;
         return BuildScene(assimpScene, out scene);
     }
 
-#endregion
+    #endregion
 
-#region Protected Methods
+    #region Protected Methods
 
     /// <summary>
     ///     Clears this instance.
@@ -336,9 +336,9 @@ public partial class Importer : IDisposable {
         return ErrorCode.Succeed;
     }
 
-#endregion
+    #endregion
 
-#region Private Methods
+    #region Private Methods
 
     private ErrorCode BuildScene(Scene assimpScene, out HelixToolkitScene scene) {
         Clear();
@@ -362,11 +362,10 @@ public partial class Importer : IDisposable {
             return ErrorCode;
         if (Configuration.ImportAnimations) {
             LoadAnimations(internalScene);
-            scene.Animations = Animations.ToArray();
+            scene.Animations = [.. Animations];
             if (Configuration.CreateSkeletonForBoneSkinningMesh
                 && Configuration.AddsPostEffectForSkeleton)
-                (scene.Root as Model.Scene.GroupNode).AddChildNode(new Model.Scene.NodePostEffectXRayGrid
-                                                                       {EffectName = Configuration.SkeletonEffects});
+                (scene.Root as Model.Scene.GroupNode).AddChildNode(new Model.Scene.NodePostEffectXRayGrid { EffectName = Configuration.SkeletonEffects });
         }
 
         if (!ErrorCode.HasFlag(ErrorCode.Failed))
@@ -381,17 +380,17 @@ public partial class Importer : IDisposable {
             Materials = new KeyValuePair<Material, MaterialCore>[scene.MaterialCount]
         };
         Parallel.Invoke(() => {
-                            if (scene.HasMeshes) {
-                                if (parallel)
-                                    Parallel.ForEach(scene.Meshes,
-                                                     (mesh, state, index) => {
-                                                         s.Meshes[index] = OnCreateHelixGeometry(mesh);
-                                                     });
-                                else
-                                    for (var i = 0; i < scene.MeshCount; ++i)
-                                        s.Meshes[i] = OnCreateHelixGeometry(scene.Meshes[i]);
-                            }
-                        },
+            if (scene.HasMeshes) {
+                if (parallel)
+                    Parallel.ForEach(scene.Meshes,
+                                     (mesh, state, index) => {
+                                         s.Meshes[index] = OnCreateHelixGeometry(mesh);
+                                     });
+                else
+                    for (var i = 0; i < scene.MeshCount; ++i)
+                        s.Meshes[i] = OnCreateHelixGeometry(scene.Meshes[i]);
+            }
+        },
                         () => {
                             if (scene.HasMaterials) {
                                 embeddedTextures.Clear();
@@ -432,7 +431,7 @@ public partial class Importer : IDisposable {
             }
 
         if (node.Metadata.Count > 0) {
-            group.Metadata = new Metadata();
+            group.Metadata = [];
             foreach (var metadata in node.Metadata.ToHelixMetadata())
                 group.Metadata.Add(metadata.Key, metadata.Value);
         }
@@ -440,9 +439,9 @@ public partial class Importer : IDisposable {
         return group;
     }
 
-#endregion
+    #endregion
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -473,5 +472,5 @@ public partial class Importer : IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

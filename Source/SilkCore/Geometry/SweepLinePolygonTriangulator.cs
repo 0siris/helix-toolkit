@@ -9,9 +9,9 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-using Point = Vector2;
-using Int32Collection = List<int>;
 using DoubleOrSingle = float;
+using Int32Collection = List<int>;
+using Point = Vector2;
 
 #pragma warning disable 0436
 /// <summary>
@@ -34,7 +34,7 @@ public static class SweepLinePolygonTriangulator {
     /// <param name="polygon">The Input Polygon</param>
     /// <param name="holes">The Input Polygon</param>
     /// <returns>List of Indices representing the Triangulation of the Polygon</returns>
-    public static Int32Collection Triangulate(IList<Point> polygon, List<List<Point>> holes = null) {
+    public static Int32Collection Triangulate(IList<Point> polygon, List<List<Point>>? holes = null) {
         // Allocate and initialize List of Indices in Polygon
         var result = new Int32Collection();
 
@@ -56,9 +56,9 @@ public static class SweepLinePolygonTriangulator {
         if (count < 3)
             return null;
         if (count == 3) {
-            if (!didReverse) return new Int32Collection {0, 1, 2};
+            if (!didReverse) return [0, 1, 2];
 
-            return new Int32Collection {0, 2, 1};
+            return [0, 2, 1];
         }
 
         var poly = new PolygonData(points);
@@ -78,7 +78,7 @@ public static class SweepLinePolygonTriangulator {
         events.Reverse();
         // Add the Diagonals in the Up Sweep (and remove duplicates)
         diagonals.AddRange(CalculateDiagonals(events, false));
-        diagonals = diagonals.Distinct().ToList();
+        diagonals = [.. diagonals.Distinct()];
 
         // Use Diagonals to split into nonotone Polygons
         var monotonePolygons = SplitIntoPolygons(poly, diagonals);
@@ -196,15 +196,13 @@ public static class SweepLinePolygonTriangulator {
 
                 while (pointStack.Count != 0)
                     // If the Triangle is possible, add it to the result (Point Order depends on the Side)
-                    if (right == newPoint && IsCCW(new List<Point>
-                                                       {newPoint.Point, p2.Point, pointStack.Peek().Point})) {
+                    if (right == newPoint && IsCCW([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
                         top = pointStack.Pop();
                         result.Add(newPoint.Index);
                         result.Add(p2.Index);
                         result.Add(top.Index);
                         p2 = top;
-                    } else if (left == newPoint && !IsCCW(new List<Point>
-                                                              {newPoint.Point, p2.Point, pointStack.Peek().Point})) {
+                    } else if (left == newPoint && !IsCCW([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
                         top = pointStack.Pop();
                         result.Add(newPoint.Index);
                         result.Add(top.Index);
@@ -270,8 +268,7 @@ public static class SweepLinePolygonTriangulator {
                     } else {
                         // Search Edge left of the Event and set Event as it's Helper
                         she = statusAndHelper.SearchLeft(ev);
-                        if (she != null)
-                            she.Helper = ev;
+                        she?.Helper = ev;
                     }
 
                     break;
@@ -280,8 +277,7 @@ public static class SweepLinePolygonTriangulator {
                     statusAndHelper.Remove(sweepDown ? ev.EdgeOne : ev.EdgeTwo);
                     // Search Edge left of the Event and set Event as it's Helper
                     she = statusAndHelper.SearchLeft(ev);
-                    if (she != null)
-                        she.Helper = ev;
+                    she?.Helper = ev;
                     break;
                 case PolygonPointClass.Split:
                     // Search Edge left of the Event
@@ -314,9 +310,9 @@ public static class SweepLinePolygonTriangulator {
     /// <returns>List of Subpolygons</returns>
     private static List<PolygonData> SplitIntoPolygons(PolygonData poly, List<Tuple<int, int>> diagonals) {
         if (diagonals.Count == 0)
-            return new List<PolygonData> {poly};
+            return [poly];
 
-        diagonals = diagonals.OrderBy(d => d.Item1).ThenBy(d => d.Item2).ToList();
+        diagonals = [.. diagonals.OrderBy(d => d.Item1).ThenBy(d => d.Item2)];
         var edges = new SortedDictionary<int, List<PolygonEdge>>();
         foreach (var edge in poly.Points.Select(p => p.EdgeTwo)
                                  .Union(diagonals.Select(d => new PolygonEdge(poly.Points[d.Item1],
@@ -324,7 +320,7 @@ public static class SweepLinePolygonTriangulator {
                                  .Union(diagonals.Select(d => new PolygonEdge(poly.Points[d.Item2],
                                                                               poly.Points[d.Item1]))))
             if (!edges.ContainsKey(edge.PointOne.Index))
-                edges.Add(edge.PointOne.Index, new List<PolygonEdge> {edge});
+                edges.Add(edge.PointOne.Index, [edge]);
             else
                 edges[edge.PointOne.Index].Add(edge);
 
@@ -377,7 +373,7 @@ public static class SweepLinePolygonTriangulator {
 
         // Variables needed to determine the next Edge
         var bestEdge = possibleEdges[0];
-        var bestAngle = (float) Math.PI * 2;
+        var bestAngle = (float)Math.PI * 2;
         // Vector from last Point to current Point
         var lastVector = lastEdge.PointTwo.Point - lastEdge.PointOne.Point;
         lastVector.Normalize();
@@ -395,9 +391,9 @@ public static class SweepLinePolygonTriangulator {
             var angle = 0f;
             // Depending on the Dot-Value, calculate the actual "inner" Angle
             if (insideVector.X * edgeVector.X + insideVector.Y * edgeVector.Y > 0)
-                angle = (float) Math.PI - (float) Math.Acos(cos);
+                angle = (float)Math.PI - (float)Math.Acos(cos);
             else
-                angle = (float) Math.PI + (float) Math.Acos(cos);
+                angle = (float)Math.PI + (float)Math.Acos(cos);
             // Replace the old Values if a better Edge was found
             if (angle < bestAngle) {
                 bestAngle = angle;
@@ -440,7 +436,7 @@ internal class StatusHelper {
     ///     Default Constructor
     /// </summary>
     internal StatusHelper() {
-        EdgesHelpers = new List<StatusHelperElement>();
+        EdgesHelpers = [];
     }
 
     /// <summary>
@@ -862,10 +858,10 @@ internal class PolygonData {
     /// </summary>
     /// <param name="points">The Polygon-Defining Points</param>
     /// <param name="indices">Optional List of Point-Indices</param>
-    public PolygonData(List<Point> points, List<int> indices = null) {
+    public PolygonData(List<Point> points, List<int>? indices = null) {
         // Initialize
-        mPoints = new List<PolygonPoint>(points.Select(p => new PolygonPoint(p)));
-        mHoles = new List<List<PolygonPoint>>();
+        mPoints = [.. points.Select(p => new PolygonPoint(p))];
+        mHoles = [];
         mNumBoundaryPoints = mPoints.Count;
 
         // If no Indices were specified, add them manually
@@ -893,7 +889,7 @@ internal class PolygonData {
     /// </summary>
     /// <param name="points">The PolygonPoints</param>
     public PolygonData(List<PolygonPoint> points)
-        : this(points.Select(p => p.Point).ToList(), points.Select(p => p.Index).ToList()) { }
+        : this([.. points.Select(p => p.Point)], [.. points.Select(p => p.Index)]) { }
 
     /// <summary>
     ///     Accessor to the List of PolygonPoints

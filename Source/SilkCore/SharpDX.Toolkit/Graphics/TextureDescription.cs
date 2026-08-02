@@ -163,7 +163,7 @@ public struct TextureDescription : IEquatable<TextureDescription> {
     /// <returns></returns>
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj)) return false;
-        return obj is TextureDescription && Equals((TextureDescription) obj);
+        return obj is TextureDescription && Equals((TextureDescription)obj);
     }
 
     /// <summary>
@@ -219,7 +219,7 @@ public struct TextureDescription : IEquatable<TextureDescription> {
             MipLevels = description.MipLevels,
             ArraySize = description.ArraySize,
             Format = description.Format,
-            SampleDescription = new SampleDescription {Count = 1, Quality = 0},
+            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
             Usage = description.Usage,
             BindFlags = description.BindFlags,
             CpuAccessFlags = description.CpuAccessFlags,
@@ -305,7 +305,7 @@ public struct TextureDescription : IEquatable<TextureDescription> {
             ArraySize = 1,
             MipLevels = description.MipLevels,
             Format = description.Format,
-            SampleDescription = new SampleDescription {Count = 1, Quality = 0},
+            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
             Usage = description.Usage,
             BindFlags = description.BindFlags,
             CpuAccessFlags = description.CpuAccessFlags,
@@ -347,7 +347,7 @@ public struct TextureDescription : IEquatable<TextureDescription> {
             ArraySize = description.ArraySize,
             MipLevels = description.MipLevels,
             Format = description.Format,
-            SampleDescription = new SampleDescription {Count = 1, Quality = 0},
+            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
             Usage = ResourceUsage.Default,
             BindFlags = BindFlags.None,
             CpuAccessFlags = CpuAccessFlags.None,

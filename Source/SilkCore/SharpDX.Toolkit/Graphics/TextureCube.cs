@@ -273,7 +273,7 @@ public class TextureCube : Texture2DBase {
         if (!(texture is TextureCube))
             throw new ArgumentException(string.Format("Texture is not type of [TextureCube] but [{0}]",
                                                       texture.GetType().Name));
-        return (TextureCube) texture;
+        return (TextureCube)texture;
     }
 
     /// <summary>
@@ -291,9 +291,8 @@ public class TextureCube : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(device, stream, flags | TextureFlags.ShaderResource, usage);
-        }
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(device, stream, flags | TextureFlags.ShaderResource, usage);
     }
 
     /// <summary>

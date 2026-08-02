@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -61,7 +61,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                                 Format.FormatR8G8B8A8Unorm,
                                                                 out var width,
                                                                 out var height)) {
-                        modelStruct.ViewportScale = (int) OffScreenTextureSize.Half;
+                        modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
                         modelCB.Upload(deviceContext, ref modelStruct);
                         //Full -> Half Vertical
                         deviceContext.SetRenderTarget(target1);
@@ -78,7 +78,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                                         out var width2,
                                                                         out var height2)) {
                                 // Half to Quater Vertical
-                                modelStruct.ViewportScale = (int) OffScreenTextureSize.Quarter;
+                                modelStruct.ViewportScale = (int)OffScreenTextureSize.Quarter;
                                 modelCB.Upload(deviceContext, ref modelStruct);
                                 deviceContext.SetRenderTarget(target2);
                                 deviceContext.SetViewport(0, 0, width2, height2);
@@ -88,7 +88,7 @@ namespace HelixToolkit.SharpDX.Core {
                                 deviceContext.Draw(4, 0);
 
                                 // Quater to Half Horizontal
-                                modelStruct.ViewportScale = (int) OffScreenTextureSize.Half;
+                                modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
                                 modelCB.Upload(deviceContext, ref modelStruct);
                                 deviceContext.SetRenderTarget(target1);
                                 deviceContext.SetViewport(0, 0, width, height);
@@ -99,7 +99,7 @@ namespace HelixToolkit.SharpDX.Core {
                             }
 
                         // Half to Full Horizontal
-                        modelStruct.ViewportScale = (int) OffScreenTextureSize.Full;
+                        modelStruct.ViewportScale = (int)OffScreenTextureSize.Full;
                         modelCB.Upload(deviceContext, ref modelStruct);
                         deviceContext.SetRenderTarget(source);
                         deviceContext.SetViewport(ref sourceViewport);
@@ -116,7 +116,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Variables
+            #region Variables
 
             private const int NumPingPongBlurBuffer = 2;
             private readonly ShaderPass screenBlurPassVertical;
@@ -127,7 +127,7 @@ namespace HelixToolkit.SharpDX.Core {
             private SamplerStateProxy sampler;
             private static readonly Color4 Transparent = new(0, 0, 0, 0);
 
-        #endregion
+            #endregion
         }
     }
 }

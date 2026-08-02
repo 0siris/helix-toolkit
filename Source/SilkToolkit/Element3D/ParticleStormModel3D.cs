@@ -16,15 +16,15 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Model;
+using static HelixToolkit.SharpDX.Core.Core.ParticleRenderCore;
 using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using static HelixToolkit.SharpDX.Core.Core.ParticleRenderCore;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class ParticleStormModel3D : Element3D {
-#region Dependency Properties
+    #region Dependency Properties
 
     public static DependencyProperty ParticleCountProperty = DependencyProperty.Register("ParticleCount",
         typeof(int),
@@ -32,11 +32,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(DefaultParticleCount,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ParticleCount =
-                                     Math.Max(8, (int) e.NewValue);
+                                     Math.Max(8, (int)e.NewValue);
                              }));
 
     public int ParticleCount {
-        get => (int) GetValue(ParticleCountProperty);
+        get => (int)GetValue(ParticleCountProperty);
         set => SetValue(ParticleCountProperty, value);
     }
     public static DependencyProperty EmitterLocationProperty = DependencyProperty.Register("EmitterLocation",
@@ -45,11 +45,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(DefaultEmitterLocation.ToPoint3D(),
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).EmitterLocation =
-                                     ((Media3D.Point3D) e.NewValue).ToVector3();
+                                     ((Media3D.Point3D)e.NewValue).ToVector3();
                              }));
 
     public Media3D.Point3D EmitterLocation {
-        get => (Media3D.Point3D) GetValue(EmitterLocationProperty);
+        get => (Media3D.Point3D)GetValue(EmitterLocationProperty);
         set => SetValue(EmitterLocationProperty, value);
     }
 
@@ -59,11 +59,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(DefaultConsumerLocation.ToPoint3D(),
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ConsumerLocation =
-                                     ((Media3D.Point3D) e.NewValue).ToVector3();
+                                     ((Media3D.Point3D)e.NewValue).ToVector3();
                              }));
 
     public Media3D.Point3D ConsumerLocation {
-        get => (Media3D.Point3D) GetValue(ConsumerLocationProperty);
+        get => (Media3D.Point3D)GetValue(ConsumerLocationProperty);
         set => SetValue(ConsumerLocationProperty, value);
     }
 
@@ -72,19 +72,19 @@ public class ParticleStormModel3D : Element3D {
         typeof(ParticleStormModel3D),
         new PropertyMetadata(new Media3D.Rect3D(0, 0, 0, 100, 100, 100),
                              (d, e) => {
-                                 var bound = (Media3D.Rect3D) e.NewValue;
+                                 var bound = (Media3D.Rect3D)e.NewValue;
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).DomainBoundMax = new Vector3(
-                                     (float) (bound.SizeX / 2 + bound.Location.X),
-                                     (float) (bound.SizeY / 2 + bound.Location.Y),
-                                     (float) (bound.SizeZ / 2 + bound.Location.Z));
+                                     (float)(bound.SizeX / 2 + bound.Location.X),
+                                     (float)(bound.SizeY / 2 + bound.Location.Y),
+                                     (float)(bound.SizeZ / 2 + bound.Location.Z));
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).DomainBoundMin = new Vector3(
-                                     (float) (bound.Location.X - bound.SizeX / 2),
-                                     (float) (bound.Location.Y - bound.SizeY / 2),
-                                     (float) (bound.Location.Z - bound.SizeZ / 2));
+                                     (float)(bound.Location.X - bound.SizeX / 2),
+                                     (float)(bound.Location.Y - bound.SizeY / 2),
+                                     (float)(bound.Location.Z - bound.SizeZ / 2));
                              }));
 
     public Media3D.Rect3D ParticleBounds {
-        get => (Media3D.Rect3D) GetValue(ParticleBoundsProperty);
+        get => (Media3D.Rect3D)GetValue(ParticleBoundsProperty);
         set => SetValue(ParticleBoundsProperty, value);
     }
 
@@ -94,11 +94,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(0.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).EmitterRadius =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public double EmitterRadius {
-        get => (double) GetValue(EmitterRadiusProperty);
+        get => (double)GetValue(EmitterRadiusProperty);
         set => SetValue(EmitterRadiusProperty, value);
     }
 
@@ -108,11 +108,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(0.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ConsumerGravity =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public double ConsumerGravity {
-        get => (double) GetValue(ConsumerGravityProperty);
+        get => (double)GetValue(ConsumerGravityProperty);
         set => SetValue(ConsumerGravityProperty, value);
     }
 
@@ -122,11 +122,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(0.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ConsumerRadius =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public double ConsumerRadius {
-        get => (double) GetValue(ConsumerRadiusProperty);
+        get => (double)GetValue(ConsumerRadiusProperty);
         set => SetValue(ConsumerRadiusProperty, value);
     }
 
@@ -136,11 +136,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(5.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).InitialEnergy =
-                                     Math.Max(1f, (float) (double) e.NewValue);
+                                     Math.Max(1f, (float)(double)e.NewValue);
                              }));
 
     public double InitialEnergy {
-        get => (double) GetValue(InitialEnergyProperty);
+        get => (double)GetValue(InitialEnergyProperty);
         set => SetValue(InitialEnergyProperty, value);
     }
 
@@ -151,11 +151,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).EnergyDissipationRate =
-                                     Math.Max(1f, (float) (double) e.NewValue);
+                                     Math.Max(1f, (float)(double)e.NewValue);
                              }));
 
     public double EnergyDissipationRate {
-        get => (double) GetValue(EnergyDissipationRateProperty);
+        get => (double)GetValue(EnergyDissipationRateProperty);
         set => SetValue(EnergyDissipationRateProperty, value);
     }
 
@@ -166,11 +166,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(new UniformRandomVectorGenerator(),
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).RandomVectorGenerator =
-                                     (IRandomVector) e.NewValue;
+                                     (IRandomVector)e.NewValue;
                              }));
 
     public IRandomVector RandomVectorGenerator {
-        get => (IRandomVector) GetValue(RandomVectorGeneratorProperty);
+        get => (IRandomVector)GetValue(RandomVectorGeneratorProperty);
         set => SetValue(RandomVectorGeneratorProperty, value);
     }
 
@@ -180,11 +180,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(null,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ParticleTexture =
-                                     (TextureModel) e.NewValue;
+                                     (TextureModel)e.NewValue;
                              }));
 
     public TextureModel ParticleTexture {
-        get => (TextureModel) GetValue(ParticleTextureProperty);
+        get => (TextureModel)GetValue(ParticleTextureProperty);
         set => SetValue(ParticleTextureProperty, value);
     }
 
@@ -194,11 +194,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(1,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).NumTextureColumn =
-                                     (uint) Math.Max(1, (int) e.NewValue);
+                                     (uint)Math.Max(1, (int)e.NewValue);
                              }));
 
     public int NumTextureColumn {
-        get => (int) GetValue(NumTextureColumnProperty);
+        get => (int)GetValue(NumTextureColumnProperty);
         set => SetValue(NumTextureColumnProperty, value);
     }
 
@@ -208,11 +208,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(1,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).NumTextureRow =
-                                     (uint) Math.Max(1, (int) e.NewValue);
+                                     (uint)Math.Max(1, (int)e.NewValue);
                              }));
 
     public int NumTextureRow {
-        get => (int) GetValue(NumTextureRowProperty);
+        get => (int)GetValue(NumTextureRowProperty);
         set => SetValue(NumTextureRowProperty, value);
     }
 
@@ -221,13 +221,13 @@ public class ParticleStormModel3D : Element3D {
         typeof(ParticleStormModel3D),
         new PropertyMetadata(new Size(1, 1),
                              (d, e) => {
-                                 var size = (Size) e.NewValue;
+                                 var size = (Size)e.NewValue;
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).ParticleSize =
-                                     new Vector2((float) size.Width, (float) size.Height);
+                                     new Vector2((float)size.Width, (float)size.Height);
                              }));
 
     public Size ParticleSize {
-        get => (Size) GetValue(ParticleSizeProperty);
+        get => (Size)GetValue(ParticleSizeProperty);
         set => SetValue(ParticleSizeProperty, value);
     }
 
@@ -238,11 +238,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(1.0,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).InitialVelocity =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public double InitialVelocity {
-        get => (double) GetValue(InitialVelocityProperty);
+        get => (double)GetValue(InitialVelocityProperty);
         set => SetValue(InitialVelocityProperty, value);
     }
 
@@ -252,11 +252,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(DefaultAcceleration.ToVector3D(),
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).InitAcceleration =
-                                     ((Vector3D) e.NewValue).ToVector3();
+                                     ((Vector3D)e.NewValue).ToVector3();
                              }));
 
     public Vector3D Acceleration {
-        get => (Vector3D) GetValue(AccelerationProperty);
+        get => (Vector3D)GetValue(AccelerationProperty);
         set => SetValue(AccelerationProperty, value);
     }
 
@@ -266,11 +266,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).CumulateAtBound =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     public bool CumulateAtBound {
-        get => (bool) GetValue(CumulateAtBoundProperty);
+        get => (bool)GetValue(CumulateAtBoundProperty);
         set => SetValue(CumulateAtBoundProperty, value);
     }
 
@@ -284,11 +284,11 @@ public class ParticleStormModel3D : Element3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).BlendColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     public Media.Color BlendColor {
-        get => (Media.Color) GetValue(BlendColorProperty);
+        get => (Media.Color)GetValue(BlendColorProperty);
         set => SetValue(BlendColorProperty, value);
     }
 
@@ -299,17 +299,17 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).AnimateSpriteByEnergy =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     public bool AnimateSpriteByEnergy {
-        get => (bool) GetValue(AnimateSpriteByEnergyBoundProperty);
+        get => (bool)GetValue(AnimateSpriteByEnergyBoundProperty);
         set => SetValue(AnimateSpriteByEnergyBoundProperty, value);
     }
 
 
     public double Turbulance {
-        get => (double) GetValue(TurbulanceProperty);
+        get => (double)GetValue(TurbulanceProperty);
         set => SetValue(TurbulanceProperty, value);
     }
 
@@ -321,7 +321,7 @@ public class ParticleStormModel3D : Element3D {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ParticleStormNode)
-                                                                 .Turbulance = (float) (double) e.NewValue;
+                                                                 .Turbulance = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -331,11 +331,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOperation.Add,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).Blend =
-                                     (BlendOperation) e.NewValue;
+                                     (BlendOperation)e.NewValue;
                              }));
 
     public BlendOperation Blend {
-        get => (BlendOperation) GetValue(BlendProperty);
+        get => (BlendOperation)GetValue(BlendProperty);
         set => SetValue(BlendProperty, value);
     }
 
@@ -345,11 +345,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOperation.Add,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).AlphaBlend =
-                                     (BlendOperation) e.NewValue;
+                                     (BlendOperation)e.NewValue;
                              }));
 
     public BlendOperation AlphaBlend {
-        get => (BlendOperation) GetValue(AlphaBlendProperty);
+        get => (BlendOperation)GetValue(AlphaBlendProperty);
         set => SetValue(AlphaBlendProperty, value);
     }
 
@@ -359,11 +359,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOption.One,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).SourceBlend =
-                                     (BlendOption) e.NewValue;
+                                     (BlendOption)e.NewValue;
                              }));
 
     public BlendOption SourceBlend {
-        get => (BlendOption) GetValue(SourceBlendProperty);
+        get => (BlendOption)GetValue(SourceBlendProperty);
         set => SetValue(SourceBlendProperty, value);
     }
 
@@ -373,11 +373,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOption.One,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).DestBlend =
-                                     (BlendOption) e.NewValue;
+                                     (BlendOption)e.NewValue;
                              }));
 
     public BlendOption DestBlend {
-        get => (BlendOption) GetValue(DestBlendProperty);
+        get => (BlendOption)GetValue(DestBlendProperty);
         set => SetValue(DestBlendProperty, value);
     }
 
@@ -387,11 +387,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOption.One,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).SourceAlphaBlend =
-                                     (BlendOption) e.NewValue;
+                                     (BlendOption)e.NewValue;
                              }));
 
     public BlendOption SourceAlphaBlend {
-        get => (BlendOption) GetValue(SourceAlphaBlendProperty);
+        get => (BlendOption)GetValue(SourceAlphaBlendProperty);
         set => SetValue(SourceAlphaBlendProperty, value);
     }
 
@@ -401,11 +401,11 @@ public class ParticleStormModel3D : Element3D {
         new PropertyMetadata(BlendOption.Zero,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ParticleStormNode).DestAlphaBlend =
-                                     (BlendOption) e.NewValue;
+                                     (BlendOption)e.NewValue;
                              }));
 
     public BlendOption DestAlphaBlend {
-        get => (BlendOption) GetValue(DestAlphaBlendProperty);
+        get => (BlendOption)GetValue(DestAlphaBlendProperty);
         set => SetValue(DestAlphaBlendProperty, value);
     }
 
@@ -416,7 +416,7 @@ public class ParticleStormModel3D : Element3D {
     ///     The blend factor.
     /// </value>
     public Media.Color BlendFactor {
-        get => (Media.Color) GetValue(BlendFactorProperty);
+        get => (Media.Color)GetValue(BlendFactorProperty);
         set => SetValue(BlendFactorProperty, value);
     }
 
@@ -436,7 +436,7 @@ public class ParticleStormModel3D : Element3D {
                                                          {
                                                              ((d as Element3DCore).SceneNode as ParticleStormNode)
                                                                  .BlendFactor =
-                                                                 ((Media.Color) e.NewValue).ToColor4();
+                                                                 ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
 
@@ -447,7 +447,7 @@ public class ParticleStormModel3D : Element3D {
     ///     The sample mask.
     /// </value>
     public int SampleMask {
-        get => (int) GetValue(SampleMaskProperty);
+        get => (int)GetValue(SampleMaskProperty);
         set => SetValue(SampleMaskProperty, value);
     }
 
@@ -461,7 +461,7 @@ public class ParticleStormModel3D : Element3D {
                                     new PropertyMetadata(-1,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ParticleStormNode)
-                                                                 .SampleMask = (int) e.NewValue;
+                                                                 .SampleMask = (int)e.NewValue;
                                                          }));
 
 
@@ -469,7 +469,7 @@ public class ParticleStormModel3D : Element3D {
     ///     List of instance matrix.
     /// </summary>
     public IList<Matrix> Instances {
-        get => (IList<Matrix>) GetValue(InstancesProperty);
+        get => (IList<Matrix>)GetValue(InstancesProperty);
         set => SetValue(InstancesProperty, value);
     }
 
@@ -496,10 +496,10 @@ public class ParticleStormModel3D : Element3D {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ParticleStormNode)
-                                                                 .EnableViewFrustumCheck = (bool) e.NewValue;
+                                                                 .EnableViewFrustumCheck = (bool)e.NewValue;
                                                          }));
 
-#endregion
+    #endregion
 
 
     protected override SceneNode OnCreateSceneNode() {
@@ -511,24 +511,24 @@ public class ParticleStormModel3D : Element3D {
         if (node is ParticleStormNode c) {
             c.ParticleCount = ParticleCount;
 
-            c.EmitterRadius = (float) EmitterRadius;
-            c.ConsumerGravity = (float) ConsumerGravity;
+            c.EmitterRadius = (float)EmitterRadius;
+            c.ConsumerGravity = (float)ConsumerGravity;
 
-            c.ConsumerRadius = (float) ConsumerRadius;
-            c.InitialEnergy = (float) InitialEnergy;
-            c.EnergyDissipationRate = (float) EnergyDissipationRate;
+            c.ConsumerRadius = (float)ConsumerRadius;
+            c.InitialEnergy = (float)InitialEnergy;
+            c.EnergyDissipationRate = (float)EnergyDissipationRate;
             c.RandomVectorGenerator = RandomVectorGenerator;
             c.ParticleTexture = ParticleTexture;
-            c.NumTextureColumn = (uint) NumTextureColumn;
-            c.NumTextureRow = (uint) NumTextureRow;
-            c.ParticleSize = new Vector2((float) ParticleSize.Width, (float) ParticleSize.Height);
-            c.InitialVelocity = (float) InitialVelocity;
+            c.NumTextureColumn = (uint)NumTextureColumn;
+            c.NumTextureRow = (uint)NumTextureRow;
+            c.ParticleSize = new Vector2((float)ParticleSize.Width, (float)ParticleSize.Height);
+            c.InitialVelocity = (float)InitialVelocity;
 
 
             c.CumulateAtBound = CumulateAtBound;
             c.BlendColor = BlendColor.ToColor4();
             c.AnimateSpriteByEnergy = AnimateSpriteByEnergy;
-            c.Turbulance = (float) Turbulance;
+            c.Turbulance = (float)Turbulance;
             c.Blend = Blend;
             c.AlphaBlend = AlphaBlend;
             c.SourceBlend = SourceBlend;
@@ -540,12 +540,12 @@ public class ParticleStormModel3D : Element3D {
             c.EmitterLocation = EmitterLocation.ToVector3();
             c.ConsumerLocation = ConsumerLocation.ToVector3();
             c.InitAcceleration = Acceleration.ToVector3();
-            c.DomainBoundMax = new Vector3((float) (ParticleBounds.SizeX / 2 + ParticleBounds.Location.X),
-                                           (float) (ParticleBounds.SizeY / 2 + ParticleBounds.Location.Y),
-                                           (float) (ParticleBounds.SizeZ / 2 + ParticleBounds.Location.Z));
-            c.DomainBoundMin = new Vector3((float) (ParticleBounds.Location.X - ParticleBounds.SizeX / 2),
-                                           (float) (ParticleBounds.Location.Y - ParticleBounds.SizeY / 2),
-                                           (float) (ParticleBounds.Location.Z - ParticleBounds.SizeZ / 2));
+            c.DomainBoundMax = new Vector3((float)(ParticleBounds.SizeX / 2 + ParticleBounds.Location.X),
+                                           (float)(ParticleBounds.SizeY / 2 + ParticleBounds.Location.Y),
+                                           (float)(ParticleBounds.SizeZ / 2 + ParticleBounds.Location.Z));
+            c.DomainBoundMin = new Vector3((float)(ParticleBounds.Location.X - ParticleBounds.SizeX / 2),
+                                           (float)(ParticleBounds.Location.Y - ParticleBounds.SizeY / 2),
+                                           (float)(ParticleBounds.Location.Z - ParticleBounds.SizeZ / 2));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {

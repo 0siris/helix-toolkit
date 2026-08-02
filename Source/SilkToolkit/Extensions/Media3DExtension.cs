@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
 using Media = System.Windows.Media;
 using Point = System.Windows.Point;
@@ -12,24 +12,24 @@ public static class Media3DExtension {
     }
 
     public static Matrix3x3 ToMatrix3x3(this Media.Matrix m) {
-        return new Matrix3x3((float) m.M11,
-                             (float) m.M12,
+        return new Matrix3x3((float)m.M11,
+                             (float)m.M12,
                              0,
-                             (float) m.M21,
-                             (float) m.M22,
+                             (float)m.M21,
+                             (float)m.M22,
                              0f,
-                             (float) m.OffsetX,
-                             (float) m.OffsetY,
+                             (float)m.OffsetX,
+                             (float)m.OffsetY,
                              1f);
     }
 
     public static Matrix3x2 ToMatrix3x2(this Media.Matrix m) {
-        return new Matrix3x2((float) m.M11,
-                             (float) m.M12,
-                             (float) m.M21,
-                             (float) m.M22,
-                             (float) m.OffsetX,
-                             (float) m.OffsetY);
+        return new Matrix3x2((float)m.M11,
+                             (float)m.M12,
+                             (float)m.M21,
+                             (float)m.M22,
+                             (float)m.OffsetX,
+                             (float)m.OffsetY);
     }
 
 
@@ -74,75 +74,75 @@ public static class Media3DExtension {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 ToVector3(this Point3D point) {
-        return new Vector3((float) point.X, (float) point.Y, (float) point.Z);
+        return new Vector3((float)point.X, (float)point.Y, (float)point.Z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 ToVector4(this Point3D point, float w = 1f) {
-        return new Vector4((float) point.X, (float) point.Y, (float) point.Z, w);
+        return new Vector4((float)point.X, (float)point.Y, (float)point.Z, w);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 ToVector3(this Vector3D vector) {
-        return new Vector3((float) vector.X, (float) vector.Y, (float) vector.Z);
+        return new Vector3((float)vector.X, (float)vector.Y, (float)vector.Z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 ToVector4(this Vector3D vector, float w = 1f) {
-        return new Vector4((float) vector.X, (float) vector.Y, (float) vector.Z, w);
+        return new Vector4((float)vector.X, (float)vector.Y, (float)vector.Z, w);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 ToVector4(this Transform3D trafo) {
         var matrix = trafo.Value;
-        return new Vector4((float) matrix.OffsetX, (float) matrix.OffsetY, (float) matrix.OffsetZ, (float) matrix.M44);
+        return new Vector4((float)matrix.OffsetX, (float)matrix.OffsetY, (float)matrix.OffsetZ, (float)matrix.M44);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 ToVector3(this Transform3D trafo) {
         var matrix = trafo.Value;
-        return new Vector3((float) matrix.OffsetX, (float) matrix.OffsetY, (float) matrix.OffsetZ);
+        return new Vector3((float)matrix.OffsetX, (float)matrix.OffsetY, (float)matrix.OffsetZ);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ToMatrix(this Transform3D trafo) {
         var m = trafo.Value;
-        return new Matrix((float) m.M11,
-                          (float) m.M12,
-                          (float) m.M13,
-                          (float) m.M14,
-                          (float) m.M21,
-                          (float) m.M22,
-                          (float) m.M23,
-                          (float) m.M24,
-                          (float) m.M31,
-                          (float) m.M32,
-                          (float) m.M33,
-                          (float) m.M34,
-                          (float) m.OffsetX,
-                          (float) m.OffsetY,
-                          (float) m.OffsetZ,
-                          (float) m.M44);
+        return new Matrix((float)m.M11,
+                          (float)m.M12,
+                          (float)m.M13,
+                          (float)m.M14,
+                          (float)m.M21,
+                          (float)m.M22,
+                          (float)m.M23,
+                          (float)m.M24,
+                          (float)m.M31,
+                          (float)m.M32,
+                          (float)m.M33,
+                          (float)m.M34,
+                          (float)m.OffsetX,
+                          (float)m.OffsetY,
+                          (float)m.OffsetZ,
+                          (float)m.M44);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ToMatrix(this Matrix3D m) {
-        return new Matrix((float) m.M11,
-                          (float) m.M12,
-                          (float) m.M13,
-                          (float) m.M14,
-                          (float) m.M21,
-                          (float) m.M22,
-                          (float) m.M23,
-                          (float) m.M24,
-                          (float) m.M31,
-                          (float) m.M32,
-                          (float) m.M33,
-                          (float) m.M34,
-                          (float) m.OffsetX,
-                          (float) m.OffsetY,
-                          (float) m.OffsetZ,
-                          (float) m.M44);
+        return new Matrix((float)m.M11,
+                          (float)m.M12,
+                          (float)m.M13,
+                          (float)m.M14,
+                          (float)m.M21,
+                          (float)m.M22,
+                          (float)m.M23,
+                          (float)m.M24,
+                          (float)m.M31,
+                          (float)m.M32,
+                          (float)m.M33,
+                          (float)m.M34,
+                          (float)m.OffsetX,
+                          (float)m.OffsetY,
+                          (float)m.OffsetZ,
+                          (float)m.M44);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,7 +164,7 @@ public static class Media3DExtension {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 ToVector2(this Point vector) {
-        return new Vector2((float) vector.X, (float) vector.Y);
+        return new Vector2((float)vector.X, (float)vector.Y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,10 +179,10 @@ public static class Media3DExtension {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Media.Color ToColor(this Color4 color) {
-        return Media.Color.FromArgb((byte) (color.W * 255),
-                                    (byte) (color.X * 255),
-                                    (byte) (color.Y * 255),
-                                    (byte) (color.Z * 255));
+        return Media.Color.FromArgb((byte)(color.W * 255),
+                                    (byte)(color.X * 255),
+                                    (byte)(color.Y * 255),
+                                    (byte)(color.Z * 255));
         //return System.Windows.Media.Color.FromScRgb(color.Alpha, color.Red, color.Green, color.Blue);
     }
 }

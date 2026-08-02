@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
 using System.Linq;
+using System.Windows;
 using HelixToolkit.Wpf;
 
 namespace PolygonTriangulationDemo;
 
-using HelixToolkit.Wpf.SharpDX;
-using System.Windows.Media;
 using System;
-using DemoCore;
-using System.Windows.Media.Media3D;
 using System.Globalization;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
@@ -22,12 +22,12 @@ public partial class MainWindow : Window {
     /// <summary>
     /// List of Polygon Points to display
     /// </summary>
-    List<Vector2> mPolygonPoints;
+    private List<Vector2> mPolygonPoints;
 
     /// <summary>
     /// The ViewModel
     /// </summary>
-    MainViewModel mViewModel;
+    private MainViewModel mViewModel;
 
     /// <summary>
     /// Constructor for the MainWindow
@@ -42,15 +42,15 @@ public partial class MainWindow : Window {
 
         // Setup the Line Drawing Handler
         mViewModel.PropertyChanged += ((s, e) => {
-                                              // Switch the Line Geometry
-                                              if (e.PropertyName == "ShowTriangleLines") {
-                                                  if (mViewModel.ShowTriangleLines) {
-                                                      lineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
-                                                  } else {
-                                                      lineTriangulatedPolygon.Geometry = null;
-                                                  }
-                                              }
-                                          });
+            // Switch the Line Geometry
+            if (e.PropertyName == "ShowTriangleLines") {
+                if (mViewModel.ShowTriangleLines) {
+                    lineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
+                } else {
+                    lineTriangulatedPolygon.Geometry = null;
+                }
+            }
+        });
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public partial class MainWindow : Window {
         // Generate random Polygon
         var random = new Random();
         var cnt = mViewModel.PointCount;
-        mPolygonPoints = new List<Vector2>();
+        mPolygonPoints = [];
         var angle = 0f;
-        var angleDiff = 2f * (Single) Math.PI / cnt;
+        var angleDiff = 2f * (Single)Math.PI / cnt;
         var radius = 4f;
         // Random Radii for the Polygon
         var radii = new List<float>();
@@ -78,23 +78,23 @@ public partial class MainWindow : Window {
         var hole1 = new List<Vector2>();
         var hole2 = new List<Vector2>();
         var holeDistance = 2f;
-        var holeAngle = NextFloat(random, 0, (float) Math.PI * 2);
-        var cos = (float) Math.Cos(holeAngle);
-        var sin = (float) Math.Sin(holeAngle);
+        var holeAngle = NextFloat(random, 0, (float)Math.PI * 2);
+        var cos = (float)Math.Cos(holeAngle);
+        var sin = (float)Math.Sin(holeAngle);
         var offset1 = new Vector2(holeDistance * cos, holeDistance * sin);
         var offset2 = new Vector2(-holeDistance * cos, -holeDistance * sin);
         for (int i = 0; i < cnt; i++) {
             // Flatten a bit
             var radiusUse = radii[i];
-            mPolygonPoints.Add(new Vector2(radii[i] * (Single) Math.Cos(angle), radii[i] * (Single) Math.Sin(angle)));
-            hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
-                                            innerRadii[i] * (Single) Math.Sin(-angle)));
-            hole2.Add(offset2 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
-                                            innerRadii[i] * (Single) Math.Sin(-angle)));
+            mPolygonPoints.Add(new Vector2(radii[i] * (Single)Math.Cos(angle), radii[i] * (Single)Math.Sin(angle)));
+            hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single)Math.Cos(-angle),
+                                            innerRadii[i] * (Single)Math.Sin(-angle)));
+            hole2.Add(offset2 + new Vector2(innerRadii[i] * (Single)Math.Cos(-angle),
+                                            innerRadii[i] * (Single)Math.Sin(-angle)));
             angle += angleDiff;
         }
 
-        var holes = new List<List<Vector2>>() {hole1, hole2};
+        var holes = new List<List<Vector2>>() { hole1, hole2 };
 
         // Triangulate and measure the Time needed for the Triangulation
         var before = DateTime.Now;
@@ -102,9 +102,10 @@ public partial class MainWindow : Window {
         var after = DateTime.Now;
 
         // Generate the Output
-        var geometry = new HelixToolkit.SharpDX.Core.MeshGeometry3D();
-        geometry.Positions = new Vector3Collection();
-        geometry.Normals = new Vector3Collection();
+        var geometry = new HelixToolkit.SharpDX.Core.MeshGeometry3D {
+            Positions = [],
+            Normals = []
+        };
         foreach (var point in mPolygonPoints.Union(holes.SelectMany(h => h))) {
             geometry.Positions.Add(new Vector3(point.X, 0, point.Y + 5));
             geometry.Normals.Add(new Vector3(0, 1, 0));
@@ -147,6 +148,6 @@ public partial class MainWindow : Window {
     }
 
     private static float NextFloat(Random random, float min, float max) {
-        return min + (max - min) * (float) random.NextDouble();
+        return min + (max - min) * (float)random.NextDouble();
     }
 }

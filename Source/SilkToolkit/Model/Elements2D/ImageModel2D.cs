@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Core2D;
@@ -32,7 +32,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(1.0,
                                                                  (d, e) => {
                                                                      ((d as Element2DCore).SceneNode as ImageNode2D)
-                                                                         .Opacity = (float) (double) e.NewValue;
+                                                                         .Opacity = (float)(double)e.NewValue;
                                                                  }));
 
             /// <summary>
@@ -42,7 +42,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The image stream.
             /// </value>
             public Stream ImageStream {
-                get => (Stream) GetValue(ImageStreamProperty);
+                get => (Stream)GetValue(ImageStreamProperty);
                 set => SetValue(ImageStreamProperty, value);
             }
 
@@ -54,7 +54,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The opacity.
             /// </value>
             public double Opacity {
-                get => (double) GetValue(OpacityProperty);
+                get => (double)GetValue(OpacityProperty);
                 set => SetValue(OpacityProperty, value);
             }
 

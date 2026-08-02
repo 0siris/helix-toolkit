@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -17,7 +17,7 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).EnableOutline = (bool) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).EnableOutline = (bool)e.NewValue;
                              }));
 
     public static DependencyProperty OutlineColorProperty = DependencyProperty.Register("OutlineColor",
@@ -26,7 +26,7 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(Colors.White,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as MeshOutlineNode).OutlineColor =
-                                     ((Color) e.NewValue).ToColor4();
+                                     ((Color)e.NewValue).ToColor4();
                              }));
 
     public static DependencyProperty IsDrawGeometryProperty = DependencyProperty.Register("IsDrawGeometry",
@@ -34,7 +34,7 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).IsDrawGeometry = (bool) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).IsDrawGeometry = (bool)e.NewValue;
                              }));
 
 
@@ -44,26 +44,26 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(1.5,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as MeshOutlineNode).OutlineFadingFactor =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public bool EnableOutline {
-        get => (bool) GetValue(EnableOutlineProperty);
+        get => (bool)GetValue(EnableOutlineProperty);
         set => SetValue(EnableOutlineProperty, value);
     }
 
     public Color OutlineColor {
-        get => (Color) GetValue(OutlineColorProperty);
+        get => (Color)GetValue(OutlineColorProperty);
         set => SetValue(OutlineColorProperty, value);
     }
 
     public bool IsDrawGeometry {
-        get => (bool) GetValue(IsDrawGeometryProperty);
+        get => (bool)GetValue(IsDrawGeometryProperty);
         set => SetValue(IsDrawGeometryProperty, value);
     }
 
     public double OutlineFadingFactor {
-        get => (double) GetValue(OutlineFadingFactorProperty);
+        get => (double)GetValue(OutlineFadingFactorProperty);
         set => SetValue(OutlineFadingFactorProperty, value);
     }
 
@@ -75,7 +75,7 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         if (core is MeshOutlineNode c) {
             c.OutlineColor = OutlineColor.ToColor4();
             c.EnableOutline = EnableOutline;
-            c.OutlineFadingFactor = (float) OutlineFadingFactor;
+            c.OutlineFadingFactor = (float)OutlineFadingFactor;
             c.IsDrawGeometry = IsDrawGeometry;
         }
 

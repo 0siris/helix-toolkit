@@ -241,29 +241,28 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public static VolumeTextureParams LoadRAWFile(string filename, int width, int height, int depth) {
-                using (var file = new FileStream(filename, FileMode.Open)) {
-                    var length = file.Length;
-                    var bytePerPixel = length / (width * height * depth);
-                    var buffer = new byte[width * height * depth * bytePerPixel];
-                    using (var reader = new BinaryReader(file)) {
-                        reader.Read(buffer, 0, buffer.Length);
-                    }
-
-                    var format = Format.FormatUnknown;
-                    switch (bytePerPixel) {
-                        case 1:
-                            format = Format.FormatR8Unorm;
-                            break;
-                        case 2:
-                            format = Format.FormatR16Unorm;
-                            break;
-                        case 4:
-                            format = Format.FormatR32Float;
-                            break;
-                    }
-
-                    return new VolumeTextureParams(buffer, width, height, depth, format);
+                using var file = new FileStream(filename, FileMode.Open);
+                var length = file.Length;
+                var bytePerPixel = length / (width * height * depth);
+                var buffer = new byte[width * height * depth * bytePerPixel];
+                using (var reader = new BinaryReader(file)) {
+                    reader.Read(buffer, 0, buffer.Length);
                 }
+
+                var format = Format.FormatUnknown;
+                switch (bytePerPixel) {
+                    case 1:
+                        format = Format.FormatR8Unorm;
+                        break;
+                    case 2:
+                        format = Format.FormatR16Unorm;
+                        break;
+                    case 4:
+                        format = Format.FormatR32Float;
+                        break;
+                }
+
+                return new VolumeTextureParams(buffer, width, height, depth, format);
             }
         }
 

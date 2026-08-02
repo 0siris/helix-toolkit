@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -10,9 +10,9 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public partial class SceneNode2D {
-        #region layout management
+            #region layout management
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets a value indicating whether this instance is measure dirty.
@@ -209,7 +209,7 @@ namespace HelixToolkit.SharpDX.Core {
             private Size2F? previousMeasureSize;
             private RectangleF? previousArrange;
 
-        #endregion Properties
+            #endregion Properties
 
             public void InvalidateMeasure() {
                 IsArrangeDirty = true;
@@ -494,8 +494,8 @@ namespace HelixToolkit.SharpDX.Core {
                                                  0,
                                                  RenderSize.X + MarginWidthHeight.X * DpiScale,
                                                  RenderSize.Y + MarginWidthHeight.Y * DpiScale);
-                LayoutTranslate = Matrix3x2.Translation((float) Math.Round(LayoutOffsets.X),
-                                                        (float) Math.Round(LayoutOffsets.Y));
+                LayoutTranslate = Matrix3x2.Translation((float)Math.Round(LayoutOffsets.X),
+                                                        (float)Math.Round(LayoutOffsets.Y));
             }
 
             protected virtual RectangleF ArrangeOverride(RectangleF finalSize) {
@@ -508,7 +508,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return availableSize;
             }
 
-        #endregion layout management
+            #endregion layout management
         }
     }
 }

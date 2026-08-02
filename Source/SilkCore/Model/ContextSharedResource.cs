@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -16,7 +16,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public int EnvironmentMapMipLevels { get; set; }
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
@@ -50,7 +50,7 @@ namespace HelixToolkit.SharpDX.Core {
                 // GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

@@ -13,14 +13,14 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DemoCore;
 using ExifLib;
-using HelixToolkit.Wpf.SharpDX;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
 using Color = HelixToolkit.SharpDX.Core.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     private MeshGeometry3D plane;
@@ -122,7 +122,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void SetImages(BitmapSource img) {
-        var ratio = img.PixelWidth / (double) img.PixelHeight;
+        var ratio = img.PixelWidth / (double)img.PixelHeight;
         var transform = Media3D.Transform3D.Identity;
         ushort orientation = 1;
         if (this.ExifReader != null && this.ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {

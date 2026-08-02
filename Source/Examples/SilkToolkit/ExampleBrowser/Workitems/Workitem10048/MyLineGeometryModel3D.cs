@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
-using HelixToolkit.Wpf.SharpDX;
 using System.Windows.Media;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
 

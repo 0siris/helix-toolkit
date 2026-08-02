@@ -18,7 +18,7 @@ namespace HelixToolkit.SharpDX.Core {
             private int currStencilRef;
             private SilkD3DDeviceContext nativeDeviceContext;
 
-        #region Constructor
+            #region Constructor
 
             /// <summary>
             ///     Initializes a proxy for a native Silk.NET D3D11 context.
@@ -31,7 +31,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IsDeferred = context.IsDeferred;
             }
 
-        #endregion Constructor
+            #endregion Constructor
 
             internal SilkD3DDeviceContext NativeContext => nativeDeviceContext;
 
@@ -76,7 +76,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets the last shader pass.
@@ -94,7 +94,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public int NumberOfDrawCalls { get; private set; }
 
-        #endregion Properties
+            #endregion Properties
         }
     }
 }

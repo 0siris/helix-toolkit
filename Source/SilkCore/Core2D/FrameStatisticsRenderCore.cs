@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -102,7 +102,7 @@ namespace HelixToolkit.SharpDX.Core {
                 renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
                 renderBound.Height = metrices.Height;
                 context.DeviceContext.Transform =
-                    Matrix3x2.Translation((float) context.ActualWidth - renderBound.Width, 0);
+                    Matrix3x2.Translation((float)context.ActualWidth - renderBound.Width, 0);
                 context.DeviceContext.FillRectangle(renderBound, background);
                 context.DeviceContext.DrawTextLayout(Vector2.Zero, textLayout, foreground);
             }

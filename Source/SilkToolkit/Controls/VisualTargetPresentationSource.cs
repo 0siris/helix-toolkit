@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
@@ -53,8 +53,9 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
 
                 // HACK!
                 if (_propertyName != null) {
-                    var myBinding = new Binding(_propertyName);
-                    myBinding.Source = _dataContext;
+                    var myBinding = new Binding(_propertyName) {
+                        Source = _dataContext
+                    };
                     rootFE.SetBinding(TextBlock.TextProperty, myBinding);
                 }
             }
@@ -78,7 +79,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
         set {
             _dataContext = value;
             var rootElement = _visualTarget.RootVisual as FrameworkElement;
-            if (rootElement != null) rootElement.DataContext = _dataContext;
+            rootElement?.DataContext = _dataContext;
         }
     }
 
@@ -92,8 +93,9 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
             if (rootElement != null) {
                 if (!rootElement.CheckAccess()) throw new InvalidOperationException("What?");
 
-                var myBinding = new Binding(_propertyName);
-                myBinding.Source = _dataContext;
+                var myBinding = new Binding(_propertyName) {
+                    Source = _dataContext
+                };
                 rootElement.SetBinding(TextBlock.TextProperty, myBinding);
             }
         }
@@ -114,7 +116,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
         if (handler != null) handler(this, e);
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -144,5 +146,5 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

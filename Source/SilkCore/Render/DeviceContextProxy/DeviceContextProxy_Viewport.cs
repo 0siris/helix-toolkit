@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 namespace HelixToolkit.SharpDX.Core {
     namespace Render {
         public partial class DeviceContextProxy {
-        #region Viewport and Scissors
+            #region Viewport and Scissors
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetScissorRectangle(int left, int top, int right, int bottom) {
@@ -12,10 +12,10 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetScissorRectangle(ref ViewportF viewport) {
-                SetScissorRectangle((int) viewport.X,
-                                    (int) viewport.Y,
-                                    (int) (viewport.X + viewport.Width),
-                                    (int) (viewport.Y + viewport.Height));
+                SetScissorRectangle((int)viewport.X,
+                                    (int)viewport.Y,
+                                    (int)(viewport.X + viewport.Width),
+                                    (int)(viewport.Y + viewport.Height));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -33,7 +33,7 @@ namespace HelixToolkit.SharpDX.Core {
                             viewport.MaxDepth);
             }
 
-        #endregion Viewport and Scissors
+            #endregion Viewport and Scissors
         }
     }
 }

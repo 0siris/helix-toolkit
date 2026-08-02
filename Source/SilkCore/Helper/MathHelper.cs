@@ -70,7 +70,7 @@ public static class Noise2d {
     }
 
     private static void CalculatePermutation(out int[] p) {
-        p = Enumerable.Range(0, 256).ToArray();
+        p = [.. Enumerable.Range(0, 256)];
 
         // shuffle the array
         for (var i = 0; i < p.Length; i++) {
@@ -96,7 +96,7 @@ public static class Noise2d {
             Vector2 gradient;
 
             do {
-                gradient = new Vector2((float) (_random.NextDouble() * 2 - 1), (float) (_random.NextDouble() * 2 - 1));
+                gradient = new Vector2((float)(_random.NextDouble() * 2 - 1), (float)(_random.NextDouble() * 2 - 1));
             } while (SharedFunctions.LengthSquared(ref gradient) >= 1);
 
             gradient.Normalize();
@@ -121,18 +121,18 @@ public static class Noise2d {
     /// <param name="y">The y.</param>
     /// <returns></returns>
     public static DoubleOrSingle Noise(DoubleOrSingle x, DoubleOrSingle y) {
-        var cell = new Vector2((DoubleOrSingle) Math.Floor(x), (DoubleOrSingle) Math.Floor(y));
+        var cell = new Vector2((DoubleOrSingle)Math.Floor(x), (DoubleOrSingle)Math.Floor(y));
 
         DoubleOrSingle total = 0;
 
-        var corners = new[] {new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1)};
+        var corners = new[] { new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1) };
 
         foreach (var n in corners) {
             var ij = cell + n;
             var uv = new Vector2(x - ij.X, y - ij.Y);
 
-            var index = _permutation[(int) ij.X % _permutation.Length];
-            index = _permutation[(index + (int) ij.Y) % _permutation.Length];
+            var index = _permutation[(int)ij.X % _permutation.Length];
+            index = _permutation[(index + (int)ij.Y) % _permutation.Length];
 
             var grad = _gradients[index % _gradients.Length];
 

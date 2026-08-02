@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -186,7 +186,7 @@ public struct DefaultPassNames {
     /// </summary>
     public const string OITPass = "MeshOITPass";
 
-#region Deep peeling
+    #region Deep peeling
 
     public const string OITDepthPeelingInit = "OITDepthPeelingFirst";
 
@@ -196,7 +196,7 @@ public struct DefaultPassNames {
 
     public const string OITDepthPeelingFinal = "OITDepthPeelingFinal";
 
-#endregion
+    #endregion
 
     /// <summary>
     ///     The oit pass PBR

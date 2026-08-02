@@ -20,6 +20,10 @@
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
     <InternalsVisibleTo Include="SilkAssimp.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>

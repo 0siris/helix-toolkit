@@ -19,7 +19,7 @@ public class Polygon3D {
     ///     Initializes a new instance of the <see cref="Polygon3D" /> class.
     /// </summary>
     public Polygon3D() {
-        points = new List<Point3D>();
+        points = [];
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class Polygon3D {
         m.M41 = -offs.X;
         m.M42 = -offs.Y;
 
-        var polygon = new Polygon {Points = new PointCollection(Points.Count)};
+        var polygon = new Polygon { Points = new PointCollection(Points.Count) };
         foreach (var p in Points) {
             var pp = SilkMath.TransformCoordinate(p, m);
             polygon.Points.Add(new Point(pp.X, pp.Y));
@@ -109,8 +109,7 @@ public class Polygon3D {
         for (var i = 2; i < Points.Count; i++) {
             var n = SilkMath.Cross(v1, Points[i] - Points[0]);
 
-            if (n.LengthSquared > 1e-10)
-            {
+            if (n.LengthSquared > 1e-10) {
                 n.Normalize();
                 return n;
             }

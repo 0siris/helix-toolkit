@@ -1,4 +1,4 @@
-﻿//#define OutputBuildTime
+//#define OutputBuildTime
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
@@ -18,13 +18,12 @@ namespace HelixToolkit.SharpDX.Core {
         public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStruct> : DisposeObject,
             IAttachableBufferModel
             where BatchedGeometry : struct, IBatchedGeometry where VertStruct : unmanaged {
-            private static readonly ILogger logger =
-                LogManager.Create<StaticGeometryBatchingBufferBase<BatchedGeometry, VertStruct>>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-            private static readonly VertStruct[] EmptyArray = new VertStruct[0];
-            private static readonly int[] EmptyIntArray = new int[0];
-            private static readonly IElementsBufferProxy[] emptyBuffer = new IElementsBufferProxy[0];
-            private static readonly VertexBufferBinding[] emptyBindings = new VertexBufferBinding[0];
+            private static readonly VertStruct[] EmptyArray = [];
+            private static readonly int[] EmptyIntArray = [];
+            private static readonly IElementsBufferProxy[] emptyBuffer = [];
+            private static readonly VertexBufferBinding[] emptyBindings = [];
 
             private BatchedGeometry[] geometries;
 
@@ -39,7 +38,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IElementsBufferProxy indexBuffer
             ) {
                 Topology = topology;
-                VertexBuffer = new[] {vertexBuffer};
+                VertexBuffer = [vertexBuffer];
                 this.indexBuffer = indexBuffer;
             }
 
@@ -138,7 +137,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (Geometries == null) {
                     VertexBuffer[0].UploadDataToBuffer(deviceContext, EmptyArray, 0);
                     IndexBuffer?.UploadDataToBuffer(deviceContext, EmptyIntArray, 0);
-                    vertexBufferBindings = new VertexBufferBinding[0];
+                    vertexBufferBindings = [];
                     return;
                 }
 #if OutputBuildTime
@@ -200,15 +199,15 @@ namespace HelixToolkit.SharpDX.Core {
                 }
 #if OutputBuildTime
                 time = System.Diagnostics.Stopwatch.GetTimestamp() - time;
-                logger.LogDebug($"Build Batch Time: {0} ms", (float)time / System.Diagnostics.Stopwatch.Frequency * 1000);
+                Logger.Debug("Build Batch Time: {Value0} ms", [(float)time / System.Diagnostics.Stopwatch.Frequency * 1000]);
 #endif
                 VertexBuffer[0].UploadDataToBuffer(deviceContext, tempVerts, tempVerts.Length);
                 IndexBuffer?.UploadDataToBuffer(deviceContext, tempIndices, tempIndices.Length);
-                vertexBufferBindings = new[] {
+                vertexBufferBindings = [
                     new VertexBufferBinding(VertexBuffer[0].Buffer,
                                             VertexBuffer[0].StructureSize,
                                             VertexBuffer[0].Offset)
-                };
+                ];
             }
 
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -122,7 +122,7 @@ public partial class Importer {
             //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
             var specularIntensity = material.ColorSpecular.R * 0.2125f
                                     + material.ColorSpecular.G * 0.7154f + material.ColorSpecular.B * 0.0721f;
-            var normalizedShininess = (float) Math.Sqrt(material.Shininess / 1000);
+            var normalizedShininess = (float)Math.Sqrt(material.Shininess / 1000);
             normalizedShininess = Math.Min(Math.Max(normalizedShininess, 0), 1f);
             normalizedShininess *= specularIntensity;
             pbr.RoughnessFactor = 1 - normalizedShininess;
@@ -289,17 +289,15 @@ public partial class Importer {
                             core = new NormalMaterialCore();
                             break;
                         default:
-                            logger.LogWarning("Shading Mode is not supported: {0}", material.ShadingMode);
-                            core = new DiffuseMaterialCore
-                                {DiffuseColor = new Color4(1, 0, 0, 1), EnableUnLit = true};
+                            Logger.Warn("Shading Mode is not supported: {Value0}", material.ShadingMode);
+                            core = new DiffuseMaterialCore { DiffuseColor = new Color4(1, 0, 0, 1), EnableUnLit = true };
                             break;
                     }
 
                     break;
             }
 
-        if (core != null)
-            core.Name = string.IsNullOrEmpty(material.Name)
+        core?.Name = string.IsNullOrEmpty(material.Name)
                             ? $"Material_{Interlocked.Increment(ref MaterialIndexForNoName)}"
                             : material.Name;
         return new KeyValuePair<Material, MaterialCore>(material, core);
@@ -307,10 +305,10 @@ public partial class Importer {
 
     protected virtual TextureModel OnLoadEmbeddedTexture(EmbeddedTexture texture) {
         if (texture.HasCompressedData) {
-            logger.LogInformation("Loading Embedded Compressed Texture. Format: {0}",
+            Logger.Info("Loading Embedded Compressed Texture. Format: {Value0}",
                                   texture.CompressedFormatHint);
             if (!SupportedTextureFormatDict.Contains(texture.CompressedFormatHint.ToLowerInvariant())) {
-                logger.LogInformation("Compressed Texture Format not supported. Format: {0}",
+                Logger.Info("Compressed Texture Format not supported. Format: {Value0}",
                                       texture.CompressedFormatHint);
                 return null;
             }
@@ -321,7 +319,7 @@ public partial class Importer {
         }
 
         if (texture.HasNonCompressedData) {
-            logger.LogInformation("Loading Embedded NonCompressed Texture");
+            Logger.Info("Loading Embedded NonCompressed Texture");
             var rawData = texture.NonCompressedData
                                  .Select(x => new Color4(x.R / 255f, x.G / 255f, x.B / 255f, x.A / 255f)).ToArray();
             return new TextureModel(rawData, texture.Width, texture.Height);
@@ -362,7 +360,7 @@ public partial class Importer {
             var ext = Path.GetExtension(texturePath);
             if (string.IsNullOrEmpty(ext) ||
                 !SupportedTextureFormats.Contains(ext.TrimStart('.').ToLowerInvariant())) {
-                logger.LogWarning("Load Texture Failed. Texture Format not supported = {0}.", ext);
+                Logger.Warn("Load Texture Failed. Texture Format not supported = {Value0}.", ext);
 
                 return null;
             }
@@ -370,9 +368,7 @@ public partial class Importer {
             actualPath = configuration?.TexturePathResolver?.Resolve(path, texturePath);
             return string.IsNullOrEmpty(actualPath) ? null : new TextureModel(actualPath);
         } catch (Exception ex) {
-            logger.LogWarning("Load Texture Exception. Texture Path = {0}. Exception: {1}",
-                              texturePath,
-                              ex.Message);
+            Logger.Warn(ex, "Load Texture Exception. Texture Path = {Value0}", (object)texturePath);
         }
 
         return null;

@@ -1,9 +1,9 @@
-using HelixToolkit.Wpf.SharpDX;
+using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core.Components;
-using HelixToolkit.Wpf.SharpDX.Model;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
-using System.Runtime.InteropServices;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Model;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 

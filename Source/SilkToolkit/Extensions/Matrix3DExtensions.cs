@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Matrix3DExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -579,6 +579,6 @@ public static class Matrix3DExtensions {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 ToVector2(this Vector v) {
-        return new Vector2((float) v.X, (float) v.Y);
+        return new Vector2((float)v.X, (float)v.Y);
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -39,7 +39,7 @@ public sealed class Image : Component {
         Stream imageStream
     );
 
-    private static readonly List<LoadSaveDelegate> loadSaveDelegates = new();
+    private static readonly List<LoadSaveDelegate> loadSaveDelegates = [];
 
     /// <summary>
     ///     Pointer to the buffer.
@@ -249,7 +249,7 @@ public sealed class Image : Component {
     /// </summary>
     /// <returns>The databox of this image.</returns>
     public DataBox[] ToDataBox() {
-        return (DataBox[]) dataBoxArray.Clone();
+        return (DataBox[])dataBoxArray.Clone();
     }
 
     /// <summary>
@@ -260,15 +260,15 @@ public sealed class Image : Component {
         dataBoxArray = new DataBox[Description.ArraySize * Description.MipLevels];
         var i = 0;
         for (var arrayIndex = 0; arrayIndex < Description.ArraySize; arrayIndex++)
-        for (var mipIndex = 0; mipIndex < Description.MipLevels; mipIndex++) {
-            // Get the first z-slice (A DataBox for a Texture3D is pointing to the whole texture).
-            var pixelBuffer = GetPixelBufferUnsafe(arrayIndex, 0, mipIndex);
+            for (var mipIndex = 0; mipIndex < Description.MipLevels; mipIndex++) {
+                // Get the first z-slice (A DataBox for a Texture3D is pointing to the whole texture).
+                var pixelBuffer = GetPixelBufferUnsafe(arrayIndex, 0, mipIndex);
 
-            dataBoxArray[i].DataPointer = pixelBuffer.DataPointer;
-            dataBoxArray[i].RowPitch = pixelBuffer.RowStride;
-            dataBoxArray[i].SlicePitch = pixelBuffer.BufferStride;
-            i++;
-        }
+                dataBoxArray[i].DataPointer = pixelBuffer.DataPointer;
+                dataBoxArray[i].RowPitch = pixelBuffer.RowStride;
+                dataBoxArray[i].SlicePitch = pixelBuffer.BufferStride;
+                i++;
+            }
 
         return dataBoxArray;
     }
@@ -478,7 +478,7 @@ public sealed class Image : Component {
         var size = buffer.Length;
 
         fixed (void* pbuffer = buffer) {
-            return Load((nint) pbuffer, size, true);
+            return Load((nint)pbuffer, size, true);
         }
     }
 
@@ -505,9 +505,8 @@ public sealed class Image : Component {
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
     public static Image Load(string fileName) {
-        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(stream);
-        }
+        using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(stream);
     }
 
     /// <summary>
@@ -601,7 +600,7 @@ public sealed class Image : Component {
             this.bufferIsDisposable = true;
         }
 
-        SetupImageArray((nint) ((byte*) buffer + offset), totalSizeInBytes, description, pitchFlags, pixelBuffers);
+        SetupImageArray((nint)((byte*)buffer + offset), totalSizeInBytes, description, pitchFlags, pixelBuffers);
 
         Description = description;
 
@@ -822,7 +821,7 @@ public sealed class Image : Component {
         PixelBuffer[] output
     ) {
         var index = 0;
-        var pixels = (byte*) buffer;
+        var pixels = (byte*)buffer;
         for (uint item = 0; item < imageDesc.ArraySize; ++item) {
             var w = imageDesc.Width;
             var h = imageDesc.Height;
@@ -844,7 +843,7 @@ public sealed class Image : Component {
                 for (uint zSlice = 0; zSlice < d; ++zSlice) {
                     // We use the same memory organization that Direct3D 11 needs for D3D11_SUBRESOURCE_DATA
                     // with all slices of a given miplevel being continuous in memory
-                    output[index] = new PixelBuffer(w, h, imageDesc.Format, rowPitch, slicePitch, (nint) pixels);
+                    output[index] = new PixelBuffer(w, h, imageDesc.Format, rowPitch, slicePitch, (nint)pixels);
                     ++index;
 
                     pixels += slicePitch;
@@ -871,7 +870,7 @@ public sealed class Image : Component {
     /// </param>
     public void Save(string fileName) {
         var extension = Path.GetExtension(fileName);
-        extension = extension ?? string.Empty;
+        extension ??= string.Empty;
 
         ImageFileType fileType;
         extension = extension.TrimStart('.').ToLower();
@@ -918,9 +917,8 @@ public sealed class Image : Component {
     /// <param name="fileType">Specify the output format.</param>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
     public void Save(string fileName, ImageFileType fileType) {
-        using (var imageStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
-            Save(imageStream, fileType);
-        }
+        using var imageStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+        Save(imageStream, fileType);
     }
 
     /// <summary>

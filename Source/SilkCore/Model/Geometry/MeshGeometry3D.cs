@@ -9,6 +9,7 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
+
 [DataContract]
 public class MeshGeometry3D : Geometry3D {
     private static readonly PropertyChangedEventArgs textureCoordChangedArgs = new(nameof(TextureCoordinates));
@@ -66,8 +67,7 @@ public class MeshGeometry3D : Geometry3D {
     public IEnumerable<Triangle> Triangles {
         get {
             for (var i = 0; i < Indices.Count; i += 3)
-                yield return new Triangle
-                    {P0 = Positions[Indices[i]], P1 = Positions[Indices[i + 1]], P2 = Positions[Indices[i + 2]]};
+                yield return new Triangle { P0 = Positions[Indices[i]], P1 = Positions[Indices[i + 1]], P2 = Positions[Indices[i + 2]] };
         }
     }
 
@@ -77,7 +77,7 @@ public class MeshGeometry3D : Geometry3D {
     [IgnoreDataMember]
     public IntCollection TriangleIndices {
         get => Indices;
-        set => Indices = new IntCollection(value);
+        set => Indices = [.. value];
     }
 
     /// <summary>
@@ -109,15 +109,15 @@ public class MeshGeometry3D : Geometry3D {
             index += part.Positions.Count;
         }
 
-        if (normals != null) normals = new Vector3Collection(meshes.SelectMany(x => x.Normals));
+        if (normals != null) normals = [.. meshes.SelectMany(x => x.Normals)];
 
-        if (colors != null) colors = new Color4Collection(meshes.SelectMany(x => x.Colors));
+        if (colors != null) colors = [.. meshes.SelectMany(x => x.Colors)];
 
-        if (textureCoods != null) textureCoods = new Vector2Collection(meshes.SelectMany(x => x.TextureCoordinates));
+        if (textureCoods != null) textureCoods = [.. meshes.SelectMany(x => x.TextureCoordinates)];
 
-        if (tangents != null) tangents = new Vector3Collection(meshes.SelectMany(x => x.Tangents));
+        if (tangents != null) tangents = [.. meshes.SelectMany(x => x.Tangents)];
 
-        if (bitangents != null) bitangents = new Vector3Collection(meshes.SelectMany(x => x.BiTangents));
+        if (bitangents != null) bitangents = [.. meshes.SelectMany(x => x.BiTangents)];
 
         var mesh = new MeshGeometry3D {
             Positions = positions,

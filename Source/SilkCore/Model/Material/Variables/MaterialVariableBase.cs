@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public abstract class MaterialVariable : DisposeObject {
-            private static readonly ILogger logger = LogManager.Create<MaterialVariable>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             public static readonly ConstantBufferDescription DefaultMeshConstantBufferDesc
                 = new(DefaultBufferNames.ModelCB,
@@ -281,7 +281,7 @@ namespace HelixToolkit.SharpDX.Core {
                     throw new ArgumentException(
                         $"Variable not found in constant buffer {materialCB.Name}. Variable = {name}");
 #else
-                    logger.LogWarning("Variable not found in constant buffer {0}. Variable = {1}", materialCB.Name, name);
+                    Logger.Warn("Variable not found in constant buffer {Value0}. Variable = {Value1}", materialCB.Name, name);
 #endif
                 }
             }
@@ -307,16 +307,16 @@ namespace HelixToolkit.SharpDX.Core {
                 RemoveAndDispose(ref storage);
                 if (disposeManagedResources) {
                     UpdateNeeded = null;
-                    if (material != null) material.PropertyChanged -= MaterialCore_PropertyChanged;
+                    material?.PropertyChanged -= MaterialCore_PropertyChanged;
                     propertyBindings.Clear();
                 }
 
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Material Property Bindings
+            #region Material Property Bindings
 
-            private readonly Dictionary<string, Action> propertyBindings = new();
+            private readonly Dictionary<string, Action> propertyBindings = [];
 
             protected void AddPropertyBinding(string propertyName, Action action) {
                 propertyBindings.Add(propertyName, action);
@@ -331,7 +331,7 @@ namespace HelixToolkit.SharpDX.Core {
                 InvalidateRenderer();
             }
 
-        #endregion
+            #endregion
         }
     }
 }

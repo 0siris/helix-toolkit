@@ -25,7 +25,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <returns></returns>
     public delegate IDynamicOctree CreateNodeDelegate(ref BoundingBox bound, List<T> objects, IDynamicOctree parent);
 
-    private static readonly ILogger logger = LogManager.Create<DynamicOctreeBase<T>>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     private static readonly Vector3 epsilon = new(float.Epsilon, float.Epsilon, float.Epsilon);
 
@@ -34,7 +34,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// </summary>
     private readonly IDynamicOctree[] childNodes = new IDynamicOctree[8];
 
-    private readonly List<BoundingBox> hitPathBoundingBoxes = new();
+    private readonly List<BoundingBox> hitPathBoundingBoxes = [];
 
     /// <summary>
     ///     internal stack for tree traversal
@@ -45,17 +45,17 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 
     /// <summary>
     /// </summary>
-    protected List<HitTestResult> modelHits = new();
+    protected List<HitTestResult> modelHits = [];
 
     /// <summary>
     /// </summary>
     protected bool treeBuilt; //there is no pre-existing tree yet.
 
     private DynamicOctreeBase(OctreeBuildParameter parameter, Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache) {
-        SelfArray = new IDynamicOctree[] {this};
+        SelfArray = [this];
         stack = stackCache ?? new Stack<KeyValuePair<int, IDynamicOctree[]>>(64);
 
-        if (stackCache == null && logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Stack cache is null");
+        if (stackCache == null && Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Stack cache is null");
         if (parameter != null)
             Parameter = parameter;
         else
@@ -95,7 +95,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache
     )
         : this(parameter, stackCache) {
-        Objects = new List<T>();
+        Objects = [];
         Bound = new BoundingBox(Vector3.Zero, Vector3.Zero);
         Parent = parent;
     }
@@ -313,7 +313,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         ref List<HitTestResult> hits,
         float hitThickness
     ) {
-        if (hits == null) hits = new List<HitTestResult>();
+        hits ??= [];
         hitPathBoundingBoxes.Clear();
         var hitStack = stack;
         var isHit = false;
@@ -404,7 +404,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         ref BoundingSphere sphere,
         ref List<HitTestResult> points
     ) {
-        if (points == null) points = new List<HitTestResult>();
+        points ??= [];
         var hitStack = stack;
         var isHit = false;
         var treeArray = SelfArray;
@@ -446,7 +446,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         ref List<HitTestResult> results,
         float heuristicSearchFactor = 1f
     ) {
-        if (results == null) results = new List<HitTestResult>();
+        results ??= [];
         var hitStack = stack;
 
         var sphere = new BoundingSphere(point, float.MaxValue);
@@ -462,7 +462,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
                 isHit |= node.FindNearestPointBySphereExcludeChild(context, ref sphere, ref results, ref isIntersect);
 
                 if (isIntersect) {
-                    if (results.Count > 0) sphere.Radius = (float) results[0].Distance * heuristicSearchFactor;
+                    if (results.Count > 0) sphere.Radius = (float)results[0].Distance * heuristicSearchFactor;
                     if (node.HasChildren) {
                         hitStack.Push(new KeyValuePair<int, IDynamicOctree[]>(i, treeArray));
                         treeArray = node.ChildNodes;
@@ -512,7 +512,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         for (var i = 0; i < ChildNodes.Length; ++i)
             if (ChildNodes[i] == child) {
                 ChildNodes[i] = null;
-                ActiveNodes ^= (byte) (1 << i);
+                ActiveNodes ^= (byte)(1 << i);
                 break;
             }
 
@@ -562,7 +562,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <param name="Item"></param>
     /// <returns></returns>
     protected IDynamicOctree CreateNode(ref BoundingBox bound, T Item) {
-        return CreateNode(ref bound, new List<T> {Item});
+        return CreateNode(ref bound, [Item]);
     }
 
     /// <summary>
@@ -576,8 +576,8 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         TreeTraversal(root, stack, null, node => { node.BuildCurretNodeOnly(); }, null, Parameter.EnableParallelBuild);
 #if DEBUG
         var elapsed = Stopwatch.GetTimestamp() - now;
-        if (logger.IsEnabled(LogLevel.Debug))
-            logger.LogDebug("Buildtree time = {0} ms", elapsed * 1e3 / Stopwatch.Frequency);
+        if (Logger.IsEnabled(LogLevel.Debug))
+            Logger.Debug("Buildtree time = {Value0} ms", elapsed * 1e3 / Stopwatch.Frequency);
 #endif
     }
 
@@ -596,7 +596,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         Stack<KeyValuePair<int, IDynamicOctree[]>> stack,
         Func<IDynamicOctree, bool> criteria,
         Action<IDynamicOctree> process,
-        Func<bool> breakCriteria = null,
+        Func<bool>? breakCriteria = null,
         bool useParallel = false
     ) {
         if (useParallel) {
@@ -648,13 +648,13 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     public static BoundingBox[] CreateOctants(ref BoundingBox box, float minSize) {
         var dimensions = box.Maximum - box.Minimum;
         if (dimensions == Vector3.Zero || (dimensions.X < minSize && dimensions.Y < minSize && dimensions.Z < minSize))
-            return new BoundingBox[0];
+            return [];
         var half = dimensions / 2.0f;
         var center = box.Minimum + half;
         var minimum = box.Minimum;
         var maximum = box.Maximum;
         //Create subdivided regions for each octant
-        return new BoundingBox[8] {
+        return [
             new(minimum, center),
             new(new Vector3(center.X, minimum.Y, minimum.Z), new Vector3(maximum.X, center.Y, center.Z)),
             new(new Vector3(center.X, minimum.Y, center.Z), new Vector3(maximum.X, center.Y, maximum.Z)),
@@ -663,7 +663,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
             new(new Vector3(center.X, center.Y, minimum.Z), new Vector3(maximum.X, maximum.Y, center.Z)),
             new(center, maximum),
             new(new Vector3(minimum.X, center.Y, center.Z), new Vector3(center.X, maximum.Y, maximum.Z))
-        };
+        ];
     }
 
     /// <summary>
@@ -714,7 +714,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         for (var i = 0; i < 8; ++i)
             if (octList[i].Count != 0) {
                 ChildNodes[i] = CreateNode(ref Octants[i], octList[i]);
-                ActiveNodes |= (byte) (1 << i);
+                ActiveNodes |= (byte)(1 << i);
             }
     }
 
@@ -756,10 +756,10 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static int SigBit(int x) {
-        if (x >= 0) return (int) Math.Pow(2, Math.Ceiling(Math.Log(x) / Math.Log(2)));
+        if (x >= 0) return (int)Math.Pow(2, Math.Ceiling(Math.Log(x) / Math.Log(2)));
 
         x = Math.Abs(x);
-        return -(int) Math.Pow(2, Math.Ceiling(Math.Log(x) / Math.Log(2)));
+        return -(int)Math.Pow(2, Math.Ceiling(Math.Log(x) / Math.Log(2)));
     }
 
     /// <summary>
@@ -844,8 +844,8 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
                     (node.ChildNodes[i] as DynamicOctreeBase<T>).Objects.Add(item);
                     octant = node.ChildNodes[i];
                 } else {
-                    node.ChildNodes[i] = createNodeFunc(ref node.Octants[i], new List<T> {item}, node);
-                    node.ActiveNodes |= (byte) (1 << i);
+                    node.ChildNodes[i] = createNodeFunc(ref node.Octants[i], [item], node);
+                    node.ActiveNodes |= (byte)(1 << i);
                     node.ChildNodes[i].BuildTree();
                     var idx = -1;
                     octant = (node.ChildNodes[i] as DynamicOctreeBase<T>).FindChildByItemBound(item, out idx);
@@ -935,7 +935,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
                                              zDirection * Math.Abs(half.Z));
         var bound = new BoundingBox(newCenter - dimension, newCenter + dimension);
         BoundingBox.Merge(ref rootBound, ref bound, out bound);
-        var newRoot = createNodeFunc(ref bound, new List<T>(), oldRoot);
+        var newRoot = createNodeFunc(ref bound, [], oldRoot);
         newRoot.Parent = null;
         newRoot.BuildTree();
         var succ = false;
@@ -954,7 +954,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
             if (idx >= 0 && idx < newRoot.Octants.Length) {
                 newRoot.ChildNodes[idx] = oldRoot;
                 newRoot.Octants[idx] = oldRoot.Bound;
-                newRoot.ActiveNodes |= (byte) (1 << idx);
+                newRoot.ActiveNodes |= (byte)(1 << idx);
                 oldRoot.Parent = newRoot;
                 succ = true;
             }
@@ -1104,7 +1104,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <param name="item"></param>
     /// <returns></returns>
     public virtual bool RemoveSafe(T item) {
-        if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Remove safe.");
+        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Remove safe.");
         var node = FindChildByItem(item, out var index);
         if (node != null) {
             (node as DynamicOctreeBase<T>).Objects.RemoveAt(index);
@@ -1200,7 +1200,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         return node;
     }
 
-#region Accessors
+    #region Accessors
 
     /// <summary>
     ///     <see cref="IDynamicOctree.IsRoot" />
@@ -1219,7 +1219,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// </summary>
     public bool IsEmpty => !HasChildren && Objects.Count == 0;
 
-#endregion
+    #endregion
 }
 
 /// <summary>
@@ -1317,7 +1317,7 @@ public class MeshGeometryOctree
     public MeshGeometryOctree(
         IList<Vector3> positions,
         IList<int> indices,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : this(positions, indices, null, stackCache) { }
 
@@ -1331,7 +1331,7 @@ public class MeshGeometryOctree
         IList<Vector3> positions,
         IList<int> indices,
         OctreeBuildParameter parameter,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : base(null, parameter, stackCache) {
         Positions = positions;
@@ -1533,8 +1533,9 @@ public class MeshGeometryOctree
         if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
             isIntersect = true;
             if (Objects.Count == 0) return false;
-            var tempResult = new HitTestResult();
-            tempResult.Distance = float.MaxValue;
+            var tempResult = new HitTestResult {
+                Distance = float.MaxValue
+            };
             for (var i = 0; i < Objects.Count; ++i) {
                 containment = Objects[i].Value.Contains(ref sphere);
                 if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
@@ -1592,7 +1593,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
     public LineGeometryOctree(
         IList<Vector3> positions,
         IList<int> indices,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : this(positions, indices, null, stackCache) { }
 
@@ -1606,7 +1607,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
         IList<Vector3> positions,
         IList<int> indices,
         OctreeBuildParameter parameter,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : base(null, parameter, stackCache) {
         Positions = positions;
@@ -1737,7 +1738,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
         if (rayModel.Intersects(ref bound)) {
             isIntersect = true;
             if (Objects.Count == 0) return false;
-            var result = new LineHitTestResult {IsValid = false, Distance = double.MaxValue};
+            var result = new LineHitTestResult { IsValid = false, Distance = double.MaxValue };
             result.Distance = double.MaxValue;
             var rayWS = context.RayWS;
             for (var i = 0; i < Objects.Count; ++i) {
@@ -1817,8 +1818,9 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
         if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
             isIntersect = true;
             if (Objects.Count == 0) return false;
-            var tempResult = new LineHitTestResult();
-            tempResult.Distance = float.MaxValue;
+            var tempResult = new LineHitTestResult {
+                Distance = float.MaxValue
+            };
             for (var i = 0; i < Objects.Count; ++i) {
                 containment = Objects[i].Value.Contains(ref sphere);
                 if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
@@ -1876,7 +1878,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
     /// </summary>
     /// <param name="positions"></param>
     /// <param name="stackCache"></param>
-    public PointGeometryOctree(IList<Vector3> positions, Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null)
+    public PointGeometryOctree(IList<Vector3> positions, Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null)
         : this(positions, null, stackCache) { }
 
     /// <summary>
@@ -1887,7 +1889,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
     public PointGeometryOctree(
         IList<Vector3> positions,
         OctreeBuildParameter parameter,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : base(null, parameter, stackCache) {
         Positions = positions;
@@ -1975,8 +1977,9 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
         if (rayModel.Intersects(ref bound)) {
             isIntersect = true;
             if (Objects.Count == 0) return false;
-            var result = new HitTestResult();
-            result.Distance = double.MaxValue;
+            var result = new HitTestResult {
+                Distance = double.MaxValue
+            };
             var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
             var smvpm = modelMatrix * svpm;
             var clickPoint3 = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
@@ -2064,8 +2067,9 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
         if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
             isIntersect = true;
             if (Objects.Count == 0) return false;
-            var resultTemp = new HitTestResult();
-            resultTemp.Distance = float.MaxValue;
+            var resultTemp = new HitTestResult {
+                Distance = float.MaxValue
+            };
             for (var i = 0; i < Objects.Count; ++i) {
                 var p = Positions[Objects[i]];
                 containment = BoundingSphereExtensions.Contains(sphere, p);
@@ -2118,7 +2122,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         IList<Matrix> instanceMatrix,
         BoundingBox geometryBound,
         OctreeBuildParameter parameter,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : base(ref geometryBound, null, parameter, stackCache) {
         InstanceMatrix = instanceMatrix;
@@ -2151,7 +2155,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         List<KeyValuePair<int, BoundingBox>> objects,
         IDynamicOctree parent,
         OctreeBuildParameter parameter,
-        Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+        Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
     )
         : base(ref bound, objects, parent, parameter, stackCache) {
         InstanceMatrix = instanceMatrix;

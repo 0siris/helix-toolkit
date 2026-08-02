@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -33,18 +33,17 @@ namespace HelixToolkit.SharpDX.Core {
                 string fileName,
                 bool disableAutoGenMipMap = false
             ) {
-                using (var texture = Texture.Load(device, fileName)) {
-                    if (texture == null) return null;
-                    if (!disableAutoGenMipMap &&
-                        texture.Description.MipLevels ==
-                        1) // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
-                        if (GenerateMipMaps(device, texture, out var textureMipmap))
-                            using (textureMipmap) {
-                                return device.CreateShaderResourceView(textureMipmap);
-                            }
+                using var texture = Texture.Load(device, fileName);
+                if (texture == null) return null;
+                if (!disableAutoGenMipMap &&
+                    texture.Description.MipLevels ==
+                    1) // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
+                    if (GenerateMipMaps(device, texture, out var textureMipmap))
+                        using (textureMipmap) {
+                            return device.CreateShaderResourceView(textureMipmap);
+                        }
 
-                    return device.CreateShaderResourceView(texture.Resource);
-                }
+                return device.CreateShaderResourceView(texture.Resource);
             }
 
             /// <summary>
@@ -59,9 +58,8 @@ namespace HelixToolkit.SharpDX.Core {
                 byte[] memory,
                 bool disableAutoGenMipMap = false
             ) {
-                using (var memStream = new MemoryStream(memory)) {
-                    return FromMemoryAsShaderResourceView(device, memStream, disableAutoGenMipMap);
-                }
+                using var memStream = new MemoryStream(memory);
+                return FromMemoryAsShaderResourceView(device, memStream, disableAutoGenMipMap);
             }
 
             /// <summary>
@@ -76,18 +74,17 @@ namespace HelixToolkit.SharpDX.Core {
                 Stream memory,
                 bool disableAutoGenMipMap = false
             ) {
-                using (var texture = Texture.Load(device, memory)) {
-                    if (texture == null) return null;
-                    if (!disableAutoGenMipMap &&
-                        texture.Description.MipLevels ==
-                        1) // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
-                        if (GenerateMipMaps(device, texture, out var textureMipmap))
-                            using (textureMipmap) {
-                                return device.CreateShaderResourceView(textureMipmap);
-                            }
+                using var texture = Texture.Load(device, memory);
+                if (texture == null) return null;
+                if (!disableAutoGenMipMap &&
+                    texture.Description.MipLevels ==
+                    1) // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
+                    if (GenerateMipMaps(device, texture, out var textureMipmap))
+                        using (textureMipmap) {
+                            return device.CreateShaderResourceView(textureMipmap);
+                        }
 
-                    return device.CreateShaderResourceView(texture.Resource);
-                }
+                return device.CreateShaderResourceView(texture.Resource);
             }
 
             /// <summary>

@@ -34,7 +34,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
         base.AssignDefaultValuesToSceneNode(node);
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     The front counter clockwise property
@@ -44,7 +44,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
         typeof(bool),
         typeof(MeshGeometryModel3D),
         new PropertyMetadata(true,
-                             (d, e) => { ((d as Element3DCore).SceneNode as MeshNode).FrontCCW = (bool) e.NewValue; }));
+                             (d, e) => { ((d as Element3DCore).SceneNode as MeshNode).FrontCCW = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The cull mode property
@@ -54,7 +54,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
         typeof(MeshGeometryModel3D),
         new PropertyMetadata(CullMode.None,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshNode).CullMode = (CullMode) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as MeshNode).CullMode = (CullMode)e.NewValue;
                              }));
 
     /// <summary>
@@ -65,7 +65,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
         typeof(MeshGeometryModel3D),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshNode).InvertNormal = (bool) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as MeshNode).InvertNormal = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -78,7 +78,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as MeshNode)
-                                                                 .RenderWireframe = (bool) e.NewValue;
+                                                                 .RenderWireframe = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -92,7 +92,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as MeshNode)
                                                                  .WireframeColor =
-                                                                 ((PlatformColor) e.NewValue).ToColor4();
+                                                                 ((PlatformColor)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -102,7 +102,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderWireframe {
-        get => (bool) GetValue(RenderWireframeProperty);
+        get => (bool)GetValue(RenderWireframeProperty);
         set => SetValue(RenderWireframeProperty, value);
     }
 
@@ -113,7 +113,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     The color of the wireframe.
     /// </value>
     public PlatformColor WireframeColor {
-        get => (PlatformColor) GetValue(WireframeColorProperty);
+        get => (PlatformColor)GetValue(WireframeColorProperty);
         set => SetValue(WireframeColorProperty, value);
     }
 
@@ -124,7 +124,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     <c>true</c> if [front counter clockwise]; otherwise, <c>false</c>.
     /// </value>
     public bool FrontCounterClockwise {
-        get => (bool) GetValue(FrontCounterClockwiseProperty);
+        get => (bool)GetValue(FrontCounterClockwiseProperty);
         set => SetValue(FrontCounterClockwiseProperty, value);
     }
 
@@ -135,7 +135,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     The cull mode.
     /// </value>
     public CullMode CullMode {
-        get => (CullMode) GetValue(CullModeProperty);
+        get => (CullMode)GetValue(CullModeProperty);
         set => SetValue(CullModeProperty, value);
     }
 
@@ -143,9 +143,9 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     Invert the surface normal during rendering
     /// </summary>
     public bool InvertNormal {
-        get => (bool) GetValue(InvertNormalProperty);
+        get => (bool)GetValue(InvertNormalProperty);
         set => SetValue(InvertNormalProperty, value);
     }
 
-#endregion
+    #endregion
 }

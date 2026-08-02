@@ -236,7 +236,7 @@ public static class CameraExtensions {
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
     public static Matrix GetProjectionMatrix(this CameraCore camera, double aspectRatio) {
-        return camera.CreateProjectionMatrix((float) aspectRatio);
+        return camera.CreateProjectionMatrix((float)aspectRatio);
     }
 
     /// <summary>
@@ -484,7 +484,7 @@ public static class CameraExtensions {
     public static BoundingBox ToBoundingBox(this Rect3D bounds) {
         return new BoundingBox(bounds.Location.ToVector3(),
                                bounds.Location.ToVector3() +
-                               new Vector3((float) bounds.SizeX, (float) bounds.SizeY, (float) bounds.SizeZ));
+                               new Vector3((float)bounds.SizeX, (float)bounds.SizeY, (float)bounds.SizeZ));
     }
 
     /// <summary>
@@ -512,14 +512,14 @@ public static class CameraExtensions {
 
         if (diagonal.LengthSquared().Equals(0)) return;
         if (camera is PerspectiveCamera p && camera.CameraInternal is PerspectiveCameraCore pCore) {
-            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+            pCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
                               bounds,
                               out var pos,
                               out var look,
                               out var up);
             p.AnimateTo(pos.ToPoint3D(), look.ToVector3D(), up.ToVector3D(), animationTime);
         } else if (camera is OrthographicCamera orth && camera.CameraInternal is OrthographicCameraCore oCore) {
-            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+            oCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
                               bounds,
                               out var pos,
                               out var look,
@@ -589,8 +589,8 @@ public static class CameraExtensions {
     public static void ZoomToRectangle(this Camera camera, Viewport3DX viewport, Rect zoomRectangle) {
         if (viewport.UnProject(zoomRectangle.TopLeft.ToVector2(), out var topLeftRay)
             && viewport.UnProject(zoomRectangle.TopRight.ToVector2(), out var topRightRay)
-            && viewport.UnProject(new Vector2((float) (zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
-                                              (float) (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
+            && viewport.UnProject(new Vector2((float)(zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
+                                              (float)(zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
                                   out var centerRay)) {
             var u = SilkMath.Normalize(topLeftRay.Direction);
             var v = SilkMath.Normalize(topRightRay.Direction);
@@ -600,8 +600,8 @@ public static class CameraExtensions {
 
                 // option 1: change distance
                 var newDistance = distance * zoomRectangle.Width / viewport.ActualWidth;
-                var newLookDirection = (float) newDistance * w;
-                var newPosition = camera.CameraInternal.Position + (float) (distance - newDistance) * w;
+                var newLookDirection = (float)newDistance * w;
+                var newPosition = camera.CameraInternal.Position + (float)(distance - newDistance) * w;
                 var newTarget = newPosition + newLookDirection;
                 camera.LookAt(newTarget.ToPoint3D(), newLookDirection.ToVector3D(), 200);
 
@@ -632,6 +632,6 @@ public static class CameraExtensions {
         x = SilkMath.Cross(z, y);
 
         // delta *= this.ZoomSensitivity;
-        camera.Position += (x * (float) delta.X + y * (float) delta.Y + z * (float) delta.Z).ToVector3D();
+        camera.Position += (x * (float)delta.X + y * (float)delta.Y + z * (float)delta.Z).ToVector3D();
     }
 }

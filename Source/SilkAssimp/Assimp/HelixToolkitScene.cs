@@ -25,9 +25,9 @@ public class HelixToolkitScene {
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="animations">The animations.</param>
-    public HelixToolkitScene(SceneNode root, IList<Animation> animations = null) {
+    public HelixToolkitScene(SceneNode root, IList<Animation>? animations = null) {
         Root = root;
-        Animations = animations.ToArray();
+        Animations = [.. animations];
     }
 
     /// <summary>

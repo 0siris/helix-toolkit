@@ -10,7 +10,7 @@
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
 
     <PlatformTarget>AnyCPU</PlatformTarget>

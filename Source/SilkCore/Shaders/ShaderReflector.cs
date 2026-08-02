@@ -12,13 +12,13 @@ namespace HelixToolkit.SharpDX.Core {
 
             public FeatureLevel FeatureLevel { get; private set; }
 
-            public Dictionary<string, ConstantBufferMapping> ConstantBufferMappings { get; } = new();
+            public Dictionary<string, ConstantBufferMapping> ConstantBufferMappings { get; } = [];
 
-            public Dictionary<string, TextureMapping> TextureMappings { get; } = new();
+            public Dictionary<string, TextureMapping> TextureMappings { get; } = [];
 
-            public Dictionary<string, UAVMapping> UAVMappings { get; } = new();
+            public Dictionary<string, UAVMapping> UAVMappings { get; } = [];
 
-            public Dictionary<string, SamplerMapping> SamplerMappings { get; } = new();
+            public Dictionary<string, SamplerMapping> SamplerMappings { get; } = [];
 
             public void Parse(byte[] byteCode, ShaderStage stage) {
                 ConstantBufferMappings.Clear();
@@ -35,13 +35,13 @@ namespace HelixToolkit.SharpDX.Core {
                     void* reflectionPtr = null;
                     var shaderReflectionGuid = ShaderReflectionGuid;
                     var result = D3DReflect(byteCodePtr,
-                                            (nuint) byteCode.Length,
+                                            (nuint)byteCode.Length,
                                             ref shaderReflectionGuid,
                                             &reflectionPtr);
                     if (result < 0)
                         throw new InvalidDataException($"Invalid {stage} shader bytecode.",
                                                        Marshal.GetExceptionForHR(result));
-                    var reflection = (ID3D11ShaderReflection*) reflectionPtr;
+                    var reflection = (ID3D11ShaderReflection*)reflectionPtr;
                     try {
                         ShaderDesc shaderDesc = default;
                         Marshal.ThrowExceptionForHR(reflection->LpVtbl->GetDesc(reflection, &shaderDesc));
@@ -56,73 +56,73 @@ namespace HelixToolkit.SharpDX.Core {
                                 case ShaderInputType.ConstantBuffer:
                                     var cb = reflection->LpVtbl->GetConstantBufferByName(reflection, resourceDesc.Name);
                                     var cbDesc =
-                                        CreateConstantBufferDescription(cb, stage, (int) resourceDesc.BindPoint);
+                                        CreateConstantBufferDescription(cb, stage, (int)resourceDesc.BindPoint);
                                     ConstantBufferMappings.Add(name,
-                                                               cbDesc.CreateMapping((int) resourceDesc.BindPoint));
+                                                               cbDesc.CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.Texture:
                                     TextureMappings.Add(name,
                                                         new TextureDescription(name, stage, TextureType.Texture)
-                                                            .CreateMapping((int) resourceDesc.BindPoint));
+                                                            .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.Structured:
                                     TextureMappings.Add(name,
                                                         new TextureDescription(name, stage, TextureType.Structured)
-                                                            .CreateMapping((int) resourceDesc.BindPoint));
+                                                            .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.ByteAddress:
                                     TextureMappings.Add(name,
                                                         new TextureDescription(name, stage, TextureType.ByteAddress)
-                                                            .CreateMapping((int) resourceDesc.BindPoint));
+                                                            .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.TextureBuffer:
                                     TextureMappings.Add(name,
                                                         new TextureDescription(name, stage, TextureType.TextureBuffer)
-                                                            .CreateMapping((int) resourceDesc.BindPoint));
+                                                            .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewAppendStructured:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name,
                                                                        stage,
                                                                        UnorderedAccessViewType.AppendStructured)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewConsumeStructured:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name,
                                                                        stage,
                                                                        UnorderedAccessViewType.ConsumeStructured)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewRWByteAddress:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name,
                                                                        stage,
                                                                        UnorderedAccessViewType.RWByteAddress)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewRWStructuredWithCounter:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name,
                                                                        stage,
                                                                        UnorderedAccessViewType.RWStructuredWithCounter)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewRWTyped:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name, stage, UnorderedAccessViewType.RWTyped)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.UnorderedAccessViewRWStructured:
                                     UAVMappings.Add(name,
                                                     new UAVDescription(name,
                                                                        stage,
                                                                        UnorderedAccessViewType.RWStructured)
-                                                        .CreateMapping((int) resourceDesc.BindPoint));
+                                                        .CreateMapping((int)resourceDesc.BindPoint));
                                     break;
                                 case ShaderInputType.Sampler:
                                     SamplerMappings.Add(name,
-                                                        new SamplerMapping((int) resourceDesc.BindPoint, name, stage));
+                                                        new SamplerMapping((int)resourceDesc.BindPoint, name, stage));
                                     break;
                             }
                         }
@@ -140,26 +140,26 @@ namespace HelixToolkit.SharpDX.Core {
                 ShaderBufferDesc desc = default;
                 Marshal.ThrowExceptionForHR(buffer->LpVtbl->GetDesc(buffer, &desc));
 
-                var variables = new List<ConstantBufferVariable>((int) desc.Variables);
+                var variables = new List<ConstantBufferVariable>((int)desc.Variables);
                 for (var i = 0u; i < desc.Variables; i++) {
                     var variable = buffer->LpVtbl->GetVariableByIndex(buffer, i);
                     ShaderVariableDesc variableDesc = default;
                     Marshal.ThrowExceptionForHR(variable->LpVtbl->GetDesc(variable, &variableDesc));
                     variables.Add(new ConstantBufferVariable {
                         Name = PtrToString(variableDesc.Name),
-                        StartOffset = (int) variableDesc.StartOffset,
-                        Size = (int) variableDesc.Size
+                        StartOffset = (int)variableDesc.StartOffset,
+                        Size = (int)variableDesc.Size
                     });
                 }
 
-                return new ConstantBufferDescription(PtrToString(desc.Name), (int) desc.Size, variables) {
+                return new ConstantBufferDescription(PtrToString(desc.Name), (int)desc.Size, variables) {
                     Stage = stage,
                     Slot = slot
                 };
             }
 
             private static string PtrToString(byte* value) {
-                return value == null ? string.Empty : Marshal.PtrToStringAnsi((nint) value);
+                return value == null ? string.Empty : Marshal.PtrToStringAnsi((nint)value);
             }
 
             private static FeatureLevel GetFeatureLevel(uint shaderVersion) {

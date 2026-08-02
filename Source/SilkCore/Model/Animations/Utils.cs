@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core {
                 timeElapsed = Math.Min(Math.Max(timeElapsed, frames.First().Time), frames.Last().Time);
                 var diff = frames.Last().Time - frames.First().Time;
                 var inc = diff / (frames.Count - 1);
-                var est = (int) Math.Floor((timeElapsed - frames.First().Time) / inc);
+                var est = (int)Math.Floor((timeElapsed - frames.First().Time) / inc);
                 int start, end;
                 if (frames[est].Time >= timeElapsed) {
                     start = 0;

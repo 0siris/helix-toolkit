@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
@@ -19,7 +19,7 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as
                                                               NodePostEffectBorderHighlight).DrawMode =
-                                                                 (OutlineMode) e.NewValue;
+                                                                 (OutlineMode)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -29,7 +29,7 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
     ///     The draw mode.
     /// </value>
     public OutlineMode DrawMode {
-        get => (OutlineMode) GetValue(DrawModeProperty);
+        get => (OutlineMode)GetValue(DrawModeProperty);
         set => SetValue(DrawModeProperty, value);
     }
 

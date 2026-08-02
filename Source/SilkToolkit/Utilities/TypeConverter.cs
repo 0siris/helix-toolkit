@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TypeConverter.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -136,7 +136,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                     try {
                         var c = System.Windows.Media.ColorConverter.ConvertFromString(source);
                         if (c != null) {
-                            var color = (Color) c;
+                            var color = (Color)c;
                             return new HelixToolkit.SharpDX.Core.Color(color.R, color.G, color.B, color.A);
                         }
                     } catch (FormatException) { }
@@ -150,7 +150,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                     return result;
                 }
 
-                if (value is Color) return (HelixToolkit.SharpDX.Core.Color) ((Color) value).ToColor4();
+                if (value is Color) return (HelixToolkit.SharpDX.Core.Color)((Color)value).ToColor4();
                 return base.ConvertFrom(context, culture, value);
             }
 
@@ -160,8 +160,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 object value,
                 Type destinationType
             ) {
-                if (value is HelixToolkit.SharpDX.Core.Color) {
-                    var val = (HelixToolkit.SharpDX.Core.Color) value;
+                if (value is HelixToolkit.SharpDX.Core.Color val) {
                     if (destinationType == typeof(string)) {
                         var str = string.Format("{0},{1},{2},{3}", val.R, val.G, val.B, val.A);
                         return str;
@@ -187,7 +186,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
                 if (value == null) throw GetConvertFromException(value);
-                if (value is Color) return ((Color) value).ToColor4();
+                if (value is Color) return ((Color)value).ToColor4();
 
                 var source = value as string;
 
@@ -217,8 +216,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 object value,
                 Type destinationType
             ) {
-                if (value is Color4) {
-                    var val = (Color4) value;
+                if (value is Color4 val) {
                     if (destinationType == typeof(Color)) return val.ToColor();
 
                     if (destinationType == typeof(string)) {
@@ -245,13 +243,13 @@ namespace HelixToolkit.Wpf.SharpDX {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
                 if (value == null) throw GetConvertFromException(value);
                 if (value is Vector) {
-                    var source = (Vector) value;
-                    return new Vector2((float) source.X, (float) source.Y);
+                    var source = (Vector)value;
+                    return new Vector2((float)source.X, (float)source.Y);
                 }
 
                 if (value is Point3D) {
-                    var source = (Point3D) value;
-                    return new Vector2((float) source.X, (float) source.Y);
+                    var source = (Point3D)value;
+                    return new Vector2((float)source.X, (float)source.Y);
                 } else {
                     var source = value as string;
 
@@ -273,8 +271,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 object value,
                 Type destinationType
             ) {
-                if (value is Vector2) {
-                    var val = (Vector2) value;
+                if (value is Vector2 val) {
                     if (destinationType == typeof(Vector)) return new Vector(val.X, val.Y);
 
                     if (destinationType == typeof(Point)) return new Point(val.X, val.Y);
@@ -303,13 +300,13 @@ namespace HelixToolkit.Wpf.SharpDX {
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
                 if (value == null) throw GetConvertFromException(value);
                 if (value is Vector3D) {
-                    var source = (Vector3D) value;
-                    return new Vector3((float) source.X, (float) source.Y, (float) source.Z);
+                    var source = (Vector3D)value;
+                    return new Vector3((float)source.X, (float)source.Y, (float)source.Z);
                 }
 
                 if (value is Point3D) {
-                    var source = (Point3D) value;
-                    return new Vector3((float) source.X, (float) source.Y, (float) source.Z);
+                    var source = (Point3D)value;
+                    return new Vector3((float)source.X, (float)source.Y, (float)source.Z);
                 } else {
                     var source = value as string;
 
@@ -333,8 +330,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 object value,
                 Type destinationType
             ) {
-                if (value is Vector3) {
-                    var val = (Vector3) value;
+                if (value is Vector3 val) {
                     if (destinationType == typeof(Vector3D)) return new Vector3D(val.X, val.Y, val.Z);
 
                     if (destinationType == typeof(Point3D)) return new Point3D(val.X, val.Y, val.Z);
@@ -374,7 +370,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 Type destinationType
             ) {
                 if (destinationType == typeof(string) && value is Vector4) {
-                    var val = (Vector4) value;
+                    var val = (Vector4)value;
                     var str = string.Format("{0},{1},{2},{3}", val.X, val.Y, val.Z, val.W);
                     return str;
                 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -59,7 +59,7 @@ namespace HelixToolkit.SharpDX.Core {
                     IsDepthClipEnabled = IsDepthClipEnabled,
                     IsFrontCounterClockwise = FrontCCW,
                     IsMultisampleEnabled = IsMSAAEnabled,
-                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled
+                    IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
                 };
             }
 
@@ -71,14 +71,15 @@ namespace HelixToolkit.SharpDX.Core {
                                  : null;
                 RemoveAndDispose(ref materialVariable);
                 if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = materialVariable = newVar;
-                if (Materials == null && Material is PhongMaterialCore p) batchingBuffer.Materials = new[] {p};
+                if (Materials == null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
             }
 
             protected override bool OnAttach(IEffectsManager effectsManager) {
                 if (base.OnAttach(effectsManager)) {
-                    batchingBuffer = new DefaultStaticMeshBatchingBuffer();
-                    batchingBuffer.Geometries = Geometries;
-                    batchingBuffer.Materials = materials;
+                    batchingBuffer = new DefaultStaticMeshBatchingBuffer {
+                        Geometries = Geometries,
+                        Materials = materials
+                    };
                     if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = batchingBuffer;
                     AttachMaterial();
                     return true;
@@ -106,7 +107,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override OrderKey OnUpdateRenderOrderKey() {
-                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
+                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
             }
 
             /// <summary>
@@ -239,7 +240,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return false;
             }
 
-        #region Properties
+            #region Properties
 
             private BatchedMeshGeometryConfig[] geometries;
 
@@ -260,12 +261,12 @@ namespace HelixToolkit.SharpDX.Core {
                 set {
                     if (SetAffectsRender(ref materials, value) && IsAttached) {
                         batchingBuffer.Materials = value;
-                        if (value == null && Material is PhongMaterialCore p) batchingBuffer.Materials = new[] {p};
+                        if (value == null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
                     }
                 }
             }
 
-        #region Bound
+            #region Bound
 
             private BoundingBox originalBounds;
 
@@ -326,9 +327,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public override BoundingSphere BoundsSphereWithTransform => boundsSphereWithTransform;
 
-        #endregion
+            #endregion
 
-        #region Rasterizer parameters
+            #region Rasterizer parameters
 
             private int depthBias;
 
@@ -450,7 +451,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion Rasterizer parameters
+            #endregion Rasterizer parameters
 
             private bool enableViewFrustumCheck = true;
 
@@ -583,7 +584,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             protected StaticBatchedGeometryBoundsOctree BatchedGeometryOctree { get; private set; }
 
-        #endregion
+            #endregion
         }
     }
 }

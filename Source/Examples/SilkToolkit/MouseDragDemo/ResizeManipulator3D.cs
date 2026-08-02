@@ -62,7 +62,7 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate X; otherwise, <c>false</c> . </value>
     public bool CanTranslateX {
-        get { return (bool) this.GetValue(CanTranslateXProperty); }
+        get { return (bool)this.GetValue(CanTranslateXProperty); }
         set { this.SetValue(CanTranslateXProperty, value); }
     }
 
@@ -71,7 +71,7 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Y; otherwise, <c>false</c> . </value>
     public bool CanTranslateY {
-        get { return (bool) this.GetValue(CanTranslateYProperty); }
+        get { return (bool)this.GetValue(CanTranslateYProperty); }
         set { this.SetValue(CanTranslateYProperty, value); }
     }
 
@@ -80,7 +80,7 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Z; otherwise, <c>false</c> . </value>
     public bool CanTranslateZ {
-        get { return (bool) this.GetValue(CanTranslateZProperty); }
+        get { return (bool)this.GetValue(CanTranslateZProperty); }
         set { this.SetValue(CanTranslateZProperty, value); }
     }
 
@@ -92,18 +92,12 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
         var red = PhongMaterials.Red;
         red.ReflectiveColor = Colors.Black.ToColor4();
         //red.SpecularShininess = 0f;
-        this.translateXR = new UITranslateManipulator3D
-            {Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red,};
-        this.translateYR = new UITranslateManipulator3D
-            {Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green};
-        this.translateZR = new UITranslateManipulator3D
-            {Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue};
-        this.translateXL = new UITranslateManipulator3D
-            {Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red};
-        this.translateYL = new UITranslateManipulator3D
-            {Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green};
-        this.translateZL = new UITranslateManipulator3D
-            {Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue};
+        this.translateXR = new UITranslateManipulator3D { Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red, };
+        this.translateYR = new UITranslateManipulator3D { Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        this.translateZR = new UITranslateManipulator3D { Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
+        this.translateXL = new UITranslateManipulator3D { Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red };
+        this.translateYL = new UITranslateManipulator3D { Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        this.translateZL = new UITranslateManipulator3D { Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
         //this.rotateZ = new UIRotateManipulator3D { Axis = Vector3.UnitZ, InnerDiameter = 2, OuterDiameter = 2.15, Length = 0.05 };
 
         this.CanTranslateX = true;
@@ -128,7 +122,7 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// The event arguments.
     /// </param>
     private static void ChildrenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        ((ResizeManipulator3D) d).OnChildrenChanged();
+        ((ResizeManipulator3D)d).OnChildrenChanged();
     }
 
     /// <summary>

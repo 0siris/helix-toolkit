@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -44,35 +44,34 @@ namespace HelixToolkit.SharpDX.Core {
                     properties.AddRange(cb.Value.VariableDictionary.Keys);
                 }
 
-                PropertieNames = properties.ToArray();
-                TextureNames = shaderPass.PixelShader.ShaderResourceViewMapping.Mappings
-                                         .Select(x => x.Value.Description.Name).ToArray();
-                SamplerNames = shaderPass.PixelShader.SamplerMapping.Mappings.Select(x => x.Value.Name).ToArray();
+                PropertieNames = [.. properties];
+                TextureNames = [.. shaderPass.PixelShader.ShaderResourceViewMapping.Mappings.Select(x => x.Value.Description.Name)];
+                SamplerNames = [.. shaderPass.PixelShader.SamplerMapping.Mappings.Select(x => x.Value.Name)];
             }
 
             [DataMember]
-            public Dictionary<string, TextureModel> TextureDict { get; } = new();
+            public Dictionary<string, TextureModel> TextureDict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, SamplerStateDescription> SamplerDict { get; } = new();
+            public Dictionary<string, SamplerStateDescription> SamplerDict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, float> FloatDict { get; } = new();
+            public Dictionary<string, float> FloatDict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, bool> BoolDict { get; } = new();
+            public Dictionary<string, bool> BoolDict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, Vector2> Vector2Dict { get; } = new();
+            public Dictionary<string, Vector2> Vector2Dict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, Vector3> Vector3Dict { get; } = new();
+            public Dictionary<string, Vector3> Vector3Dict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, Vector4> Vector4Dict { get; } = new();
+            public Dictionary<string, Vector4> Vector4Dict { get; } = [];
 
             [DataMember]
-            public Dictionary<string, Matrix> MatrixDict { get; } = new();
+            public Dictionary<string, Matrix> MatrixDict { get; } = [];
 
             [DataMember]
             public string MaterialPassName { get; set; } = DefaultPassNames.Default;

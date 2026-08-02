@@ -12,10 +12,10 @@ using System.Diagnostics;
 
 namespace HelixToolkit.SharpDX.Core;
 
-using Vector3D = Color3;
-using Point3D = Color3;
 using Int32Collection = IntCollection;
+using Point3D = Color3;
 using Point3DCollection = Vector3Collection;
+using Vector3D = Color3;
 
 /// <summary>
 ///     Fast-Quadric-Mesh-Simplification, port from https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
@@ -30,8 +30,8 @@ public class MeshSimplification {
     /// </summary>
     /// <param name="model"></param>
     public MeshSimplification(MeshGeometry3D model) {
-        triangles = new List<Triangle>(Enumerable.Range(0, model.TriangleIndices.Count / 3)
-                                                 .Select(x => new Triangle()));
+        triangles = [.. Enumerable.Range(0, model.TriangleIndices.Count / 3)
+                                                 .Select(x => new Triangle())];
         var i = 0;
         foreach (var tri in triangles) {
             tri.v[0] = model.TriangleIndices[i++];
@@ -39,8 +39,8 @@ public class MeshSimplification {
             tri.v[2] = model.TriangleIndices[i++];
         }
 
-        vertices = model.Positions.Select(x => new Vertex(x)).ToList();
-        refs = new List<Ref>(Enumerable.Range(0, model.TriangleIndices.Count).Select(x => new Ref()));
+        vertices = [.. model.Positions.Select(x => new Vertex(x))];
+        refs = [.. Enumerable.Range(0, model.TriangleIndices.Count).Select(x => new Ref())];
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public class MeshSimplification {
             tris.Add(tri.v[2]);
         }
 
-        return new MeshGeometry3D {Positions = pos, TriangleIndices = tris};
+        return new MeshGeometry3D { Positions = pos, TriangleIndices = tris };
     }
 
     private bool Flipped(ref Vector3D p, int i0, int i1, ref Vertex v0, ref Vertex v1, IList<bool> deleted) {
@@ -222,9 +222,9 @@ public class MeshSimplification {
         var det = q.det(0, 1, 2, 1, 4, 5, 2, 5, 7);
         if (det != 0 && !border) {
             // q_delta is invertible
-            p_result.X = (float) (-1 / det * q.det(1, 2, 3, 4, 5, 6, 5, 7, 8)); // vx = A41/det(q_delta)
-            p_result.Y = (float) (1 / det * q.det(0, 2, 3, 1, 5, 6, 2, 7, 8));  // vy = A42/det(q_delta)
-            p_result.Z = (float) (-1 / det * q.det(0, 1, 3, 1, 4, 6, 2, 5, 8)); // vz = A43/det(q_delta)
+            p_result.X = (float)(-1 / det * q.det(1, 2, 3, 4, 5, 6, 5, 7, 8)); // vx = A41/det(q_delta)
+            p_result.Y = (float)(1 / det * q.det(0, 2, 3, 1, 5, 6, 2, 7, 8));  // vy = A42/det(q_delta)
+            p_result.Z = (float)(-1 / det * q.det(0, 1, 3, 1, 4, 6, 2, 5, 8)); // vz = A43/det(q_delta)
 
             error = VertexError(ref q, p_result.X, p_result.Y, p_result.Z);
         } else {
@@ -497,7 +497,7 @@ public class MeshSimplification {
         public Vector3D normal;
 
         public Triangle Clone() {
-            var t = new Triangle {deleted = deleted, dirty = dirty, normal = normal};
+            var t = new Triangle { deleted = deleted, dirty = dirty, normal = normal };
             t.v[0] = v[0];
             t.v[1] = v[1];
             t.v[2] = v[2];
@@ -529,7 +529,7 @@ public class MeshSimplification {
         }
 
         public Vertex Clone() {
-            return new Vertex {p = p, border = border, q = q, tCount = tCount, tStart = tStart};
+            return new Vertex { p = p, border = border, q = q, tCount = tCount, tStart = tStart };
         }
     }
 

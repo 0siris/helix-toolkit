@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Utilities {
@@ -30,7 +30,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static void MemoryCopy(nint dst, nint src, int sizeInBytes) {
                 if (dst == nint.Zero || src == nint.Zero) return;
                 unsafe {
-                    System.Buffer.MemoryCopy((void*) src, (void*) dst, sizeInBytes, sizeInBytes);
+                    System.Buffer.MemoryCopy((void*)src, (void*)dst, sizeInBytes, sizeInBytes);
                 }
             }
 
@@ -43,7 +43,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static void ClearMemory(nint dest, int sizeInBytesToClear) {
                 if (dest == nint.Zero) return;
                 unsafe {
-                    var pDest = (byte*) dest.ToPointer();
+                    var pDest = (byte*)dest.ToPointer();
                     for (var i = 0; i < sizeInBytesToClear; ++i) *pDest++ = 0;
                 }
             }
@@ -58,7 +58,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static nint ReadAndPosition<T>(nint source, ref T data) where T : unmanaged {
                 if (source == nint.Zero) return nint.Zero;
                 unsafe {
-                    data = *(T*) source;
+                    data = *(T*)source;
                     return source + SizeOf<T>();
                 }
             }
@@ -72,7 +72,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static T Read<T>(nint source) where T : unmanaged {
                 if (source == nint.Zero) return default;
                 unsafe {
-                    return *(T*) source;
+                    return *(T*)source;
                 }
             }
 
@@ -86,7 +86,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static void Read<T>(nint source, ref T data) where T : unmanaged {
                 if (source == nint.Zero) return;
                 unsafe {
-                    data = *(T*) source;
+                    data = *(T*)source;
                 }
             }
 
@@ -101,7 +101,7 @@ namespace HelixToolkit.SharpDX.Core {
                 data = default;
                 if (source == nint.Zero) return;
                 unsafe {
-                    data = *(T*) source;
+                    data = *(T*)source;
                 }
             }
 
@@ -147,7 +147,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static nint Write<T>(nint destination, ref T data) where T : unmanaged {
                 if (destination == nint.Zero) return nint.Zero;
                 unsafe {
-                    *(T*) destination = data;
+                    *(T*)destination = data;
                     return destination + SizeOf<T>();
                 }
             }
@@ -166,7 +166,7 @@ namespace HelixToolkit.SharpDX.Core {
                 unsafe {
                     var bytesToWrite = count * SizeOf<T>();
                     fixed (T* pData = &data[offset]) {
-                        MemoryCopy(destination, new nint((byte*) pData), bytesToWrite);
+                        MemoryCopy(destination, new nint((byte*)pData), bytesToWrite);
                     }
 
                     return destination + bytesToWrite;

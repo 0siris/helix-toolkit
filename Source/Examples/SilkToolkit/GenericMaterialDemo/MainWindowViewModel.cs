@@ -1,6 +1,6 @@
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
@@ -41,7 +41,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     }
 
     private void InitializeScene() {
-        var node = new MeshNode() {Geometry = Sphere, Material = PhongMaterial};
+        var node = new MeshNode() { Geometry = Sphere, Material = PhongMaterial };
         ModelGroup.AddNode(node);
     }
 }

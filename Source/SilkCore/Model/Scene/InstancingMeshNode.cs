@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -24,7 +24,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override RenderCore OnCreateRenderCore() {
-                return new InstancingMeshRenderCore {ParameterBuffer = instanceParamBuffer};
+                return new InstancingMeshRenderCore { ParameterBuffer = instanceParamBuffer };
             }
 
             protected override bool OnAttach(IEffectsManager effectsManager) {
@@ -90,7 +90,7 @@ namespace HelixToolkit.SharpDX.Core {
                             isHit = false;
                             Matrix instanceMatrix;
                             foreach (var hit in boundHits) {
-                                var instanceIdx = (int) hit.Tag;
+                                var instanceIdx = (int)hit.Tag;
                                 instanceMatrix = InstanceBuffer.Elements[instanceIdx];
                                 var h = base.OnHitTest(context, TotalModelMatrixInternal * instanceMatrix, ref hits);
                                 isHit |= h;
@@ -115,7 +115,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return isHit;
             }
 
-        #region Properties
+            #region Properties
 
             private IList<Guid> instanceIdentifiers;
 
@@ -160,7 +160,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion
+            #endregion
         }
     }
 }

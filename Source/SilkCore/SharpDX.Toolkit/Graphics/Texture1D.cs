@@ -213,7 +213,7 @@ public class Texture1D : Texture1DBase {
         if (!(texture is Texture1D))
             throw new ArgumentException(string.Format("Texture is not type of [Texture1D] but [{0}]",
                                                       texture.GetType().Name));
-        return (Texture1D) texture;
+        return (Texture1D)texture;
     }
 
     /// <summary>
@@ -231,8 +231,7 @@ public class Texture1D : Texture1DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(device, stream, flags, usage);
-        }
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(device, stream, flags, usage);
     }
 }

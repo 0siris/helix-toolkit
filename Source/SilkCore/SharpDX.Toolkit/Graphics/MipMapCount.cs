@@ -68,7 +68,7 @@ public struct MipMapCount : IEquatable<MipMapCount> {
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj))
             return false;
-        return obj is MipMapCount && Equals((MipMapCount) obj);
+        return obj is MipMapCount && Equals((MipMapCount)obj);
     }
 
     /// <summary>

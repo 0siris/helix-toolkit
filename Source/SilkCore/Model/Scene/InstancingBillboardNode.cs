@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -27,14 +27,14 @@ namespace HelixToolkit.SharpDX.Core {
                 set => instanceParamBuffer.Elements = value;
             }
 
-        #region Overridable Methods
+            #region Overridable Methods
 
             /// <summary>
             ///     Called when [create render core].
             /// </summary>
             /// <returns></returns>
             protected override RenderCore OnCreateRenderCore() {
-                return new InstancingBillboardRenderCore {ParameterBuffer = instanceParamBuffer};
+                return new InstancingBillboardRenderCore { ParameterBuffer = instanceParamBuffer };
             }
 
             protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
@@ -56,7 +56,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDetach();
             }
 
-        #endregion
+            #endregion
         }
     }
 }

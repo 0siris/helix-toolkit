@@ -248,14 +248,14 @@ public static class CameraExtension {
 
         if (diagonal.LengthSquared.Equals(0)) return;
         if (camera is PerspectiveCameraCore pCore) {
-            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+            pCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
                               bounds,
                               out var pos,
                               out var look,
                               out var up);
             pCore.AnimateTo(pos, look, up, animationTime);
         } else if (camera is OrthographicCameraCore oCore) {
-            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+            oCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
                               bounds,
                               out var pos,
                               out var look,
@@ -293,9 +293,9 @@ public static class CameraExtension {
     ) {
         // var target = Camera.Position + Camera.LookDirection;
         if (camera is PerspectiveCameraCore pcam) {
-            var disth = radius / (float) Math.Tan(0.75 * pcam.FieldOfView * Math.PI / 180);
+            var disth = radius / (float)Math.Tan(0.75 * pcam.FieldOfView * Math.PI / 180);
             var vfov = pcam.FieldOfView / viewport.ViewportRectangle.Width * viewport.ViewportRectangle.Height;
-            var distv = radius / (float) Math.Tan(0.75 * vfov * Math.PI / 180);
+            var distv = radius / (float)Math.Tan(0.75 * vfov * Math.PI / 180);
 
             var dist = Math.Max(disth, distv);
             var dir = camera.LookDirection;
@@ -305,7 +305,7 @@ public static class CameraExtension {
             orth.LookAt(center, 0);
             var newWidth = radius * 2;
             if (viewport.ActualWidth > viewport.ActualHeight)
-                newWidth = radius * 2 * (float) (viewport.ActualWidth / viewport.ActualHeight);
+                newWidth = radius * 2 * (float)(viewport.ActualWidth / viewport.ActualHeight);
             orth.AnimateWidth(newWidth, animationTime);
         }
     }

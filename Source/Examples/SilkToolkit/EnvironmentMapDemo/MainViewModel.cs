@@ -6,17 +6,17 @@
 
 namespace EnvironmentMapDemo;
 
+using System.Collections.Generic;
 using DemoCore;
 using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using System.Collections.Generic;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Color = HelixToolkit.SharpDX.Core.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -27,9 +27,9 @@ public class MainViewModel : BaseViewModel {
     public Color4 DirectionalLightColor { get; private set; }
     public Color4 AmbientLightColor { get; private set; }
 
-    public List<Matrix> Instances1 { private set; get; } = new List<Matrix>();
-    public List<Matrix> Instances2 { private set; get; } = new List<Matrix>();
-    public List<Matrix> Instances3 { private set; get; } = new List<Matrix>();
+    public List<Matrix> Instances1 { private set; get; } = [];
+    public List<Matrix> Instances2 { private set; get; } = [];
+    public List<Matrix> Instances3 { private set; get; } = [];
     public PhongMaterial ModelMaterial1 { get; set; }
     public PhongMaterial ModelMaterial2 { get; set; }
     public PhongMaterial ModelMaterial3 { get; set; }
@@ -103,10 +103,11 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
+    [System.Obsolete]
     private void LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() {Faces = faces});
+        var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
         var model = objModel[0].Geometry as MeshGeometry3D;
         Model = model;
     }

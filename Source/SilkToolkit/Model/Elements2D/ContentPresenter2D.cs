@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
@@ -28,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 
             [Bindable(true)]
             public Element2D Content2D {
-                get => (Element2D) GetValue(Content2DProperty);
+                get => (Element2D)GetValue(Content2DProperty);
                 set => SetValue(Content2DProperty, value);
             }
 

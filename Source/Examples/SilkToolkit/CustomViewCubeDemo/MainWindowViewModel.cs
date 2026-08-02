@@ -1,5 +1,5 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using System.Linq;
+﻿using System.Linq;
+using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -33,6 +33,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         InitializeCoordinates();
     }
 
+    [Obsolete]
     private void InitializeModels() {
         var builder = new MeshBuilder();
         builder.AddBox(Vector3.Zero, 1, 1, 1);

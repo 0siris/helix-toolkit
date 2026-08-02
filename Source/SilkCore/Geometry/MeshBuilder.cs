@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MeshBuilder.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -12,14 +12,14 @@ using HelixToolkit.Wpf;
 
 namespace HelixToolkit.SharpDX.Core;
 
+using DoubleOrSingle = float;
+using Int32Collection = IntCollection;
 using Point = Vector2;
 using Point3D = Color3;
-using Vector3D = Color3;
-using Vector3DCollection = Vector3Collection;
 using Point3DCollection = Vector3Collection;
 using PointCollection = Vector2Collection;
-using Int32Collection = IntCollection;
-using DoubleOrSingle = float;
+using Vector3D = Color3;
+using Vector3DCollection = Vector3Collection;
 
 #pragma warning disable 0436
 /// <summary>
@@ -136,7 +136,7 @@ public enum MeshFaces {
 ///     </para>
 /// </remarks>
 public class MeshBuilder {
-#region Static and Const
+    #region Static and Const
 
     /// <summary>
     ///     'All curves should have the same number of points' exception message.
@@ -188,18 +188,18 @@ public class MeshBuilder {
     ///     The circle cache.
     /// </summary>
     private static readonly ThreadLocal<Dictionary<int, IList<Point>>> CircleCache =
-        new(() => new Dictionary<int, IList<Point>>());
+        new(() => []);
 
     /// <summary>
     ///     The closed circle cache.
     /// </summary>
     private static readonly ThreadLocal<Dictionary<int, IList<Point>>> ClosedCircleCache =
-        new(() => new Dictionary<int, IList<Point>>());
+        new(() => []);
 
-#endregion Static and Const
+    #endregion Static and Const
 
 
-#region Variables and Properties
+    #region Variables and Properties
 
     /// <summary>
     ///     The positions.
@@ -303,7 +303,7 @@ public class MeshBuilder {
     public bool CreateNormals {
         get => normals != null;
         set {
-            if (value && normals == null) normals = new Vector3DCollection();
+            if (value && normals == null) normals = [];
             if (!value) normals = null;
         }
     }
@@ -317,15 +317,15 @@ public class MeshBuilder {
     public bool CreateTextureCoordinates {
         get => textureCoordinates != null;
         set {
-            if (value && textureCoordinates == null) textureCoordinates = new PointCollection();
+            if (value && textureCoordinates == null) textureCoordinates = [];
             if (!value) textureCoordinates = null;
         }
     }
 
-#endregion Variables and Properties
+    #endregion Variables and Properties
 
 
-#region Constructors
+    #region Constructors
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MeshBuilder" /> class.
@@ -349,20 +349,20 @@ public class MeshBuilder {
     ///     Generate tangents.
     /// </param>
     public MeshBuilder(bool generateNormals = true, bool generateTexCoords = true, bool tangentSpace = false) {
-        positions = new Point3DCollection();
-        triangleIndices = new Int32Collection();
-        if (generateNormals) normals = new Vector3DCollection();
-        if (generateTexCoords) textureCoordinates = new PointCollection();
+        positions = [];
+        triangleIndices = [];
+        if (generateNormals) normals = [];
+        if (generateTexCoords) textureCoordinates = [];
         if (tangentSpace) {
-            tangents = new Vector3DCollection();
-            bitangents = new Vector3DCollection();
+            tangents = [];
+            bitangents = [];
         }
     }
 
-#endregion Constructors
+    #endregion Constructors
 
 
-#region Geometric Base Functions
+    #region Geometric Base Functions
 
     /// <summary>
     ///     Gets a circle section (cached).
@@ -382,19 +382,19 @@ public class MeshBuilder {
         Dictionary<int, IList<Point>> cache = null;
         IList<Point> circle;
         if (!IsCacheExists(ref cache, thetaDiv, closed, out circle)) {
-            circle = new List<Point> {Capacity = closed ? thetaDiv + 1 : thetaDiv};
+            circle = new List<Point> { Capacity = closed ? thetaDiv + 1 : thetaDiv };
             cache!.Add(thetaDiv, circle);
             // Determine the angle steps
-            var angle = (DoubleOrSingle) Math.PI * 2f / thetaDiv;
+            var angle = (DoubleOrSingle)Math.PI * 2f / thetaDiv;
             for (var i = 0; i < thetaDiv; i++)
-                circle.Add(new Point((DoubleOrSingle) Math.Cos(i * angle), -(DoubleOrSingle) Math.Sin(i * angle)));
+                circle.Add(new Point((DoubleOrSingle)Math.Cos(i * angle), -(DoubleOrSingle)Math.Sin(i * angle)));
             if (closed && circle.Count > 0) circle.Add(circle[0]);
         }
 
         // Since Vector2Collection is not Freezable,
         // return new IList<Vector> to avoid manipulation of the Cached Values
-        if (circle != null && circle.Count > 0) return new List<Point>(circle);
-        return new List<Point>();
+        if (circle != null && circle.Count > 0) return [.. circle];
+        return [];
 
         static bool IsCacheExists(
             ref Dictionary<int, IList<Point>> cache,
@@ -421,11 +421,11 @@ public class MeshBuilder {
     /// </returns>
     public static IList<Point> GetCircleSegment(int thetaDiv, double totalAngle = 2 * Math.PI, double angleOffset = 0) {
         IList<Point> circleSegment;
-        circleSegment = new PointCollection();
+        circleSegment = [];
         for (var i = 0; i < thetaDiv; i++) {
-            var theta = (DoubleOrSingle) totalAngle * ((DoubleOrSingle) i / (thetaDiv - 1)) +
-                        (DoubleOrSingle) angleOffset;
-            circleSegment.Add(new Point((DoubleOrSingle) Math.Cos(theta), (DoubleOrSingle) Math.Sin(theta)));
+            var theta = (DoubleOrSingle)totalAngle * ((DoubleOrSingle)i / (thetaDiv - 1)) +
+                        (DoubleOrSingle)angleOffset;
+            circleSegment.Add(new Point((DoubleOrSingle)Math.Cos(theta), (DoubleOrSingle)Math.Sin(theta)));
         }
 
         return circleSegment;
@@ -458,7 +458,7 @@ public class MeshBuilder {
             // angle
             p1.Normalize();
             p2.Normalize();
-            var a = (float) Math.Acos(SharedFunctions.DotProduct(ref p1, ref p2));
+            var a = (float)Math.Acos(SharedFunctions.DotProduct(ref p1, ref p2));
             n.Normalize();
             normals[i1] += a * n;
             normals[i2] += a * n;
@@ -548,7 +548,7 @@ public class MeshBuilder {
         for (var i = 0; i < positions.Count; i++) {
             var n = normals[i];
             var t = tan1[i];
-            t = t - n * SharedFunctions.DotProduct(ref n, ref t);
+            t -= n * SharedFunctions.DotProduct(ref n, ref t);
             t.Normalize();
             var b = SharedFunctions.CrossProduct(ref n, ref t);
             tangents.Add(t);
@@ -610,7 +610,7 @@ public class MeshBuilder {
         for (var i = 0; i < positions.Count; i++) {
             var n = normals[i];
             var t = tan1[i];
-            t = t - n * SharedFunctions.DotProduct(ref n, ref t);
+            t -= n * SharedFunctions.DotProduct(ref n, ref t);
             t.Normalize();
             var b = SharedFunctions.CrossProduct(ref n, ref t);
             tangents.Add(t);
@@ -649,10 +649,10 @@ public class MeshBuilder {
         }
     }
 
-#endregion Geometric Base Functions
+    #endregion Geometric Base Functions
 
 
-#region Add Geometry
+    #region Add Geometry
 
     /// <summary>
     ///     Adds an arrow to the mesh.
@@ -675,7 +675,7 @@ public class MeshBuilder {
     public void AddArrow(Point3D point1, Point3D point2, double diameter, double headLength = 3, int thetaDiv = 18) {
         var dir = point2 - point1;
         var length = SharedFunctions.Length(ref dir);
-        var r = (DoubleOrSingle) diameter / 2;
+        var r = (DoubleOrSingle)diameter / 2;
 
         var pc = new PointCollection {
             new Point(0, 0),
@@ -811,12 +811,12 @@ public class MeshBuilder {
             tc.Add(0);
         }
 
-        pc.Add(new Point(0, (DoubleOrSingle) baseRadius));
+        pc.Add(new Point(0, (DoubleOrSingle)baseRadius));
         tc.Add(1);
-        pc.Add(new Point((DoubleOrSingle) height, (DoubleOrSingle) topRadius));
+        pc.Add(new Point((DoubleOrSingle)height, (DoubleOrSingle)topRadius));
         tc.Add(0);
         if (topCap) {
-            pc.Add(new Point((DoubleOrSingle) height, 0));
+            pc.Add(new Point((DoubleOrSingle)height, 0));
             tc.Add(1);
         }
 
@@ -861,9 +861,9 @@ public class MeshBuilder {
     /// </param>
     public void AddCubeFace(Point3D center, Vector3D normal, Vector3D up, double dist, double width, double height) {
         var right = SharedFunctions.CrossProduct(ref normal, ref up);
-        var n = normal * (DoubleOrSingle) dist / 2;
-        up *= (DoubleOrSingle) height / 2;
-        right *= (DoubleOrSingle) width / 2;
+        var n = normal * (DoubleOrSingle)dist / 2;
+        up *= (DoubleOrSingle)height / 2;
+        right *= (DoubleOrSingle)width / 2;
         var p1 = center + n - up - right;
         var p2 = center + n - up + right;
         var p3 = center + n + up + right;
@@ -991,11 +991,11 @@ public class MeshBuilder {
 
         var right = SharedFunctions.CrossProduct(ref up, ref forward);
         // Distance from the Center to the Dodekaeder-Points
-        var radiusSphere = 0.25f * (DoubleOrSingle) Math.Sqrt(3) * (1 + (DoubleOrSingle) Math.Sqrt(5)) *
-                           (DoubleOrSingle) sideLength;
-        var radiusFace = 0.1f * (DoubleOrSingle) Math.Sqrt(50 + 10 * (DoubleOrSingle) Math.Sqrt(5)) *
-                         (DoubleOrSingle) sideLength;
-        var vectorDown = (DoubleOrSingle) Math.Sqrt(radiusSphere * radiusSphere - radiusFace * radiusFace);
+        var radiusSphere = 0.25f * (DoubleOrSingle)Math.Sqrt(3) * (1 + (DoubleOrSingle)Math.Sqrt(5)) *
+                           (DoubleOrSingle)sideLength;
+        var radiusFace = 0.1f * (DoubleOrSingle)Math.Sqrt(50 + 10 * (DoubleOrSingle)Math.Sqrt(5)) *
+                         (DoubleOrSingle)sideLength;
+        var vectorDown = (DoubleOrSingle)Math.Sqrt(radiusSphere * radiusSphere - radiusFace * radiusFace);
 
         // Add Points
         var baseCenter = center - up * vectorDown;
@@ -1009,7 +1009,7 @@ public class MeshBuilder {
         }
 
         // Angle of Projected Isosceles triangle
-        var gamma = (DoubleOrSingle) Math.Acos(1 - sideLength * sideLength / (2 * radiusSphere * radiusSphere));
+        var gamma = (DoubleOrSingle)Math.Acos(1 - sideLength * sideLength / (2 * radiusSphere * radiusSphere));
         // Base Upper Points
         foreach (var point in basePoints) {
             var baseCenterToPoint = point - baseCenter;
@@ -1017,9 +1017,9 @@ public class MeshBuilder {
             var centerToPoint = point - center;
             centerToPoint.Normalize();
             var tempRight = SharedFunctions.CrossProduct(ref up, ref baseCenterToPoint);
-            var newPoint = new Point3D(radiusSphere * (DoubleOrSingle) Math.Cos(gamma),
+            var newPoint = new Point3D(radiusSphere * (DoubleOrSingle)Math.Cos(gamma),
                                        0,
-                                       radiusSphere * (DoubleOrSingle) Math.Sin(gamma));
+                                       radiusSphere * (DoubleOrSingle)Math.Sin(gamma));
             var tempUp = SharedFunctions.CrossProduct(ref centerToPoint, ref tempRight);
             positions.Add(center + centerToPoint * newPoint.X + tempUp * newPoint.Z);
         }
@@ -1039,9 +1039,9 @@ public class MeshBuilder {
             var centerToPoint = point - center;
             centerToPoint.Normalize();
             var tempRight = SharedFunctions.CrossProduct(ref up, ref topCenterToPoint);
-            var newPoint = new Point3D(radiusSphere * (DoubleOrSingle) Math.Cos(gamma),
+            var newPoint = new Point3D(radiusSphere * (DoubleOrSingle)Math.Cos(gamma),
                                        0,
-                                       radiusSphere * (DoubleOrSingle) Math.Sin(gamma));
+                                       radiusSphere * (DoubleOrSingle)Math.Sin(gamma));
             var tempUp = SharedFunctions.CrossProduct(ref tempRight, ref centerToPoint);
             positions.Add(center + centerToPoint * newPoint.X + tempUp * newPoint.Z);
         }
@@ -1065,7 +1065,7 @@ public class MeshBuilder {
                 var cTPUpValue = SharedFunctions.DotProduct(ref centerToPoint, ref up);
                 var planeCTP = centerToPoint - up * cTPUpValue;
                 planeCTP.Normalize();
-                var u = (DoubleOrSingle) Math.Atan2(SharedFunctions.DotProduct(ref planeCTP, ref forward),
+                var u = (DoubleOrSingle)Math.Atan2(SharedFunctions.DotProduct(ref planeCTP, ref forward),
                                                     SharedFunctions.DotProduct(ref planeCTP, ref right));
                 var v = cTPUpValue * 0.5f + 0.5f;
                 textureCoordinates.Add(new Point(u, v));
@@ -1073,9 +1073,9 @@ public class MeshBuilder {
 
         // Add Faces
         // Base Polygon
-        AddPolygonByTriangulation(positions.Skip(positionsCount).Take(5).Select((p, i) => i).ToList());
+        AddPolygonByTriangulation([.. positions.Skip(positionsCount).Take(5).Select((p, i) => i)]);
         // Top Polygon
-        AddPolygonByTriangulation(positions.Skip(positionsCount + 15).Select((p, i) => 15 + i).ToList());
+        AddPolygonByTriangulation([.. positions.Skip(positionsCount + 15).Select((p, i) => 15 + i)]);
         // SidePolygons
         for (var i = 0; i < 5; i++) {
             // Polygon one
@@ -1088,13 +1088,13 @@ public class MeshBuilder {
             AddPolygonByTriangulation(pIndices);
 
             // Polygon two
-            pIndices = new List<int> {
+            pIndices = [
                 i + 15 + positionsCount,
                 i + 10 + positionsCount,
                 (5 - i + 2) % 5 + 5 + positionsCount,
                 (i + 1) % 5 + 10 + positionsCount,
                 (i + 1) % 5 + 15 + positionsCount
-            };
+            ];
             AddPolygonByTriangulation(pIndices);
         }
     }
@@ -1149,8 +1149,8 @@ public class MeshBuilder {
         int phiDiv = 10
     ) {
         var index0 = Positions.Count;
-        var dt = 2 * (DoubleOrSingle) Math.PI / thetaDiv;
-        var dp = (DoubleOrSingle) Math.PI / phiDiv;
+        var dt = 2 * (DoubleOrSingle)Math.PI / thetaDiv;
+        var dp = (DoubleOrSingle)Math.PI / phiDiv;
 
         for (var pi = 0; pi <= phiDiv; pi++) {
             var phi = pi * dp;
@@ -1161,13 +1161,13 @@ public class MeshBuilder {
 
                 // Spherical coordinates
                 // http://mathworld.wolfram.com/SphericalCoordinates.html
-                var x = (DoubleOrSingle) Math.Cos(theta) * (DoubleOrSingle) Math.Sin(phi);
-                var y = (DoubleOrSingle) Math.Sin(theta) * (DoubleOrSingle) Math.Sin(phi);
-                var z = (DoubleOrSingle) Math.Cos(phi);
+                var x = (DoubleOrSingle)Math.Cos(theta) * (DoubleOrSingle)Math.Sin(phi);
+                var y = (DoubleOrSingle)Math.Sin(theta) * (DoubleOrSingle)Math.Sin(phi);
+                var z = (DoubleOrSingle)Math.Cos(phi);
 
-                var p = new Point3D(center.X + (DoubleOrSingle) (radiusx * x),
-                                    center.Y + (DoubleOrSingle) (radiusy * y),
-                                    center.Z + (DoubleOrSingle) (radiusz * z));
+                var p = new Point3D(center.X + (DoubleOrSingle)(radiusx * x),
+                                    center.Y + (DoubleOrSingle)(radiusy * y),
+                                    center.Z + (DoubleOrSingle)(radiusz * z));
                 positions.Add(p);
 
                 if (normals != null) {
@@ -1176,7 +1176,7 @@ public class MeshBuilder {
                 }
 
                 if (textureCoordinates != null) {
-                    var uv = new Point(theta / (2 * (DoubleOrSingle) Math.PI), phi / (DoubleOrSingle) Math.PI);
+                    var uv = new Point(theta / (2 * (DoubleOrSingle)Math.PI), phi / (DoubleOrSingle)Math.PI);
                     textureCoordinates.Add(uv);
                 }
             }
@@ -1480,7 +1480,7 @@ public class MeshBuilder {
             }
 
             if (textureCoordinates != null) {
-                var v = (DoubleOrSingle) i / (points.Count - 1);
+                var v = (DoubleOrSingle)i / (points.Count - 1);
                 textureCoordinates.Add(new Point(0, v));
                 textureCoordinates.Add(new Point(1, v));
             }
@@ -1550,19 +1550,19 @@ public class MeshBuilder {
         }
 
         for (var i = 0; i + 1 < positionsList.Count; i++)
-        for (var j = 0; j + 1 < n; j++) {
-            var i0 = index0 + i * n + j;
-            var i1 = i0 + n;
-            var i2 = i1 + 1;
-            var i3 = i0 + 1;
-            triangleIndices.Add(i0);
-            triangleIndices.Add(i1);
-            triangleIndices.Add(i2);
+            for (var j = 0; j + 1 < n; j++) {
+                var i0 = index0 + i * n + j;
+                var i1 = i0 + n;
+                var i2 = i1 + 1;
+                var i3 = i0 + 1;
+                triangleIndices.Add(i0);
+                triangleIndices.Add(i1);
+                triangleIndices.Add(i2);
 
-            triangleIndices.Add(i2);
-            triangleIndices.Add(i3);
-            triangleIndices.Add(i0);
-        }
+                triangleIndices.Add(i2);
+                triangleIndices.Add(i3);
+                triangleIndices.Add(i0);
+            }
     }
 
     /// <summary>
@@ -1580,9 +1580,9 @@ public class MeshBuilder {
     public void AddNode(Point3D position, Vector3D normal, Point textureCoordinate) {
         positions.Add(position);
 
-        if (normals != null) normals.Add(normal);
+        normals?.Add(normal);
 
-        if (textureCoordinates != null) textureCoordinates.Add(textureCoordinate);
+        textureCoordinates?.Add(textureCoordinate);
     }
 
     /// <summary>
@@ -1596,9 +1596,9 @@ public class MeshBuilder {
     /// <remarks>See <a href="http://en.wikipedia.org/wiki/Octahedron">Octahedron</a>.</remarks>
     public void AddOctahedron(Point3D center, Vector3D forward, Vector3D up, double sideLength, double height) {
         var right = SharedFunctions.CrossProduct(ref forward, ref up);
-        var n = forward * (DoubleOrSingle) sideLength / 2;
-        up *= (DoubleOrSingle) height / 2;
-        right *= (DoubleOrSingle) sideLength / 2;
+        var n = forward * (DoubleOrSingle)sideLength / 2;
+        up *= (DoubleOrSingle)height / 2;
+        right *= (DoubleOrSingle)sideLength / 2;
 
         var p1 = center - n - up - right;
         var p2 = center - n - up + right;
@@ -1649,11 +1649,11 @@ public class MeshBuilder {
             new Point(height, (DoubleOrSingle) innerDiameter / 2)
         };
 
-        var tc = new List<double> {1, 0, 1, 0};
+        var tc = new List<double> { 1, 0, 1, 0 };
 
         if (innerDiameter > 0) {
             // Add the inner surface
-            pc.Add(new Point(0, (DoubleOrSingle) innerDiameter / 2));
+            pc.Add(new Point(0, (DoubleOrSingle)innerDiameter / 2));
             tc.Add(1);
         }
 
@@ -1808,9 +1808,9 @@ public class MeshBuilder {
         bool closeBase = false
     ) {
         var right = SharedFunctions.CrossProduct(ref forward, ref up);
-        var n = forward * (DoubleOrSingle) sideLength / 2;
-        up *= (DoubleOrSingle) height;
-        right *= (DoubleOrSingle) sideLength / 2;
+        var n = forward * (DoubleOrSingle)sideLength / 2;
+        up *= (DoubleOrSingle)height;
+        right *= (DoubleOrSingle)sideLength / 2;
 
         var down = -up * 1f / 3;
         var realup = up * 2f / 3;
@@ -1961,7 +1961,7 @@ public class MeshBuilder {
         IList<Vector3D> quadNormals,
         IList<Point> quadTextureCoordinates
     ) {
-        if (quadPositions == null) throw new ArgumentNullException(nameof(quadPositions));
+        quadPositions.AssertArgumentNotNull();
 
         if (normals != null && quadNormals == null) throw new ArgumentNullException(nameof(quadNormals));
 
@@ -2009,7 +2009,7 @@ public class MeshBuilder {
     ///     The number of columns in the rectangular mesh.
     /// </param>
     public void AddRectangularMesh(IList<Point3D> points, int columns) {
-        if (points == null) throw new ArgumentNullException(nameof(points));
+        points.AssertArgumentNotNull();
 
         var index0 = Positions.Count;
 
@@ -2040,18 +2040,18 @@ public class MeshBuilder {
     /// </param>
     public void AddRectangularMesh(
         Point3D[,] points,
-        Point[,] texCoords = null,
+        Point[,]? texCoords = null,
         bool closed0 = false,
         bool closed1 = false
     ) {
-        if (points == null) throw new ArgumentNullException(nameof(points));
+        points.AssertArgumentNotNull();
 
         var rows = points.GetUpperBound(0) + 1;
         var columns = points.GetUpperBound(1) + 1;
         var index0 = positions.Count;
         for (var i = 0; i < rows; i++)
-        for (var j = 0; j < columns; j++)
-            positions.Add(points[i, j]);
+            for (var j = 0; j < columns; j++)
+                positions.Add(points[i, j]);
 
         AddRectangularMeshTriangleIndices(index0, rows, columns, closed0, closed1);
 
@@ -2060,8 +2060,8 @@ public class MeshBuilder {
         if (textureCoordinates != null) {
             if (texCoords != null)
                 for (var i = 0; i < rows; i++)
-                for (var j = 0; j < columns; j++)
-                    textureCoordinates.Add(texCoords[i, j]);
+                    for (var j = 0; j < columns; j++)
+                        textureCoordinates.Add(texCoords[i, j]);
             else
                 AddRectangularMeshTextureCoordinates(rows, columns);
         }
@@ -2080,7 +2080,7 @@ public class MeshBuilder {
     ///     Flip the Triangles.
     /// </param>
     public void AddRectangularMesh(IList<Point3D> points, int columns, bool flipTriangles = false) {
-        if (points == null) throw new ArgumentNullException(nameof(points));
+        points.AssertArgumentNotNull();
 
         var index0 = positions.Count;
 
@@ -2127,13 +2127,13 @@ public class MeshBuilder {
         var index0 = positions.Count;
 
         // positions
-        var stepy = (DoubleOrSingle) height / (rows - 1);
-        var stepx = (DoubleOrSingle) width / (columns - 1);
+        var stepy = (DoubleOrSingle)height / (rows - 1);
+        var stepx = (DoubleOrSingle)width / (columns - 1);
         //rows++;
         //columns++;
         for (var y = 0; y < rows; y++)
-        for (var x = 0; x < columns; x++)
-            positions.Add(new Point3D(x * stepx, y * stepy, 0));
+            for (var x = 0; x < columns; x++)
+                positions.Add(new Point3D(x * stepx, y * stepy, 0));
 
         // indices
         if (flipTriangles)
@@ -2203,10 +2203,10 @@ public class MeshBuilder {
         bool flipColumnsAxis = false
     ) {
         for (var i = 0; i < rows; i++) {
-            var v = flipRowsAxis ? 1 - (DoubleOrSingle) i / (rows - 1) : (DoubleOrSingle) i / (rows - 1);
+            var v = flipRowsAxis ? 1 - (DoubleOrSingle)i / (rows - 1) : (DoubleOrSingle)i / (rows - 1);
 
             for (var j = 0; j < columns; j++) {
-                var u = flipColumnsAxis ? 1 - (DoubleOrSingle) j / (columns - 1) : (DoubleOrSingle) j / (columns - 1);
+                var u = flipColumnsAxis ? 1 - (DoubleOrSingle)j / (columns - 1) : (DoubleOrSingle)j / (columns - 1);
                 textureCoordinates.Add(new Point(u, v));
             }
         }
@@ -2229,20 +2229,20 @@ public class MeshBuilder {
     /// </param>
     public void AddRectangularMeshTriangleIndices(int index0, int rows, int columns, bool isSpherical = false) {
         for (var i = 0; i < rows - 1; i++)
-        for (var j = 0; j < columns - 1; j++) {
-            var ij = i * columns + j;
-            if (!isSpherical || i > 0) {
-                triangleIndices.Add(index0 + ij);
-                triangleIndices.Add(index0 + ij + 1 + columns);
-                triangleIndices.Add(index0 + ij + 1);
-            }
+            for (var j = 0; j < columns - 1; j++) {
+                var ij = i * columns + j;
+                if (!isSpherical || i > 0) {
+                    triangleIndices.Add(index0 + ij);
+                    triangleIndices.Add(index0 + ij + 1 + columns);
+                    triangleIndices.Add(index0 + ij + 1);
+                }
 
-            if (!isSpherical || i < rows - 2) {
-                triangleIndices.Add(index0 + ij + 1 + columns);
-                triangleIndices.Add(index0 + ij);
-                triangleIndices.Add(index0 + ij + columns);
+                if (!isSpherical || i < rows - 2) {
+                    triangleIndices.Add(index0 + ij + 1 + columns);
+                    triangleIndices.Add(index0 + ij);
+                    triangleIndices.Add(index0 + ij + columns);
+                }
             }
-        }
     }
 
     /// <summary>
@@ -2277,19 +2277,19 @@ public class MeshBuilder {
         if (rowsClosed) n2++;
 
         for (var i = 0; i < m2; i++)
-        for (var j = 0; j < n2; j++) {
-            var i00 = index0 + i * columns + j;
-            var i01 = index0 + i * columns + (j + 1) % columns;
-            var i10 = index0 + (i + 1) % rows * columns + j;
-            var i11 = index0 + (i + 1) % rows * columns + (j + 1) % columns;
-            triangleIndices.Add(i00);
-            triangleIndices.Add(i11);
-            triangleIndices.Add(i01);
+            for (var j = 0; j < n2; j++) {
+                var i00 = index0 + i * columns + j;
+                var i01 = index0 + i * columns + (j + 1) % columns;
+                var i10 = index0 + (i + 1) % rows * columns + j;
+                var i11 = index0 + (i + 1) % rows * columns + (j + 1) % columns;
+                triangleIndices.Add(i00);
+                triangleIndices.Add(i11);
+                triangleIndices.Add(i01);
 
-            triangleIndices.Add(i11);
-            triangleIndices.Add(i00);
-            triangleIndices.Add(i10);
-        }
+                triangleIndices.Add(i11);
+                triangleIndices.Add(i00);
+                triangleIndices.Add(i10);
+            }
     }
 
     /// <summary>
@@ -2309,20 +2309,20 @@ public class MeshBuilder {
     /// </param>
     private void AddRectangularMeshTriangleIndicesFlipped(int index0, int rows, int columns, bool isSpherical = false) {
         for (var i = 0; i < rows - 1; i++)
-        for (var j = 0; j < columns - 1; j++) {
-            var ij = i * columns + j;
-            if (!isSpherical || i > 0) {
-                triangleIndices.Add(index0 + ij);
-                triangleIndices.Add(index0 + ij + 1);
-                triangleIndices.Add(index0 + ij + 1 + columns);
-            }
+            for (var j = 0; j < columns - 1; j++) {
+                var ij = i * columns + j;
+                if (!isSpherical || i > 0) {
+                    triangleIndices.Add(index0 + ij);
+                    triangleIndices.Add(index0 + ij + 1);
+                    triangleIndices.Add(index0 + ij + 1 + columns);
+                }
 
-            if (!isSpherical || i < rows - 2) {
-                triangleIndices.Add(index0 + ij + 1 + columns);
-                triangleIndices.Add(index0 + ij + columns);
-                triangleIndices.Add(index0 + ij);
+                if (!isSpherical || i < rows - 2) {
+                    triangleIndices.Add(index0 + ij + 1 + columns);
+                    triangleIndices.Add(index0 + ij + columns);
+                    triangleIndices.Add(index0 + ij);
+                }
             }
-        }
     }
 
     /// <summary>
@@ -2342,8 +2342,8 @@ public class MeshBuilder {
     ///     <a href="http://www.gamedev.net/community/forums/topic.asp?topic_id=283350">link</a>.
     /// </remarks>
     public void AddRegularIcosahedron(Point3D center, double radius, bool shareVertices) {
-        var a = (DoubleOrSingle) Math.Sqrt(2.0 / (5.0 + Math.Sqrt(5.0)));
-        var b = (DoubleOrSingle) Math.Sqrt(2.0 / (5.0 - Math.Sqrt(5.0)));
+        var a = (DoubleOrSingle)Math.Sqrt(2.0 / (5.0 + Math.Sqrt(5.0)));
+        var b = (DoubleOrSingle)Math.Sqrt(2.0 / (5.0 - Math.Sqrt(5.0)));
 
         var icosahedronIndices = new[] {
             1, 4, 0, 4, 9, 0, 4, 5, 9, 8, 5, 4, 1, 8, 4, 1, 10, 8, 10, 3, 8, 8, 3, 5, 3, 2, 5, 3, 7, 2, 3, 10, 7,
@@ -2358,14 +2358,14 @@ public class MeshBuilder {
 
         if (shareVertices) {
             var index0 = positions.Count;
-            foreach (var v in icosahedronVertices) positions.Add(center + v * (DoubleOrSingle) radius);
+            foreach (var v in icosahedronVertices) positions.Add(center + v * (DoubleOrSingle)radius);
 
             foreach (var i in icosahedronIndices) triangleIndices.Add(index0 + i);
         } else {
             for (var i = 0; i + 2 < icosahedronIndices.Length; i += 3)
-                AddTriangle(center + icosahedronVertices[icosahedronIndices[i]] * (DoubleOrSingle) radius,
-                            center + icosahedronVertices[icosahedronIndices[i + 1]] * (DoubleOrSingle) radius,
-                            center + icosahedronVertices[icosahedronIndices[i + 2]] * (DoubleOrSingle) radius);
+                AddTriangle(center + icosahedronVertices[icosahedronIndices[i]] * (DoubleOrSingle)radius,
+                            center + icosahedronVertices[icosahedronIndices[i + 1]] * (DoubleOrSingle)radius,
+                            center + icosahedronVertices[icosahedronIndices[i + 2]] * (DoubleOrSingle)radius);
         }
     }
 
@@ -2431,14 +2431,14 @@ public class MeshBuilder {
                 }
 
                 if (textureCoordinates != null) {
-                    textureCoordinates.Add(new Point((DoubleOrSingle) i / (thetaDiv - 1),
+                    textureCoordinates.Add(new Point((DoubleOrSingle)i / (thetaDiv - 1),
                                                      textureValues == null
-                                                         ? (DoubleOrSingle) j / (n - 1)
-                                                         : (DoubleOrSingle) textureValues[j]));
-                    textureCoordinates.Add(new Point((DoubleOrSingle) i / (thetaDiv - 1),
+                                                         ? (DoubleOrSingle)j / (n - 1)
+                                                         : (DoubleOrSingle)textureValues[j]));
+                    textureCoordinates.Add(new Point((DoubleOrSingle)i / (thetaDiv - 1),
                                                      textureValues == null
-                                                         ? (DoubleOrSingle) (j + 1) / (n - 1)
-                                                         : (DoubleOrSingle) textureValues[j + 1]));
+                                                         ? (DoubleOrSingle)(j + 1) / (n - 1)
+                                                         : (DoubleOrSingle)textureValues[j + 1]));
                 }
 
                 var i0 = index0 + i * rowNodes + j * 2;
@@ -2492,7 +2492,7 @@ public class MeshBuilder {
         IList<Point> section,
         IList<int> sectionIndices,
         int thetaDiv = 36,
-        IList<double> textureValues = null
+        IList<double>? textureValues = null
     ) {
         if (textureCoordinates != null && textureValues == null) throw new ArgumentNullException(nameof(textureValues));
 
@@ -2520,11 +2520,10 @@ public class MeshBuilder {
                     normals.Add(normal);
                 }
 
-                if (textureCoordinates != null)
-                    textureCoordinates.Add(new Point((DoubleOrSingle) i / (thetaDiv - 1),
+                textureCoordinates?.Add(new Point((DoubleOrSingle)i / (thetaDiv - 1),
                                                      textureValues == null
-                                                         ? (DoubleOrSingle) j / (n - 1)
-                                                         : (DoubleOrSingle) textureValues[j]));
+                                                         ? (DoubleOrSingle)j / (n - 1)
+                                                         : (DoubleOrSingle)textureValues[j]));
             }
         }
 
@@ -2564,13 +2563,13 @@ public class MeshBuilder {
     public void AddTetrahedron(Point3D center, Vector3D forward, Vector3D up, double sideLength) {
         // Helper Variables
         var right = SharedFunctions.CrossProduct(ref up, ref forward);
-        var heightSphere = (DoubleOrSingle) Math.Sqrt(6) / 3 * (DoubleOrSingle) sideLength;
-        var radiusSphere = (DoubleOrSingle) Math.Sqrt(6) / 4 * (DoubleOrSingle) sideLength;
-        var heightFace = (DoubleOrSingle) Math.Sqrt(3) / 2 * (DoubleOrSingle) sideLength;
-        var radiusFace = (DoubleOrSingle) Math.Sqrt(3) / 3 * (DoubleOrSingle) sideLength;
+        var heightSphere = (DoubleOrSingle)Math.Sqrt(6) / 3 * (DoubleOrSingle)sideLength;
+        var radiusSphere = (DoubleOrSingle)Math.Sqrt(6) / 4 * (DoubleOrSingle)sideLength;
+        var heightFace = (DoubleOrSingle)Math.Sqrt(3) / 2 * (DoubleOrSingle)sideLength;
+        var radiusFace = (DoubleOrSingle)Math.Sqrt(3) / 3 * (DoubleOrSingle)sideLength;
         var smallHeightSphere = heightSphere - radiusSphere;
         var smallHeightFace = heightFace - radiusFace;
-        var halfLength = (DoubleOrSingle) sideLength * 0.5f;
+        var halfLength = (DoubleOrSingle)sideLength * 0.5f;
 
         // The Vertex Positions
         var p1 = center + forward * radiusFace - up * smallHeightSphere;
@@ -2611,9 +2610,9 @@ public class MeshBuilder {
             if (selfIntersecting) {
                 // Angle-Calculations for Circle Segment https://de.wikipedia.org/wiki/Gleichschenkliges_Dreieck
                 var angleIcoTriangle =
-                    (DoubleOrSingle) Math.Acos(1 - torusDiameter * torusDiameter /
+                    (DoubleOrSingle)Math.Acos(1 - torusDiameter * torusDiameter /
                                                (2 * (tubeDiameter * tubeDiameter * .25)));
-                var circleAngle = (DoubleOrSingle) Math.PI + angleIcoTriangle;
+                var circleAngle = (DoubleOrSingle)Math.PI + angleIcoTriangle;
                 var offset = -circleAngle / 2;
                 // The Cross-Section is defined by only a Segment of a Circle
                 crossSectionPoints = GetCircleSegment(phiDiv, circleAngle, offset);
@@ -2624,24 +2623,23 @@ public class MeshBuilder {
             }
 
             // Transform Crosssection to real Size
-            crossSectionPoints = crossSectionPoints.Select(p =>
-                                                               new Point(p.X * (DoubleOrSingle) tubeDiameter * .5f,
-                                                                         p.Y * (DoubleOrSingle) tubeDiameter * .5f))
-                                                   .ToList();
+            crossSectionPoints = [.. crossSectionPoints.Select(p =>
+                                                               new Point(p.X * (DoubleOrSingle)tubeDiameter * .5f,
+                                                                         p.Y * (DoubleOrSingle)tubeDiameter * .5f))];
             // Transform the Cross-Section Points to 3D Space
             var crossSection3DPoints = crossSectionPoints.Select(p => new Point3D(p.X, 0, p.Y)).ToList();
 
             // Add the needed Vertex-Positions of the Torus
             for (var i = 0; i < thetaDiv; i++) {
                 // Angle of the current Cross-Section in the XY-Plane
-                var angle = Math.PI * 2 * ((double) i / thetaDiv);
+                var angle = Math.PI * 2 * ((double)i / thetaDiv);
                 // Rotate the Cross-Section around the Origin by using the angle and the defined torusDiameter
                 var rotatedPoints = crossSection3DPoints.Select(p3D =>
                                                                     new Point3D(
-                                                                        (DoubleOrSingle) Math.Cos(angle) *
-                                                                        (DoubleOrSingle) (p3D.X + torusDiameter * .5f),
-                                                                        (DoubleOrSingle) Math.Sin(angle) *
-                                                                        (DoubleOrSingle) (p3D.X + torusDiameter * .5f),
+                                                                        (DoubleOrSingle)Math.Cos(angle) *
+                                                                        (DoubleOrSingle)(p3D.X + torusDiameter * .5f),
+                                                                        (DoubleOrSingle)Math.Sin(angle) *
+                                                                        (DoubleOrSingle)(p3D.X + torusDiameter * .5f),
                                                                         p3D.Z))
                                                         .ToList();
                 for (var j = 0; j < phiDiv; j++) {
@@ -2658,14 +2656,14 @@ public class MeshBuilder {
             if (normals != null)
                 for (var i = 0; i < thetaDiv; i++) {
                     // Transform the Cross-Section as well as the Origin of the Cross-Section
-                    var angle = Math.PI * 2 * ((double) i / thetaDiv);
+                    var angle = Math.PI * 2 * ((double)i / thetaDiv);
                     var rotatedPoints = crossSection3DPoints.Select(p3D =>
                                                                         new Point3D(
-                                                                            (DoubleOrSingle) Math.Cos(angle) *
-                                                                            (DoubleOrSingle) (p3D.X + torusDiameter *
+                                                                            (DoubleOrSingle)Math.Cos(angle) *
+                                                                            (DoubleOrSingle)(p3D.X + torusDiameter *
                                                                                         .5f),
-                                                                            (DoubleOrSingle) Math.Sin(angle) *
-                                                                            (DoubleOrSingle) (p3D.X + torusDiameter *
+                                                                            (DoubleOrSingle)Math.Sin(angle) *
+                                                                            (DoubleOrSingle)(p3D.X + torusDiameter *
                                                                                         .5f),
                                                                             p3D.Z))
                                                             .ToList();
@@ -2677,8 +2675,8 @@ public class MeshBuilder {
 
                     // Transform the Center of the Cross-Section
                     var rotatedOrigin =
-                        new Point3D((DoubleOrSingle) Math.Cos(angle) * (DoubleOrSingle) torusDiameter * .5f,
-                                    (DoubleOrSingle) Math.Sin(angle) * (DoubleOrSingle) torusDiameter * .5f,
+                        new Point3D((DoubleOrSingle)Math.Cos(angle) * (DoubleOrSingle)torusDiameter * .5f,
+                                    (DoubleOrSingle)Math.Sin(angle) * (DoubleOrSingle)torusDiameter * .5f,
                                     0);
                     // Add the Normal of the Vertex
                     for (var j = 0; j < rotatedPoints.Count; j++) {
@@ -2706,12 +2704,12 @@ public class MeshBuilder {
                     var numCS = selfIntersecting && i > 0 ? phiDiv - 2 : phiDiv;
                     for (var j = 0; j < numCS; j++) {
                         // Calculate u- and v- Coordinates for the Points
-                        var u = (DoubleOrSingle) i / thetaDiv;
+                        var u = (DoubleOrSingle)i / thetaDiv;
                         DoubleOrSingle v = 0;
                         if (i > 0 && selfIntersecting)
-                            v = (DoubleOrSingle) (j + 1) / phiDiv;
+                            v = (DoubleOrSingle)(j + 1) / phiDiv;
                         else
-                            v = (DoubleOrSingle) j / phiDiv;
+                            v = (DoubleOrSingle)j / phiDiv;
                         // Add the Texture-Coordinate
                         textureCoordinates.Add(new Point(u, v));
                     }
@@ -2766,8 +2764,9 @@ public class MeshBuilder {
             if (selfIntersecting) {
                 // Add bottom Cap by creating a List of Vertex-Indices
                 // and using them to create a Triangle-Fan
-                var verts = new List<int>();
-                verts.Add(0);
+                var verts = new List<int> {
+                    0
+                };
                 for (var i = 0; i < thetaDiv; i++)
                     if (i == 0)
                         verts.Add(1 + positionsCount);
@@ -2780,8 +2779,7 @@ public class MeshBuilder {
 
                 // Add top Cap by creating a List of Vertex-Indices
                 // and using them to create a Triangle-Fan
-                verts = new List<int>();
-                verts.Add(phiDiv - 1 + positionsCount);
+                verts = [phiDiv - 1 + positionsCount];
                 for (var i = 0; i < thetaDiv; i++)
                     if (i == 0)
                         verts.Add(phiDiv - 2 + positionsCount);
@@ -2898,8 +2896,8 @@ public class MeshBuilder {
     /// </param>
     public void AddTriangleFan(
         IList<Point3D> fanPositions,
-        IList<Vector3D> fanNormals = null,
-        IList<Point> fanTextureCoordinates = null
+        IList<Vector3D>? fanNormals = null,
+        IList<Point>? fanTextureCoordinates = null
     ) {
         if (positions == null) throw new ArgumentNullException(nameof(fanPositions));
 
@@ -2944,10 +2942,10 @@ public class MeshBuilder {
     /// </param>
     public void AddTriangles(
         IList<Point3D> trianglePositions,
-        IList<Vector3D> triangleNormals = null,
-        IList<Point> triangleTextureCoordinates = null
+        IList<Vector3D>? triangleNormals = null,
+        IList<Point>? triangleTextureCoordinates = null
     ) {
-        if (trianglePositions == null) throw new ArgumentNullException(nameof(trianglePositions));
+        trianglePositions.AssertArgumentNotNull();
 
         if (normals != null && triangleNormals == null) throw new ArgumentNullException(nameof(triangleNormals));
 
@@ -2994,10 +2992,10 @@ public class MeshBuilder {
     /// </remarks>
     public void AddTriangleStrip(
         IList<Point3D> stripPositions,
-        IList<Vector3D> stripNormals = null,
-        IList<Point> stripTextureCoordinates = null
+        IList<Vector3D>? stripNormals = null,
+        IList<Point>? stripTextureCoordinates = null
     ) {
-        if (stripPositions == null) throw new ArgumentNullException(nameof(stripPositions));
+        stripPositions.AssertArgumentNotNull();
 
         if (normals != null && stripNormals == null) throw new ArgumentNullException(nameof(stripNormals));
 
@@ -3099,7 +3097,7 @@ public class MeshBuilder {
         bool frontCap = false,
         bool backCap = false
     ) {
-        AddTube(path, null, new[] {diameter}, thetaDiv, isTubeClosed, frontCap, backCap);
+        AddTube(path, null, [diameter], thetaDiv, isTubeClosed, frontCap, backCap);
     }
 
     /// <summary>
@@ -3139,8 +3137,8 @@ public class MeshBuilder {
         bool frontCap = false,
         bool backCap = false
     ) {
-        if (path is null) throw new ArgumentNullException(nameof(path));
-        if (section is null) throw new ArgumentNullException(nameof(section));
+        path.AssertArgumentNotNull();
+        section.AssertArgumentNotNull();
 
         var pathLength = path.Count;
         var sectionLength = section.Count;
@@ -3164,7 +3162,7 @@ public class MeshBuilder {
         //*******************************
 
         for (var i = 0; i < pathLength; i++) {
-            var r = diameters != null ? (DoubleOrSingle) diameters[i % diametersCount] / 2 : 1;
+            var r = diameters != null ? (DoubleOrSingle)diameters[i % diametersCount] / 2 : 1;
             var i0 = i > 0 ? i - 1 : i;
             var i1 = i + 1 < pathLength ? i + 1 : i;
             var forward = path[i1] - path[i0];
@@ -3209,10 +3207,9 @@ public class MeshBuilder {
                     normals.Add(w);
                 }
 
-                if (textureCoordinates != null)
-                    textureCoordinates.Add(values != null
-                                               ? new Point((DoubleOrSingle) values[i % valuesCount],
-                                                           (DoubleOrSingle) j / (sectionLength - 1))
+                textureCoordinates?.Add(values != null
+                                               ? new Point((DoubleOrSingle)values[i % valuesCount],
+                                                           (DoubleOrSingle)j / (sectionLength - 1))
                                                : new Point());
             }
         }
@@ -3275,8 +3272,8 @@ public class MeshBuilder {
         bool frontCap = false,
         bool backCap = false
     ) {
-        if (path is null) throw new ArgumentNullException(nameof(path));
-        if (section is null) throw new ArgumentNullException(nameof(section));
+        path.AssertArgumentNotNull();
+        section.AssertArgumentNotNull();
 
         var pathLength = path.Count;
         var sectionLength = section.Count;
@@ -3301,11 +3298,11 @@ public class MeshBuilder {
         var anglesCount = angles != null ? angles.Count : 0;
 
         for (var i = 0; i < pathLength; i++) {
-            var radius = diameters != null ? (DoubleOrSingle) diameters[i % diametersCount] / 2 : 1;
-            var theta = angles != null ? (DoubleOrSingle) angles[i % anglesCount] : 0.0;
+            var radius = diameters != null ? (DoubleOrSingle)diameters[i % diametersCount] / 2 : 1;
+            var theta = angles != null ? (DoubleOrSingle)angles[i % anglesCount] : 0.0;
 
-            var ct = (DoubleOrSingle) Math.Cos(theta);
-            var st = (DoubleOrSingle) Math.Sin(theta);
+            var ct = (DoubleOrSingle)Math.Cos(theta);
+            var st = (DoubleOrSingle)Math.Sin(theta);
 
             var i0 = i > 0 ? i - 1 : i;
             var i1 = i + 1 < pathLength ? i + 1 : i;
@@ -3329,10 +3326,9 @@ public class MeshBuilder {
                     normals.Add(w);
                 }
 
-                if (textureCoordinates != null)
-                    textureCoordinates.Add(values != null
-                                               ? new Point((DoubleOrSingle) values[i % valuesCount],
-                                                           (DoubleOrSingle) j / (sectionLength - 1))
+                textureCoordinates?.Add(values != null
+                                               ? new Point((DoubleOrSingle)values[i % valuesCount],
+                                                           (DoubleOrSingle)j / (sectionLength - 1))
                                                : new Point());
             }
         }
@@ -3362,10 +3358,10 @@ public class MeshBuilder {
         }
     }
 
-#endregion Add Geometry
+    #endregion Add Geometry
 
 
-#region Helper Functions
+    #region Helper Functions
 
     /// <summary>
     ///     Appends the specified mesh.
@@ -3374,7 +3370,7 @@ public class MeshBuilder {
     ///     The mesh.
     /// </param>
     public void Append(MeshBuilder mesh) {
-        if (mesh == null) throw new ArgumentNullException(nameof(mesh));
+        mesh.AssertArgumentNotNull();
 
         Append(mesh.positions, mesh.triangleIndices, mesh.normals, mesh.textureCoordinates);
     }
@@ -3398,10 +3394,10 @@ public class MeshBuilder {
     public void Append(
         IList<Point3D> positionsToAppend,
         IList<int> triangleIndicesToAppend,
-        IList<Vector3D> normalsToAppend = null,
-        IList<Point> textureCoordinatesToAppend = null
+        IList<Vector3D>? normalsToAppend = null,
+        IList<Point>? textureCoordinatesToAppend = null
     ) {
-        if (positionsToAppend == null) throw new ArgumentNullException(nameof(positionsToAppend));
+        positionsToAppend.AssertArgumentNotNull();
 
         if (normals != null && normalsToAppend == null)
             throw new InvalidOperationException(SourceMeshNormalsShouldNotBeNull);
@@ -3444,7 +3440,7 @@ public class MeshBuilder {
     /// <param name="chamferPoints">
     ///     If this parameter is provided, the collection will be filled with the generated chamfer points.
     /// </param>
-    public void ChamferCorner(Point3D p, double d, double eps = 1e-6f, IList<Point3D> chamferPoints = null) {
+    public void ChamferCorner(Point3D p, double d, double eps = 1e-6f, IList<Point3D>? chamferPoints = null) {
         NoSharedVertices();
 
         normals = null;
@@ -3452,7 +3448,7 @@ public class MeshBuilder {
 
         var cornerNormal = FindCornerNormal(p, eps);
 
-        var newCornerPoint = p - cornerNormal * (DoubleOrSingle) d;
+        var newCornerPoint = p - cornerNormal * (DoubleOrSingle)d;
         var index0 = positions.Count;
         positions.Add(newCornerPoint);
 
@@ -3603,10 +3599,10 @@ public class MeshBuilder {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
         Vector3DCollection n = null;
-        if (normals != null) n = new Vector3DCollection();
+        if (normals != null) n = [];
 
         PointCollection tc = null;
-        if (textureCoordinates != null) tc = new PointCollection();
+        if (textureCoordinates != null) tc = [];
 
         for (var i = 0; i < triangleIndices.Count; i += 3) {
             var i0 = i;
@@ -3657,15 +3653,15 @@ public class MeshBuilder {
     /// </param>
     public void Scale(double scaleX, double scaleY, double scaleZ) {
         for (var i = 0; i < Positions.Count; i++)
-            Positions[i] = new Point3D(Positions[i].X * (DoubleOrSingle) scaleX,
-                                       Positions[i].Y * (DoubleOrSingle) scaleY,
-                                       Positions[i].Z * (DoubleOrSingle) scaleZ);
+            Positions[i] = new Point3D(Positions[i].X * (DoubleOrSingle)scaleX,
+                                       Positions[i].Y * (DoubleOrSingle)scaleY,
+                                       Positions[i].Z * (DoubleOrSingle)scaleZ);
 
         if (Normals != null)
             for (var i = 0; i < Normals.Count; i++) {
-                var v = new Vector3D(Normals[i].X * (DoubleOrSingle) scaleX,
-                                     Normals[i].Y * (DoubleOrSingle) scaleY,
-                                     Normals[i].Z * (DoubleOrSingle) scaleZ);
+                var v = new Vector3D(Normals[i].X * (DoubleOrSingle)scaleX,
+                                     Normals[i].Y * (DoubleOrSingle)scaleY,
+                                     Normals[i].Z * (DoubleOrSingle)scaleZ);
                 v.Normalize();
                 Normals[i] = v;
             }
@@ -3842,10 +3838,10 @@ public class MeshBuilder {
             Subdivide4();
     }
 
-#endregion Helper Functions
+    #endregion Helper Functions
 
 
-#region Exporter Functions
+    #region Exporter Functions
 
     /// <summary>
     ///     Generate a MeshGeometry3D from the generated Data.
@@ -3965,6 +3961,6 @@ public class MeshBuilder {
 
 #endif
 
-#endregion Exporter Functions
+    #endregion Exporter Functions
 }
 #pragma warning restore 0436

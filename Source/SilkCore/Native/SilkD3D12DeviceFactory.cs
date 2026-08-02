@@ -19,10 +19,10 @@ namespace HelixToolkit.SharpDX.Core {
                 ID3D12Device* nativeDevice = null;
                 var deviceGuid = ID3D12Device.Guid;
 
-                SilkMarshal.ThrowHResult(Api.CreateDevice((IUnknown*) null,
+                SilkMarshal.ThrowHResult(Api.CreateDevice((IUnknown*)null,
                                                           ToSilkFeatureLevel(minimumFeatureLevel),
                                                           ref deviceGuid,
-                                                          (void**) &nativeDevice));
+                                                          (void**)&nativeDevice));
 
                 return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel);
             }
@@ -33,7 +33,7 @@ namespace HelixToolkit.SharpDX.Core {
                     SilkFeatureLevel.Level_11_0 => D3DFeatureLevel.Level110,
                     SilkFeatureLevel.Level_10_1 => D3DFeatureLevel.Level101,
                     SilkFeatureLevel.Level_10_0 => D3DFeatureLevel.Level100,
-                    _                           => D3DFeatureLevel.Level110
+                    _ => D3DFeatureLevel.Level110
                 };
             }
         }

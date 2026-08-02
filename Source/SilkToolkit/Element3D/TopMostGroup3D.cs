@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
@@ -23,7 +23,7 @@ public class TopMostGroup3D : GroupModel3D {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as TopMostGroupNode)
-                                                                 .EnableTopMost = (bool) e.NewValue;
+                                                                 .EnableTopMost = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -33,7 +33,7 @@ public class TopMostGroup3D : GroupModel3D {
     ///     <c>true</c> if [enable top most mode]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableTopMost {
-        get => (bool) GetValue(EnableTopMostProperty);
+        get => (bool)GetValue(EnableTopMostProperty);
         set => SetValue(EnableTopMostProperty, value);
     }
 

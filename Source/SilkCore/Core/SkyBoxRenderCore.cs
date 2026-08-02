@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -12,9 +12,9 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
-        #region Default Mesh
+            #region Default Mesh
 
-            private static readonly Vector3Collection BoxPositions = new() {
+            private static readonly Vector3Collection BoxPositions = [
                 new Vector3(-10.0f, 10.0f, -10.0f),
                 new Vector3(-10.0f, -10.0f, -10.0f),
                 new Vector3(10.0f, -10.0f, -10.0f),
@@ -56,9 +56,9 @@ namespace HelixToolkit.SharpDX.Core {
                 new Vector3(10.0f, -10.0f, -10.0f),
                 new Vector3(-10.0f, -10.0f, 10.0f),
                 new Vector3(10.0f, -10.0f, 10.0f)
-            };
+            ];
 
-        #endregion
+            #endregion
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="SkyBoxRenderCore" /> class.
@@ -76,9 +76,10 @@ namespace HelixToolkit.SharpDX.Core {
                 if (base.OnAttach(technique)) {
                     DefaultShaderPass = technique[DefaultPassNames.Default];
                     OnDefaultPassChanged(DefaultShaderPass);
-                    skyBuffer = new SkyBoxBufferModel();
-                    skyBuffer.Geometry = new PointGeometry3D {Positions = BoxPositions};
-                    skyBuffer.Topology = PrimitiveTopology.TriangleList;
+                    skyBuffer = new SkyBoxBufferModel {
+                        Geometry = new PointGeometry3D { Positions = BoxPositions },
+                        Topology = PrimitiveTopology.TriangleList
+                    };
                     GeometryBuffer = skyBuffer;
                     UpdateTexture();
                     textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
@@ -180,7 +181,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region Variables
+            #region Variables
 
             private ShaderResourceViewProxy cubeTextureRes;
             private int cubeTextureSlot;
@@ -189,9 +190,9 @@ namespace HelixToolkit.SharpDX.Core {
             private ShaderPass DefaultShaderPass;
             private SkyBoxBufferModel skyBuffer;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private TextureModel cubeTexture;
 
@@ -256,7 +257,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public bool SkipRendering { get; set; }
 
-        #endregion
+            #endregion
         }
     }
 }

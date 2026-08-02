@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -160,7 +160,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return false;
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets the particle count.
@@ -548,9 +548,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public bool HasInstances => InstanceBuffer.HasElements;
 
-        #endregion
+            #endregion
 
-        #region IBoundable
+            #region IBoundable
 
             private BoundingBox originalBound = MaxBound;
             public override BoundingBox OriginalBounds => originalBound;
@@ -572,7 +572,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             protected volatile bool boundChanged = true;
 
-        #endregion
+            #endregion
         }
     }
 }

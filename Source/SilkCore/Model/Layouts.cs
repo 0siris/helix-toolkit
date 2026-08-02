@@ -115,7 +115,7 @@ public static class BoneMatricesStruct {
     //[MarshalAs(UnmanagedType.ByValArray, SizeConst = NumberOfBones)]
     //public Matrix[] Bones;
     //public const int SizeInBytes = 4 * (4 * 4 * NumberOfBones);
-    public static readonly Matrix[] DefaultBones = Enumerable.Repeat(Matrix.Identity, 1).ToArray();
+    public static readonly Matrix[] DefaultBones = [.. Enumerable.Repeat(Matrix.Identity, 1)];
 }
 
 /// <summary>
@@ -633,8 +633,8 @@ public struct UVTransform {
     ///     The result of the conversion.
     /// </returns>
     public static implicit operator Matrix(UVTransform uvTransform) {
-        var cos = (float) Math.Cos(uvTransform.Rotation);
-        var sine = (float) Math.Sin(uvTransform.Rotation);
+        var cos = (float)Math.Cos(uvTransform.Rotation);
+        var sine = (float)Math.Sin(uvTransform.Rotation);
         return new Matrix(cos * uvTransform.Scaling.X,
                           sine,
                           0,
@@ -668,7 +668,7 @@ public struct UVTransform {
     public static readonly UVTransform Identity = new(0, Vector2.One, Vector2.Zero);
 
     public float[] ToArray() {
-        return new[] {Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y};
+        return [Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y];
     }
 }
 

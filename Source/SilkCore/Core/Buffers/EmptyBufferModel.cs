@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -54,7 +54,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The vertex buffer.
             /// </value>
-            public IElementsBufferProxy[] VertexBuffer { get; } = new IElementsBufferProxy[0];
+            public IElementsBufferProxy[] VertexBuffer { get; } = [];
 
             /// <summary>
             ///     Gets the size of the vertex structure.

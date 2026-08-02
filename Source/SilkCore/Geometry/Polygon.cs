@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Polygon.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -28,7 +28,7 @@ public class Polygon {
     /// </summary>
     /// <value>The points.</value>
     public PointCollection Points {
-        get => points ?? (points = new PointCollection());
+        get => points ??= [];
 
         set => points = value;
     }

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
@@ -22,7 +22,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as
                                                               NodePostEffectMeshOutlineBlur).EffectName =
-                                                                 (string) e.NewValue;
+                                                                 (string)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -36,7 +36,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as
                                                               NodePostEffectMeshOutlineBlur).Color =
-                                                                 ((Color) e.NewValue).ToColor4();
+                                                                 ((Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -50,7 +50,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as
                                                               NodePostEffectMeshOutlineBlur).ScaleX =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -64,7 +64,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as
                                                               NodePostEffectMeshOutlineBlur).ScaleY =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -78,7 +78,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as
                                                               NodePostEffectMeshOutlineBlur).NumberOfBlurPass =
-                                                                 (int) e.NewValue;
+                                                                 (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -88,7 +88,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => (string) GetValue(EffectNameProperty);
+        get => (string)GetValue(EffectNameProperty);
         set => SetValue(EffectNameProperty, value);
     }
 
@@ -100,7 +100,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
     ///     The color.
     /// </value>
     public Color Color {
-        get => (Color) GetValue(ColorProperty);
+        get => (Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
@@ -112,7 +112,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
     ///     The scale x.
     /// </value>
     public double ScaleX {
-        get => (double) GetValue(ScaleXProperty);
+        get => (double)GetValue(ScaleXProperty);
         set => SetValue(ScaleXProperty, value);
     }
 
@@ -123,7 +123,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
     ///     The scale y.
     /// </value>
     public double ScaleY {
-        get => (double) GetValue(ScaleYProperty);
+        get => (double)GetValue(ScaleYProperty);
         set => SetValue(ScaleYProperty, value);
     }
 
@@ -134,7 +134,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
     ///     The number of blur pass.
     /// </value>
     public int NumberOfBlurPass {
-        get => (int) GetValue(NumberOfBlurPassProperty);
+        get => (int)GetValue(NumberOfBlurPassProperty);
         set => SetValue(NumberOfBlurPassProperty, value);
     }
 
@@ -147,8 +147,8 @@ public class PostEffectMeshOutlineBlur : Element3D {
         if (core is NodePostEffectMeshOutlineBlur c) {
             c.EffectName = EffectName;
             c.Color = Color.ToColor4();
-            c.ScaleX = (float) ScaleX;
-            c.ScaleY = (float) ScaleY;
+            c.ScaleX = (float)ScaleX;
+            c.ScaleY = (float)ScaleY;
             c.NumberOfBlurPass = NumberOfBlurPass;
         }
     }

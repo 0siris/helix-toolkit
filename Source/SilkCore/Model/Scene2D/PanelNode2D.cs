@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -8,10 +8,10 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core {
     namespace Model.Scene2D {
         public class PanelNode2D : SceneNode2D {
-            protected readonly Dictionary<Guid, SceneNode2D> itemHashSet = new();
+            protected readonly Dictionary<Guid, SceneNode2D> itemHashSet = [];
 
             public PanelNode2D() {
-                ItemsInternal = new ObservableFastList<SceneNode2D>();
+                ItemsInternal = [];
                 Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
             }
 

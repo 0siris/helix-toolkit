@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -10,7 +10,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core {
     namespace Core {
         public sealed class BoneUploaderCore : RenderCore {
-            private static readonly Matrix[] empty = new Matrix[0];
+            private static readonly Matrix[] empty = [];
             private Matrix[] boneMatrices = empty;
             public StructuredBufferProxy boneSkinSB;
             private bool matricesChanged = true;

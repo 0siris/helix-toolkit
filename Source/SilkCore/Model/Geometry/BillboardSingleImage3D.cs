@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -116,10 +116,9 @@ public class BillboardSingleImage3D : BillboardBase {
     /// <param name="imageStream">The image stream.</param>
     public BillboardSingleImage3D(Stream imageStream) {
         Texture = imageStream;
-        using (var image = Image.Load(imageStream)) {
-            Width = image.Description.Width;
-            Height = image.Description.Height;
-        }
+        using var image = Image.Load(imageStream);
+        Width = image.Description.Width;
+        Height = image.Description.Height;
     }
 
     /// <summary>
@@ -138,7 +137,7 @@ public class BillboardSingleImage3D : BillboardBase {
     ///     Updates the bounds.
     /// </summary>
     public override void UpdateBounds() {
-        BoundingSphere = new BoundingSphere(Center, (float) Math.Sqrt(Width * Width + Height * Height) / 2);
+        BoundingSphere = new BoundingSphere(Center, (float)Math.Sqrt(Width * Width + Height * Height) / 2);
         Bound = BoundingBox.FromSphere(BoundingSphere);
     }
 

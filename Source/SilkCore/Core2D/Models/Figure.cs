@@ -21,7 +21,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Closed = closed;
             }
 
-            private List<SegmentData> Segments { get; } = new();
+            private List<SegmentData> Segments { get; } = [];
 
             /// <summary>
             ///     Gets or sets a value indicating whether this <see cref="Figure" /> is closed.

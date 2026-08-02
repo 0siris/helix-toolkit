@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -28,8 +28,9 @@ namespace HelixToolkit.SharpDX.Core {
                 if (base.OnAttach(technique)) {
                     DefaultShaderPass = technique[DefaultPassNames.Default];
                     OnDefaultPassChanged(DefaultShaderPass);
-                    skyBuffer = new SkyDomeBufferModel();
-                    skyBuffer.Geometry = SphereMesh;
+                    skyBuffer = new SkyDomeBufferModel {
+                        Geometry = SphereMesh
+                    };
                     GeometryBuffer = skyBuffer;
                     UpdateTexture();
                     textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
@@ -115,7 +116,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region Default Mesh
+            #region Default Mesh
 
             private static readonly MeshGeometry3D SphereMesh;
 
@@ -125,9 +126,9 @@ namespace HelixToolkit.SharpDX.Core {
                 SphereMesh = builder.ToMesh();
             }
 
-        #endregion
+            #endregion
 
-        #region Variables
+            #region Variables
 
             private ShaderResourceViewProxy cubeTextureRes;
             private int cubeTextureSlot;
@@ -136,9 +137,9 @@ namespace HelixToolkit.SharpDX.Core {
             private ShaderPass DefaultShaderPass;
             private SkyDomeBufferModel skyBuffer;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private TextureModel cubeTexture;
 
@@ -203,7 +204,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public bool SkipRendering { get; set; }
 
-        #endregion
+            #endregion
         }
     }
 }

@@ -1,17 +1,17 @@
-﻿using DemoCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using HelixToolkit.Wpf.SharpDX;
 using System.Threading;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
+using System.Threading.Tasks;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Model;
-using Media3D = System.Windows.Media.Media3D;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace BatchedMeshDemo;
 
@@ -54,7 +54,7 @@ public class MainViewModel : BaseViewModel {
 
     public Material MainMaterial { get; } = PhongMaterials.White;
 
-    public Material SelectedMaterial { get; } = new PhongMaterial() {EmissiveColor = Color.Yellow};
+    public Material SelectedMaterial { get; } = new PhongMaterial() { EmissiveColor = Color.Yellow };
 
     public Geometry3D FloorModel { private set; get; }
 
@@ -68,7 +68,7 @@ public class MainViewModel : BaseViewModel {
             Position = new Point3D(0, 0, 200), LookDirection = new Vector3D(0, 0, -200),
             UpDirection = new Vector3D(0, 1, 0), FarPlaneDistance = 1000
         };
-        Task.Run(() => { LoadModels(); });
+        Task.Run(LoadModels);
         var builder = new MeshBuilder(true);
         builder.AddBox(new Vector3(0, -65, 0), 600, 1, 600);
         FloorModel = builder.ToMesh();
@@ -80,7 +80,7 @@ public class MainViewModel : BaseViewModel {
     private void LoadModels() {
         var models = Load3ds("Car.3DS");
         int count = 0;
-        Dictionary<MaterialCore, int> materialDict = new Dictionary<MaterialCore, int>();
+        Dictionary<MaterialCore, int> materialDict = [];
         //materialDict.Add(new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1) }, count);
         foreach (var model in models) {
             if (materialDict.ContainsKey(model.Material)) {
@@ -112,12 +112,13 @@ public class MainViewModel : BaseViewModel {
         }
 
         context.Post((o) => {
-                         BatchedMeshes = modelList;
-                         BatchedMaterials = materials;
-                     },
+            BatchedMeshes = modelList;
+            BatchedMaterials = materials;
+        },
                      null);
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
@@ -128,7 +129,7 @@ public class MainViewModel : BaseViewModel {
             var list = reader.Read(path);
             return list;
         } else {
-            return new List<Object3D>();
+            return [];
         }
     }
 }

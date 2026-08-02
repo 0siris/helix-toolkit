@@ -1,23 +1,23 @@
 namespace CrossSectionDemo;
 
 using System;
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Data;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
+using Media3D = System.Windows.Media.Media3D;
 using Plane = HelixToolkit.SharpDX.Core.Plane;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
@@ -79,7 +79,7 @@ public class MainViewModel : BaseViewModel {
     public int CuttingOperationIndex {
         set {
             if (SetValue(ref cuttingOperationIndex, value)) {
-                CuttingOperation = (CuttingOperation) value;
+                CuttingOperation = (CuttingOperation)value;
             }
         }
         get { return cuttingOperationIndex; }
@@ -120,13 +120,14 @@ public class MainViewModel : BaseViewModel {
         builder.AddBox(new Vector3(), 0.1, 40, 40);
         Plane2Model = builder.ToMeshGeometry3D();
 
-        FloorMaterial = new PhongMaterial();
-        FloorMaterial.DiffuseColor = new Color4(1f, 1f, 1f, 0.2f);
-        FloorMaterial.AmbientColor = new Color4(0, 0, 0, 0);
-        FloorMaterial.ReflectiveColor = new Color4(0, 0, 0, 0);
-        FloorMaterial.SpecularColor = new Color4(0, 0, 0, 0);
+        FloorMaterial = new PhongMaterial {
+            DiffuseColor = new Color4(1f, 1f, 1f, 0.2f),
+            AmbientColor = new Color4(0, 0, 0, 0),
+            ReflectiveColor = new Color4(0, 0, 0, 0),
+            SpecularColor = new Color4(0, 0, 0, 0)
+        };
 
-        PlaneMaterial = new PhongMaterial() {DiffuseColor = new Color4(0.1f, 0.1f, 0.8f, 0.2f)};
+        PlaneMaterial = new PhongMaterial() { DiffuseColor = new Color4(0.1f, 0.1f, 0.8f, 0.2f) };
 
         var landerItems = Load3ds("Car.3ds").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         Model = MeshGeometry3D.Merge(landerItems);
@@ -148,6 +149,7 @@ public class MainViewModel : BaseViewModel {
         BoxModel = meshBuilder.ToMeshGeometry3D();
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
@@ -158,7 +160,7 @@ public class MainViewModel : BaseViewModel {
             var list = reader.Read(path);
             return list;
         } else {
-            return new List<Object3D>();
+            return [];
         }
     }
 
@@ -170,9 +172,10 @@ public class MainViewModel : BaseViewModel {
         object viewModel,
         BindingMode mode = BindingMode.TwoWay
     ) {
-        var binding = new Binding(path);
-        binding.Source = viewModel;
-        binding.Mode = mode;
+        var binding = new Binding(path) {
+            Source = viewModel,
+            Mode = mode
+        };
         BindingOperations.SetBinding(dobj, property, binding);
     }
 

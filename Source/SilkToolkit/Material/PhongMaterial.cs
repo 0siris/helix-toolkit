@@ -22,10 +22,10 @@ public class PhongMaterial : Material {
         DependencyProperty.Register("AmbientColor",
                                     typeof(Color4),
                                     typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4) Color.Black,
+                                    new PropertyMetadata((Color4)Color.Black,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore).AmbientColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -36,10 +36,10 @@ public class PhongMaterial : Material {
         DependencyProperty.Register("DiffuseColor",
                                     typeof(Color4),
                                     typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4) Color.White,
+                                    new PropertyMetadata((Color4)Color.White,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore).DiffuseColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -48,10 +48,10 @@ public class PhongMaterial : Material {
         DependencyProperty.Register("EmissiveColor",
                                     typeof(Color4),
                                     typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4) Color.Black,
+                                    new PropertyMetadata((Color4)Color.Black,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore).EmissiveColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -60,10 +60,10 @@ public class PhongMaterial : Material {
         DependencyProperty.Register("SpecularColor",
                                     typeof(Color4),
                                     typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4) Color.Gray,
+                                    new PropertyMetadata((Color4)Color.Gray,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore).SpecularColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -75,7 +75,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(30f,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .SpecularShininess = (float) e.NewValue;
+                                                                 .SpecularShininess = (float)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -87,7 +87,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(new Color4(0.1f, 0.1f, 0.1f, 1.0f),
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .ReflectiveColor = (Color4) e.NewValue;
+                                                                 .ReflectiveColor = (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -175,7 +175,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(new Vector4(0, 0, 0, 1),
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .DisplacementMapScaleMask = (Vector4) e.NewValue;
+                                                                 .DisplacementMapScaleMask = (Vector4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -188,7 +188,7 @@ public class PhongMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
                                                                  .DiffuseMapSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -201,7 +201,7 @@ public class PhongMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
                                                                  .DisplacementMapSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -213,7 +213,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDiffuseMap = (bool) e.NewValue;
+                                                                 .RenderDiffuseMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -225,7 +225,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDiffuseAlphaMap = (bool) e.NewValue;
+                                                                 .RenderDiffuseAlphaMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -237,7 +237,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderNormalMap = (bool) e.NewValue;
+                                                                 .RenderNormalMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -249,7 +249,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderSpecularColorMap = (bool) e.NewValue;
+                                                                 .RenderSpecularColorMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -261,7 +261,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDisplacementMap = (bool) e.NewValue;
+                                                                 .RenderDisplacementMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -274,7 +274,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderEnvironmentMap = (bool) e.NewValue;
+                                                                 .RenderEnvironmentMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -287,7 +287,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderShadowMap = (bool) e.NewValue;
+                                                                 .RenderShadowMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -299,7 +299,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderEmissiveMap = (bool) e.NewValue;
+                                                                 .RenderEmissiveMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -312,7 +312,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .EnableAutoTangent = (bool) e.NewValue;
+                                                                 .EnableAutoTangent = (bool)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for VertexColorBlendingFactor.  This enables animation, styling, binding, etc...
@@ -324,7 +324,7 @@ public class PhongMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
                                                                  .VertexColorBlendingFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
 
@@ -337,7 +337,7 @@ public class PhongMaterial : Material {
         typeof(PhongMaterial),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Material).Core as PhongMaterialCore).EnableTessellation = (bool) e.NewValue;
+                                 ((d as Material).Core as PhongMaterialCore).EnableTessellation = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -351,7 +351,7 @@ public class PhongMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
                                                                  .MaxDistanceTessellationFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -365,7 +365,7 @@ public class PhongMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
                                                                  .MinDistanceTessellationFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -378,7 +378,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(50.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .MaxTessellationDistance = (float) (double) e.NewValue;
+                                                                 .MaxTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -391,7 +391,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .MinTessellationDistance = (float) (double) e.NewValue;
+                                                                 .MinTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -405,7 +405,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(UVTransform.Identity,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore).UVTransform =
-                                                                 (UVTransform) e.NewValue;
+                                                                 (UVTransform)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
@@ -415,7 +415,7 @@ public class PhongMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PhongMaterialCore)
-                                                                 .EnableFlatShading = (bool) e.NewValue;
+                                                                 .EnableFlatShading = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -472,7 +472,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool) GetValue(EnableFlatShadingProperty);
+        get => (bool)GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -482,7 +482,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AmbientColor {
-        get { return (Color4) GetValue(AmbientColorProperty); }
+        get { return (Color4)GetValue(AmbientColorProperty); }
         set { SetValue(AmbientColorProperty, value); }
     }
 
@@ -492,7 +492,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 DiffuseColor {
-        get { return (Color4) GetValue(DiffuseColorProperty); }
+        get { return (Color4)GetValue(DiffuseColorProperty); }
         set { SetValue(DiffuseColorProperty, value); }
     }
 
@@ -502,7 +502,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 EmissiveColor {
-        get { return (Color4) GetValue(EmissiveColorProperty); }
+        get { return (Color4)GetValue(EmissiveColorProperty); }
         set { SetValue(EmissiveColorProperty, value); }
     }
 
@@ -511,7 +511,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 ReflectiveColor {
-        get { return (Color4) GetValue(ReflectiveColorProperty); }
+        get { return (Color4)GetValue(ReflectiveColorProperty); }
         set { SetValue(ReflectiveColorProperty, value); }
     }
 
@@ -521,7 +521,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 SpecularColor {
-        get { return (Color4) GetValue(SpecularColorProperty); }
+        get { return (Color4)GetValue(SpecularColorProperty); }
         set { SetValue(SpecularColorProperty, value); }
     }
 
@@ -530,7 +530,7 @@ public class PhongMaterial : Material {
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
     public float SpecularShininess {
-        get => (float) GetValue(SpecularShininessProperty);
+        get => (float)GetValue(SpecularShininessProperty);
         set => SetValue(SpecularShininessProperty, value);
     }
 
@@ -539,87 +539,87 @@ public class PhongMaterial : Material {
     ///     to a 3-D model.
     /// </summary>
     public TextureModel DiffuseMap {
-        get => (TextureModel) GetValue(DiffuseMapProperty);
+        get => (TextureModel)GetValue(DiffuseMapProperty);
         set => SetValue(DiffuseMapProperty, value);
     }
 
 
     public TextureModel DiffuseAlphaMap {
-        get => (TextureModel) GetValue(DiffuseAlphaMapProperty);
+        get => (TextureModel)GetValue(DiffuseAlphaMapProperty);
         set => SetValue(DiffuseAlphaMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public TextureModel NormalMap {
-        get => (TextureModel) GetValue(NormalMapProperty);
+        get => (TextureModel)GetValue(NormalMapProperty);
         set => SetValue(NormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public TextureModel SpecularColorMap {
-        get => (TextureModel) GetValue(SpecularColorMapProperty);
+        get => (TextureModel)GetValue(SpecularColorMapProperty);
         set => SetValue(SpecularColorMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public TextureModel DisplacementMap {
-        get => (TextureModel) GetValue(DisplacementMapProperty);
+        get => (TextureModel)GetValue(DisplacementMapProperty);
         set => SetValue(DisplacementMapProperty, value);
     }
 
     public TextureModel EmissiveMap {
-        get => (TextureModel) GetValue(EmissiveMapProperty);
+        get => (TextureModel)GetValue(EmissiveMapProperty);
         set => SetValue(EmissiveMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DiffuseMapSampler {
-        get => (SamplerStateDescription) GetValue(DiffuseMapSamplerProperty);
+        get => (SamplerStateDescription)GetValue(DiffuseMapSamplerProperty);
         set => SetValue(DiffuseMapSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DisplacementMapSampler {
-        get => (SamplerStateDescription) GetValue(DisplacementMapSamplerProperty);
+        get => (SamplerStateDescription)GetValue(DisplacementMapSamplerProperty);
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get { return (Vector4) GetValue(DisplacementMapScaleMaskProperty); }
+        get { return (Vector4)GetValue(DisplacementMapScaleMaskProperty); }
         set { SetValue(DisplacementMapScaleMaskProperty, value); }
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseMap {
-        get => (bool) GetValue(RenderDiffuseMapProperty);
+        get => (bool)GetValue(RenderDiffuseMapProperty);
         set => SetValue(RenderDiffuseMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderNormalMap {
-        get => (bool) GetValue(RenderNormalMapProperty);
+        get => (bool)GetValue(RenderNormalMapProperty);
         set => SetValue(RenderNormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderSpecularColorMap {
-        get => (bool) GetValue(RenderSpecularColorMapProperty);
+        get => (bool)GetValue(RenderSpecularColorMapProperty);
         set => SetValue(RenderSpecularColorMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseAlphaMap {
-        get => (bool) GetValue(RenderDiffuseAlphaMapProperty);
+        get => (bool)GetValue(RenderDiffuseAlphaMapProperty);
         set => SetValue(RenderDiffuseAlphaMapProperty, value);
     }
 
@@ -627,7 +627,7 @@ public class PhongMaterial : Material {
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => (bool) GetValue(RenderDisplacementMapProperty);
+        get => (bool)GetValue(RenderDisplacementMapProperty);
         set => SetValue(RenderDisplacementMapProperty, value);
     }
 
@@ -638,7 +638,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [render environment map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEnvironmentMap {
-        get => (bool) GetValue(RenderEnvironmentMapProperty);
+        get => (bool)GetValue(RenderEnvironmentMapProperty);
         set => SetValue(RenderEnvironmentMapProperty, value);
     }
 
@@ -649,14 +649,14 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderShadowMap {
-        get => (bool) GetValue(RenderShadowMapProperty);
+        get => (bool)GetValue(RenderShadowMapProperty);
         set => SetValue(RenderShadowMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEmissiveMap {
-        get => (bool) GetValue(RenderEmissiveMapProperty);
+        get => (bool)GetValue(RenderEmissiveMapProperty);
         set => SetValue(RenderEmissiveMapProperty, value);
     }
 
@@ -667,7 +667,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => (bool) GetValue(EnableAutoTangentProperty);
+        get => (bool)GetValue(EnableAutoTangentProperty);
         set => SetValue(EnableAutoTangentProperty, value);
     }
 
@@ -678,7 +678,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable tessellation]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableTessellation {
-        get => (bool) GetValue(EnableTessellationProperty);
+        get => (bool)GetValue(EnableTessellationProperty);
         set => SetValue(EnableTessellationProperty, value);
     }
 
@@ -689,7 +689,7 @@ public class PhongMaterial : Material {
     ///     The maximum tessellation factor.
     /// </value>
     public double MaxDistanceTessellationFactor {
-        get => (double) GetValue(MaxDistanceTessellationFactorProperty);
+        get => (double)GetValue(MaxDistanceTessellationFactorProperty);
         set => SetValue(MaxDistanceTessellationFactorProperty, value);
     }
 
@@ -700,7 +700,7 @@ public class PhongMaterial : Material {
     ///     The minimum tessellation factor.
     /// </value>
     public double MinDistanceTessellationFactor {
-        get => (double) GetValue(MinDistanceTessellationFactorProperty);
+        get => (double)GetValue(MinDistanceTessellationFactorProperty);
         set => SetValue(MinDistanceTessellationFactorProperty, value);
     }
 
@@ -711,7 +711,7 @@ public class PhongMaterial : Material {
     ///     The maximum tessellation distance.
     /// </value>
     public double MaxTessellationDistance {
-        get => (double) GetValue(MaxTessellationDistanceProperty);
+        get => (double)GetValue(MaxTessellationDistanceProperty);
         set => SetValue(MaxTessellationDistanceProperty, value);
     }
 
@@ -722,7 +722,7 @@ public class PhongMaterial : Material {
     ///     The minimum tessellation distance.
     /// </value>
     public double MinTessellationDistance {
-        get => (double) GetValue(MinTessellationDistanceProperty);
+        get => (double)GetValue(MinTessellationDistanceProperty);
         set => SetValue(MinTessellationDistanceProperty, value);
     }
 
@@ -733,7 +733,7 @@ public class PhongMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => (UVTransform) GetValue(UVTransformProperty);
+        get => (UVTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -745,7 +745,7 @@ public class PhongMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double) GetValue(VertexColorBlendingFactorProperty);
+        get => (double)GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
@@ -767,10 +767,10 @@ public class PhongMaterial : Material {
             DisplacementMapScaleMask = DisplacementMapScaleMask,
             DiffuseMapSampler = DiffuseMapSampler,
             DisplacementMapSampler = DisplacementMapSampler,
-            MaxTessellationDistance = (float) MaxTessellationDistance,
-            MinTessellationDistance = (float) MinTessellationDistance,
-            MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
+            MaxTessellationDistance = (float)MaxTessellationDistance,
+            MinTessellationDistance = (float)MinTessellationDistance,
+            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
             EnableTessellation = EnableTessellation,
             RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
             RenderDiffuseMap = RenderDiffuseMap,
@@ -809,10 +809,10 @@ public class PhongMaterial : Material {
             DisplacementMapScaleMask = DisplacementMapScaleMask,
             DiffuseMapSampler = DiffuseMapSampler,
             DisplacementMapSampler = DisplacementMapSampler,
-            MaxTessellationDistance = (float) MaxTessellationDistance,
-            MinTessellationDistance = (float) MinTessellationDistance,
-            MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
+            MaxTessellationDistance = (float)MaxTessellationDistance,
+            MinTessellationDistance = (float)MinTessellationDistance,
+            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
             EnableTessellation = EnableTessellation,
             RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
             RenderDiffuseMap = RenderDiffuseMap,
@@ -825,7 +825,7 @@ public class PhongMaterial : Material {
             EnableAutoTangent = EnableAutoTangent,
             UVTransform = UVTransform,
             EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float) VertexColorBlendingFactor
+            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
         };
     }
 }

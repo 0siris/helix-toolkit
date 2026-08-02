@@ -37,7 +37,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="sampleMask">The sample mask.</param>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetBlendState(BlendStateProxy blendState, Color4? blendFactor = null, int sampleMask = -1) {
-                var mask = sampleMask == -1 ? uint.MaxValue : unchecked((uint) sampleMask);
+                var mask = sampleMask == -1 ? uint.MaxValue : unchecked((uint)sampleMask);
                 if (AutoSkipRedundantStateSetting && currBlendState == blendState && blendFactor == currBlendFactor &&
                     currSampleMask == mask) return;
                 NativeContext.SetBlendState(blendState?.State, blendFactor, mask);

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <typeparam name="VertexStruct">The type of the ertex structure.</typeparam>
         public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, IBillboardBufferModel
             where VertexStruct : unmanaged {
-            private static readonly VertexStruct[] emptyVerts = new VertexStruct[0];
+            private static readonly VertexStruct[] emptyVerts = [];
 
             private TextureModel texture;
 

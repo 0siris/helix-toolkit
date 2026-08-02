@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -123,7 +123,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Geometry = null;
             }
 
-        #region Properties
+            #region Properties
 
             private Geometry3D geometry;
 
@@ -137,7 +137,7 @@ namespace HelixToolkit.SharpDX.Core {
                     geometry = value;
                     if (geometry != null && geometry.Bound.Maximum == Vector3.Zero &&
                         geometry.Bound.Minimum == Vector3.Zero) geometry.UpdateBounds();
-                    if (old != null) old.PropertyChanged -= OnGeometryPropertyChangedPrivate;
+                    old?.PropertyChanged -= OnGeometryPropertyChangedPrivate;
                     if (geometry != null) {
                         geometry.PropertyChanged += OnGeometryPropertyChangedPrivate;
                         OriginalBounds = geometry.Bound;
@@ -166,7 +166,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public bool GeometryValid { get; private set; }
 
-        #region Bounds
+            #region Bounds
 
             public static readonly BoundingBox DefaultBound = new();
             public static readonly BoundingSphere DefaultBoundSphere = new();
@@ -224,11 +224,11 @@ namespace HelixToolkit.SharpDX.Core {
 
             public bool HasBound { get; set; } = true;
 
-        #endregion
+            #endregion
 
-        #endregion
+            #endregion
 
-        #region Events and Delegates
+            #region Events and Delegates
 
             public event EventHandler<BoundChangeArgs<BoundingBox>> OnBoundChanged;
 
@@ -266,16 +266,16 @@ namespace HelixToolkit.SharpDX.Core {
                                                  ref oldBoundSphere));
             }
 
-        #endregion
+            #endregion
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
             private void Dispose(bool disposing) {
                 if (!disposedValue) {
                     if (disposing) {
-                        if (geometry != null) geometry.PropertyChanged -= OnGeometryPropertyChangedPrivate;
+                        geometry?.PropertyChanged -= OnGeometryPropertyChangedPrivate;
                         if (elementCore.TryGetTarget(out var target)) target.TransformChanged -= OnTransformChanged;
                         OnBoundChanged = null;
                         OnTransformBoundChanged = null;
@@ -304,7 +304,7 @@ namespace HelixToolkit.SharpDX.Core {
                 // GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

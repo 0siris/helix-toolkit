@@ -14,7 +14,7 @@ public static class ViewportExtensions {
         if (viewport.CameraCore is PerspectiveCameraCore pcamera) {
             var fov = pcamera.FieldOfView;
             var d = pcamera.LookDirection.Length;
-            var r = d * (float) Math.Tan(0.5f * fov / 180 * Math.PI);
+            var r = d * (float)Math.Tan(0.5f * fov / 180 * Math.PI);
 
             fov *= 1f + delta * 0.5f;
             if (fov < controller.MinimumFieldOfView) fov = controller.MinimumFieldOfView;
@@ -22,7 +22,7 @@ public static class ViewportExtensions {
             if (fov > controller.MaximumFieldOfView) fov = controller.MaximumFieldOfView;
 
             pcamera.FieldOfView = fov;
-            var d2 = r / (float) Math.Tan(0.5f * fov / 180 * Math.PI);
+            var d2 = r / (float)Math.Tan(0.5f * fov / 180 * Math.PI);
             var newLookDirection = pcamera.LookDirection;
             newLookDirection = newLookDirection.Normalized();
             newLookDirection *= d2;

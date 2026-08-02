@@ -89,11 +89,11 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public static implicit operator UnorderedAccessView(UAVBufferViewProxy proxy) {
-                return proxy == null ? null : proxy.uav;
+                return proxy?.uav;
             }
 
             public static implicit operator ShaderResourceViewProxy(UAVBufferViewProxy proxy) {
-                return proxy == null ? null : proxy.srv;
+                return proxy?.srv;
             }
 
             [SuppressMessage("Microsoft.Usage",

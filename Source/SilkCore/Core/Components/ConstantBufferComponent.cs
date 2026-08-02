@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -15,7 +15,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public sealed class ConstantBufferComponent : CoreComponent {
-            private static readonly ILogger logger = LogManager.Create<ConstantBufferComponent>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private readonly ConstantBufferDescription bufferDesc;
             private readonly object lck = new();
             private bool IsValid;
@@ -111,8 +111,8 @@ namespace HelixToolkit.SharpDX.Core {
 
                         var box = ModelConstBuffer.Map(deviceContext);
                         unsafe {
-                            var pBuf = (byte*) box.DataPointer.ToPointer();
-                            *(T*) pBuf = data;
+                            var pBuf = (byte*)box.DataPointer.ToPointer();
+                            *(T*)pBuf = data;
                         }
 
                         ModelConstBuffer.Unmap(deviceContext);
@@ -148,7 +148,7 @@ namespace HelixToolkit.SharpDX.Core {
                                 throw new ArgumentException(
                                     $"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
 #else
-                                logger.LogWarning("Variable not found in constant buffer {0}. Variable = {1}", bufferDesc.Name, name);
+                                Logger.Warn("Variable not found in constant buffer {Value0}. Variable = {Value1}", bufferDesc.Name, name);
 #endif
                             }
                         }
@@ -179,7 +179,7 @@ namespace HelixToolkit.SharpDX.Core {
                             throw new ArgumentException(
                                 $"Variable not found in constant buffer {bufferDesc.Name}. Variable = {name}");
 #else
-                                logger.LogWarning("Variable not found in constant buffer {0}. Variable = {1}", bufferDesc.Name, name);
+                                Logger.Warn("Variable not found in constant buffer {Value0}. Variable = {Value1}", bufferDesc.Name, name);
                                 value = v;
                                 return false;
 #endif

@@ -355,8 +355,8 @@ public enum TextureDataType {
 ///     Stream texture data.
 /// </summary>
 public sealed class TextureInfo {
-    private static readonly byte[] emptyBytes = new byte[0];
-    private static readonly Color4[] emptyColor4 = new Color4[0];
+    private static readonly byte[] emptyBytes = [];
+    private static readonly Color4[] emptyColor4 = [];
 
     private TextureInfo() { }
 

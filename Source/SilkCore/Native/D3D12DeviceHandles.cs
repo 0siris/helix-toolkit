@@ -26,7 +26,7 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
         FeatureLevel = featureLevel;
     }
 
-    public nint NativePointer => (nint) nativeDevice.Handle;
+    public nint NativePointer => (nint)nativeDevice.Handle;
 
     internal ID3D12Device* Handle => nativeDevice.Handle;
 
@@ -41,7 +41,7 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
     ) {
         var desc = new CommandQueueDesc {
             Type = type,
-            Priority = (int) CommandQueuePriority.Normal,
+            Priority = (int)CommandQueuePriority.Normal,
             Flags = CommandQueueFlags.None,
             NodeMask = 0
         };
@@ -119,7 +119,7 @@ public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
         this.nativeQueue = nativeQueue;
     }
 
-    public nint NativePointer => (nint) nativeQueue.Handle;
+    public nint NativePointer => (nint)nativeQueue.Handle;
 
     internal ID3D12CommandQueue* Handle => nativeQueue.Handle;
 
@@ -128,7 +128,7 @@ public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
     public bool IsDisposed { get; private set; }
 
     public ulong Signal(SilkD3D12Fence fence) {
-        if (fence == null) throw new ArgumentNullException(nameof(fence));
+        fence.AssertArgumentNotNull();
 
         var value = fence.NextValue();
         SilkMarshal.ThrowHResult(nativeQueue.Signal(fence.NativeFence, value));
@@ -152,7 +152,7 @@ public sealed unsafe class SilkD3D12RootSignature : IDisposable {
         this.nativeRootSignature = nativeRootSignature;
     }
 
-    public nint NativePointer => (nint) nativeRootSignature.Handle;
+    public nint NativePointer => (nint)nativeRootSignature.Handle;
 
     internal ID3D12RootSignature* Handle => nativeRootSignature.Handle;
 
@@ -183,9 +183,9 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         this.commandList = commandList;
     }
 
-    public nint AllocatorPointer => (nint) commandAllocator.Handle;
+    public nint AllocatorPointer => (nint)commandAllocator.Handle;
 
-    public nint CommandListPointer => (nint) commandList.Handle;
+    public nint CommandListPointer => (nint)commandList.Handle;
 
     internal ref SilkD3D12CommandAllocatorPtr CommandAllocator => ref commandAllocator;
 
@@ -222,7 +222,7 @@ public sealed unsafe class SilkD3D12Fence : IDisposable {
         currentValue = initialValue;
     }
 
-    public nint NativePointer => (nint) nativeFence.Handle;
+    public nint NativePointer => (nint)nativeFence.Handle;
 
     internal ID3D12Fence* Handle => nativeFence.Handle;
 

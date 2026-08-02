@@ -80,8 +80,8 @@ namespace HelixToolkit.SharpDX.Core {
                 lightScene.LightModels.Lights[index].LightDir =
                     SilkMath.TransformNormal(direction, ModelMatrix).Normalized().ToVector4(0);
                 lightScene.LightModels.Lights[index].LightSpot = new Vector4(
-                    (float) Math.Cos(outerAngle / 360.0f * Math.PI),
-                    (float) Math.Cos(innerAngle / 360.0f * Math.PI),
+                    (float)Math.Cos(outerAngle / 360.0f * Math.PI),
+                    (float)Math.Cos(innerAngle / 360.0f * Math.PI),
                     fallOff,
                     0);
             }

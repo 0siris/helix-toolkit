@@ -195,10 +195,10 @@ namespace HelixToolkit.SharpDX.Core {
 
     public struct Half4 {
         public Half4(float x, float y, float z, float w) {
-            X = (Half) x;
-            Y = (Half) y;
-            Z = (Half) z;
-            W = (Half) w;
+            X = (Half)x;
+            Y = (Half)y;
+            Z = (Half)z;
+            W = (Half)w;
         }
 
         public Half X;
@@ -221,12 +221,12 @@ namespace HelixToolkit.SharpDX.Core {
 
         internal Box ToSilkBox() {
             return new Box {
-                Left = (uint) Left,
-                Top = (uint) Top,
-                Front = (uint) Front,
-                Right = (uint) Right,
-                Bottom = (uint) Bottom,
-                Back = (uint) Back
+                Left = (uint)Left,
+                Top = (uint)Top,
+                Front = (uint)Front,
+                Right = (uint)Right,
+                Bottom = (uint)Bottom,
+                Back = (uint)Back
             };
         }
     }
@@ -259,7 +259,7 @@ namespace HelixToolkit.SharpDX.Core {
             where T : unmanaged {
             if (DataPointer == nint.Zero) return default;
 
-            var value = *(T*) (DataPointer + Position);
+            var value = *(T*)(DataPointer + Position);
             Position += sizeof(T);
             return value;
         }
@@ -274,7 +274,7 @@ namespace HelixToolkit.SharpDX.Core {
             this.nativeResource = nativeResource;
         }
 
-        public virtual nint NativePointer => (nint) nativeResource.Handle;
+        public virtual nint NativePointer => (nint)nativeResource.Handle;
 
         internal virtual ID3D11Resource* Handle => nativeResource.Handle;
 
@@ -307,9 +307,9 @@ namespace HelixToolkit.SharpDX.Core {
 
         internal ID3D11Buffer* BufferHandle => nativeBuffer.Handle;
 
-        public override nint NativePointer => (nint) nativeBuffer.Handle;
+        public override nint NativePointer => (nint)nativeBuffer.Handle;
 
-        internal override ID3D11Resource* Handle => (ID3D11Resource*) nativeBuffer.Handle;
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeBuffer.Handle;
 
         internal ref SilkD3D11BufferPtr NativeBuffer => ref nativeBuffer;
 
@@ -320,7 +320,7 @@ namespace HelixToolkit.SharpDX.Core {
         public static Buffer Create<T>(DeviceContextProxy context, T[] data, BufferDescription description)
             where T : unmanaged {
             fixed (T* dataPtr = data) {
-                return new Buffer(context, (nint) dataPtr, description);
+                return new Buffer(context, (nint)dataPtr, description);
             }
         }
 
@@ -347,9 +347,9 @@ namespace HelixToolkit.SharpDX.Core {
 
         internal ID3D11Texture1D* TextureHandle => nativeTexture.Handle;
 
-        public override nint NativePointer => (nint) nativeTexture.Handle;
+        public override nint NativePointer => (nint)nativeTexture.Handle;
 
-        internal override ID3D11Resource* Handle => (ID3D11Resource*) nativeTexture.Handle;
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
 
         internal NativeD3DDevice Device { get; }
 
@@ -379,9 +379,9 @@ namespace HelixToolkit.SharpDX.Core {
 
         internal ID3D11Texture2D* TextureHandle => nativeTexture.Handle;
 
-        public override nint NativePointer => (nint) nativeTexture.Handle;
+        public override nint NativePointer => (nint)nativeTexture.Handle;
 
-        internal override ID3D11Resource* Handle => (ID3D11Resource*) nativeTexture.Handle;
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
 
         internal NativeD3DDevice Device { get; }
 
@@ -390,11 +390,11 @@ namespace HelixToolkit.SharpDX.Core {
         public nint GetSharedHandle() {
             IDXGIResource* resource = null;
             var resourceGuid = DxgiResourceGuid;
-            SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**) &resource));
+            SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**)&resource));
             try {
                 void* sharedHandle = null;
                 SilkMarshal.ThrowHResult(resource->GetSharedHandle(&sharedHandle));
-                return (nint) sharedHandle;
+                return (nint)sharedHandle;
             } finally {
                 resource->Release();
             }
@@ -423,9 +423,9 @@ namespace HelixToolkit.SharpDX.Core {
 
         internal ID3D11Texture3D* TextureHandle => nativeTexture.Handle;
 
-        public override nint NativePointer => (nint) nativeTexture.Handle;
+        public override nint NativePointer => (nint)nativeTexture.Handle;
 
-        internal override ID3D11Resource* Handle => (ID3D11Resource*) nativeTexture.Handle;
+        internal override ID3D11Resource* Handle => (ID3D11Resource*)nativeTexture.Handle;
 
         internal NativeD3DDevice Device { get; }
 
@@ -443,68 +443,68 @@ namespace HelixToolkit.SharpDX.Core {
         internal static class D3DResourceConversions {
             public static BufferDesc ToSilkDesc(this BufferDescription description) {
                 return new BufferDesc {
-                    ByteWidth = (uint) description.SizeInBytes,
-                    Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
-                    BindFlags = (uint) description.BindFlags,
-                    CPUAccessFlags = (uint) description.CpuAccessFlags,
-                    MiscFlags = (uint) description.OptionFlags,
-                    StructureByteStride = (uint) description.StructureByteStride
+                    ByteWidth = (uint)description.SizeInBytes,
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags,
+                    StructureByteStride = (uint)description.StructureByteStride
                 };
             }
 
             public static Texture1DDesc ToSilkDesc(this Texture1DDescription description) {
                 return new Texture1DDesc {
-                    Width = (uint) description.Width,
-                    MipLevels = (uint) description.MipLevels,
-                    ArraySize = (uint) description.ArraySize,
+                    Width = (uint)description.Width,
+                    MipLevels = (uint)description.MipLevels,
+                    ArraySize = (uint)description.ArraySize,
                     Format = description.Format,
-                    Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
-                    BindFlags = (uint) description.BindFlags,
-                    CPUAccessFlags = (uint) description.CpuAccessFlags,
-                    MiscFlags = (uint) description.OptionFlags
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
                 };
             }
 
             public static Texture2DDesc ToSilkDesc(this Texture2DDescription description) {
                 return new Texture2DDesc {
-                    Width = (uint) description.Width,
-                    Height = (uint) description.Height,
-                    MipLevels = (uint) description.MipLevels,
-                    ArraySize = (uint) description.ArraySize,
+                    Width = (uint)description.Width,
+                    Height = (uint)description.Height,
+                    MipLevels = (uint)description.MipLevels,
+                    ArraySize = (uint)description.ArraySize,
                     Format = description.Format,
-                    SampleDesc = new SampleDesc((uint) description.SampleDescription.Count,
-                                                (uint) description.SampleDescription.Quality),
-                    Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
-                    BindFlags = (uint) description.BindFlags,
-                    CPUAccessFlags = (uint) description.CpuAccessFlags,
-                    MiscFlags = (uint) description.OptionFlags
+                    SampleDesc = new SampleDesc((uint)description.SampleDescription.Count,
+                                                (uint)description.SampleDescription.Quality),
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
                 };
             }
 
             public static Texture3DDesc ToSilkDesc(this Texture3DDescription description) {
                 return new Texture3DDesc {
-                    Width = (uint) description.Width,
-                    Height = (uint) description.Height,
-                    Depth = (uint) description.Depth,
-                    MipLevels = (uint) description.MipLevels,
+                    Width = (uint)description.Width,
+                    Height = (uint)description.Height,
+                    Depth = (uint)description.Depth,
+                    MipLevels = (uint)description.MipLevels,
                     Format = description.Format,
-                    Usage = (Silk.NET.Direct3D11.Usage) description.Usage,
-                    BindFlags = (uint) description.BindFlags,
-                    CPUAccessFlags = (uint) description.CpuAccessFlags,
-                    MiscFlags = (uint) description.OptionFlags
+                    Usage = (Silk.NET.Direct3D11.Usage)description.Usage,
+                    BindFlags = (uint)description.BindFlags,
+                    CPUAccessFlags = (uint)description.CpuAccessFlags,
+                    MiscFlags = (uint)description.OptionFlags
                 };
             }
 
             public static Map ToSilkMap(this MapMode mode) {
-                return (Map) mode;
+                return (Map)mode;
             }
 
             public static uint ToSilkMapFlags(this MapFlags flags) {
-                return (uint) flags;
+                return (uint)flags;
             }
 
             public static unsafe DataBox ToDataBox(this MappedSubresource mapped) {
-                return new DataBox((nint) mapped.PData, (int) mapped.RowPitch, (int) mapped.DepthPitch);
+                return new DataBox((nint)mapped.PData, (int)mapped.RowPitch, (int)mapped.DepthPitch);
             }
         }
     }

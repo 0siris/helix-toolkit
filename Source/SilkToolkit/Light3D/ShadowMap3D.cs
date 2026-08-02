@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -22,11 +22,11 @@ public class ShadowMap3D : Element3D {
                                     typeof(ShadowMap3D),
                                     new PropertyMetadata(new Size(1024, 1024),
                                                          (d, e) => {
-                                                             var resolution = (Size) e.NewValue;
+                                                             var resolution = (Size)e.NewValue;
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
                                                                  .Resolution =
-                                                                 new Size2((int) resolution.Width,
-                                                                           (int) resolution.Height);
+                                                                 new Size2((int)resolution.Width,
+                                                                           (int)resolution.Height);
                                                          }));
 
 
@@ -40,7 +40,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(0.0015,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode).Bias =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -53,7 +53,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(0.5,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
-                                                                 .Intensity = (float) (double) e.NewValue;
+                                                                 .Intensity = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -81,7 +81,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(200.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
-                                                                 .Distance = (float) (double) e.NewValue;
+                                                                 .Distance = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -94,7 +94,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(100.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
-                                                                 .OrthoWidth = (float) (double) e.NewValue;
+                                                                 .OrthoWidth = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -108,7 +108,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(500.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
-                                                                 .FarField = (float) (double) e.NewValue;
+                                                                 .FarField = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -122,7 +122,7 @@ public class ShadowMap3D : Element3D {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
-                                                                 .NearField = (float) (double) e.NewValue;
+                                                                 .NearField = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty AutoCoverCompleteSceneProperty =
@@ -147,7 +147,7 @@ public class ShadowMap3D : Element3D {
     ///     The distance of the shadow caster
     /// </value>
     public double Distance {
-        get => (double) GetValue(DistanceProperty);
+        get => (double)GetValue(DistanceProperty);
         set => SetValue(DistanceProperty, value);
     }
 
@@ -158,7 +158,7 @@ public class ShadowMap3D : Element3D {
     ///     The width of the orthographic matrix.
     /// </value>
     public double OrthoWidth {
-        get => (double) GetValue(OrthoWidthProperty);
+        get => (double)GetValue(OrthoWidthProperty);
         set => SetValue(OrthoWidthProperty, value);
     }
 
@@ -169,21 +169,21 @@ public class ShadowMap3D : Element3D {
     ///     The resolution.
     /// </value>
     public Size Resolution {
-        get => (Size) GetValue(ResolutionProperty);
+        get => (Size)GetValue(ResolutionProperty);
         set => SetValue(ResolutionProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public double Bias {
-        get => (double) GetValue(BiasProperty);
+        get => (double)GetValue(BiasProperty);
         set => SetValue(BiasProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public double Intensity {
-        get => (double) GetValue(IntensityProperty);
+        get => (double)GetValue(IntensityProperty);
         set => SetValue(IntensityProperty, value);
     }
 
@@ -194,7 +194,7 @@ public class ShadowMap3D : Element3D {
     ///     The near field distance.
     /// </value>
     public double NearFieldDistance {
-        get => (double) GetValue(NearFieldDistanceProperty);
+        get => (double)GetValue(NearFieldDistanceProperty);
         set => SetValue(NearFieldDistanceProperty, value);
     }
 
@@ -205,7 +205,7 @@ public class ShadowMap3D : Element3D {
     ///     The far field distance.
     /// </value>
     public double FarFieldDistance {
-        get => (double) GetValue(FarFieldDistanceProperty);
+        get => (double)GetValue(FarFieldDistanceProperty);
         set => SetValue(FarFieldDistanceProperty, value);
     }
 
@@ -213,7 +213,7 @@ public class ShadowMap3D : Element3D {
     ///     Distance of the directional light from origin
     /// </summary>
     public IProjectionCameraModel LightCamera {
-        get => (IProjectionCameraModel) GetValue(LightCameraProperty);
+        get => (IProjectionCameraModel)GetValue(LightCameraProperty);
         set => SetValue(LightCameraProperty, value);
     }
 
@@ -226,7 +226,7 @@ public class ShadowMap3D : Element3D {
     ///     <c>true</c> if [automaticcally cover complete scene]; otherwise, <c>false</c>.
     /// </value>
     public bool AutoCoverCompleteScene {
-        get => (bool) GetValue(AutoCoverCompleteSceneProperty);
+        get => (bool)GetValue(AutoCoverCompleteSceneProperty);
         set => SetValue(AutoCoverCompleteSceneProperty, value);
     }
 
@@ -240,7 +240,7 @@ public class ShadowMap3D : Element3D {
     ///     <c>true</c> if scene is dynamic; otherwise, <c>false</c>.
     /// </value>
     public bool IsSceneDynamic {
-        get => (bool) GetValue(IsSceneDynamicProperty);
+        get => (bool)GetValue(IsSceneDynamicProperty);
         set => SetValue(IsSceneDynamicProperty, value);
     }
 
@@ -254,13 +254,13 @@ public class ShadowMap3D : Element3D {
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         if (core is ShadowMapNode n) {
-            n.Intensity = (float) Intensity;
-            n.Bias = (float) Bias;
-            n.Resolution = new Size2((int) Resolution.Width, (int) Resolution.Height);
-            n.Distance = (float) Distance;
-            n.OrthoWidth = (float) OrthoWidth;
-            n.FarField = (float) FarFieldDistance;
-            n.NearField = (float) NearFieldDistance;
+            n.Intensity = (float)Intensity;
+            n.Bias = (float)Bias;
+            n.Resolution = new Size2((int)Resolution.Width, (int)Resolution.Height);
+            n.Distance = (float)Distance;
+            n.OrthoWidth = (float)OrthoWidth;
+            n.FarField = (float)FarFieldDistance;
+            n.NearField = (float)NearFieldDistance;
             n.AutoCoverCompleteScene = AutoCoverCompleteScene;
             n.IsSceneDynamic = IsSceneDynamic;
         }

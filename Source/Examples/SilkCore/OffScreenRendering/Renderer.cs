@@ -1,11 +1,11 @@
-﻿using HelixToolkit.SharpDX.Core;
+﻿using System;
+using System.Diagnostics;
+using System.Windows.Media.Imaging;
+using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Controls;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using System;
-using System.Diagnostics;
-using System.Windows.Media.Imaging;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -13,11 +13,10 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace OffScreenRendering;
 
 internal class Renderer {
-    private readonly ViewportCore viewport = new ViewportCore() {EffectsManager = new DefaultEffectsManager()};
-    private readonly Random random = new Random((int) Stopwatch.GetTimestamp());
+    private readonly ViewportCore viewport = new ViewportCore() { EffectsManager = new DefaultEffectsManager() };
+    private readonly Random random = new Random((int)Stopwatch.GetTimestamp());
 
-    private readonly DirectionalLightNode lightNode = new DirectionalLightNode()
-        {Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1)};
+    private readonly DirectionalLightNode lightNode = new DirectionalLightNode() { Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1) };
 
     private GroupNode currentScene;
 
@@ -74,7 +73,7 @@ internal class Renderer {
         for (int i = 0; i < numSphere; ++i) {
             var meshNode = new MeshNode() {
                 Geometry = mesh,
-                Material = new PhongMaterialCore() {DiffuseColor = random.NextColor()},
+                Material = new PhongMaterialCore() { DiffuseColor = random.NextColor() },
                 ModelMatrix = Translation(random.NextVector3(new Vector3(-50, -50, -50), new Vector3(50, 50, 50)))
             };
             root.AddChildNode(meshNode);
@@ -92,7 +91,7 @@ internal class Renderer {
 
 internal static class RandomExtensions {
     public static Color4 NextColor(this Random random) {
-        return new Color4((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble(), 1);
+        return new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
     }
 
     public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max) {
@@ -102,6 +101,6 @@ internal static class RandomExtensions {
     }
 
     private static float NextFloat(Random random, float min, float max) {
-        return min + (max - min) * (float) random.NextDouble();
+        return min + (max - min) * (float)random.NextDouble();
     }
 }

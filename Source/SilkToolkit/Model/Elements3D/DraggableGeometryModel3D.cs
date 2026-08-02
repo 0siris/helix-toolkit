@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DraggableGeometryModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -43,17 +43,17 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
 
 
     public bool DragX {
-        get => (bool) GetValue(DragXProperty);
+        get => (bool)GetValue(DragXProperty);
         set => SetValue(DragXProperty, value);
     }
 
     public bool DragY {
-        get => (bool) GetValue(DragYProperty);
+        get => (bool)GetValue(DragYProperty);
         set => SetValue(DragYProperty, value);
     }
 
     public bool DragZ {
-        get => (bool) GetValue(DragZProperty);
+        get => (bool)GetValue(DragZProperty);
         set => SetValue(DragZProperty, value);
     }
 

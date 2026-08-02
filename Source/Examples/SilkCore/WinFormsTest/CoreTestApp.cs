@@ -1,11 +1,5 @@
 ﻿//#define TESTADDREMOVE
 
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Cameras;
-using HelixToolkit.SharpDX.Core.Controls;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +9,12 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Controls;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using ImGuiNET;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using DrawingColor = System.Drawing.Color;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -38,10 +38,10 @@ public static class DpiHelper {
         //Get Handle to the device context associated with this Graphics object
         IntPtr DeviceContextHandle = GraphicsObject.GetHdc();
         //Call GetDeviceCaps with the Handle to retrieve the Screen Height
-        int LogicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int) DeviceCap.VERTRES);
-        int PhysicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int) DeviceCap.DESKTOPVERTRES);
+        int LogicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int)DeviceCap.VERTRES);
+        int PhysicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int)DeviceCap.DESKTOPVERTRES);
         //Divide the Screen Heights to get the scaling factor and round it to two decimals
-        double ScreenScalingFactor = Math.Round((double) PhysicalScreenHeight / (double) LogicalScreenHeight, 2);
+        double ScreenScalingFactor = Math.Round((double)PhysicalScreenHeight / (double)LogicalScreenHeight, 2);
         //If requested as percentage - convert it
         if (percentage) {
             ScreenScalingFactor *= 100.0;
@@ -70,13 +70,13 @@ public class CoreTestApp {
     private DirectionalLightNode directionalLight;
     private AmbientLightNode ambientLight;
     private const int NumItems = 400;
-    private Random rnd = new Random((int) Stopwatch.GetTimestamp());
-    private List<Tuple<bool, MaterialCore>> materials = new List<Tuple<bool, MaterialCore>>();
+    private Random rnd = new Random((int)Stopwatch.GetTimestamp());
+    private List<Tuple<bool, MaterialCore>> materials = [];
     private long previousTime;
     private bool resizeRequested = false;
     private CameraController cameraController;
     private Stack<IEnumerator<SceneNode>> stackCache = new Stack<IEnumerator<SceneNode>>();
-    private IApplyPostEffect currentHighlight = null;
+    private IApplyPostEffect? currentHighlight = null;
     private double dpiScale = 1;
     private SynchronizationContext context;
 
@@ -100,11 +100,13 @@ public class CoreTestApp {
 
         var logger = HelixToolkit.Logger.LogManager.Create<CoreTestApp>();
 
-        viewport = new ViewportCore(window.Handle, true);
-        viewport.DpiScale = dpiScale;
-        cameraController = new CameraController(viewport);
-        cameraController.CameraMode = CameraMode.Inspect;
-        cameraController.CameraRotationMode = CameraRotationMode.Trackball;
+        viewport = new ViewportCore(window.Handle, true) {
+            DpiScale = dpiScale
+        };
+        cameraController = new CameraController(viewport) {
+            CameraMode = CameraMode.Inspect,
+            CameraRotationMode = CameraRotationMode.Trackball
+        };
         this.window = window;
         window.ResizeEnd += Window_ResizeEnd;
         window.Load += Window_Load;
@@ -196,7 +198,7 @@ public class CoreTestApp {
         builder = new MeshBuilder(true, true, true);
         builder.AddBox(Vector3.Zero, 1, 1, 1);
         box = builder.ToMesh();
-        points = new PointGeometry3D() {Positions = sphere.Positions};
+        points = new PointGeometry3D() { Positions = sphere.Positions };
         var lineBuilder = new LineBuilder();
         lineBuilder.AddBox(Vector3.Zero, 2, 2, 2);
         lines = lineBuilder.ToLineGeometry3D();
@@ -252,7 +254,7 @@ public class CoreTestApp {
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new PointNode() {
                     Geometry = points, ModelMatrix = transform,
-                    Material = new PointMaterialCore() {PointColor = ToColor4(DrawingColor.Red)}
+                    Material = new PointMaterialCore() { PointColor = ToColor4(DrawingColor.Red) }
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupPoints.AddChildNode(node); }, null);
@@ -266,7 +268,7 @@ public class CoreTestApp {
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new LineNode() {
                     Geometry = lines, ModelMatrix = transform,
-                    Material = new LineMaterialCore() {LineColor = ToColor4(DrawingColor.LightBlue)}
+                    Material = new LineMaterialCore() { LineColor = ToColor4(DrawingColor.LightBlue) }
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupLines.AddChildNode(node); }, null);
@@ -282,18 +284,15 @@ public class CoreTestApp {
         var imGui = new ImGuiNode();
         viewport.Items.AddChildNode(imGui);
         imGui.UpdatingImGuiUI += ImGui_UpdatingImGuiUI;
-        groupEffects.AddChildNode(new NodePostEffectBorderHighlight()
-                                      {EffectName = "highlightEffect", Color = ToColor4(DrawingColor.Yellow)});
+        groupEffects.AddChildNode(new NodePostEffectBorderHighlight() { EffectName = "highlightEffect", Color = ToColor4(DrawingColor.Yellow) });
         viewport.Items.AddChildNode(groupEffects);
-        environmentMap = new EnvironmentMapNode() {Texture = TextureModel.Create("Cubemap_Grandcanyon.dds")};
+        environmentMap = new EnvironmentMapNode() { Texture = TextureModel.Create("Cubemap_Grandcanyon.dds") };
         viewport.Items.AddChildNode(environmentMap);
         viewport.NodeHitOnMouseDown += Viewport_NodeHitOnMouseDown;
     }
 
     private void Viewport_NodeHitOnMouseDown(object sender, SceneNodeMouseDownArgs e) {
-        if (currentHighlight != null) {
-            currentHighlight.PostEffects = "";
-        }
+        currentHighlight?.PostEffects = "";
 
         currentHighlight = null;
         if (e.HitResult.ModelHit is IApplyPostEffect s) {
@@ -303,7 +302,7 @@ public class CoreTestApp {
     }
 
     private void ImGui_UpdatingImGuiUI(object sender, EventArgs e) {
-        SceneUI.DrawUI((int) viewport.ActualWidth, (int) viewport.ActualHeight, ref options, groupModel);
+        SceneUI.DrawUI((int)viewport.ActualWidth, (int)viewport.ActualHeight, ref options, groupModel);
     }
 
     private void InitializeMaterials() {
@@ -513,7 +512,7 @@ public class CoreTestApp {
         viewport.StartD3D(window.ClientSize.Width, window.ClientSize.Height);
     }
 
-#region Handle mouse event
+    #region Handle mouse event
 
     private void Window_MouseMove(object sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
@@ -599,7 +598,7 @@ public class CoreTestApp {
     private void Window_MouseWheel(object sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
         if (!cameraController.IsMouseCaptured) {
-            io.MouseWheel = (int) (e.Delta * 0.01f);
+            io.MouseWheel = (int)(e.Delta * 0.01f);
         }
 
         if (!io.WantCaptureMouse) {
@@ -629,11 +628,11 @@ public class CoreTestApp {
         io.AddInputCharacter(e.KeyChar);
     }
 
-#endregion
+    #endregion
 }
 
 internal static class RandomExtensions {
     public static float NextFloat(this Random random, float minimum, float maximum) {
-        return minimum + (float) random.NextDouble() * (maximum - minimum);
+        return minimum + (float)random.NextDouble() * (maximum - minimum);
     }
 }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OctreeManager.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -35,7 +35,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(false,
                                                            (d, e) => {
                                                                (d as OctreeManagerBaseWrapper).enableOctreeOutput =
-                                                                   (bool) e.NewValue;
+                                                                   (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -48,7 +48,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(1f,
                                                            (s, e) => {
                                                                (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .MinimumOctantSize = (float) e.NewValue;
+                                                                   .MinimumOctantSize = (float)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -61,7 +61,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(true,
                                                            (s, e) => {
                                                                (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .AutoDeleteIfEmpty = (bool) e.NewValue;
+                                                                   .AutoDeleteIfEmpty = (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -74,7 +74,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(false,
                                                            (s, e) => {
                                                                (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .Cubify = (bool) e.NewValue;
+                                                                   .Cubify = (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -87,7 +87,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(false,
                                                            (s, e) => {
                                                                (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .RecordHitPathBoundingBoxes = (bool) e.NewValue;
+                                                                   .RecordHitPathBoundingBoxes = (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -100,7 +100,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       new PropertyMetadata(0,
                                                            (s, e) => {
                                                                (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .MinObjectSizeToSplit = (int) e.NewValue;
+                                                                   .MinObjectSizeToSplit = (int)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -110,7 +110,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     The octree.
     /// </value>
     public IOctreeBasic Octree {
-        get => (IOctreeBasic) GetValue(OctreeProperty);
+        get => (IOctreeBasic)GetValue(OctreeProperty);
         set => SetValue(OctreeProperty, value);
     }
 
@@ -121,7 +121,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     <c>true</c> if [enable octree output]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableOctreeOutput {
-        get => (bool) GetValue(EnableOctreeOutputProperty);
+        get => (bool)GetValue(EnableOctreeOutputProperty);
         set => SetValue(EnableOctreeOutputProperty, value);
     }
 
@@ -129,7 +129,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     Minimum octant size
     /// </summary>
     public float MinSize {
-        get => (float) GetValue(MinSizeProperty);
+        get => (float)GetValue(MinSizeProperty);
         set => SetValue(MinSizeProperty, value);
     }
 
@@ -137,7 +137,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     Delete octant node if its empty
     /// </summary>
     public bool AutoDeleteIfEmpty {
-        get => (bool) GetValue(AutoDeleteIfEmptyProperty);
+        get => (bool)GetValue(AutoDeleteIfEmptyProperty);
         set => SetValue(AutoDeleteIfEmptyProperty, value);
     }
 
@@ -145,7 +145,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     Create cube octree
     /// </summary>
     public bool Cubify {
-        get => (bool) GetValue(CubifyPropertyProperty);
+        get => (bool)GetValue(CubifyPropertyProperty);
         set => SetValue(CubifyPropertyProperty, value);
     }
 
@@ -153,7 +153,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     Record the hit path bounding box for debugging
     /// </summary>
     public bool RecordHitPathBoundingBoxes {
-        get => (bool) GetValue(RecordHitPathBoundingBoxesProperty);
+        get => (bool)GetValue(RecordHitPathBoundingBoxesProperty);
         set => SetValue(RecordHitPathBoundingBoxesProperty, value);
     }
 
@@ -161,7 +161,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     Minimum object in each octant to start splitting into smaller octant during build
     /// </summary>
     public int MinObjectSizeToSplit {
-        get => (int) GetValue(MinObjectSizeToSplitProperty);
+        get => (int)GetValue(MinObjectSizeToSplitProperty);
         set => SetValue(MinObjectSizeToSplitProperty, value);
     }
     private DispatcherOperation octreeOpt;

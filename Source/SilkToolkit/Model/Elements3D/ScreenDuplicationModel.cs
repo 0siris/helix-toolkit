@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
 
@@ -24,14 +24,14 @@ public class ScreenDuplicationModel : Element3D {
                                     typeof(ScreenDuplicationModel),
                                     new PropertyMetadata(new Rect(),
                                                          (d, e) => {
-                                                             var rect = (Rect) e.NewValue;
+                                                             var rect = (Rect)e.NewValue;
                                                              ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
                                                                  .CaptureRectangle =
                                                                  new Rectangle(
-                                                                     (int) rect.Left,
-                                                                     (int) rect.Top,
-                                                                     (int) rect.Width,
-                                                                     (int) rect.Height);
+                                                                     (int)rect.Left,
+                                                                     (int)rect.Top,
+                                                                     (int)rect.Width,
+                                                                     (int)rect.Height);
                                                          }));
 
     /// <summary>
@@ -44,7 +44,7 @@ public class ScreenDuplicationModel : Element3D {
                                     new PropertyMetadata(0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .DisplayIndex = (int) e.NewValue;
+                                                                 .DisplayIndex = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -57,7 +57,7 @@ public class ScreenDuplicationModel : Element3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .StretchToFill = (bool) e.NewValue;
+                                                                 .StretchToFill = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -70,7 +70,7 @@ public class ScreenDuplicationModel : Element3D {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .ShowMouseCursor = (bool) e.NewValue;
+                                                                 .ShowMouseCursor = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -87,7 +87,7 @@ public class ScreenDuplicationModel : Element3D {
     ///     The screen rectangle.
     /// </value>
     public Rect CaptureRectangle {
-        get => (Rect) GetValue(CaptureRectangleProperty);
+        get => (Rect)GetValue(CaptureRectangleProperty);
         set => SetValue(CaptureRectangleProperty, value);
     }
 
@@ -98,7 +98,7 @@ public class ScreenDuplicationModel : Element3D {
     ///     The display index.
     /// </value>
     public int DisplayIndex {
-        get => (int) GetValue(DisplayIndexProperty);
+        get => (int)GetValue(DisplayIndexProperty);
         set => SetValue(DisplayIndexProperty, value);
     }
 
@@ -110,7 +110,7 @@ public class ScreenDuplicationModel : Element3D {
     ///     <c>true</c> if [stretch to fill]; otherwise, <c>false</c>.
     /// </value>
     public bool StretchToFill {
-        get => (bool) GetValue(StretchToFillProperty);
+        get => (bool)GetValue(StretchToFillProperty);
         set => SetValue(StretchToFillProperty, value);
     }
 
@@ -122,7 +122,7 @@ public class ScreenDuplicationModel : Element3D {
     ///     <c>true</c> if [show mouse cursor]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowMouseCursor {
-        get => (bool) GetValue(ShowMouseCursorProperty);
+        get => (bool)GetValue(ShowMouseCursorProperty);
         set => SetValue(ShowMouseCursorProperty, value);
     }
 
@@ -138,10 +138,10 @@ public class ScreenDuplicationModel : Element3D {
         base.AssignDefaultValuesToSceneNode(core);
         if (core is ScreenDuplicationNode c) {
             c.DisplayIndex = DisplayIndex;
-            c.CaptureRectangle = new Rectangle((int) CaptureRectangle.Left,
-                                               (int) CaptureRectangle.Top,
-                                               (int) CaptureRectangle.Width,
-                                               (int) CaptureRectangle.Height);
+            c.CaptureRectangle = new Rectangle((int)CaptureRectangle.Left,
+                                               (int)CaptureRectangle.Top,
+                                               (int)CaptureRectangle.Width,
+                                               (int)CaptureRectangle.Height);
             c.StretchToFill = StretchToFill;
             c.ShowMouseCursor = ShowMouseCursor;
         }

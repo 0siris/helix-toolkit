@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PhongMaterialFactory.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -55,7 +55,7 @@ public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
 /// </summary>
 public static class PhongMaterials {
     static PhongMaterials() {
-        Materials = new PhongMaterialCollection();
+        Materials = [];
     }
 
     public static PhongMaterialCollection Materials { get; }
@@ -430,6 +430,6 @@ public static class PhongMaterials {
 
     public static Color4 ToColor(double r, double g, double b, double a = 1.0) {
         //return new Color4((float)r, (float)g, (float)b, (float)a);
-        return System.Windows.Media.Color.FromScRgb((float) a, (float) r, (float) g, (float) b).ToColor4();
+        return System.Windows.Media.Color.FromScRgb((float)a, (float)r, (float)g, (float)b).ToColor4();
     }
 }

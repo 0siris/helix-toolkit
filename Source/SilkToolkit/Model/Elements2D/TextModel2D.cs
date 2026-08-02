@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core;
@@ -6,9 +6,9 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Core2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
+using WpfFlowDirection = System.Windows.FlowDirection;
 using WpfFontStyle = System.Windows.FontStyle;
 using WpfFontWeight = System.Windows.FontWeight;
-using WpfFlowDirection = System.Windows.FlowDirection;
 using WpfTextAlignment = System.Windows.TextAlignment;
 
 namespace HelixToolkit.Wpf.SharpDX {
@@ -27,7 +27,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                            .Text =
                                                                            e.NewValue == null
                                                                                ? string.Empty
-                                                                               : (string) e.NewValue;
+                                                                               : (string)e.NewValue;
                                                                    }));
 
 
@@ -58,7 +58,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                               new PropertyMetadata(12,
                                                                    (d, e) => {
                                                                        ((d as Element2DCore).SceneNode as TextNode2D)
-                                                                           .FontSize = Math.Max(1, (int) e.NewValue);
+                                                                           .FontSize = Math.Max(1, (int)e.NewValue);
                                                                    }));
 
             public static readonly DependencyProperty FontWeightProperty
@@ -69,7 +69,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                    (d, e) => {
                                                                        ((d as Element2DCore).SceneNode as TextNode2D)
                                                                            .FontWeight =
-                                                                           ((WpfFontWeight) e.NewValue)
+                                                                           ((WpfFontWeight)e.NewValue)
                                                                            .ToDXFontWeight();
                                                                    }));
 
@@ -81,7 +81,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                    (d, e) => {
                                                                        ((d as Element2DCore).SceneNode as TextNode2D)
                                                                            .FontStyle =
-                                                                           ((WpfFontStyle) e.NewValue).ToDXFontStyle();
+                                                                           ((WpfFontStyle)e.NewValue).ToDXFontStyle();
                                                                    }));
 
             /// <summary>
@@ -95,7 +95,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      ((d as Element2DCore).SceneNode as TextNode2D)
                                                                          .TextAlignment =
-                                                                         ((WpfTextAlignment) e.NewValue)
+                                                                         ((WpfTextAlignment)e.NewValue)
                                                                          .ToD2DTextAlignment();
                                                                  }));
 
@@ -110,7 +110,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      ((d as Element2DCore).SceneNode as TextNode2D)
                                                                          .FlowDirection =
-                                                                         ((WpfFlowDirection) e.NewValue).ToD2DFlowDir();
+                                                                         ((WpfFlowDirection)e.NewValue).ToD2DFlowDir();
                                                                  }));
 
             /// <summary>
@@ -126,7 +126,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                          .FontFamily =
                                                                          e.NewValue == null
                                                                              ? "Arial"
-                                                                             : (string) e.NewValue;
+                                                                             : (string)e.NewValue;
                                                                  }));
 
             private bool backgroundChanged = true;
@@ -134,22 +134,22 @@ namespace HelixToolkit.Wpf.SharpDX {
             private bool foregroundChanged = true;
 
             public string Text {
-                get => (string) GetValue(TextProperty);
+                get => (string)GetValue(TextProperty);
                 set => SetValue(TextProperty, value);
             }
 
             public int FontSize {
-                get => (int) GetValue(FontSizeProperty);
+                get => (int)GetValue(FontSizeProperty);
                 set => SetValue(FontSizeProperty, value);
             }
 
             public WpfFontWeight FontWeight {
-                get => (WpfFontWeight) GetValue(FontWeightProperty);
+                get => (WpfFontWeight)GetValue(FontWeightProperty);
                 set => SetValue(FontWeightProperty, value);
             }
 
             public WpfFontStyle FontStyle {
-                get => (WpfFontStyle) GetValue(FontStyleProperty);
+                get => (WpfFontStyle)GetValue(FontStyleProperty);
                 set => SetValue(FontStyleProperty, value);
             }
 
@@ -161,7 +161,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The text alignment.
             /// </value>
             public WpfTextAlignment TextAlignment {
-                get => (WpfTextAlignment) GetValue(TextAlignmentProperty);
+                get => (WpfTextAlignment)GetValue(TextAlignmentProperty);
                 set => SetValue(TextAlignmentProperty, value);
             }
 
@@ -172,7 +172,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The text alignment.
             /// </value>
             public WpfFlowDirection FlowDirection {
-                get => (WpfFlowDirection) GetValue(FlowDirectionProperty);
+                get => (WpfFlowDirection)GetValue(FlowDirectionProperty);
                 set => SetValue(FlowDirectionProperty, value);
             }
 
@@ -184,17 +184,17 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The font family.
             /// </value>
             public string FontFamily {
-                get => (string) GetValue(FontFamilyProperty);
+                get => (string)GetValue(FontFamilyProperty);
                 set => SetValue(FontFamilyProperty, value);
             }
 
             public Media.Brush Foreground {
-                get => (Media.Brush) GetValue(ForegroundProperty);
+                get => (Media.Brush)GetValue(ForegroundProperty);
                 set => SetValue(ForegroundProperty, value);
             }
 
             public Media.Brush Background {
-                get => (Media.Brush) GetValue(BackgroundProperty);
+                get => (Media.Brush)GetValue(BackgroundProperty);
                 set => SetValue(BackgroundProperty, value);
             }
 
@@ -212,13 +212,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                 base.OnUpdate(context);
                 if (foregroundChanged) {
                     (SceneNode as TextNode2D).Foreground =
-                        Foreground != null ? Foreground.ToD2DBrush(context.DeviceContext) : null;
+                        Foreground?.ToD2DBrush(context.DeviceContext);
                     foregroundChanged = false;
                 }
 
                 if (backgroundChanged) {
                     (SceneNode as TextNode2D).Background =
-                        Background != null ? Background.ToD2DBrush(context.DeviceContext) : null;
+                        Background?.ToD2DBrush(context.DeviceContext);
                     backgroundChanged = false;
                 }
             }

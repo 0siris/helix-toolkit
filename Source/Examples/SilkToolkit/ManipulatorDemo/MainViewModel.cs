@@ -7,18 +7,18 @@
 namespace ManipulatorDemo;
 
 using System;
+using System.Collections.Generic;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using System.Collections.Generic;
-using System.Windows.Input;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -113,6 +113,7 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
@@ -123,7 +124,7 @@ public class MainViewModel : BaseViewModel {
             var list = reader.Read(path);
             return list;
         } else {
-            return new List<Object3D>();
+            return [];
         }
     }
 }

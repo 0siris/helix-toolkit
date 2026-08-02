@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
@@ -24,12 +24,12 @@ public class PostEffectMeshXRay : Element3D {
         if (core is NodePostEffectXRay c) {
             c.EffectName = EffectName;
             c.Color = OutlineColor.ToColor4();
-            c.OutlineFadingFactor = (float) OutlineFadingFactor;
+            c.OutlineFadingFactor = (float)OutlineFadingFactor;
             c.EnableDoublePass = EnableDoublePass;
         }
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     The effect name property
@@ -41,7 +41,7 @@ public class PostEffectMeshXRay : Element3D {
                                     new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRay,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as NodePostEffectXRay)
-                                                                 .EffectName = (string) e.NewValue;
+                                                                 .EffectName = (string)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -51,7 +51,7 @@ public class PostEffectMeshXRay : Element3D {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => (string) GetValue(EffectNameProperty);
+        get => (string)GetValue(EffectNameProperty);
         set => SetValue(EffectNameProperty, value);
     }
 
@@ -65,7 +65,7 @@ public class PostEffectMeshXRay : Element3D {
         new PropertyMetadata(Colors.Blue,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as NodePostEffectXRay).Color =
-                                     ((Color) e.NewValue).ToColor4();
+                                     ((Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -75,7 +75,7 @@ public class PostEffectMeshXRay : Element3D {
     ///     The color of the outline.
     /// </value>
     public Color OutlineColor {
-        get => (Color) GetValue(OutlineColorProperty);
+        get => (Color)GetValue(OutlineColorProperty);
         set => SetValue(OutlineColorProperty, value);
     }
 
@@ -88,7 +88,7 @@ public class PostEffectMeshXRay : Element3D {
         new PropertyMetadata(1.5,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as NodePostEffectXRay).OutlineFadingFactor =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -98,7 +98,7 @@ public class PostEffectMeshXRay : Element3D {
     ///     The outline fading factor.
     /// </value>
     public double OutlineFadingFactor {
-        get => (double) GetValue(OutlineFadingFactorProperty);
+        get => (double)GetValue(OutlineFadingFactorProperty);
         set => SetValue(OutlineFadingFactorProperty, value);
     }
 
@@ -113,7 +113,7 @@ public class PostEffectMeshXRay : Element3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as NodePostEffectXRay)
-                                                                 .EnableDoublePass = (bool) e.NewValue;
+                                                                 .EnableDoublePass = (bool)e.NewValue;
                                                          }));
 
 
@@ -122,9 +122,9 @@ public class PostEffectMeshXRay : Element3D {
     ///     artifacts
     /// </summary>
     public bool EnableDoublePass {
-        get => (bool) GetValue(EnableDoublePassProperty);
+        get => (bool)GetValue(EnableDoublePassProperty);
         set => SetValue(EnableDoublePassProperty, value);
     }
 
-#endregion
+    #endregion
 }

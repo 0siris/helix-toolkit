@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -203,7 +203,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <summary>
             ///     Fov in radian
             /// </summary>
-            public float Fov { get; } = (float) (45 * Math.PI / 180);
+            public float Fov { get; } = (float)(45 * Math.PI / 180);
 
             /// <summary>
             ///     Gets the near plane.
@@ -381,15 +381,15 @@ namespace HelixToolkit.SharpDX.Core {
                 GlobalTransform = globalTrans;
                 var offX = 0;
                 var offY = 0;
-                offX = (int) (Width / 2 * (1 + RelativeScreenLocationX) - viewportSize / 2);
-                offY = (int) (Height / 2 * (1 - RelativeScreenLocationY) - viewportSize / 2);
-                offX = Math.Max(0, Math.Min(offX, (int) (Width - viewportSize)));
-                offY = Math.Max(0, Math.Min(offY, (int) (Height - viewportSize)));
+                offX = (int)(Width / 2 * (1 + RelativeScreenLocationX) - viewportSize / 2);
+                offY = (int)(Height / 2 * (1 - RelativeScreenLocationY) - viewportSize / 2);
+                offX = Math.Max(0, Math.Min(offX, (int)(Width - viewportSize)));
+                offY = Math.Max(0, Math.Min(offY, (int)(Height - viewportSize)));
                 var viewport = new ViewportF(offX, offY, viewportSize, viewportSize);
                 context.Set(ref globalTrans, ref viewport);
                 context.UpdatePerFrameData(true, false, deviceContext);
                 deviceContext.SetViewport(ref viewport);
-                deviceContext.SetScissorRectangle(offX, offY, (int) viewportSize + offX, (int) viewportSize + offY);
+                deviceContext.SetScissorRectangle(offX, offY, (int)viewportSize + offX, (int)viewportSize + offY);
             }
 
             private void RenderAbsolutePositionPerspective(RenderContext context, DeviceContextProxy deviceContext) {
@@ -416,7 +416,7 @@ namespace HelixToolkit.SharpDX.Core {
                 context.UpdatePerFrameData(true, false, deviceContext);
 
                 deviceContext.SetViewport(ref viewport);
-                deviceContext.SetScissorRectangle(0, 0, (int) context.ActualWidth, (int) context.ActualHeight);
+                deviceContext.SetScissorRectangle(0, 0, (int)context.ActualWidth, (int)context.ActualHeight);
             }
 
             private void RenderAbsolutePositionOrtho(RenderContext context, DeviceContextProxy deviceContext) {
@@ -437,10 +437,10 @@ namespace HelixToolkit.SharpDX.Core {
                 context.Set(ref globalTrans, ref viewport);
                 context.UpdatePerFrameData(true, false, deviceContext);
                 deviceContext.SetViewport(ref viewport);
-                deviceContext.SetScissorRectangle((int) Math.Round(offX),
-                                                  (int) Math.Round(offY),
-                                                  (int) (viewportSize + offX),
-                                                  (int) (viewportSize + offY));
+                deviceContext.SetScissorRectangle((int)Math.Round(offX),
+                                                  (int)Math.Round(offY),
+                                                  (int)(viewportSize + offX),
+                                                  (int)(viewportSize + offY));
             }
         }
     }

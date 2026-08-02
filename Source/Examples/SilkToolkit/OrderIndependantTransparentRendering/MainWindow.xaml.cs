@@ -1,5 +1,4 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using HelixToolkit.Wpf.SharpDX;
 
 namespace OrderIndependentTransparentRendering;
 
@@ -38,12 +38,10 @@ public partial class MainWindow : Window {
                             //    selectedModel = null;
                             //}
                             selectedModel = arg.HitTestResult.ModelHit as GeometryModel3D;
-                            if (selectedModel != null) {
-                                selectedModel.PostEffects =
+                            selectedModel?.PostEffects =
                                     string.IsNullOrEmpty(selectedModel.PostEffects)
                                         ? $"highlight[color:#FFFF00]"
                                         : null;
-                            }
                         }));
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -94,7 +94,7 @@ public class BillboardText3D : BillboardBase {
     private const string FontName = "arial";
     private static readonly BitmapFont bmpFont;
 
-    private ObservableCollection<TextInfo> textInfo = new();
+    private ObservableCollection<TextInfo> textInfo = [];
 
     static BillboardText3D() {
         var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
@@ -136,7 +136,7 @@ public class BillboardText3D : BillboardBase {
             if (Set(ref textInfo, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
-                if (value != null) value.CollectionChanged += CollectionChanged;
+                value?.CollectionChanged += CollectionChanged;
             }
         }
     }

@@ -11,8 +11,8 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
-using PlatformColors = System.Windows.Media.Colors;
 using PlatformColor = System.Windows.Media.Color;
+using PlatformColors = System.Windows.Media.Colors;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -29,7 +29,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         if (node is BatchedMeshNode n) {
             n.DepthBias = DepthBias;
             n.IsDepthClipEnabled = IsDepthClipEnabled;
-            n.SlopeScaledDepthBias = (float) SlopeScaledDepthBias;
+            n.SlopeScaledDepthBias = (float)SlopeScaledDepthBias;
             n.IsMSAAEnabled = IsMultisampleEnabled;
             n.FillMode = FillMode;
             n.IsScissorEnabled = IsScissorEnabled;
@@ -50,10 +50,10 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         return new BatchedMeshNode();
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     public IList<BatchedMeshGeometryConfig> BatchedGeometries {
-        get => (IList<BatchedMeshGeometryConfig>) GetValue(BatchedGeometriesProperty);
+        get => (IList<BatchedMeshGeometryConfig>)GetValue(BatchedGeometriesProperty);
         set => SetValue(BatchedGeometriesProperty, value);
     }
 
@@ -66,12 +66,11 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                              ((d as BatchedMeshGeometryModel3D).SceneNode as
                                                               BatchedMeshNode).Geometries = e.NewValue == null
                                                                  ? null
-                                                                 : ((IList<BatchedMeshGeometryConfig>) e.NewValue)
-                                                                 .ToArray();
+                                                                 : [.. ((IList<BatchedMeshGeometryConfig>)e.NewValue)];
                                                          }));
 
     public IList<Material> BatchedMaterials {
-        get => (IList<Material>) GetValue(BatchedMaterialsProperty);
+        get => (IList<Material>)GetValue(BatchedMaterialsProperty);
         set => SetValue(BatchedMaterialsProperty, value);
     }
 
@@ -84,7 +83,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                              ((d as BatchedMeshGeometryModel3D).SceneNode as
                                                               BatchedMeshNode).Materials = e.NewValue == null
                                                                  ? null
-                                                                 : ((IList<Material>) e.NewValue)
+                                                                 : ((IList<Material>)e.NewValue)
                                                                    .Where(x => x.Core is PhongMaterialCore)
                                                                    .Select(x => x.Core as PhongMaterialCore)
                                                                    .ToArray();
@@ -97,7 +96,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              if ((d as Element3D).SceneNode is IThrowingShadow t)
-                                                                 t.IsThrowingShadow = (bool) e.NewValue;
+                                                                 t.IsThrowingShadow = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -110,7 +109,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .DepthBias = (int) e.NewValue;
+                                                                 .DepthBias = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -124,7 +123,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
                                                                  .SlopeScaledDepthBias =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -146,7 +145,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .IsMSAAEnabled = (bool) e.NewValue;
+                                                                 .IsMSAAEnabled = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -157,7 +156,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(FillMode.Solid,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FillMode = (FillMode) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FillMode = (FillMode)e.NewValue;
                              }));
 
     /// <summary>
@@ -170,7 +169,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .IsScissorEnabled = (bool) e.NewValue;
+                                                                 .IsScissorEnabled = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -183,7 +182,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .EnableViewFrustumCheck = (bool) e.NewValue;
+                                                                 .EnableViewFrustumCheck = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -196,7 +195,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         new PropertyMetadata(true,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as BatchedMeshNode).IsDepthClipEnabled =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
 
@@ -235,7 +234,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .IsTransparent = (bool) e.NewValue;
+                                                                 .IsTransparent = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -247,7 +246,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCCW = (bool) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCCW = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -258,7 +257,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(CullMode.None,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).CullMode = (CullMode) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).CullMode = (CullMode)e.NewValue;
                              }));
 
     /// <summary>
@@ -269,7 +268,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).InvertNormal = (bool) e.NewValue;
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).InvertNormal = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -282,7 +281,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .RenderWireframe = (bool) e.NewValue;
+                                                                 .RenderWireframe = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -296,7 +295,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
                                                                  .WireframeColor =
-                                                                 ((PlatformColor) e.NewValue).ToColor4();
+                                                                 ((PlatformColor)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -309,12 +308,12 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .AlwaysHittable = (bool) e.NewValue;
+                                                                 .AlwaysHittable = (bool)e.NewValue;
                                                          }));
 
 
     public string PostEffects {
-        get => (string) GetValue(PostEffectsProperty);
+        get => (string)GetValue(PostEffectsProperty);
         set => SetValue(PostEffectsProperty, value);
     }
 
@@ -323,7 +322,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <see cref="IThrowingShadow.IsThrowingShadow" />
     /// </summary>
     public bool IsThrowingShadow {
-        get => (bool) GetValue(IsThrowingShadowProperty);
+        get => (bool)GetValue(IsThrowingShadowProperty);
         set => SetValue(IsThrowingShadowProperty, value);
     }
 
@@ -334,7 +333,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     The depth bias.
     /// </value>
     public int DepthBias {
-        get => (int) GetValue(DepthBiasProperty);
+        get => (int)GetValue(DepthBiasProperty);
         set => SetValue(DepthBiasProperty, value);
     }
 
@@ -345,7 +344,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     The slope scaled depth bias.
     /// </value>
     public double SlopeScaledDepthBias {
-        get => (double) GetValue(SlopeScaledDepthBiasProperty);
+        get => (double)GetValue(SlopeScaledDepthBiasProperty);
         set => SetValue(SlopeScaledDepthBiasProperty, value);
     }
 
@@ -356,7 +355,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if this instance is selected; otherwise, <c>false</c>.
     /// </value>
     public bool IsSelected {
-        get => (bool) GetValue(IsSelectedProperty);
+        get => (bool)GetValue(IsSelectedProperty);
         set => SetValue(IsSelectedProperty, value);
     }
 
@@ -364,7 +363,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     Only works under FillMode = Wireframe. MSAA is determined by viewport MSAA settings for FillMode = Solid
     /// </summary>
     public bool IsMultisampleEnabled {
-        get => (bool) GetValue(IsMultisampleEnabledProperty);
+        get => (bool)GetValue(IsMultisampleEnabledProperty);
         set => SetValue(IsMultisampleEnabledProperty, value);
     }
 
@@ -375,7 +374,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     The fill mode.
     /// </value>
     public FillMode FillMode {
-        get => (FillMode) GetValue(FillModeProperty);
+        get => (FillMode)GetValue(FillModeProperty);
         set => SetValue(FillModeProperty, value);
     }
 
@@ -386,7 +385,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if this instance is scissor enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsScissorEnabled {
-        get => (bool) GetValue(IsScissorEnabledProperty);
+        get => (bool)GetValue(IsScissorEnabledProperty);
         set => SetValue(IsScissorEnabledProperty, value);
     }
 
@@ -397,7 +396,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if this instance is depth clip enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsDepthClipEnabled {
-        get => (bool) GetValue(IsDepthClipEnabledProperty);
+        get => (bool)GetValue(IsDepthClipEnabledProperty);
         set => SetValue(IsDepthClipEnabledProperty, value);
     }
 
@@ -408,14 +407,14 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableViewFrustumCheck {
-        get => (bool) GetValue(EnableViewFrustumCheckProperty);
+        get => (bool)GetValue(EnableViewFrustumCheckProperty);
         set => SetValue(EnableViewFrustumCheckProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public Material Material {
-        get => (Material) GetValue(MaterialProperty);
+        get => (Material)GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 
@@ -425,7 +424,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     are preserved.
     /// </summary>
     public bool IsTransparent {
-        get => (bool) GetValue(IsTransparentProperty);
+        get => (bool)GetValue(IsTransparentProperty);
         set => SetValue(IsTransparentProperty, value);
     }
 
@@ -437,7 +436,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderWireframe {
-        get => (bool) GetValue(RenderWireframeProperty);
+        get => (bool)GetValue(RenderWireframeProperty);
         set => SetValue(RenderWireframeProperty, value);
     }
 
@@ -448,7 +447,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     The color of the wireframe.
     /// </value>
     public PlatformColor WireframeColor {
-        get => (PlatformColor) GetValue(WireframeColorProperty);
+        get => (PlatformColor)GetValue(WireframeColorProperty);
         set => SetValue(WireframeColorProperty, value);
     }
 
@@ -459,7 +458,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if [front counter clockwise]; otherwise, <c>false</c>.
     /// </value>
     public bool FrontCounterClockwise {
-        get => (bool) GetValue(FrontCounterClockwiseProperty);
+        get => (bool)GetValue(FrontCounterClockwiseProperty);
         set => SetValue(FrontCounterClockwiseProperty, value);
     }
 
@@ -470,7 +469,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     The cull mode.
     /// </value>
     public CullMode CullMode {
-        get => (CullMode) GetValue(CullModeProperty);
+        get => (CullMode)GetValue(CullModeProperty);
         set => SetValue(CullModeProperty, value);
     }
 
@@ -478,7 +477,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     Invert the surface normal during rendering
     /// </summary>
     public bool InvertNormal {
-        get => (bool) GetValue(InvertNormalProperty);
+        get => (bool)GetValue(InvertNormalProperty);
         set => SetValue(InvertNormalProperty, value);
     }
 
@@ -489,9 +488,9 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
     ///     <c>true</c> if [always hittable]; otherwise, <c>false</c>.
     /// </value>
     public bool AlwaysHittable {
-        get => (bool) GetValue(AlwaysHittableProperty);
+        get => (bool)GetValue(AlwaysHittableProperty);
         set => SetValue(AlwaysHittableProperty, value);
     }
 
-#endregion
+    #endregion
 }

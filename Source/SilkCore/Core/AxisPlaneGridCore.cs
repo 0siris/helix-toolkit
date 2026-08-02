@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -159,7 +159,7 @@ namespace HelixToolkit.SharpDX.Core {
                 get => upAxis;
                 set {
                     if (SetAffectsRender(ref upAxis, value)) {
-                        modelStruct.Axis = (int) value;
+                        modelStruct.Axis = (int)value;
                         switch (value) {
                             case Axis.X:
                                 upDirection = Vector3.UnitX;
@@ -195,7 +195,7 @@ namespace HelixToolkit.SharpDX.Core {
             public GridPattern GridPattern {
                 get => gridType;
                 set {
-                    if (SetAffectsRender(ref gridType, value)) modelStruct.Type = (int) value;
+                    if (SetAffectsRender(ref gridType, value)) modelStruct.Type = (int)value;
                 }
             }
 

@@ -24,11 +24,11 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             public WpfBrush Background {
-                get => (WpfBrush) GetValue(BackgroundProperty);
+                get => (WpfBrush)GetValue(BackgroundProperty);
                 set => SetValue(BackgroundProperty, value);
             }
 
-            public ObservableCollection<Element2D> Children { get; } = new();
+            public ObservableCollection<Element2D> Children { get; } = [];
 
             private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
                 if (e.OldItems != null) DetachChildren(e.OldItems);

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -55,24 +55,24 @@ namespace HelixToolkit.SharpDX.Core {
                 IsTessellating = true;
                 var token = cancelToken.Token;
                 tesselationTask = Task.Run(() => {
-                                               var mesh = OnTesselatingAsync(token);
-                                               mesh.Normals = mesh.CalculateNormals();
-                                               mesh?.UpdateOctree();
-                                               mesh?.UpdateBounds();
-                                               return mesh;
-                                           },
+                    var mesh = OnTesselatingAsync(token);
+                    mesh.Normals = mesh.CalculateNormals();
+                    mesh?.UpdateOctree();
+                    mesh?.UpdateBounds();
+                    return mesh;
+                },
                                            token).ContinueWith(result => {
-                                                                   IsTessellating = false;
-                                                                   if (result.IsCompleted) Geometry = result.Result;
-                                                               },
+                                               IsTessellating = false;
+                                               if (result.IsCompleted) Geometry = result.Result;
+                                           },
                                                                TaskScheduler.FromCurrentSynchronizationContext());
             }
 
             protected virtual MeshGeometry3D OnTesselatingAsync(CancellationToken token) {
                 var mesh = new MeshGeometry3D {
-                    Positions = new Vector3Collection(),
-                    TextureCoordinates = new Vector2Collection(),
-                    Indices = new IntCollection()
+                    Positions = [],
+                    TextureCoordinates = [],
+                    Indices = []
                 };
 
                 var n = MeshSizeU;
@@ -97,21 +97,21 @@ namespace HelixToolkit.SharpDX.Core {
                 // );
                 var idx = 0;
                 for (var i = 0; i < n && !token.IsCancellationRequested; i++)
-                for (var j = 0; j < m; j++) {
-                    mesh.Positions.Add(p[idx]);
-                    mesh.TextureCoordinates.Add(tc[idx]);
-                    idx++;
-                }
+                    for (var j = 0; j < m; j++) {
+                        mesh.Positions.Add(p[idx]);
+                        mesh.TextureCoordinates.Add(tc[idx]);
+                        idx++;
+                    }
 
                 for (var i = 0; i + 1 < n && !token.IsCancellationRequested; i++)
-                for (var j = 0; j + 1 < m; j++) {
-                    var x0 = i * m;
-                    var x1 = (i + 1) * m;
-                    var y0 = j;
-                    var y1 = j + 1;
-                    AddTriangle(mesh, x0 + y0, x1 + y0, x0 + y1);
-                    AddTriangle(mesh, x1 + y0, x1 + y1, x0 + y1);
-                }
+                    for (var j = 0; j + 1 < m; j++) {
+                        var x0 = i * m;
+                        var x1 = (i + 1) * m;
+                        var y0 = j;
+                        var y1 = j + 1;
+                        AddTriangle(mesh, x0 + y0, x1 + y0, x0 + y1);
+                        AddTriangle(mesh, x1 + y0, x1 + y1, x0 + y1);
+                    }
 
                 return mesh;
             }

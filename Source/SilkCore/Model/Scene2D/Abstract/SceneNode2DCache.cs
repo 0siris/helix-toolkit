@@ -1,8 +1,9 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using Microsoft.Extensions.Logging;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core {
@@ -54,10 +55,8 @@ namespace HelixToolkit.SharpDX.Core {
                      size.Width > bitmapCache.Size.Width ||
                      size.Height > bitmapCache.Size.Height) {
 #if DEBUGCACHECREATE
-                    if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug("Create new bitmap cache.");
-                    }
+                    if (Logger.IsEnabled(LogLevel.Debug))
+                        Logger.Debug("Create new bitmap cache.");
 #endif
                     Disposer.RemoveAndDispose(ref bitmapCache);
                     bitmapCache = BitmapProxy.Create("Cache", context.DeviceContext, size, default);

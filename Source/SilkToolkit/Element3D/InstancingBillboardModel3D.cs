@@ -14,10 +14,10 @@ public class InstancingBillboardModel3D : BillboardTextModel3D {
     /// </summary>
     /// <returns></returns>
     protected override SceneNode OnCreateSceneNode() {
-        return new InstancingBillboardNode {Material = material};
+        return new InstancingBillboardNode { Material = material };
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     List of instance parameter.
@@ -37,9 +37,9 @@ public class InstancingBillboardModel3D : BillboardTextModel3D {
     ///     List of instance parameters.
     /// </summary>
     public IList<BillboardInstanceParameter> InstanceParamArray {
-        get => (IList<BillboardInstanceParameter>) GetValue(InstanceAdvArrayProperty);
+        get => (IList<BillboardInstanceParameter>)GetValue(InstanceAdvArrayProperty);
         set => SetValue(InstanceAdvArrayProperty, value);
     }
 
-#endregion
+    #endregion
 }

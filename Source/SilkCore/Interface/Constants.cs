@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -48,15 +48,15 @@ public static class Constants {
     /// </summary>
     public const int VertexIdx = 0, HullIdx = 1, DomainIdx = 2, GeometryIdx = 3, PixelIdx = 4, ComputeIdx = 5;
 
-    public static readonly char[] Separators = {';', ' ', ','};
-    public static readonly FastList<KeyValuePair<int, SceneNode>> EmptyRenderablePair = new();
-    public static readonly FastList<SceneNode> EmptyRenderable = new();
-    public static readonly List<RenderCore> EmptyCore = new();
-    internal static readonly ObservableFastList<SceneNode> EmptyRenderableArray = new();
+    public static readonly char[] Separators = [';', ' ', ','];
+    public static readonly FastList<KeyValuePair<int, SceneNode>> EmptyRenderablePair = [];
+    public static readonly FastList<SceneNode> EmptyRenderable = [];
+    public static readonly List<RenderCore> EmptyCore = [];
+    internal static readonly ObservableFastList<SceneNode> EmptyRenderableArray = [];
     internal static readonly ReadOnlyObservableFastList<SceneNode> EmptyReadOnlyRenderableArray;
-    internal static readonly ObservableFastList<SceneNode2D> EmptyRenderable2D = new();
+    internal static readonly ObservableFastList<SceneNode2D> EmptyRenderable2D = [];
     internal static readonly ReadOnlyObservableFastList<SceneNode2D> EmptyReadOnlyRenderable2DArray;
-    public static readonly IList<RenderCore2D> EmptyCore2D = new RenderCore2D[0];
+    public static readonly IList<RenderCore2D> EmptyCore2D = [];
 
     static Constants() {
         EmptyReadOnlyRenderableArray = new ReadOnlyObservableFastList<SceneNode>(EmptyRenderableArray);

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ public static class CollectionExtensions {
     /// <param name="list">The respective list.</param>
     /// <returns>The internal array of the list.</returns>
     public static T[] GetInternalArray<T>(this List<T> list) {
-        return list.ToArray();
+        return [.. list];
     }
 
     public static T[] GetArrayByType<T>(this IList<T> list) {
@@ -23,7 +23,7 @@ public static class CollectionExtensions {
         else if (list is FastList<T> f)
             array = f.Items;
         else
-            array = list.ToArray();
+            array = [.. list];
         return array;
     }
 

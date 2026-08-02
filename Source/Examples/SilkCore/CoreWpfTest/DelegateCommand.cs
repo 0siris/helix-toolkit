@@ -48,7 +48,7 @@ public class DelegateCommand : ICommand {
     }
 
     public bool CanExecute(object parameter) {
-        return canExecute == null ? true : canExecute();
+        return canExecute == null || canExecute();
     }
 
     public void Execute(object parameter) {

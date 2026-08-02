@@ -10,16 +10,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core.Core;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D MeshGeometry { get; private set; }
@@ -77,7 +77,7 @@ public class MainViewModel : BaseViewModel {
         var meshGeometry = b1.ToMeshGeometry3D();
         meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
         this.MeshGeometry = meshGeometry;
-        this.Model1Instances = new List<Matrix>();
+        this.Model1Instances = [];
         for (int i = 0; i < 5; i++) {
             this.Model1Instances.Add(Translation(0, i, 0));
         }
@@ -103,14 +103,14 @@ public class MainViewModel : BaseViewModel {
                 Geometry = this.MeshGeometry,
                 Material = this.BlueMaterial,
                 Transform = this.Model3Transform,
-                Instances = new List<Matrix> {Matrix.Identity},
+                Instances = [Matrix.Identity],
                 DragZ = false,
             },
             new Shape3D() {
                 Geometry = this.MeshGeometry,
                 Material = this.RedMaterial,
                 Transform = this.Model1Transform,
-                Instances = new List<Matrix> {Matrix.Identity},
+                Instances = [Matrix.Identity],
                 DragZ = true,
             },
         };
@@ -139,11 +139,11 @@ public class MainViewModel : BaseViewModel {
             Geometry = this.MeshGeometry,
             Material = this.GreenMaterial,
             Transform = this.Model2Transform,
-            Instances = new List<Matrix> {
+            Instances = [
                 Translation(-1, 0, 0), Translation(+1, 0, 0),
                 Translation(0, -1, 0), Translation(0, +1, 0),
                 Translation(0, 0, -1), Translation(0, 0, +1),
-            },
+            ],
         });
 
         var shape = new Shape3D() {
@@ -157,11 +157,11 @@ public class MainViewModel : BaseViewModel {
     public void DelShape() {
         //this.Element3DCollection = null;
         //this.Element3DCollection = new ObservableCollection<Element3D>();
-        this.Element3DCollection.Remove((Element3D) SelectedItem);
+        this.Element3DCollection.Remove((Element3D)SelectedItem);
 
         //this.Shape3DCollection = null;
         //this.Shape3DCollection = new ObservableCollection<Shape3D>();
-        this.Shape3DCollection.Remove((Shape3D) SelectedItem);
+        this.Shape3DCollection.Remove((Shape3D)SelectedItem);
     }
 
 

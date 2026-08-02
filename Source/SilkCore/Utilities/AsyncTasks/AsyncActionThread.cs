@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 namespace HelixToolkit.SharpDX.Core;
 
 internal sealed class AsyncActionWaitable : DisposeObject {
-    private static readonly ConcurrentBag<AsyncActionWaitable> pool = new();
+    private static readonly ConcurrentBag<AsyncActionWaitable> pool = [];
     private readonly object waitable = new();
     private Action action;
 
@@ -105,8 +105,9 @@ internal sealed class AsyncActionThread : IDisposable {
                 }
 
             Clear();
-        });
-        jobThread.Priority = ThreadPriority.AboveNormal;
+        }) {
+            Priority = ThreadPriority.AboveNormal
+        };
         jobThread.Start();
     }
 

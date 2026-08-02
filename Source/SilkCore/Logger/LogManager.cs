@@ -8,7 +8,7 @@ public static class LogManager {
     /// <summary>
     ///     Replace factory at app start up to use custom logger.
     /// </summary>
-    public static ILoggerFactory Factory { get; set; } = new DebugLoggerFactory();
+    public static ILoggerFactory Factory { get; set; } = new LoggerLibLoggerFactory();
 
     /// <summary>
     /// </summary>

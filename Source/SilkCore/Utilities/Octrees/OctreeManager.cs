@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OctreeManager.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -16,7 +16,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
-            private static readonly ILogger logger = LogManager.Create<OctreeManagerBase>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             private bool mEnabled = true;
 
@@ -137,12 +137,12 @@ namespace HelixToolkit.SharpDX.Core {
         ///     two ItemsModel3D
         /// </summary>
         public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
-            private static readonly ILogger logger = LogManager.Create<GroupNodeGeometryBoundOctreeManager>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private readonly object lockObj = new();
 
-            private readonly HashSet<SceneNode> NonBoundableItems = new();
+            private readonly HashSet<SceneNode> NonBoundableItems = [];
 
-            private readonly HashSet<SceneNode> pendingItems = new();
+            private readonly HashSet<SceneNode> pendingItems = [];
 
             private void UpdateOctree(BoundableNodeOctree tree) {
                 Octree = tree;
@@ -234,7 +234,7 @@ namespace HelixToolkit.SharpDX.Core {
             private BoundableNodeOctree RebuildOctree(IEnumerable<SceneNode> items) {
                 Clear();
                 if (items == null) return null;
-                var tree = new BoundableNodeOctree(items.ToList(), Parameter);
+                var tree = new BoundableNodeOctree([.. items], Parameter);
                 tree.BuildTree();
                 if (tree.TreeBuilt)
                     foreach (var item in items)
@@ -330,7 +330,7 @@ namespace HelixToolkit.SharpDX.Core {
                             item.TransformBoundChanged -= GeometryModel3DOctreeManager_OnBoundInitialized;
                             UnsubscribeBoundChangeEvent(item);
                             if (!tree.RemoveByBound(item)) {
-                                if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Remove failed.");
+                                if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Remove failed.");
                             } else {
                                 tree = tree.Shrink() as BoundableNodeOctree;
                             }

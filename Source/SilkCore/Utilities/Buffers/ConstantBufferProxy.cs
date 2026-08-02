@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -74,7 +74,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public string Name { get; private set; }
 
-            internal Dictionary<string, ConstantBufferVariable> VariableDictionary { get; } = new();
+            internal Dictionary<string, ConstantBufferVariable> VariableDictionary { get; } = [];
 
             /// <summary>
             ///     Gets the <see cref="ConstantBufferVariable" /> with the specified name.
@@ -105,7 +105,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             private void EnsureBuffer(DeviceContextProxy context) {
-                if (buffer == null) buffer = new Buffer(context, bufferDesc);
+                buffer ??= new Buffer(context, bufferDesc);
             }
 
             /// <summary>

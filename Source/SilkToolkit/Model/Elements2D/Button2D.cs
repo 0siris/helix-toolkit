@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {

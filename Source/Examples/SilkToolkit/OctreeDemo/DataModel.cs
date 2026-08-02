@@ -1,18 +1,18 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Animation;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace OctreeDemo;
 
 public class DataModel : DemoCore.ObservableObject {
-    private MeshGeometry3D model = null;
+    private MeshGeometry3D? model = null;
 
     public MeshGeometry3D Model {
         set { SetValue<MeshGeometry3D>(ref model, value, nameof(Model)); }
@@ -95,7 +95,7 @@ public class SphereModel : DataModel {
         }
 
         var color = rnd.NextColor();
-        Material = new PhongMaterial() {DiffuseColor = color.ToColor4()};
+        Material = new PhongMaterial() { DiffuseColor = color.ToColor4() };
     }
 
     private Vector3 center;
@@ -163,10 +163,11 @@ public class SphereModel : DataModel {
             IsCumulative = true,
         };
 
-        var rotateTransform1 = new Media3D.RotateTransform3D();
-        rotateTransform1.CenterX = center.X;
-        rotateTransform1.CenterY = center.Y;
-        rotateTransform1.CenterZ = center.Z;
+        var rotateTransform1 = new Media3D.RotateTransform3D {
+            CenterX = center.X,
+            CenterY = center.Y,
+            CenterZ = center.Z
+        };
         rotateTransform1.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation1);
 
         transformGroup.Children.Add(rotateTransform1);
@@ -182,8 +183,8 @@ internal static class RandomExtensions {
 
     public static System.Windows.Media.Color NextColor(this Random random) {
         return System.Windows.Media.Color.FromArgb(255,
-                                                   (byte) random.Next(256),
-                                                   (byte) random.Next(256),
-                                                   (byte) random.Next(256));
+                                                   (byte)random.Next(256),
+                                                   (byte)random.Next(256),
+                                                   (byte)random.Next(256));
     }
 }

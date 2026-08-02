@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -11,7 +11,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class PathRenderCore2D : ShapeRenderCore2DBase {
-            private List<Figure> figures = new();
+            private List<Figure> figures = [];
 
             private D2DFillMode fillMode = D2DFillMode.Alternate;
 

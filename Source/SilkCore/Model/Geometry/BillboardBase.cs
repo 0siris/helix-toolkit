@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace HelixToolkit.SharpDX.Core;
 
 public abstract class BillboardBase : Geometry3D, IBillboardText {
-    private static readonly ILogger logger = LogManager.Create<BillboardBase>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     private bool isInitialized;
 
@@ -34,7 +34,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         }
     }
 
-    public IList<BillboardVertex> BillboardVertices { get; } = new FastList<BillboardVertex>();
+    public IList<BillboardVertex> BillboardVertices { get; } = [];
 
     /// <summary>
     ///     Draws the texture and fill the billboardverties. Called during initialize vertex buffer.
@@ -42,7 +42,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
     /// <param name="deviceResources">The device resources.</param>
     public void DrawTexture(IDeviceResources deviceResources) {
         if (!isInitialized) {
-            if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Billboard update texture and verts");
+            if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Billboard update texture and verts");
             BillboardVertices.Clear();
             OnUpdateTextureAndBillboardVertices(deviceResources);
             UpdateBounds();
@@ -65,7 +65,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         IsInitialized = false;
     }
 
-#region HitTest
+    #region HitTest
 
     /// <summary>
     ///     Hits the test.
@@ -135,10 +135,11 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 result.Distance = dist;
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
-                if (logger.IsEnabled(LogLevel.Trace))
-                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}",
-                                    result.PointHit,
-                                    result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
+                        result.PointHit,
+                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text
+                    ]);
             }
         }
 
@@ -205,10 +206,11 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 result.Distance = dist;
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
-                if (logger.IsEnabled(LogLevel.Trace))
-                    logger.LogTrace("Hit; HitPoint:{0}; Text={1}",
-                                    result.PointHit,
-                                    result.TextInfo == null ? Type.ToString() : result.TextInfo.Text);
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
+                        result.PointHit,
+                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text
+                    ]);
             }
         }
 
@@ -386,5 +388,5 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         return new Quad2D(ref tl, ref tr, ref bl, ref br);
     }
 
-#endregion
+    #endregion
 }

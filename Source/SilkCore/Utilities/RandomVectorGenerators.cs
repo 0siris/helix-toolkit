@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public Vector3 RandomVector3 => random.NextVector3(MinVector, MaxVector);
 
-            public uint Seed => (uint) Math.Abs(random.Next());
+            public uint Seed => (uint)Math.Abs(random.Next());
         }
     }
 }

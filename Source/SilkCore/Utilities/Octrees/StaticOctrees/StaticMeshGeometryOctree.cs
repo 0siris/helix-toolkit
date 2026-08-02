@@ -106,8 +106,9 @@ namespace HelixToolkit.SharpDX.Core {
                 if (rayModel.Intersects(ref bound)) {
                     isIntersect = true;
                     if (octant.Count == 0) return false;
-                    var result = new HitTestResult();
-                    result.Distance = double.MaxValue;
+                    var result = new HitTestResult {
+                        Distance = double.MaxValue
+                    };
                     var minDistance = float.MaxValue;
                     var rayWS = context.RayWS;
                     for (var i = octant.Start; i < octant.End; ++i) {
@@ -199,8 +200,9 @@ namespace HelixToolkit.SharpDX.Core {
                 ref bool isIntersect
             ) {
                 var isHit = false;
-                var tempResult = new HitTestResult();
-                tempResult.Distance = float.MaxValue;
+                var tempResult = new HitTestResult {
+                    Distance = float.MaxValue
+                };
                 if (!BoxDisjointSphere(octant.Bound, ref sphere)) {
                     isIntersect = true;
                     for (var i = octant.Start; i < octant.End; ++i)

@@ -5,24 +5,24 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
-using Colors = System.Windows.Media.Colors;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace DynamicPointsAndLines;
 
 public class MainViewModel : INotifyPropertyChanged, IDisposable {
-#region INotifyPropertyChanged Support
+    #region INotifyPropertyChanged Support
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -39,9 +39,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         return true;
     }
 
-#endregion
+    #endregion
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue = false; // To detect redundant calls
 
@@ -77,7 +77,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 
     public LineGeometry3D Lines { get; }
     public PointGeometry3D Points { get; }
@@ -127,8 +127,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         Lines2Transform = new TranslateTransform3D(0, 0, -45);
         Points1Transform = new TranslateTransform3D(0, 0, 0);
 
-        Lines = new LineGeometry3D {IsDynamic = true, Positions = new Vector3Collection()};
-        Points = new PointGeometry3D {IsDynamic = true, Positions = new Vector3Collection()};
+        Lines = new LineGeometry3D { IsDynamic = true, Positions = [] };
+        Points = new PointGeometry3D { IsDynamic = true, Positions = [] };
 
         StopWatch = new Stopwatch();
         StopWatch.Start();
@@ -153,9 +153,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         for (int i = 0; i < n; i++) {
             double t = Math.PI * 2 * i / (n - 1);
             double u = (t * 24) + (time * 5);
-            var pt = new Vector3((float) (Math.Cos(t) * (R + (Q * Math.Cos(u)))),
-                                 (float) (Math.Sin(t) * (R + (Q * Math.Cos(u)))),
-                                 (float) (Q * Math.Sin(u)));
+            var pt = new Vector3((float)(Math.Cos(t) * (R + (Q * Math.Cos(u)))),
+                                 (float)(Math.Sin(t) * (R + (Q * Math.Cos(u)))),
+                                 (float)(Q * Math.Sin(u)));
             yield return pt;
             if (i > 0 && i < n - 1) {
                 yield return pt;

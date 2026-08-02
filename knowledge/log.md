@@ -18,3 +18,11 @@
 ## 2026-07-20
 
 * **Creation**: Added the xUnit v3 test strategy for SilkCore, SilkToolkit, and SilkAssimp, including local commands and non-blocking 70% coverage reporting.
+
+## 2026-08-01
+
+* **Update**: Embedded the upstream OKF v0.2 specification and aligned the repository guidance and bundle index with OKF v0.2.
+* **Initialization**: Added the generated graph database workflow for the `knowledge/` bundle.
+* **Initialization**: Built the project source knowledge graph with 7,668 nodes, 17,157 edges, and 422 communities; normalized all source paths to `Source/...`.
+* **Creation**: Added the reproducible `tools/build_graphify_source.py` builder and its OKF concept documentation.
+* **Creation**: Added the phased C#/.NET coding-conventions policy covering LoggerLib, Assertions, analyzer enforcement, tests, and additive library compatibility.

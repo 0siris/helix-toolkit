@@ -7,19 +7,19 @@
 namespace ShadowMapDemo;
 
 using System;
-using System.Windows.Media.Animation;
-using Media = System.Windows.Media;
-using HelixToolkit.Wpf;
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media.Animation;
+using DemoCore;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media = System.Windows.Media;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -35,7 +35,7 @@ public class MainViewModel : BaseViewModel {
     public PhongMaterial GrayMaterial { get; private set; }
 
     public PhongMaterial LightCameraMaterial { get; private set; } =
-        new PhongMaterial() {EmissiveColor = Media.Colors.Yellow.ToColor4()};
+        new PhongMaterial() { EmissiveColor = Media.Colors.Yellow.ToColor4() };
 
     public Media.Color GridColor { get; private set; }
 
@@ -94,7 +94,7 @@ public class MainViewModel : BaseViewModel {
         b1.AddSphere(new Vector3(0, 0, 0), 0.5);
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.25, 2, BoxFaces.All);
         Model = b1.ToMeshGeometry3D();
-        Instances = new[] {Translation(0, 0, -1.5f), Translation(0, 0, 1.5f)};
+        Instances = [Translation(0, 0, -1.5f), Translation(0, 0, 1.5f)];
 
         var b2 = new MeshBuilder();
         b2.AddBox(new Vector3(0, 0, 0), 10, 0, 10, BoxFaces.PositiveY);

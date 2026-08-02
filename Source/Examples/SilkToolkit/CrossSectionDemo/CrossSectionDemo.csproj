@@ -20,6 +20,9 @@
     <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
     <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\External\Assertions\Assertions.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">

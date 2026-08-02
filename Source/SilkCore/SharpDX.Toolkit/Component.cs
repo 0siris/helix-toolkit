@@ -87,7 +87,7 @@ public abstract class Component : ComponentBase, IDisposable {
     protected internal T ToDispose<T>(T toDisposeArg) {
         if (!ReferenceEquals(toDisposeArg, null)) {
             if (toDisposeArg is IDisposable disposable) {
-                disposeCollector ??= new List<IDisposable>();
+                disposeCollector ??= [];
                 disposeCollector.Add(disposable);
             }
 

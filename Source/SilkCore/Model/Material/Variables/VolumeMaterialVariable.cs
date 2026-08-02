@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -49,17 +49,17 @@ namespace HelixToolkit.SharpDX.Core {
                                        sampler = newSampler;
                                    });
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.SampleDistance),
-                                   () => UpdateStepSize());
+                                   UpdateStepSize);
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.MaxIterations),
                                    () => WriteValue(VolumeParamsStruct.MaxIterations, material.MaxIterations));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IterationOffset),
                                    () => WriteValue(VolumeParamsStruct.IterationOffset, material.IterationOffset));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.IsoValue),
-                                   () => WriteValue(VolumeParamsStruct.IsoValue, (float) material.IsoValue));
+                                   () => WriteValue(VolumeParamsStruct.IsoValue, (float)material.IsoValue));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.Color),
                                    () => WriteValue(VolumeParamsStruct.Color, material.Color));
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.TransferMap),
-                                   () => UpdateGradientMap());
+                                   UpdateGradientMap);
                 AddPropertyBinding(nameof(IVolumeTextureMaterial.EnablePlaneAlignment),
                                    () => WriteValue(VolumeParamsStruct.EnablePlaneAlignment,
                                                     material.EnablePlaneAlignment));
@@ -69,13 +69,13 @@ namespace HelixToolkit.SharpDX.Core {
                 if (texture?.Resource is Texture3D texture3D) {
                     var desc = texture3D.Description;
                     var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
-                    var steps = 1f / maxSize * (float) material.SampleDistance;
+                    var steps = 1f / maxSize * (float)material.SampleDistance;
                     WriteValue(VolumeParamsStruct.StepSize, steps);
                 } else {
                     WriteValue(VolumeParamsStruct.StepSize, 1);
                 }
 
-                WriteValue(VolumeParamsStruct.ActualSampleDistance, (float) material.SampleDistance);
+                WriteValue(VolumeParamsStruct.ActualSampleDistance, (float)material.SampleDistance);
                 WriteValue(VolumeParamsStruct.BaseSampleDistance, 1.0f);
             }
 

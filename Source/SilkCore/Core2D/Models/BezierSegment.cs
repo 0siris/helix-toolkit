@@ -31,7 +31,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <param name="sink">The sink.</param>
             public override void Create(GeometrySink sink) {
-                sink.AddBezier(new BezierSegmentData {Point1 = P1, Point2 = P2, Point3 = P3});
+                sink.AddBezier(new BezierSegmentData { Point1 = P1, Point2 = P2, Point3 = P3 });
             }
         }
     }

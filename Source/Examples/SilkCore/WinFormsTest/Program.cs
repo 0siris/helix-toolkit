@@ -7,13 +7,13 @@ using System.Windows.Forms;
 namespace WinFormsTest;
 
 internal static class Program {
-    static NVOptimusEnabler nvEnabler = new NVOptimusEnabler();
+    private static NVOptimusEnabler nvEnabler = new NVOptimusEnabler();
 
     /// <summary>
     ///  The main entry point for the application.
     /// </summary>
     [STAThread]
-    static void Main() {
+    private static void Main() {
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);

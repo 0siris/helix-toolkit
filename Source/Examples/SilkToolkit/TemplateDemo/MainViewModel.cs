@@ -14,16 +14,16 @@ using HelixToolkit.Wpf.SharpDX;
 
 public class MainViewModel : BaseViewModel {
     public ObservableCollection<SelectionViewModel> ViewModels { get; } =
-        new ObservableCollection<SelectionViewModel>();
+        [];
 
-    private SelectionViewModel selectedViewModel = null;
+    private SelectionViewModel? selectedViewModel = null;
 
     public SelectionViewModel SelectedViewModel {
         set { SetValue(ref selectedViewModel, value); }
         get { return selectedViewModel; }
     }
 
-    private PhongMaterialCollection materials = new PhongMaterialCollection();
+    private PhongMaterialCollection materials = [];
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -34,14 +34,14 @@ public class MainViewModel : BaseViewModel {
     private void CreateViewModels() {
         var vm = new SelectionViewModel(nameof(Sphere));
         for (int i = 0; i < 10; ++i) {
-            vm.Items.Add(new Sphere() {Transform = new TranslateTransform3D(0, i, 0), Material = materials[i]});
+            vm.Items.Add(new Sphere() { Transform = new TranslateTransform3D(0, i, 0), Material = materials[i] });
         }
 
         ViewModels.Add(vm);
 
         vm = new SelectionViewModel(nameof(Cube));
         for (int i = 0; i < 10; ++i) {
-            vm.Items.Add(new Cube() {Transform = new TranslateTransform3D(i, i, 0), Material = materials[i]});
+            vm.Items.Add(new Cube() { Transform = new TranslateTransform3D(i, i, 0), Material = materials[i] });
         }
 
         ViewModels.Add(vm);
@@ -50,7 +50,7 @@ public class MainViewModel : BaseViewModel {
 
 public class SelectionViewModel {
     public string Name { private set; get; }
-    public ObservableCollection<Shape> Items { get; } = new ObservableCollection<Shape>();
+    public ObservableCollection<Shape> Items { get; } = [];
 
     public SelectionViewModel(string name) {
         Name = name;

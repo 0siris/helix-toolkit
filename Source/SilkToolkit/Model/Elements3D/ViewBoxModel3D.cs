@@ -1,4 +1,4 @@
-﻿// <copyright file="CoordinateSystemModel3D.cs" company="Helix Toolkit">
+// <copyright file="CoordinateSystemModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
 // </copyright>
@@ -28,7 +28,7 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
         new PropertyMetadata(new Media3D.Vector3D(0, 1, 0),
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ViewBoxNode).UpDirection =
-                                     ((Media3D.Vector3D) e.NewValue).ToVector3();
+                                     ((Media3D.Vector3D)e.NewValue).ToVector3();
                              }));
 
 
@@ -38,7 +38,7 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
         new PropertyMetadata(null,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as ViewBoxNode).ViewBoxTexture =
-                                     (TextureModel) e.NewValue;
+                                     (TextureModel)e.NewValue;
                              }));
 
     /// <summary>
@@ -51,7 +51,7 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ViewBoxNode)
-                                                                 .EnableEdgeClick = (bool) e.NewValue;
+                                                                 .EnableEdgeClick = (bool)e.NewValue;
                                                          }));
 
 
@@ -62,12 +62,12 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
     ///     Up direction.
     /// </value>
     public Media3D.Vector3D UpDirection {
-        get => (Media3D.Vector3D) GetValue(UpDirectionProperty);
+        get => (Media3D.Vector3D)GetValue(UpDirectionProperty);
         set => SetValue(UpDirectionProperty, value);
     }
 
     public TextureModel ViewBoxTexture {
-        get => (TextureModel) GetValue(ViewBoxTextureProperty);
+        get => (TextureModel)GetValue(ViewBoxTextureProperty);
         set => SetValue(ViewBoxTextureProperty, value);
     }
 
@@ -79,7 +79,7 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
     ///     <c>true</c> if [enable edge click]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableEdgeClick {
-        get => (bool) GetValue(EnableEdgeClickProperty);
+        get => (bool)GetValue(EnableEdgeClickProperty);
         set => SetValue(EnableEdgeClickProperty, value);
     }
 

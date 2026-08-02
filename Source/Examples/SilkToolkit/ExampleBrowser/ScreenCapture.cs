@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 
 public static class ScreenCapture {
     [DllImport("gdi32.dll")]
-    static extern bool BitBlt(
+    private static extern bool BitBlt(
         IntPtr hdcDest,
         int xDest,
         int yDest,
@@ -25,28 +25,28 @@ public static class ScreenCapture {
     );
 
     [DllImport("user32.dll")]
-    static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
+    private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
 
     [DllImport("gdi32.dll")]
-    static extern IntPtr DeleteDC(IntPtr hDc);
+    private static extern IntPtr DeleteDC(IntPtr hDc);
 
     [DllImport("gdi32.dll")]
-    static extern IntPtr DeleteObject(IntPtr hDc);
+    private static extern IntPtr DeleteObject(IntPtr hDc);
 
     [DllImport("gdi32.dll")]
-    static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
+    private static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
 
     [DllImport("gdi32.dll")]
-    static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+    private static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
     [DllImport("gdi32.dll")]
-    static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
+    private static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetDesktopWindow();
 
     [DllImport("user32.dll")]
-    static extern IntPtr GetWindowDC(IntPtr ptr);
+    private static extern IntPtr GetWindowDC(IntPtr ptr);
 
     public static Bitmap Capture(int left, int top, int width, int height) {
         var hDesk = GetDesktopWindow();

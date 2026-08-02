@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core {

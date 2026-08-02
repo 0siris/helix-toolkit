@@ -1,4 +1,4 @@
-﻿// <copyright file="ScreenSpaceMeshGeometry3D.cs" company="Helix Toolkit">
+// <copyright file="ScreenSpaceMeshGeometry3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
 // </copyright>
@@ -28,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             new PropertyMetadata(-0.8,
                                  (d, e) => {
                                      ((d as Element3DCore).SceneNode as ScreenSpacedNode).RelativeScreenLocationX =
-                                         (float) (double) e.NewValue;
+                                         (float)(double)e.NewValue;
                                  }));
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             new PropertyMetadata(-0.8,
                                  (d, e) => {
                                      ((d as Element3DCore).SceneNode as ScreenSpacedNode).RelativeScreenLocationY =
-                                         (float) (double) e.NewValue;
+                                         (float)(double)e.NewValue;
                                  }));
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             new PropertyMetadata(1.0,
                                  (d, e) => {
                                      ((d as Element3DCore).SceneNode as ScreenSpacedNode).SizeScale =
-                                         (float) (double) e.NewValue;
+                                         (float)(double)e.NewValue;
                                  }));
 
 
@@ -76,7 +76,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                         new PropertyMetadata(ScreenSpacedMode.RelativeScreenSpaced,
                                                              (d, e) => {
                                                                  ((d as Element3DCore).SceneNode as ScreenSpacedNode)
-                                                                     .Mode = (ScreenSpacedMode) e.NewValue;
+                                                                     .Mode = (ScreenSpacedMode)e.NewValue;
                                                              }));
 
 
@@ -91,7 +91,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                              (d, e) => {
                                                                  ((d as Element3DCore).SceneNode as ScreenSpacedNode)
                                                                      .AbsolutePosition3D =
-                                                                     ((Point3D) e.NewValue).ToVector3();
+                                                                     ((Point3D)e.NewValue).ToVector3();
                                                              }));
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     <c>true</c> if [enable mover]; otherwise, <c>false</c>.
         /// </value>
         public bool EnableMover {
-            get => (bool) GetValue(EnableMoverProperty);
+            get => (bool)GetValue(EnableMoverProperty);
             set => SetValue(EnableMoverProperty, value);
         }
 
@@ -109,7 +109,7 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     Relative Location X on screen. Range from -1~1
         /// </summary>
         public double RelativeScreenLocationX {
-            get => (double) GetValue(RelativeScreenLocationXProperty);
+            get => (double)GetValue(RelativeScreenLocationXProperty);
             set => SetValue(RelativeScreenLocationXProperty, value);
         }
 
@@ -117,7 +117,7 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     Relative Location Y on screen. Range from -1~1
         /// </summary>
         public double RelativeScreenLocationY {
-            get => (double) GetValue(RelativeScreenLocationYProperty);
+            get => (double)GetValue(RelativeScreenLocationYProperty);
             set => SetValue(RelativeScreenLocationYProperty, value);
         }
 
@@ -125,7 +125,7 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     Size scaling
         /// </summary>
         public double SizeScale {
-            get => (double) GetValue(SizeScaleProperty);
+            get => (double)GetValue(SizeScaleProperty);
             set => SetValue(SizeScaleProperty, value);
         }
 
@@ -136,7 +136,7 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     The mode.
         /// </value>
         public ScreenSpacedMode Mode {
-            get => (ScreenSpacedMode) GetValue(ModeProperty);
+            get => (ScreenSpacedMode)GetValue(ModeProperty);
             set => SetValue(ModeProperty, value);
         }
 
@@ -148,15 +148,15 @@ namespace HelixToolkit.Wpf.SharpDX {
         ///     The absolute position3 d.
         /// </value>
         public Point3D AbsolutePosition3D {
-            get => (Point3D) GetValue(AbsolutePosition3DProperty);
+            get => (Point3D)GetValue(AbsolutePosition3DProperty);
             set => SetValue(AbsolutePosition3DProperty, value);
         }
 
         protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
             if (node is ScreenSpacedNode n) {
-                n.RelativeScreenLocationX = (float) RelativeScreenLocationX;
-                n.RelativeScreenLocationY = (float) RelativeScreenLocationY;
-                n.SizeScale = (float) SizeScale;
+                n.RelativeScreenLocationX = (float)RelativeScreenLocationX;
+                n.RelativeScreenLocationY = (float)RelativeScreenLocationY;
+                n.SizeScale = (float)SizeScale;
                 n.AbsolutePosition3D = AbsolutePosition3D.ToVector3();
                 n.Mode = Mode;
             }
@@ -165,10 +165,10 @@ namespace HelixToolkit.Wpf.SharpDX {
             InitializeMover();
         }
 
-    #region 2D stuffs
+        #region 2D stuffs
 
         public RelativePositionCanvas2D MoverCanvas { get; }
-            = new() {HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch};
+            = new() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
 
         private ScreenSpacePositionMoverBase mover;
 
@@ -226,16 +226,17 @@ namespace HelixToolkit.Wpf.SharpDX {
             DependencyProperty property,
             object viewModel,
             BindingMode mode = BindingMode.TwoWay,
-            IValueConverter converter = null
+            IValueConverter? converter = null
         ) {
-            var binding = new Binding(path);
-            binding.Source = viewModel;
-            binding.Mode = mode;
+            var binding = new Binding(path) {
+                Source = viewModel,
+                Mode = mode
+            };
             if (converter != null) binding.Converter = converter;
             BindingOperations.SetBinding(dobj, property, binding);
         }
 
-    #endregion
+        #endregion
     }
 }
 
@@ -245,8 +246,8 @@ namespace HelixToolkit.Wpf.SharpDX {
         using HelixToolkit.SharpDX.Core;
         using HelixToolkit.SharpDX.Core.Model.Scene2D;
         using HorizontalAlignment = HorizontalAlignment;
-        using VerticalAlignment = VerticalAlignment;
         using Thickness = Thickness;
+        using VerticalAlignment = VerticalAlignment;
         using Visibility = Visibility;
 
         /// <summary>
@@ -280,7 +281,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             new PropertyMetadata(true,
                                                                  (d, e) => {
                                                                      ((d as Element2D).SceneNode as Node2DMoverBase)
-                                                                         .EnableMover = (bool) e.NewValue;
+                                                                         .EnableMover = (bool)e.NewValue;
                                                                  }));
 
             /// <summary>
@@ -290,7 +291,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     <c>true</c> if [enable mover]; otherwise, <c>false</c>.
             /// </value>
             public bool EnableMover {
-                get => (bool) GetValue(EnableMoverProperty);
+                get => (bool)GetValue(EnableMoverProperty);
                 set => SetValue(EnableMoverProperty, value);
             }
 
@@ -385,7 +386,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             protected override SceneNode2D OnCreateSceneNode() {
-                return new Node2DMover {Buttons = buttons};
+                return new Node2DMover { Buttons = buttons };
             }
 
             public sealed class Node2DMover : Node2DMoverBase {

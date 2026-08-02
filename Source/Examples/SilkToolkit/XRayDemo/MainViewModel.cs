@@ -7,25 +7,25 @@
 namespace XRayDemo;
 
 using System;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using HelixToolkit.Wpf;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using DemoCore;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
@@ -121,8 +121,7 @@ public class MainViewModel : BaseViewModel {
 
         Model = MeshGeometry3D.Merge(caritems);
 
-        ModelTransform = new Media3D.RotateTransform3D()
-            {Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90)};
+        ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
 
         Instances = new Matrix[6];
         for (int i = 0; i < Instances.Length; ++i) {
@@ -153,6 +152,7 @@ public class MainViewModel : BaseViewModel {
         };
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         var reader = new ObjReader();
         var list = reader.Read(path);
@@ -172,9 +172,10 @@ public class MainViewModel : BaseViewModel {
         object viewModel,
         BindingMode mode = BindingMode.TwoWay
     ) {
-        var binding = new Binding(path);
-        binding.Source = viewModel;
-        binding.Mode = mode;
+        var binding = new Binding(path) {
+            Source = viewModel,
+            Mode = mode
+        };
         BindingOperations.SetBinding(dobj, property, binding);
     }
 

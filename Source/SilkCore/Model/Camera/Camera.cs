@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -128,7 +128,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <returns></returns>
             public virtual bool OnTimeStep() {
                 var ticks = Stopwatch.GetTimestamp();
-                var ellapsed = (float) (ticks - prevTicks) / Stopwatch.Frequency * 1000;
+                var ellapsed = (float)(ticks - prevTicks) / Stopwatch.Frequency * 1000;
                 prevTicks = ticks;
                 return OnUpdateAnimation(ellapsed);
             }
@@ -214,7 +214,7 @@ namespace HelixToolkit.SharpDX.Core {
             public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
                 return new FrustumCameraParams {
                     AspectRatio = aspectRatio,
-                    FOV = (float) Math.PI / 2,
+                    FOV = (float)Math.PI / 2,
                     LookAtDir = LookDirection,
                     UpDir = UpDirection,
                     Position = Position,
@@ -280,8 +280,8 @@ namespace HelixToolkit.SharpDX.Core {
                 var dist = dir.Length;
                 var newDist = dist * ratio;
                 dir.Normalize();
-                var position = target - dir * (float) newDist;
-                var lookDir = dir * (float) newDist;
+                var position = target - dir * (float)newDist;
+                var lookDir = dir * (float)newDist;
                 Position = position;
                 LookDirection = lookDir;
             }
@@ -298,9 +298,9 @@ namespace HelixToolkit.SharpDX.Core {
                 var fov = FieldOfView * Math.PI / 180;
                 Matrix projM;
                 if (CreateLeftHandSystem)
-                    projM = SilkMath.PerspectiveFovLH((float) fov, aspectRatio, nearPlane, farPlane);
+                    projM = SilkMath.PerspectiveFovLH((float)fov, aspectRatio, nearPlane, farPlane);
                 else
-                    projM = SilkMath.PerspectiveFovRH((float) fov, aspectRatio, nearPlane, farPlane);
+                    projM = SilkMath.PerspectiveFovRH((float)fov, aspectRatio, nearPlane, farPlane);
                 if (float.IsNaN(projM.M33) || float.IsNaN(projM.M43)) projM.M33 = projM.M43 = -1;
                 return projM;
             }
@@ -312,7 +312,7 @@ namespace HelixToolkit.SharpDX.Core {
             public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
                 return new FrustumCameraParams {
                     AspectRatio = aspectRatio,
-                    FOV = FieldOfView / 180f * (float) Math.PI,
+                    FOV = FieldOfView / 180f * (float)Math.PI,
                     LookAtDir = LookDirection,
                     UpDir = UpDirection,
                     Position = Position,

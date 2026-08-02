@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -32,13 +32,13 @@ public class LineMaterialGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as LineNode)
-                                                                 .HitTestThickness = (double) e.NewValue;
+                                                                 .HitTestThickness = (double)e.NewValue;
                                                          }));
 
     /// <summary>
     /// </summary>
     public Material Material {
-        get => (Material) GetValue(MaterialProperty);
+        get => (Material)GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 
@@ -46,7 +46,7 @@ public class LineMaterialGeometryModel3D : GeometryModel3D {
     ///     Used only for point/line hit test
     /// </summary>
     public double HitTestThickness {
-        get => (double) GetValue(HitTestThicknessProperty);
+        get => (double)GetValue(HitTestThicknessProperty);
         set => SetValue(HitTestThicknessProperty, value);
     }
 

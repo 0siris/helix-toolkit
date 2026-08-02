@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Helper {
@@ -28,10 +28,9 @@ namespace HelixToolkit.SharpDX.Core {
                 var shaderStream = assembly.GetManifestResourceStream(resourceName);
                 if (shaderStream == null)
                     throw new FileNotFoundException($"Shader byte code was not found: {resourceName}", fileName);
-                using (var memory = new MemoryStream()) {
-                    shaderStream.CopyTo(memory);
-                    return memory.ToArray();
-                }
+                using var memory = new MemoryStream();
+                shaderStream.CopyTo(memory);
+                return memory.ToArray();
             }
         }
 
@@ -39,10 +38,10 @@ namespace HelixToolkit.SharpDX.Core {
         ///     Used to read shader bytecode
         /// </summary>
         public static class UWPShaderBytePool {
-            public static Dictionary<string, byte[]> Dict = new();
+            public static Dictionary<string, byte[]> Dict = [];
             internal static readonly HelixToolkitByteCodeReader InternalByteCodeReader = new();
 
-            public static byte[] Read(string name, IShaderByteCodeReader reader = null) {
+            public static byte[] Read(string name, IShaderByteCodeReader? reader = null) {
                 lock (Dict) {
                     if (!Dict.TryGetValue(name, out var byteCode))
                         lock (Dict) {

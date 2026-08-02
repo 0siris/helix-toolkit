@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -17,7 +17,7 @@ public class VolumeTextureModel3D : Element3D {
                                                          (d, e) => {
                                                              ((d as VolumeTextureModel3D)
                                                               .SceneNode as VolumeTextureNode).Material =
-                                                                 (Material) e.NewValue;
+                                                                 (Material)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -27,7 +27,7 @@ public class VolumeTextureModel3D : Element3D {
     ///     The volume material.
     /// </value>
     public Material VolumeMaterial {
-        get => (Material) GetValue(VolumeMaterialProperty);
+        get => (Material)GetValue(VolumeMaterialProperty);
         set => SetValue(VolumeMaterialProperty, value);
     }
 

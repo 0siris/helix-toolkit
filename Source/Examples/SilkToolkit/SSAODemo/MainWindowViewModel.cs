@@ -1,11 +1,11 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Media3D = System.Windows.Media.Media3D;
+using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace SSAODemo;
@@ -25,8 +25,9 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
 
     public Matrix[] BunnyInstances { get; }
 
-    public SSAOQuality[] SSAOQualities { get; } = new SSAOQuality[] {SSAOQuality.High, SSAOQuality.Low};
+    public SSAOQuality[] SSAOQualities { get; } = [SSAOQuality.High, SSAOQuality.Low];
 
+    [Obsolete]
     public MainWindowViewModel() {
         EffectsManager = new DefaultEffectsManager();
         Camera = new PerspectiveCamera() {
@@ -57,19 +58,19 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         FloorMaterial.AmbientColor = FloorMaterial.DiffuseColor * 0.5f;
         SphereMaterial = PhongMaterials.Red;
         SphereMaterial.AmbientColor = SphereMaterial.DiffuseColor * 0.5f;
-        SphereInstances = new Matrix[4] {
+        SphereInstances = [
             Translation(-2.5f, 1, 0),
             Translation(2.5f, 1, 0),
             Translation(0, 1, -2.5f),
             Translation(0, 1, 2.5f)
-        };
+        ];
 
-        BunnyInstances = new Matrix[4] {
+        BunnyInstances = [
             Translation(0f, -0.8f, 0),
             Translation(6f, -0.8f, 0),
             Translation(0, -0.8f, -4f),
             Translation(0, -0.8f, 4f)
-        };
+        ];
     }
 
     private static Matrix Translation(float x, float y, float z) {

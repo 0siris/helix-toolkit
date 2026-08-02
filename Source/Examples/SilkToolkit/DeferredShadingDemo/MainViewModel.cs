@@ -9,10 +9,6 @@
 
 namespace DeferredShadingDemo;
 
-using DemoCore;
-using HelixToolkit.Wpf;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,6 +16,13 @@ using System.Linq;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using DemoCore;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using RotateTransform3D = System.Windows.Media.Media3D.RotateTransform3D;
@@ -27,11 +30,8 @@ using ScaleTransform3D = System.Windows.Media.Media3D.ScaleTransform3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Colors = System.Windows.Media.Colors;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -132,6 +132,7 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// Constructor of the MainViewModel
     /// </summary>
+    [Obsolete]
     public MainViewModel() {
         // titles
         this.Title = "Deferred Shading Demo";
@@ -208,12 +209,12 @@ public class MainViewModel : BaseViewModel {
         this.SpotLightAttenuation = new Vector3D(1.0, 0.1, 0.01);
 
         // light collection
-        this.PointLightCollection = new ObservableElement3DCollection();
+        this.PointLightCollection = [];
         this.PointLightCount = 7;
         this.PointLightSpread = 100;
 
         // spotlight collection
-        this.SpotLightCollection = new ObservableElement3DCollection();
+        this.SpotLightCollection = [];
         this.SpotLightCount = 7;
         this.SpotLightSpread = 100;
     }
@@ -365,21 +366,21 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="filename"></param>
     /// <param name="faces"></param>
+    [Obsolete]
     private void LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() {Faces = MeshFaces.Default});
+        var objModel = reader.Read(filename, new ModelInfo() { Faces = MeshFaces.Default });
         //this.Model = objModel[0].Geometry as MeshGeometry3D;
         //this.Model.Colors = this.Model.Positions.Select(x => new Color4(1, 0, 0, 1)).ToArray();
     }
 
     private static MemoryStream LoadFileToMemory(string filePath) {
-        using (var file = new FileStream(filePath, FileMode.Open)) {
-            var memory = new MemoryStream();
-            file.CopyTo(memory);
-            memory.Position = 0;
-            return memory;
-        }
+        using var file = new FileStream(filePath, FileMode.Open);
+        var memory = new MemoryStream();
+        file.CopyTo(memory);
+        memory.Position = 0;
+        return memory;
     }
 
 
@@ -405,6 +406,6 @@ public class ColorVectorConverter : IValueConverter {
         object parameter,
         System.Globalization.CultureInfo culture
     ) {
-        return targetType == typeof(Color) ? value : ((Color) value).ToColor4();
+        return targetType == typeof(Color) ? value : ((Color)value).ToColor4();
     }
 }

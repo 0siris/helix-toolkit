@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -18,7 +18,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class ParticleRenderCore : RenderCore {
-            private static readonly ILogger logger = LogManager.Create<ParticleRenderCore>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 #pragma warning disable 1591
             public static readonly int DefaultParticleCount = 512;
             public static readonly float DefaultInitialVelocity = 1f;
@@ -34,7 +34,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static readonly float DefaultEnergyDissipationRate = 1f;
 #pragma warning restore
 
-        #region variables
+            #region variables
 
             /// <summary>
             ///     Texture tile columns
@@ -57,7 +57,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     tile counts
             /// </summary>
             public bool AnimateSpriteByEnergy {
-                get => FrameVariables.AnimateByEnergyLevel == 1 ? true : false;
+                get => FrameVariables.AnimateByEnergyLevel == 1;
                 set => FrameVariables.AnimateByEnergyLevel = value ? 1 : 0;
             }
 
@@ -150,7 +150,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <summary>
             /// </summary>
             public bool CumulateAtBound {
-                get => FrameVariables.CumulateAtBound == 1 ? true : false;
+                get => FrameVariables.CumulateAtBound == 1;
                 set => FrameVariables.CumulateAtBound = value ? 1u : 0;
             }
 
@@ -313,7 +313,7 @@ namespace HelixToolkit.SharpDX.Core {
                 ParticleBlendColor = Color.White.ToColor4()
             };
 
-        #region ShaderVariables
+            #region ShaderVariables
 
             private ShaderPass updatePass;
             private ShaderPass insertPass;
@@ -329,9 +329,9 @@ namespace HelixToolkit.SharpDX.Core {
             private double totalElapsed;
             private ParticleModelStruct modelStruct;
 
-        #endregion
+            #endregion
 
-        #region Buffers
+            #region Buffers
 
             private IElementsBufferModel instanceBuffer = MatrixInstanceBufferModel.Empty;
 
@@ -377,8 +377,7 @@ namespace HelixToolkit.SharpDX.Core {
             private UnorderedAccessViewDescription UAVBufferViewDesc = new() {
                 Dimension = UnorderedAccessViewDimension.Buffer,
                 Format = Format.FormatUnknown,
-                Buffer = new UnorderedAccessViewDescription.BufferResource
-                    {FirstElement = 0, Flags = UnorderedAccessViewBufferFlags.Append}
+                Buffer = new UnorderedAccessViewDescription.BufferResource { FirstElement = 0, Flags = UnorderedAccessViewBufferFlags.Append }
             };
 
             private ShaderResourceViewDescription SRVBufferViewDesc = new() {
@@ -395,10 +394,9 @@ namespace HelixToolkit.SharpDX.Core {
 
             private ParticleCountIndirectArgs drawArgument;
 
-        #endregion
+            #endregion
 
-            private BlendStateDescription blendDesc = new()
-                {IndependentBlendEnable = false, AlphaToCoverageEnable = false};
+            private BlendStateDescription blendDesc = new() { IndependentBlendEnable = false, AlphaToCoverageEnable = false };
 
             /// <summary>
             ///     Particle blend state description
@@ -444,7 +442,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public InputLayoutProxy VertexLayout { get; private set; }
 
-        #region Shader Variable Names
+            #region Shader Variable Names
 
             /// <summary>
             ///     Set current sim state variable name inside compute shader for binding
@@ -471,7 +469,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public string ShaderTextureSamplerName { get; set; } = DefaultSamplerStateNames.ParticleTextureSampler;
 
-        #endregion
+            #endregion
 
             private int currentStateSlot;
             private int newStateSlot;
@@ -479,7 +477,7 @@ namespace HelixToolkit.SharpDX.Core {
             private int textureSlot;
             private int samplerSlot;
 
-        #endregion
+            #endregion
 
             private readonly object lockObject = new();
 
@@ -512,7 +510,7 @@ namespace HelixToolkit.SharpDX.Core {
                 insertPass = technique[DefaultParticlePassNames.Insert];
                 renderPass = technique[DefaultParticlePassNames.Default];
 
-            #region Get binding slots
+                #region Get binding slots
 
                 currentStateSlot = updatePass.GetShader(ShaderStage.Compute).UnorderedAccessViewMapping
                                              .TryGetBindSlot(CurrentSimStateUAVBufferName);
@@ -524,7 +522,7 @@ namespace HelixToolkit.SharpDX.Core {
                 textureSlot = renderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureBufferName);
                 samplerSlot = renderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderTextureSamplerName);
 
-            #endregion
+                #endregion
 
                 if (isInitialParticleChanged) OnInitialParticleChanged(ParticleCount);
                 textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
@@ -546,7 +544,7 @@ namespace HelixToolkit.SharpDX.Core {
                 prevTimeMillis = context.TimeStamp.TotalMilliseconds;
                 totalElapsed += timeElapsed;
                 //Update perframe variables
-                FrameVariables.TimeFactors = (float) timeElapsed;
+                FrameVariables.TimeFactors = (float)timeElapsed;
             }
 
 
@@ -628,7 +626,7 @@ namespace HelixToolkit.SharpDX.Core {
                 UpdateTime(context, ref totalElapsed);
                 //Set correct instance count from instance buffer
                 drawArgument.InstanceCount =
-                    !InstanceBuffer.HasElements ? 1 : (uint) InstanceBuffer.Buffer.ElementCount;
+                    !InstanceBuffer.HasElements ? 1 : (uint)InstanceBuffer.Buffer.ElementCount;
                 //Upload the draw argument
                 particleCountGSIABuffer.UploadDataToBuffer(deviceContext, ref drawArgument);
 
@@ -642,17 +640,17 @@ namespace HelixToolkit.SharpDX.Core {
                     deviceContext.Dispatch(1, 1, 1);
                     isRestart = false;
                 } else {
-                #region Get consume buffer count
+                    #region Get consume buffer count
 
                     // Get consume buffer count.
                     //Due to some intel integrated graphic card having issue copy structure count directly into constant buffer.
                     //Has to use staging buffer to read and pass into constant buffer              
-                    FrameVariables.NumParticles = (uint) ReadCount(string.Empty, deviceContext, BufferProxies[0]);
+                    FrameVariables.NumParticles = (uint)ReadCount(string.Empty, deviceContext, BufferProxies[0]);
                     perFrameCB.Upload(deviceContext, ref FrameVariables);
 
-                #endregion
+                    #endregion
 
-                    deviceContext.Dispatch(Math.Max(1, (int) Math.Ceiling((double) FrameVariables.NumParticles / 512)),
+                    deviceContext.Dispatch(Math.Max(1, (int)Math.Ceiling((double)FrameVariables.NumParticles / 512)),
                                            1,
                                            1);
                     // Get append buffer count
@@ -716,9 +714,9 @@ namespace HelixToolkit.SharpDX.Core {
                 var db = context.MapSubresource(particleCountStaging, MapMode.Read, MapFlags.None);
                 var currentParticleCount = UnsafeHelper.Read<int>(db.DataPointer);
 #if OUTPUTDEBUGGING
-                if (logger.IsEnabled(LogLevel.Debug))
+                if (Logger.IsEnabled(LogLevel.Debug))
                 {
-                    logger.LogDebug("{0}: {1}", src, currentParticleCount);
+                    Logger.Debug("{Value0}: {Value1}", src, currentParticleCount);
                 }
 #endif
                 context.UnmapSubresource(particleCountStaging, 0);

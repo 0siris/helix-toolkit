@@ -28,11 +28,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         typeof(IEffectsManager),
         typeof(ModelContainer3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((ModelContainer3DX) s).EffectsManagerPropertyChanged()));
+                             (s, e) => ((ModelContainer3DX)s).EffectsManagerPropertyChanged()));
 
-    private readonly HashSet<IRenderHost> attachedRenderHosts = new();
+    private readonly HashSet<IRenderHost> attachedRenderHosts = [];
 
-    private readonly HashSet<IViewport3DX> viewports = new();
+    private readonly HashSet<IViewport3DX> viewports = [];
 
     private IRenderHost currentRenderHost;
 
@@ -59,7 +59,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     </para>
     /// </summary>
     public IEffectsManager EffectsManager {
-        get => (IEffectsManager) GetValue(EffectsManagerProperty);
+        get => (IEffectsManager)GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 
@@ -121,7 +121,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     The per frame renderable.
     /// </value>
     public IEnumerable<LightNode> PerFrameLights =>
-        CurrentRenderHost != null ? CurrentRenderHost.PerFrameLights : Enumerable.Empty<LightNode>();
+        CurrentRenderHost != null ? CurrentRenderHost.PerFrameLights : [];
 
     /// <summary>
     ///     Gets the per frame post effect cores.
@@ -250,7 +250,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The device.
     /// </value>
-    public NativeD3DDevice Device => EffectsManager != null ? EffectsManager.Device : null;
+    public NativeD3DDevice Device => EffectsManager?.Device;
 
     /// <summary>
     ///     Gets the device2d.
@@ -258,7 +258,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The device2d.
     /// </value>
-    public D2DDevice Device2D => EffectsManager != null ? EffectsManager.Device2D : null;
+    public D2DDevice Device2D => EffectsManager?.Device2D;
 
     /// <summary>
     ///     Gets or sets the color of the clear.
@@ -281,7 +281,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </value>
     /// <exception cref="NotImplementedException"></exception>
     public bool IsShadowMapEnabled {
-        get => currentRenderHost != null ? currentRenderHost.IsShadowMapEnabled : false;
+        get => currentRenderHost != null && currentRenderHost.IsShadowMapEnabled;
         set => throw new NotImplementedException();
     }
 
@@ -331,7 +331,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     <c>true</c> if this instance is deferred lighting; otherwise, <c>false</c>.
     /// </value>
-    public bool IsDeferredLighting => CurrentRenderHost != null ? CurrentRenderHost.IsDeferredLighting : false;
+    public bool IsDeferredLighting => CurrentRenderHost != null && CurrentRenderHost.IsDeferredLighting;
 
     /// <summary>
     ///     Gets or sets the shared model container.
@@ -362,7 +362,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     The color buffer view.
     /// </value>
     public RenderTargetView RenderTargetBufferView =>
-        CurrentRenderHost != null ? CurrentRenderHost.RenderTargetBufferView : null;
+        CurrentRenderHost?.RenderTargetBufferView;
 
     /// <summary>
     ///     Gets the depth stencil buffer view.
@@ -371,7 +371,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     The depth stencil buffer view.
     /// </value>
     public DepthStencilView DepthStencilBufferView =>
-        CurrentRenderHost != null ? CurrentRenderHost.DepthStencilBufferView : null;
+        CurrentRenderHost?.DepthStencilBufferView;
 
     /// <summary>
     ///     Gets the d2d target.
@@ -379,7 +379,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The d2d target.
     /// </value>
-    public D2DTargetProxy D2DTarget => CurrentRenderHost != null ? CurrentRenderHost.D2DTarget : null;
+    public D2DTargetProxy D2DTarget => CurrentRenderHost?.D2DTarget;
 
     /// <summary>
     ///     Gets the render statistics.
@@ -387,7 +387,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The render statistics.
     /// </value>
-    public IRenderStatistics RenderStatistics => CurrentRenderHost != null ? CurrentRenderHost.RenderStatistics : null;
+    public IRenderStatistics RenderStatistics => CurrentRenderHost?.RenderStatistics;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [show statistics].
@@ -405,7 +405,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </value>
     public DX11RenderHostConfiguration RenderConfiguration { get; set; }
 
-    public DX11RenderBufferProxyBase RenderBuffer => CurrentRenderHost != null ? CurrentRenderHost.RenderBuffer : null;
+    public DX11RenderBufferProxyBase RenderBuffer => CurrentRenderHost?.RenderBuffer;
 
     public event EventHandler<IEffectsManager> EffectsManagerChanged;
 
@@ -529,7 +529,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     public event EventHandler SceneGraphUpdated;
 #pragma warning restore 0067
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -568,5 +568,5 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

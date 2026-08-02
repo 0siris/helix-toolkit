@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,8 +13,8 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class LineGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct {
-            protected static readonly VertexStruct[] emptyVertices = new VertexStruct[0];
-            protected static readonly int[] emptyIndices = new int[0];
+            protected static readonly VertexStruct[] emptyVertices = [];
+            protected static readonly int[] emptyIndices = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="LineGeometryBufferModel{VertexStruct}" /> class.

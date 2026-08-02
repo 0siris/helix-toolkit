@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
@@ -45,7 +45,7 @@ public static class TreeTraverser {
     public static IEnumerable<SceneNode> Traverse(
         this SceneNode root,
         bool onlyRendering = false,
-        Stack<IEnumerator<SceneNode>> stackCache = null
+        Stack<IEnumerator<SceneNode>>? stackCache = null
     ) {
         var nodes = Enumerable.Repeat(root, 1);
         return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
@@ -64,7 +64,7 @@ public static class TreeTraverser {
     public static IEnumerable<SceneNode> Traverse(
         this IEnumerable<SceneNode> nodes,
         bool onlyRendering = false,
-        Stack<IEnumerator<SceneNode>> stackCache = null
+        Stack<IEnumerator<SceneNode>>? stackCache = null
     ) {
         return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
     }
@@ -79,7 +79,7 @@ public static class TreeTraverser {
     public static IEnumerable<SceneNode> PreorderDFT(
         this IEnumerable<SceneNode> nodes,
         Func<SceneNode, bool> condition,
-        Stack<IEnumerator<SceneNode>> stackCache = null
+        Stack<IEnumerator<SceneNode>>? stackCache = null
     ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode>>(20);
         var e = nodes.GetEnumerator();
@@ -118,7 +118,7 @@ public static class TreeTraverser {
         RenderContext context,
         Func<SceneNode, RenderContext, bool> condition,
         IList<KeyValuePair<int, SceneNode>> results,
-        Stack<KeyValuePair<int, IList<SceneNode>>> stackCache = null
+        Stack<KeyValuePair<int, IList<SceneNode>>>? stackCache = null
     ) {
         var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode>>>(20);
         var i = -1;
@@ -157,7 +157,7 @@ public static class TreeTraverser {
     public static IEnumerable<RenderCore> PreorderDFTGetCores(
         this IEnumerable<SceneNode> nodes,
         Func<SceneNode, bool> condition,
-        Stack<IEnumerator<SceneNode>> stackCache = null
+        Stack<IEnumerator<SceneNode>>? stackCache = null
     ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode>>(20);
         var e = nodes.GetEnumerator();
@@ -192,7 +192,7 @@ public static class TreeTraverser {
     public static void PreorderDFTRun(
         this IList<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
-        Stack<KeyValuePair<int, IList<SceneNode2D>>> stackCache = null
+        Stack<KeyValuePair<int, IList<SceneNode2D>>>? stackCache = null
     ) {
         var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode2D>>>(20);
         var i = -1;
@@ -224,7 +224,7 @@ public static class TreeTraverser {
     public static IEnumerable<RenderCore2D> PreorderDFTGetCores(
         this IEnumerable<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
-        Stack<IEnumerator<SceneNode2D>> stackCache = null
+        Stack<IEnumerator<SceneNode2D>>? stackCache = null
     ) {
         var stack = stackCache ?? new Stack<IEnumerator<SceneNode2D>>(20);
         var e = nodes.GetEnumerator();

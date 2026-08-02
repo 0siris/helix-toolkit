@@ -23,9 +23,10 @@ public static class Geometry3DExtensions {
     /// <param name="source">This respective <see cref="Geometry3D" />.</param>
     /// <returns>A copy of this <see cref="Geometry3D" /> with unshared vertices.</returns>
     public static T ToUnshared<T>(this T source) where T : Geometry3D, new() {
-        var result = new T();
-        result.Indices = new IntCollection(source.Indices.Count);
-        result.Positions = new Vector3Collection(source.Indices.Count);
+        var result = new T {
+            Indices = new IntCollection(source.Indices.Count),
+            Positions = new Vector3Collection(source.Indices.Count)
+        };
         if (source.Colors != null && source.Colors.Count == source.Positions.Count) {
             result.Colors = new Color4Collection(source.Indices.Count);
             for (var i = 0; i < source.Indices.Count; i++) {

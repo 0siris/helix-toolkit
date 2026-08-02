@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MeshGeometryHelper.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -12,14 +12,14 @@ using System.Text;
 
 namespace HelixToolkit.SharpDX.Core;
 
-using Vector3D = Color3;
-using Point3D = Color3;
-using Point = Vector2;
+using DoubleOrSingle = float;
 using Int32Collection = IntCollection;
-using Vector3DCollection = Vector3Collection;
+using Point = Vector2;
+using Point3D = Color3;
 using Point3DCollection = Vector3Collection;
 using PointCollection = Vector2Collection;
-using DoubleOrSingle = float;
+using Vector3D = Color3;
+using Vector3DCollection = Vector3Collection;
 
 /// <summary>
 ///     Provides helper methods for mesh geometries.
@@ -102,7 +102,7 @@ public static class MeshGeometryHelper {
                 var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
-                var key = CreateKey((uint) minIndex, (uint) maxIndex);
+                var key = CreateKey((uint)minIndex, (uint)maxIndex);
                 if (dict.ContainsKey(key))
                     dict[key] = dict[key] + 1;
                 else
@@ -116,8 +116,8 @@ public static class MeshGeometryHelper {
             if (kvp.Value == 1) {
                 uint i0, i1;
                 ReverseKey(kvp.Key, out i0, out i1);
-                edges.Add((int) i0);
-                edges.Add((int) i1);
+                edges.Add((int)i0);
+                edges.Add((int)i1);
             }
 
         return edges;
@@ -143,7 +143,7 @@ public static class MeshGeometryHelper {
                 var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
-                var key = CreateKey((uint) minIndex, (uint) maxIndex);
+                var key = CreateKey((uint)minIndex, (uint)maxIndex);
                 if (!dict.Contains(key)) {
                     edges.Add(minIndex);
                     edges.Add(maxIndex);
@@ -224,10 +224,10 @@ public static class MeshGeometryHelper {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
         Vector3DCollection n = null;
-        if (input.Normals != null && input.Normals.Count > 0) n = new Vector3DCollection();
+        if (input.Normals != null && input.Normals.Count > 0) n = [];
 
         PointCollection tc = null;
-        if (input.TextureCoordinates != null && input.TextureCoordinates.Count > 0) tc = new PointCollection();
+        if (input.TextureCoordinates != null && input.TextureCoordinates.Count > 0) tc = [];
 
         for (var i = 0; i < input.TriangleIndices.Count; i += 3) {
             var i0 = i;
@@ -258,8 +258,7 @@ public static class MeshGeometryHelper {
             }
         }
 
-        return new MeshGeometry3D
-            {Positions = p, TriangleIndices = new IntCollection(ti), Normals = n, TextureCoordinates = tc};
+        return new MeshGeometry3D { Positions = p, TriangleIndices = [.. ti], Normals = n, TextureCoordinates = tc };
     }
 
     /// <summary>
@@ -278,12 +277,12 @@ public static class MeshGeometryHelper {
         // Find common positions
         var dict = new Dictionary<int, int>(); // map position index to first occurence of same position
         for (var i = 0; i < mesh.Positions.Count; i++)
-        for (var j = i + 1; j < mesh.Positions.Count; j++) {
-            if (dict.ContainsKey(j)) continue;
-            var v = mesh.Positions[i] - mesh.Positions[j];
-            var l2 = SharedFunctions.LengthSquared(ref v);
-            if (l2 < eps) dict.Add(j, i);
-        }
+            for (var j = i + 1; j < mesh.Positions.Count; j++) {
+                if (dict.ContainsKey(j)) continue;
+                var v = mesh.Positions[i] - mesh.Positions[j];
+                var l2 = SharedFunctions.LengthSquared(ref v);
+                if (l2 < eps) dict.Add(j, i);
+            }
 
         var p = new Point3DCollection();
         var ti = new Int32Collection();
@@ -301,7 +300,7 @@ public static class MeshGeometryHelper {
             int j;
             ti.Add(dict.TryGetValue(index, out j) ? newIndex[j] : newIndex[index]);
         }
-        var result = new MeshGeometry3D {Positions = p, TriangleIndices = new IntCollection(ti)};
+        var result = new MeshGeometry3D { Positions = p, TriangleIndices = [.. ti] };
         return result;
     }
 
@@ -491,7 +490,7 @@ public static class MeshGeometryHelper {
             if ((segment1 < 0 && segment2 < 0) || segmentCount == 0) {
                 if (curveCount > 0) {
                     yield return curve;
-                    curve = new List<Point3D>();
+                    curve = [];
                     curveCount = 0;
                 }
 
@@ -520,7 +519,7 @@ public static class MeshGeometryHelper {
     ///     The create key.
     /// </returns>
     private static ulong CreateKey(uint i0, uint i1) {
-        return ((ulong) i0 << 32) + i1;
+        return ((ulong)i0 << 32) + i1;
     }
 
     /// <summary>
@@ -536,8 +535,8 @@ public static class MeshGeometryHelper {
     ///     The i 1.
     /// </param>
     private static void ReverseKey(ulong key, out uint i0, out uint i1) {
-        i0 = (uint) (key >> 32);
-        i1 = (uint) ((key << 32) >> 32);
+        i0 = (uint)(key >> 32);
+        i1 = (uint)((key << 32) >> 32);
     }
 
     /// <summary>
@@ -588,8 +587,7 @@ public static class MeshGeometryHelper {
                                out triNew,
                                out textureNew,
                                out normalNew);
-        var newMesh = new MeshGeometry3D
-            {Positions = vertNew, TriangleIndices = triNew, TextureCoordinates = textureNew, Normals = normalNew};
+        var newMesh = new MeshGeometry3D { Positions = vertNew, TriangleIndices = triNew, TextureCoordinates = textureNew, Normals = normalNew };
         return newMesh;
     }
 
@@ -620,7 +618,7 @@ public static class MeshGeometryHelper {
         normalOut = null;
         var tracking = new List<List<int>>(vertices.Count);
         Debug.WriteLine("NumVert:{0}; NumTriangle:{1};", vertices.Count, triangles.Count);
-        for (var i = 0; i < vertices.Count; ++i) tracking.Add(new List<int>());
+        for (var i = 0; i < vertices.Count; ++i) tracking.Add([]);
         for (var i = 0; i < triangles.Count; ++i) tracking[triangles[i]].Add(i);
 
         var vertToRemove = new List<int>(vertices.Count);
@@ -629,7 +627,7 @@ public static class MeshGeometryHelper {
                 vertToRemove.Add(i);
 
         verticesOut = new Point3DCollection(vertices.Count - vertToRemove.Count);
-        trianglesOut = new Int32Collection(triangles);
+        trianglesOut = [.. triangles];
         if (texture != null) textureOut = new PointCollection(vertices.Count - vertToRemove.Count);
         if (normals != null) normalOut = new Vector3DCollection(vertices.Count - vertToRemove.Count);
         if (vertices.Count == vertToRemove.Count) return;

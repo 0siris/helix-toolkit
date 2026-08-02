@@ -32,13 +32,13 @@ public class LineMaterial : Material {
         return new LineMaterialCore {
             Name = Name,
             LineColor = Color.ToColor4(),
-            Smoothness = (float) Smoothness,
-            Thickness = (float) Thickness,
+            Smoothness = (float)Smoothness,
+            Thickness = (float)Thickness,
             EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float) FadingNearDistance,
-            FadingFarDistance = (float) FadingFarDistance,
+            FadingNearDistance = (float)FadingNearDistance,
+            FadingFarDistance = (float)FadingFarDistance,
             Texture = Texture,
-            TextureScale = (float) TextureScale,
+            TextureScale = (float)TextureScale,
             SamplerDescription = SamplerDescription,
             FixedSize = FixedSize
         };
@@ -60,7 +60,7 @@ public class LineMaterial : Material {
         };
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     The color property
@@ -77,7 +77,7 @@ public class LineMaterial : Material {
 #endif
                                                          {
                                                              ((d as LineMaterial).Core as LineMaterialCore).LineColor =
-                                                                 ((Media.Color) e.NewValue).ToColor4();
+                                                                 ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -90,7 +90,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore).Thickness =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -103,7 +103,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore).Smoothness =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty EnableDistanceFadingProperty =
@@ -113,7 +113,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore)
-                                                                 .EnableDistanceFading = (bool) e.NewValue;
+                                                                 .EnableDistanceFading = (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FadingNearDistanceProperty =
@@ -123,7 +123,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore)
-                                                                 .FadingNearDistance = (float) (double) e.NewValue;
+                                                                 .FadingNearDistance = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FadingFarDistanceProperty =
@@ -133,7 +133,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(100.0,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore)
-                                                                 .FadingFarDistance = (float) (double) e.NewValue;
+                                                                 .FadingFarDistance = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty TextureProperty =
@@ -143,7 +143,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore).Texture =
-                                                                 e.NewValue == null ? null : (TextureModel) e.NewValue;
+                                                                 e.NewValue == null ? null : (TextureModel)e.NewValue;
                                                          }));
 
 
@@ -154,7 +154,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore)
-                                                                 .TextureScale = (float) (double) e.NewValue;
+                                                                 .TextureScale = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -166,7 +166,7 @@ public class LineMaterial : Material {
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore)
                                                                  .SamplerDescription =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FixedSizeProperty =
@@ -176,7 +176,7 @@ public class LineMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineMaterialCore).FixedSize =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
 
@@ -187,7 +187,7 @@ public class LineMaterial : Material {
     ///     The color.
     /// </value>
     public Media.Color Color {
-        get => (Media.Color) GetValue(ColorProperty);
+        get => (Media.Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
@@ -198,7 +198,7 @@ public class LineMaterial : Material {
     ///     The thickness.
     /// </value>
     public double Thickness {
-        get => (double) GetValue(ThicknessProperty);
+        get => (double)GetValue(ThicknessProperty);
         set => SetValue(ThicknessProperty, value);
     }
 
@@ -209,7 +209,7 @@ public class LineMaterial : Material {
     ///     The smoothness.
     /// </value>
     public double Smoothness {
-        get => (double) GetValue(SmoothnessProperty);
+        get => (double)GetValue(SmoothnessProperty);
         set => SetValue(SmoothnessProperty, value);
     }
 
@@ -220,7 +220,7 @@ public class LineMaterial : Material {
     ///     <c>true</c> if [enable distance fading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDistanceFading {
-        get => (bool) GetValue(EnableDistanceFadingProperty);
+        get => (bool)GetValue(EnableDistanceFadingProperty);
         set => SetValue(EnableDistanceFadingProperty, value);
     }
 
@@ -231,7 +231,7 @@ public class LineMaterial : Material {
     ///     The fading near distance.
     /// </value>
     public double FadingNearDistance {
-        get => (double) GetValue(FadingNearDistanceProperty);
+        get => (double)GetValue(FadingNearDistanceProperty);
         set => SetValue(FadingNearDistanceProperty, value);
     }
 
@@ -242,7 +242,7 @@ public class LineMaterial : Material {
     ///     The fading far distance.
     /// </value>
     public double FadingFarDistance {
-        get => (double) GetValue(FadingFarDistanceProperty);
+        get => (double)GetValue(FadingFarDistanceProperty);
         set => SetValue(FadingFarDistanceProperty, value);
     }
 
@@ -253,7 +253,7 @@ public class LineMaterial : Material {
     ///     The texture.
     /// </value>
     public TextureModel Texture {
-        get => (TextureModel) GetValue(TextureProperty);
+        get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
@@ -264,7 +264,7 @@ public class LineMaterial : Material {
     ///     The texture scale.
     /// </value>
     public double TextureScale {
-        get => (double) GetValue(TextureScaleProperty);
+        get => (double)GetValue(TextureScaleProperty);
         set => SetValue(TextureScaleProperty, value);
     }
 
@@ -275,7 +275,7 @@ public class LineMaterial : Material {
     ///     The sampler.
     /// </value>
     public SamplerStateDescription SamplerDescription {
-        get => (SamplerStateDescription) GetValue(SamplerDescriptionProperty);
+        get => (SamplerStateDescription)GetValue(SamplerDescriptionProperty);
         set => SetValue(SamplerDescriptionProperty, value);
     }
 
@@ -286,9 +286,9 @@ public class LineMaterial : Material {
     ///     <c>true</c> if [fixed size]; otherwise, <c>false</c>.
     /// </value>
     public bool FixedSize {
-        get => (bool) GetValue(FixedSizeProperty);
+        get => (bool)GetValue(FixedSizeProperty);
         set => SetValue(FixedSizeProperty, value);
     }
 
-#endregion
+    #endregion
 }

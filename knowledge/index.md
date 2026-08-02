@@ -1,5 +1,5 @@
 ---
-okf_version: "0.1"
+okf_version: "0.2"
 ---
 
 # Helix Toolkit Knowledge Bundle
@@ -8,6 +8,8 @@ okf_version: "0.1"
 
 * [Repository](/repository.md) - Current repository purpose, layout, and source references.
 * [Build](/build.md) - SDK, shell, solution, and build commands.
+* [Project Source Knowledge Graph](/graphify-database.md) - Generated Graphify database for C# and MSBuild source relationships.
+* [CSharp Coding Conventions](/policies/csharp-coding-conventions.md) - Phased C#/.NET style, Logging, Assertions, testing, and compatibility policy.
 
 ## Architecture
 
@@ -31,4 +33,4 @@ okf_version: "0.1"
 
 ## References
 
-* [OKF Specification](/references/okf-spec.md) - Local OKF v0.1 draft reference used for this bundle.
+* [OKF Specification](/references/okf-spec.md) - Local OKF v0.2 specification used for this bundle.

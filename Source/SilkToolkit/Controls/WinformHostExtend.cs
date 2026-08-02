@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Forms;
@@ -76,7 +76,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                       new Point(e.Location.X / DpiScale, e.Location.Y / DpiScale),
                                                       e.X,
                                                       e.Y,
-                                                      e.Delta) {Source = this});
+                                                      e.Delta) { Source = this });
             }
 
             private void OnMouseWheel(object sender, MouseEventArgs e) {
@@ -222,8 +222,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 }
 
                 public static implicit operator MouseWheelEventArgs(FormMouseWheelEventArgs args) {
-                    return new MouseWheelEventArgs(args.Mouse, args.Timestamp, args.Delta)
-                        {RoutedEvent = MouseWheelEvent};
+                    return new MouseWheelEventArgs(args.Mouse, args.Timestamp, args.Delta) { RoutedEvent = MouseWheelEvent };
                 }
             }
         }

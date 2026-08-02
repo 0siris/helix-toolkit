@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
@@ -26,10 +26,10 @@ namespace HelixToolkit.SharpDX.Core {
                                           context.Viewport.Y,
                                           context.Viewport.Width,
                                           context.Viewport.Height);
-                deviceContext.SetScissorRectangle((int) context.Viewport.X,
-                                                  (int) context.Viewport.Y,
-                                                  (int) context.Viewport.Width,
-                                                  (int) context.Viewport.Height);
+                deviceContext.SetScissorRectangle((int)context.Viewport.X,
+                                                  (int)context.Viewport.Y,
+                                                  (int)context.Viewport.Width,
+                                                  (int)context.Viewport.Height);
             }
 
             protected override bool OnAttach(IRenderTechnique technique) {

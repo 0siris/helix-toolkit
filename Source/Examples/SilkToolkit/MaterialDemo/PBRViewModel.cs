@@ -1,19 +1,19 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using System.IO;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace MaterialDemo;
@@ -24,8 +24,8 @@ public class PBRViewModel : BaseViewModel {
     private const int Col = 5;
     private const int Size = 5 * 5;
     public TextureModel EnvironmentMap { set; get; }
-    public ObservableElement3DCollection Models { get; } = new ObservableElement3DCollection();
-    private List<PBRMaterial> materials = new List<PBRMaterial>();
+    public ObservableElement3DCollection Models { get; } = [];
+    private List<PBRMaterial> materials = [];
     public Geometry3D Model { get; }
     public Geometry3D FloorModel { get; }
     public Transform3D ModelTransform { get; }

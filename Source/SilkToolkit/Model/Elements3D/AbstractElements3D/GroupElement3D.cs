@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="GroupElement3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -59,7 +59,7 @@ public abstract class GroupElement3D : Element3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              (d as GroupElement3D).SceneNode.AlwaysHittable =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     private IEnumerable<Element3D> itemsSourceInternal;
@@ -80,12 +80,12 @@ public abstract class GroupElement3D : Element3D {
     ///     memory leak.
     /// </summary>
     public IList<Element3D> ItemsSource {
-        get => (IList<Element3D>) GetValue(ItemsSourceProperty);
+        get => (IList<Element3D>)GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
     }
 
     public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper) GetValue(OctreeManagerProperty);
+        get => (IOctreeManagerWrapper)GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 
@@ -96,7 +96,7 @@ public abstract class GroupElement3D : Element3D {
     ///     <c>true</c> if [always hittable]; otherwise, <c>false</c>.
     /// </value>
     public bool AlwaysHittable {
-        get => (bool) GetValue(AlwaysHittableProperty);
+        get => (bool)GetValue(AlwaysHittableProperty);
         set => SetValue(AlwaysHittableProperty, value);
     }
 
@@ -108,7 +108,7 @@ public abstract class GroupElement3D : Element3D {
     /// <value>
     ///     The children.
     /// </value>
-    public ObservableElement3DCollection Children { get; } = new();
+    public ObservableElement3DCollection Children { get; } = [];
 
     private void SceneNode_Attached(object sender, EventArgs e) {
         if (ItemsSource != null) OnItemsSourceChanged(ItemsSource);
@@ -129,7 +129,7 @@ public abstract class GroupElement3D : Element3D {
     }
 
     protected override SceneNode OnCreateSceneNode() {
-        return new GroupNode {AlwaysHittable = AlwaysHittable};
+        return new GroupNode { AlwaysHittable = AlwaysHittable };
     }
 
     private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {

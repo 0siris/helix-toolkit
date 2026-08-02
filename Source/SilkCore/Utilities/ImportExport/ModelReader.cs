@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ModelReader.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -9,27 +9,26 @@
 
 using HelixToolkit.SharpDX.Core.Model;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    using Mesh3DGroup = List<Object3D>;
+namespace HelixToolkit.SharpDX.Core;
+using Mesh3DGroup = List<Object3D>;
 
     /// <summary>
     ///     Class ModelReader.
     /// </summary>
-    public abstract class ModelReader : IModelReader {
+public abstract class ModelReader : IModelReader {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelReader" /> class.
         /// </summary>
-        protected ModelReader() {
-            DefaultMaterial = new PhongMaterialCore {
-                Name = "Gold",
-                AmbientColor = new Color4(0.24725f, 0.1995f, 0.0745f, 1.0f),
-                DiffuseColor = new Color4(0.75164f, 0.60648f, 0.22648f, 1.0f),
-                SpecularColor = new Color4(0.628281f, 0.555802f, 0.366065f, 1.0f),
-                EmissiveColor = new Color4(0.0f, 0.0f, 0.0f, 0.0f),
-                SpecularShininess = 51.2f
-            };
-        }
+    protected ModelReader() {
+        DefaultMaterial = new PhongMaterialCore {
+            Name = "Gold",
+            AmbientColor = new Color4(0.24725f, 0.1995f, 0.0745f, 1.0f),
+            DiffuseColor = new Color4(0.75164f, 0.60648f, 0.22648f, 1.0f),
+            SpecularColor = new Color4(0.628281f, 0.555802f, 0.366065f, 1.0f),
+            EmissiveColor = new Color4(0.0f, 0.0f, 0.0f, 0.0f),
+            SpecularShininess = 51.2f
+        };
+    }
 
         /// <summary>
         ///     Gets or sets the default material.
@@ -37,23 +36,23 @@ namespace HelixToolkit.SharpDX.Core
         /// <value>
         ///     The default material.
         /// </value>
-        public MaterialCore DefaultMaterial { get; set; }
+    public MaterialCore DefaultMaterial { get; set; }
 
         /// <summary>
         ///     Gets or sets the directory.
         /// </summary>
         /// <value>The directory.</value>
-        public string Directory { get; set; }
+    public string Directory { get; set; }
 
         /// <summary>
         ///     Gets or sets the texture path.
         /// </summary>
         /// <value>The texture path.</value>
-        public string TexturePath {
-            get => Directory;
+    public string TexturePath {
+        get => Directory;
 
-            set => Directory = value;
-        }
+        set => Directory = value;
+    }
 
         /// <summary>
         ///     Reads the model from the specified path.
@@ -61,12 +60,11 @@ namespace HelixToolkit.SharpDX.Core
         /// <param name="path">The path.</param>
         /// <param name="info"></param>
         /// <returns>The model.</returns>
-        public virtual Mesh3DGroup Read(string path, ModelInfo info = default) {
-            Directory = Path.GetDirectoryName(path);
-            using (var s = File.OpenRead(path)) {
-                return Read(s, info);
-            }
-        }
+    public virtual Mesh3DGroup Read(string path, ModelInfo info = default) {
+        Directory = Path.GetDirectoryName(path);
+        using var s = File.OpenRead(path);
+        return Read(s, info);
+    }
 
         /// <summary>
         ///     Reads the model from the specified stream.
@@ -74,6 +72,5 @@ namespace HelixToolkit.SharpDX.Core
         /// <param name="s">The stream.</param>
         /// <param name="info"></param>
         /// <returns>The model.</returns>
-        public abstract Mesh3DGroup Read(Stream s, ModelInfo info = default);
-    }
+    public abstract Mesh3DGroup Read(Stream s, ModelInfo info = default);
 }

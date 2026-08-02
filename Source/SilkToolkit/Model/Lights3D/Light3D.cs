@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Light3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -26,7 +26,7 @@ public abstract class Light3D : Element3D {
                                     new PropertyMetadata(Media.Colors.Gray,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as LightNode).Color =
-                                                                 ((Media.Color) e.NewValue).ToColor4();
+                                                                 ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -34,7 +34,7 @@ public abstract class Light3D : Element3D {
     ///     For simplicity, this color applies to the diffuse and specular properties of the light.
     /// </summary>
     public Media.Color Color {
-        get => (Media.Color) GetValue(ColorProperty);
+        get => (Media.Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 

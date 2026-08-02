@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -45,17 +45,17 @@ namespace HelixToolkit.SharpDX.Core {
                 if (elapsed > EndTime)
                     switch (RepeatMode) {
                         case AnimationRepeatMode.Loop: {
-                            elapsed = elapsed % (EndTime - StartTime) + StartTime;
-                            break;
-                        }
+                                elapsed = elapsed % (EndTime - StartTime) + StartTime;
+                                break;
+                            }
                         case AnimationRepeatMode.PlayOnce: {
-                            SetWeights(StartTime);
-                            return;
-                        }
+                                SetWeights(StartTime);
+                                return;
+                            }
                         case AnimationRepeatMode.PlayOnceHold: {
-                            elapsed = EndTime;
-                            break;
-                        }
+                                elapsed = EndTime;
+                                break;
+                            }
                     }
 
                 SetWeights(elapsed);

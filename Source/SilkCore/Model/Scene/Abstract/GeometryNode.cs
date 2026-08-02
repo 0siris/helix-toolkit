@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -199,7 +199,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Properties
+            #region Properties
 
             private Geometry3D geometry;
 
@@ -356,7 +356,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public override BoundingSphere BoundsSphereWithTransform => BoundManager.BoundsSphereWithTransform;
 
-        #region Rasterizer parameters
+            #region Rasterizer parameters
 
             private int depthBias;
 
@@ -448,7 +448,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion Rasterizer parameters
+            #endregion Rasterizer parameters
 
             private bool enableViewFrustumCheck = true;
 
@@ -495,7 +495,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => RenderCore.IsThrowingShadow = value;
             }
 
-        #endregion Properties
+            #endregion Properties
         }
     }
 }

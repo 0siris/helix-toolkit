@@ -6,22 +6,22 @@
 
 namespace CustomShaderDemo;
 
-using CustomShaderDemo.Materials;
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using CustomShaderDemo.Materials;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -174,21 +174,19 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 0, 10));
 
         AxisModel = lineBuilder.ToLineGeometry3D();
-        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count);
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
+        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count) {
+            Colors.Red.ToColor4(),
+            Colors.Red.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Blue.ToColor4(),
+            Colors.Blue.ToColor4()
+        };
 
         AxisLabel = new BillboardText3D();
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4()});
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4()});
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4()});
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4() });
 
         builder = new MeshBuilder(true);
         builder.AddSphere(new Vector3(-15, 0, 0), 5);
@@ -200,7 +198,7 @@ public class MainViewModel : BaseViewModel {
         PointModel = new PointGeometry3D() {
             Positions = SphereModel.Positions
         };
-        CustomPointMaterial = new CustomPointMaterial() {Color = Colors.White};
+        CustomPointMaterial = new CustomPointMaterial() { Color = Colors.White };
     }
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) {

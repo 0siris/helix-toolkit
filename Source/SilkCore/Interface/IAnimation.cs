@@ -1,4 +1,4 @@
-﻿namespace HelixToolkit.SharpDX.Core {
+namespace HelixToolkit.SharpDX.Core {
     namespace Animations {
         /// <summary>
         /// </summary>

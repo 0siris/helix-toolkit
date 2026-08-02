@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -113,13 +113,13 @@ namespace HelixToolkit.SharpDX.Core {
                 get {
                     if (BlendStateDescription == null) return null;
 
-                    return new BlendStateDataContract((BlendStateDescription) BlendStateDescription);
+                    return new BlendStateDataContract((BlendStateDescription)BlendStateDescription);
                 }
                 set {
                     if (value == null)
                         BlendStateDescription = null;
                     else
-                        BlendStateDescription = ((BlendStateDataContract) value).ToBlendStateDescription();
+                        BlendStateDescription = ((BlendStateDataContract)value).ToBlendStateDescription();
                 }
             }
 
@@ -172,14 +172,14 @@ namespace HelixToolkit.SharpDX.Core {
                     if (DepthStencilStateDescription == null) return null;
 
                     return new DepthStencilStateDataContract(
-                        (DepthStencilStateDescription) DepthStencilStateDescription);
+                        (DepthStencilStateDescription)DepthStencilStateDescription);
                 }
                 set {
                     if (value == null)
                         DepthStencilStateDescription = null;
                     else
                         DepthStencilStateDescription =
-                            ((DepthStencilStateDataContract) value).ToDepthStencilStateDescription();
+                            ((DepthStencilStateDataContract)value).ToDepthStencilStateDescription();
                 }
             }
 
@@ -198,13 +198,13 @@ namespace HelixToolkit.SharpDX.Core {
                 get {
                     if (RasterStateDescription == null) return null;
 
-                    return new RasterizerStateDataContract((RasterizerStateDescription) RasterStateDescription);
+                    return new RasterizerStateDataContract((RasterizerStateDescription)RasterStateDescription);
                 }
                 set {
                     if (value == null)
                         RasterStateDescription = null;
                     else
-                        RasterStateDescription = ((RasterizerStateDataContract) value).ToRasterizerStateDescription();
+                        RasterStateDescription = ((RasterizerStateDataContract)value).ToRasterizerStateDescription();
                 }
             }
 
@@ -215,7 +215,7 @@ namespace HelixToolkit.SharpDX.Core {
             public InputLayoutDescription InputLayoutDescription { get; set; }
         }
 
-    #region Serializable descriptions
+        #region Serializable descriptions
 
         [DataContract(Name = @"DepthStencilOperationDataContract")]
         public struct DepthStencilOperationDataContract {
@@ -233,18 +233,18 @@ namespace HelixToolkit.SharpDX.Core {
 
             public DepthStencilOperationDescription ToDepthStencilOperationDescription() {
                 return new DepthStencilOperationDescription {
-                    FailOperation = (StencilOperation) FailOperation,
-                    DepthFailOperation = (StencilOperation) DepthFailOperation,
-                    PassOperation = (StencilOperation) PassOperation,
-                    Comparison = (Comparison) Comparison
+                    FailOperation = (StencilOperation)FailOperation,
+                    DepthFailOperation = (StencilOperation)DepthFailOperation,
+                    PassOperation = (StencilOperation)PassOperation,
+                    Comparison = (Comparison)Comparison
                 };
             }
 
             public DepthStencilOperationDataContract(DepthStencilOperationDescription desc) {
-                FailOperation = (int) desc.FailOperation;
-                DepthFailOperation = (int) desc.DepthFailOperation;
-                PassOperation = (int) desc.PassOperation;
-                Comparison = (int) desc.Comparison;
+                FailOperation = (int)desc.FailOperation;
+                DepthFailOperation = (int)desc.DepthFailOperation;
+                PassOperation = (int)desc.PassOperation;
+                Comparison = (int)desc.Comparison;
             }
         }
 
@@ -277,8 +277,8 @@ namespace HelixToolkit.SharpDX.Core {
             public DepthStencilStateDataContract(DepthStencilStateDescription desc) {
                 IsDepthEnabled = desc.IsDepthEnabled;
                 IsStencilEnabled = desc.IsStencilEnabled;
-                DepthWriteMask = (int) desc.DepthWriteMask;
-                DepthComparison = (int) desc.DepthComparison;
+                DepthWriteMask = (int)desc.DepthWriteMask;
+                DepthComparison = (int)desc.DepthComparison;
                 StencilReadMask = desc.StencilReadMask;
                 StencilWriteMask = desc.StencilWriteMask;
                 FrontFace = new DepthStencilOperationDataContract(desc.FrontFace);
@@ -288,8 +288,8 @@ namespace HelixToolkit.SharpDX.Core {
             public DepthStencilStateDescription ToDepthStencilStateDescription() {
                 return new DepthStencilStateDescription {
                     IsDepthEnabled = IsDepthEnabled,
-                    DepthWriteMask = (DepthWriteMask) DepthWriteMask,
-                    DepthComparison = (Comparison) DepthComparison,
+                    DepthWriteMask = (DepthWriteMask)DepthWriteMask,
+                    DepthComparison = (Comparison)DepthComparison,
                     IsStencilEnabled = IsStencilEnabled,
                     StencilReadMask = StencilReadMask,
                     StencilWriteMask = StencilWriteMask,
@@ -333,8 +333,8 @@ namespace HelixToolkit.SharpDX.Core {
 
             public RasterizerStateDescription ToRasterizerStateDescription() {
                 return new RasterizerStateDescription {
-                    FillMode = (FillMode) FillMode,
-                    CullMode = (CullMode) CullMode,
+                    FillMode = (FillMode)FillMode,
+                    CullMode = (CullMode)CullMode,
                     IsFrontCounterClockwise = IsFrontCounterClockwise,
                     DepthBias = DepthBias,
                     DepthBiasClamp = DepthBiasClamp,
@@ -347,8 +347,8 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public RasterizerStateDataContract(RasterizerStateDescription desc) {
-                FillMode = (int) desc.FillMode;
-                CullMode = (int) desc.CullMode;
+                FillMode = (int)desc.FillMode;
+                CullMode = (int)desc.CullMode;
                 DepthBias = desc.DepthBias;
                 IsFrontCounterClockwise = desc.IsFrontCounterClockwise;
                 DepthBiasClamp = desc.DepthBiasClamp;
@@ -418,29 +418,29 @@ namespace HelixToolkit.SharpDX.Core {
 
             public RenderTargetBlendDataContract(RenderTargetBlendDescription desc) {
                 IsBlendEnabled = desc.IsBlendEnabled;
-                SourceBlend = (int) desc.SourceBlend;
-                DestinationBlend = (int) desc.DestinationBlend;
-                BlendOperation = (int) desc.BlendOperation;
-                SourceAlphaBlend = (int) desc.SourceAlphaBlend;
-                DestinationAlphaBlend = (int) desc.DestinationAlphaBlend;
-                AlphaBlendOperation = (int) desc.AlphaBlendOperation;
-                RenderTargetWriteMask = (int) desc.RenderTargetWriteMask;
+                SourceBlend = (int)desc.SourceBlend;
+                DestinationBlend = (int)desc.DestinationBlend;
+                BlendOperation = (int)desc.BlendOperation;
+                SourceAlphaBlend = (int)desc.SourceAlphaBlend;
+                DestinationAlphaBlend = (int)desc.DestinationAlphaBlend;
+                AlphaBlendOperation = (int)desc.AlphaBlendOperation;
+                RenderTargetWriteMask = (int)desc.RenderTargetWriteMask;
             }
 
             public RenderTargetBlendDescription ToRenderTargetBlendDescription() {
                 return new RenderTargetBlendDescription {
                     IsBlendEnabled = IsBlendEnabled,
-                    SourceBlend = (BlendOption) SourceBlend,
-                    DestinationBlend = (BlendOption) DestinationBlend,
-                    BlendOperation = (BlendOperation) BlendOperation,
-                    SourceAlphaBlend = (BlendOption) SourceAlphaBlend,
-                    DestinationAlphaBlend = (BlendOption) DestinationAlphaBlend,
-                    AlphaBlendOperation = (BlendOperation) AlphaBlendOperation,
-                    RenderTargetWriteMask = (ColorWriteMaskFlags) RenderTargetWriteMask
+                    SourceBlend = (BlendOption)SourceBlend,
+                    DestinationBlend = (BlendOption)DestinationBlend,
+                    BlendOperation = (BlendOperation)BlendOperation,
+                    SourceAlphaBlend = (BlendOption)SourceAlphaBlend,
+                    DestinationAlphaBlend = (BlendOption)DestinationAlphaBlend,
+                    AlphaBlendOperation = (BlendOperation)AlphaBlendOperation,
+                    RenderTargetWriteMask = (ColorWriteMaskFlags)RenderTargetWriteMask
                 };
             }
         }
 
-    #endregion
+        #endregion
     }
 }

@@ -18,10 +18,10 @@ public class DiffuseMaterial : Material {
         DependencyProperty.Register("DiffuseColor",
                                     typeof(Color4),
                                     typeof(DiffuseMaterial),
-                                    new PropertyMetadata((Color4) Color.White,
+                                    new PropertyMetadata((Color4)Color.White,
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .DiffuseColor = (Color4) e.NewValue;
+                                                                 .DiffuseColor = (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -46,7 +46,7 @@ public class DiffuseMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore)
                                                                  .DiffuseMapSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -59,7 +59,7 @@ public class DiffuseMaterial : Material {
                                     new PropertyMetadata(UVTransform.Identity,
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore).UVTransform =
-                                                                 (UVTransform) e.NewValue;
+                                                                 (UVTransform)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -72,7 +72,7 @@ public class DiffuseMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore).EnableUnLit =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
@@ -82,7 +82,7 @@ public class DiffuseMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .EnableFlatShading = (bool) e.NewValue;
+                                                                 .EnableFlatShading = (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty VertexColorBlendingFactorProperty =
@@ -93,7 +93,7 @@ public class DiffuseMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as DiffuseMaterialCore)
                                                                  .VertexColorBlendingFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     public DiffuseMaterial() { }
@@ -115,7 +115,7 @@ public class DiffuseMaterial : Material {
 
     [TypeConverter(typeof(Color4Converter))]
     public Color4 DiffuseColor {
-        get => (Color4) GetValue(DiffuseColorProperty);
+        get => (Color4)GetValue(DiffuseColorProperty);
         set => SetValue(DiffuseColorProperty, value);
     }
 
@@ -126,14 +126,14 @@ public class DiffuseMaterial : Material {
     ///     The diffuse map.
     /// </value>
     public TextureModel DiffuseMap {
-        get => (TextureModel) GetValue(DiffuseMapProperty);
+        get => (TextureModel)GetValue(DiffuseMapProperty);
         set => SetValue(DiffuseMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DiffuseMapSampler {
-        get => (SamplerStateDescription) GetValue(DiffuseMapSamplerProperty);
+        get => (SamplerStateDescription)GetValue(DiffuseMapSamplerProperty);
         set => SetValue(DiffuseMapSamplerProperty, value);
     }
 
@@ -144,7 +144,7 @@ public class DiffuseMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => (UVTransform) GetValue(UVTransformProperty);
+        get => (UVTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -156,7 +156,7 @@ public class DiffuseMaterial : Material {
     ///     <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableUnLit {
-        get => (bool) GetValue(EnableUnLitProperty);
+        get => (bool)GetValue(EnableUnLitProperty);
         set => SetValue(EnableUnLitProperty, value);
     }
 
@@ -167,7 +167,7 @@ public class DiffuseMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool) GetValue(EnableFlatShadingProperty);
+        get => (bool)GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -179,7 +179,7 @@ public class DiffuseMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double) GetValue(VertexColorBlendingFactorProperty);
+        get => (double)GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
@@ -191,7 +191,7 @@ public class DiffuseMaterial : Material {
             DiffuseMapSampler = DiffuseMapSampler,
             EnableUnLit = EnableUnLit,
             EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float) VertexColorBlendingFactor
+            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
         };
     }
 
@@ -256,7 +256,7 @@ public class DiffuseMaterialCollection : ObservableCollection<DiffuseMaterial> {
 
 public static class DiffuseMaterials {
     static DiffuseMaterials() {
-        Materials = new DiffuseMaterialCollection();
+        Materials = [];
     }
 
     public static DiffuseMaterialCollection Materials { get; }
@@ -504,7 +504,7 @@ public static class DiffuseMaterials {
     }
 
     public static Color4 ToColor(double r, double g, double b, double a = 1.0) {
-        return FromScRgb((float) a, (float) r, (float) g, (float) b);
+        return FromScRgb((float)a, (float)r, (float)g, (float)b);
     }
 
     /// <summary>
@@ -516,7 +516,7 @@ public static class DiffuseMaterials {
             a = 0.0f;
         else if (a > 1.0f) a = 1.0f;
 
-        c1.A = (byte) (a * 255.0f + 0.5f);
+        c1.A = (byte)(a * 255.0f + 0.5f);
         c1.R = ScRgbTosRgb(r);
         c1.G = ScRgbTosRgb(g);
         c1.B = ScRgbTosRgb(b);
@@ -530,9 +530,9 @@ public static class DiffuseMaterials {
         if (!(val > 0.0)) // Handles NaN case too
             return 0;
 
-        if (val <= 0.0031308) return (byte) (255.0f * val * 12.92f + 0.5f);
+        if (val <= 0.0031308) return (byte)(255.0f * val * 12.92f + 0.5f);
 
-        if (val < 1.0) return (byte) (255.0f * (1.055f * (float) Math.Pow(val, 1.0 / 2.4) - 0.055f) + 0.5f);
+        if (val < 1.0) return (byte)(255.0f * (1.055f * (float)Math.Pow(val, 1.0 / 2.4) - 0.055f) + 0.5f);
 
         return 255;
     }

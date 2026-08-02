@@ -1,9 +1,9 @@
-﻿using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.SharpDX.Core;
 
 public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
-    private readonly DoubleKeyDictionary<Guid, Guid, MaterialVariable> dictionary = new();
+    private readonly DoubleKeyDictionary<Guid, Guid, MaterialVariable> dictionary = [];
     private readonly IEffectsManager effectsManager;
     private ushort IDMAX;
 
@@ -33,7 +33,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
             };
             dictionary.Add(guid, techGuid, v);
             ++Count;
-            if (IDMAX - (ushort) Count > 1000) {
+            if (IDMAX - (ushort)Count > 1000) {
                 IDMAX = 0;
                 foreach (var m in dictionary) m.Value.ID = ++IDMAX;
             } else {
@@ -44,7 +44,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
         }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -76,5 +76,5 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

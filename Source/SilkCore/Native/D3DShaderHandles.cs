@@ -252,32 +252,32 @@ namespace HelixToolkit.SharpDX.Core {
                     SilkFeatureLevel.Level_11_0 => FeatureLevel.Level_11_0,
                     SilkFeatureLevel.Level_10_1 => FeatureLevel.Level_10_1,
                     SilkFeatureLevel.Level_10_0 => FeatureLevel.Level_10_0,
-                    SilkFeatureLevel.Level_9_3  => FeatureLevel.Level_9_3,
-                    SilkFeatureLevel.Level_9_2  => FeatureLevel.Level_9_2,
-                    SilkFeatureLevel.Level_9_1  => FeatureLevel.Level_9_1,
-                    _                           => FeatureLevel.Level_DEFAULT
+                    SilkFeatureLevel.Level_9_3 => FeatureLevel.Level_9_3,
+                    SilkFeatureLevel.Level_9_2 => FeatureLevel.Level_9_2,
+                    SilkFeatureLevel.Level_9_1 => FeatureLevel.Level_9_1,
+                    _ => FeatureLevel.Level_DEFAULT
                 };
             }
 
             public static InputElementDesc ToSilkDesc(this InputElement element, nint semanticName) {
                 return new InputElementDesc {
-                    SemanticName = (byte*) semanticName,
-                    SemanticIndex = (uint) element.SemanticIndex,
+                    SemanticName = (byte*)semanticName,
+                    SemanticIndex = (uint)element.SemanticIndex,
                     Format = element.Format,
-                    InputSlot = (uint) element.Slot,
+                    InputSlot = (uint)element.Slot,
                     AlignedByteOffset = element.AlignedByteOffset == InputElement.AppendAligned
-                                            ? unchecked((uint) -1)
-                                            : (uint) element.AlignedByteOffset,
-                    InputSlotClass = (Silk.NET.Direct3D11.InputClassification) element.Classification,
-                    InstanceDataStepRate = (uint) element.InstanceDataStepRate
+                                            ? unchecked((uint)-1)
+                                            : (uint)element.AlignedByteOffset,
+                    InputSlotClass = (Silk.NET.Direct3D11.InputClassification)element.Classification,
+                    InstanceDataStepRate = (uint)element.InstanceDataStepRate
                 };
             }
 
             public static SODeclarationEntry ToSilkDesc(this StreamOutputElement element, nint semanticName) {
                 return new SODeclarationEntry {
-                    Stream = (uint) element.Stream,
-                    SemanticName = (byte*) semanticName,
-                    SemanticIndex = (uint) element.SemanticIndex,
+                    Stream = (uint)element.Stream,
+                    SemanticName = (byte*)semanticName,
+                    SemanticIndex = (uint)element.SemanticIndex,
                     StartComponent = element.StartComponent,
                     ComponentCount = element.ComponentCount,
                     OutputSlot = element.OutputSlot

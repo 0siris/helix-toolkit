@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -59,7 +59,7 @@ namespace HelixToolkit.SharpDX.Core {
 
                     IsMultisampleEnabled = IsMSAAEnabled,
                     //IsAntialiasedLineEnabled = true, // Intel HD 3000 doesn't like this (#10051) and it's not needed
-                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled
+                    IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
                 };
             }
 
@@ -86,7 +86,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                             totalModelMatrix,
                                                             ref hits,
                                                             WrapperSource,
-                                                            (float) HitTestThickness);
+                                                            (float)HitTestThickness);
             }
 
             protected override bool PreHitTestOnBounds(HitTestContext context) {

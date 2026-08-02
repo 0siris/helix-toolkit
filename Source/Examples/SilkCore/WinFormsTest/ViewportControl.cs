@@ -1,10 +1,10 @@
-﻿using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Animations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
 
 namespace WinFormsTest;
 

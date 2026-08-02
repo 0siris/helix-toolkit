@@ -75,7 +75,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     ///     Gets or sets TargetTransform.
     /// </summary>
     public Transform3D TargetTransform {
-        get => (Transform3D) GetValue(TargetTransformProperty);
+        get => (Transform3D)GetValue(TargetTransformProperty);
         set => SetValue(TargetTransformProperty, value);
     }
 
@@ -85,7 +85,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <value> The offset. </value>
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 Offset {
-        get => (Vector3) GetValue(OffsetProperty);
+        get => (Vector3)GetValue(OffsetProperty);
         set => SetValue(OffsetProperty, value);
     }
 
@@ -94,7 +94,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// </summary>
     /// <value> The value. </value>
     public double Value {
-        get => (double) GetValue(ValueProperty);
+        get => (double)GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
 
@@ -141,8 +141,8 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     ///     Source Visual3D which receives the manipulator transforms.
     /// </param>
     public void Bind(Element3D source) {
-        BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") {Source = source});
-        BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") {Source = source});
+        BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") { Source = source });
+        BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") { Source = source });
     }
 
     /// <summary>

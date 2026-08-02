@@ -9,8 +9,8 @@
 
 namespace HelixToolkit.Wpf;
 
-using Point = Vector2;
 using Int32Collection = List<int>;
+using Point = Vector2;
 
 
 #pragma warning disable 0436

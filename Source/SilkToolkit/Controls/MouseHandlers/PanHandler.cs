@@ -134,6 +134,6 @@ internal class PanHandler : MouseGestureHandler {
     /// </param>
     protected override void OnInertiaStarting(double elapsedTime) {
         var speed = (LastPoint - MouseDownPoint) * (40.0 / elapsedTime);
-        Controller.AddPanForce((float) speed.X, (float) speed.Y);
+        Controller.AddPanForce((float)speed.X, (float)speed.Y);
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -101,8 +101,7 @@ public class BillboardSingleText3D : BillboardBase {
     /// <value>
     ///     The font weight.
     /// </value>
-    public FontWeight FontWeight
-    {
+    public FontWeight FontWeight {
         get { return mFontWeight; }
         set {
             if (Set(ref mFontWeight, value)) IsInitialized = false;
@@ -115,8 +114,7 @@ public class BillboardSingleText3D : BillboardBase {
     /// <value>
     ///     The font style.
     /// </value>
-    public FontStyle FontStyle
-    {
+    public FontStyle FontStyle {
         get { return mFontStyle; }
         set {
             if (Set(ref mFontStyle, value)) IsInitialized = false;
@@ -216,7 +214,7 @@ public class BillboardSingleText3D : BillboardBase {
             Bound = new BoundingBox();
         } else {
             BoundingSphere =
-                new BoundingSphere(TextInfo.Origin, (float) Math.Sqrt(Width * Width + Height * Height) / 2);
+                new BoundingSphere(TextInfo.Origin, (float)Math.Sqrt(Width * Width + Height * Height) / 2);
             Bound = BoundingBox.FromSphere(BoundingSphere);
         }
     }

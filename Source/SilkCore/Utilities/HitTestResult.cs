@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -115,7 +115,7 @@ public class LineHitTestResult : HitTestResult {
 
 public class BillboardHitResult : HitTestResult {
     public int TextInfoIndex { get; set; } = -1;
-    public TextInfo TextInfo { get; set; } = null;
+    public TextInfo? TextInfo { get; set; } = null;
 
     public BillboardType Type { get; set; }
 }

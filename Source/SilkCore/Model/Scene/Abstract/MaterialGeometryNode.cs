@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2020 Helix Toolkit contributors
 */
@@ -54,7 +54,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override OrderKey OnUpdateRenderOrderKey() {
-                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
+                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
             }
 
             protected override bool CanRender(RenderContext context) {

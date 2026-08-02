@@ -38,7 +38,7 @@ public partial class MainWindow : Window {
     }
 
     private void Button_Click(object sender, RoutedEventArgs e) {
-        MultiViewport viewportWin = new MultiViewport() {DataContext = this.DataContext};
+        MultiViewport viewportWin = new MultiViewport() { DataContext = this.DataContext };
         viewportWin.Show();
     }
 }

@@ -9,13 +9,13 @@ namespace Workitem1349;
 using System.Linq;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Colors = System.Windows.Media.Colors;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -63,13 +63,9 @@ public class MainViewModel : BaseViewModel {
         // Create Billboard Text
         float offset = 4.5f;
         float scale = 0.8f;
-        Text3D.TextInfo.Add(new TextInfo("2", new Vector3(2, 0, 0))
-                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
-        Text3D.TextInfo.Add(new TextInfo("3", new Vector3(3, 0, 3))
-                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
-        Text3D.TextInfo.Add(new TextInfo("4", new Vector3(4, 0, 3))
-                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
-        Text3D.TextInfo.Add(new TextInfo("5", new Vector3(5, 0, 3))
-                                {Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2});
+        Text3D.TextInfo.Add(new TextInfo("2", new Vector3(2, 0, 0)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
+        Text3D.TextInfo.Add(new TextInfo("3", new Vector3(3, 0, 3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
+        Text3D.TextInfo.Add(new TextInfo("4", new Vector3(4, 0, 3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
+        Text3D.TextInfo.Add(new TextInfo("5", new Vector3(5, 0, 3)) { Foreground = HelixToolkit.SharpDX.Core.Color.Blue, Scale = scale * 2 });
     }
 }

@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Extensions {
@@ -47,7 +47,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             public static Thickness ToD2DThickness(this System.Windows.Thickness t) {
-                return new Thickness((float) t.Left, (float) t.Right, (float) t.Top, (float) t.Bottom);
+                return new Thickness((float)t.Left, (float)t.Right, (float)t.Top, (float)t.Bottom);
             }
 
             public static Orientation ToD2DOrientation(this System.Windows.Controls.Orientation o) {

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SpotLight3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -25,7 +25,7 @@ public sealed class SpotLight3D : PointLight3D {
                                     new PropertyMetadata(new Vector3D(),
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .Direction = ((Vector3D) e.NewValue).ToVector3();
+                                                                 .Direction = ((Vector3D)e.NewValue).ToVector3();
                                                          }));
 
     public static readonly DependencyProperty FalloffProperty =
@@ -35,7 +35,7 @@ public sealed class SpotLight3D : PointLight3D {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as SpotLightNode).FallOff =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty InnerAngleProperty =
@@ -45,7 +45,7 @@ public sealed class SpotLight3D : PointLight3D {
                                     new PropertyMetadata(5.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .InnerAngle = (float) (double) e.NewValue;
+                                                                 .InnerAngle = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty OuterAngleProperty =
@@ -55,7 +55,7 @@ public sealed class SpotLight3D : PointLight3D {
                                     new PropertyMetadata(45.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .OuterAngle = (float) (double) e.NewValue;
+                                                                 .OuterAngle = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -64,7 +64,7 @@ public sealed class SpotLight3D : PointLight3D {
     ///     for all other lights it is ignored.
     /// </summary>
     public Vector3D Direction {
-        get => (Vector3D) GetValue(DirectionProperty);
+        get => (Vector3D)GetValue(DirectionProperty);
         set => SetValue(DirectionProperty, value);
     }
 
@@ -75,7 +75,7 @@ public sealed class SpotLight3D : PointLight3D {
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
     public double Falloff {
-        get => (double) GetValue(FalloffProperty);
+        get => (double)GetValue(FalloffProperty);
         set => SetValue(FalloffProperty, value);
     }
 
@@ -84,7 +84,7 @@ public sealed class SpotLight3D : PointLight3D {
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
     public double OuterAngle {
-        get => (double) GetValue(OuterAngleProperty);
+        get => (double)GetValue(OuterAngleProperty);
         set => SetValue(OuterAngleProperty, value);
     }
 
@@ -93,7 +93,7 @@ public sealed class SpotLight3D : PointLight3D {
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb174697(v=vs.85).aspx
     /// </summary>
     public double InnerAngle {
-        get => (double) GetValue(InnerAngleProperty);
+        get => (double)GetValue(InnerAngleProperty);
         set => SetValue(InnerAngleProperty, value);
     }
 
@@ -106,9 +106,9 @@ public sealed class SpotLight3D : PointLight3D {
         base.AssignDefaultValuesToSceneNode(core);
         if (core is SpotLightNode c) {
             c.Direction = Direction.ToVector3();
-            c.InnerAngle = (float) InnerAngle;
-            c.OuterAngle = (float) OuterAngle;
-            c.FallOff = (float) Falloff;
+            c.InnerAngle = (float)InnerAngle;
+            c.OuterAngle = (float)OuterAngle;
+            c.FallOff = (float)Falloff;
         }
     }
 }

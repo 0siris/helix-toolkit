@@ -1,11 +1,11 @@
-﻿using HelixToolkit.Logger;
+using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core;
 
 public class DefaultTexturePathResolver : ITexturePathResolver {
     private const string ToUpperDictString = @"..\";
-    private static readonly ILogger logger = LogManager.Create<DefaultTexturePathResolver>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     public string Resolve(string modelPath, string texturePath) {
         return OnLoadTexture(modelPath, texturePath);
@@ -25,13 +25,13 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
             if (!FileExists(p))
                 p = HandleTexturePathNotFound(dict, texturePath);
             if (!FileExists(p)) {
-                logger.LogWarning("Load Texture Failed. Texture Path = {0}.", texturePath);
+                Logger.Warn("Load Texture Failed. Texture Path = {Value0}.", texturePath);
                 return null;
             }
 
             return p;
         } catch (Exception ex) {
-            logger.LogWarning("Load Texture Exception. Texture Path = {0}. Exception: {1}", texturePath, ex.Message);
+            Logger.Warn(ex, "Load Texture Exception. Texture Path = {Value0}", (object)texturePath);
         }
 
         return null;
@@ -57,7 +57,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
         try {
             upper = Path.GetFullPath(upper + texturePath);
         } catch (NotSupportedException ex) {
-            logger.LogWarning("Exception: {0}", ex);
+            Logger.Warn(ex, "Texture path format is not supported");
         }
 
         if (FileExists(upper))

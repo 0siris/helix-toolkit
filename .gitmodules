@@ -1,0 +1,6 @@
+[submodule "External/Logging"]
+	path = External/Logging
+	url = https://github.com/0siris/Logging.git
+[submodule "External/Assertions"]
+	path = External/Assertions
+	url = https://github.com/0siris/Assertions.git

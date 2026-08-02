@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -33,7 +33,7 @@ public sealed class EffectsManagerConfiguration {
 ///     Shader and Technique manager
 /// </summary>
 public class EffectsManager : DisposeObject, IEffectsManager {
-    private static readonly ILogger logger = LogManager.Create<EffectsManager>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
     ///     Occurs when [on dispose resources].
@@ -50,8 +50,8 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public event EventHandler<EventArgs> InvalidateRender;
 
-    private readonly Dictionary<string, Lazy<IRenderTechnique>> techniqueDict = new();
-    private readonly Dictionary<string, TechniqueDescription> techniqueDescriptions = new();
+    private readonly Dictionary<string, Lazy<IRenderTechnique>> techniqueDict = [];
+    private readonly Dictionary<string, TechniqueDescription> techniqueDescriptions = [];
 
     /// <summary>
     ///     <see cref="IEffectsManager.RenderTechniques" />
@@ -105,7 +105,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public IStructArrayPool StructArrayPool => structArrayPool;
     private StructArrayPool structArrayPool;
 
-#region 3D Resoruces
+    #region 3D Resoruces
 
     private INativeDeviceResources nativeDeviceResources;
 
@@ -129,9 +129,9 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </value>
     public IDeviceContextPool DeviceContextPool => deviceContextPool;
 
-#endregion
+    #endregion
 
-#region 2D Resources
+    #region 2D Resources
 
     private D2DDevice device2D;
 
@@ -184,7 +184,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </value>
     public DirectWriteFactory DirectWriteFactory => directWriteFactory;
 
-#endregion
+    #endregion
 
     /// <summary>
     /// </summary>
@@ -235,7 +235,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     ///     Initializes this instance.
     /// </summary>
     private void Initialize(int adapterIndex) {
-        logger.LogInformation("Adapter Index = {0}", adapterIndex);
+        Logger.Info("Adapter Index = {Value0}", adapterIndex);
         AdapterIndex = Math.Max(0, adapterIndex);
         DriverType = EnableSoftwareRendering ? DriverType.Warp : DriverType.Hardware;
         RemoveAndDispose(ref nativeDeviceResources);
@@ -244,13 +244,13 @@ public class EffectsManager : DisposeObject, IEffectsManager {
                                                                          ? SilkDriverType.Warp
                                                                          : SilkDriverType.Hardware);
 
-        logger.LogInformation("Direct3D device initilized. DriverType: {0}; FeatureLevel: {1}",
+        Logger.Info("Direct3D device initilized. DriverType: {Value0}; FeatureLevel: {Value1}",
                               DriverType,
                               nativeDeviceResources.Device.FeatureLevel);
 
-    #region Initial Internal Pools
+        #region Initial Internal Pools
 
-        logger.LogInformation("Initializing resource pools");
+        Logger.Info("Initializing resource pools");
         RemoveAndDispose(ref constantBufferPool);
         constantBufferPool = new ConstantBufferPool(nativeDeviceResources.Device);
 
@@ -275,9 +275,9 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         RemoveAndDispose(ref structArrayPool);
         structArrayPool = new StructArrayPool();
 
-    #endregion
+        #endregion
 
-        logger.LogInformation("Initializing Direct2D resource handles");
+        Logger.Info("Initializing Direct2D resource handles");
         factory2D = new D2DFactory();
         wicImgFactory = new WICImagingFactory();
         directWriteFactory = new DirectWriteFactory();
@@ -367,8 +367,8 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <exception cref="ArgumentException"></exception>
     public IRenderTechnique GetTechnique(string name) {
         if (!techniqueDict.TryGetValue(name, out var t)) {
-            logger.LogWarning("Technique {0} does not exist. Return a null technique.", name);
-            return new Technique(new TechniqueDescription {Name = name, IsNull = true}, this);
+            Logger.Warn("Technique {Value0} does not exist. Return a null technique.", name);
+            return new Technique(new TechniqueDescription { Name = name, IsNull = true }, this);
         }
 
         return t.Value;
@@ -430,14 +430,14 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 #if DEBUGMEMORY
         protected void ReportResources()
         {
-            logger.LogDebug(global::SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects());
+            Logger.Debug(global::SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects());
             var liveObjects = global::SharpDX.Diagnostics.ObjectTracker.FindActiveObjects();
-            logger.LogDebug("Live object count = {0}", liveObjects.Count);
+            Logger.Debug("Live object count = {Value0}", liveObjects.Count);
             //if (liveObjects.Count != 0)
             //{
             //    foreach(var obj in liveObjects)
             //    {
-            //        logger.LogDebug(obj.ToString());
+            //        Logger.Debug(obj.ToString());
             //    }
             //}
         }

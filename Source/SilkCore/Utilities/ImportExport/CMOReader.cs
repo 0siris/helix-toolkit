@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -151,316 +151,314 @@ using System.Text;
 using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Model;
 
-namespace HelixToolkit.SharpDX.Core
-{
-    using PhongMaterial = PhongMaterialCore;
+namespace HelixToolkit.SharpDX.Core;
+using PhongMaterial = PhongMaterialCore;
 
-    public class AnimationHierarchy : IGUID {
-        public Dictionary<string, Animation> Animations = new();
-        public List<Bone> Bones = new();
-        public List<Object3D> Meshes = new();
-        public Guid GUID { get; } = Guid.NewGuid();
-    }
+public class AnimationHierarchy : IGUID {
+    public Dictionary<string, Animation> Animations = [];
+    public List<Bone> Bones = [];
+    public List<Object3D> Meshes = [];
+    public Guid GUID { get; } = Guid.NewGuid();
+}
 
 
-    public class CMOReader : IModelReader {
-        public const int MaxBoneInfluences = 4; // 4 bone influences are supported
-        public const int MaxTextures = 8;       // 8 unique textures are supported.
+public class CMOReader : IModelReader {
+    public const int MaxBoneInfluences = 4; // 4 bone influences are supported
+    public const int MaxTextures = 8;       // 8 unique textures are supported.
 
         /// <summary>
         ///     The animation hirarchy
         /// </summary>
-        public readonly List<AnimationHierarchy> AnimationHierarchy = new();
+    public readonly List<AnimationHierarchy> AnimationHierarchy = [];
 
-        public readonly List<Object3D> Meshes = new();
+    public readonly List<Object3D> Meshes = [];
 
         /// <summary>
         ///     The unique animations by animation name and corresponding animations by their guid
         /// </summary>
-        public readonly Dictionary<string, List<Guid>> UniqueAnimations = new();
+    public readonly Dictionary<string, List<Guid>> UniqueAnimations = [];
 
         /// <summary>
         ///     Gets or sets the path to the textures.
         /// </summary>
         /// <value>The texture path.</value>
-        public string TexturePath { get; set; }
+    public string TexturePath { get; set; }
 
         /// <summary>
         ///     Additional info how to treat the model
         /// </summary>
-        public ModelInfo ModelInfo { get; private set; }
+    public ModelInfo ModelInfo { get; private set; }
 
-        public List<Object3D> Read(string path, ModelInfo info = default) {
-            TexturePath = Path.GetDirectoryName(path);
-            ModelInfo = info;
+    public List<Object3D> Read(string path, ModelInfo info = default) {
+        TexturePath = Path.GetDirectoryName(path);
+        ModelInfo = info;
 
-            using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                return Read(s);
+        using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Read(s);
+    }
+
+    public List<Object3D> Read(Stream s, ModelInfo info = default) {
+        using (var br = new BinaryReader(s)) {
+            var meshCount = br.ReadUInt32();
+            for (var i = 0; i < meshCount; ++i) Meshes.AddRange(Load(br));
+        }
+
+        return Meshes;
+    }
+
+    private IList<Object3D> Load(BinaryReader reader) {
+        var name = reader.ReadCMO_wchar();
+        var numMaterials = (int)reader.ReadUInt32();
+        var materials = new List<Tuple<PhongMaterial, IList<string>>>(numMaterials);
+        for (var i = 0; i < numMaterials; ++i) {
+            var material = new PhongMaterial {
+                Name = reader.ReadCMO_wchar(),
+                AmbientColor = reader.ReadStructure<Color4>(),
+                DiffuseColor = reader.ReadStructure<Color4>(),
+                SpecularColor = reader.ReadStructure<Color4>(),
+                SpecularShininess = reader.ReadSingle(),
+                EmissiveColor = reader.ReadStructure<Color4>()
+            };
+            var uvTransform = reader.ReadStructure<Matrix>();
+            if (uvTransform == default) uvTransform = Matrix.Identity;
+            uvTransform.Decompose(out var s, out var r, out var tra);
+            material.UVTransform = new UVTransform(SilkMath.QuaternionAngle(r),
+                                                   new Vector2(s.X, s.Y),
+                                                   new Vector2(tra.X, tra.Y));
+            var pixelShaderName = reader.ReadCMO_wchar(); //Not used
+            var textures = new List<string>();
+            for (var t = 0; t < MaxTextures; ++t) textures.Add(reader.ReadCMO_wchar());
+            materials.Add(new Tuple<PhongMaterial, IList<string>>(material, textures));
+        }
+
+        //      BYTE - 1 if there is skeletal animation data present
+
+        // is there skeletal animation data present?
+        var isAnimationData = reader.ReadByte() == 1;
+        //      UINT - SubMesh count
+        //      { [SubMesh count]
+        //          SubMesh structure
+        //      }
+
+        // load sub meshes if any
+
+        var mesh = new MeshGeometry3D();
+        var subMeshCount = (int)reader.ReadUInt32();
+
+        var subMesh = new List<SubMesh>(subMeshCount);
+        for (var i = 0; i < subMeshCount; i++) subMesh.Add(reader.ReadStructure<SubMesh>());
+
+        //      UINT - IB Count
+        //      { [IB Count]
+        //          UINT - Number of USHORTs in IB
+        //          USHORT[] - Array of indices
+        //      }
+
+        // load triangle indices
+        var indexBufferCount = (int)reader.ReadUInt32();
+        var indices = new List<ushort[]>(indexBufferCount);
+        for (var i = 0; i < indexBufferCount; i++) indices.Add(reader.ReadUInt16((int)reader.ReadUInt32()));
+
+        //      UINT - VB Count
+        //      { [VB Count]
+        //          UINT - Number of verts in VB
+        //          Vertex[] - Array of vertices
+        //      }
+
+        // load vertex positions
+        var vertexBufferCount = (int)reader.ReadUInt32();
+        var vertexBuffers = new List<Vertex[]>(vertexBufferCount);
+        for (var i = 0; i < vertexBufferCount; i++)
+            vertexBuffers.Add(reader.ReadStructure<Vertex>((int)reader.ReadUInt32()));
+        //      UINT - Skinning VB Count
+        //      { [Skinning VB Count]
+        //          UINT - Number of verts in Skinning VB
+        //          SkinningVertex[] - Array of skinning verts
+        //      }
+
+        // load vertex skinning parameters
+        var skinningVertexBufferCount = (int)reader.ReadUInt32();
+        var skinningVertexBuffers = new List<SkinningVertex[]>(skinningVertexBufferCount);
+        for (var i = 0; i < skinningVertexBufferCount; i++)
+            skinningVertexBuffers.Add(reader.ReadStructure<SkinningVertex>((int)reader.ReadUInt32()));
+        // load mesh extent
+        var extent = reader.ReadStructure<MeshExtent>();
+        var animationHierarchy = new AnimationHierarchy();
+        IList<string> boneNames = null;
+        if (isAnimationData) {
+            //      UINT - Bone count
+            //      { [Bone count]
+            //          UINT - Length of bone name
+            //          wchar_t[] - Bone name (if length > 0)
+            //          Bone structure
+            //      }
+            var boneCount = (int)reader.ReadUInt32();
+            boneNames = new string[boneCount];
+            for (var i = 0; i < boneCount; i++) {
+                boneNames[i] = reader.ReadCMO_wchar();
+                animationHierarchy.Bones.Add(reader.ReadStructure<BoneStruct>());
+            }
+
+            //      UINT - Animation clip count
+            //      { [Animation clip count]
+            //          UINT - Length of clip name
+            //          wchar_t[] - Clip name (if length > 0)
+            //          float - Start time
+            //          float - End time
+            //          UINT - Keyframe count
+            //          { [Keyframe count]
+            //              Keyframe structure
+            //          }
+            //      }
+            var animationCount = (int)reader.ReadUInt32();
+            for (var i = 0; i < animationCount; i++) {
+                var animation = new Animation(AnimationType.Keyframe);
+                var animationName = reader.ReadCMO_wchar();
+                animation.StartTime = reader.ReadSingle();
+                animation.EndTime = reader.ReadSingle();
+                animation.Name = animationName;
+                var keyframeCount = (int)reader.ReadUInt32();
+                for (var j = 0; j < keyframeCount; j++) {
+                    var keyframe = reader.ReadStructure<KeyframeCMO>();
+                    keyframe.Transform.Decompose(out var s, out var q, out var t);
+                    animation.Keyframes.Add(new Keyframe { Translation = t, Rotation = q, Scale = s, Time = keyframe.Time });
+                }
+
+                animationHierarchy.Animations.Add(animation.Name, animation);
+                if (!UniqueAnimations.ContainsKey(animation.Name))
+                    UniqueAnimations.Add(animation.Name, []);
+                UniqueAnimations[animation.Name].Add(animation.GUID);
             }
         }
 
-        public List<Object3D> Read(Stream s, ModelInfo info = default) {
-            using (var br = new BinaryReader(s)) {
-                var meshCount = br.ReadUInt32();
-                for (var i = 0; i < meshCount; ++i) Meshes.AddRange(Load(br));
-            }
+        var obj3Ds = new List<Object3D>(subMeshCount);
 
-            return Meshes;
-        }
-
-        private IList<Object3D> Load(BinaryReader reader) {
-            var name = reader.ReadCMO_wchar();
-            var numMaterials = (int) reader.ReadUInt32();
-            var materials = new List<Tuple<PhongMaterial, IList<string>>>(numMaterials);
-            for (var i = 0; i < numMaterials; ++i) {
-                var material = new PhongMaterial {
-                    Name = reader.ReadCMO_wchar(),
-                    AmbientColor = reader.ReadStructure<Color4>(),
-                    DiffuseColor = reader.ReadStructure<Color4>(),
-                    SpecularColor = reader.ReadStructure<Color4>(),
-                    SpecularShininess = reader.ReadSingle(),
-                    EmissiveColor = reader.ReadStructure<Color4>()
-                };
-                var uvTransform = reader.ReadStructure<Matrix>();
-                if (uvTransform == default) uvTransform = Matrix.Identity;
-                uvTransform.Decompose(out var s, out var r, out var tra);
-                material.UVTransform = new UVTransform(SilkMath.QuaternionAngle(r),
-                                                       new Vector2(s.X, s.Y),
-                                                       new Vector2(tra.X, tra.Y));
-                var pixelShaderName = reader.ReadCMO_wchar(); //Not used
-                var textures = new List<string>();
-                for (var t = 0; t < MaxTextures; ++t) textures.Add(reader.ReadCMO_wchar());
-                materials.Add(new Tuple<PhongMaterial, IList<string>>(material, textures));
-            }
-
-            //      BYTE - 1 if there is skeletal animation data present
-
-            // is there skeletal animation data present?
-            var isAnimationData = reader.ReadByte() == 1;
-            //      UINT - SubMesh count
-            //      { [SubMesh count]
-            //          SubMesh structure
-            //      }
-
-            // load sub meshes if any
-
-            var mesh = new MeshGeometry3D();
-            var subMeshCount = (int) reader.ReadUInt32();
-
-            var subMesh = new List<SubMesh>(subMeshCount);
-            for (var i = 0; i < subMeshCount; i++) subMesh.Add(reader.ReadStructure<SubMesh>());
-
-            //      UINT - IB Count
-            //      { [IB Count]
-            //          UINT - Number of USHORTs in IB
-            //          USHORT[] - Array of indices
-            //      }
-
-            // load triangle indices
-            var indexBufferCount = (int) reader.ReadUInt32();
-            var indices = new List<ushort[]>(indexBufferCount);
-            for (var i = 0; i < indexBufferCount; i++) indices.Add(reader.ReadUInt16((int) reader.ReadUInt32()));
-
-            //      UINT - VB Count
-            //      { [VB Count]
-            //          UINT - Number of verts in VB
-            //          Vertex[] - Array of vertices
-            //      }
-
-            // load vertex positions
-            var vertexBufferCount = (int) reader.ReadUInt32();
-            var vertexBuffers = new List<Vertex[]>(vertexBufferCount);
-            for (var i = 0; i < vertexBufferCount; i++)
-                vertexBuffers.Add(reader.ReadStructure<Vertex>((int) reader.ReadUInt32()));
-            //      UINT - Skinning VB Count
-            //      { [Skinning VB Count]
-            //          UINT - Number of verts in Skinning VB
-            //          SkinningVertex[] - Array of skinning verts
-            //      }
-
-            // load vertex skinning parameters
-            var skinningVertexBufferCount = (int) reader.ReadUInt32();
-            var skinningVertexBuffers = new List<SkinningVertex[]>(skinningVertexBufferCount);
-            for (var i = 0; i < skinningVertexBufferCount; i++)
-                skinningVertexBuffers.Add(reader.ReadStructure<SkinningVertex>((int) reader.ReadUInt32()));
-            // load mesh extent
-            var extent = reader.ReadStructure<MeshExtent>();
-            var animationHierarchy = new AnimationHierarchy();
-            IList<string> boneNames = null;
+        for (var i = 0; i < subMesh.Count; ++i) {
+            var sub = subMesh[i];
+            var material = materials.Count == 0 ? new PhongMaterial() : materials[(int)sub.MaterialIndex].Item1;
+            var vertexCollection =
+                new Vector3Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.Position));
+            var normal = new Vector3Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.Normal));
+            var tex = new Vector2Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.UV));
+            var tangent =
+                new Vector3Collection(vertexBuffers[(int)sub.VertexDataIndex].Select(x => x.Tangent.ToVector3()));
+            var biTangent = new Vector3Collection(normal.Zip(tangent, SilkMath.Cross));
+            var indexCollection = new IntCollection(indices[(int)sub.IndexDataIndex].Select(x => (int)x));
+            var meshGeo = new MeshGeometry3D {
+                Positions = vertexCollection,
+                Indices = indexCollection,
+                Normals = normal,
+                Tangents = tangent,
+                BiTangents = biTangent,
+                TextureCoordinates = tex
+            };
             if (isAnimationData) {
-                //      UINT - Bone count
-                //      { [Bone count]
-                //          UINT - Length of bone name
-                //          wchar_t[] - Bone name (if length > 0)
-                //          Bone structure
-                //      }
-                var boneCount = (int) reader.ReadUInt32();
-                boneNames = new string[boneCount];
-                for (var i = 0; i < boneCount; i++) {
-                    boneNames[i] = reader.ReadCMO_wchar();
-                    animationHierarchy.Bones.Add(reader.ReadStructure<BoneStruct>());
-                }
-
-                //      UINT - Animation clip count
-                //      { [Animation clip count]
-                //          UINT - Length of clip name
-                //          wchar_t[] - Clip name (if length > 0)
-                //          float - Start time
-                //          float - End time
-                //          UINT - Keyframe count
-                //          { [Keyframe count]
-                //              Keyframe structure
-                //          }
-                //      }
-                var animationCount = (int) reader.ReadUInt32();
-                for (var i = 0; i < animationCount; i++) {
-                    var animation = new Animation(AnimationType.Keyframe);
-                    var animationName = reader.ReadCMO_wchar();
-                    animation.StartTime = reader.ReadSingle();
-                    animation.EndTime = reader.ReadSingle();
-                    animation.Name = animationName;
-                    var keyframeCount = (int) reader.ReadUInt32();
-                    for (var j = 0; j < keyframeCount; j++) {
-                        var keyframe = reader.ReadStructure<KeyframeCMO>();
-                        keyframe.Transform.Decompose(out var s, out var q, out var t);
-                        animation.Keyframes.Add(new Keyframe
-                                                    {Translation = t, Rotation = q, Scale = s, Time = keyframe.Time});
-                    }
-
-                    animationHierarchy.Animations.Add(animation.Name, animation);
-                    if (!UniqueAnimations.ContainsKey(animation.Name))
-                        UniqueAnimations.Add(animation.Name, new List<Guid>());
-                    UniqueAnimations[animation.Name].Add(animation.GUID);
-                }
-            }
-
-            var obj3Ds = new List<Object3D>(subMeshCount);
-
-            for (var i = 0; i < subMesh.Count; ++i) {
-                var sub = subMesh[i];
-                var material = materials.Count == 0 ? new PhongMaterial() : materials[(int) sub.MaterialIndex].Item1;
-                var vertexCollection =
-                    new Vector3Collection(vertexBuffers[(int) sub.VertexDataIndex].Select(x => x.Position));
-                var normal = new Vector3Collection(vertexBuffers[(int) sub.VertexDataIndex].Select(x => x.Normal));
-                var tex = new Vector2Collection(vertexBuffers[(int) sub.VertexDataIndex].Select(x => x.UV));
-                var tangent =
-                    new Vector3Collection(vertexBuffers[(int) sub.VertexDataIndex].Select(x => x.Tangent.ToVector3()));
-                var biTangent = new Vector3Collection(normal.Zip(tangent, (x, y) => { return SilkMath.Cross(x, y); }));
-                var indexCollection = new IntCollection(indices[(int) sub.IndexDataIndex].Select(x => (int) x));
-                var meshGeo = new MeshGeometry3D {
-                    Positions = vertexCollection,
-                    Indices = indexCollection,
-                    Normals = normal,
-                    Tangents = tangent,
-                    BiTangents = biTangent,
-                    TextureCoordinates = tex
-                };
-                if (isAnimationData) {
-                    var boneskinmesh = new BoneSkinnedMeshGeometry3D(meshGeo);
-                    boneskinmesh.VertexBoneIds = new List<BoneIds>(skinningVertexBuffers[(int) sub.VertexDataIndex]
+                var boneskinmesh = new BoneSkinnedMeshGeometry3D(meshGeo) {
+                    VertexBoneIds = [.. skinningVertexBuffers[(int)sub.VertexDataIndex]
                                                                        .Select(x => new BoneIds {
-                                                                           Bone1 = (int) x.BoneIndex0,
-                                                                           Bone2 = (int) x.BoneIndex1,
-                                                                           Bone3 = (int) x.BoneIndex2,
-                                                                           Bone4 = (int) x.BoneIndex3,
+                                                                           Bone1 = (int)x.BoneIndex0,
+                                                                           Bone2 = (int)x.BoneIndex1,
+                                                                           Bone3 = (int)x.BoneIndex2,
+                                                                           Bone4 = (int)x.BoneIndex3,
                                                                            Weights = new Vector4(
                                                                                x.BoneWeight0,
                                                                                x.BoneWeight1,
                                                                                x.BoneWeight2,
                                                                                x.BoneWeight3)
-                                                                       }));
-                    meshGeo = boneskinmesh;
-                }
-
-                //Todo Load textures
-                obj3Ds.Add(new Object3D {Geometry = meshGeo, Material = material, Name = name});
-                animationHierarchy.Meshes.Add(obj3Ds.Last());
-            }
-
-            AnimationHierarchy.Add(animationHierarchy);
-            return obj3Ds;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct SubMesh {
-            public uint MaterialIndex;
-            public uint IndexDataIndex;
-            public uint VertexDataIndex;
-            public uint StartIndex;
-            public uint PrimCount;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct Vertex {
-            public Vector3 Position;
-            public Vector3 Normal;
-            public Vector4 Tangent;
-            public Color Color;
-            public Vector2 UV;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct SkinningVertex {
-            public uint BoneIndex0;
-            public uint BoneIndex1;
-            public uint BoneIndex2;
-            public uint BoneIndex3;
-            public float BoneWeight0;
-            public float BoneWeight1;
-            public float BoneWeight2;
-            public float BoneWeight3;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct MeshExtent {
-            public Vector3 Center;
-            public float Radius;
-
-            public Vector3 Min;
-            public Vector3 Max;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct KeyframeCMO {
-            public int BoneIndex; // Used only for array based bones
-            public float Time;
-            public Matrix Transform;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct BoneStruct {
-            public int ParentIndex; // Used only for array based bones
-            public Matrix InvBindPose;
-            public Matrix BindPose;
-            public Matrix BoneLocalTransform;
-
-            public static implicit operator Bone(BoneStruct bone) {
-                return new Bone {
-                    ParentIndex = bone.ParentIndex, BindPose = bone.BindPose, InvBindPose = bone.InvBindPose,
-                    BoneLocalTransform = bone.BoneLocalTransform
+                                                                       })]
                 };
+                meshGeo = boneskinmesh;
             }
+
+            //Todo Load textures
+            obj3Ds.Add(new Object3D { Geometry = meshGeo, Material = material, Name = name });
+            animationHierarchy.Meshes.Add(obj3Ds.Last());
         }
+
+        AnimationHierarchy.Add(animationHierarchy);
+        return obj3Ds;
     }
 
-    public static class BinaryReaderExtensions {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct SubMesh {
+        public uint MaterialIndex;
+        public uint IndexDataIndex;
+        public uint VertexDataIndex;
+        public uint StartIndex;
+        public uint PrimCount;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct Vertex {
+        public Vector3 Position;
+        public Vector3 Normal;
+        public Vector4 Tangent;
+        public Color Color;
+        public Vector2 UV;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct SkinningVertex {
+        public uint BoneIndex0;
+        public uint BoneIndex1;
+        public uint BoneIndex2;
+        public uint BoneIndex3;
+        public float BoneWeight0;
+        public float BoneWeight1;
+        public float BoneWeight2;
+        public float BoneWeight3;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MeshExtent {
+        public Vector3 Center;
+        public float Radius;
+
+        public Vector3 Min;
+        public Vector3 Max;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct KeyframeCMO {
+        public int BoneIndex; // Used only for array based bones
+        public float Time;
+        public Matrix Transform;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct BoneStruct {
+        public int ParentIndex; // Used only for array based bones
+        public Matrix InvBindPose;
+        public Matrix BindPose;
+        public Matrix BoneLocalTransform;
+
+        public static implicit operator Bone(BoneStruct bone) {
+            return new Bone {
+                ParentIndex = bone.ParentIndex, BindPose = bone.BindPose, InvBindPose = bone.InvBindPose,
+                BoneLocalTransform = bone.BoneLocalTransform
+            };
+        }
+    }
+}
+
+public static class BinaryReaderExtensions {
         /// <summary>
         ///     Loads a string from the CMO file (WCHAR prefixed with uint length)
         /// </summary>
         /// <param name="br"></param>
         /// <returns></returns>
-        public static string ReadCMO_wchar(this BinaryReader br) {
-            // uint - Length of string (in WCHAR's i.e. 2-bytes)
-            // wchar[] - string (if length > 0)
-            var length = (int) br.ReadUInt32();
-            if (length > 0) {
-                var result = Encoding.Unicode.GetString(br.ReadBytes(length * 2), 0, length * 2);
-                // Remove the trailing \0
-                return result.Substring(0, result.Length - 1);
-            }
-
-            return null;
+    public static string ReadCMO_wchar(this BinaryReader br) {
+        // uint - Length of string (in WCHAR's i.e. 2-bytes)
+        // wchar[] - string (if length > 0)
+        var length = (int)br.ReadUInt32();
+        if (length > 0) {
+            var result = Encoding.Unicode.GetString(br.ReadBytes(length * 2), 0, length * 2);
+            // Remove the trailing \0
+            return result.Substring(0, result.Length - 1);
         }
+
+        return null;
+    }
 
         /// <summary>
         ///     Read a structure from binary reader
@@ -468,9 +466,9 @@ namespace HelixToolkit.SharpDX.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="br"></param>
         /// <returns></returns>
-        public static T ReadStructure<T>(this BinaryReader br) where T : unmanaged {
-            return ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
-        }
+    public static T ReadStructure<T>(this BinaryReader br) where T : unmanaged {
+        return ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
+    }
 
         /// <summary>
         ///     Read <paramref name="count" /> instances of the structure from the binary reader.
@@ -479,14 +477,14 @@ namespace HelixToolkit.SharpDX.Core
         /// <param name="br"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static T[] ReadStructure<T>(this BinaryReader br, int count) where T : unmanaged {
-            var result = new T[count];
+    public static T[] ReadStructure<T>(this BinaryReader br, int count) where T : unmanaged {
+        var result = new T[count];
 
-            for (var i = 0; i < count; i++)
-                result[i] = ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
+        for (var i = 0; i < count; i++)
+            result[i] = ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
 
-            return result;
-        }
+        return result;
+    }
 
         /// <summary>
         ///     Read <paramref name="count" /> UInt16s.
@@ -494,18 +492,17 @@ namespace HelixToolkit.SharpDX.Core
         /// <param name="br"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static ushort[] ReadUInt16(this BinaryReader br, int count) {
-            var result = new ushort[count];
-            for (var i = 0; i < count; i++)
-                result[i] = br.ReadUInt16();
-            return result;
-        }
+    public static ushort[] ReadUInt16(this BinaryReader br, int count) {
+        var result = new ushort[count];
+        for (var i = 0; i < count; i++)
+            result[i] = br.ReadUInt16();
+        return result;
+    }
 
-        private static T ByteArrayToStructure<T>(byte[] bytes) where T : unmanaged {
-            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            var stuff = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-            handle.Free();
-            return stuff;
-        }
+    private static T ByteArrayToStructure<T>(byte[] bytes) where T : unmanaged {
+        var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        var stuff = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
+        handle.Free();
+        return stuff;
     }
 }

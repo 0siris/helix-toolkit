@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Element3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -14,8 +14,8 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
 using Media = System.Windows.Media;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Point = System.Windows.Point;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -82,7 +82,7 @@ public abstract class Element3D : Element3DCore, IVisible {
         return null;
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     Indicates, if this element should be rendered,
@@ -95,7 +95,7 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              (d as Element3D).SceneNode.Visible =
-                                                                 (bool) e.NewValue && (d as Element3D).Visibility ==
+                                                                 (bool)e.NewValue && (d as Element3D).Visibility ==
                                                                  Visibility.Visible;
                                                          }));
 
@@ -105,7 +105,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     ///     default is true
     /// </summary>
     public bool IsRendering {
-        get => (bool) GetValue(IsRenderingProperty);
+        get => (bool)GetValue(IsRenderingProperty);
         set => SetValue(IsRenderingProperty, value);
     }
 
@@ -119,14 +119,14 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     new PropertyMetadata(Visibility.Visible,
                                                          (d, e) => {
                                                              (d as Element3D).SceneNode.Visible =
-                                                                 (Visibility) e.NewValue == Visibility.Visible &&
+                                                                 (Visibility)e.NewValue == Visibility.Visible &&
                                                                  (d as Element3D).IsRendering;
                                                          }));
 
     /// <summary>
     /// </summary>
     public Visibility Visibility {
-        get => (Visibility) GetValue(VisibilityProperty);
+        get => (Visibility)GetValue(VisibilityProperty);
         set => SetValue(VisibilityProperty, value);
     }
 
@@ -147,7 +147,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     /// <summary>
     /// </summary>
     public Transform3D Transform {
-        get => (Transform3D) GetValue(TransformProperty);
+        get => (Transform3D)GetValue(TransformProperty);
         set => SetValue(TransformProperty, value);
     }
 
@@ -157,14 +157,14 @@ public abstract class Element3D : Element3DCore, IVisible {
     public static readonly DependencyProperty IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible",
         typeof(bool),
         typeof(Element3D),
-        new PropertyMetadata(true, (d, e) => { (d as Element3D).SceneNode.IsHitTestVisible = (bool) e.NewValue; }));
+        new PropertyMetadata(true, (d, e) => { (d as Element3D).SceneNode.IsHitTestVisible = (bool)e.NewValue; }));
 
     /// <summary>
     ///     Indicates, if this element should be hit-tested.
     ///     default is true
     /// </summary>
     public bool IsHitTestVisible {
-        get => (bool) GetValue(IsHitTestVisibleProperty);
+        get => (bool)GetValue(IsHitTestVisibleProperty);
         set => SetValue(IsHitTestVisibleProperty, value);
     }
 
@@ -176,7 +176,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     ///     The render order.
     /// </value>
     public int RenderOrder {
-        get => (int) GetValue(RenderOrderProperty);
+        get => (int)GetValue(RenderOrderProperty);
         set => SetValue(RenderOrderProperty, value);
     }
 
@@ -190,14 +190,14 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     new PropertyMetadata(0,
                                                          (d, e) => {
                                                              (d as Element3D).SceneNode.RenderOrder =
-                                                                 (ushort) Math.Max(
+                                                                 (ushort)Math.Max(
                                                                      0,
-                                                                     Math.Min(ushort.MaxValue, (int) e.NewValue));
+                                                                     Math.Min(ushort.MaxValue, (int)e.NewValue));
                                                          }));
 
-#endregion
+    #endregion
 
-#region Events
+    #region Events
 
     public static readonly RoutedEvent MouseDown3DEvent =
         EventManager.RegisterRoutedEvent("MouseDown3D",
@@ -257,7 +257,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     public event EventHandler<MouseUp3DEventArgs> Mouse3DUp;
     public event EventHandler<MouseMove3DEventArgs> Mouse3DMove;
 
-#endregion
+    #endregion
 
     //protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
     //{
@@ -279,8 +279,8 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
         object source,
         HitTestResult hitTestResult,
         Point position,
-        Viewport3DX viewport = null,
-        InputEventArgs originalInputEventArgs = null
+        Viewport3DX? viewport = null,
+        InputEventArgs? originalInputEventArgs = null
     )
         : base(routedEvent, source) {
         HitTestResult = hitTestResult;
@@ -306,8 +306,7 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
         // not overridable
         get => base.Handled;
         set {
-            if (OriginalInputEventArgs != null)
-                OriginalInputEventArgs.Handled =
+            OriginalInputEventArgs?.Handled =
                     value; // ensuring that the original input event is also marked as Handled
             base.Handled = value;
         }
@@ -319,8 +318,8 @@ public class MouseDown3DEventArgs : Mouse3DEventArgs {
         object source,
         HitTestResult hitTestResult,
         Point position,
-        Viewport3DX viewport = null,
-        InputEventArgs originalInputEventArgs = null
+        Viewport3DX? viewport = null,
+        InputEventArgs? originalInputEventArgs = null
     )
         : base(Element3D.MouseDown3DEvent, source, hitTestResult, position, viewport, originalInputEventArgs) { }
 }
@@ -330,8 +329,8 @@ public class MouseUp3DEventArgs : Mouse3DEventArgs {
         object source,
         HitTestResult hitTestResult,
         Point position,
-        Viewport3DX viewport = null,
-        InputEventArgs originalInputEventArgs = null
+        Viewport3DX? viewport = null,
+        InputEventArgs? originalInputEventArgs = null
     )
         : base(Element3D.MouseUp3DEvent, source, hitTestResult, position, viewport, originalInputEventArgs) { }
 }
@@ -341,8 +340,8 @@ public class MouseMove3DEventArgs : Mouse3DEventArgs {
         object source,
         HitTestResult hitTestResult,
         Point position,
-        Viewport3DX viewport = null,
-        InputEventArgs originalInputEventArgs = null
+        Viewport3DX? viewport = null,
+        InputEventArgs? originalInputEventArgs = null
     )
         : base(Element3D.MouseMove3DEvent, source, hitTestResult, position, viewport, originalInputEventArgs) { }
 }

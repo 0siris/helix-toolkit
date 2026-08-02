@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace HelixToolkit.SharpDX.Core {
     namespace Animations {
         public class AnimationGroupUpdater : IAnimationUpdater {
-            private readonly List<IAnimationUpdater> children = new();
+            private readonly List<IAnimationUpdater> children = [];
 
             private AnimationRepeatMode repeatMode = AnimationRepeatMode.PlayOnce;
 

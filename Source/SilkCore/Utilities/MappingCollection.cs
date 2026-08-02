@@ -11,14 +11,14 @@ namespace HelixToolkit.SharpDX.Core {
         /// <typeparam name="NAMETYPE"></typeparam>
         /// <typeparam name="DATATYPE"></typeparam>
         public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
-            private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = new();
-            private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = new();
-            private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = new();
+            private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = [];
+            private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = [];
+            private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = [];
 
             /// <summary>
             /// </summary>
             public KeyValuePair<INDEXTYPE, DATATYPE>[] MappingArray { get; private set; } =
-                new KeyValuePair<INDEXTYPE, DATATYPE>[0];
+                [];
 
             /// <summary>
             /// </summary>
@@ -55,7 +55,7 @@ namespace HelixToolkit.SharpDX.Core {
                 indexNameMapping.Add(index, name);
                 nameIndexMapping.Add(name, index);
                 indexDataMapping.Add(index, item);
-                MappingArray = indexDataMapping.ToArray();
+                MappingArray = [.. indexDataMapping];
             }
 
             /// <summary>
@@ -67,7 +67,7 @@ namespace HelixToolkit.SharpDX.Core {
                     nameIndexMapping.Remove(indexNameMapping[index]);
                     indexNameMapping.Remove(index);
                     indexDataMapping.Remove(index);
-                    MappingArray = indexDataMapping.ToArray();
+                    MappingArray = [.. indexDataMapping];
                     return true;
                 }
 
@@ -83,7 +83,7 @@ namespace HelixToolkit.SharpDX.Core {
                     indexNameMapping.Remove(nameIndexMapping[name]);
                     indexDataMapping.Remove(nameIndexMapping[name]);
                     nameIndexMapping.Remove(name);
-                    MappingArray = indexDataMapping.ToArray();
+                    MappingArray = [.. indexDataMapping];
                     return true;
                 }
 
@@ -153,7 +153,7 @@ namespace HelixToolkit.SharpDX.Core {
                 nameIndexMapping.Clear();
                 indexNameMapping.Clear();
                 indexDataMapping.Clear();
-                MappingArray = new KeyValuePair<INDEXTYPE, DATATYPE>[0];
+                MappingArray = [];
             }
         }
     }

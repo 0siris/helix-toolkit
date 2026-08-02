@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         [DebuggerDisplay("Name={" + nameof(Name) + "}; Child Count={" + nameof(ItemsCount) + "};")]
         public class GroupNode : GroupNodeBase, IHitable {
-            private static readonly ILogger logger = LogManager.Create<GroupNode>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private IOctreeManager octreeManager;
 
             public GroupNode() {
@@ -41,7 +41,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The octree.
             /// </value>
-            public IOctreeBasic Octree => OctreeManager != null ? OctreeManager.Octree : null;
+            public IOctreeBasic Octree => OctreeManager?.Octree;
 
             private void NodeGroup_OnClear(object sender, OnChildNodeChangedArgs e) {
                 OctreeManager?.Clear();
@@ -83,8 +83,8 @@ namespace HelixToolkit.SharpDX.Core {
                 var isHit = false;
                 if (octreeManager != null) {
                     isHit = octreeManager.HitTest(context, WrapperSource, totalModelMatrix, ref hits);
-                    if (isHit && logger.IsEnabled(LogLevel.Trace))
-                        logger.LogTrace("Octree hit test, hit at {0}", hits[0].PointHit);
+                    if (isHit && Logger.IsEnabled(LogLevel.Trace))
+                        Logger.Verbose("Octree hit test, hit at {Value0}", hits[0].PointHit);
                 } else {
                     isHit = base.OnHitTest(context, totalModelMatrix, ref hits);
                 }

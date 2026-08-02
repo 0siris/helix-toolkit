@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -38,8 +38,9 @@ public static class ShaderExporter {
     public static void ExportTechnique(this IEffectsManager manager, string techniqueName, XmlWriter writer) {
         var ser = new DataContractSerializer(typeof(List<TechniqueDescription>));
         var technique = manager[techniqueName].Description;
-        var techniques = new List<TechniqueDescription>();
-        techniques.Add(technique);
+        var techniques = new List<TechniqueDescription> {
+            technique
+        };
         ser.WriteObject(writer, techniques);
         writer.Flush();
     }
@@ -51,16 +52,14 @@ public static class ShaderExporter {
     /// <param name="filePath">The file path.</param>
     /// <returns></returns>
     public static int ExportTechniquesAsBinary(this IEffectsManager manager, string filePath) {
-        using (var memory = new MemoryStream()) {
-            using (var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory)) {
-                var count = manager.ExportTechniques(binaryXMLWriter);
-                using (var binaryWriter = File.Open(filePath, FileMode.Create)) {
-                    binaryWriter.Write(memory.ToArray(), 0, (int) memory.Length);
-                }
-
-                return count;
-            }
+        using var memory = new MemoryStream();
+        using var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
+        var count = manager.ExportTechniques(binaryXMLWriter);
+        using (var binaryWriter = File.Open(filePath, FileMode.Create)) {
+            binaryWriter.Write(memory.ToArray(), 0, (int)memory.Length);
         }
+
+        return count;
     }
 
     /// <summary>
@@ -70,14 +69,11 @@ public static class ShaderExporter {
     /// <param name="techniqueName">Name of the technique.</param>
     /// <param name="filePath">The file path.</param>
     public static void ExportTechniqueAsBinary(this IEffectsManager manager, string techniqueName, string filePath) {
-        using (var memory = new MemoryStream()) {
-            using (var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory)) {
-                manager.ExportTechnique(techniqueName, binaryXMLWriter);
-                using (var binaryWriter = File.Open(filePath, FileMode.Create)) {
-                    binaryWriter.Write(memory.ToArray(), 0, (int) memory.Length);
-                }
-            }
-        }
+        using var memory = new MemoryStream();
+        using var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
+        manager.ExportTechnique(techniqueName, binaryXMLWriter);
+        using var binaryWriter = File.Open(filePath, FileMode.Create);
+        binaryWriter.Write(memory.ToArray(), 0, (int)memory.Length);
     }
 
     /// <summary>
@@ -115,15 +111,12 @@ public static class ShaderExporter {
     /// </param>
     /// <returns></returns>
     public static int ImportTechniques(this IEffectsManager manager, string filePath, bool append = true) {
-        using (var reader = File.OpenRead(filePath)) {
-            using (var memory = new MemoryStream()) {
-                reader.CopyTo(memory);
-                memory.Position = 0;
-                using (var binaryXMLReader = XmlDictionaryReader.CreateBinaryReader(memory,
-                           new XmlDictionaryReaderQuotas {MaxArrayLength = (int) memory.Length})) {
-                    return manager.ImportTechniques(binaryXMLReader, append);
-                }
-            }
-        }
+        using var reader = File.OpenRead(filePath);
+        using var memory = new MemoryStream();
+        reader.CopyTo(memory);
+        memory.Position = 0;
+        using var binaryXMLReader = XmlDictionaryReader.CreateBinaryReader(memory,
+                   new XmlDictionaryReaderQuotas { MaxArrayLength = (int)memory.Length });
+        return manager.ImportTechniques(binaryXMLReader, append);
     }
 }

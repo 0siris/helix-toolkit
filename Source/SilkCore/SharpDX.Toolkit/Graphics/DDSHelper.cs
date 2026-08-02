@@ -10,10 +10,10 @@ namespace SharpDX.Toolkit.Graphics;
 internal static class DDSHelper {
     public static unsafe Image LoadFromDDSMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
         var headerSize = sizeof(uint) + Utilities.SizeOf<DDS.Header>();
-        if (pSource == nint.Zero || size < headerSize || *(uint*) pSource != DDS.MagicHeader) return null;
+        if (pSource == nint.Zero || size < headerSize || *(uint*)pSource != DDS.MagicHeader) return null;
 
         try {
-            var header = *(DDS.Header*) ((byte*) pSource + sizeof(uint));
+            var header = *(DDS.Header*)((byte*)pSource + sizeof(uint));
             if (header.Size != Utilities.SizeOf<DDS.Header>()
                 || header.PixelFormat.Size != Utilities.SizeOf<DDS.PixelFormat>())
                 return null;
@@ -27,7 +27,7 @@ internal static class DDSHelper {
             if (header.PixelFormat.FourCC == FourCC('D', 'X', '1', '0')) {
                 if (size < dataOffset + Utilities.SizeOf<DDS.HeaderDXT10>()) return null;
 
-                var extended = *(DDS.HeaderDXT10*) ((byte*) pSource + dataOffset);
+                var extended = *(DDS.HeaderDXT10*)((byte*)pSource + dataOffset);
                 dataOffset += Utilities.SizeOf<DDS.HeaderDXT10>();
                 format = extended.DXGIFormat;
                 arraySize = extended.ArraySize;
@@ -75,7 +75,7 @@ internal static class DDSHelper {
             try {
                 var dataSize = size - dataOffset;
                 if (expand24Bit) {
-                    Expand24Bit((byte*) pSource + dataOffset, dataSize, image);
+                    Expand24Bit((byte*)pSource + dataOffset, dataSize, image);
                 } else {
                     if (dataSize < image.TotalSizeInBytes)
                         throw new InvalidOperationException("Unexpected end of DDS data.");
@@ -141,7 +141,7 @@ internal static class DDSHelper {
             var required = checked(pixelCount * 3);
             if (sourceSize - offset < required) throw new InvalidOperationException("Unexpected end of DDS data.");
 
-            var destination = (byte*) buffer.DataPointer;
+            var destination = (byte*)buffer.DataPointer;
             for (var pixel = 0; pixel < pixelCount; pixel++) {
                 destination[0] = source[offset + 2];
                 destination[1] = source[offset + 1];

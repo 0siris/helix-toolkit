@@ -13,8 +13,8 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class ShadowMapNode : SceneNode {
-            private readonly OrthographicCameraCore orthoCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
-            private readonly PerspectiveCameraCore persCamera = new() {NearPlaneDistance = 1, FarPlaneDistance = 500};
+            private readonly OrthographicCameraCore orthoCamera = new() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
+            private readonly PerspectiveCameraCore persCamera = new() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
 
             private float distance = 200;
 
@@ -105,9 +105,9 @@ namespace HelixToolkit.SharpDX.Core {
             public ProjectionCameraCore LightCamera {
                 get => lightCamera;
                 set {
-                    if (lightCamera != null) lightCamera.PropertyChanged -= LightCamera_PropertyChanged;
+                    lightCamera?.PropertyChanged -= LightCamera_PropertyChanged;
                     SetAffectsRender(ref lightCamera, value);
-                    if (lightCamera != null) lightCamera.PropertyChanged += LightCamera_PropertyChanged;
+                    lightCamera?.PropertyChanged += LightCamera_PropertyChanged;
                 }
             }
 

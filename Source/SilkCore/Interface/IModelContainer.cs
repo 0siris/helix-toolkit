@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.SharpDX.Core;
 

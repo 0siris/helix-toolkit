@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -56,7 +56,7 @@ namespace HelixToolkit.SharpDX.Core {
 
 
             protected override OrderKey OnUpdateRenderOrderKey() {
-                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort) 0 : materialVariable.ID);
+                return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
             }
 
             protected override bool CanRender(RenderContext context) {
@@ -64,7 +64,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override RenderCore OnCreateRenderCore() {
-                return new VolumeRenderCore {DefaultStateBinding = StateType.All};
+                return new VolumeRenderCore { DefaultStateBinding = StateType.All };
             }
 
             protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {

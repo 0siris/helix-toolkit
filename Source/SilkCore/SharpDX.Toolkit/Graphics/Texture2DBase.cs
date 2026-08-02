@@ -102,7 +102,7 @@ public abstract class Texture2DBase : Texture {
             Width = width,
             Height = height,
             ArraySize = arraySize,
-            SampleDescription = new SampleDescription {Count = 1, Quality = 0},
+            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
             BindFlags = GetBindFlagsFromTextureFlags(textureFlags),
             Format = format,
             MipLevels = CalculateMipMapCount(mipCount, width, height),

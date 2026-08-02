@@ -1,27 +1,27 @@
 namespace SwapChainRenderingDemo;
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using DemoCore;
+using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Model;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Vector3 = Silk.NET.Maths.Vector3D<float>;
-using Colors = System.Windows.Media.Colors;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using HelixToolkit.Wpf;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading;
-using HelixToolkit.Wpf.SharpDX.Model;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
@@ -30,7 +30,7 @@ public class MainViewModel : BaseViewModel {
         get { return this; }
     }
 
-    public ObservableElement3DCollection LanderModels { get; private set; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection LanderModels { get; private set; } = [];
     public MeshGeometry3D Floor { get; private set; }
     public MeshGeometry3D Sphere { get; private set; }
     public LineGeometry3D CubeEdges { get; private set; }
@@ -179,8 +179,8 @@ public class MainViewModel : BaseViewModel {
             EmissiveColor = Colors.Yellow.ToColor4(),
             SpecularColor = Colors.Black.ToColor4(),
         };
-        Task.Run(() => { LoadFloor(); });
-        Task.Run(() => { LoadLander(); });
+        Task.Run(LoadFloor);
+        Task.Run(LoadLander);
 
         var transGroup = new Media3D.Transform3DGroup();
         transGroup.Children.Add(new Media3D.ScaleTransform3D(0.04, 0.04, 0.04));
@@ -202,17 +202,17 @@ public class MainViewModel : BaseViewModel {
             obj.Geometry.UpdateOctree();
             Task.Delay(10).Wait();
             context.Post((o) => {
-                             var model = new MeshGeometryModel3D() {Geometry = obj.Geometry};
-                             if (obj.Material is PhongMaterialCore p) {
-                                 model.Material = p.ConvertToPhongMaterial();
-                             }
+                var model = new MeshGeometryModel3D() { Geometry = obj.Geometry };
+                if (obj.Material is PhongMaterialCore p) {
+                    model.Material = p.ConvertToPhongMaterial();
+                }
 
-                             LanderModels.Add(model);
-                             NumberOfTriangles += obj.Geometry.Indices.Count / 3;
-                             NumberOfVertices += obj.Geometry.Positions.Count;
-                             OnPropertyChanged(nameof(NumberOfTriangles));
-                             OnPropertyChanged(nameof(NumberOfVertices));
-                         },
+                LanderModels.Add(model);
+                NumberOfTriangles += obj.Geometry.Indices.Count / 3;
+                NumberOfVertices += obj.Geometry.Positions.Count;
+                OnPropertyChanged(nameof(NumberOfTriangles));
+                OnPropertyChanged(nameof(NumberOfVertices));
+            },
                          null);
         }
     }
@@ -224,24 +224,25 @@ public class MainViewModel : BaseViewModel {
         }
 
         context.Post((o) => {
-                         Floor = models[0];
-                         this.FloorTransform = new Media3D.TranslateTransform3D(0, 0, 0);
-                         this.FloorMaterial = new PhongMaterial {
-                             AmbientColor = Colors.Gray.ToColor4(),
-                             DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
-                             SpecularColor = Colors.White.ToColor4(),
-                             SpecularShininess = 100f
-                         };
-                         NumberOfTriangles += Floor.Indices.Count / 3;
-                         NumberOfVertices += Floor.Positions.Count;
-                         OnPropertyChanged(nameof(NumberOfTriangles));
-                         OnPropertyChanged(nameof(NumberOfVertices));
-                         OnPropertyChanged(nameof(Floor));
-                         OnPropertyChanged(nameof(FloorMaterial));
-                     },
+            Floor = models[0];
+            this.FloorTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+            this.FloorMaterial = new PhongMaterial {
+                AmbientColor = Colors.Gray.ToColor4(),
+                DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
+                SpecularColor = Colors.White.ToColor4(),
+                SpecularShininess = 100f
+            };
+            NumberOfTriangles += Floor.Indices.Count / 3;
+            NumberOfVertices += Floor.Positions.Count;
+            OnPropertyChanged(nameof(NumberOfTriangles));
+            OnPropertyChanged(nameof(NumberOfVertices));
+            OnPropertyChanged(nameof(Floor));
+            OnPropertyChanged(nameof(FloorMaterial));
+        },
                      null);
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
@@ -252,7 +253,7 @@ public class MainViewModel : BaseViewModel {
             var list = reader.Read(path);
             return list;
         } else {
-            return new List<Object3D>();
+            return [];
         }
     }
 

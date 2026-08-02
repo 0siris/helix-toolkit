@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -12,7 +12,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core {
     namespace Core {
         public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable {
-            protected ModelStruct modelStruct = new() {World = Matrix.Identity};
+            protected ModelStruct modelStruct = new() { World = Matrix.Identity };
 
             protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
                 if (base.CreateRasterState(description, force)) {
@@ -103,7 +103,7 @@ namespace HelixToolkit.SharpDX.Core {
                 materialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
             }
 
-        #region Variables
+            #region Variables
 
             /// <summary>
             ///     Gets the raster state wireframe.
@@ -115,14 +115,14 @@ namespace HelixToolkit.SharpDX.Core {
 
             private RasterizerStateProxy rasterStateWireframe;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             /// </summary>
             public bool InvertNormal {
-                get => modelStruct.InvertNormal == 1 ? true : false;
+                get => modelStruct.InvertNormal == 1;
                 set => SetAffectsRender(ref modelStruct.InvertNormal, value ? 1 : 0);
             }
 
@@ -176,11 +176,11 @@ namespace HelixToolkit.SharpDX.Core {
                 get => materialVariables;
                 set {
                     if (SetAffectsCanRenderFlag(ref materialVariables, value))
-                        materialVariables = materialVariables ?? EmptyMaterialVariable.EmptyVariable;
+                        materialVariables ??= EmptyMaterialVariable.EmptyVariable;
                 }
             }
 
-        #endregion
+            #endregion
         }
     }
 }

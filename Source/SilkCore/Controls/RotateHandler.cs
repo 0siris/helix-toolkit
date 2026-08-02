@@ -104,7 +104,7 @@ public sealed class RotateHandler : MouseGestureHandler {
                                            ref p0,
                                            ref p1,
                                            ref rotateAround,
-                                           (float) RotationSensitivity,
+                                           (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
@@ -118,7 +118,7 @@ public sealed class RotateHandler : MouseGestureHandler {
                 CameraMath.RotateTurntable(CameraMode,
                                            ref p,
                                            ref rotateAround,
-                                           (float) RotationSensitivity,
+                                           (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
@@ -133,7 +133,7 @@ public sealed class RotateHandler : MouseGestureHandler {
                                           ref p0,
                                           ref p1,
                                           ref rotateAround,
-                                          (float) RotationSensitivity,
+                                          (float)RotationSensitivity,
                                           Controller.Width,
                                           Controller.Height,
                                           Camera,
@@ -206,7 +206,7 @@ public sealed class RotateHandler : MouseGestureHandler {
         var delta = LastPoint - MouseDownPoint;
         var deltaV = new Vector2(delta.X, delta.Y);
         // Debug.WriteLine("SpinInertiaStarting: " + elapsedTime + "ms " + delta.Length + "px");
-        Controller.StartSpin(4 * deltaV * (float) (Controller.SpinReleaseTime / elapsedTime),
+        Controller.StartSpin(4 * deltaV * (float)(Controller.SpinReleaseTime / elapsedTime),
                              MouseDownPoint,
                              rotationPoint3D);
     }

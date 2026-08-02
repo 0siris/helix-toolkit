@@ -87,7 +87,7 @@ namespace HelixToolkit.SharpDX.Core {
                 public RenderContext Context { get; private set; }
             }
 
-        #region Variables
+            #region Variables
 
             private ShaderResourceViewProxy viewResource;
             private int currentFrame;
@@ -135,14 +135,14 @@ namespace HelixToolkit.SharpDX.Core {
 
             private readonly ConstantBufferComponent modelCB;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             /// </summary>
             public int Width {
-                get => (int) modelStruct.ShadowMapSize.X;
+                get => (int)modelStruct.ShadowMapSize.X;
                 set {
                     if (SetAffectsRender(ref modelStruct.ShadowMapSize.X, value)) resolutionChanged = true;
                 }
@@ -151,7 +151,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <summary>
             /// </summary>
             public int Height {
-                get => (int) modelStruct.ShadowMapSize.Y;
+                get => (int)modelStruct.ShadowMapSize.Y;
                 set {
                     if (SetAffectsRender(ref modelStruct.ShadowMapSize.Y, value)) resolutionChanged = true;
                 }
@@ -197,7 +197,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public bool NeedRender { get; set; } = true;
 
-        #endregion
+            #endregion
         }
     }
 }

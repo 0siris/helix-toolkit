@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
@@ -42,7 +42,7 @@ public class Element3DPresenter : Element3D {
     ///     The content.
     /// </value>
     public Element3D Content {
-        get => (Element3D) GetValue(ContentProperty);
+        get => (Element3D)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
     }
 

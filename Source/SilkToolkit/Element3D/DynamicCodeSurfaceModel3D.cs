@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CodeDom.Compiler;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
@@ -26,7 +26,7 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                                          (d, e) => {
                                                              ((d as DynamicCodeSurfaceModel3D).SceneNode as
                                                               DynamicCodeSurface3DNode).ParameterW =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
 
@@ -38,7 +38,7 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                                          (d, e) => {
                                                              ((d as DynamicCodeSurfaceModel3D).SceneNode as
                                                               DynamicCodeSurface3DNode).MeshSizeU =
-                                                                 (int) e.NewValue;
+                                                                 (int)e.NewValue;
                                                          }));
 
 
@@ -50,7 +50,7 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                                          (d, e) => {
                                                              ((d as DynamicCodeSurfaceModel3D).SceneNode as
                                                               DynamicCodeSurface3DNode).MeshSizeV =
-                                                                 (int) e.NewValue;
+                                                                 (int)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty ErrorListProperty =
@@ -60,30 +60,30 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     new PropertyMetadata(null));
 
     public string SourceCode {
-        get => (string) GetValue(SourceCodeProperty);
+        get => (string)GetValue(SourceCodeProperty);
         set => SetValue(SourceCodeProperty, value);
     }
 
 
     public double ParameterW {
-        get => (double) GetValue(ParameterWProperty);
+        get => (double)GetValue(ParameterWProperty);
         set => SetValue(ParameterWProperty, value);
     }
 
 
     public int MeshSizeU {
-        get => (int) GetValue(MeshSizeUProperty);
+        get => (int)GetValue(MeshSizeUProperty);
         set => SetValue(MeshSizeUProperty, value);
     }
 
     public int MeshSizeV {
-        get => (int) GetValue(MeshSizeVProperty);
+        get => (int)GetValue(MeshSizeVProperty);
         set => SetValue(MeshSizeVProperty, value);
     }
 
 
     public CompilerErrorCollection ErrorList {
-        get => (CompilerErrorCollection) GetValue(ErrorListProperty);
+        get => (CompilerErrorCollection)GetValue(ErrorListProperty);
         set => SetValue(ErrorListProperty, value);
     }
 
@@ -91,7 +91,7 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         var n = SceneNode as DynamicCodeSurface3DNode;
         n.Source = SourceCode;
-        n.ParameterW = (float) ParameterW;
+        n.ParameterW = (float)ParameterW;
         n.OnCompileError += N_OnCompileError;
         base.AssignDefaultValuesToSceneNode(node);
     }

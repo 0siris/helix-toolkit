@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -18,13 +18,13 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
-            private const int DxgiErrorDeviceRemoved = unchecked((int) 0x887A0005);
-            private const int DxgiErrorDeviceHung = unchecked((int) 0x887A0006);
-            private const int DxgiErrorDeviceReset = unchecked((int) 0x887A0007);
-            private const int DxgiErrorAccessLost = unchecked((int) 0x887A0026);
+            private const int DxgiErrorDeviceRemoved = unchecked((int)0x887A0005);
+            private const int DxgiErrorDeviceHung = unchecked((int)0x887A0006);
+            private const int DxgiErrorDeviceReset = unchecked((int)0x887A0007);
+            private const int DxgiErrorAccessLost = unchecked((int)0x887A0026);
             private const int MinWidth = 10;
             private const int MinHeight = 10;
-            private static readonly ILogger logger = LogManager.Create<DX11RenderHostBase>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DX11RenderHostBase" /> class.
@@ -89,7 +89,7 @@ namespace HelixToolkit.SharpDX.Core {
                     if (EnableSharingModelMode && SharedModelContainer != null)
                         SharedModelContainer.CurrentRenderHost = this;
                     IsBusy = true;
-                    var t0 = TimeSpan.FromSeconds((double) Stopwatch.GetTimestamp() / Stopwatch.Frequency);
+                    var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
                     renderStatistics.FPSStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
                     renderStatistics.Camera = viewport.CameraCore;
                     lastRenderTime = t0;
@@ -130,15 +130,15 @@ namespace HelixToolkit.SharpDX.Core {
                         renderBuffer.Present();
                     } catch (COMException ex) {
                         if (IsDeviceLost(ex.HResult)) {
-                            logger.LogWarning("Device Lost, code = {0}", ex.HResult);
+                            Logger.Warn("Device Lost, code = {Value0}", ex.HResult);
                             RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
                         } else {
-                            logger.LogError("DirectX Error during rendering. Exception: {0}", ex);
+                            Logger.Error(ex, "DirectX Error during rendering");
                             EndD3D();
                             ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
                         }
                     } catch (Exception ex) {
-                        logger.LogError("Error during rendering. Exception: {0}", ex);
+                        Logger.Error(ex, "Error during rendering");
                         EndD3D();
                         ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
                     } finally {
@@ -147,7 +147,7 @@ namespace HelixToolkit.SharpDX.Core {
                     }
 
                     lastRenderingDuration =
-                        TimeSpan.FromSeconds((double) Stopwatch.GetTimestamp() / Stopwatch.Frequency) - t0;
+                        TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency) - t0;
                     RenderStatistics.LatencyStatistics.Push(lastRenderingDuration.TotalMilliseconds);
                     Rendered?.Invoke(this, EventArgs.Empty);
                     return true;
@@ -174,9 +174,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public void StartD3D(int width, int height) {
                 lock (lockObj) {
-                    logger.LogInformation("Starting D3D. Width = {0}; Height = {1};", width, height);
+                    Logger.Info("Starting D3D. Width = {Value0}; Height = {Value1};", width, height);
                     if (IsInitialized) {
-                        logger.LogInformation("RenderHost already Initialized.");
+                        Logger.Info("RenderHost already Initialized.");
                         StartRendering();
                         return;
                     }
@@ -186,7 +186,7 @@ namespace HelixToolkit.SharpDX.Core {
                     isLoaded = true;
                     if (EffectsManager == null || EffectsManager.NativeDeviceResources?.Device == null ||
                         EffectsManager.NativeDeviceResources.Device.IsDisposed) {
-                        logger.LogInformation("EffectsManager is not valid");
+                        Logger.Info("EffectsManager is not valid");
                         return;
                     }
 
@@ -196,7 +196,7 @@ namespace HelixToolkit.SharpDX.Core {
                     RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
                     CreateAndBindBuffers();
                     IsInitialized = true;
-                    logger.LogInformation("Initialized.");
+                    Logger.Info("Initialized.");
                     AttachRenderable(EffectsManager);
                     OnStartD3D();
                     StartRendering();
@@ -208,7 +208,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public virtual void StartRendering() {
                 lock (lockObj) {
-                    logger.LogInformation("Start rendering.");
+                    Logger.Info("Start rendering.");
                     renderStatistics.Reset();
                     lastRenderingDuration = TimeSpan.Zero;
                     lastRenderTime = TimeSpan.Zero;
@@ -222,7 +222,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public void EndD3D() {
                 lock (lockObj) {
-                    logger.LogInformation("Ending D3D.");
+                    Logger.Info("Ending D3D.");
                     StopRendering();
                     IsInitialized = false;
                     RemoveAndDispose(ref immediateDeviceContext);
@@ -237,7 +237,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Stops the rendering.
             /// </summary>
             public virtual void StopRendering() {
-                logger.LogInformation("Stop rendering");
+                Logger.Info("Stop rendering");
                 StopRenderLoop?.Invoke(this, EventArgs.Empty);
             }
 
@@ -319,7 +319,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             /// <param name="hotRestart">if set to <c>true</c> [hotRestart].</param>
             protected void Restart(bool hotRestart) {
-                logger.LogInformation("Restart. IsInitialized = {0}; HotRestart = {1};", IsInitialized, hotRestart);
+                Logger.Info("Restart. IsInitialized = {Value0}; HotRestart = {Value1};", IsInitialized, hotRestart);
                 if (!IsInitialized) return;
                 if (hotRestart) {
                     StopRendering();
@@ -328,7 +328,7 @@ namespace HelixToolkit.SharpDX.Core {
                     StartRendering();
                 } else {
                     EndD3D();
-                    StartD3D((int) Math.Floor(ActualWidth / DpiScale), (int) Math.Floor(ActualHeight / DpiScale));
+                    StartD3D((int)Math.Floor(ActualWidth / DpiScale), (int)Math.Floor(ActualHeight / DpiScale));
                 }
             }
 
@@ -338,7 +338,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Creates the and bind buffers.
             /// </summary>
             protected void CreateAndBindBuffers() {
-                logger.LogInformation("CreateAndBindBuffers");
+                Logger.Info("CreateAndBindBuffers");
                 RemoveAndDispose(ref renderBuffer);
                 renderBuffer = CreateRenderBuffer();
                 renderBuffer.OnNewBufferCreated += RenderBuffer_OnNewBufferCreated;
@@ -376,7 +376,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="buffer">The buffer.</param>
             /// <param name="renderer">The renderer.</param>
             protected virtual void OnInitializeBuffers(DX11RenderBufferProxyBase buffer, IRenderer renderer) {
-                buffer.Initialize((int) ActualWidth, (int) ActualHeight, MSAA);
+                buffer.Initialize((int)ActualWidth, (int)ActualHeight, MSAA);
             }
 
             /// <summary>
@@ -385,7 +385,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="deviceResources">The device resources.</param>
             protected virtual void AttachRenderable(IDeviceResources deviceResources) {
                 if (!IsInitialized || Viewport == null) return;
-                logger.LogInformation("Attaching renderable.");
+                Logger.Info("Attaching renderable.");
                 if (EnableSharingModelMode && SharedModelContainer != null)
                     SharedModelContainer.CurrentRenderHost = this;
                 viewport.Attach(this);
@@ -417,7 +417,7 @@ namespace HelixToolkit.SharpDX.Core {
             protected virtual void OnEndingD3D() { }
 
             private void OnManagerDisposed(object sender, EventArgs args) {
-                logger.LogInformation("OnManagerDisposed.");
+                Logger.Info("OnManagerDisposed.");
                 EndD3D();
             }
 
@@ -425,7 +425,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Disposes the buffers.
             /// </summary>
             protected virtual void DisposeBuffers() {
-                logger.LogInformation("Disposing buffers");
+                Logger.Info("Disposing buffers");
                 if (renderBuffer != null) {
                     renderBuffer.OnNewBufferCreated -= RenderBuffer_OnNewBufferCreated;
                     renderBuffer.DeviceLost -= RenderBuffer_OnDeviceLost;
@@ -440,7 +440,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Detaches the renderable.
             /// </summary>
             protected virtual void DetachRenderable() {
-                logger.LogInformation("Detaching renderable");
+                Logger.Info("Detaching renderable");
                 RemoveAndDispose(ref renderContext);
                 RemoveAndDispose(ref renderContext2D);
                 Viewport?.Detach();
@@ -451,12 +451,12 @@ namespace HelixToolkit.SharpDX.Core {
                     Math.Abs(ActualHeight - height * DpiScale) < 1e-6f) return;
                 ActualWidth = Math.Max(2, width * DpiScale);
                 ActualHeight = Math.Max(2, height * DpiScale);
-                logger.LogInformation("Resizing. Width = {0}; Height = {1};", width, height);
+                Logger.Info("Resizing. Width = {Value0}; Height = {Value1};", width, height);
                 lock (lockObj) {
                     if (IsInitialized) {
                         StopRendering();
-                        var texture = renderBuffer.Resize((int) Math.Floor(ActualWidth),
-                                                          (int) Math.Floor(ActualHeight));
+                        var texture = renderBuffer.Resize((int)Math.Floor(ActualWidth),
+                                                          (int)Math.Floor(ActualHeight));
                         OnNewRenderTargetTexture?.Invoke(this, new Texture2DArgs(texture));
                         if (Viewport != null) {
                             var overlay = Viewport.D2DRenderables.FirstOrDefault();
@@ -483,7 +483,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             private void EffectsManager_DeviceCreated(object sender, EventArgs e) {
-                if (isLoaded && !IsInitialized) StartD3D((int) Math.Floor(ActualWidth), (int) Math.Floor(ActualHeight));
+                if (isLoaded && !IsInitialized) StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
             }
 
             private void EffectsManager_OnInvalidateRenderer(object sender, EventArgs e) {
@@ -509,7 +509,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     release only unmanaged resources.
             /// </param>
             protected override void OnDispose(bool disposeManagedResources) {
-                logger.LogInformation("Disposing");
+                Logger.Info("Disposing");
                 if (disposeManagedResources) {
                     EffectsManager = null;
                     isLoaded = false;
@@ -527,7 +527,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets the unique identifier.
@@ -629,7 +629,7 @@ namespace HelixToolkit.SharpDX.Core {
                 get => viewport;
                 set {
                     if (viewport == value) return;
-                    logger.LogInformation("Set Viewport, Initialized = {0}", IsInitialized);
+                    Logger.Info("Set Viewport, Initialized = {Value0}", IsInitialized);
                     DetachRenderable();
                     viewport = value;
                     if (IsInitialized) AttachRenderable(EffectsManager);
@@ -666,7 +666,7 @@ namespace HelixToolkit.SharpDX.Core {
                     var currentManager = effectsManager;
                     if (Set(ref effectsManager, value)) {
                         EffectsManagerChanged?.Invoke(this, value);
-                        logger.LogInformation("Set new EffectsManager.");
+                        Logger.Info("Set new EffectsManager.");
                         if (currentManager != null) {
                             currentManager.DisposingResources -= OnManagerDisposed;
                             currentManager.Reinitialized -= EffectsManager_DeviceCreated;
@@ -681,7 +681,7 @@ namespace HelixToolkit.SharpDX.Core {
                             FeatureLevel = effectsManager.NativeDeviceResources.FeatureLevel.ToFeatureLevel();
                             if (IsInitialized)
                                 Restart(false);
-                            else if (isLoaded) StartD3D((int) Math.Floor(ActualWidth), (int) Math.Floor(ActualHeight));
+                            else if (isLoaded) StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
                         } else {
                             RenderTechnique = null;
                             EndD3D();
@@ -746,7 +746,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set {
                     var oldDpiScale = dpiScale;
                     if (Set(ref dpiScale, value))
-                        Resize((int) (ActualWidth / oldDpiScale), (int) (ActualHeight / oldDpiScale), true);
+                        Resize((int)(ActualWidth / oldDpiScale), (int)(ActualHeight / oldDpiScale), true);
                 }
             }
 
@@ -843,7 +843,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             protected readonly RenderStatistics renderStatistics = new();
 
-        #region Perframe renderables
+            #region Perframe renderables
 
             /// <summary>
             ///     Gets the current frame renderables for rendering.
@@ -909,9 +909,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public abstract FastList<SceneNode> PerFrameTransparentNodes { get; }
 
-        #endregion
+            #endregion
 
-        #region Configuration
+            #region Configuration
 
             /// <summary>
             ///     Gets or sets a value indicating whether [show render statistics].
@@ -947,11 +947,11 @@ namespace HelixToolkit.SharpDX.Core {
 
             public bool EnableParallelProcessing { get; set; } = true;
 
-        #endregion
+            #endregion
 
-        #endregion
+            #endregion
 
-        #region Events
+            #region Events
 
             /// <summary>
             ///     Occurs when [exception occurred].
@@ -986,9 +986,9 @@ namespace HelixToolkit.SharpDX.Core {
 
             public event EventHandler<IEffectsManager> EffectsManagerChanged;
 
-        #endregion
+            #endregion
 
-        #region Private variables
+            #region Private variables
 
             protected IRenderer renderer;
 
@@ -1015,7 +1015,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             private readonly object lockObj = new();
 
-        #endregion
+            #endregion
         }
     }
 }

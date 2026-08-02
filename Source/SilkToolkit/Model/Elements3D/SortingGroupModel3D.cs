@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.Wpf.SharpDX;
@@ -14,7 +14,7 @@ public class SortingGroupModel3D : GroupModel3D {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .EnableSorting = (bool) e.NewValue;
+                                                                 .EnableSorting = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -27,7 +27,7 @@ public class SortingGroupModel3D : GroupModel3D {
                                     new PropertyMetadata(500,
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortingInterval = (int) e.NewValue;
+                                                                 .SortingInterval = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -40,7 +40,7 @@ public class SortingGroupModel3D : GroupModel3D {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortTransparentOnly = (bool) e.NewValue;
+                                                                 .SortTransparentOnly = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -53,7 +53,7 @@ public class SortingGroupModel3D : GroupModel3D {
                                     new PropertyMetadata(SortingMethod.BoundingBoxCorners,
                                                          (d, e) => {
                                                              ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortingMethod = (SortingMethod) e.NewValue;
+                                                                 .SortingMethod = (SortingMethod)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -63,7 +63,7 @@ public class SortingGroupModel3D : GroupModel3D {
     ///     <c>true</c> if [enable sorting]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableSorting {
-        get => (bool) GetValue(EnableSortingProperty);
+        get => (bool)GetValue(EnableSortingProperty);
         set => SetValue(EnableSortingProperty, value);
     }
 
@@ -75,7 +75,7 @@ public class SortingGroupModel3D : GroupModel3D {
     ///     The sorting interval.
     /// </value>
     public int SortingInterval {
-        get => (int) GetValue(SortingIntervalProperty);
+        get => (int)GetValue(SortingIntervalProperty);
         set => SetValue(SortingIntervalProperty, value);
     }
 
@@ -87,7 +87,7 @@ public class SortingGroupModel3D : GroupModel3D {
     ///     <c>true</c> if [sort transparent only]; otherwise, <c>false</c>.
     /// </value>
     public bool SortTransparentOnly {
-        get => (bool) GetValue(SortTransparentOnlyProperty);
+        get => (bool)GetValue(SortTransparentOnlyProperty);
         set => SetValue(SortTransparentOnlyProperty, value);
     }
 
@@ -99,7 +99,7 @@ public class SortingGroupModel3D : GroupModel3D {
     ///     The sorting method.
     /// </value>
     public SortingMethod SortingMethod {
-        get => (SortingMethod) GetValue(SortingMethodProperty);
+        get => (SortingMethod)GetValue(SortingMethodProperty);
         set => SetValue(SortingMethodProperty, value);
     }
 

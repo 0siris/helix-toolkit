@@ -22,7 +22,7 @@ public class Example {
         get { return this.MainWindowType.Namespace + "_small.png"; }
     }
 
-    public Example(Type mainWindowType, string title = null, string description = null) {
+    public Example(Type mainWindowType, string? title = null, string? description = null) {
         this.MainWindowType = mainWindowType;
         this.Title = title ?? mainWindowType.Namespace;
         this.Description = description;

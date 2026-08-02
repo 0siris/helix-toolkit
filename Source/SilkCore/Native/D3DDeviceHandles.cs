@@ -12,9 +12,9 @@ using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D1
 using SilkD3D11CommandListPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11CommandList>;
 using SilkD3D11ComputeShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ComputeShader>;
 using SilkD3D11ContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DeviceContext>;
-using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
 using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
+using SilkD3D11DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Device>;
 using SilkD3D11DomainShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DomainShader>;
 using SilkD3D11GeometryShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11GeometryShader>;
 using SilkD3D11HullShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11HullShader>;
@@ -66,7 +66,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         FeatureLevel = featureLevel;
     }
 
-    public nint NativePointer => (nint) nativeDevice.Handle;
+    public nint NativePointer => (nint)nativeDevice.Handle;
 
     internal ID3D11Device* Handle => nativeDevice.Handle;
 
@@ -88,8 +88,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
     public int CheckMultisampleQualityLevels(Format format, int sampleCount) {
         uint qualityLevels = 0;
         SilkMarshal.ThrowHResult(
-            nativeDevice.CheckMultisampleQualityLevels(format, (uint) sampleCount, ref qualityLevels));
-        return (int) qualityLevels;
+            nativeDevice.CheckMultisampleQualityLevels(format, (uint)sampleCount, ref qualityLevels));
+        return (int)qualityLevels;
     }
 
     public SilkD3DDeviceContext CreateDeferredContext() {
@@ -118,21 +118,21 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         return new SilkD3D11BufferPtr(buffer);
     }
 
-    public Texture1D CreateTexture1D(Texture1DDescription description, DataBox[] initialData = null) {
+    public Texture1D CreateTexture1D(Texture1DDescription description, DataBox[]? initialData = null) {
         var textureDesc = description.ToSilkDesc();
         ID3D11Texture1D* texture = null;
         CreateTexture(ref textureDesc, initialData, ref texture);
         return new Texture1D(new SilkD3D11Texture1DPtr(texture), this, description);
     }
 
-    public Texture2D CreateTexture2D(Texture2DDescription description, DataBox[] initialData = null) {
+    public Texture2D CreateTexture2D(Texture2DDescription description, DataBox[]? initialData = null) {
         var textureDesc = description.ToSilkDesc();
         ID3D11Texture2D* texture = null;
         CreateTexture(ref textureDesc, initialData, ref texture);
         return new Texture2D(new SilkD3D11Texture2DPtr(texture), this, description);
     }
 
-    public Texture3D CreateTexture3D(Texture3DDescription description, DataBox[] initialData = null) {
+    public Texture3D CreateTexture3D(Texture3DDescription description, DataBox[]? initialData = null) {
         var textureDesc = description.ToSilkDesc();
         ID3D11Texture3D* texture = null;
         CreateTexture(ref textureDesc, initialData, ref texture);
@@ -173,8 +173,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11VertexShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreateVertexShader(byteCodePtr,
-                                                                     (nuint) byteCode.Length,
-                                                                     (ID3D11ClassLinkage*) null,
+                                                                     (nuint)byteCode.Length,
+                                                                     (ID3D11ClassLinkage*)null,
                                                                      ref shader));
             return new VertexShaderHandle(new SilkD3D11VertexShaderPtr(shader));
         }
@@ -186,8 +186,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11PixelShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreatePixelShader(byteCodePtr,
-                                                                    (nuint) byteCode.Length,
-                                                                    (ID3D11ClassLinkage*) null,
+                                                                    (nuint)byteCode.Length,
+                                                                    (ID3D11ClassLinkage*)null,
                                                                     ref shader));
             return new PixelShaderHandle(new SilkD3D11PixelShaderPtr(shader));
         }
@@ -199,8 +199,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11ComputeShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreateComputeShader(byteCodePtr,
-                                                                      (nuint) byteCode.Length,
-                                                                      (ID3D11ClassLinkage*) null,
+                                                                      (nuint)byteCode.Length,
+                                                                      (ID3D11ClassLinkage*)null,
                                                                       ref shader));
             return new ComputeShaderHandle(new SilkD3D11ComputeShaderPtr(shader));
         }
@@ -212,8 +212,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11DomainShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreateDomainShader(byteCodePtr,
-                                                                     (nuint) byteCode.Length,
-                                                                     (ID3D11ClassLinkage*) null,
+                                                                     (nuint)byteCode.Length,
+                                                                     (ID3D11ClassLinkage*)null,
                                                                      ref shader));
             return new DomainShaderHandle(new SilkD3D11DomainShaderPtr(shader));
         }
@@ -225,8 +225,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11HullShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreateHullShader(byteCodePtr,
-                                                                   (nuint) byteCode.Length,
-                                                                   (ID3D11ClassLinkage*) null,
+                                                                   (nuint)byteCode.Length,
+                                                                   (ID3D11ClassLinkage*)null,
                                                                    ref shader));
             return new HullShaderHandle(new SilkD3D11HullShaderPtr(shader));
         }
@@ -238,8 +238,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11GeometryShader* shader = null;
             SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShader(byteCodePtr,
-                                                                       (nuint) byteCode.Length,
-                                                                       (ID3D11ClassLinkage*) null,
+                                                                       (nuint)byteCode.Length,
+                                                                       (ID3D11ClassLinkage*)null,
                                                                        ref shader));
             return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
         }
@@ -267,18 +267,18 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
 
             var stridesLength = bufferStrides == null ? 0 : bufferStrides.Length;
             var strides = stackalloc uint[stridesLength];
-            for (var i = 0; i < stridesLength; i++) strides[i] = (uint) bufferStrides[i];
+            for (var i = 0; i < stridesLength; i++) strides[i] = (uint)bufferStrides[i];
 
             fixed (byte* byteCodePtr = byteCode) {
                 ID3D11GeometryShader* shader = null;
                 SilkMarshal.ThrowHResult(nativeDevice.CreateGeometryShaderWithStreamOutput(byteCodePtr,
-                                             (nuint) byteCode.Length,
+                                             (nuint)byteCode.Length,
                                              streamOutputDescs,
-                                             (uint) streamOutputElements.Length,
+                                             (uint)streamOutputElements.Length,
                                              stridesLength == 0 ? null : strides,
-                                             (uint) stridesLength,
-                                             unchecked((uint) rasterizedStream),
-                                             (ID3D11ClassLinkage*) null,
+                                             (uint)stridesLength,
+                                             unchecked((uint)rasterizedStream),
+                                             (ID3D11ClassLinkage*)null,
                                              ref shader));
                 return new GeometryShaderHandle(new SilkD3D11GeometryShaderPtr(shader));
             }
@@ -304,9 +304,9 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
             fixed (byte* byteCodePtr = shaderByteCode) {
                 ID3D11InputLayout* layout = null;
                 SilkMarshal.ThrowHResult(nativeDevice.CreateInputLayout(inputElements,
-                                                                        (uint) elements.Length,
+                                                                        (uint)elements.Length,
                                                                         byteCodePtr,
-                                                                        (nuint) shaderByteCode.Length,
+                                                                        (nuint)shaderByteCode.Length,
                                                                         ref layout));
                 return new InputLayout(new SilkD3D11InputLayoutPtr(layout));
             }
@@ -333,7 +333,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
 
         SilkMarshal.ThrowHResult(nativeDevice.CreateRenderTargetView(resource.Handle,
-                                                                     (RenderTargetViewDesc*) null,
+                                                                     (RenderTargetViewDesc*)null,
                                                                      ref view));
         var defaultNativeView = new SilkD3D11RenderTargetViewPtr(view);
         view->Release();
@@ -354,7 +354,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
 
         SilkMarshal.ThrowHResult(nativeDevice.CreateDepthStencilView(resource.Handle,
-                                                                     (DepthStencilViewDesc*) null,
+                                                                     (DepthStencilViewDesc*)null,
                                                                      ref view));
         return new DepthStencilView(new SilkD3D11DepthStencilViewPtr(view));
     }
@@ -373,7 +373,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
 
         SilkMarshal.ThrowHResult(nativeDevice.CreateShaderResourceView(resource.Handle,
-                                                                       (ShaderResourceViewDesc*) null,
+                                                                       (ShaderResourceViewDesc*)null,
                                                                        ref view));
         return new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(view));
     }
@@ -392,7 +392,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
 
         SilkMarshal.ThrowHResult(nativeDevice.CreateUnorderedAccessView(resource.Handle,
-                                                                        (UnorderedAccessViewDesc*) null,
+                                                                        (UnorderedAccessViewDesc*)null,
                                                                         ref view));
         return new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(view));
     }
@@ -456,8 +456,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         for (var i = 0; i < initialData.Length; i++)
             subresources[i] = new SubresourceData {
                 PSysMem = initialData[i].DataPointer.ToPointer(),
-                SysMemPitch = (uint) initialData[i].RowPitch,
-                SysMemSlicePitch = (uint) initialData[i].SlicePitch
+                SysMemPitch = (uint)initialData[i].RowPitch,
+                SysMemSlicePitch = (uint)initialData[i].SlicePitch
             };
 
         return subresources;
@@ -473,7 +473,7 @@ public sealed unsafe class CommandList : IDisposable {
         this.commandList = commandList;
     }
 
-    public nint NativePointer => (nint) commandList.Handle;
+    public nint NativePointer => (nint)commandList.Handle;
 
     internal ID3D11CommandList* Handle => commandList.Handle;
 
@@ -500,7 +500,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         IsDeferred = isDeferred;
     }
 
-    public nint NativePointer => (nint) nativeContext.Handle;
+    public nint NativePointer => (nint)nativeContext.Handle;
 
     internal ID3D11DeviceContext* Handle => nativeContext.Handle;
 
@@ -545,7 +545,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     public void ExecuteCommandList(CommandList commandList, bool restoreContextState) {
         if (IsDeferred)
             throw new InvalidOperationException("Command lists can only be executed on the immediate device context.");
-        if (commandList == null) throw new ArgumentNullException(nameof(commandList));
+        commandList.AssertArgumentNotNull();
         if (commandList.IsDisposed) throw new ObjectDisposedException(nameof(CommandList));
 
         nativeContext.ExecuteCommandList(commandList.Handle, new Bool32(restoreContextState));
@@ -602,14 +602,14 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void SetIndexBuffer(Buffer buffer, Format format, int offset) {
-        nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint) offset);
+        nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint)offset);
     }
 
     public void SetVertexBuffer(int slot, VertexBufferBinding binding) {
         var bufferPtr = binding.Buffer?.BufferHandle;
-        var stride = (uint) binding.Stride;
-        var offset = (uint) binding.Offset;
-        nativeContext.IASetVertexBuffers((uint) slot, 1, &bufferPtr, &stride, &offset);
+        var stride = (uint)binding.Stride;
+        var offset = (uint)binding.Offset;
+        nativeContext.IASetVertexBuffers((uint)slot, 1, &bufferPtr, &stride, &offset);
     }
 
     public void SetVertexBuffers(int startSlot, VertexBufferBinding[] bindings) {
@@ -620,12 +620,12 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var offsets = stackalloc uint[bindings.Length];
         for (var i = 0; i < bindings.Length; i++) {
             bufferPtrs[i] = bindings[i].Buffer?.BufferHandle;
-            strides[i] = (uint) bindings[i].Stride;
-            offsets[i] = (uint) bindings[i].Offset;
+            strides[i] = (uint)bindings[i].Stride;
+            offsets[i] = (uint)bindings[i].Offset;
         }
 
-        nativeContext.IASetVertexBuffers((uint) startSlot,
-                                         (uint) bindings.Length,
+        nativeContext.IASetVertexBuffers((uint)startSlot,
+                                         (uint)bindings.Length,
                                          bufferPtrs,
                                          strides,
                                          offsets);
@@ -639,22 +639,22 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var shaderHandle = shader == null ? null : shader.NativeHandle;
         switch (shaderStage) {
             case Constants.VertexIdx:
-                nativeContext.VSSetShader((ID3D11VertexShader*) shaderHandle, null, 0);
+                nativeContext.VSSetShader((ID3D11VertexShader*)shaderHandle, null, 0);
                 break;
             case Constants.HullIdx:
-                nativeContext.HSSetShader((ID3D11HullShader*) shaderHandle, null, 0);
+                nativeContext.HSSetShader((ID3D11HullShader*)shaderHandle, null, 0);
                 break;
             case Constants.DomainIdx:
-                nativeContext.DSSetShader((ID3D11DomainShader*) shaderHandle, null, 0);
+                nativeContext.DSSetShader((ID3D11DomainShader*)shaderHandle, null, 0);
                 break;
             case Constants.GeometryIdx:
-                nativeContext.GSSetShader((ID3D11GeometryShader*) shaderHandle, null, 0);
+                nativeContext.GSSetShader((ID3D11GeometryShader*)shaderHandle, null, 0);
                 break;
             case Constants.PixelIdx:
-                nativeContext.PSSetShader((ID3D11PixelShader*) shaderHandle, null, 0);
+                nativeContext.PSSetShader((ID3D11PixelShader*)shaderHandle, null, 0);
                 break;
             case Constants.ComputeIdx:
-                nativeContext.CSSetShader((ID3D11ComputeShader*) shaderHandle, null, 0);
+                nativeContext.CSSetShader((ID3D11ComputeShader*)shaderHandle, null, 0);
                 break;
         }
     }
@@ -672,7 +672,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
         for (var i = 0; i < buffers.Length; i++) bufferPtrs[i] = buffers[i]?.BufferHandle;
 
-        SetConstantBuffers(shaderStage, slot, (uint) buffers.Length, bufferPtrs);
+        SetConstantBuffers(shaderStage, slot, (uint)buffers.Length, bufferPtrs);
     }
 
     public void SetViewport(float x, float y, float width, float height, float minZ, float maxZ) {
@@ -690,7 +690,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
 
         MappedSubresource mapped = default;
         SilkMarshal.ThrowHResult(nativeContext.Map(resource.Handle,
-                                                   (uint) subresource,
+                                                   (uint)subresource,
                                                    mode.ToSilkMap(),
                                                    flags.ToSilkMapFlags(),
                                                    ref mapped));
@@ -715,7 +715,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     public void UnmapSubresource(Resource resource, int subresource) {
         if (resource == null) return;
 
-        nativeContext.Unmap(resource.Handle, (uint) subresource);
+        nativeContext.Unmap(resource.Handle, (uint)subresource);
     }
 
     public void UpdateSubresource(
@@ -731,18 +731,18 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         if (region.HasValue) {
             var box = region.Value.ToSilkBox();
             nativeContext.UpdateSubresource(resource.Handle,
-                                            (uint) subresource,
+                                            (uint)subresource,
                                             ref box,
                                             sourceData.ToPointer(),
-                                            (uint) rowPitch,
-                                            (uint) depthPitch);
+                                            (uint)rowPitch,
+                                            (uint)depthPitch);
         } else {
             nativeContext.UpdateSubresource(resource.Handle,
-                                            (uint) subresource,
-                                            (Box*) null,
+                                            (uint)subresource,
+                                            (Box*)null,
                                             sourceData.ToPointer(),
-                                            (uint) rowPitch,
-                                            (uint) depthPitch);
+                                            (uint)rowPitch,
+                                            (uint)depthPitch);
         }
     }
 
@@ -767,22 +767,22 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         if (sourceRegion.HasValue) {
             var box = sourceRegion.Value.ToSilkBox();
             nativeContext.CopySubresourceRegion(destination.Handle,
-                                                (uint) destinationSubResource,
-                                                (uint) dstX,
-                                                (uint) dstY,
-                                                (uint) dstZ,
+                                                (uint)destinationSubResource,
+                                                (uint)dstX,
+                                                (uint)dstY,
+                                                (uint)dstZ,
                                                 source.Handle,
-                                                (uint) sourceSubresource,
+                                                (uint)sourceSubresource,
                                                 ref box);
         } else {
             nativeContext.CopySubresourceRegion(destination.Handle,
-                                                (uint) destinationSubResource,
-                                                (uint) dstX,
-                                                (uint) dstY,
-                                                (uint) dstZ,
+                                                (uint)destinationSubResource,
+                                                (uint)dstX,
+                                                (uint)dstY,
+                                                (uint)dstZ,
                                                 source.Handle,
-                                                (uint) sourceSubresource,
-                                                (Box*) null);
+                                                (uint)sourceSubresource,
+                                                (Box*)null);
         }
     }
 
@@ -796,9 +796,9 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         if (source == null || destination == null) return;
 
         nativeContext.ResolveSubresource(destination.Handle,
-                                         (uint) destinationSubresource,
+                                         (uint)destinationSubresource,
                                          source.Handle,
-                                         (uint) sourceSubresource,
+                                         (uint)sourceSubresource,
                                          format);
     }
 
@@ -810,7 +810,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         if (destination == null || source == null) return;
 
         nativeContext.CopyStructureCount(destination.BufferHandle,
-                                         (uint) destinationAlignedByteOffset,
+                                         (uint)destinationAlignedByteOffset,
                                          source.Handle);
     }
 
@@ -833,7 +833,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var viewPtrs = stackalloc ID3D11ShaderResourceView*[shaderResourceViews.Length];
         for (var i = 0; i < shaderResourceViews.Length; i++) viewPtrs[i] = shaderResourceViews[i]?.Handle;
 
-        SetShaderResources(shaderStage, slot, (uint) shaderResourceViews.Length, viewPtrs);
+        SetShaderResources(shaderStage, slot, (uint)shaderResourceViews.Length, viewPtrs);
     }
 
     public void SetSampler(int shaderStage, int slot, SamplerState samplerState) {
@@ -849,7 +849,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var statePtrs = stackalloc ID3D11SamplerState*[samplerStates.Length];
         for (var i = 0; i < samplerStates.Length; i++) statePtrs[i] = samplerStates[i]?.Handle;
 
-        SetSamplers(shaderStage, slot, (uint) samplerStates.Length, statePtrs);
+        SetSamplers(shaderStage, slot, (uint)samplerStates.Length, statePtrs);
     }
 
     public void SetUnorderedAccessView(
@@ -860,14 +860,14 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         if (slot < 0) return;
 
         var viewPtr = unorderedAccessView?.Handle;
-        var count = unchecked((uint) initialCount);
-        nativeContext.CSSetUnorderedAccessViews((uint) slot, 1, &viewPtr, &count);
+        var count = unchecked((uint)initialCount);
+        nativeContext.CSSetUnorderedAccessViews((uint)slot, 1, &viewPtr, &count);
     }
 
     public void SetUnorderedAccessViews(
         int slot,
         UnorderedAccessView[] unorderedAccessViews,
-        int[] initialCounts = null
+        int[]? initialCounts = null
     ) {
         if (slot < 0 || unorderedAccessViews == null || unorderedAccessViews.Length == 0) return;
 
@@ -876,12 +876,12 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         for (var i = 0; i < unorderedAccessViews.Length; i++) {
             viewPtrs[i] = unorderedAccessViews[i]?.Handle;
             counts[i] = initialCounts == null || i >= initialCounts.Length
-                            ? unchecked((uint) -1)
-                            : unchecked((uint) initialCounts[i]);
+                            ? unchecked((uint)-1)
+                            : unchecked((uint)initialCounts[i]);
         }
 
-        nativeContext.CSSetUnorderedAccessViews((uint) slot,
-                                                (uint) unorderedAccessViews.Length,
+        nativeContext.CSSetUnorderedAccessViews((uint)slot,
+                                                (uint)unorderedAccessViews.Length,
                                                 viewPtrs,
                                                 counts);
     }
@@ -894,22 +894,22 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     ) {
         switch (shaderStage) {
             case Constants.VertexIdx:
-                nativeContext.VSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.VSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
             case Constants.HullIdx:
-                nativeContext.HSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.HSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
             case Constants.DomainIdx:
-                nativeContext.DSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.DSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
             case Constants.GeometryIdx:
-                nativeContext.GSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.GSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
             case Constants.PixelIdx:
-                nativeContext.PSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.PSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
             case Constants.ComputeIdx:
-                nativeContext.CSSetShaderResources((uint) slot, count, shaderResourceViews);
+                nativeContext.CSSetShaderResources((uint)slot, count, shaderResourceViews);
                 break;
         }
     }
@@ -917,22 +917,22 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     private void SetConstantBuffers(int shaderStage, int slot, uint count, ID3D11Buffer** constantBuffers) {
         switch (shaderStage) {
             case Constants.VertexIdx:
-                nativeContext.VSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.VSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
             case Constants.HullIdx:
-                nativeContext.HSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.HSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
             case Constants.DomainIdx:
-                nativeContext.DSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.DSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
             case Constants.GeometryIdx:
-                nativeContext.GSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.GSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
             case Constants.PixelIdx:
-                nativeContext.PSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.PSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
             case Constants.ComputeIdx:
-                nativeContext.CSSetConstantBuffers((uint) slot, count, constantBuffers);
+                nativeContext.CSSetConstantBuffers((uint)slot, count, constantBuffers);
                 break;
         }
     }
@@ -940,22 +940,22 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     private void SetSamplers(int shaderStage, int slot, uint count, ID3D11SamplerState** samplerStates) {
         switch (shaderStage) {
             case Constants.VertexIdx:
-                nativeContext.VSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.VSSetSamplers((uint)slot, count, samplerStates);
                 break;
             case Constants.HullIdx:
-                nativeContext.HSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.HSSetSamplers((uint)slot, count, samplerStates);
                 break;
             case Constants.DomainIdx:
-                nativeContext.DSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.DSSetSamplers((uint)slot, count, samplerStates);
                 break;
             case Constants.GeometryIdx:
-                nativeContext.GSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.GSSetSamplers((uint)slot, count, samplerStates);
                 break;
             case Constants.PixelIdx:
-                nativeContext.PSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.PSSetSamplers((uint)slot, count, samplerStates);
                 break;
             case Constants.ComputeIdx:
-                nativeContext.CSSetSamplers((uint) slot, count, samplerStates);
+                nativeContext.CSSetSamplers((uint)slot, count, samplerStates);
                 break;
         }
     }
@@ -965,7 +965,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void SetDepthStencilState(DepthStencilState depthStencilState, int stencilRef) {
-        nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint) stencilRef));
+        nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint)stencilRef));
     }
 
     public void SetBlendState(BlendState blendState, Color4? blendFactor, uint sampleMask) {
@@ -979,19 +979,19 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
             };
             nativeContext.OMSetBlendState(blendState?.Handle, factors, sampleMask);
         } else {
-            nativeContext.OMSetBlendState(blendState?.Handle, (float*) null, sampleMask);
+            nativeContext.OMSetBlendState(blendState?.Handle, (float*)null, sampleMask);
         }
     }
 
     public void SetStreamOutputTarget(Buffer buffer, int offset) {
         var bufferPtr = buffer?.BufferHandle;
-        var offsetValue = (uint) offset;
+        var offsetValue = (uint)offset;
         nativeContext.SOSetTargets(1, &bufferPtr, &offsetValue);
     }
 
     public void SetStreamOutputTargets(Buffer[] buffers) {
         if (buffers == null || buffers.Length == 0) {
-            nativeContext.SOSetTargets(0, null, (uint*) null);
+            nativeContext.SOSetTargets(0, null, (uint*)null);
             return;
         }
 
@@ -1002,7 +1002,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
             offsets[i] = 0;
         }
 
-        nativeContext.SOSetTargets((uint) buffers.Length, bufferPtrs, offsets);
+        nativeContext.SOSetTargets((uint)buffers.Length, bufferPtrs, offsets);
     }
 
     public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView renderTargetView) {
@@ -1020,7 +1020,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         for (var i = 0; i < renderTargetViews.Length; i++)
             renderTargetViewPtrs[i] = renderTargetViews[i]?.Handle;
 
-        nativeContext.OMSetRenderTargets((uint) renderTargetViews.Length,
+        nativeContext.OMSetRenderTargets((uint)renderTargetViews.Length,
                                          renderTargetViewPtrs,
                                          depthStencilView?.Handle);
     }
@@ -1045,11 +1045,11 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     ) {
         if (depthStencilView == null) return;
 
-        nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint) clearFlags, depth, stencil);
+        nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint)clearFlags, depth, stencil);
     }
 
     public void ClearRenderTargetBindings() {
-        nativeContext.OMSetRenderTargets(0, null, (ID3D11DepthStencilView*) null);
+        nativeContext.OMSetRenderTargets(0, null, (ID3D11DepthStencilView*)null);
     }
 
     public void GetDepthStencilView(out DepthStencilView depthStencilView) {
@@ -1067,12 +1067,12 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     public RenderTargetView[] GetRenderTargets(int numViews, out DepthStencilView depthStencilView) {
         if (numViews <= 0) {
             GetDepthStencilView(out depthStencilView);
-            return Array.Empty<RenderTargetView>();
+            return [];
         }
 
         var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[numViews];
         ID3D11DepthStencilView* depthStencilViewPtr = null;
-        nativeContext.OMGetRenderTargets((uint) numViews, renderTargetViewPtrs, &depthStencilViewPtr);
+        nativeContext.OMGetRenderTargets((uint)numViews, renderTargetViewPtrs, &depthStencilViewPtr);
 
         var renderTargetViews = new RenderTargetView[numViews];
         for (var i = 0; i < numViews; i++)
@@ -1113,11 +1113,11 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
 
     public void SetOutputUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView) {
         var unorderedAccessViewPtr = unorderedAccessView?.Handle;
-        var initialCount = unchecked((uint) -1);
+        var initialCount = unchecked((uint)-1);
         nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(uint.MaxValue,
                                                                 null,
-                                                                (ID3D11DepthStencilView*) null,
-                                                                (uint) slot,
+                                                                (ID3D11DepthStencilView*)null,
+                                                                (uint)slot,
                                                                 1,
                                                                 &unorderedAccessViewPtr,
                                                                 &initialCount);
@@ -1130,14 +1130,14 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var initialCounts = stackalloc uint[unorderedAccessViews.Length];
         for (var i = 0; i < unorderedAccessViews.Length; i++) {
             unorderedAccessViewPtrs[i] = unorderedAccessViews[i]?.Handle;
-            initialCounts[i] = unchecked((uint) -1);
+            initialCounts[i] = unchecked((uint)-1);
         }
 
         nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(uint.MaxValue,
                                                                 null,
-                                                                (ID3D11DepthStencilView*) null,
-                                                                (uint) startSlot,
-                                                                (uint) unorderedAccessViews.Length,
+                                                                (ID3D11DepthStencilView*)null,
+                                                                (uint)startSlot,
+                                                                (uint)unorderedAccessViews.Length,
                                                                 unorderedAccessViewPtrs,
                                                                 initialCounts);
     }
@@ -1150,8 +1150,8 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.OMGetRenderTargetsAndUnorderedAccessViews(0,
                                                                 null,
                                                                 null,
-                                                                (uint) startSlot,
-                                                                (uint) count,
+                                                                (uint)startSlot,
+                                                                (uint)count,
                                                                 unorderedAccessViewPtrs);
 
         var unorderedAccessViews = new UnorderedAccessView[count];

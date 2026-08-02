@@ -1,4 +1,4 @@
-﻿using Media = System.Windows.Media;
+using Media = System.Windows.Media;
 
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -117,7 +117,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             private void OutputBones(IBoneMatricesNode node) {
                 if (node.BoneMatrices == null || node.BoneMatrices.Length != BoneCount)
-                    node.BoneMatrices = currentBones.ToArray();
+                    node.BoneMatrices = [.. currentBones];
                 else
                     currentBones.CopyTo(node.BoneMatrices, 0);
             }

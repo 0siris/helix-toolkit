@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Core2D;
 
@@ -38,8 +38,8 @@ namespace HelixToolkit.Wpf.SharpDX {
                 protected override RectangleF ArrangeOverride(RectangleF finalSize) {
                     foreach (var child in Items)
                         if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D) {
-                            var xPos = finalSize.Width / 2 * (1 + (float) GetRelativeX(element2D));
-                            var yPos = finalSize.Height / 2 * (1 - (float) GetRelativeY(element2D));
+                            var xPos = finalSize.Width / 2 * (1 + (float)GetRelativeX(element2D));
+                            var yPos = finalSize.Height / 2 * (1 - (float)GetRelativeY(element2D));
                             var desired = c.DesiredSize;
                             c.Arrange(new RectangleF(xPos - desired.X / 2, yPos - desired.Y / 2, desired.X, desired.Y));
                         }
@@ -48,7 +48,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 }
             }
 
-        #region Attached Properties
+            #region Attached Properties
 
             /// <summary>
             ///     The relative x property
@@ -74,7 +74,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetRelativeX(Element2DCore element) {
-                return (double) element.GetValue(RelativeXProperty);
+                return (double)element.GetValue(RelativeXProperty);
             }
 
             /// <summary>
@@ -101,10 +101,10 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetRelativeY(Element2DCore element) {
-                return (double) element.GetValue(RelativeYProperty);
+                return (double)element.GetValue(RelativeYProperty);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

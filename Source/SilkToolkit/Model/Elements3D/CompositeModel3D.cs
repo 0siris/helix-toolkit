@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CompositeModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -31,7 +31,7 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              (d as CompositeModel3D).SceneNode.AlwaysHittable =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -49,7 +49,7 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
     /// <value>
     ///     The children.
     /// </value>
-    public ObservableElement3DCollection Children { get; } = new();
+    public ObservableElement3DCollection Children { get; } = [];
 
     /// <summary>
     ///     Gets or sets a value indicating whether [always hittable].
@@ -58,12 +58,12 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
     ///     <c>true</c> if [always hittable]; otherwise, <c>false</c>.
     /// </value>
     public bool AlwaysHittable {
-        get => (bool) GetValue(AlwasyHittableProperty);
+        get => (bool)GetValue(AlwasyHittableProperty);
         set => SetValue(AlwasyHittableProperty, value);
     }
 
     public bool IsSelected {
-        get => (bool) GetValue(IsSelectedProperty);
+        get => (bool)GetValue(IsSelectedProperty);
         set => SetValue(IsSelectedProperty, value);
     }
 
@@ -131,6 +131,6 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
     }
 
     protected override SceneNode OnCreateSceneNode() {
-        return new GroupNode {AlwaysHittable = AlwaysHittable};
+        return new GroupNode { AlwaysHittable = AlwaysHittable };
     }
 }

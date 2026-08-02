@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -25,7 +25,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public sealed class EffectAttributes : IEffectAttributes {
-            private readonly Dictionary<string, object> attributes = new();
+            private readonly Dictionary<string, object> attributes = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="EffectAttributes" /> class.
@@ -111,10 +111,10 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public sealed class DefaultEffectAttributeParser : IEffectAttributeParser {
-            public static readonly char[] EffectSeparator = new[] {';', ' '};
-            public static readonly char[] AttributeSeparator = new[] {',', ' '};
-            public static readonly char[] AttributeNameValueSeparator = new[] {':', ' '};
-            public static readonly char[] NameAttributeSeparator = new[] {'[', ']', ' '};
+            public static readonly char[] EffectSeparator = [';', ' '];
+            public static readonly char[] AttributeSeparator = [',', ' '];
+            public static readonly char[] AttributeNameValueSeparator = [':', ' '];
+            public static readonly char[] NameAttributeSeparator = ['[', ']', ' '];
 
             /// <summary>
             ///     Parses the specified att string.
@@ -123,7 +123,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <returns></returns>
             public EffectAttributes[] Parse(string attString) {
                 var effects = attString.Split(EffectSeparator, StringSplitOptions.RemoveEmptyEntries);
-                IList<EffectAttributes> attributes = new List<EffectAttributes>();
+                IList<EffectAttributes> attributes = [];
                 foreach (var effect in effects) {
                     var nameAttTokens = effect.Split(NameAttributeSeparator, StringSplitOptions.RemoveEmptyEntries);
                     if (nameAttTokens.Length > 0) {
@@ -142,7 +142,7 @@ namespace HelixToolkit.SharpDX.Core {
                     }
                 }
 
-                return attributes.ToArray();
+                return [.. attributes];
             }
         }
     }

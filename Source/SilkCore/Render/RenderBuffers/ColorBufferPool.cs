@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public sealed class PingPongColorBuffers : DisposeObject {
-            private static readonly ILogger logger = LogManager.Create<PingPongColorBuffers>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private readonly IDevice3DResources deviceResources;
             private readonly object lockObj = new();
 
@@ -98,7 +98,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Texture Resources
+            #region Texture Resources
 
             private const int NumPingPongBlurBuffer = 2;
 
@@ -114,12 +114,12 @@ namespace HelixToolkit.SharpDX.Core {
                 SampleDescription = new SampleDescription(1, 0)
             };
 
-        #endregion Texture Resources
+            #endregion Texture Resources
         }
 
 
         public sealed class TexturePool : DisposeObject {
-            private static readonly ILogger logger = LogManager.Create<TexturePool>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             private readonly Texture2DDescription description;
             private readonly IDevice3DResources deviceResourse;
 
@@ -168,11 +168,11 @@ namespace HelixToolkit.SharpDX.Core {
                         texture.CreateView(new ShaderResourceViewDescription {
                             Format = format.ComputeSRVFormat(),
                             Dimension = ShaderResourceViewDimension.Texture2D,
-                            Texture2D = new ShaderResourceViewDescription.Texture2DResource {MipLevels = desc.MipLevels}
+                            Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = desc.MipLevels }
                         });
                 }
 
-                if (logger.IsEnabled(LogLevel.Trace)) logger.LogTrace("Create New Full Screen Texture");
+                if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Create New Full Screen Texture");
                 texture.IncRef();
                 return texture;
             }

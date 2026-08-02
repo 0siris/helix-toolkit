@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -28,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 
             public bool IsAttached => SceneNode.IsAttached;
 
-        #region Events
+            #region Events
 
             /// <summary>
             ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
@@ -36,9 +36,9 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// </summary>
             public event EventHandler<SceneNodeCreatedEventArgs> OnSceneNodeCreated;
 
-        #endregion
+            #endregion
 
-        #region Hit Test
+            #region Hit Test
 
             /// <summary>
             ///     Hits the test.
@@ -50,7 +50,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 return SceneNode.HitTest(context, ref hits);
             }
 
-        #endregion
+            #endregion
 
             public void InvalidateRender() {
                 SceneNode.InvalidateRender();
@@ -68,7 +68,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 public SceneNode Node { get; private set; }
             }
 
-        #region Scene Node
+            #region Scene Node
 
             private readonly object sceneNodeLock = new();
             private SceneNode sceneNode;
@@ -102,9 +102,9 @@ namespace HelixToolkit.Wpf.SharpDX {
                 set => SceneNode.Name = value;
             }
 
-        #endregion
+            #endregion
 
-        #region IBoundable
+            #region IBoundable
 
             /// <summary>
             ///     Gets the bounds.
@@ -138,9 +138,9 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// </value>
             public BoundingSphere BoundsSphereWithTransform => SceneNode.BoundsSphereWithTransform;
 
-        #endregion
+            #endregion
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls        
 
@@ -179,7 +179,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 // GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

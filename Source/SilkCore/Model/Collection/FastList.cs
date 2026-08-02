@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core;
 public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IEnumerable {
     // Fields
     private const int _defaultCapacity = 4;
-    private static readonly T[] empty = new T[0];
+    private static readonly T[] empty = [];
 
     public FastList() {
         Items = empty;
@@ -32,9 +32,8 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         } else {
             Count = 0;
             Items = new T[_defaultCapacity];
-            using (var enumerator = collection.GetEnumerator()) {
-                while (enumerator.MoveNext()) Add(enumerator.Current);
-            }
+            using var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext()) Add(enumerator.Current);
         }
     }
 
@@ -222,9 +221,8 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
                 Count += count;
             }
         } else {
-            using (var enumerator = collection.GetEnumerator()) {
-                while (enumerator.MoveNext()) Insert(index++, enumerator.Current);
-            }
+            using var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext()) Insert(index++, enumerator.Current);
         }
     }
 
@@ -344,7 +342,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
 
     // Nested Types
 
-#region Nested type: Enumerator
+    #region Nested type: Enumerator
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Enumerator : IEnumerator<T>, IDisposable, IEnumerator {
@@ -386,9 +384,9 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         }
     }
 
-#endregion
+    #endregion
 
-#region IList<T> Members
+    #region IList<T> Members
 
     public void Add(T item) {
         if (Count == Items.Length) EnsureCapacity(Count + 1);
@@ -471,5 +469,5 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
 
     bool ICollection<T>.IsReadOnly => false;
 
-#endregion
+    #endregion
 }

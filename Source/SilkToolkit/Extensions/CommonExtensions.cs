@@ -13,8 +13,7 @@ using Media = System.Windows.Media;
 namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 public static class CommonExtensions {
-    public static FontWeight ToDXFontWeight(this System.Windows.FontWeight fontWeight)
-    {
+    public static FontWeight ToDXFontWeight(this System.Windows.FontWeight fontWeight) {
         if (fontWeight == FontWeights.Black) return FontWeight.Black;
 
         if (fontWeight == FontWeights.Bold) return FontWeight.Bold;
@@ -50,8 +49,7 @@ public static class CommonExtensions {
         return FontWeight.Normal;
     }
 
-    public static FontStyle ToDXFontStyle(this System.Windows.FontStyle style)
-    {
+    public static FontStyle ToDXFontStyle(this System.Windows.FontStyle style) {
         if (style == FontStyles.Italic) return FontStyle.Italic;
 
         if (style == FontStyles.Normal) return FontStyle.Normal;
@@ -95,10 +93,10 @@ public static class CommonExtensions {
                                                EndPoint = linear.EndPoint.ToVector2()
                                            },
                                            new GradientStopCollection(target,
-                                                                      linear.GradientStops.Select(x => new GradientStop {
+                                                                      [.. linear.GradientStops.Select(x => new GradientStop {
                                                                           Color = x.Color.ToColor4(),
-                                                                          Position = (float) x.Offset
-                                                                      }).ToArray(),
+                                                                          Position = (float)x.Offset
+                                                                      })],
                                                                       linear.ColorInterpolationMode
                                                                             .ToD2DColorInterpolationMode(),
                                                                       linear.SpreadMethod.ToD2DExtendMode()));
@@ -108,14 +106,14 @@ public static class CommonExtensions {
                                            new RadialGradientBrushProperties {
                                                Center = radial.Center.ToVector2(),
                                                GradientOriginOffset = radial.GradientOrigin.ToVector2(),
-                                               RadiusX = (float) radial.RadiusX,
-                                               RadiusY = (float) radial.RadiusY
+                                               RadiusX = (float)radial.RadiusX,
+                                               RadiusY = (float)radial.RadiusY
                                            },
                                            new GradientStopCollection(target,
-                                                                      radial.GradientStops.Select(x => new GradientStop {
+                                                                      [.. radial.GradientStops.Select(x => new GradientStop {
                                                                           Color = x.Color.ToColor4(),
-                                                                          Position = (float) x.Offset
-                                                                      }).ToArray(),
+                                                                          Position = (float)x.Offset
+                                                                      })],
                                                                       radial.ColorInterpolationMode
                                                                             .ToD2DColorInterpolationMode(),
                                                                       radial.SpreadMethod.ToD2DExtendMode()));
@@ -162,8 +160,7 @@ public static class CommonExtensions {
         return DashStyle.Solid;
     }
 
-    public static TextAlignment ToD2DTextAlignment(this System.Windows.TextAlignment alignment)
-    {
+    public static TextAlignment ToD2DTextAlignment(this System.Windows.TextAlignment alignment) {
         switch (alignment) {
             case System.Windows.TextAlignment.Center:
                 return TextAlignment.Center;
@@ -178,8 +175,7 @@ public static class CommonExtensions {
         }
     }
 
-    public static FlowDirection ToD2DFlowDir(this System.Windows.FlowDirection direction)
-    {
+    public static FlowDirection ToD2DFlowDir(this System.Windows.FlowDirection direction) {
         switch (direction) {
             case System.Windows.FlowDirection.LeftToRight:
                 return FlowDirection.LeftToRight;

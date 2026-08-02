@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -38,7 +38,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
 
     public bool IsAttached => SceneNode.IsAttached;
 
-#region Scene Node
+    #region Scene Node
 
     private readonly object sceneNodeLock = new();
     private SceneNode2D sceneNode;
@@ -71,7 +71,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
             if (Dispatcher.CheckAccess())
                 OnDetached();
             else
-                Dispatcher.Invoke(() => { OnDetached(); });
+                Dispatcher.Invoke(OnDetached);
         }
     }
 
@@ -93,9 +93,9 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
 
     protected virtual void AssignDefaultValuesToSceneNode(SceneNode2D node) { }
 
-#endregion
+    #endregion
 
-#region Events
+    #region Events
 
     /// <summary>
     ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
@@ -103,7 +103,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     /// </summary>
     public event EventHandler<SceneNode2DCreatedEventArgs> OnSceneNodeCreated;
 
-#endregion
+    #endregion
 
     public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) {
         return SceneNode.HitTest(mousePoint, out hitResult);
@@ -125,7 +125,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
         return e.SceneNode;
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls        
 
@@ -166,5 +166,5 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

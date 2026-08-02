@@ -38,7 +38,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 
                                          model.InvalidateMeasure();
                                      },
-                                     (d, e) => e is Element2D ? e : new TextModel2D {Text = e?.ToString()}));
+                                     (d, e) => e is Element2D ? e : new TextModel2D { Text = e?.ToString() }));
 
             public static readonly DependencyProperty BackgroundProperty
                 = DependencyProperty.Register("Background",
@@ -65,7 +65,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      ((d as Element2DCore).SceneNode as ContentNode2D)
                                                                          .HorizontalContentAlignment =
-                                                                         ((HorizontalAlignment) e.NewValue)
+                                                                         ((HorizontalAlignment)e.NewValue)
                                                                          .ToD2DHorizontalAlignment();
                                                                  }));
 
@@ -77,7 +77,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      ((d as Element2DCore).SceneNode as ContentNode2D)
                                                                          .VerticalContentAlignment =
-                                                                         ((VerticalAlignment) e.NewValue)
+                                                                         ((VerticalAlignment)e.NewValue)
                                                                          .ToD2DVerticalAlignment();
                                                                  }));
 
@@ -90,23 +90,23 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             public WpfBrush Background {
-                get => (WpfBrush) GetValue(BackgroundProperty);
+                get => (WpfBrush)GetValue(BackgroundProperty);
                 set => SetValue(BackgroundProperty, value);
             }
 
             public WpfBrush Foreground {
-                get => (WpfBrush) GetValue(ForegroundProperty);
+                get => (WpfBrush)GetValue(ForegroundProperty);
                 set => SetValue(ForegroundProperty, value);
             }
 
             public HorizontalAlignment HorizontalContentAlignment {
-                get => (HorizontalAlignment) GetValue(HorizontalContentAlignmentProperty);
+                get => (HorizontalAlignment)GetValue(HorizontalContentAlignmentProperty);
                 set => SetValue(HorizontalContentAlignmentProperty, value);
             }
 
 
             public VerticalAlignment VerticalContentAlignment {
-                get => (VerticalAlignment) GetValue(VerticalContentAlignmentProperty);
+                get => (VerticalAlignment)GetValue(VerticalContentAlignmentProperty);
                 set => SetValue(VerticalContentAlignmentProperty, value);
             }
 
@@ -125,10 +125,11 @@ namespace HelixToolkit.Wpf.SharpDX {
 
             protected void SetupBindings(Element2D content) {
                 if (content is TextModel2D) {
-                    var binding = new Binding(nameof(Foreground));
-                    binding.Source = this;
-                    binding.Mode = BindingMode.OneWay;
-                    binding.Path = new PropertyPath(nameof(Foreground));
+                    var binding = new Binding(nameof(Foreground)) {
+                        Source = this,
+                        Mode = BindingMode.OneWay,
+                        Path = new PropertyPath(nameof(Foreground))
+                    };
                     BindingOperations.SetBinding(content, TextModel2D.ForegroundProperty, binding);
                 }
             }

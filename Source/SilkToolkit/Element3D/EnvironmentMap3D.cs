@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
@@ -17,7 +17,7 @@ public class EnvironmentMap3D : Element3D {
         new PropertyMetadata(null,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as EnvironmentMapNode).Texture =
-                                     (TextureModel) e.NewValue;
+                                     (TextureModel)e.NewValue;
                              }));
 
     public static readonly DependencyProperty SkipRenderingProperty = DependencyProperty.Register("SkipRendering",
@@ -26,7 +26,7 @@ public class EnvironmentMap3D : Element3D {
         new PropertyMetadata(false,
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as EnvironmentMapNode).SkipRendering =
-                                     (bool) e.NewValue;
+                                     (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -36,7 +36,7 @@ public class EnvironmentMap3D : Element3D {
     ///     The texture.
     /// </value>
     public TextureModel Texture {
-        get => (TextureModel) GetValue(TextureProperty);
+        get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
@@ -44,7 +44,7 @@ public class EnvironmentMap3D : Element3D {
     ///     Skip environment map rendering, but still keep it available for other object to use.
     /// </summary>
     public bool SkipRendering {
-        get => (bool) GetValue(SkipRenderingProperty);
+        get => (bool)GetValue(SkipRenderingProperty);
         set => SetValue(SkipRenderingProperty, value);
     }
 

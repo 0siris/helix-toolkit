@@ -104,7 +104,7 @@ public abstract class Exporter : IExporter, IDisposable {
     private static void Traverse<T>(SceneNode model, Action<T, Transform3D> action) where T : SceneNode {
         if (model is T)
             if (model.WrapperSource is Element3D m)
-                action((T) model, m.Transform);
+                action((T)model, m.Transform);
 
         foreach (var element in model.Items) Traverse(element, action);
     }
@@ -142,9 +142,8 @@ public abstract class Exporter : IExporter, IDisposable {
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(brush));
 
-        using (Stream stm = File.Create(path)) {
-            encoder.Save(stm);
-        }
+        using Stream stm = File.Create(path);
+        encoder.Save(stm);
     }
 
     /// <summary>

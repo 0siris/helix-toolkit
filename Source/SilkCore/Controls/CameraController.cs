@@ -277,8 +277,7 @@ public sealed class CameraController {
         get => modelUpDirection;
         set {
             modelUpDirection = value;
-            if (Viewport != null) 
-                Viewport.ModelUpDirection = value;
+            Viewport?.ModelUpDirection = value;
         }
     }
 
@@ -413,7 +412,7 @@ public sealed class CameraController {
     /// <param name="dz">
     ///     The delta z.
     /// </param>
-    public void AddMoveForce(float dx, float dy, float dz) 
+    public void AddMoveForce(float dx, float dy, float dz)
         => AddMoveForce(new Vector3(dx, dy, dz));
 
     /// <summary>
@@ -423,7 +422,7 @@ public sealed class CameraController {
     ///     The delta.
     /// </param>
     public void AddMoveForce(Vector3 delta) {
-        if (!IsMoveEnabled) 
+        if (!IsMoveEnabled)
             return;
 
         moveSpeed += delta * 40;
@@ -439,7 +438,7 @@ public sealed class CameraController {
     /// <param name="dy">
     ///     The delta y.
     /// </param>
-    public void AddPanForce(float dx, float dy) 
+    public void AddPanForce(float dx, float dy)
         => AddPanForce(FindPanVector(dx, dy));
 
     /// <summary>
@@ -468,7 +467,7 @@ public sealed class CameraController {
     ///     The delta y.
     /// </param>
     public void AddRotateForce(float dx, float dy) {
-        if (!IsRotationEnabled) 
+        if (!IsRotationEnabled)
             return;
 
         if (IsInertiaEnabled) {
@@ -493,7 +492,7 @@ public sealed class CameraController {
     /// <param name="delta">
     ///     The delta.
     /// </param>
-    public void AddZoomForce(float delta) 
+    public void AddZoomForce(float delta)
         => AddZoomForce(delta, CameraTarget);
 
     /// <summary>
@@ -506,7 +505,7 @@ public sealed class CameraController {
     ///     The zoom origin.
     /// </param>
     public void AddZoomForce(float delta, Vector3 zoomOrigin) {
-        if (!IsZoomEnabled) 
+        if (!IsZoomEnabled)
             return;
 
         if (IsInertiaEnabled) {
@@ -526,7 +525,7 @@ public sealed class CameraController {
     /// <param name="upDir">Up dir.</param>
     /// <param name="animationTime">The animation time.</param>
     public void ChangeDirection(Vector3 lookDir, Vector3 upDir, float animationTime = 500) {
-        if (!IsRotationEnabled) 
+        if (!IsRotationEnabled)
             return;
 
         StopAnimations();
@@ -601,7 +600,7 @@ public sealed class CameraController {
     /// <summary>
     ///     Resets the camera up direction.
     /// </summary>
-    public void ResetCameraUpDirection() 
+    public void ResetCameraUpDirection()
         => CameraUpDirection = ModelUpDirection;
 
     /// <summary>
@@ -635,7 +634,7 @@ public sealed class CameraController {
     /// <summary>
     ///     Stops the panning.
     /// </summary>
-    public void StopPanning() 
+    public void StopPanning()
         => panSpeed = Vector3.Zero;
 
     /// <summary>
@@ -649,29 +648,29 @@ public sealed class CameraController {
     /// <summary>
     ///     Stops the zooming inertia.
     /// </summary>
-    public void StopZooming() 
+    public void StopZooming()
         => zoomSpeed = 0;
 
     /// <summary>
     ///     Views the back.
     /// </summary>
-    public void ViewBack() 
+    public void ViewBack()
         => ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
 
-    public void ViewFront() 
+    public void ViewFront()
         => ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Views the right.
     /// </summary>
-    public void ViewRight() 
+    public void ViewRight()
         => ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Views the top.
     /// </summary>
-    
-    public void ViewTop() 
+
+    public void ViewTop()
         => ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
 
     /// <summary>
@@ -680,7 +679,7 @@ public sealed class CameraController {
     /// <param name="delta">
     ///     The delta value.
     /// </param>
-    public void Zoom(float delta) 
+    public void Zoom(float delta)
         => zoomHandler.Zoom(delta);
 
     /// <summary>
@@ -690,7 +689,7 @@ public sealed class CameraController {
     ///     The animation time (milliseconds).
     /// </param>
     public void ZoomExtents(float animationTime = 200) {
-        if (!IsZoomEnabled) 
+        if (!IsZoomEnabled)
             return;
 
         ActualCamera.ZoomExtents(Viewport, animationTime);
@@ -721,10 +720,10 @@ public sealed class CameraController {
     ///     The clamp.
     /// </returns>
     private float Clamp(float value, float min, float max) {
-        if (value < min) 
+        if (value < min)
             return min;
 
-        if (value > max) 
+        if (value > max)
             return max;
 
         return value;
@@ -765,11 +764,11 @@ public sealed class CameraController {
     public void OnTimeStep() {
         var ticks = Stopwatch.GetTimestamp();
         if (lastTick == 0 || lastTick > ticks) lastTick = ticks;
-        var time = (float) (ticks - lastTick) / Stopwatch.Frequency;
+        var time = (float)(ticks - lastTick) / Stopwatch.Frequency;
         time = time == 0 ? 0.016f : time;
         time = Math.Min(time, 0.05f); // Clamp the maximum time elapse to prevent over shooting
         // should be independent of time
-        var factor = IsInertiaEnabled ? Clamp((float) Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
+        var factor = IsInertiaEnabled ? Clamp((float)Math.Pow(InertiaFactor, time / 0.02f), 0.1f, 1) : 0;
         var needUpdate = false;
 
         if (rotationSpeed.LengthSquared() > 0.1f) {
@@ -827,41 +826,41 @@ public sealed class CameraController {
     /// <summary>
     ///     Views the bottom.
     /// </summary>
-    private void ViewBottom() 
+    private void ViewBottom()
         => ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
 
     /// <summary>
     ///     Views the left.
     /// </summary>
-    private void ViewLeft() 
+    private void ViewLeft()
         => ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Starts the rotation.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void StartRotate(Vector2 p) 
+    public void StartRotate(Vector2 p)
         => rotateHandler.Start(p);
 
     /// <summary>
     ///     Ends the rotation.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void EndRotate(Vector2 p) 
+    public void EndRotate(Vector2 p)
         => rotateHandler.End(p);
 
     /// <summary>
     ///     Starts the panning.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void StartPan(Vector2 p) 
+    public void StartPan(Vector2 p)
         => panHandler.Start(p);
 
     /// <summary>
     ///     Ends the panning.
     /// </summary>
     /// <param name="p">The p.</param>
-    public void EndPan(Vector2 p) 
+    public void EndPan(Vector2 p)
         => panHandler.End(p);
 
     /// <summary>
@@ -869,10 +868,10 @@ public sealed class CameraController {
     /// </summary>
     /// <param name="p">The p.</param>
     public void MouseMove(Vector2 p) {
-        if (IsRotating) 
+        if (IsRotating)
             rotateHandler.MouseMove(p);
-        
-        if (IsPanning) 
+
+        if (IsPanning)
             panHandler.MouseMove(p);
     }
 }

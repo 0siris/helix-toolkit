@@ -11,15 +11,15 @@ using System.Linq;
 using DemoCore;
 using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media = System.Windows.Media;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -58,7 +58,7 @@ public class MainViewModel : BaseViewModel {
     public Color AmbientLightColor { get; private set; }
 
     private bool enableArrowHeadTail = false;
-    bool fixedSize = true;
+    private bool fixedSize = true;
 
     public bool EnableArrowHeadTail {
         set {
@@ -111,13 +111,13 @@ public class MainViewModel : BaseViewModel {
         e1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2);
         //this.Lines = e1.ToLineGeometry3D().ToUnshared();
         this.Lines = e1.ToLineGeometry3D(true);
-        this.Lines.Colors = new Color4Collection();
+        this.Lines.Colors = [];
         var linesCount = this.Lines.Indices.Count;
         var rnd = new Random();
         while (linesCount-- > 0) {
-            this.Lines.Colors.Add(new Color4((float) rnd.NextDouble(),
-                                             (float) rnd.NextDouble(),
-                                             (float) rnd.NextDouble(),
+            this.Lines.Colors.Add(new Color4((float)rnd.NextDouble(),
+                                             (float)rnd.NextDouble(),
+                                             (float)rnd.NextDouble(),
                                              1f));
         }
 
@@ -136,8 +136,8 @@ public class MainViewModel : BaseViewModel {
         this.Material1 = PhongMaterials.PolishedGold;
         this.Material2 = PhongMaterials.Copper;
         this.Material3 = PhongMaterials.Glass;
-        this.LineMaterial = new LineArrowHeadMaterial() {ArrowSize = 0.04, Color = Colors.White, TextureScale = 0.4};
-        this.GridMaterial = new LineMaterial() {Color = Colors.Red, TextureScale = 0.4};
+        this.LineMaterial = new LineArrowHeadMaterial() { ArrowSize = 0.04, Color = Colors.White, TextureScale = 0.4 };
+        this.GridMaterial = new LineMaterial() { Color = Colors.Red, TextureScale = 0.4 };
         var dash = TextureModel.Create("Dash.png");
         var dotLine = TextureModel.Create("DotLine.png");
         GridMaterial.Texture = dotLine;

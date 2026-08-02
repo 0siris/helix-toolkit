@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Utilities {
@@ -10,7 +10,7 @@ namespace HelixToolkit.SharpDX.Core {
             public ObjectPool(Func<T> objectGenerator, int maxCapacity = int.MaxValue / 2) {
                 if (objectGenerator == null)
                     throw new ArgumentNullException("objectGenerator");
-                _objects = new ConcurrentBag<T>();
+                _objects = [];
                 _objectGenerator = objectGenerator;
                 MaxCapacity = maxCapacity;
             }

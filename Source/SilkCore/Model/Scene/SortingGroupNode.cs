@@ -31,10 +31,10 @@ namespace HelixToolkit.SharpDX.Core {
         }
 
         public class SortingGroupNode : GroupNode {
-            private readonly List<SceneNode> notSorted = new();
-            private readonly List<SortStruct> sortingOpaqueCache = new();
+            private readonly List<SceneNode> notSorted = [];
+            private readonly List<SortStruct> sortingOpaqueCache = [];
 
-            private readonly List<SortStruct> sortingTransparentCache = new();
+            private readonly List<SortStruct> sortingTransparentCache = [];
 
             /// <summary>
             ///     Gets or sets a value indicating whether [enable sorting].
@@ -119,9 +119,9 @@ namespace HelixToolkit.SharpDX.Core {
 
                     if (sortingTransparentCache.Count > 50 && sortingOpaqueCache.Count > 50) {
                         Parallel.Invoke(() => {
-                                            sortingTransparentCache.Sort((a, b) => a.Key > b.Key ? -1 :
-                                                                             a.Key < b.Key ? 1 : 0);
-                                        },
+                            sortingTransparentCache.Sort((a, b) => a.Key > b.Key ? -1 :
+                                                             a.Key < b.Key ? 1 : 0);
+                        },
                                         () => {
                                             sortingOpaqueCache.Sort((a, b) => a.Key > b.Key ? 1 :
                                                                               a.Key < b.Key ? -1 : 0);

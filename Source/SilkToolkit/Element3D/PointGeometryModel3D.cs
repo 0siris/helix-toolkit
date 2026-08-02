@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -22,7 +22,7 @@ public class PointGeometryModel3D : GeometryModel3D {
     /// </summary>
     /// <returns></returns>
     protected override SceneNode OnCreateSceneNode() {
-        return new PointNode {Material = material};
+        return new PointNode { Material = material };
     }
 
     /// <summary>
@@ -30,16 +30,16 @@ public class PointGeometryModel3D : GeometryModel3D {
     /// </summary>
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
-        material.Width = (float) Size.Width;
-        material.Height = (float) Size.Height;
+        material.Width = (float)Size.Width;
+        material.Height = (float)Size.Height;
         material.Figure = Figure;
-        material.FigureRatio = (float) FigureRatio;
+        material.FigureRatio = (float)FigureRatio;
         material.PointColor = Color.ToColor4();
         material.FixedSize = FixedSize;
         base.AssignDefaultValuesToSceneNode(core);
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     public static readonly DependencyProperty ColorProperty =
         DependencyProperty.Register("Color",
@@ -53,7 +53,7 @@ public class PointGeometryModel3D : GeometryModel3D {
 #endif
                                                          {
                                                              (d as PointGeometryModel3D).material.PointColor =
-                                                                 ((Color) e.NewValue).ToColor4();
+                                                                 ((Color)e.NewValue).ToColor4();
                                                          }));
 
 
@@ -63,11 +63,11 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(new Size(1.0, 1.0),
                                                          (d, e) => {
-                                                             var size = (Size) e.NewValue;
+                                                             var size = (Size)e.NewValue;
                                                              (d as PointGeometryModel3D).material.Width =
-                                                                 (float) size.Width;
+                                                                 (float)size.Width;
                                                              (d as PointGeometryModel3D).material.Height =
-                                                                 (float) size.Height;
+                                                                 (float)size.Height;
                                                          }));
 
     public static readonly DependencyProperty FigureProperty =
@@ -77,7 +77,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(PointFigure.Rect,
                                                          (d, e) => {
                                                              (d as PointGeometryModel3D).material.Figure =
-                                                                 (PointFigure) e.NewValue;
+                                                                 (PointFigure)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FigureRatioProperty =
@@ -87,7 +87,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(0.25,
                                                          (d, e) => {
                                                              (d as PointGeometryModel3D).material.FigureRatio =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty HitTestThicknessProperty =
@@ -97,7 +97,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(4.0,
                                                          (d, e) => {
                                                              ((d as PointGeometryModel3D).SceneNode as PointNode)
-                                                                 .HitTestThickness = (float) (double) e.NewValue;
+                                                                 .HitTestThickness = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -112,7 +112,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                       new PropertyMetadata(true,
                                                            (d, e) => {
                                                                (d as PointGeometryModel3D).material.FixedSize =
-                                                                   (bool) e.NewValue;
+                                                                   (bool)e.NewValue;
                                                            }));
 
     // Using a DependencyProperty as the backing store for EnableColorBlending.  This enables animation, styling, binding, etc...
@@ -123,7 +123,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              (d as PointGeometryModel3D).material.EnableColorBlending =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for BlendingFactor.  This enables animation, styling, binding, etc...
@@ -134,26 +134,26 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              (d as PointGeometryModel3D).material.BlendingFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     public Color Color {
-        get => (Color) GetValue(ColorProperty);
+        get => (Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
     public Size Size {
-        get => (Size) GetValue(SizeProperty);
+        get => (Size)GetValue(SizeProperty);
         set => SetValue(SizeProperty, value);
     }
 
     public PointFigure Figure {
-        get => (PointFigure) GetValue(FigureProperty);
+        get => (PointFigure)GetValue(FigureProperty);
         set => SetValue(FigureProperty, value);
     }
 
     public double FigureRatio {
-        get => (double) GetValue(FigureRatioProperty);
+        get => (double)GetValue(FigureRatioProperty);
         set => SetValue(FigureRatioProperty, value);
     }
 
@@ -161,7 +161,7 @@ public class PointGeometryModel3D : GeometryModel3D {
     ///     Used only for point/line hit test
     /// </summary>
     public double HitTestThickness {
-        get => (double) GetValue(HitTestThicknessProperty);
+        get => (double)GetValue(HitTestThicknessProperty);
         set => SetValue(HitTestThicknessProperty, value);
     }
 
@@ -171,7 +171,7 @@ public class PointGeometryModel3D : GeometryModel3D {
     ///     <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
     /// </summary>
     public bool FixedSize {
-        get => (bool) GetValue(FixedSizeProperty);
+        get => (bool)GetValue(FixedSizeProperty);
         set => SetValue(FixedSizeProperty, value);
     }
 
@@ -186,7 +186,7 @@ public class PointGeometryModel3D : GeometryModel3D {
     ///     <c>true</c> if [enable color blending]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableColorBlending {
-        get => (bool) GetValue(EnableColorBlendingProperty);
+        get => (bool)GetValue(EnableColorBlendingProperty);
         set => SetValue(EnableColorBlendingProperty, value);
     }
 
@@ -198,9 +198,9 @@ public class PointGeometryModel3D : GeometryModel3D {
     ///     The blending factor.
     /// </value>
     public double BlendingFactor {
-        get => (double) GetValue(BlendingFactorProperty);
+        get => (double)GetValue(BlendingFactorProperty);
         set => SetValue(BlendingFactorProperty, value);
     }
 
-#endregion
+    #endregion
 }

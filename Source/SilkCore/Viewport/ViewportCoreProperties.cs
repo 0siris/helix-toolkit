@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -10,13 +10,13 @@ public partial class ViewportCore {
 
     private SceneNode currentNode;
 
-    private List<HitTestResult> hits = new();
+    private List<HitTestResult> hits = [];
 
     internal ViewBoxNode ViewCube { get; } = new();
 
     internal CoordinateSystemNode CoordinateSystem { get; } = new();
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets the render host.
@@ -47,7 +47,7 @@ public partial class ViewportCore {
         set {
             if (effectsManager != value) {
                 effectsManager = value;
-                if (RenderHost != null) RenderHost.EffectsManager = value;
+                RenderHost?.EffectsManager = value;
             }
         }
     }
@@ -98,7 +98,7 @@ public partial class ViewportCore {
     /// <value>
     ///     The items2 d.
     /// </value>
-    public SceneNode2D Items2D { get; } = new OverlayNode2D {EnableBitmapCache = false};
+    public SceneNode2D Items2D { get; } = new OverlayNode2D { EnableBitmapCache = false };
 
     /// <summary>
     ///     Gets or sets a value indicating whether [show FPS].
@@ -185,8 +185,8 @@ public partial class ViewportCore {
     public Rectangle ViewportRectangle =>
         new(0,
             0,
-            (int) (RenderHost.ActualWidth / DpiScale),
-            (int) (RenderHost.ActualHeight / DpiScale));
+            (int)(RenderHost.ActualWidth / DpiScale),
+            (int)(RenderHost.ActualHeight / DpiScale));
 
     /// <summary>
     ///     Gets the render context.
@@ -259,7 +259,7 @@ public partial class ViewportCore {
         get => dpiScale;
         set {
             dpiScale = value;
-            if (RenderHost != null) RenderHost.DpiScale = (float) value;
+            RenderHost?.DpiScale = (float)value;
         }
     }
 
@@ -344,9 +344,9 @@ public partial class ViewportCore {
         set => ViewCube.Visible = value;
     }
 
-#endregion
+    #endregion
 
-#region Events
+    #region Events
 
     /// <summary>
     ///     Occurs when [on start rendering].
@@ -367,5 +367,5 @@ public partial class ViewportCore {
     public event EventHandler<SceneNodeMouseUpArgs> NodeHitOnMouseUp;
     public event EventHandler<SceneNodeMouseMoveArgs> NodeHitOnMouseMove;
 
-#endregion
+    #endregion
 }

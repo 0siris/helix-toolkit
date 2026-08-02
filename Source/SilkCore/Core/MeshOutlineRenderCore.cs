@@ -19,13 +19,13 @@ namespace HelixToolkit.SharpDX.Core {
                 OutlineFadingFactor = 1.5f;
             }
 
-        #region Variables
+            #region Variables
 
             /// <summary>
             /// </summary>
             protected ShaderPass OutlineShaderPass { get; private set; }
 
-        #endregion
+            #endregion
 
             /// <summary>
             ///     Called when [attach].
@@ -66,7 +66,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Outline color
@@ -130,7 +130,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion
+            #endregion
         }
     }
 }

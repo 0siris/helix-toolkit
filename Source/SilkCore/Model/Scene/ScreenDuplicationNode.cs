@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -39,7 +39,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return false;
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets the capture rectangle.
@@ -85,7 +85,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => (RenderCore as IScreenClone).ShowMouseCursor = value;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

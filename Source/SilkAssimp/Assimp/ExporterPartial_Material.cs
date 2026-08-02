@@ -57,12 +57,12 @@ public partial class Exporter {
                                            AiMatKeys.GetFullTextureName(AiMatKeys.MAPPINGMODE_U_BASE,
                                                                         TextureType.Diffuse,
                                                                         0),
-                                           (int) ToAssimpAddressMode(phong.DiffuseMapSampler.AddressU)));
+                                           (int)ToAssimpAddressMode(phong.DiffuseMapSampler.AddressU)));
             assimpMaterial.AddProperty(new MaterialProperty(
                                            AiMatKeys.GetFullTextureName(AiMatKeys.MAPPINGMODE_V_BASE,
                                                                         TextureType.Diffuse,
                                                                         0),
-                                           (int) ToAssimpAddressMode(phong.DiffuseMapSampler.AddressV)));
+                                           (int)ToAssimpAddressMode(phong.DiffuseMapSampler.AddressV)));
         }
 
         if (phong.EmissiveMap != null && !string.IsNullOrEmpty(phong.EmissiveMapFilePath))
@@ -134,12 +134,12 @@ public partial class Exporter {
                                            AiMatKeys.GetFullTextureName(AiMatKeys.MAPPINGMODE_U_BASE,
                                                                         TextureType.Diffuse,
                                                                         0),
-                                           (int) ToAssimpAddressMode(pbr.SurfaceMapSampler.AddressU)));
+                                           (int)ToAssimpAddressMode(pbr.SurfaceMapSampler.AddressU)));
             assimpMaterial.AddProperty(new MaterialProperty(
                                            AiMatKeys.GetFullTextureName(AiMatKeys.MAPPINGMODE_V_BASE,
                                                                         TextureType.Diffuse,
                                                                         0),
-                                           (int) ToAssimpAddressMode(pbr.SurfaceMapSampler.AddressV)));
+                                           (int)ToAssimpAddressMode(pbr.SurfaceMapSampler.AddressV)));
         }
 
         if (pbr.RoughnessMetallicMap != null && !string.IsNullOrEmpty(pbr.RoughnessMetallicMapFilePath))

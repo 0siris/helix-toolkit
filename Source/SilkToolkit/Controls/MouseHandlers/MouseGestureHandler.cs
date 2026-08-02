@@ -20,7 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     An abstract base class for the mouse gesture handlers.
 /// </summary>
 internal abstract class MouseGestureHandler {
-    protected List<HitTestResult> hits = new();
+    protected List<HitTestResult> hits = [];
 
     private long startTick;
 
@@ -136,7 +136,7 @@ internal abstract class MouseGestureHandler {
     /// </param>
     public virtual void Completed(Point e) {
         var elapsed =
-            (double) (Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
+            (double)(Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
             1000; //this.ManipulationWatch.ElapsedMilliseconds;
         if (elapsed > 0 && elapsed < Controller.SpinReleaseTime) OnInertiaStarting(elapsed);
         startTick = Stopwatch.GetTimestamp();

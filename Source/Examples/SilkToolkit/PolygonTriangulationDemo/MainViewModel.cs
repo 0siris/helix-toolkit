@@ -6,16 +6,16 @@
 
 namespace PolygonTriangulationDemo;
 
+using System;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using System;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media = System.Windows.Media;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     /// <summary>

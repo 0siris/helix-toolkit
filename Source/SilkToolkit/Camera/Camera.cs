@@ -48,8 +48,7 @@ public interface ICameraModel {
 ///     Specifies what portion of the 3D scene is rendered by the Viewport3DX element.
 /// </summary>
 public abstract class Camera :
-    Animatable, ICameraModel
-{
+    Animatable, ICameraModel {
     /// <summary>
     ///     Gets or sets the position.
     /// </summary>
@@ -115,7 +114,7 @@ public abstract class Camera :
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>A <see cref="Matrix" />.</returns>
     public Matrix CreateProjectionMatrix(double aspectRatio) {
-        return CameraInternal.CreateProjectionMatrix((float) aspectRatio);
+        return CameraInternal.CreateProjectionMatrix((float)aspectRatio);
     }
 
     private Vector3 targetPosition;
@@ -182,7 +181,7 @@ public abstract class Camera :
     /// <returns></returns>
     public virtual bool OnTimeStep() {
         var ticks = Stopwatch.GetTimestamp();
-        var ellapsed = (float) (ticks - prevTicks) / Stopwatch.Frequency * 1000;
+        var ellapsed = (float)(ticks - prevTicks) / Stopwatch.Frequency * 1000;
         prevTicks = ticks;
         return OnUpdateAnimation(ellapsed);
     }
@@ -198,7 +197,7 @@ public abstract class Camera :
             return false;
         }
 
-        var l = (float) (accumTime / aniTime);
+        var l = (float)(accumTime / aniTime);
         var nextPos = SilkMath.Lerp(oldPosition, targetPosition, l);
         var nextLook = SilkMath.Lerp(oldLookDir, targetLookDirection, l);
         var nextUp = SilkMath.Lerp(oldUpDir, targetUpDirection, l);

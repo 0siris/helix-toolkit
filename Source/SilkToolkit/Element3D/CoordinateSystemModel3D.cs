@@ -1,4 +1,4 @@
-﻿// <copyright file="CoordinateSystemModel3D.cs" company="Helix Toolkit">
+// <copyright file="CoordinateSystemModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
 // </copyright>
@@ -29,7 +29,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CoordinateSystemNode).AxisXColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -45,7 +45,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CoordinateSystemNode).AxisYColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -61,7 +61,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CoordinateSystemNode).AxisZColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -76,7 +76,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
 #endif
                              (d, e) => {
                                  ((d as Element3DCore).SceneNode as CoordinateSystemNode).LabelColor =
-                                     ((Media.Color) e.NewValue).ToColor4();
+                                     ((Media.Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -119,7 +119,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
     ///     Axis X Color
     /// </summary>
     public Media.Color AxisXColor {
-        get => (Media.Color) GetValue(AxisXColorProperty);
+        get => (Media.Color)GetValue(AxisXColorProperty);
         set => SetValue(AxisXColorProperty, value);
     }
 
@@ -127,7 +127,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
     ///     Axis Y Color
     /// </summary>
     public Media.Color AxisYColor {
-        get => (Media.Color) GetValue(AxisYColorProperty);
+        get => (Media.Color)GetValue(AxisYColorProperty);
         set => SetValue(AxisYColorProperty, value);
     }
 
@@ -135,7 +135,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
     ///     Axis Z Color
     /// </summary>
     public Media.Color AxisZColor {
-        get => (Media.Color) GetValue(AxisZColorProperty);
+        get => (Media.Color)GetValue(AxisZColorProperty);
         set => SetValue(AxisZColorProperty, value);
     }
 
@@ -143,28 +143,28 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
     ///     Label Color
     /// </summary>
     public Media.Color LabelColor {
-        get => (Media.Color) GetValue(LabelColorProperty);
+        get => (Media.Color)GetValue(LabelColorProperty);
         set => SetValue(LabelColorProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public string CoordinateSystemLabelX {
-        get => (string) GetValue(CoordinateSystemLabelXProperty);
+        get => (string)GetValue(CoordinateSystemLabelXProperty);
         set => SetValue(CoordinateSystemLabelXProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public string CoordinateSystemLabelY {
-        get => (string) GetValue(CoordinateSystemLabelYProperty);
+        get => (string)GetValue(CoordinateSystemLabelYProperty);
         set => SetValue(CoordinateSystemLabelYProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public string CoordinateSystemLabelZ {
-        get => (string) GetValue(CoordinateSystemLabelZProperty);
+        get => (string)GetValue(CoordinateSystemLabelZProperty);
         set => SetValue(CoordinateSystemLabelZProperty, value);
     }
 

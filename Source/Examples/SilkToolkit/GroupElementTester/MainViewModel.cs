@@ -1,22 +1,22 @@
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
+using System.Windows.Input;
+using System.Windows.Media.Animation;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using HelixToolkit.SharpDX.Core.Core;
-using System.Windows.Input;
-using System.Collections.ObjectModel;
-using System.Windows.Media.Animation;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace GroupElementTester;
 
@@ -46,15 +46,15 @@ public class MainViewModel : BaseViewModel {
 
     public Transform3D Transform4 { get; } = new Media3D.TranslateTransform3D(-6, 0, 0);
 
-    public ObservableElement3DCollection GroupModelSource { private set; get; } = new ObservableElement3DCollection();
+    public ObservableElement3DCollection GroupModelSource { private set; get; } = [];
 
     public ObservableElement3DCollection TransparentGroupModelSource { private set; get; } =
-        new ObservableElement3DCollection();
+        [];
 
     public ObservableCollection<MeshDataModel> ItemsSource { private set; get; } =
-        new ObservableCollection<MeshDataModel>();
+        [];
 
-    private PhongMaterialCollection materialCollection = new PhongMaterialCollection();
+    private PhongMaterialCollection materialCollection = [];
 
     public ICommand AddGroupModelCommand { get; private set; }
 
@@ -98,21 +98,19 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 10, 0));
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 0, 10));
         AxisModel = lineBuilder.ToLineGeometry3D();
-        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count);
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
+        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count) {
+            Colors.Red.ToColor4(),
+            Colors.Red.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Blue.ToColor4(),
+            Colors.Blue.ToColor4()
+        };
 
         AxisLabel = new BillboardText3D();
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4()});
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4()});
-        AxisLabel.TextInfo.Add(new TextInfo()
-                                   {Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4()});
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4() });
 
         var meshBuilder = new MeshBuilder(true);
         meshBuilder.AddSphere(new Vector3(0, 0, 0), 0.5);
@@ -135,20 +133,21 @@ public class MainViewModel : BaseViewModel {
         ClearItemsModelCommand = new RelayCommand((o) => { ItemsSource.Clear(); });
         AnimateItemsModelCommand = new RelayCommand(AnimateItemsModel);
         ReplaceGroupSourceCommand = new RelayCommand((o) => {
-            GroupModelSource = new ObservableElement3DCollection();
+            GroupModelSource = [];
             OnPropertyChanged(nameof(GroupModelSource));
         });
         ReplaceItemsModelSourceCommand = new RelayCommand((o) => {
-            ItemsSource = new ObservableCollection<MeshDataModel>();
+            ItemsSource = [];
             OnPropertyChanged(nameof(ItemsSource));
         });
     }
 
     private void AddGroupModel(object o) {
-        var model = new MeshGeometryModel3D();
-        model.Geometry = SphereModel;
-        model.Material = BlueMaterial;
-        model.Transform = new Media3D.TranslateTransform3D(0, (GroupModelSource.Count + 1) * 2, 0);
+        var model = new MeshGeometryModel3D {
+            Geometry = SphereModel,
+            Material = BlueMaterial,
+            Transform = new Media3D.TranslateTransform3D(0, (GroupModelSource.Count + 1) * 2, 0)
+        };
         GroupModelSource.Add(model);
     }
 
@@ -159,10 +158,11 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void AddItemsModel(object o) {
-        var model = new MeshDataModel();
-        model.Geometry = SphereModel;
-        model.Material = GreenMaterial;
-        model.Transform = new Media3D.TranslateTransform3D(0, -(ItemsSource.Count) * 2, 0);
+        var model = new MeshDataModel {
+            Geometry = SphereModel,
+            Material = GreenMaterial,
+            Transform = new Media3D.TranslateTransform3D(0, -(ItemsSource.Count) * 2, 0)
+        };
         ItemsSource.Add(model);
     }
 
@@ -197,10 +197,11 @@ public class MainViewModel : BaseViewModel {
             IsCumulative = true,
         };
 
-        var rotateTransform1 = new Media3D.RotateTransform3D();
-        rotateTransform1.CenterX = 0;
-        rotateTransform1.CenterY = 0;
-        rotateTransform1.CenterZ = 0;
+        var rotateTransform1 = new Media3D.RotateTransform3D {
+            CenterX = 0,
+            CenterY = 0,
+            CenterZ = 0
+        };
         rotateTransform1.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation1);
 
         transformGroup.Children.Add(rotateTransform1);
@@ -227,12 +228,12 @@ public class MainViewModel : BaseViewModel {
         val = rnd.Next(0, materialCollection.Count - 1);
         var material = materialCollection[val];
         var diffuse = material.DiffuseColor;
-        diffuse.W = (float) rnd.Next(20, 60) / 100f;
+        diffuse.W = (float)rnd.Next(20, 60) / 100f;
         material.DiffuseColor = diffuse;
         model.Material = material;
-        model.Transform = new Media3D.TranslateTransform3D((float) rnd.Next(10, 100) / 10,
-                                                           (float) rnd.Next(10, 100) / 10,
-                                                           (float) rnd.Next(10, 100) / 10);
+        model.Transform = new Media3D.TranslateTransform3D((float)rnd.Next(10, 100) / 10,
+                                                           (float)rnd.Next(10, 100) / 10,
+                                                           (float)rnd.Next(10, 100) / 10);
         model.IsTransparent = true;
         TransparentGroupModelSource.Add(model);
     }

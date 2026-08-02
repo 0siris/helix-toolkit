@@ -18,10 +18,10 @@ public class PBRMaterial : Material {
         DependencyProperty.Register("AlbedoColor",
                                     typeof(Color4),
                                     typeof(PBRMaterial),
-                                    new PropertyMetadata((Color4) Color.White,
+                                    new PropertyMetadata((Color4)Color.White,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).AlbedoColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -31,10 +31,10 @@ public class PBRMaterial : Material {
         DependencyProperty.Register("EmissiveColor",
                                     typeof(Color4),
                                     typeof(PBRMaterial),
-                                    new PropertyMetadata((Color4) Color.Black,
+                                    new PropertyMetadata((Color4)Color.Black,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).EmissiveColor =
-                                                                 (Color4) e.NewValue;
+                                                                 (Color4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -46,7 +46,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).MetallicFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -58,7 +58,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).RoughnessFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -70,7 +70,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .AmbientOcclusionFactor = (float) (double) e.NewValue;
+                                                                 .AmbientOcclusionFactor = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -82,7 +82,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .ReflectanceFactor = (float) (double) e.NewValue;
+                                                                 .ReflectanceFactor = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -94,7 +94,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .ClearCoatStrength = (float) (double) e.NewValue;
+                                                                 .ClearCoatStrength = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -106,7 +106,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .ClearCoatRoughness = (float) (double) e.NewValue;
+                                                                 .ClearCoatRoughness = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -208,7 +208,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(new Vector4(0, 0, 0, 1),
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .DisplacementMapScaleMask = (Vector4) e.NewValue;
+                                                                 .DisplacementMapScaleMask = (Vector4)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -221,7 +221,7 @@ public class PBRMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
                                                                  .SurfaceMapSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -233,7 +233,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).IBLSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -246,7 +246,7 @@ public class PBRMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
                                                                  .DisplacementMapSampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -258,7 +258,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).RenderAlbedoMap =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -270,7 +270,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderEmissiveMap = (bool) e.NewValue;
+                                                                 .RenderEmissiveMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -282,7 +282,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderRoughnessMetallicMap = (bool) e.NewValue;
+                                                                 .RenderRoughnessMetallicMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -294,7 +294,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderAmbientOcclusionMap = (bool) e.NewValue;
+                                                                 .RenderAmbientOcclusionMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -306,7 +306,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderIrradianceMap = (bool) e.NewValue;
+                                                                 .RenderIrradianceMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -318,7 +318,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).RenderNormalMap =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -330,7 +330,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderDisplacementMap = (bool) e.NewValue;
+                                                                 .RenderDisplacementMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -343,7 +343,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .RenderEnvironmentMap = (bool) e.NewValue;
+                                                                 .RenderEnvironmentMap = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -356,7 +356,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).RenderShadowMap =
-                                                                 (bool) e.NewValue;
+                                                                 (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -369,7 +369,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .EnableAutoTangent = (bool) e.NewValue;
+                                                                 .EnableAutoTangent = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -381,7 +381,7 @@ public class PBRMaterial : Material {
         typeof(PBRMaterial),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Material).Core as PBRMaterialCore).EnableTessellation = (bool) e.NewValue;
+                                 ((d as Material).Core as PBRMaterialCore).EnableTessellation = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -395,7 +395,7 @@ public class PBRMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
                                                                  .MaxDistanceTessellationFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -409,7 +409,7 @@ public class PBRMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
                                                                  .MinDistanceTessellationFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -422,7 +422,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(50.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .MaxTessellationDistance = (float) (double) e.NewValue;
+                                                                 .MaxTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -435,7 +435,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .MinTessellationDistance = (float) (double) e.NewValue;
+                                                                 .MinTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -449,7 +449,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(UVTransform.Identity,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore).UVTransform =
-                                                                 (UVTransform) e.NewValue;
+                                                                 (UVTransform)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -462,7 +462,7 @@ public class PBRMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
-                                                                 .EnableFlatShading = (bool) e.NewValue;
+                                                                 .EnableFlatShading = (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty VertexColorBlendingFactorProperty =
@@ -473,7 +473,7 @@ public class PBRMaterial : Material {
                                                          (d, e) => {
                                                              ((d as Material).Core as PBRMaterialCore)
                                                                  .VertexColorBlendingFactor =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -533,12 +533,12 @@ public class PBRMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AlbedoColor {
-        get { return (Color4) GetValue(AlbedoColorProperty); }
+        get { return (Color4)GetValue(AlbedoColorProperty); }
         set { SetValue(AlbedoColorProperty, value); }
     }
 
     public Color4 EmissiveColor {
-        get => (Color4) GetValue(EmissiveColorProperty);
+        get => (Color4)GetValue(EmissiveColorProperty);
         set => SetValue(EmissiveColorProperty, value);
     }
 
@@ -550,7 +550,7 @@ public class PBRMaterial : Material {
     ///     The metallic factor.
     /// </value>
     public double MetallicFactor {
-        get => (double) GetValue(MetallicFactorProperty);
+        get => (double)GetValue(MetallicFactorProperty);
         set => SetValue(MetallicFactorProperty, value);
     }
 
@@ -562,7 +562,7 @@ public class PBRMaterial : Material {
     ///     The roughness factor.
     /// </value>
     public double RoughnessFactor {
-        get => (double) GetValue(RoughnessFactorProperty);
+        get => (double)GetValue(RoughnessFactorProperty);
         set => SetValue(RoughnessFactorProperty, value);
     }
 
@@ -574,35 +574,35 @@ public class PBRMaterial : Material {
     ///     The ambient occlusion factor.
     /// </value>
     public double AmbientOcclusionFactor {
-        get => (double) GetValue(AmbientOcclusionFactorProperty);
+        get => (double)GetValue(AmbientOcclusionFactorProperty);
         set => SetValue(AmbientOcclusionFactorProperty, value);
     }
 
     public double ReflectanceFactor {
-        get => (double) GetValue(ReflectanceFactorProperty);
+        get => (double)GetValue(ReflectanceFactorProperty);
         set => SetValue(ReflectanceFactorProperty, value);
     }
 
 
     public double ClearCoatStrength {
-        get => (double) GetValue(ClearCoatStrengthProperty);
+        get => (double)GetValue(ClearCoatStrengthProperty);
         set => SetValue(ClearCoatStrengthProperty, value);
     }
 
 
     public double ClearCoatRoughness {
-        get => (double) GetValue(ClearCoatRoughnessProperty);
+        get => (double)GetValue(ClearCoatRoughnessProperty);
         set => SetValue(ClearCoatRoughnessProperty, value);
     }
 
     public TextureModel AlbedoMap {
-        get => (TextureModel) GetValue(AlbedoMapProperty);
+        get => (TextureModel)GetValue(AlbedoMapProperty);
         set => SetValue(AlbedoMapProperty, value);
     }
 
 
     public TextureModel EmissiveMap {
-        get => (TextureModel) GetValue(EmissiveMapProperty);
+        get => (TextureModel)GetValue(EmissiveMapProperty);
         set => SetValue(EmissiveMapProperty, value);
     }
 
@@ -614,7 +614,7 @@ public class PBRMaterial : Material {
     ///     The rma map.
     /// </value>
     public TextureModel RoughnessMetallicMap {
-        get => (TextureModel) GetValue(RoughnessMetallicMapProperty);
+        get => (TextureModel)GetValue(RoughnessMetallicMapProperty);
         set => SetValue(RoughnessMetallicMapProperty, value);
     }
 
@@ -628,103 +628,103 @@ public class PBRMaterial : Material {
     ///     The ao map.
     /// </value>
     public TextureModel AmbientOcculsionMap {
-        get => (TextureModel) GetValue(AmbientOcculsionMapProperty);
+        get => (TextureModel)GetValue(AmbientOcculsionMapProperty);
         set => SetValue(AmbientOcculsionMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public TextureModel NormalMap {
-        get => (TextureModel) GetValue(NormalMapProperty);
+        get => (TextureModel)GetValue(NormalMapProperty);
         set => SetValue(NormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public TextureModel DisplacementMap {
-        get => (TextureModel) GetValue(DisplacementMapProperty);
+        get => (TextureModel)GetValue(DisplacementMapProperty);
         set => SetValue(DisplacementMapProperty, value);
     }
 
 
     public TextureModel IrradianceMap {
-        get => (TextureModel) GetValue(IrradianceMapProperty);
+        get => (TextureModel)GetValue(IrradianceMapProperty);
         set => SetValue(IrradianceMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription SurfaceMapSampler {
-        get => (SamplerStateDescription) GetValue(SurfaceMapSamplerProperty);
+        get => (SamplerStateDescription)GetValue(SurfaceMapSamplerProperty);
         set => SetValue(SurfaceMapSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription IBLSampler {
-        get => (SamplerStateDescription) GetValue(IBLSamplerProperty);
+        get => (SamplerStateDescription)GetValue(IBLSamplerProperty);
         set => SetValue(IBLSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DisplacementMapSampler {
-        get => (SamplerStateDescription) GetValue(DisplacementMapSamplerProperty);
+        get => (SamplerStateDescription)GetValue(DisplacementMapSamplerProperty);
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get { return (Vector4) GetValue(DisplacementMapScaleMaskProperty); }
+        get { return (Vector4)GetValue(DisplacementMapScaleMaskProperty); }
         set { SetValue(DisplacementMapScaleMaskProperty, value); }
     }
 
     /// <summary>
     /// </summary>
     public bool RenderAlbedoMap {
-        get => (bool) GetValue(RenderAlbedoMapProperty);
+        get => (bool)GetValue(RenderAlbedoMapProperty);
         set => SetValue(RenderAlbedoMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderNormalMap {
-        get => (bool) GetValue(RenderNormalMapProperty);
+        get => (bool)GetValue(RenderNormalMapProperty);
         set => SetValue(RenderNormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEmissiveMap {
-        get => (bool) GetValue(RenderEmissiveMapProperty);
+        get => (bool)GetValue(RenderEmissiveMapProperty);
         set => SetValue(RenderEmissiveMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderRoughnessMetallicMap {
-        get => (bool) GetValue(RenderRoughnessMetallicMapProperty);
+        get => (bool)GetValue(RenderRoughnessMetallicMapProperty);
         set => SetValue(RenderRoughnessMetallicMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderAmbientOcclusionMap {
-        get => (bool) GetValue(RenderAmbientOcclusionMapProperty);
+        get => (bool)GetValue(RenderAmbientOcclusionMapProperty);
         set => SetValue(RenderAmbientOcclusionMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderIrradianceMap {
-        get => (bool) GetValue(RenderIrradianceMapProperty);
+        get => (bool)GetValue(RenderIrradianceMapProperty);
         set => SetValue(RenderIrradianceMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => (bool) GetValue(RenderDisplacementMapProperty);
+        get => (bool)GetValue(RenderDisplacementMapProperty);
         set => SetValue(RenderDisplacementMapProperty, value);
     }
 
@@ -735,7 +735,7 @@ public class PBRMaterial : Material {
     ///     <c>true</c> if [render environment map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEnvironmentMap {
-        get => (bool) GetValue(RenderEnvironmentMapProperty);
+        get => (bool)GetValue(RenderEnvironmentMapProperty);
         set => SetValue(RenderEnvironmentMapProperty, value);
     }
 
@@ -746,7 +746,7 @@ public class PBRMaterial : Material {
     ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderShadowMap {
-        get => (bool) GetValue(RenderShadowMapProperty);
+        get => (bool)GetValue(RenderShadowMapProperty);
         set => SetValue(RenderShadowMapProperty, value);
     }
 
@@ -757,7 +757,7 @@ public class PBRMaterial : Material {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => (bool) GetValue(EnableAutoTangentProperty);
+        get => (bool)GetValue(EnableAutoTangentProperty);
         set => SetValue(EnableAutoTangentProperty, value);
     }
 
@@ -768,7 +768,7 @@ public class PBRMaterial : Material {
     ///     <c>true</c> if [enable tessellation]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableTessellation {
-        get => (bool) GetValue(EnableTessellationProperty);
+        get => (bool)GetValue(EnableTessellationProperty);
         set => SetValue(EnableTessellationProperty, value);
     }
 
@@ -779,7 +779,7 @@ public class PBRMaterial : Material {
     ///     The maximum tessellation factor.
     /// </value>
     public double MaxDistanceTessellationFactor {
-        get => (double) GetValue(MaxDistanceTessellationFactorProperty);
+        get => (double)GetValue(MaxDistanceTessellationFactorProperty);
         set => SetValue(MaxDistanceTessellationFactorProperty, value);
     }
 
@@ -790,7 +790,7 @@ public class PBRMaterial : Material {
     ///     The minimum tessellation factor.
     /// </value>
     public double MinDistanceTessellationFactor {
-        get => (double) GetValue(MinDistanceTessellationFactorProperty);
+        get => (double)GetValue(MinDistanceTessellationFactorProperty);
         set => SetValue(MinDistanceTessellationFactorProperty, value);
     }
 
@@ -801,7 +801,7 @@ public class PBRMaterial : Material {
     ///     The maximum tessellation distance.
     /// </value>
     public double MaxTessellationDistance {
-        get => (double) GetValue(MaxTessellationDistanceProperty);
+        get => (double)GetValue(MaxTessellationDistanceProperty);
         set => SetValue(MaxTessellationDistanceProperty, value);
     }
 
@@ -812,7 +812,7 @@ public class PBRMaterial : Material {
     ///     The minimum tessellation distance.
     /// </value>
     public double MinTessellationDistance {
-        get => (double) GetValue(MinTessellationDistanceProperty);
+        get => (double)GetValue(MinTessellationDistanceProperty);
         set => SetValue(MinTessellationDistanceProperty, value);
     }
 
@@ -823,7 +823,7 @@ public class PBRMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => (UVTransform) GetValue(UVTransformProperty);
+        get => (UVTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -834,7 +834,7 @@ public class PBRMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool) GetValue(EnableFlatShadingProperty);
+        get => (bool)GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -846,19 +846,19 @@ public class PBRMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double) GetValue(VertexColorBlendingFactorProperty);
+        get => (double)GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
     protected override MaterialCore OnCreateCore() {
         return new PBRMaterialCore {
             AlbedoColor = AlbedoColor,
-            MetallicFactor = (float) MetallicFactor,
-            RoughnessFactor = (float) RoughnessFactor,
-            AmbientOcclusionFactor = (float) AmbientOcclusionFactor,
-            ReflectanceFactor = (float) ReflectanceFactor,
-            ClearCoatStrength = (float) ClearCoatStrength,
-            ClearCoatRoughness = (float) ClearCoatRoughness,
+            MetallicFactor = (float)MetallicFactor,
+            RoughnessFactor = (float)RoughnessFactor,
+            AmbientOcclusionFactor = (float)AmbientOcclusionFactor,
+            ReflectanceFactor = (float)ReflectanceFactor,
+            ClearCoatStrength = (float)ClearCoatStrength,
+            ClearCoatRoughness = (float)ClearCoatRoughness,
 
             AlbedoMap = AlbedoMap,
             NormalMap = NormalMap,
@@ -885,12 +885,12 @@ public class PBRMaterial : Material {
             UVTransform = UVTransform,
 
             EnableTessellation = EnableTessellation,
-            MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
-            MaxTessellationDistance = (float) MaxTessellationDistance,
-            MinTessellationDistance = (float) MinTessellationDistance,
+            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+            MaxTessellationDistance = (float)MaxTessellationDistance,
+            MinTessellationDistance = (float)MinTessellationDistance,
             EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float) VertexColorBlendingFactor
+            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
         };
     }
 

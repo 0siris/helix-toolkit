@@ -161,7 +161,7 @@ public sealed class ZoomHandler : MouseGestureHandler {
         if (ChangeCameraDistance(ref delta, zoomAround))
             // Modify the camera width
             if (Camera is OrthographicCameraCore ocamera)
-                ocamera.Width *= (float) Math.Pow(2.5f, delta);
+                ocamera.Width *= (float)Math.Pow(2.5f, delta);
     }
 
     /// <summary>
@@ -201,8 +201,8 @@ public sealed class ZoomHandler : MouseGestureHandler {
         }
 
         var f = Math.Pow(2.5, delta);
-        var newRelativePosition = relativePosition * (float) f;
-        var newRelativeTarget = relativeTarget * (float) f;
+        var newRelativePosition = relativePosition * (float)f;
+        var newRelativeTarget = relativeTarget * (float)f;
 
         var newTarget = zoomAround - newRelativeTarget;
         var newPosition = zoomAround - newRelativePosition;
@@ -214,24 +214,24 @@ public sealed class ZoomHandler : MouseGestureHandler {
             (oldDistance < Controller.ZoomDistanceLimitFar || newDistance > oldDistance)) {
             var ratio = (newDistance - Controller.ZoomDistanceLimitFar) / newDistance;
             f *= 1 - ratio;
-            newRelativePosition = relativePosition * (float) f;
-            newRelativeTarget = relativeTarget * (float) f;
+            newRelativePosition = relativePosition * (float)f;
+            newRelativeTarget = relativeTarget * (float)f;
 
             newTarget = zoomAround - newRelativeTarget;
             newPosition = zoomAround - newRelativePosition;
-            delta = (float) (Math.Log(f) / Math.Log(2.5));
+            delta = (float)(Math.Log(f) / Math.Log(2.5));
         }
 
         if (newDistance < Controller.ZoomDistanceLimitNear &&
             (oldDistance > Controller.ZoomDistanceLimitNear || newDistance < oldDistance)) {
             var ratio = (Controller.ZoomDistanceLimitNear - newDistance) / newDistance;
             f *= 1 + ratio;
-            newRelativePosition = relativePosition * (float) f;
-            newRelativeTarget = relativeTarget * (float) f;
+            newRelativePosition = relativePosition * (float)f;
+            newRelativeTarget = relativeTarget * (float)f;
 
             newTarget = zoomAround - newRelativeTarget;
             newPosition = zoomAround - newRelativePosition;
-            delta = (float) (Math.Log(f) / Math.Log(2.5));
+            delta = (float)(Math.Log(f) / Math.Log(2.5));
         }
 
         var newLookDirection = newTarget - newPosition;

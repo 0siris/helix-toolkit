@@ -26,7 +26,7 @@ public partial class MaterialControl : UserControl {
 
 public class ColorConverter : IValueConverter {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-        var c = (Color4) value;
+        var c = (Color4)value;
         return c.ToColor();
     }
 
@@ -36,7 +36,7 @@ public class ColorConverter : IValueConverter {
         object parameter,
         System.Globalization.CultureInfo culture
     ) {
-        var c = (System.Windows.Media.Color) value;
+        var c = (System.Windows.Media.Color)value;
         return c.ToColor4();
     }
 }

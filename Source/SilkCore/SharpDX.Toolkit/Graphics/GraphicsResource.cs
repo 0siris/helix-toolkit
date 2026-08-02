@@ -50,7 +50,7 @@ public abstract class GraphicsResource : Component {
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
     public static implicit operator NativeD3DResource(GraphicsResource from) {
-        return from == null ? null : from.Resource;
+        return from?.Resource;
     }
 
     /// <summary>

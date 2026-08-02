@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -129,7 +129,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                                       DashStyle = StrokeDashStyle
                                                                   },
                                                                   StrokeDashArray == null
-                                                                      ? new float[0]
+                                                                      ? []
                                                                       : StrokeDashArray);
                     strokeStyleChanged = false;
                 }

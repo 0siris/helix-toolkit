@@ -1,5 +1,4 @@
-﻿using HelixToolkit.Wpf.SharpDX.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using HelixToolkit.Wpf.SharpDX.Utilities;
 
 namespace MemoryLeakTester;
 
@@ -24,9 +24,9 @@ namespace MemoryLeakTester;
 /// </summary>
 public partial class MainWindow : Window {
     private Window testWin;
-    private DispatcherTimer timer = null;
+    private DispatcherTimer? timer = null;
     private SystemStateParams systemparams = new SystemStateParams();
-    private IList<Tuple<string, Type>> ProjectWinPairs = new List<Tuple<string, Type>>();
+    private IList<Tuple<string, Type>> ProjectWinPairs = [];
 
     public MainWindow() {
         InitializeComponent();
@@ -49,8 +49,9 @@ public partial class MainWindow : Window {
 
     private void StartButton_Click(object sender, RoutedEventArgs e) {
         if (timer == null) {
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.5);
+            timer = new DispatcherTimer {
+                Interval = TimeSpan.FromSeconds(0.5)
+            };
             timer.Tick += Timer_Tick;
             systemparams.Count = 0;
             timer.Start();
@@ -92,9 +93,7 @@ public partial class MainWindow : Window {
             testWin = Activator.CreateInstance(pair.Item2) as Window;
         }
 
-        if (testWin != null) {
-            testWin.Show();
-        }
+        testWin?.Show();
     }
 
     internal sealed class SystemStateParams {

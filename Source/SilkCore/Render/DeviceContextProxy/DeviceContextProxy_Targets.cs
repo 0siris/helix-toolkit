@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 namespace HelixToolkit.SharpDX.Core {
     namespace Render {
         public partial class DeviceContextProxy {
-            private static readonly RenderTargetView[] ZeroRenderTargetArray = Array.Empty<RenderTargetView>();
+            private static readonly RenderTargetView[] ZeroRenderTargetArray = [];
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetRenderTargets(DX11RenderBufferProxyBase buffer) {

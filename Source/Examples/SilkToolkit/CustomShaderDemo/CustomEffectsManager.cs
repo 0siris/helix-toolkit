@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.Wpf.SharpDX;
 
 namespace CustomShaderDemo;
 

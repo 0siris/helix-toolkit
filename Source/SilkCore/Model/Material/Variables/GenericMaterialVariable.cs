@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -23,8 +23,8 @@ namespace HelixToolkit.SharpDX.Core {
             private readonly GenericMaterialCore materialCore;
             private readonly ShaderPass materialPass, shadowPass, wireframePass, depthPass;
 
-            private readonly Dictionary<string, int> resourceIdxDict = new();
-            private readonly Dictionary<string, int> samplerIdxDict = new();
+            private readonly Dictionary<string, int> resourceIdxDict = [];
+            private readonly Dictionary<string, int> samplerIdxDict = [];
             private readonly KeyValuePair<int, SamplerStateProxy>[] samplerResources;
 
 

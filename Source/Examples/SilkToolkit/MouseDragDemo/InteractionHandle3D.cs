@@ -11,24 +11,24 @@ namespace MouseDragDemo;
 
 using System.Linq;
 using System.Windows;
-using HelixToolkit.Wpf.SharpDX;
-using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using System.Windows.Input;
-using HelixToolkit.Wpf;
 using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     // 3 --- 2
     // |     |
     // 0 --- 1
-    private Vector3[] positions = new Vector3[4] {
+    private Vector3[] positions = [
         new Vector3(-1, -1, 0),
         new Vector3(+1, -1, 0),
         new Vector3(+1, +1, 0),
         new Vector3(-1, +1, 0),
-    };
+    ];
 
     private DraggableGeometryModel3D[] cornerHandles = new DraggableGeometryModel3D[4];
     private DraggableGeometryModel3D[] midpointHandles = new DraggableGeometryModel3D[4];
@@ -205,15 +205,15 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     private void UpdateTransforms(object sender) {
         var cornerTrafos = this.cornerHandles.Select(x => (x.Transform as MatrixTransform3D)).ToArray();
         var cornerMatrix = cornerTrafos.Select(x => (x).Value).ToArray();
-        this.positions = cornerMatrix.Select(x => TranslationVector(x.ToMatrix())).ToArray();
+        this.positions = [.. cornerMatrix.Select(x => TranslationVector(x.ToMatrix()))];
 
         BoundingBox bb;
         if (sender == cornerHandles[0] || sender == cornerHandles[2]) {
             Application.Current.MainWindow.Cursor = Cursors.SizeNESW;
-            bb = BoundingBoxExtensions.FromPoints(new[] {positions[0], positions[2]});
+            bb = BoundingBoxExtensions.FromPoints(new[] { positions[0], positions[2] });
         } else if (sender == cornerHandles[1] || sender == cornerHandles[3]) {
             Application.Current.MainWindow.Cursor = Cursors.SizeNWSE;
-            bb = BoundingBoxExtensions.FromPoints(new[] {positions[1], positions[3]});
+            bb = BoundingBoxExtensions.FromPoints(new[] { positions[1], positions[3] });
         } else {
             if (sender == midpointHandles[0] || sender == midpointHandles[2]) {
                 Application.Current.MainWindow.Cursor = Cursors.SizeNS;
@@ -221,7 +221,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
                 Application.Current.MainWindow.Cursor = Cursors.SizeWE;
             }
 
-            positions = this.midpointHandles.Select(x => TranslationVector(x.Transform.Value.ToMatrix())).ToArray();
+            positions = [.. this.midpointHandles.Select(x => TranslationVector(x.Transform.Value.ToMatrix()))];
             bb = BoundingBoxExtensions.FromPoints(positions);
         }
 
@@ -244,21 +244,21 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
             }
 
             var m = Matrix3DExtensions.Translate3D(0.5 * (positions[i] + positions[(i + 1) % 4]).ToVector3D());
-            ((MatrixTransform3D) this.midpointHandles[i].Transform).Matrix = m;
+            ((MatrixTransform3D)this.midpointHandles[i].Transform).Matrix = m;
         }
 
         // 3 --- 2
         // |     |
         // 0 --- 1
         var m0 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[0]);
-        ((MatrixTransform3D) this.edgeHandles[0].Transform).Matrix = (m0.ToMatrix3D());
+        ((MatrixTransform3D)this.edgeHandles[0].Transform).Matrix = (m0.ToMatrix3D());
         var m2 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[3]);
-        ((MatrixTransform3D) this.edgeHandles[2].Transform).Matrix = (m2.ToMatrix3D());
+        ((MatrixTransform3D)this.edgeHandles[2].Transform).Matrix = (m2.ToMatrix3D());
 
         var m1 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[1]);
-        ((MatrixTransform3D) this.edgeHandles[1].Transform).Matrix = (m1.ToMatrix3D());
+        ((MatrixTransform3D)this.edgeHandles[1].Transform).Matrix = (m1.ToMatrix3D());
         var m3 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[0]);
-        ((MatrixTransform3D) this.edgeHandles[3].Transform).Matrix = (m3.ToMatrix3D());
+        ((MatrixTransform3D)this.edgeHandles[3].Transform).Matrix = (m3.ToMatrix3D());
     }
 
 
@@ -279,22 +279,22 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
 
 
     public bool DragX {
-        get { return (bool) this.GetValue(DragXProperty); }
+        get { return (bool)this.GetValue(DragXProperty); }
         set { this.SetValue(DragXProperty, value); }
     }
 
     public bool DragY {
-        get { return (bool) this.GetValue(DragYProperty); }
+        get { return (bool)this.GetValue(DragYProperty); }
         set { this.SetValue(DragYProperty, value); }
     }
 
     public bool DragZ {
-        get { return (bool) this.GetValue(DragZProperty); }
+        get { return (bool)this.GetValue(DragZProperty); }
         set { this.SetValue(DragZProperty, value); }
     }
 
     public bool IsSelected {
-        get { return (bool) this.GetValue(IsSelectedProperty); }
+        get { return (bool)this.GetValue(IsSelectedProperty); }
         set { this.SetValue(IsSelectedProperty, value); }
     }
 
@@ -302,7 +302,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     ///
     /// </summary>
     public Material Material {
-        get { return (Material) this.GetValue(MaterialProperty); }
+        get { return (Material)this.GetValue(MaterialProperty); }
         set { this.SetValue(MaterialProperty, value); }
     }
 
@@ -320,11 +320,9 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     /// </summary>
     private static void MaterialChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         if (e.NewValue is PhongMaterial) {
-            foreach (var item in ((GroupModel3D) d).Children) {
+            foreach (var item in ((GroupModel3D)d).Children) {
                 var model = item as MaterialGeometryModel3D;
-                if (model != null) {
-                    model.Material = e.NewValue as PhongMaterial;
-                }
+                model?.Material = e.NewValue as PhongMaterial;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="GroupElement3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -43,20 +43,20 @@ namespace HelixToolkit.Wpf.SharpDX {
                             var left = GetLeft(element2D);
                             var desired = c.DesiredSize;
                             if (left != double.PositiveInfinity) {
-                                xPos = (float) left;
+                                xPos = (float)left;
                             } else {
                                 var right = GetRight(element2D);
                                 if (right != double.PositiveInfinity)
-                                    xPos = finalSize.Width - desired.X - (float) right;
+                                    xPos = finalSize.Width - desired.X - (float)right;
                             }
 
                             var top = GetTop(element2D);
                             if (top != double.PositiveInfinity) {
-                                yPos = (float) top;
+                                yPos = (float)top;
                             } else {
                                 var bottom = GetBottom(element2D);
                                 if (bottom != double.PositiveInfinity)
-                                    yPos = finalSize.Height - desired.Y - (float) bottom;
+                                    yPos = finalSize.Height - desired.Y - (float)bottom;
                             }
 
                             c.Arrange(new RectangleF(xPos, yPos, desired.X, desired.Y));
@@ -67,7 +67,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 }
             }
 
-        #region Attached Properties
+            #region Attached Properties
 
             /// <summary>
             ///     The left property
@@ -92,7 +92,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetLeft(Element2DCore element) {
-                return (double) element.GetValue(LeftProperty);
+                return (double)element.GetValue(LeftProperty);
             }
 
             /// <summary>
@@ -118,7 +118,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetTop(Element2DCore element) {
-                return (double) element.GetValue(TopProperty);
+                return (double)element.GetValue(TopProperty);
             }
 
             /// <summary>
@@ -144,7 +144,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetRight(Element2DCore element) {
-                return (double) element.GetValue(RightProperty);
+                return (double)element.GetValue(RightProperty);
             }
 
             /// <summary>
@@ -170,10 +170,10 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <param name="element">The element.</param>
             /// <returns></returns>
             public static double GetBottom(Element2DCore element) {
-                return (double) element.GetValue(BottomProperty);
+                return (double)element.GetValue(BottomProperty);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

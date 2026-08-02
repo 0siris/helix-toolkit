@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
@@ -18,7 +18,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                                                  (d, e) => {
                                                                      ((d as Element2D).SceneNode as StackPanelNode2D)
                                                                          .Orientation =
-                                                                         ((Orientation) e.NewValue).ToD2DOrientation();
+                                                                         ((Orientation)e.NewValue).ToD2DOrientation();
                                                                  }));
 
             /// <summary>
@@ -28,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             ///     The orientation.
             /// </value>
             public Orientation Orientation {
-                get => (Orientation) GetValue(OrientationProperty);
+                get => (Orientation)GetValue(OrientationProperty);
                 set => SetValue(OrientationProperty, value);
             }
 

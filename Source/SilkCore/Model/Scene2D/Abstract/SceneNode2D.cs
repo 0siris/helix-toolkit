@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
-            private static readonly ILogger logger = LogManager.Create<SceneNode2D>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             private readonly WeakReference<SceneNode2D> parent = new(null);
 
@@ -111,9 +111,9 @@ namespace HelixToolkit.SharpDX.Core {
                 }
                 private set {
                     if (renderCore != value) {
-                        if (renderCore != null) renderCore.InvalidateRender -= RenderCore_OnInvalidateRenderer;
+                        renderCore?.InvalidateRender -= RenderCore_OnInvalidateRenderer;
                         renderCore = value;
-                        if (renderCore != null) renderCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                        renderCore?.InvalidateRender += RenderCore_OnInvalidateRenderer;
                     }
                 }
             }
@@ -397,7 +397,7 @@ namespace HelixToolkit.SharpDX.Core {
                 public RenderContext2D Context { get; private set; }
             }
 
-        #region Handling Transforms
+            #region Handling Transforms
 
             /// <summary>
             ///     Transforms the changed.
@@ -410,9 +410,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public event EventHandler<Transform2DArgs> OnTransformChanged;
 
-        #endregion Handling Transforms
+            #endregion Handling Transforms
 
-        #region Events;
+            #region Events;
 
             /// <summary>
             ///     Occurs when [on attached].
@@ -429,9 +429,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public event EventHandler<UpdateEventArgs> UpdateRequested;
 
-        #endregion Events;
+            #endregion Events;
 
-        #region Rendering
+            #region Rendering
 
             /// <summary>
             ///     <para>Determine if this can be rendered.</para>
@@ -466,16 +466,16 @@ namespace HelixToolkit.SharpDX.Core {
                 IsBitmapCacheValid = false;
 #else
                 EnsureBitmapCache(context,
-                                  new Size2((int) Math.Ceiling(LayoutClipBound.Width),
-                                            (int) Math.Ceiling(LayoutClipBound.Height)),
+                                  new Size2((int)Math.Ceiling(LayoutClipBound.Width),
+                                            (int)Math.Ceiling(LayoutClipBound.Height)),
                                   context.DeviceContext.MaximumBitmapSize);
 #endif
                 if (EnableBitmapCache && IsBitmapCacheValid) {
                     if (IsVisualDirty) {
 #if DEBUGDRAWING
-                        if (logger.IsEnabled(LogLevel.Debug))
+                        if (Logger.IsEnabled(LogLevel.Debug))
                         {
-                            logger.LogDebug("Redraw bitmap cache");
+                            Logger.Debug("Redraw bitmap cache");
                         }
 #endif
                         context.PushRenderTarget(bitmapCache, true);
@@ -525,7 +525,7 @@ namespace HelixToolkit.SharpDX.Core {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Render(context);
             }
 
-        #endregion Rendering
+            #endregion Rendering
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -52,7 +52,7 @@ namespace HelixToolkit.SharpDX.Core {
         public sealed class ConstantBufferPool :
             ReferenceCountedDictionaryPool<string, ConstantBufferProxy, ConstantBufferDescription>,
             IConstantBufferPool {
-            private static readonly ILogger logger = LogManager.Create<ConstantBufferPool>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="ConstantBufferPool" /> class.
@@ -95,8 +95,8 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="description">The description.</param>
             /// <returns></returns>
             protected override ConstantBufferProxy OnCreate(ref string key, ref ConstantBufferDescription description) {
-                if (logger.IsEnabled(LogLevel.Debug))
-                    logger.LogDebug("Creating constant buffer. Key: {0}; Size: {1}", key, description.StructSize);
+                if (Logger.IsEnabled(LogLevel.Debug))
+                    Logger.Debug("Creating constant buffer. Key: {Value0}; Size: {Value1}", key, description.StructSize);
                 var buffer = description.CreateBuffer();
                 buffer.CreateBuffer(Device);
                 ErrorCheck(buffer, ref description);

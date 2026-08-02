@@ -188,13 +188,13 @@ internal static class SilkMath {
     public static Quaternion QuaternionRotationAxis(Vector3 axis, float angle) {
         axis = Normalize(axis);
         var halfAngle = angle * 0.5f;
-        var scale = (float) Math.Sin(halfAngle);
-        return new Quaternion(axis.X * scale, axis.Y * scale, axis.Z * scale, (float) Math.Cos(halfAngle));
+        var scale = (float)Math.Sin(halfAngle);
+        return new Quaternion(axis.X * scale, axis.Y * scale, axis.Z * scale, (float)Math.Cos(halfAngle));
     }
 
     public static float QuaternionAngle(Quaternion value) {
         var w = Math.Max(-1f, Math.Min(1f, value.W));
-        return 2f * (float) Math.Acos(w);
+        return 2f * (float)Math.Acos(w);
     }
 
     public static Matrix RotationAxis(Vector3 axis, float angle) {
@@ -230,7 +230,7 @@ internal static class SilkMath {
     }
 
     public static Matrix PerspectiveFovLH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
-        var yScale = 1f / (float) Math.Tan(fieldOfView * 0.5f);
+        var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
                           0,
@@ -251,7 +251,7 @@ internal static class SilkMath {
     }
 
     public static Matrix PerspectiveFovRH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
-        var yScale = 1f / (float) Math.Tan(fieldOfView * 0.5f);
+        var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
                           0,
@@ -393,7 +393,7 @@ internal static class SilkMath {
 internal static class SilkNetMathExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float NextFloat(this Random random, float minimum, float maximum) {
-        return minimum + (float) random.NextDouble() * (maximum - minimum);
+        return minimum + (float)random.NextDouble() * (maximum - minimum);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

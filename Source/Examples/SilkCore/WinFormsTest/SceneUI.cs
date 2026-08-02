@@ -1,16 +1,16 @@
-﻿using HelixToolkit.SharpDX.Core.Animations;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using ImGuiNET;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
-using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core;
-using System;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using ImGuiNET;
 
 namespace WinFormsTest;
 
@@ -25,8 +25,8 @@ public static class SceneUI {
     public static HelixToolkitScene scene;
     public static IList<IAnimationUpdater> animationUpdaters;
 
-    private static bool[] animationSelection = Array.Empty<bool>();
-    private static string[] animationNames = Array.Empty<string>();
+    private static bool[] animationSelection = [];
+    private static string[] animationNames = [];
     private static int currentSelectedAnimation = -1;
     private const int frameDataLength = 128;
     private static float[] fps = new float[frameDataLength];
@@ -118,9 +118,9 @@ public static class SceneUI {
                         0,
                         5,
                         new System.Numerics.Vector2(200, 50));
-        fps[currFPSIndex] = 1000f / (float) options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        latency[currFPSIndex] = (float) options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        frustumTest[currFPSIndex] = (float) options.Viewport.RenderHost.RenderStatistics.FrustumTestTime * 1000;
+        fps[currFPSIndex] = 1000f / (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
+        latency[currFPSIndex] = (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
+        frustumTest[currFPSIndex] = (float)options.Viewport.RenderHost.RenderStatistics.FrustumTestTime * 1000;
         ImGui.Text("Frustum Test Ms");
         ImGui.PlotLines("",
                         ref frustumTest[0],
@@ -147,7 +147,7 @@ public static class SceneUI {
 
         if (loading) {
             ImGui.Text($"Loading: {modelName}");
-            var progress = ((float) (Stopwatch.GetTimestamp() - currentTime) / Stopwatch.Frequency) * 100 % 100;
+            var progress = ((float)(Stopwatch.GetTimestamp() - currentTime) / Stopwatch.Frequency) * 100 % 100;
             ImGui.ProgressBar(progress / 100, new System.Numerics.Vector2(width, 20), "");
         }
 
@@ -159,8 +159,9 @@ public static class SceneUI {
     }
 
     private static void LoadModel(GroupNode node, bool renderEnvironmentMap) {
-        OpenFileDialog dialog = new OpenFileDialog();
-        dialog.Filter = HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString;
+        OpenFileDialog dialog = new OpenFileDialog {
+            Filter = HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString
+        };
         if (dialog.ShowDialog() == DialogResult.OK) {
             var path = dialog.FileName;
             exception = "";
@@ -171,31 +172,31 @@ public static class SceneUI {
                 var importer = new Importer();
                 return importer.Load(path);
             }).ContinueWith((x) => {
-                                loading = false;
-                                if (x.IsCompleted && x.Result != null) {
-                                    node.Clear();
-                                    foreach (var model in x.Result.Root.Traverse()) {
-                                        if (model is MeshNode mesh) {
-                                            if (mesh.Material is PBRMaterialCore pbr) {
-                                                pbr.RenderEnvironmentMap = renderEnvironmentMap;
-                                            } else if (mesh.Material is PhongMaterialCore phong) {
-                                                phong.RenderEnvironmentMap = renderEnvironmentMap;
-                                            }
-                                        }
-                                    }
+                loading = false;
+                if (x.IsCompleted && x.Result != null) {
+                    node.Clear();
+                    foreach (var model in x.Result.Root.Traverse()) {
+                        if (model is MeshNode mesh) {
+                            if (mesh.Material is PBRMaterialCore pbr) {
+                                pbr.RenderEnvironmentMap = renderEnvironmentMap;
+                            } else if (mesh.Material is PhongMaterialCore phong) {
+                                phong.RenderEnvironmentMap = renderEnvironmentMap;
+                            }
+                        }
+                    }
 
-                                    node.AddChildNode(x.Result.Root);
-                                    scene = x.Result;
-                                    if (scene.Animations != null && scene.Animations.Count > 0) {
-                                        animationUpdaters = scene.Animations.CreateAnimationUpdaters().Values.ToArray();
-                                        animationSelection = new bool[animationUpdaters.Count];
-                                        animationNames = animationUpdaters.Select((ani) => ani.Name).ToArray();
-                                        currentSelectedAnimation = -1;
-                                    }
-                                } else if (x.Exception != null) {
-                                    exception = x.Exception.Message;
-                                }
-                            },
+                    node.AddChildNode(x.Result.Root);
+                    scene = x.Result;
+                    if (scene.Animations != null && scene.Animations.Count > 0) {
+                        animationUpdaters = [.. scene.Animations.CreateAnimationUpdaters().Values];
+                        animationSelection = new bool[animationUpdaters.Count];
+                        animationNames = [.. animationUpdaters.Select((ani) => ani.Name)];
+                        currentSelectedAnimation = -1;
+                    }
+                } else if (x.Exception != null) {
+                    exception = x.Exception.Message;
+                }
+            },
                             TaskScheduler.FromCurrentSynchronizationContext());
         }
     }

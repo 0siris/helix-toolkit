@@ -1,12 +1,12 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace DynamicCodeSurfaceDemo;
@@ -44,9 +44,9 @@ public class MainViewModel : BaseViewModel {
 
     public string[] Models { private set; get; }
 
-    private List<Uri> sourceCodeUri { get; } = new List<Uri>();
-    private Dictionary<string, string> fileDict = new Dictionary<string, string>();
-    private Dictionary<string, Material> materialDict = new Dictionary<string, Material>();
+    private List<Uri> sourceCodeUri { get; } = [];
+    private Dictionary<string, string> fileDict = [];
+    private Dictionary<string, Material> materialDict = [];
 
     private string selectedModel;
 
@@ -100,7 +100,7 @@ public class MainViewModel : BaseViewModel {
             fileDict.Add(Path.GetFileNameWithoutExtension(file), Path.GetFullPath(file));
         }
 
-        Models = fileDict.Keys.ToArray();
+        Models = [.. fileDict.Keys];
 
         materialDict.Add("Normal", new NormalMaterial());
         materialDict.Add("Position", new PositionColorMaterial());
@@ -111,23 +111,21 @@ public class MainViewModel : BaseViewModel {
         materialDict.Add("PolishedBronze", PhongMaterials.PolishedBronze);
         materialDict.Add("ColorStripe",
                          new ColorStripeMaterial() {
-                             ColorStripeX = GetGradients(new Color4(1, 0, 0, 1),
+                             ColorStripeX = [.. GetGradients(new Color4(1, 0, 0, 1),
                                                          new Color4(0, 1, 0, 1),
                                                          new Color4(0, 0, 1, 1),
-                                                         48).ToArray()
+                                                         48)]
                          });
         materialDict.Add("Diffuse", DiffuseMaterials.Orange);
-        Materials = materialDict.Keys.ToArray();
+        Materials = [.. materialDict.Keys];
         SelectedMaterial = "Normal";
     }
 
-    void LoadSourceCode() {
+    private void LoadSourceCode() {
         if (fileDict.TryGetValue(selectedModel, out string filePath)) {
-            using (var reader = File.OpenRead(filePath)) {
-                using (var strReader = new StreamReader(reader)) {
-                    SourceCode = strReader.ReadToEnd();
-                }
-            }
+            using var reader = File.OpenRead(filePath);
+            using var strReader = new StreamReader(reader);
+            SourceCode = strReader.ReadToEnd();
         }
     }
 

@@ -1,16 +1,16 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Media = System.Windows.Media;
-using Media3D = System.Windows.Media.Media3D;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using Media = System.Windows.Media;
+using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace ParticleSystemDemo;
@@ -81,9 +81,9 @@ public class MainViewModel : BaseViewModel {
         get { return consumerRadius; }
     }
 
-    public Material EmitterMaterial { get; } = new PhongMaterial() {DiffuseColor = new Color4(1, 0, 1, 1)};
+    public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
 
-    public Material ConsumerMaterial { get; } = new PhongMaterial() {DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1)};
+    public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1) };
 
     private Stream particleTexture;
 
@@ -122,7 +122,7 @@ public class MainViewModel : BaseViewModel {
     public int SizeSlider {
         set {
             if (SetValue(ref sizeSlider, value)) {
-                ParticleSize = new Size(((double) value) / 100, ((double) value) / 100);
+                ParticleSize = new Size(((double)value) / 100, ((double)value) / 100);
             }
         }
         get { return sizeSlider; }
@@ -150,7 +150,7 @@ public class MainViewModel : BaseViewModel {
         get { return accelerationZ; }
     }
 
-    const int DefaultBoundScale = 10;
+    private const int DefaultBoundScale = 10;
     public LineGeometry3D BoundingLines { private set; get; }
 
     public Media3D.ScaleTransform3D BoundingLineTransform { private set; get; } =
@@ -192,7 +192,7 @@ public class MainViewModel : BaseViewModel {
     public int RedValue {
         set {
             if (SetValue(ref redValue, value)) {
-                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
+                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
         get { return redValue; }
@@ -203,7 +203,7 @@ public class MainViewModel : BaseViewModel {
     public int GreenValue {
         set {
             if (SetValue(ref greenValue, value)) {
-                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
+                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
         get { return greenValue; }
@@ -214,7 +214,7 @@ public class MainViewModel : BaseViewModel {
     public int BlueValue {
         set {
             if (SetValue(ref blueValue, value)) {
-                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
+                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
         get { return blueValue; }
@@ -301,7 +301,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref redFactorValue, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
+                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
         get { return redFactorValue; }
@@ -313,7 +313,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref greenFactorValue, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
+                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
         get { return greenFactorValue; }
@@ -325,7 +325,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref blueFactorValue, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
+                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
         get { return blueFactorValue; }
@@ -340,13 +340,11 @@ public class MainViewModel : BaseViewModel {
 
     public IList<Matrix> Instances { private set; get; }
 
-    public readonly Tuple<int, int>[] TextureColumnsRows = new Tuple<int, int>[]
-        {new Tuple<int, int>(1, 1), new Tuple<int, int>(4, 4), new Tuple<int, int>(4, 4), new Tuple<int, int>(6, 5)};
+    public readonly Tuple<int, int>[] TextureColumnsRows = [new Tuple<int, int>(1, 1), new Tuple<int, int>(4, 4), new Tuple<int, int>(4, 4), new Tuple<int, int>(6, 5)];
 
-    public readonly string[] Textures = new string[]
-        {@"Snowflake.png", @"FXT_Explosion_Fireball_Atlas_d.png", @"FXT_Sparks_01_Atlas_d.png", @"Smoke30Frames_0.png"};
+    public readonly string[] Textures = [@"Snowflake.png", @"FXT_Explosion_Fireball_Atlas_d.png", @"FXT_Sparks_01_Atlas_d.png", @"Smoke30Frames_0.png"];
 
-    public readonly int[] DefaultParticleSizes = new int[] {20, 90, 40, 90};
+    public readonly int[] DefaultParticleSizes = [20, 90, 40, 90];
 
     public Media.Color Light1Color { get; set; } = Media.Colors.White;
 
@@ -398,9 +396,9 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void UpdateAcceleration() {
-        Acceleration = new Media3D.Vector3D((double) AccelerationX / 100,
-                                            (double) AccelerationY / 100,
-                                            (double) AccelerationZ / 100);
+        Acceleration = new Media3D.Vector3D((double)AccelerationX / 100,
+                                            (double)AccelerationY / 100,
+                                            (double)AccelerationZ / 100);
     }
 
     private static Matrix RotationAxis(Vector3 axis, float angle) {

@@ -142,7 +142,7 @@ internal class RotateHandler : MouseGestureHandler {
                                            ref p0,
                                            ref p1,
                                            ref rotateAround,
-                                           (float) RotationSensitivity,
+                                           (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
@@ -156,7 +156,7 @@ internal class RotateHandler : MouseGestureHandler {
                 CameraMath.RotateTurntable(CameraMode,
                                            ref p,
                                            ref rotateAround,
-                                           (float) RotationSensitivity,
+                                           (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
@@ -171,7 +171,7 @@ internal class RotateHandler : MouseGestureHandler {
                                           ref p0,
                                           ref p1,
                                           ref rotateAround,
-                                          (float) RotationSensitivity,
+                                          (float)RotationSensitivity,
                                           Controller.Width,
                                           Controller.Height,
                                           Camera,
@@ -238,8 +238,8 @@ internal class RotateHandler : MouseGestureHandler {
                 break;
             case CameraRotationMode.Turnball:
                 CameraMath.InitTurnballRotationAxes(e.ToVector2(),
-                                                    (int) Viewport.ActualWidth,
-                                                    (int) Viewport.ActualHeight,
+                                                    (int)Viewport.ActualWidth,
+                                                    (int)Viewport.ActualHeight,
                                                     Camera,
                                                     out rotationAxisX,
                                                     out rotationAxisY);
@@ -279,9 +279,9 @@ internal class RotateHandler : MouseGestureHandler {
     /// </param>
     protected override void OnInertiaStarting(double elapsedTime) {
         var delta = LastPoint - MouseDownPoint;
-        var deltaV = new Vector2((float) delta.X, (float) delta.Y);
+        var deltaV = new Vector2((float)delta.X, (float)delta.Y);
         // Debug.WriteLine("SpinInertiaStarting: " + elapsedTime + "ms " + delta.Length + "px");
-        Controller.StartSpin(4 * deltaV * (float) (Controller.SpinReleaseTime / elapsedTime),
+        Controller.StartSpin(4 * deltaV * (float)(Controller.SpinReleaseTime / elapsedTime),
                              MouseDownPoint,
                              rotationPoint3D);
     }

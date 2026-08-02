@@ -40,9 +40,9 @@ namespace HelixToolkit.SharpDX.Core {
                     SampleDescription = new SampleDescription(1, 0),
                     BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
                     Usage = ResourceUsage.Default,
-                    CpuAccessFlags = CpuAccessFlags.None
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    Format = Format.FormatR32G32Float
                 };
-                tex2DDesc.Format = Format.FormatR32G32Float;
                 minMaxZTarget0 = new ShaderResourceViewProxy(Device, tex2DDesc);
                 minMaxZTarget0.CreateRenderTargetView();
                 minMaxZTarget0.CreateTextureView();
@@ -111,7 +111,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-                if (CreateRenderTargets((int) context.ActualWidth, (int) context.ActualHeight)) {
+                if (CreateRenderTargets((int)context.ActualWidth, (int)context.ActualHeight)) {
                     RaiseInvalidateRender();
                     return;
                 }

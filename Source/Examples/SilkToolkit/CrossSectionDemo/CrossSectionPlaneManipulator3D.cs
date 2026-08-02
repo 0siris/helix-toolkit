@@ -1,14 +1,14 @@
-using HelixToolkit.Wpf.SharpDX;
-using System.Windows;
-using Point = System.Windows.Point;
-using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using System;
-using System.Windows.Input;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows;
+using System.Windows.Input;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
+using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
+using Point = System.Windows.Point;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
@@ -16,7 +16,7 @@ namespace CrossSectionDemo;
 
 public class CrossSectionPlaneManipulator3D : GroupModel3D {
     public Plane CutPlane {
-        get { return (Plane) GetValue(CutPlaneProperty); }
+        get { return (Plane)GetValue(CutPlaneProperty); }
         set { SetValue(CutPlaneProperty, value); }
     }
 
@@ -29,7 +29,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                                                          (d, e) => {
                                                              var model = d as CrossSectionPlaneManipulator3D;
                                                              if (!model.internalUpdate) {
-                                                                 var plane = (Plane) e.NewValue;
+                                                                 var plane = (Plane)e.NewValue;
                                                                  model.currentTranslation =
                                                                      Translation(plane.Normal * plane.D);
                                                                  var v1 = plane.Normal.FindAnyPerpendicular();
@@ -62,7 +62,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
     /// is determined around the specified axis.
     /// </summary>
     public Vector3? ConstrainAxis {
-        get { return (Vector3?) GetValue(ConstrainAxisProperty); }
+        get { return (Vector3?)GetValue(ConstrainAxisProperty); }
         set { SetValue(ConstrainAxisProperty, value); }
     }
 
@@ -75,7 +75,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public double SizeScale {
-        get { return (double) GetValue(SizeScaleProperty); }
+        get { return (double)GetValue(SizeScaleProperty); }
         set { SetValue(SizeScaleProperty, value); }
     }
 
@@ -87,14 +87,14 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                                                          (d, e) => {
                                                              var model = d as CrossSectionPlaneManipulator3D;
                                                              model.UpdateScaling(
-                                                                 (float) model.CornerScale,
-                                                                 (float) model.EdgeThicknessScale,
-                                                                 (float) (double) e.NewValue);
+                                                                 (float)model.CornerScale,
+                                                                 (float)model.EdgeThicknessScale,
+                                                                 (float)(double)e.NewValue);
                                                          }));
 
 
     public double CornerScale {
-        get { return (double) GetValue(CornerScaleProperty); }
+        get { return (double)GetValue(CornerScaleProperty); }
         set { SetValue(CornerScaleProperty, value); }
     }
 
@@ -106,13 +106,13 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                                                          (d, e) => {
                                                              var model = d as CrossSectionPlaneManipulator3D;
                                                              model.UpdateScaling(
-                                                                 (float) (double) e.NewValue,
-                                                                 (float) model.EdgeThicknessScale,
-                                                                 (float) model.SizeScale);
+                                                                 (float)(double)e.NewValue,
+                                                                 (float)model.EdgeThicknessScale,
+                                                                 (float)model.SizeScale);
                                                          }));
 
     public double EdgeThicknessScale {
-        get { return (double) GetValue(EdgeThicknessScaleProperty); }
+        get { return (double)GetValue(EdgeThicknessScaleProperty); }
         set { SetValue(EdgeThicknessScaleProperty, value); }
     }
 
@@ -124,14 +124,14 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                                                          (d, e) => {
                                                              var model = d as CrossSectionPlaneManipulator3D;
                                                              model.UpdateScaling(
-                                                                 (float) model.CornerScale,
-                                                                 (float) (double) e.NewValue,
-                                                                 (float) model.SizeScale);
+                                                                 (float)model.CornerScale,
+                                                                 (float)(double)e.NewValue,
+                                                                 (float)model.SizeScale);
                                                          }));
 
 
     public Material CornerMaterial {
-        get { return (Material) GetValue(CornerMaterialProperty); }
+        get { return (Material)GetValue(CornerMaterialProperty); }
         set { SetValue(CornerMaterialProperty, value); }
     }
 
@@ -147,7 +147,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public Material EdgeMaterial {
-        get { return (Material) GetValue(EdgeMaterialProperty); }
+        get { return (Material)GetValue(EdgeMaterialProperty); }
         set { SetValue(EdgeMaterialProperty, value); }
     }
 
@@ -167,12 +167,12 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
     // 3 --- 2
     // |     |
     // 0 --- 1
-    private static readonly Vector3[] positions = new Vector3[4] {
+    private static readonly Vector3[] positions = [
         new Vector3(-1, -1, 0),
         new Vector3(+1, -1, 0),
         new Vector3(+1, +1, 0),
         new Vector3(-1, +1, 0),
-    };
+    ];
 
     private readonly static Geometry3D NodeGeometry;
     private readonly static Geometry3D EdgeHGeometry;
@@ -232,7 +232,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         CornerMaterial = DiffuseMaterials.Orange;
         EdgeMaterial = DiffuseMaterials.Blue;
 
-        UpdateScaling((float) CornerScale, (float) EdgeThicknessScale, (float) SizeScale);
+        UpdateScaling((float)CornerScale, (float)EdgeThicknessScale, (float)SizeScale);
         this.SceneNode.VisibleChanged += SceneNode_OnVisibleChanged;
     }
 
@@ -353,7 +353,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         double z2 = 1 - (x * x) - (y * y);
         double z = z2 > 0 ? Math.Sqrt(z2) : 0;
 
-        return new Vector3((float) x, (float) y, (float) z);
+        return new Vector3((float)x, (float)y, (float)z);
     }
 
     private void RotateTrackball(Point p1, Point p2, Vector3 rotateAround) {
@@ -379,7 +379,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
             var angle = (r2.Length - r1.Length) / diag * 4;
             // Create the transform
             currentRotation *= RotationAxis(ConstrainAxis.Value.Normalized(),
-                                            (float) (angle * this.RotationSensitivity * 5));
+                                            (float)(angle * this.RotationSensitivity * 5));
             UpdateTransform();
         } else {
             v1 = ProjectToTrackball(p1, viewport.ActualWidth, viewport.ActualHeight);
@@ -410,7 +410,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
             var angle = u1.AngleBetween(u2);
             // Create the transform
-            currentRotation *= RotationAxis(axis.Normalized(), (float) (angle * this.RotationSensitivity * 5));
+            currentRotation *= RotationAxis(axis.Normalized(), (float)(angle * this.RotationSensitivity * 5));
             UpdateTransform();
         }
     }
@@ -536,7 +536,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
             //Set hit distance to 0 so event manipulator is inside the model, hit test still works
             if (base.OnHitTest(context, totalModelMatrix, ref hits)) {
                 if (hits.Count > 0) {
-                    HitTestResult res = new HitTestResult() {Distance = int.MaxValue};
+                    HitTestResult res = new HitTestResult() { Distance = int.MaxValue };
                     foreach (var hit in hits) {
                         if (hit.ModelHit == cornerHandle || hit.ModelHit == edgeHandle) {
                             if (res.Distance > hit.Distance) {

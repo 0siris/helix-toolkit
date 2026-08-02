@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -12,9 +12,9 @@ namespace HelixToolkit.SharpDX.Core {
             private static readonly float arrowSize = 5.5f;
             private static readonly float arrowWidth = 0.6f;
             private static readonly float arrowHead = 1.7f;
-            private readonly MeshNode arrowMeshModel = new() {EnableViewFrustumCheck = false};
+            private readonly MeshNode arrowMeshModel = new() { EnableViewFrustumCheck = false };
 
-            private readonly BillboardNode axisBillboard = new() {Material = new BillboardMaterialCore()};
+            private readonly BillboardNode axisBillboard = new() { Material = new BillboardMaterialCore() };
             private Color4 axisXColor = Color.Red;
 
             private Color4 axisYColor = Color.Green;
@@ -207,18 +207,15 @@ namespace HelixToolkit.SharpDX.Core {
                 var labelText = axisBillboard.Geometry as BillboardText3D;
                 switch (which) {
                     case 0:
-                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(arrowSize + 1.5f, 0, 0))
-                            {Foreground = labelColor, Scale = 0.5f};
+                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(arrowSize + 1.5f, 0, 0)) { Foreground = labelColor, Scale = 0.5f };
                         break;
 
                     case 1:
-                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, arrowSize + 1.5f, 0))
-                            {Foreground = labelColor, Scale = 0.5f};
+                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, arrowSize + 1.5f, 0)) { Foreground = labelColor, Scale = 0.5f };
                         break;
 
                     case 2:
-                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, 0, arrowSize + 1.5f))
-                            {Foreground = labelColor, Scale = 0.5f};
+                        labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, 0, arrowSize + 1.5f)) { Foreground = labelColor, Scale = 0.5f };
                         break;
                 }
 

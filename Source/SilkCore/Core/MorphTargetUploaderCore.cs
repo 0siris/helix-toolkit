@@ -13,9 +13,9 @@ namespace HelixToolkit.SharpDX.Core {
         internal class MorphTargetUploaderCore : RenderCore {
             private readonly ConstantBufferComponent cbMorphTarget;
 
-            private int[] morphTargetOffsets = Array.Empty<int>();
-            private Vector3[] morphTargetsDeltas = Array.Empty<Vector3>();
-            private float[] morphTargetWeights = Array.Empty<float>();
+            private int[] morphTargetOffsets = [];
+            private Vector3[] morphTargetsDeltas = [];
+            private float[] morphTargetWeights = [];
             private int mtCount;
             private ImmutableBufferProxy mtDeltasB;
 
@@ -41,7 +41,7 @@ namespace HelixToolkit.SharpDX.Core {
             public float[] MorphTargetWeights {
                 get => morphTargetWeights;
                 set {
-                    if (SetAffectsRender(ref morphTargetWeights, value ?? Array.Empty<float>())) {
+                    if (SetAffectsRender(ref morphTargetWeights, value ?? [])) {
                         weightUpdated = true;
                         WeightsChanged?.Invoke(this, EventArgs.Empty);
                     }
@@ -168,7 +168,7 @@ namespace HelixToolkit.SharpDX.Core {
                         current++;
                     }
 
-                morphTargetsDeltas = mtdList.ToArray();
+                morphTargetsDeltas = [.. mtdList];
 
                 //Set cbuffer data {int count, int pitch}
                 setCBuffer = true;

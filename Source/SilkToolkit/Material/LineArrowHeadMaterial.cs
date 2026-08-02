@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -16,11 +16,11 @@ public class LineArrowHeadMaterial : LineMaterial {
                                     new PropertyMetadata(0.1,
                                                          (d, e) => {
                                                              ((d as LineMaterial).Core as LineArrowHeadMaterialCore)
-                                                                 .ArrowSize = (float) (double) e.NewValue;
+                                                                 .ArrowSize = (float)(double)e.NewValue;
                                                          }));
 
     public double ArrowSize {
-        get => (double) GetValue(ArrowSizeProperty);
+        get => (double)GetValue(ArrowSizeProperty);
         set => SetValue(ArrowSizeProperty, value);
     }
 
@@ -29,15 +29,15 @@ public class LineArrowHeadMaterial : LineMaterial {
         return new LineArrowHeadMaterialCore {
             Name = Name,
             LineColor = Color.ToColor4(),
-            Smoothness = (float) Smoothness,
-            Thickness = (float) Thickness,
+            Smoothness = (float)Smoothness,
+            Thickness = (float)Thickness,
             EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float) FadingNearDistance,
-            FadingFarDistance = (float) FadingFarDistance,
+            FadingNearDistance = (float)FadingNearDistance,
+            FadingFarDistance = (float)FadingFarDistance,
             Texture = Texture,
-            TextureScale = (float) TextureScale,
+            TextureScale = (float)TextureScale,
             SamplerDescription = SamplerDescription,
-            ArrowSize = (float) ArrowSize,
+            ArrowSize = (float)ArrowSize,
             FixedSize = FixedSize
         };
     }
@@ -48,15 +48,15 @@ public class LineArrowHeadTailMaterial : LineArrowHeadMaterial {
         return new LineArrowHeadTailMaterialCore {
             Name = Name,
             LineColor = Color.ToColor4(),
-            Smoothness = (float) Smoothness,
-            Thickness = (float) Thickness,
+            Smoothness = (float)Smoothness,
+            Thickness = (float)Thickness,
             EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float) FadingNearDistance,
-            FadingFarDistance = (float) FadingFarDistance,
+            FadingNearDistance = (float)FadingNearDistance,
+            FadingFarDistance = (float)FadingFarDistance,
             Texture = Texture,
-            TextureScale = (float) TextureScale,
+            TextureScale = (float)TextureScale,
             SamplerDescription = SamplerDescription,
-            ArrowSize = (float) ArrowSize,
+            ArrowSize = (float)ArrowSize,
             FixedSize = FixedSize
         };
     }

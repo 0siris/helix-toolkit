@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -84,7 +84,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="idx">The index.</param>
             protected virtual void OnRender(Light3DSceneShared lightScene, int idx) {
                 lightScene.LightModels.Lights[idx].LightColor = Color;
-                lightScene.LightModels.Lights[idx].LightType = (int) LightType;
+                lightScene.LightModels.Lights[idx].LightType = (int)LightType;
             }
         }
 

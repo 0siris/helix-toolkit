@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -76,7 +76,7 @@ namespace HelixToolkit.SharpDX.Core {
             public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
                 var buffer = context.RenderHost.RenderBuffer;
 
-            #region Do Bloom Pass
+                #region Do Bloom Pass
 
                 modelCB.Upload(deviceContext, ref modelStruct);
                 //Extract bloom samples
@@ -97,9 +97,9 @@ namespace HelixToolkit.SharpDX.Core {
                                  PostEffectBlurCore.BlurDepth.Two,
                                  ref modelStruct);
 
-            #endregion
+                #endregion
 
-            #region Draw outline onto original target
+                #region Draw outline onto original target
 
                 BindTarget(null,
                            buffer.FullResPPBuffer.CurrentRTV,
@@ -113,7 +113,7 @@ namespace HelixToolkit.SharpDX.Core {
                 deviceContext.Draw(4, 0);
                 screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, null);
 
-            #endregion
+                #endregion
             }
 
             protected override void OnDetach() {
@@ -130,12 +130,12 @@ namespace HelixToolkit.SharpDX.Core {
                 bool clear = true
             ) {
                 if (clear) context.ClearRenderTargetView(targetView, Color.Transparent);
-                context.SetRenderTargets(dsv, new[] {targetView});
+                context.SetRenderTargets(dsv, [targetView]);
                 context.SetViewport(0, 0, width, height);
                 context.SetScissorRectangle(0, 0, width, height);
             }
 
-        #region Variables
+            #region Variables
 
             private SamplerStateProxy sampler;
             private ShaderPass screenQuadPass;
@@ -158,9 +158,9 @@ namespace HelixToolkit.SharpDX.Core {
 
             private PostEffectBlurCore blurCore;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private string effectName = DefaultRenderTechniqueNames.PostEffectBloom;
 
@@ -231,7 +231,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => SetAffectsRender(ref numberOfBlurPass, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

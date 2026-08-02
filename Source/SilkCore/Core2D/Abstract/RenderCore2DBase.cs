@@ -29,22 +29,18 @@ namespace HelixToolkit.SharpDX.Core {
                     context.DeviceContext.Transform = Transform;
                     if (ShowDrawingBorder)
                         using (var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1))) {
-                            using (var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                                                        new StrokeStyleProperties
-                                                                            {DashStyle = DashStyle.DashDot})) {
-                                using (var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                                                             new StrokeStyleProperties
-                                                                                 {DashStyle = DashStyle.Solid})) {
-                                    context.DeviceContext.DrawRectangle(LayoutBound,
-                                                                        borderBrush,
-                                                                        1f,
-                                                                        IsMouseOver ? borderLineStyle : borderDotStyle);
-                                    context.DeviceContext.DrawRectangle(LayoutClippingBound,
-                                                                        borderBrush,
-                                                                        0.5f,
-                                                                        borderDotStyle);
-                                }
-                            }
+                            using var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory,
+                                                                        new StrokeStyleProperties { DashStyle = DashStyle.DashDot });
+                            using var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory,
+                                                                         new StrokeStyleProperties { DashStyle = DashStyle.Solid });
+                            context.DeviceContext.DrawRectangle(LayoutBound,
+                                                                borderBrush,
+                                                                1f,
+                                                                IsMouseOver ? borderLineStyle : borderDotStyle);
+                            context.DeviceContext.DrawRectangle(LayoutClippingBound,
+                                                                borderBrush,
+                                                                0.5f,
+                                                                borderDotStyle);
                         }
 
                     OnRender(context);

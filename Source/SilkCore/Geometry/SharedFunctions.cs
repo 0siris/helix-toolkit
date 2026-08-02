@@ -2,10 +2,10 @@ using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core;
 
-using Vector3D = Color3;
-using Point3D = Color3;
 using DoubleOrSingle = float;
+using Point3D = Color3;
 using Vector = Vector2;
+using Vector3D = Color3;
 
 /// <summary>
 ///     Functions for the Shared Projects to simplify the Code
@@ -71,7 +71,7 @@ internal static class SharedFunctions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DoubleOrSingle Length(ref Vector3D vector) {
-        return (DoubleOrSingle) Math.Sqrt(LengthSquared(ref vector));
+        return (DoubleOrSingle)Math.Sqrt(LengthSquared(ref vector));
     }
 
     /// <summary>

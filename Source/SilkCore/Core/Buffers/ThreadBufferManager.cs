@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -52,7 +52,7 @@ namespace HelixToolkit.SharpDX.Core {
         }
 
         public static class ThreadBufferManager<T> where T : unmanaged {
-            private static readonly ILogger logger = LogManager.Create(nameof(ThreadBufferManager<T>));
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
             public static readonly int StructSize = Marshal.SizeOf<T>();
 
             private const int MByteToByte = 1024 * 1024;
@@ -74,16 +74,16 @@ namespace HelixToolkit.SharpDX.Core {
                     if (requestCount < MinimumElementCount)
                         scale = 2;
                     else if (requestCount < MaximumElementCount) scale = 1.5f;
-                    array = new T[(int) (requestCount * scale)];
-                    if (logger.IsEnabled(LogLevel.Debug))
-                        logger.LogDebug("Created new thread buffer. Type: {0}; Size: {1} kB.",
+                    array = new T[(int)(requestCount * scale)];
+                    if (Logger.IsEnabled(LogLevel.Debug))
+                        Logger.Debug("Created new thread buffer. Type: {Value0}; Size: {Value1} kB.",
                                         typeof(T),
                                         array.Length * StructSize / 1024);
                 }
 
                 if (requestCount > MaximumElementCount) {
-                    if (logger.IsEnabled(LogLevel.Debug))
-                        logger.LogDebug("Requested buffer size is larger than max retain size. Type: {0}.", typeof(T));
+                    if (Logger.IsEnabled(LogLevel.Debug))
+                        Logger.Debug("Requested buffer size is larger than max retain size. Type: {Value0}.", typeof(T));
                     return array;
                 }
 
@@ -97,8 +97,8 @@ namespace HelixToolkit.SharpDX.Core {
                     && array.Length > ThreadBufferManagerConfig.SizeReductionDividend * requestCount) {
                     var diff = Stopwatch.GetTimestamp() - lastUsed;
                     if (diff / Stopwatch.Frequency > ThreadBufferManagerConfig.MinimumAutoReleaseThresholdSeconds) {
-                        if (logger.IsEnabled(LogLevel.Debug))
-                            logger.LogDebug("Disposing thread buffer. Type: {0}.", typeof(T));
+                        if (Logger.IsEnabled(LogLevel.Debug))
+                            Logger.Debug("Disposing thread buffer. Type: {Value0}.", typeof(T));
                         buffer = null;
                         lastUsed = 0;
                         return array;

@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -90,7 +90,7 @@ namespace HelixToolkit.SharpDX.Core {
                     return;
 
                 var provider = new CSharpCodeProvider();
-                var options = new CompilerParameters {GenerateInMemory = true};
+                var options = new CompilerParameters { GenerateInMemory = true };
                 var qn = typeof(Vector3).Assembly.Location;
                 options.ReferencedAssemblies.Add("System.dll");
                 options.ReferencedAssemblies.Add(qn);
@@ -129,12 +129,12 @@ namespace HelixToolkit.SharpDX.Core {
                                                     null,
                                                     _codeInstance,
                                                     parameters);
-                var p = (Tuple<double, double, double, double>) result;
+                var p = (Tuple<double, double, double, double>)result;
 
                 // todo: why doesn't this work??
                 //            texCoord = new Point(p.W, 0); // (double)parameters[2], 0);
-                texCoord = new Vector2((float) u, (float) v);
-                return new Vector3((float) p.Item1, (float) p.Item2, (float) p.Item3);
+                texCoord = new Vector2((float)u, (float)v);
+                return new Vector3((float)p.Item1, (float)p.Item2, (float)p.Item3);
             }
         }
 #endif

@@ -171,7 +171,7 @@ public class Texture3D : Texture3DBase {
                                         depth,
                                         1,
                                         format,
-                                        new[] {GetDataBox(format, width, height, depth, textureData, ptr)},
+                                        [GetDataBox(format, width, height, depth, textureData, ptr)],
                                         flags,
                                         usage);
                       });
@@ -264,7 +264,7 @@ public class Texture3D : Texture3DBase {
         if (!(texture is Texture3D))
             throw new ArgumentException(string.Format("Texture is not type of [Texture3D] but [{0}]",
                                                       texture.GetType().Name));
-        return (Texture3D) texture;
+        return (Texture3D)texture;
     }
 
     /// <summary>
@@ -282,8 +282,7 @@ public class Texture3D : Texture3DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(device, stream, flags, usage);
-        }
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(device, stream, flags, usage);
     }
 }

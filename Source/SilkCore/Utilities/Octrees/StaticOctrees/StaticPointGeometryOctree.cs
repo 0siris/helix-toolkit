@@ -21,7 +21,7 @@ namespace HelixToolkit.SharpDX.Core {
             public StaticPointGeometryOctree(
                 IList<Vector3> positions,
                 OctreeBuildParameter parameter,
-                Stack<KeyValuePair<int, IDynamicOctree[]>> stackCache = null
+                Stack<KeyValuePair<int, IDynamicOctree[]>>? stackCache = null
             )
                 : base(parameter) {
                 Positions = positions;
@@ -112,8 +112,9 @@ namespace HelixToolkit.SharpDX.Core {
                 if (rayModel.Intersects(ref bound)) {
                     isIntersect = true;
                     if (octant.Count == 0) return false;
-                    var result = new HitTestResult();
-                    result.Distance = double.MaxValue;
+                    var result = new HitTestResult {
+                        Distance = double.MaxValue
+                    };
                     if (needRecalculate) {
                         var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
                         smvpm = modelMatrix * svpm;
@@ -181,8 +182,9 @@ namespace HelixToolkit.SharpDX.Core {
                 ref bool isIntersect
             ) {
                 var isHit = false;
-                var resultTemp = new HitTestResult();
-                resultTemp.Distance = float.MaxValue;
+                var resultTemp = new HitTestResult {
+                    Distance = float.MaxValue
+                };
                 if (!BoxDisjointSphere(octant.Bound, ref sphere)) {
                     isIntersect = true;
                     for (var i = octant.Start; i < octant.End; ++i) {
@@ -218,12 +220,12 @@ namespace HelixToolkit.SharpDX.Core {
                 return isHit;
             }
 
-        #region Temp Variables for hittest
+            #region Temp Variables for hittest
 
             private bool needRecalculate = true;
             private Matrix smvpm;
 
-        #endregion
+            #endregion
         }
     }
 }

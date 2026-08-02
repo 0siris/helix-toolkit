@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core {
             public static readonly BlendStateDescription BSOverlayBlending;
             public static readonly BlendStateDescription AdditiveBlend;
             public static readonly BlendStateDescription BSScreenDupCursorBlend;
-            public static readonly BlendStateDescription BSOITBlend = new() {IndependentBlendEnable = true};
+            public static readonly BlendStateDescription BSOITBlend = new() { IndependentBlendEnable = true };
             public static readonly BlendStateDescription BSOTISortingBlend;
             public static readonly BlendStateDescription BSMeshOITBlendQuad;
             public static readonly BlendStateDescription VolumeBlending;
@@ -47,7 +47,7 @@ namespace HelixToolkit.SharpDX.Core {
                     RenderTargetWriteMask = ColorWriteMaskFlags.All
                 };
 
-                NoBlend.RenderTarget[0] = new RenderTargetBlendDescription {IsBlendEnabled = false};
+                NoBlend.RenderTarget[0] = new RenderTargetBlendDescription { IsBlendEnabled = false };
                 BSOverlayBlending.RenderTarget[0] = new RenderTargetBlendDescription {
                     IsBlendEnabled = true,
                     SourceBlend = BlendOption.One,

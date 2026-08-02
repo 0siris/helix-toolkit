@@ -18,7 +18,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 #endif
 public class ScreenQuadModel3D : Element3D {
     public TextureModel Texture {
-        get => (TextureModel) GetValue(TextureProperty);
+        get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
 
@@ -29,12 +29,12 @@ public class ScreenQuadModel3D : Element3D {
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
-                                                                 .Texture = (TextureModel) e.NewValue;
+                                                                 .Texture = (TextureModel)e.NewValue;
                                                          }));
 
 
     public SamplerStateDescription SamplerDescription {
-        get => (SamplerStateDescription) GetValue(SamplerDescriptionProperty);
+        get => (SamplerStateDescription)GetValue(SamplerDescriptionProperty);
         set => SetValue(SamplerDescriptionProperty, value);
     }
 
@@ -47,7 +47,7 @@ public class ScreenQuadModel3D : Element3D {
                                                          (d, e) => {
                                                              ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
                                                                  .Sampler =
-                                                                 (SamplerStateDescription) e.NewValue;
+                                                                 (SamplerStateDescription)e.NewValue;
                                                          }));
 
 
@@ -58,7 +58,7 @@ public class ScreenQuadModel3D : Element3D {
     ///     The depth.
     /// </value>
     public double Depth {
-        get => (double) GetValue(DepthProperty);
+        get => (double)GetValue(DepthProperty);
         set => SetValue(DepthProperty, value);
     }
 
@@ -70,7 +70,7 @@ public class ScreenQuadModel3D : Element3D {
                                                          (d, e) => {
                                                              ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
                                                                  .Depth =
-                                                                 (float) Math.Max(0, Math.Min(1, (double) e.NewValue));
+                                                                 (float)Math.Max(0, Math.Min(1, (double)e.NewValue));
                                                          }));
 
 
@@ -83,7 +83,7 @@ public class ScreenQuadModel3D : Element3D {
         if (node is ScreenQuadNode n) {
             n.Texture = Texture;
             n.Sampler = SamplerDescription;
-            n.Depth = (float) Math.Max(0, Math.Min(1, Depth));
+            n.Depth = (float)Math.Max(0, Math.Min(1, Depth));
         }
     }
 }

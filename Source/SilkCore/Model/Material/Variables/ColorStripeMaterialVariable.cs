@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -116,7 +116,7 @@ namespace HelixToolkit.SharpDX.Core {
                 textures[which] = colors == null || colors.Count == 0
                                       ? null
                                       : new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
-                textures[which]?.CreateViewFromColorArray(colors.ToArray());
+                textures[which]?.CreateViewFromColorArray([.. colors]);
                 if (textures[which] != null)
                     textureIndex |= 1u << which;
                 else

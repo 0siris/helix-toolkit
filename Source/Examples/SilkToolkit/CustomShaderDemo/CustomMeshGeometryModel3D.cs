@@ -1,7 +1,7 @@
-using HelixToolkit.Wpf.SharpDX;
+using System.Windows;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using System.Windows;
+using HelixToolkit.Wpf.SharpDX;
 
 namespace CustomShaderDemo;
 
@@ -12,12 +12,12 @@ public class CustomMeshGeometryModel3D : MeshGeometryModel3D {
         new PropertyMetadata(5.0,
                              (d, e) => {
                                  ((d as Element3D).SceneNode as CustomMeshNode).HeightScale =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     public double HeightScale {
         set { SetValue(HeightScaleProperty, value); }
-        get { return (double) GetValue(HeightScaleProperty); }
+        get { return (double)GetValue(HeightScaleProperty); }
     }
 
     protected override SceneNode OnCreateSceneNode() {
@@ -26,6 +26,6 @@ public class CustomMeshGeometryModel3D : MeshGeometryModel3D {
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        (core as CustomMeshNode).HeightScale = (float) HeightScale;
+        (core as CustomMeshNode).HeightScale = (float)HeightScale;
     }
 }

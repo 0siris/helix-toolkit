@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -22,7 +22,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     /// </summary>
     /// <returns></returns>
     protected override SceneNode OnCreateSceneNode() {
-        return new LineNode {Material = material};
+        return new LineNode { Material = material };
     }
 
     /// <summary>
@@ -31,13 +31,13 @@ public class LineGeometryModel3D : GeometryModel3D {
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         material.LineColor = Color.ToColor4();
-        material.Thickness = (float) Thickness;
-        material.Smoothness = (float) Smoothness;
+        material.Thickness = (float)Thickness;
+        material.Smoothness = (float)Smoothness;
         material.FixedSize = FixedSize;
         base.AssignDefaultValuesToSceneNode(core);
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     /// <summary>
     ///     The color property
@@ -54,7 +54,7 @@ public class LineGeometryModel3D : GeometryModel3D {
 #endif
                                                          {
                                                              (d as LineGeometryModel3D).material.LineColor =
-                                                                 ((Media.Color) e.NewValue).ToColor4();
+                                                                 ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -67,7 +67,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              (d as LineGeometryModel3D).material.Thickness =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -80,7 +80,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              (d as LineGeometryModel3D).material.Smoothness =
-                                                                 (float) (double) e.NewValue;
+                                                                 (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -93,7 +93,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as LineNode)
-                                                                 .HitTestThickness = (double) e.NewValue;
+                                                                 .HitTestThickness = (double)e.NewValue;
                                                          }));
 
 
@@ -109,7 +109,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                       new PropertyMetadata(true,
                                                            (d, e) => {
                                                                (d as LineGeometryModel3D).material.FixedSize =
-                                                                   (bool) e.NewValue;
+                                                                   (bool)e.NewValue;
                                                            }));
 
     /// <summary>
@@ -119,7 +119,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     The color.
     /// </value>
     public Media.Color Color {
-        get => (Media.Color) GetValue(ColorProperty);
+        get => (Media.Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
@@ -130,7 +130,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     The thickness.
     /// </value>
     public double Thickness {
-        get => (double) GetValue(ThicknessProperty);
+        get => (double)GetValue(ThicknessProperty);
         set => SetValue(ThicknessProperty, value);
     }
 
@@ -141,7 +141,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     The smoothness.
     /// </value>
     public double Smoothness {
-        get => (double) GetValue(SmoothnessProperty);
+        get => (double)GetValue(SmoothnessProperty);
         set => SetValue(SmoothnessProperty, value);
     }
 
@@ -149,7 +149,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     Used only for point/line hit test
     /// </summary>
     public double HitTestThickness {
-        get => (double) GetValue(HitTestThicknessProperty);
+        get => (double)GetValue(HitTestThicknessProperty);
         set => SetValue(HitTestThicknessProperty, value);
     }
 
@@ -159,9 +159,9 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     <para>When FixedSize = false, the billboard render size will be actual size in 3D world space</para>
     /// </summary>
     public bool FixedSize {
-        get => (bool) GetValue(FixedSizeProperty);
+        get => (bool)GetValue(FixedSizeProperty);
         set => SetValue(FixedSizeProperty, value);
     }
 
-#endregion
+    #endregion
 }

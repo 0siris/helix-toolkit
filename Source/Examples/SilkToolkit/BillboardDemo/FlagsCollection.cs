@@ -1,9 +1,9 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HelixToolkit.Wpf.SharpDX;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
@@ -12,12 +12,12 @@ namespace BillboardDemo;
 
 public static class FlagsCollection {
     public static Flag[] Flags;
-    const float offSetX = 1 / 8f;
-    const float offSetY = 1 / 8f;
-    const float borderThickness = 0.02f;
+    private const float offSetX = 1 / 8f;
+    private const float offSetY = 1 / 8f;
+    private const float borderThickness = 0.02f;
 
     static FlagsCollection() {
-        Flags = new Flag[] {
+        Flags = [
             new Flag("China", new Vector3(1.26659f, -3.595175f, 2.323998f), GetCoordRowColumn(4, 7)),
             new Flag("USA", new Vector3(0.6496152f, 3.337777f, 2.847751f), GetCoordRowColumn(5, 2)),
             new Flag("Japan", new Vector3(2.708371f, -2.284147f, 2.697974f), GetCoordRowColumn(2, 0)),
@@ -28,7 +28,7 @@ public static class FlagsCollection {
             new Flag("United Kingdom", new Vector3(), GetCoordRowColumn(7, 0)),
             new Flag("Russia", new Vector3(), GetCoordRowColumn(4, 6)),
             new Flag("Turkey", new Vector3(), GetCoordRowColumn(4, 3)),
-        };
+        ];
     }
 
     public static Vector4 GetCoordRowColumn(int row, int column) {

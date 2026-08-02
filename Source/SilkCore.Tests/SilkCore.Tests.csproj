@@ -18,4 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+  </ItemGroup>
 </Project>

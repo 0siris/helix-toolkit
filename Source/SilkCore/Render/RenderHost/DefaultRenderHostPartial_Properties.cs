@@ -11,79 +11,79 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 namespace HelixToolkit.SharpDX.Core {
     namespace Render {
         public partial class DefaultRenderHost {
-        #region Per frame render list
+            #region Per frame render list
 
-            protected readonly FastList<SceneNode> viewportRenderables = new();
+            protected readonly FastList<SceneNode> viewportRenderables = [];
 
             /// <summary>
             ///     The pending renderables
             /// </summary>
-            protected readonly FastList<KeyValuePair<int, SceneNode>> perFrameFlattenedScene = new();
+            protected readonly FastList<KeyValuePair<int, SceneNode>> perFrameFlattenedScene = [];
 
             /// <summary>
             ///     The light renderables
             /// </summary>
-            protected readonly FastList<SceneNode> lightNodes = new();
+            protected readonly FastList<SceneNode> lightNodes = [];
 
             /// <summary>
             ///     The pending render nodes
             /// </summary>
-            protected readonly FastList<SceneNode> opaqueNodes = new();
+            protected readonly FastList<SceneNode> opaqueNodes = [];
 
             /// <summary>
             ///     The opaque nodes in frustum
             /// </summary>
-            protected readonly FastList<SceneNode> opaqueNodesInFrustum = new();
+            protected readonly FastList<SceneNode> opaqueNodesInFrustum = [];
 
             /// <summary>
             ///     The transparent nodes
             /// </summary>
-            protected readonly FastList<SceneNode> transparentNodes = new();
+            protected readonly FastList<SceneNode> transparentNodes = [];
 
             /// <summary>
             ///     The transparent nodes in frustum
             /// </summary>
-            protected readonly FastList<SceneNode> transparentNodesInFrustum = new();
+            protected readonly FastList<SceneNode> transparentNodesInFrustum = [];
 
             /// <summary>
             ///     The particle nodes
             /// </summary>
-            protected readonly FastList<SceneNode> particleNodes = new();
+            protected readonly FastList<SceneNode> particleNodes = [];
 
             /// <summary>
             ///     The pending render nodes
             /// </summary>
-            protected readonly FastList<SceneNode> preProcNodes = new();
+            protected readonly FastList<SceneNode> preProcNodes = [];
 
             /// <summary>
             ///     The post effect nodes
             /// </summary>
-            protected readonly FastList<SceneNode> postEffectNodes = new();
+            protected readonly FastList<SceneNode> postEffectNodes = [];
 
             /// <summary>
             ///     The global effect nodes
             /// </summary>
-            protected readonly FastList<SceneNode> globalEffectNodes = new();
+            protected readonly FastList<SceneNode> globalEffectNodes = [];
 
             /// <summary>
             ///     The nodes have post effect
             /// </summary>
-            protected readonly FastList<SceneNode> nodesWithPostEffect = new();
+            protected readonly FastList<SceneNode> nodesWithPostEffect = [];
 
             /// <summary>
             ///     The pending render nodes
             /// </summary>
-            protected readonly FastList<SceneNode> screenSpacedNodes = new();
+            protected readonly FastList<SceneNode> screenSpacedNodes = [];
 
             /// <summary>
             ///     The viewport renderable2D
             /// </summary>
-            protected readonly FastList<SceneNode2D> viewportRenderable2D = new();
+            protected readonly FastList<SceneNode2D> viewportRenderable2D = [];
 
             /// <summary>
             ///     The need update cores
             /// </summary>
-            private readonly FastList<RenderCore> needUpdateCores = new();
+            private readonly FastList<RenderCore> needUpdateCores = [];
 
             /// <summary>
             ///     Gets the current frame flattened scene graph. KeyValuePair.Key is the depth of the node.
@@ -160,7 +160,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// </value>
             public sealed override FastList<SceneNode> PerFrameNodesWithPostEffect => nodesWithPostEffect;
 
-        #endregion
+            #endregion
         }
     }
 }

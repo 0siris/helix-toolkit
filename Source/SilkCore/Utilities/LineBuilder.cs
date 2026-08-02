@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LineBuilder.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -16,9 +16,9 @@ public class LineBuilder {
     /// <summary>
     /// </summary>
     public LineBuilder() {
-        positions = new Vector3Collection();
+        positions = [];
         // textureCoordinates = new List<Point>();
-        lineListIndices = new IntCollection();
+        lineListIndices = [];
     }
 
     /// <summary>
@@ -48,12 +48,12 @@ public class LineBuilder {
     /// <param name="zlength"></param>
     public void AddBox(Vector3 center, double xlength, double ylength, double zlength) {
         var i0 = positions.Count;
-        var dx = new Vector3((float) xlength / 2f, 0, 0);
-        var dy = new Vector3(0, (float) ylength / 2f, 0);
-        var dz = new Vector3(0, 0, (float) zlength / 2f);
+        var dx = new Vector3((float)xlength / 2f, 0, 0);
+        var dy = new Vector3(0, (float)ylength / 2f, 0);
+        var dz = new Vector3(0, 0, (float)zlength / 2f);
         Add(true, center - dx - dy - dz, center + dx - dy - dz, center + dx + dy - dz, center - dx + dy - dz);
         Add(true, center - dx - dy + dz, center + dx - dy + dz, center + dx + dy + dz, center - dx + dy + dz);
-        lineListIndices.AddRange(new[] {i0 + 0, i0 + 4, i0 + 1, i0 + 5, i0 + 2, i0 + 6, i0 + 3, i0 + 7});
+        lineListIndices.AddRange([i0 + 0, i0 + 4, i0 + 1, i0 + 5, i0 + 2, i0 + 6, i0 + 3, i0 + 7]);
     }
 
     /// <summary>
@@ -109,10 +109,10 @@ public class LineBuilder {
                 idx.Add(i);
             }
 
-            return new LineGeometry3D {Positions = pos, Indices = idx};
+            return new LineGeometry3D { Positions = pos, Indices = idx };
         }
 
-        return new LineGeometry3D {Positions = positions, Indices = lineListIndices};
+        return new LineGeometry3D { Positions = positions, Indices = lineListIndices };
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ public class LineBuilder {
     public void AddCircle(Vector3 position, Vector3 normal, float radius, int segments) {
         if (segments < 3) throw new ArgumentNullException("too few segments, at least 3");
         normal.Normalize();
-        var sectionAngle = (float) (2.0 * Math.PI / segments);
+        var sectionAngle = (float)(2.0 * Math.PI / segments);
         var start = new Vector3(radius, 0.0f, 0.0f);
         var current = new Vector3(radius, 0.0f, 0.0f);
         var next = new Vector3(0.0f, 0.0f, 0.0f);
@@ -134,8 +134,8 @@ public class LineBuilder {
         var currIndex = posStart;
 
         for (var i = 1; i < segments; i++) {
-            next.X = radius * (float) Math.Cos(i * sectionAngle);
-            next.Z = radius * (float) Math.Sin(i * sectionAngle);
+            next.X = radius * (float)Math.Cos(i * sectionAngle);
+            next.Z = radius * (float)Math.Sin(i * sectionAngle);
             current = next;
             positions.Add(current);
             lineListIndices.Add(currIndex);
@@ -148,7 +148,7 @@ public class LineBuilder {
         var transform = SilkMath.Translation(position);
         if (axis.LengthSquared() > 1e-6) {
             axis.Normalize();
-            transform = SilkMath.RotationAxis(axis, (float) Math.Acos(SilkMath.Dot(Vector3.UnitY, normal))) * transform;
+            transform = SilkMath.RotationAxis(axis, (float)Math.Acos(SilkMath.Dot(Vector3.UnitY, normal))) * transform;
         }
 
         for (var i = posStart; i < positions.Count; ++i)
@@ -305,7 +305,7 @@ public class LineBuilder {
             dx = pt.X - p0.X;
             dy = pt.Y - p0.Y;
             t = 0f;
-            return (float) Math.Sqrt(dx * dx + dy * dy);
+            return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
         // Calculate scale factor t of intersection.
@@ -328,7 +328,7 @@ public class LineBuilder {
             dy = pt.Y - closest.Y;
         }
 
-        return (float) Math.Sqrt(dx * dx + dy * dy);
+        return (float)Math.Sqrt(dx * dx + dy * dy);
     }
 
     /// <summary>

@@ -80,7 +80,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// <value>The axis.</value>
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 Axis {
-        get => (Vector3) GetValue(AxisProperty);
+        get => (Vector3)GetValue(AxisProperty);
         set => SetValue(AxisProperty, value);
     }
 
@@ -89,7 +89,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// </summary>
     /// <value> The diameter. </value>
     public double OuterDiameter {
-        get => (double) GetValue(OuterDiameterProperty);
+        get => (double)GetValue(OuterDiameterProperty);
         set => SetValue(OuterDiameterProperty, value);
     }
 
@@ -98,7 +98,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// </summary>
     /// <value>The inner diameter.</value>
     public double InnerDiameter {
-        get => (double) GetValue(InnerDiameterProperty);
+        get => (double)GetValue(InnerDiameterProperty);
         set => SetValue(InnerDiameterProperty, value);
     }
 
@@ -107,7 +107,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// </summary>
     /// <value>The length.</value>
     public double Length {
-        get => (double) GetValue(LengthProperty);
+        get => (double)GetValue(LengthProperty);
         set => SetValue(LengthProperty, value);
     }
 
@@ -117,7 +117,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// <value> The position. </value>
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 Pivot {
-        get => (Vector3) GetValue(PivotProperty);
+        get => (Vector3)GetValue(PivotProperty);
         set => SetValue(PivotProperty, value);
     }
 
@@ -132,8 +132,8 @@ public class UIRotateManipulator3D : UIManipulator3D {
 
         var d = Axis;
         d.Normalize();
-        var p1 = p0 - d * (float) Length * 0.5f;
-        var p2 = p0 + d * (float) Length * 0.5f;
+        var p1 = p0 - d * (float)Length * 0.5f;
+        var p2 = p0 + d * (float)Length * 0.5f;
         mb.AddPipe(p1, p2, InnerDiameter, OuterDiameter, 64);
         Geometry = mb.ToMeshGeometry3D();
     }

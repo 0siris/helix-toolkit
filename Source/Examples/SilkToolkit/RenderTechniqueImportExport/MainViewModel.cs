@@ -1,9 +1,9 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using HelixToolkit.Wpf.SharpDX;
+using Microsoft.Win32;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace RenderTechniqueImportExport;
@@ -18,7 +18,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
     public Material MeshMaterial { get; } = PhongMaterials.Jade;
     public LineGeometry3D LineModel { private set; get; }
     public PointGeometry3D PointModel { private set; get; }
-    public ObservableCollection<string> TechniqueList { get; } = new ObservableCollection<string>();
+    public ObservableCollection<string> TechniqueList { get; } = [];
     public string SelectedTechnique { set; get; }
 
     public MainViewModel() {
@@ -34,8 +34,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
         LineModel = lineBuilder.ToLineGeometry3D();
 
         var offset = new Vector3(-4, 0, 0);
-        PointModel = new PointGeometry3D()
-            {Positions = new Vector3Collection(MeshModel.Positions.Select(x => x + offset))};
+        PointModel = new PointGeometry3D() { Positions = new Vector3Collection(MeshModel.Positions.Select(x => x + offset)) };
 
         ExportCommand = new RelayCommand((o) => { Export(); });
         ImportCommand = new RelayCommand((o) => { Import(); });

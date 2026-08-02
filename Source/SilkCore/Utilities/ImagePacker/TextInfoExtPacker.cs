@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Utilities.ImagePacker {
@@ -15,7 +15,7 @@ namespace HelixToolkit.SharpDX.Core {
                 Padding = padding;
             }
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
@@ -40,7 +40,7 @@ namespace HelixToolkit.SharpDX.Core {
                 // GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected override KeyValuePair<int, TextLayoutInfo>[] GetArray(IEnumerable<TextInfoExt> items) {
-                return items.Select((x, i) => {
+                return [.. items.Select((x, i) => {
                     var textLayout = x.Text
                                       .GetTextLayoutMetrices(deviceRes2D,
                                                              x.Size,
@@ -80,7 +80,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                                      x.Foreground,
                                                                      x.Background,
                                                                      x.Padding));
-                }).ToArray();
+                })];
             }
 
             protected override Size2F GetSize(TextLayoutInfo value) {

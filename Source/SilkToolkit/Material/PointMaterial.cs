@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -28,14 +28,14 @@ public class PointMaterial : Material {
     protected override MaterialCore OnCreateCore() {
         return new PointMaterialCore {
             PointColor = Color.ToColor4(),
-            Width = (float) Size.Width,
-            Height = (float) Size.Height,
+            Width = (float)Size.Width,
+            Height = (float)Size.Height,
             Figure = Figure,
-            FigureRatio = (float) FigureRatio,
+            FigureRatio = (float)FigureRatio,
             Name = Name,
             EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float) FadingNearDistance,
-            FadingFarDistance = (float) FadingFarDistance
+            FadingNearDistance = (float)FadingNearDistance,
+            FadingFarDistance = (float)FadingFarDistance
         };
     }
 
@@ -45,7 +45,7 @@ public class PointMaterial : Material {
         };
     }
 
-#region Dependency Properties
+    #region Dependency Properties
 
     public static readonly DependencyProperty ColorProperty =
         DependencyProperty.Register("Color",
@@ -59,7 +59,7 @@ public class PointMaterial : Material {
 #endif
                                                          {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .PointColor = ((Color) e.NewValue).ToColor4();
+                                                                 .PointColor = ((Color)e.NewValue).ToColor4();
                                                          }));
 
     public static readonly DependencyProperty SizeProperty =
@@ -68,11 +68,11 @@ public class PointMaterial : Material {
                                     typeof(PointMaterial),
                                     new PropertyMetadata(new Size(1.0, 1.0),
                                                          (d, e) => {
-                                                             var size = (Size) e.NewValue;
+                                                             var size = (Size)e.NewValue;
                                                              ((d as PointMaterial).Core as PointMaterialCore).Width =
-                                                                 (float) size.Width;
+                                                                 (float)size.Width;
                                                              ((d as PointMaterial).Core as PointMaterialCore).Height =
-                                                                 (float) size.Height;
+                                                                 (float)size.Height;
                                                          }));
 
     public static readonly DependencyProperty FigureProperty =
@@ -82,7 +82,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(PointFigure.Rect,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore).Figure =
-                                                                 (PointFigure) e.NewValue;
+                                                                 (PointFigure)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FigureRatioProperty =
@@ -92,7 +92,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(0.25,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .FigureRatio = (float) (double) e.NewValue;
+                                                                 .FigureRatio = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty EnableDistanceFadingProperty =
@@ -102,7 +102,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .EnableDistanceFading = (bool) e.NewValue;
+                                                                 .EnableDistanceFading = (bool)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FadingNearDistanceProperty =
@@ -112,7 +112,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .FadingNearDistance = (float) (double) e.NewValue;
+                                                                 .FadingNearDistance = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FadingFarDistanceProperty =
@@ -122,7 +122,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(100.0,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .FadingFarDistance = (float) (double) e.NewValue;
+                                                                 .FadingFarDistance = (float)(double)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for EnableColorBlending.  This enables animation, styling, binding, etc...
@@ -133,7 +133,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .EnableColorBlending = (bool) e.NewValue;
+                                                                 .EnableColorBlending = (bool)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for BlendingFactor.  This enables animation, styling, binding, etc...
@@ -144,7 +144,7 @@ public class PointMaterial : Material {
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
                                                              ((d as PointMaterial).Core as PointMaterialCore)
-                                                                 .BlendingFactor = (float) (double) e.NewValue;
+                                                                 .BlendingFactor = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -155,7 +155,7 @@ public class PointMaterial : Material {
     ///     The color.
     /// </value>
     public Color Color {
-        get => (Color) GetValue(ColorProperty);
+        get => (Color)GetValue(ColorProperty);
         set => SetValue(ColorProperty, value);
     }
 
@@ -166,7 +166,7 @@ public class PointMaterial : Material {
     ///     The size.
     /// </value>
     public Size Size {
-        get => (Size) GetValue(SizeProperty);
+        get => (Size)GetValue(SizeProperty);
         set => SetValue(SizeProperty, value);
     }
 
@@ -177,7 +177,7 @@ public class PointMaterial : Material {
     ///     The figure.
     /// </value>
     public PointFigure Figure {
-        get => (PointFigure) GetValue(FigureProperty);
+        get => (PointFigure)GetValue(FigureProperty);
         set => SetValue(FigureProperty, value);
     }
 
@@ -188,7 +188,7 @@ public class PointMaterial : Material {
     ///     The figure ratio.
     /// </value>
     public double FigureRatio {
-        get => (double) GetValue(FigureRatioProperty);
+        get => (double)GetValue(FigureRatioProperty);
         set => SetValue(FigureRatioProperty, value);
     }
 
@@ -199,7 +199,7 @@ public class PointMaterial : Material {
     ///     <c>true</c> if [enable distance fading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDistanceFading {
-        get => (bool) GetValue(EnableDistanceFadingProperty);
+        get => (bool)GetValue(EnableDistanceFadingProperty);
         set => SetValue(EnableDistanceFadingProperty, value);
     }
 
@@ -210,7 +210,7 @@ public class PointMaterial : Material {
     ///     The fading near distance.
     /// </value>
     public double FadingNearDistance {
-        get => (double) GetValue(FadingNearDistanceProperty);
+        get => (double)GetValue(FadingNearDistanceProperty);
         set => SetValue(FadingNearDistanceProperty, value);
     }
 
@@ -221,7 +221,7 @@ public class PointMaterial : Material {
     ///     The fading far distance.
     /// </value>
     public double FadingFarDistance {
-        get => (double) GetValue(FadingFarDistanceProperty);
+        get => (double)GetValue(FadingFarDistanceProperty);
         set => SetValue(FadingFarDistanceProperty, value);
     }
 
@@ -236,7 +236,7 @@ public class PointMaterial : Material {
     ///     <c>true</c> if [enable color blending]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableColorBlending {
-        get => (bool) GetValue(EnableColorBlendingProperty);
+        get => (bool)GetValue(EnableColorBlendingProperty);
         set => SetValue(EnableColorBlendingProperty, value);
     }
 
@@ -248,9 +248,9 @@ public class PointMaterial : Material {
     ///     The blending factor.
     /// </value>
     public double BlendingFactor {
-        get => (double) GetValue(BlendingFactorProperty);
+        get => (double)GetValue(BlendingFactorProperty);
         set => SetValue(BlendingFactorProperty, value);
     }
 
-#endregion
+    #endregion
 }

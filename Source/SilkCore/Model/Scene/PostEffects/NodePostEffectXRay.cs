@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -30,7 +30,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return false;
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets the name of the effect.
@@ -76,7 +76,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => (RenderCore as IPostEffectMeshXRay).EnableDoublePass = value;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

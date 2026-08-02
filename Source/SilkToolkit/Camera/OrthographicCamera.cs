@@ -27,7 +27,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
         new PropertyMetadata(10.0,
                              (d, e) => {
                                  ((d as Camera).CameraInternal as OrthographicCameraCore).Width =
-                                     (float) (double) e.NewValue;
+                                     (float)(double)e.NewValue;
                              }));
 
     private double accumTime;
@@ -49,7 +49,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
     ///     The width.
     /// </value>
     public double Width {
-        get => (double) GetValue(WidthProperty);
+        get => (double)GetValue(WidthProperty);
         set => SetValue(WidthProperty, value);
     }
 
@@ -72,9 +72,9 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
-        (core as OrthographicCameraCore).FarPlaneDistance = (float) FarPlaneDistance;
-        (core as OrthographicCameraCore).NearPlaneDistance = (float) NearPlaneDistance;
-        (core as OrthographicCameraCore).Width = (float) Width;
+        (core as OrthographicCameraCore).FarPlaneDistance = (float)FarPlaneDistance;
+        (core as OrthographicCameraCore).NearPlaneDistance = (float)NearPlaneDistance;
+        (core as OrthographicCameraCore).Width = (float)Width;
     }
 
     protected override bool OnUpdateAnimation(float ellapsed) {
@@ -101,8 +101,8 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
         var dist = dir.Length;
         var newDist = dist * ratio;
         dir.Normalize();
-        var position = target - dir * (float) newDist;
-        var lookDir = dir * (float) newDist;
+        var position = target - dir * (float)newDist;
+        var lookDir = dir * (float)newDist;
         Position = position.ToPoint3D();
         LookDirection = lookDir.ToVector3D();
     }

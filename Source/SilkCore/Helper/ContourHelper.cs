@@ -2,10 +2,10 @@
 
 namespace HelixToolkit.SharpDX.Core;
 
-using Vector3D = Color3;
-using Point3D = Color3;
-using Point = Vector2;
 using DoubleOrSingle = float;
+using Point = Vector2;
+using Point3D = Color3;
+using Vector3D = Color3;
 
 /// <summary>
 ///     Provides functionality to calculate a contour slice through a 3 vertex facet.(Modified from HelixToolkit.Wpf
@@ -107,13 +107,13 @@ public class ContourHelper {
         textures = hasTextureCoordinates ? new Point[3] : null;
         positionCount = originalMesh.Positions.Count;
 
-        meshPositions = originalMesh.Positions.ToArray();
-        meshNormals = hasNormals ? originalMesh.Normals.ToArray() : null;
-        meshTextureCoordinates = hasTextureCoordinates ? originalMesh.TextureCoordinates.ToArray() : null;
+        meshPositions = [.. originalMesh.Positions];
+        meshNormals = hasNormals ? [.. originalMesh.Normals] : null;
+        meshTextureCoordinates = hasTextureCoordinates ? [.. originalMesh.TextureCoordinates] : null;
 
         // Determine the equation of the plane as
         // ax + by + cz + d = 0
-        var l = (float) Math.Sqrt(planeNormal.X * planeNormal.X + planeNormal.Y * planeNormal.Y +
+        var l = (float)Math.Sqrt(planeNormal.X * planeNormal.X + planeNormal.Y * planeNormal.Y +
                                   planeNormal.Z * planeNormal.Z);
         a = planeNormal.X / l;
         b = planeNormal.Y / l;
@@ -149,58 +149,58 @@ public class ContourHelper {
 
         switch (facetResult) {
             case ContourFacetResult.ZeroOnly:
-                triangleIndices = new[] {index0, positionCount++, positionCount++};
+                triangleIndices = [index0, positionCount++, positionCount++];
                 break;
             case ContourFacetResult.OneAndTwo:
-                triangleIndices = new[] {index1, index2, positionCount, positionCount++, positionCount++, index1};
+                triangleIndices = [index1, index2, positionCount, positionCount++, positionCount++, index1];
                 break;
             case ContourFacetResult.OneOnly:
-                triangleIndices = new[] {index1, positionCount++, positionCount++};
+                triangleIndices = [index1, positionCount++, positionCount++];
                 break;
             case ContourFacetResult.ZeroAndTwo:
-                triangleIndices = new[] {index2, index0, positionCount, positionCount++, positionCount++, index2};
+                triangleIndices = [index2, index0, positionCount, positionCount++, positionCount++, index2];
                 break;
             case ContourFacetResult.TwoOnly:
-                triangleIndices = new[] {index2, positionCount++, positionCount++};
+                triangleIndices = [index2, positionCount++, positionCount++];
                 break;
             case ContourFacetResult.ZeroAndOne:
-                triangleIndices = new[] {index0, index1, positionCount, positionCount++, positionCount++, index0};
+                triangleIndices = [index0, index1, positionCount, positionCount++, positionCount++, index0];
                 break;
             case ContourFacetResult.All:
-                newPositions = new Point3D[0];
-                newNormals = new Vector3D[0];
-                newTextureCoordinates = new Point[0];
-                triangleIndices = new[] {index0, index1, index2};
+                newPositions = [];
+                newNormals = [];
+                newTextureCoordinates = [];
+                triangleIndices = [index0, index1, index2];
                 return;
             default:
-                newPositions = new Point3D[0];
-                newNormals = new Vector3D[0];
-                newTextureCoordinates = new Point[0];
-                triangleIndices = new int[0];
+                newPositions = [];
+                newNormals = [];
+                newTextureCoordinates = [];
+                triangleIndices = [];
                 return;
         }
 
         var facetIndices = ResultIndices[facetResult];
-        newPositions = new[] {
+        newPositions = [
             CreateNewPosition(facetIndices[0, 0], facetIndices[0, 1]),
             CreateNewPosition(facetIndices[1, 0], facetIndices[1, 1])
-        };
+        ];
 
         if (normals != null)
-            newNormals = new[] {
+            newNormals = [
                 CreateNewNormal(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewNormal(facetIndices[1, 0], facetIndices[1, 1])
-            };
+            ];
         else
-            newNormals = new Vector3D[0];
+            newNormals = [];
 
         if (textures != null)
-            newTextureCoordinates = new[] {
+            newTextureCoordinates = [
                 CreateNewTexture(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewTexture(facetIndices[1, 0], facetIndices[1, 1])
-            };
+            ];
         else
-            newTextureCoordinates = new Point[0];
+            newTextureCoordinates = [];
     }
 
     /// <summary>

@@ -15,8 +15,8 @@ public static class PointerSizeHelpers {
     /// <param name="ptr">The pointer to convert.</param>
     /// <returns>An <c>unsigned long</c>.</returns>
     public static ulong ToUInt64(this PointerSize ptr) {
-        if (nuint.Size == 8) return (ulong) ptr;
+        if (nuint.Size == 8) return (ulong)ptr;
 
-        return (uint) (int) ptr;
+        return (uint)(int)ptr;
     }
 }

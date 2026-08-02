@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using Assertions;
 using HelixToolkit.Wpf.SharpDX;
 
 namespace CrossSectionDemo;
@@ -12,7 +13,7 @@ namespace CrossSectionDemo;
 public class CustomViewport3DX : Viewport3DX {
     /// <inheritdoc />
     protected override void OnPreviewMouseMove(MouseEventArgs e) {
-        if (e == null) throw new ArgumentNullException(nameof(e));
+        e.AssertArgumentNotNull();
         base.OnPreviewMouseMove(e);
 
         // During startup the camera in the render context might be null while the camera in this class isn't.

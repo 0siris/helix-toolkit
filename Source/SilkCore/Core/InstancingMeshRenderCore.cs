@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -15,8 +15,8 @@ namespace HelixToolkit.SharpDX.Core {
                 set {
                     var old = parameterBufferModel;
                     if (SetAffectsCanRenderFlag(ref parameterBufferModel, value)) {
-                        if (old != null) old.ElementChanged -= OnElementChanged;
-                        if (parameterBufferModel != null) parameterBufferModel.ElementChanged += OnElementChanged;
+                        old?.ElementChanged -= OnElementChanged;
+                        parameterBufferModel?.ElementChanged += OnElementChanged;
                     }
                 }
             }

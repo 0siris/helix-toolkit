@@ -1,15 +1,15 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Media3D = System.Windows.Media.Media3D;
-using Media = System.Windows.Media;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
+using Media = System.Windows.Media;
+using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
@@ -86,11 +86,10 @@ public class ViewModel2D : DemoCore.ObservableObject {
 
 
     public static MemoryStream LoadFileToMemory(string filePath) {
-        using (var file = new FileStream(filePath, FileMode.Open)) {
-            var memory = new MemoryStream();
-            file.CopyTo(memory);
-            return memory;
-        }
+        using var file = new FileStream(filePath, FileMode.Open);
+        var memory = new MemoryStream();
+        file.CopyTo(memory);
+        return memory;
     }
 
     private Media.Transform CreateAnimatedTransform2(double speed = 4) {

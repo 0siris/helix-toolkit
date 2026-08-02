@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -41,7 +41,7 @@ namespace HelixToolkit.SharpDX.Core {
             public InputLayoutDescription(
                 string byteCodeName,
                 InputElement[] elements,
-                IShaderByteCodeReader byteCodeReader = null
+                IShaderByteCodeReader? byteCodeReader = null
             ) {
                 ShaderByteCodeName = byteCodeName;
                 InputElements = elements;
@@ -79,7 +79,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     The input elements.
             /// </value>
             [DataMember]
-            public InputElement[] InputElements { get; set; } = new InputElement[0];
+            public InputElement[] InputElements { get; set; } = [];
 
             public KeyValuePair<byte[], InputElement[]> Description => new(ShaderByteCode, InputElements);
         }

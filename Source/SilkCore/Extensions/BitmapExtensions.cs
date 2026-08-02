@@ -1,10 +1,10 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Text;
 using System.Runtime.InteropServices;
+using System.Text;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
@@ -25,7 +25,7 @@ public enum Direct2DImageFormat {
 }
 
 public static class BitmapExtensions {
-    private static readonly ILogger logger = LogManager.Create(nameof(BitmapExtensions));
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     private static class ImageContainerFormats {
         public static readonly Guid Bmp = new("0af1d87e-fcfe-4188-bdeb-a7906471cbe3");
@@ -51,33 +51,30 @@ public static class BitmapExtensions {
         bool predefinedSize,
         IDevice2DResources deviceResources
     ) {
-        using (var layout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle)) {
-            var metrices = layout.Metrics;
-            if (!predefinedSize) {
-                width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
-                height = (float) Math.Ceiling(metrices.Height + padding.Y + padding.W);
-            } else {
-                var scale = width / height;
-                width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
-                height = width / scale;
-            }
-
-            using (var bitmap = CreateBitmapStream(deviceResources,
-                                                   (int) width,
-                                                   (int) height,
-                                                   Direct2DImageFormat.Bmp,
-                                                   target => {
-                                                       target.Clear(background);
-                                                       using (var brush = new SolidColorBrush(target, foreground)) {
-                                                           target.DrawTextLayout(
-                                                               new Vector2(padding.X, padding.Y),
-                                                               layout,
-                                                               brush);
-                                                       }
-                                                   })) {
-                return bitmap.ToMemoryStream(deviceResources);
-            }
+        using var layout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle);
+        var metrices = layout.Metrics;
+        if (!predefinedSize) {
+            width = (float)Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
+            height = (float)Math.Ceiling(metrices.Height + padding.Y + padding.W);
+        } else {
+            var scale = width / height;
+            width = (float)Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
+            height = width / scale;
         }
+
+        using var bitmap = CreateBitmapStream(deviceResources,
+                                               (int)width,
+                                               (int)height,
+                                               Direct2DImageFormat.Bmp,
+                                               target => {
+                                                   target.Clear(background);
+                                                   using var brush = new SolidColorBrush(target, foreground);
+                                                   target.DrawTextLayout(
+                                                           new Vector2(padding.X, padding.Y),
+                                                           layout,
+                                                           brush);
+                                               });
+        return bitmap.ToMemoryStream(deviceResources);
     }
 
     public static TextLayout GetTextLayoutMetrices(
@@ -90,10 +87,9 @@ public static class BitmapExtensions {
         float maxWidth = float.MaxValue,
         float maxHeight = float.MaxValue
     ) {
-        using (var format =
-               new TextFormat(deviceResources.DirectWriteFactory, fontFamily, fontWeight, fontStyle, fontSize)) {
-            return new TextLayout(deviceResources.DirectWriteFactory, text, format, maxWidth, maxHeight);
-        }
+        using var format =
+               new TextFormat(deviceResources.DirectWriteFactory, fontFamily, fontWeight, fontStyle, fontSize);
+        return new TextLayout(deviceResources.DirectWriteFactory, text, format, maxWidth, maxHeight);
     }
 
     public static Guid ToWICImageFormat(this Direct2DImageFormat format) {
@@ -198,17 +194,17 @@ public static class BitmapExtensions {
         var pixelDataSize = stride * height;
         var systemStream = new MemoryStream(54 + pixelDataSize);
         using (var writer = new BinaryWriter(systemStream, Encoding.UTF8, true)) {
-            writer.Write((byte) 'B');
-            writer.Write((byte) 'M');
+            writer.Write((byte)'B');
+            writer.Write((byte)'M');
             writer.Write(54 + pixelDataSize);
-            writer.Write((short) 0);
-            writer.Write((short) 0);
+            writer.Write((short)0);
+            writer.Write((short)0);
             writer.Write(54);
             writer.Write(40);
             writer.Write(width);
             writer.Write(-height);
-            writer.Write((short) 1);
-            writer.Write((short) 32);
+            writer.Write((short)1);
+            writer.Write((short)32);
             writer.Write(0);
             writer.Write(pixelDataSize);
             writer.Write(96 * 39);
@@ -229,21 +225,19 @@ public static class BitmapExtensions {
         Direct2DImageFormat imageType,
         Color4 color
     ) {
-        using (var bmp = CreateBitmapStream(deviceResources,
+        using var bmp = CreateBitmapStream(deviceResources,
                                             width,
                                             height,
                                             imageType,
                                             target => {
-                                                using (var brush =
+                                                using var brush =
                                                        new SolidColorBrush(
                                                            target,
                                                            color,
-                                                           new BrushProperties {Opacity = color.GetAlpha()})) {
-                                                    target.FillRectangle(new RectangleF(0, 0, width, height), brush);
-                                                }
-                                            })) {
-            return bmp.ToMemoryStream(deviceResources, imageType);
-        }
+                                                           new BrushProperties { Opacity = color.GetAlpha() });
+                                                target.FillRectangle(new RectangleF(0, 0, width, height), brush);
+                                            });
+        return bmp.ToMemoryStream(deviceResources, imageType);
     }
 
     public static MemoryStream CreateLinearGradientBitmapStream(
@@ -257,31 +251,28 @@ public static class BitmapExtensions {
         ExtendMode extendMode = ExtendMode.Clamp,
         Gamma gamma = Gamma.StandardRgb
     ) {
-        using (var bmp = CreateBitmapStream(deviceResources,
+        using var bmp = CreateBitmapStream(deviceResources,
                                             width,
                                             height,
                                             imageType,
                                             target => {
-                                                using (var gradientCol =
+                                                using var gradientCol =
                                                        new GradientStopCollection(
                                                            target,
                                                            gradients,
                                                            gamma,
-                                                           extendMode)) {
-                                                    using (var brush = new LinearGradientBrush(target,
-                                                               new LinearGradientBrushProperties {
-                                                                   StartPoint = startPoint,
-                                                                   EndPoint = endPoint
-                                                               },
-                                                               gradientCol)) {
-                                                        target.FillRectangle(
-                                                            new RectangleF(0, 0, width, height),
-                                                            brush);
-                                                    }
-                                                }
-                                            })) {
-            return bmp.ToMemoryStream(deviceResources, imageType);
-        }
+                                                           extendMode);
+                                                using var brush = new LinearGradientBrush(target,
+                                                           new LinearGradientBrushProperties {
+                                                               StartPoint = startPoint,
+                                                               EndPoint = endPoint
+                                                           },
+                                                           gradientCol);
+                                                target.FillRectangle(
+                                                    new RectangleF(0, 0, width, height),
+                                                    brush);
+                                            });
+        return bmp.ToMemoryStream(deviceResources, imageType);
     }
 
     public static MemoryStream CreateRadiusGradientBitmapStream(
@@ -297,33 +288,30 @@ public static class BitmapExtensions {
         ExtendMode extendMode = ExtendMode.Clamp,
         Gamma gamma = Gamma.StandardRgb
     ) {
-        using (var bmp = CreateBitmapStream(deviceResources,
+        using var bmp = CreateBitmapStream(deviceResources,
                                             width,
                                             height,
                                             imageType,
                                             target => {
-                                                using (var gradientCol =
+                                                using var gradientCol =
                                                        new GradientStopCollection(
                                                            target,
                                                            gradients,
                                                            gamma,
-                                                           extendMode)) {
-                                                    using (var brush = new RadialGradientBrush(target,
-                                                               new RadialGradientBrushProperties {
-                                                                   Center = center,
-                                                                   GradientOriginOffset = gradientOriginOffset,
-                                                                   RadiusX = radiusX,
-                                                                   RadiusY = radiusY
-                                                               },
-                                                               gradientCol)) {
-                                                        target.FillRectangle(
-                                                            new RectangleF(0, 0, width, height),
-                                                            brush);
-                                                    }
-                                                }
-                                            })) {
-            return bmp.ToMemoryStream(deviceResources, imageType);
-        }
+                                                           extendMode);
+                                                using var brush = new RadialGradientBrush(target,
+                                                           new RadialGradientBrushProperties {
+                                                               Center = center,
+                                                               GradientOriginOffset = gradientOriginOffset,
+                                                               RadiusX = radiusX,
+                                                               RadiusY = radiusY
+                                                           },
+                                                           gradientCol);
+                                                target.FillRectangle(
+                                                    new RectangleF(0, 0, width, height),
+                                                    brush);
+                                            });
+        return bmp.ToMemoryStream(deviceResources, imageType);
     }
 
 
@@ -353,7 +341,7 @@ public static class BitmapExtensions {
         int fontSize = 64,
         int faceSize = 100
     ) {
-        using (var bmp = CreateBitmapStream(deviceResources,
+        using var bmp = CreateBitmapStream(deviceResources,
                                             faceSize * 6,
                                             faceSize,
                                             Direct2DImageFormat.Bmp,
@@ -368,7 +356,7 @@ public static class BitmapExtensions {
                                                     frontTextColor, backTextColor, leftTextColor, rightTextColor,
                                                     topTextColor, bottomTextColor
                                                 };
-                                                var texts = new[] {front, back, right, left, top, down};
+                                                var texts = new[] { front, back, right, left, top, down };
                                                 for (var i = 0; i < 6; ++i) {
                                                     using (var layout = texts[i].GetTextLayoutMetrices(deviceResources,
                                                                fontSize,
@@ -394,9 +382,8 @@ public static class BitmapExtensions {
                                                     faceRect.Left += faceSize;
                                                     faceRect.Width = faceSize;
                                                 }
-                                            })) {
-            return bmp.ToMemoryStream(deviceResources);
-        }
+                                            });
+        return bmp.ToMemoryStream(deviceResources);
     }
 
     public static TextureModel CreateViewBoxTextureModel(
@@ -425,7 +412,7 @@ public static class BitmapExtensions {
         int fontSize = 64,
         int faceSize = 100
     ) {
-        using (var bmp = CreateBitmapStream(deviceResources,
+        using var bmp = CreateBitmapStream(deviceResources,
                                             faceSize * 6,
                                             faceSize,
                                             Direct2DImageFormat.Bmp,
@@ -440,7 +427,7 @@ public static class BitmapExtensions {
                                                     frontTextColor, backTextColor, leftTextColor, rightTextColor,
                                                     topTextColor, bottomTextColor
                                                 };
-                                                var texts = new[] {front, back, right, left, top, down};
+                                                var texts = new[] { front, back, right, left, top, down };
                                                 for (var i = 0; i < 6; ++i) {
                                                     using (var layout = texts[i].GetTextLayoutMetrices(deviceResources,
                                                                fontSize,
@@ -466,9 +453,8 @@ public static class BitmapExtensions {
                                                     faceRect.Left += faceSize;
                                                     faceRect.Width = faceSize;
                                                 }
-                                            })) {
-            return bmp.ToTextureModel(deviceResources);
-        }
+                                            });
+        return bmp.ToTextureModel(deviceResources);
     }
 
     private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
@@ -531,40 +517,39 @@ public static class BitmapExtensions {
         int maxHeight = 2048,
         bool squareImage = true
     ) {
-        using (var imagePacker = new TextInfoExtPacker(effectsManager)) {
-            var code = imagePacker.Pack(items,
-                                        true,
-                                        squareImage,
-                                        maxWidth,
-                                        maxHeight,
-                                        2,
-                                        out var bitmap,
-                                        out var imageWidth,
-                                        out var imageHeight,
-                                        out var map);
-            if (code == ImagePackReturnCode.Succeed)
-                using (bitmap) {
-                    var stream = bitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
-                    var model = new BillboardImage3D(stream);
-                    foreach (var imageInfo in items.Select((x, i) => {
-                                 var rect = map[i];
-                                 return new ImageInfo {
-                                     Width = rect.Width,
-                                     Height = rect.Height,
-                                     Position = x.Origin,
-                                     UV_TopLeft = new Vector2(rect.Left / imageWidth, rect.Top / imageHeight),
-                                     UV_BottomRight = new Vector2(rect.Right / imageWidth, rect.Bottom / imageHeight),
-                                     HorizontalAlignment = x.HorizontalAlignment,
-                                     VerticalAlignment = x.VerticalAlignment,
-                                     Scale = x.Scale
-                                 };
-                             }))
-                        model.ImageInfos.Add(imageInfo);
-                    return model;
-                }
+        using var imagePacker = new TextInfoExtPacker(effectsManager);
+        var code = imagePacker.Pack(items,
+                                    true,
+                                    squareImage,
+                                    maxWidth,
+                                    maxHeight,
+                                    2,
+                                    out var bitmap,
+                                    out var imageWidth,
+                                    out var imageHeight,
+                                    out var map);
+        if (code == ImagePackReturnCode.Succeed)
+            using (bitmap) {
+                var stream = bitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
+                var model = new BillboardImage3D(stream);
+                foreach (var imageInfo in items.Select((x, i) => {
+                    var rect = map[i];
+                    return new ImageInfo {
+                        Width = rect.Width,
+                        Height = rect.Height,
+                        Position = x.Origin,
+                        UV_TopLeft = new Vector2(rect.Left / imageWidth, rect.Top / imageHeight),
+                        UV_BottomRight = new Vector2(rect.Right / imageWidth, rect.Bottom / imageHeight),
+                        HorizontalAlignment = x.HorizontalAlignment,
+                        VerticalAlignment = x.VerticalAlignment,
+                        Scale = x.Scale
+                    };
+                }))
+                    model.ImageInfos.Add(imageInfo);
+                return model;
+            }
 
-            logger.LogError("Failed to pack TextInfoExts, Error Code = {0}", code.ToString());
-            return null;
-        }
+        Logger.Error("Failed to pack TextInfoExts, Error Code = {Value0}", code.ToString());
+        return null;
     }
 }

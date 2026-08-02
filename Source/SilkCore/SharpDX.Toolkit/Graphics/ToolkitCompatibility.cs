@@ -26,7 +26,7 @@ public readonly struct Format : IEquatable<Format> {
     }
 
     public static explicit operator int(Format format) {
-        return (int) format.NativeFormat;
+        return (int)format.NativeFormat;
     }
 
     public bool Equals(Format other) {
@@ -344,10 +344,9 @@ internal static unsafe class Utilities {
     }
 
     public static byte[] ReadStream(Stream stream) {
-        using (var memoryStream = new MemoryStream()) {
-            stream.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        return memoryStream.ToArray();
     }
 
     public static int SizeOf<T>() where T : struct {
@@ -363,11 +362,11 @@ internal static unsafe class Utilities {
     }
 
     public static T Read<T>(nint source) where T : unmanaged {
-        return *(T*) source.ToPointer();
+        return *(T*)source.ToPointer();
     }
 
     public static void Read<T>(nint source, T[] destination, int startIndex, int count) where T : unmanaged {
-        if (destination == null) throw new ArgumentNullException(nameof(destination));
+        destination.AssertArgumentNotNull();
 
         fixed (T* destinationPointer = &destination[startIndex]) {
             Buffer.MemoryCopy(source.ToPointer(),
@@ -378,11 +377,11 @@ internal static unsafe class Utilities {
     }
 
     public static void Write<T>(nint destination, ref T value) where T : unmanaged {
-        *(T*) destination.ToPointer() = value;
+        *(T*)destination.ToPointer() = value;
     }
 
     public static void Write<T>(nint destination, T[] source, int startIndex, int count) where T : unmanaged {
-        if (source == null) throw new ArgumentNullException(nameof(source));
+        source.AssertArgumentNotNull();
 
         fixed (T* sourcePointer = &source[startIndex]) {
             Buffer.MemoryCopy(sourcePointer, destination.ToPointer(), count * sizeof(T), count * sizeof(T));
@@ -390,12 +389,12 @@ internal static unsafe class Utilities {
     }
 
     public static void Pin<T>(T[] source, Action<nint> action) where T : unmanaged {
-        if (source == null) throw new ArgumentNullException(nameof(source));
+        source.AssertArgumentNotNull();
 
-        if (action == null) throw new ArgumentNullException(nameof(action));
+        action.AssertArgumentNotNull();
 
         fixed (T* sourcePointer = source) {
-            action((nint) sourcePointer);
+            action((nint)sourcePointer);
         }
     }
 }

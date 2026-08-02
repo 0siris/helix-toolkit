@@ -23,7 +23,7 @@ namespace HelixToolkit.SharpDX.Core {
 #if MSAASEPARATE
                 hasMSAA = currSampleDesc.Count > 1 || currSampleDesc.Quality > 0;
 #endif
-                if (width != (int) context.ActualWidth || height != (int) context.ActualHeight
+                if (width != (int)context.ActualWidth || height != (int)context.ActualHeight
                                                        || sampleDesc.Count != currSampleDesc.Count ||
                                                        sampleDesc.Quality != currSampleDesc.Quality) {
                     RemoveAndDispose(ref colorTarget);
@@ -32,8 +32,8 @@ namespace HelixToolkit.SharpDX.Core {
                     RemoveAndDispose(ref alphaTargetNoMSAA);
                     sampleDesc = currSampleDesc;
 
-                    width = (int) context.ActualWidth;
-                    height = (int) context.ActualHeight;
+                    width = (int)context.ActualWidth;
+                    height = (int)context.ActualHeight;
                     colorDesc.Width = alphaDesc.Width = width;
                     colorDesc.Height = alphaDesc.Height = height;
                     colorDesc.SampleDescription = alphaDesc.SampleDescription = sampleDesc;
@@ -82,7 +82,7 @@ namespace HelixToolkit.SharpDX.Core {
                 deviceContext.ClearRenderTargetView(colorTarget, Color.Zero);
                 deviceContext.ClearRenderTargetView(alphaTarget, Color.White);
                 deviceContext.SetRenderTargets(context.RenderHost.DepthStencilBufferView,
-                                               new RenderTargetView[] {colorTarget, alphaTarget});
+                                               [colorTarget, alphaTarget]);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -144,7 +144,7 @@ namespace HelixToolkit.SharpDX.Core {
                 context.OITRenderStage = OITRenderStage.SinglePassWeighted;
                 var parameter = ExternRenderParameter;
                 if (!parameter.ScissorRegion.IsEmpty) {
-                    parameter.RenderTargetView = new RenderTargetView[] {colorTarget, alphaTarget};
+                    parameter.RenderTargetView = [colorTarget, alphaTarget];
                     RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
                                                                            context.RenderHost.PerFrameTransparentNodes,
                                                                            ref parameter,
@@ -170,7 +170,7 @@ namespace HelixToolkit.SharpDX.Core {
                 deviceContext.Draw(4, 0);
             }
 
-        #region Variables
+            #region Variables
 
             private ShaderResourceViewProxy colorTarget;
             private ShaderResourceViewProxy alphaTarget;
@@ -207,15 +207,15 @@ namespace HelixToolkit.SharpDX.Core {
             private int colorTexIndex, alphaTexIndex, samplerIndex;
             private RenderTargetView[] targets;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             public int RenderCount { get; private set; }
 
             public RenderParameter ExternRenderParameter { get; set; }
 
-        #endregion
+            #endregion
         }
     }
 }

@@ -6,26 +6,26 @@
 
 namespace SimpleDemo;
 
-using System.Linq;
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Core;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Vector2 = Silk.NET.Maths.Vector2D<float>;
-using Vector3 = Silk.NET.Maths.Vector3D<float>;
-using Colors = System.Windows.Media.Colors;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
-using HelixToolkit.Wpf;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Windows.Input;
 using System;
+using System.IO;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using D2DFontStyle = HelixToolkit.SharpDX.Core.FontStyle;
 using D2DFontWeight = HelixToolkit.SharpDX.Core.FontWeight;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -143,35 +143,35 @@ public class MainViewModel : BaseViewModel {
         Text = new BillboardText3D();
         int numRows = 11;
         int numColumns = 11;
-        string[] texts = new string[] {
+        string[] texts = [
             "HelixToolkit",
             "abcde",
             "random",
             "SharpDX",
             "DirectX"
-        };
+        ];
         float angle = 0;
         for (var i = 0; i < numRows; i++) {
             for (var j = 0; j < numColumns; j++) {
-                angle += (float) Math.PI / 10;
+                angle += (float)Math.PI / 10;
                 Text.TextInfo.Add(new TextInfo(texts[(i + j) % texts.Length],
                                                new Vector3((i - numRows / 2), 0.0f, (j - numColumns / 2))) {
-                    Foreground = new Color4((float) i / numRows,
-                                            1 - (float) i / numRows,
-                                            (float) (numColumns - j) / numColumns,
+                    Foreground = new Color4((float)i / numRows,
+                                            1 - (float)i / numRows,
+                                            (float)(numColumns - j) / numColumns,
                                             1f),
-                    Background = new Color4(1 - (float) i / numRows,
-                                            (float) (numColumns - j) / numColumns,
-                                            (float) i / numRows,
+                    Background = new Color4(1 - (float)i / numRows,
+                                            (float)(numColumns - j) / numColumns,
+                                            (float)i / numRows,
                                             0.8f),
-                    Scale = Math.Max(0.01f, (float) i / numRows * 0.02f),
+                    Scale = Math.Max(0.01f, (float)i / numRows * 0.02f),
                     Angle = angle
                 });
             }
         }
 
         Billboard1Model = new BillboardSingleText3D() {
-            TextInfo = new TextInfo("Model 1", new Vector3(0, 1, 0)) {Angle = 0},
+            TextInfo = new TextInfo("Model 1", new Vector3(0, 1, 0)) { Angle = 0 },
             FontColor = Colors.Blue.ToColor4(),
             FontSize = 12,
             BackgroundColor = Colors.Plum.ToColor4(),
@@ -180,9 +180,9 @@ public class MainViewModel : BaseViewModel {
         };
 
         var background = Colors.Blue;
-        background.A = (byte) 120;
+        background.A = (byte)120;
         Billboard2Model = new BillboardSingleText3D() {
-            TextInfo = new TextInfo("Model 2", new Vector3(2, 1, 0)) {Angle = -(float) Math.PI / 3},
+            TextInfo = new TextInfo("Model 2", new Vector3(2, 1, 0)) { Angle = -(float)Math.PI / 3 },
             FontSize = 12,
             FontColor = Colors.Green.ToColor4(),
             BackgroundColor = background.ToColor4(),
@@ -190,9 +190,9 @@ public class MainViewModel : BaseViewModel {
             Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
         };
         background = Colors.Purple;
-        background.A = (byte) 50;
+        background.A = (byte)50;
         Billboard3Model = new BillboardSingleText3D(2, 0.8f) {
-            TextInfo = new TextInfo("Model 3", new Vector3(-2, 1, 0)) {Angle = -(float) Math.PI / 6},
+            TextInfo = new TextInfo("Model 3", new Vector3(-2, 1, 0)) { Angle = -(float)Math.PI / 6 },
             FontSize = 12,
             FontColor = Colors.Red.ToColor4(),
             BackgroundColor = background.ToColor4(),
@@ -203,8 +203,9 @@ public class MainViewModel : BaseViewModel {
 
 
         //BillboardImageModel = new BillboardSingleImage3D(CreateBitmapSample()) { MaskColor = Color.Black };
-        BillboardImageModel = new BillboardSingleImage3D(CreatePNGSample(), 1, 1) {Angle = -(float) Math.PI / 5};
-        BillboardImageModel.Center = new Vector3(2, 2, 0);
+        BillboardImageModel = new BillboardSingleImage3D(CreatePNGSample(), 1, 1) {
+            Angle = -(float)Math.PI / 5, Center = new Vector3(2, 2, 0)
+        };
 
         UpXCommand = new RelayCommand(x => { UpDirection = new Vector3D(1, 0, 0); });
         UpYCommand = new RelayCommand(x => { UpDirection = new Vector3D(0, 1, 0); });
@@ -216,13 +217,13 @@ public class MainViewModel : BaseViewModel {
                                                               Direct2DImageFormat.Bmp,
                                                               new Vector2(0, 0),
                                                               new Vector2(0, 128),
-                                                              new GradientStop[] {
+                                                              [
                                                                   new GradientStop()
                                                                       {Color = Colors.White.ToColor4(), Position = 0f},
                                                                   new GradientStop() {
                                                                       Color = Colors.DarkGray.ToColor4(), Position = 1f
                                                                   }
-                                                              });
+                                                              ]);
     }
 
     private BitmapSource CreateBitmapSample() {

@@ -35,12 +35,12 @@ public class OffReader : IModelReader {
     ///     Initializes a new instance of the <see cref="OffReader" /> class.
     /// </summary>
     public OffReader() {
-        Vertices = new List<Point3D>();
+        Vertices = [];
 
         // this.VertexColors = new List<Color>();
         // this.TexCoords = new PointCollection();
         // this.Normals = new Vector3DCollection();
-        Faces = new List<int[]>();
+        Faces = [];
     }
 
     /// <summary>
@@ -65,9 +65,8 @@ public class OffReader : IModelReader {
     /// <param name="info">The model info.</param>
     /// <returns>The model.</returns>
     public Object3DGroup Read(string path, ModelInfo info = default) {
-        using (var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Read(s, info);
-        }
+        using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Read(s, info);
     }
 
     /// <summary>
@@ -109,17 +108,17 @@ public class OffReader : IModelReader {
     public Object3DGroup BuildModel(ModelInfo info = default) {
         Object3DGroup modelGroup = null;
 
-        modelGroup = new Object3DGroup();
+        modelGroup = [];
         var g = CreateMeshGeometry3D(info);
-        var gm = new Object3D {Geometry = g, Transform = new List<Matrix>()};
-
-        gm.Material = new PhongMaterialCore {
-            Name = "DefaultVRML",
-            AmbientColor = new Color(0.2f, 0.2f, 0.2f),
-            DiffuseColor = new Color(0.8f, 0.8f, 0.8f),
-            SpecularColor = new Color(0.0f, 0.0f, 0.0f),
-            EmissiveColor = new Color(0.0f, 0.0f, 0.0f),
-            SpecularShininess = 25.6f
+        var gm = new Object3D {
+            Geometry = g, Transform = [], Material = new PhongMaterialCore {
+                Name = "DefaultVRML",
+                AmbientColor = new Color(0.2f, 0.2f, 0.2f),
+                DiffuseColor = new Color(0.8f, 0.8f, 0.8f),
+                SpecularColor = new Color(0.0f, 0.0f, 0.0f),
+                EmissiveColor = new Color(0.0f, 0.0f, 0.0f),
+                SpecularShininess = 25.6f
+            }
         };
         modelGroup.Add(gm);
         return modelGroup;
@@ -133,94 +132,93 @@ public class OffReader : IModelReader {
     ///     The stream.
     /// </param>
     private void Load(Stream s) {
-        using (var reader = new StreamReader(s)) {
-            var containsNormals = false;
-            var containsTextureCoordinates = false;
-            var containsColors = false;
-            var containsHomogeneousCoordinates = false;
-            var vertexDimension = 3;
-            var nextLineContainsVertexDimension = false;
-            var nextLineContainsNumberOfVertices = false;
-            var numberOfVertices = 0;
-            var numberOfFaces = 0;
-            // int numberOfEdges = 0;
+        using var reader = new StreamReader(s);
+        var containsNormals = false;
+        var containsTextureCoordinates = false;
+        var containsColors = false;
+        var containsHomogeneousCoordinates = false;
+        var vertexDimension = 3;
+        var nextLineContainsVertexDimension = false;
+        var nextLineContainsNumberOfVertices = false;
+        var numberOfVertices = 0;
+        var numberOfFaces = 0;
+        // int numberOfEdges = 0;
 
-            while (!reader.EndOfStream) {
-                var line = reader.ReadLine();
-                if (line == null) break;
+        while (!reader.EndOfStream) {
+            var line = reader.ReadLine();
+            if (line == null) break;
 
-                line = line.Trim();
-                if (line.StartsWith("#") || line.Length == 0) continue;
+            line = line.Trim();
+            if (line.StartsWith("#") || line.Length == 0) continue;
 
-                if (nextLineContainsVertexDimension) {
-                    var values = GetIntValues(line);
-                    vertexDimension = values[0];
-                    nextLineContainsVertexDimension = false;
-                    continue;
+            if (nextLineContainsVertexDimension) {
+                var values = GetIntValues(line);
+                vertexDimension = values[0];
+                nextLineContainsVertexDimension = false;
+                continue;
+            }
+
+            if (line.Contains("OFF")) {
+                containsNormals = line.Contains("N");
+                containsColors = line.Contains("C");
+                containsTextureCoordinates = line.Contains("ST");
+                if (line.Contains("4")) containsHomogeneousCoordinates = true;
+
+                if (line.Contains("n")) nextLineContainsVertexDimension = true;
+
+                nextLineContainsNumberOfVertices = true;
+                continue;
+            }
+
+            if (nextLineContainsNumberOfVertices) {
+                var values = GetIntValues(line);
+                numberOfVertices = values[0];
+                numberOfFaces = values[1];
+
+                /* numberOfEdges = values[2]; */
+                nextLineContainsNumberOfVertices = false;
+                continue;
+            }
+
+            if (Vertices.Count < numberOfVertices) {
+                var x = new double[vertexDimension];
+                var values = GetValues(line);
+                var i = 0;
+                for (var j = 0; j < vertexDimension; j++) x[j] = values[i++];
+
+                var n = new double[vertexDimension];
+                var uv = new double[2];
+                double w = 0;
+                if (containsHomogeneousCoordinates) w = values[i++];
+
+                if (containsNormals)
+                    for (var j = 0; j < vertexDimension; j++)
+                        n[j] = values[i++];
+
+                if (containsColors) {
+                    // read color
                 }
 
-                if (line.Contains("OFF")) {
-                    containsNormals = line.Contains("N");
-                    containsColors = line.Contains("C");
-                    containsTextureCoordinates = line.Contains("ST");
-                    if (line.Contains("4")) containsHomogeneousCoordinates = true;
+                if (containsTextureCoordinates)
+                    for (var j = 0; j < 2; j++)
+                        uv[j] = values[i++];
 
-                    if (line.Contains("n")) nextLineContainsVertexDimension = true;
+                Vertices.Add(new Point3D((float)x[0], (float)x[1], (float)x[2]));
 
-                    nextLineContainsNumberOfVertices = true;
-                    continue;
+                continue;
+            }
+
+            if (Faces.Count < numberOfFaces) {
+                var values = GetIntValues(line);
+                var nv = values[0];
+                var vertices = new int[nv];
+                for (var i = 0; i < nv; i++) vertices[i] = values[i + 1];
+
+                if (containsColors) {
+                    // read colorspec
                 }
 
-                if (nextLineContainsNumberOfVertices) {
-                    var values = GetIntValues(line);
-                    numberOfVertices = values[0];
-                    numberOfFaces = values[1];
-
-                    /* numberOfEdges = values[2]; */
-                    nextLineContainsNumberOfVertices = false;
-                    continue;
-                }
-
-                if (Vertices.Count < numberOfVertices) {
-                    var x = new double[vertexDimension];
-                    var values = GetValues(line);
-                    var i = 0;
-                    for (var j = 0; j < vertexDimension; j++) x[j] = values[i++];
-
-                    var n = new double[vertexDimension];
-                    var uv = new double[2];
-                    double w = 0;
-                    if (containsHomogeneousCoordinates) w = values[i++];
-
-                    if (containsNormals)
-                        for (var j = 0; j < vertexDimension; j++)
-                            n[j] = values[i++];
-
-                    if (containsColors) {
-                        // read color
-                    }
-
-                    if (containsTextureCoordinates)
-                        for (var j = 0; j < 2; j++)
-                            uv[j] = values[i++];
-
-                    Vertices.Add(new Point3D((float) x[0], (float) x[1], (float) x[2]));
-
-                    continue;
-                }
-
-                if (Faces.Count < numberOfFaces) {
-                    var values = GetIntValues(line);
-                    var nv = values[0];
-                    var vertices = new int[nv];
-                    for (var i = 0; i < nv; i++) vertices[i] = values[i + 1];
-
-                    if (containsColors) {
-                        // read colorspec
-                    }
-
-                    Faces.Add(vertices);
-                }
+                Faces.Add(vertices);
             }
         }
     }
@@ -235,7 +233,7 @@ public class OffReader : IModelReader {
     ///     Array of integer values.
     /// </returns>
     private static int[] GetIntValues(string input) {
-        var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
         var result = new int[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i]);
 
@@ -252,7 +250,7 @@ public class OffReader : IModelReader {
     ///     Array of double values.
     /// </returns>
     private static double[] GetValues(string input) {
-        var fields = RemoveComments(input).Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = double.Parse(fields[i], CultureInfo.InvariantCulture);
 

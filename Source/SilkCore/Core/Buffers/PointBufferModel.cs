@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class PointGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct {
-            protected static readonly VertexStruct[] emptyVerts = new VertexStruct[0];
+            protected static readonly VertexStruct[] emptyVerts = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="PointGeometryBufferModel{VertexStruct}" /> class.

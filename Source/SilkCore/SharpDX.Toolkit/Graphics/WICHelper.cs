@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace SharpDX.Toolkit.Graphics;
 
 internal static class WICHelper {
-    private static readonly ILogger logger = LogManager.Create(nameof(WICHelper));
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
     ///     Loads the first frame of an image supported by WIC.
@@ -31,7 +31,7 @@ internal static class WICHelper {
                                                BitmapCacheOption.OnLoad);
             if (decoder.Frames.Count == 0) return null;
             if (decoder.Frames.Count > 1)
-                logger.LogWarning("WIC image contains {FrameCount} frames; only frame 0 is loaded.", decoder.Frames.Count);
+                Logger.Warn("WIC image contains {FrameCount} frames; only frame 0 is loaded.", decoder.Frames.Count);
 
             BitmapSource source = decoder.Frames[0];
             if (source.Format != PixelFormats.Bgra32)
@@ -47,10 +47,10 @@ internal static class WICHelper {
                 throw;
             }
         } catch (FileFormatException ex) {
-            logger.LogWarning(ex, "WIC could not decode the image data.");
+            Logger.Warn(ex, "WIC could not decode the image data.");
             return null;
         } catch (NotSupportedException ex) {
-            logger.LogWarning(ex, "WIC does not support the image data.");
+            Logger.Warn(ex, "WIC does not support the image data.");
             return null;
         }
     }

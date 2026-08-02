@@ -9,16 +9,16 @@ namespace Workitem10043;
 using System.Globalization;
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using HelixToolkit.Wpf;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }

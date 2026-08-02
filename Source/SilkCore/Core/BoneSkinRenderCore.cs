@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -48,8 +48,8 @@ namespace HelixToolkit.SharpDX.Core {
                 set {
                     var old = sharedBoneBuffer;
                     if (Set(ref sharedBoneBuffer, value)) {
-                        if (old != null) old.BoneChanged -= OnBoneChanged;
-                        if (value != null) value.BoneChanged += OnBoneChanged;
+                        old?.BoneChanged -= OnBoneChanged;
+                        value?.BoneChanged += OnBoneChanged;
                         matricsChanged = true;
                     }
                 }

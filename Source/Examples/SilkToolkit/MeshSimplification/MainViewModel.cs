@@ -7,24 +7,24 @@
 namespace MeshSimplification;
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using Media3D = System.Windows.Media.Media3D;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Data;
-using HelixToolkit.Wpf.SharpDX.Extensions;
-using System.Windows.Input;
-using System.Threading.Tasks;
-using System.Diagnostics;
+using Media3D = System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
@@ -140,13 +140,14 @@ public class MainViewModel : BaseViewModel {
 
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
         ResetCommand = new RelayCommand((o) => {
-                                            Model = OrgMesh;
-                                            simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
-                                        },
+            Model = OrgMesh;
+            simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
+        },
                                         CanSimplify);
         simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         var reader = new ObjReader();
         var list = reader.Read(path);
@@ -166,9 +167,10 @@ public class MainViewModel : BaseViewModel {
         object viewModel,
         BindingMode mode = BindingMode.TwoWay
     ) {
-        var binding = new Binding(path);
-        binding.Source = viewModel;
-        binding.Mode = mode;
+        var binding = new Binding(path) {
+            Source = viewModel,
+            Mode = mode
+        };
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
@@ -192,10 +194,10 @@ public class MainViewModel : BaseViewModel {
             model.Normals = model.CalculateNormals();
             return model;
         }).ContinueWith(x => {
-                            Busy = false;
-                            Model = x.Result;
-                            CommandManager.InvalidateRequerySuggested();
-                        },
+            Busy = false;
+            Model = x.Result;
+            CommandManager.InvalidateRequerySuggested();
+        },
                         TaskScheduler.FromCurrentSynchronizationContext());
     }
 }

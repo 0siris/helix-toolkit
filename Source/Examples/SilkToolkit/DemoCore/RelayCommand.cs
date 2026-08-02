@@ -25,14 +25,14 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// method is 'true'.
 /// </summary>
 public class RelayCommand : ICommand {
-#region Fields
+    #region Fields
 
-    readonly Action<object> _execute;
-    readonly Predicate<object> _canExecute;
+    private readonly Action<object> _execute;
+    private readonly Predicate<object> _canExecute;
 
-#endregion // Fields
+    #endregion // Fields
 
-#region Constructors
+    #region Constructors
 
     /// <summary>
     /// Creates a new command that can always execute.
@@ -54,13 +54,13 @@ public class RelayCommand : ICommand {
         _canExecute = canExecute;
     }
 
-#endregion // Constructors
+    #endregion // Constructors
 
-#region ICommand Members
+    #region ICommand Members
 
     [DebuggerStepThrough]
     public bool CanExecute(object parameter) {
-        return _canExecute == null ? true : _canExecute(parameter);
+        return _canExecute == null || _canExecute(parameter);
     }
 
     public event EventHandler CanExecuteChanged {
@@ -72,5 +72,5 @@ public class RelayCommand : ICommand {
         _execute(parameter);
     }
 
-#endregion // ICommand Members
+    #endregion // ICommand Members
 }

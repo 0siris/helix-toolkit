@@ -72,7 +72,7 @@ public class ImporterConfiguration {
     /// <summary>
     ///     The assimp property configuration
     /// </summary>
-    public PropertyConfig[] AssimpPropertyConfig = null;
+    public PropertyConfig[]? AssimpPropertyConfig = null;
 
     /// <summary>
     ///     The build octree automatically during loading.
@@ -97,7 +97,7 @@ public class ImporterConfiguration {
     /// <summary>
     ///     The external context. Can be use to do more customized configuration for Assimp Importer
     /// </summary>
-    public AssimpContext ExternalContext = null;
+    public AssimpContext? ExternalContext = null;
 
     /// <summary>
     ///     The flip triangle winding order during import
@@ -148,7 +148,7 @@ public class ImporterConfiguration {
     /// <summary>
     ///     The skeleton material
     /// </summary>
-    public MaterialCore SkeletonMaterial = new DiffuseMaterialCore {DiffuseColor = new Color4(1, 0, 0, 1)};
+    public MaterialCore SkeletonMaterial = new DiffuseMaterialCore { DiffuseColor = new Color4(1, 0, 0, 1) };
 
     /// <summary>
     ///     The skeleton size scale

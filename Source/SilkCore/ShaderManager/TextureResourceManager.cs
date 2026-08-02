@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -18,10 +18,10 @@ namespace HelixToolkit.SharpDX.Core;
 ///     </para>
 /// </summary>
 public sealed class TextureResourceManager : IDisposable, ITextureResourceManager {
-    private static readonly ILogger logger = LogManager.Create<TextureResourceManager>();
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     private readonly object device;
-    private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryMipMaps = new();
-    private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryNoMipMaps = new();
+    private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryMipMaps = [];
+    private readonly Dictionary<Guid, ShaderResourceViewProxy> resourceDictionaryNoMipMaps = [];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="TextureResourceManager" /> class.
@@ -53,12 +53,12 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
         var targetDict = enableAutoGenMipMap ? resourceDictionaryMipMaps : resourceDictionaryNoMipMaps;
         lock (targetDict) {
             if (targetDict.TryGetValue(textureModel.Guid, out var view)) {
-                if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Re-using existing texture resource");
+                if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Re-using existing texture resource");
                 view.IncRef();
                 return view;
             }
 
-            if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("Creating new texture resource");
+            if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Creating new texture resource");
             var proxy = new ShaderResourceViewProxy(device);
             proxy.CreateView(textureModel, true, enableAutoGenMipMap);
             proxy.Guid = textureModel.Guid;
@@ -72,7 +72,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
         }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool disposedValue; // To detect redundant calls
 
@@ -111,5 +111,5 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
         // GC.SuppressFinalize(this);
     }
 
-#endregion
+    #endregion
 }

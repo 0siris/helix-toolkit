@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
@@ -46,7 +46,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 }
             }
 
-        #region Dependency Properties
+            #region Dependency Properties
 
             public static readonly DependencyProperty CommandProperty = DependencyProperty.Register("Command",
                 typeof(ICommand),
@@ -54,13 +54,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                 new PropertyMetadata(null));
 
             public ICommand Command {
-                get => (ICommand) GetValue(CommandProperty);
+                get => (ICommand)GetValue(CommandProperty);
                 set => SetValue(CommandProperty, value);
             }
 
-        #endregion
+            #endregion
 
-        #region Events
+            #region Events
 
             public static readonly RoutedEvent Clicked2DEvent =
                 EventManager.RegisterRoutedEvent("Clicked2D",
@@ -84,7 +84,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                 remove => RemoveHandler(DoubleClicked2DEvent, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

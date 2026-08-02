@@ -15,11 +15,11 @@ namespace HelixToolkit.SharpDX.Core {
             private readonly FastList<T> list;
 
             public ObservableFastList() {
-                list = new FastList<T>();
+                list = [];
             }
 
             public ObservableFastList(IEnumerable<T> collection) {
-                list = new FastList<T>(collection);
+                list = [.. collection];
                 CollectionChanged?.Invoke(this,
                                           new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }

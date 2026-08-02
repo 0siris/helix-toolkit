@@ -17,13 +17,14 @@ namespace HelixToolkit.SharpDX.Core {
             // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
             private static readonly D3D11 D3D11Api = D3D11.GetApi(null);
 
-            private static readonly D3DFeatureLevel[] DefaultFeatureLevels = {
+            private static readonly D3DFeatureLevel[] DefaultFeatureLevels = [
                 D3DFeatureLevel.Level111,
                 D3DFeatureLevel.Level110,
                 D3DFeatureLevel.Level101,
                 D3DFeatureLevel.Level100
-            };
+            ];
 
+            [Obsolete]
             public static SilkD3DDeviceResources CreateDefault(
                 int adapterIndex = 0,
                 SilkDriverType driverType = SilkDriverType.Hardware,
@@ -41,9 +42,9 @@ namespace HelixToolkit.SharpDX.Core {
                     var result = D3D11Api.CreateDevice(null,
                                                        ToSilkDriverType(driverType),
                                                        nint.Zero,
-                                                       (uint) flags,
+                                                       (uint)flags,
                                                        featureLevels,
-                                                       (uint) DefaultFeatureLevels.Length,
+                                                       (uint)DefaultFeatureLevels.Length,
                                                        D3D11SdkVersion,
                                                        ref nativeDevice,
                                                        ref selectedFeatureLevel,
@@ -61,11 +62,11 @@ namespace HelixToolkit.SharpDX.Core {
 
             private static D3DDriverType ToSilkDriverType(SilkDriverType driverType) {
                 return driverType switch {
-                    SilkDriverType.Hardware  => D3DDriverType.Hardware,
-                    SilkDriverType.Warp      => D3DDriverType.Warp,
+                    SilkDriverType.Hardware => D3DDriverType.Hardware,
+                    SilkDriverType.Warp => D3DDriverType.Warp,
                     SilkDriverType.Reference => D3DDriverType.Reference,
-                    SilkDriverType.Software  => D3DDriverType.Software,
-                    _                        => D3DDriverType.Unknown
+                    SilkDriverType.Software => D3DDriverType.Software,
+                    _ => D3DDriverType.Unknown
                 };
             }
 
@@ -75,10 +76,10 @@ namespace HelixToolkit.SharpDX.Core {
                     D3DFeatureLevel.Level110 => SilkFeatureLevel.Level_11_0,
                     D3DFeatureLevel.Level101 => SilkFeatureLevel.Level_10_1,
                     D3DFeatureLevel.Level100 => SilkFeatureLevel.Level_10_0,
-                    D3DFeatureLevel.Level93  => SilkFeatureLevel.Level_9_3,
-                    D3DFeatureLevel.Level92  => SilkFeatureLevel.Level_9_2,
-                    D3DFeatureLevel.Level91  => SilkFeatureLevel.Level_9_1,
-                    _                        => SilkFeatureLevel.Unknown
+                    D3DFeatureLevel.Level93 => SilkFeatureLevel.Level_9_3,
+                    D3DFeatureLevel.Level92 => SilkFeatureLevel.Level_9_2,
+                    D3DFeatureLevel.Level91 => SilkFeatureLevel.Level_9_1,
+                    _ => SilkFeatureLevel.Unknown
                 };
             }
         }

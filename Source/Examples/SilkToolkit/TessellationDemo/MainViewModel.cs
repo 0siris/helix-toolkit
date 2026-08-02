@@ -9,20 +9,20 @@
 
 namespace TessellationDemo;
 
+using System.Collections.Generic;
 using System.Linq;
 using DemoCore;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using HelixToolkit.SharpDX.Core.Core;
-using System.Collections.Generic;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public Geometry3D DefaultModel { get; private set; }
@@ -145,10 +145,11 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
+    [System.Obsolete]
     private void LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() {Faces = faces});
+        var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
         var model = objModel[0].Geometry as MeshGeometry3D;
         model.Colors = new Color4Collection(model.Positions.Select(x => new Color4(1, 0, 0, 1)));
         DefaultModel = model;

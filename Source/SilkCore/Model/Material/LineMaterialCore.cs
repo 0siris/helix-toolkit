@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -18,7 +18,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new LineMaterialVariable(manager, technique, this);
             }
 
-        #region Properties
+            #region Properties
 
             private float thickness = 0.5f;
 
@@ -133,7 +133,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => Set(ref samplerDescription, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

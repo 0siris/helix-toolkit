@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -117,15 +117,15 @@ namespace HelixToolkit.SharpDX.Core {
                 new ShaderReflector(),
                 DefaultGSShaderByteCodes.GSMeshBoneSkinnedOut) {
                 IsGSStreamOut = true,
-                GSSOElement = new[] {
+                GSSOElement = [
                     new StreamOutputElement(0, "POSITION", 0, 0, 4, 0),
                     new StreamOutputElement(0, "NORMAL", 0, 0, 3, 0),
                     new StreamOutputElement(0, "TANGENT", 0, 0, 3, 0),
                     new StreamOutputElement(0, "BINORMAL", 0, 0, 3, 0)
-                },
-                GSSOStrides = new[] {
+                ],
+                GSSOStrides = [
                     DefaultVertex.SizeInBytes
-                }
+                ]
             };
         }
     }

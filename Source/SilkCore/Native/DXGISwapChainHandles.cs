@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using Silk.NET.DXGI;
+using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
 using SilkDXGIFactory2Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGIFactory2>;
 using SilkDXGISwapChain1Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGISwapChain1>;
-using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
 
 namespace HelixToolkit.SharpDX.Core;
 
@@ -86,7 +86,7 @@ public unsafe class SwapChain1 : IDisposable {
     protected SwapChain1(SwapChainDescription1 description) {
         Description1 = description;
         Description = new SwapChainDescription {
-            ModeDescription = new ModeDescription {Format = description.Format},
+            ModeDescription = new ModeDescription { Format = description.Format },
             Flags = description.Flags
         };
     }
@@ -98,7 +98,7 @@ public unsafe class SwapChain1 : IDisposable {
         this.device = device ?? throw new ArgumentNullException(nameof(device));
         Description1 = description;
         Description = new SwapChainDescription {
-            ModeDescription = new ModeDescription {Format = description.Format},
+            ModeDescription = new ModeDescription { Format = description.Format },
             Flags = description.Flags
         };
         SurfacePointer = surfacePointer;
@@ -127,7 +127,7 @@ public unsafe class SwapChain1 : IDisposable {
         PresentParameters presentParameters
     ) {
         ThrowIfDisposed();
-        var result = swapChain.Present((uint) syncInterval, (uint) presentFlags);
+        var result = swapChain.Present((uint)syncInterval, (uint)presentFlags);
         Marshal.ThrowExceptionForHR(result);
         return new PresentResult(true);
     }
@@ -135,8 +135,8 @@ public unsafe class SwapChain1 : IDisposable {
     public virtual void ResizeBuffers(int bufferCount, int width, int height, Format format, SwapChainFlags flags) {
         ThrowIfDisposed();
         Marshal.ThrowExceptionForHR(swapChain.ResizeBuffers(0,
-                                                            (uint) Math.Max(1, width),
-                                                            (uint) Math.Max(1, height),
+                                                            (uint)Math.Max(1, width),
+                                                            (uint)Math.Max(1, height),
                                                             Format.FormatUnknown,
                                                             0));
 
@@ -153,7 +153,7 @@ public unsafe class SwapChain1 : IDisposable {
             Flags = flags
         };
         Description = new SwapChainDescription {
-            ModeDescription = new ModeDescription {Format = format},
+            ModeDescription = new ModeDescription { Format = format },
             Flags = flags
         };
     }
@@ -163,7 +163,7 @@ public unsafe class SwapChain1 : IDisposable {
 
         ID3D11Texture2D* texture = null;
         var textureGuid = Texture2DGuid;
-        Marshal.ThrowExceptionForHR(swapChain.GetBuffer(0, &textureGuid, (void**) &texture));
+        Marshal.ThrowExceptionForHR(swapChain.GetBuffer(0, &textureGuid, (void**)&texture));
         var nativeTexture = new SilkD3D11Texture2DPtr(texture);
         texture->Release();
 
@@ -185,31 +185,31 @@ public unsafe class SwapChain1 : IDisposable {
     private void CreateNativeSwapChain() {
         IDXGIFactory2* factoryHandle = null;
         var factoryGuid = Factory2Guid;
-        Marshal.ThrowExceptionForHR(DxgiApi.CreateDXGIFactory2(0, &factoryGuid, (void**) &factoryHandle));
+        Marshal.ThrowExceptionForHR(DxgiApi.CreateDXGIFactory2(0, &factoryGuid, (void**)&factoryHandle));
         factory = new SilkDXGIFactory2Ptr(factoryHandle);
         factoryHandle->Release();
 
         var description = new SwapChainDesc1 {
-            Width = (uint) Math.Max(1, Description1.Width),
-            Height = (uint) Math.Max(1, Description1.Height),
+            Width = (uint)Math.Max(1, Description1.Width),
+            Height = (uint)Math.Max(1, Description1.Height),
             Format = Description1.Format,
             Stereo = false,
-            SampleDesc = new SampleDesc((uint) Description1.SampleDescription.Count,
-                                        (uint) Description1.SampleDescription.Quality),
-            BufferUsage = (uint) Description1.Usage,
-            BufferCount = (uint) Description1.BufferCount,
-            Scaling = (Silk.NET.DXGI.Scaling) Description1.Scaling,
-            SwapEffect = (Silk.NET.DXGI.SwapEffect) Description1.SwapEffect,
+            SampleDesc = new SampleDesc((uint)Description1.SampleDescription.Count,
+                                        (uint)Description1.SampleDescription.Quality),
+            BufferUsage = (uint)Description1.Usage,
+            BufferCount = (uint)Description1.BufferCount,
+            Scaling = (Silk.NET.DXGI.Scaling)Description1.Scaling,
+            SwapEffect = (Silk.NET.DXGI.SwapEffect)Description1.SwapEffect,
             AlphaMode = AlphaMode.Unspecified,
-            Flags = (uint) Description1.Flags
+            Flags = (uint)Description1.Flags
         };
 
         IDXGISwapChain1* swapChainHandle = null;
-        Marshal.ThrowExceptionForHR(factory.CreateSwapChainForHwnd((IUnknown*) device.Handle,
+        Marshal.ThrowExceptionForHR(factory.CreateSwapChainForHwnd((IUnknown*)device.Handle,
                                                                    SurfacePointer,
                                                                    &description,
-                                                                   (SwapChainFullscreenDesc*) null,
-                                                                   (IDXGIOutput*) null,
+                                                                   (SwapChainFullscreenDesc*)null,
+                                                                   (IDXGIOutput*)null,
                                                                    &swapChainHandle));
         swapChain = new SilkDXGISwapChain1Ptr(swapChainHandle);
         swapChainHandle->Release();

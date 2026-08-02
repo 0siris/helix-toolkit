@@ -10,7 +10,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 namespace HelixToolkit.SharpDX.Core.Controls;
 
 public abstract class MouseGestureHandler {
-    private List<HitTestResult> hits = new();
+    private List<HitTestResult> hits = [];
 
     /// <summary>
     ///     Use to invert the left handed system
@@ -241,7 +241,7 @@ public abstract class MouseGestureHandler {
 
     protected virtual void Completed(Vector2 e) {
         var elapsed =
-            (double) (Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
+            (double)(Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
             1000; //this.ManipulationWatch.ElapsedMilliseconds;
         if (elapsed > 0 && elapsed < Controller.SpinReleaseTime) OnInertiaStarting(elapsed);
         startTick = Stopwatch.GetTimestamp();

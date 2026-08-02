@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -68,9 +68,9 @@ namespace HelixToolkit.SharpDX.Core {
             /// <returns></returns>
             public void UpdateSceneGraph2D(RenderContext2D context, FastList<SceneNode2D> renderables) {
                 renderables.PreorderDFTRun(x => {
-                                               x.Update(context);
-                                               return x.IsRenderable;
-                                           },
+                    x.Update(context);
+                    return x.IsRenderable;
+                },
                                            stack2DCache1);
             }
 

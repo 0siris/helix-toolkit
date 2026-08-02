@@ -252,7 +252,7 @@ namespace HelixToolkit.SharpDX.Core {
             Description = description;
         }
 
-        public nint NativePointer => (nint) nativeState.Handle;
+        public nint NativePointer => (nint)nativeState.Handle;
 
         internal ID3D11BlendState* Handle => nativeState.Handle;
 
@@ -279,7 +279,7 @@ namespace HelixToolkit.SharpDX.Core {
             Description = description;
         }
 
-        public nint NativePointer => (nint) nativeState.Handle;
+        public nint NativePointer => (nint)nativeState.Handle;
 
         internal ID3D11DepthStencilState* Handle => nativeState.Handle;
 
@@ -303,7 +303,7 @@ namespace HelixToolkit.SharpDX.Core {
             Description = description;
         }
 
-        public nint NativePointer => (nint) nativeState.Handle;
+        public nint NativePointer => (nint)nativeState.Handle;
 
         internal ID3D11RasterizerState* Handle => nativeState.Handle;
 
@@ -327,7 +327,7 @@ namespace HelixToolkit.SharpDX.Core {
             Description = description;
         }
 
-        public nint NativePointer => (nint) nativeState.Handle;
+        public nint NativePointer => (nint)nativeState.Handle;
 
         internal ID3D11SamplerState* Handle => nativeState.Handle;
 
@@ -356,13 +356,13 @@ namespace HelixToolkit.SharpDX.Core {
                     var renderTarget = i < renderTargets.Length ? renderTargets[i] : default;
                     desc.RenderTarget[i] = new RenderTargetBlendDesc {
                         BlendEnable = new Bool32(renderTarget.IsBlendEnabled),
-                        SrcBlend = (Blend) renderTarget.SourceBlend,
-                        DestBlend = (Blend) renderTarget.DestinationBlend,
-                        BlendOp = (BlendOp) renderTarget.BlendOperation,
-                        SrcBlendAlpha = (Blend) renderTarget.SourceAlphaBlend,
-                        DestBlendAlpha = (Blend) renderTarget.DestinationAlphaBlend,
-                        BlendOpAlpha = (BlendOp) renderTarget.AlphaBlendOperation,
-                        RenderTargetWriteMask = (byte) renderTarget.RenderTargetWriteMask
+                        SrcBlend = (Blend)renderTarget.SourceBlend,
+                        DestBlend = (Blend)renderTarget.DestinationBlend,
+                        BlendOp = (BlendOp)renderTarget.BlendOperation,
+                        SrcBlendAlpha = (Blend)renderTarget.SourceAlphaBlend,
+                        DestBlendAlpha = (Blend)renderTarget.DestinationAlphaBlend,
+                        BlendOpAlpha = (BlendOp)renderTarget.AlphaBlendOperation,
+                        RenderTargetWriteMask = (byte)renderTarget.RenderTargetWriteMask
                     };
                 }
 
@@ -372,8 +372,8 @@ namespace HelixToolkit.SharpDX.Core {
             public static DepthStencilDesc ToSilkDesc(this DepthStencilStateDescription description) {
                 return new DepthStencilDesc {
                     DepthEnable = new Bool32(description.IsDepthEnabled),
-                    DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask) description.DepthWriteMask,
-                    DepthFunc = (ComparisonFunc) description.DepthComparison,
+                    DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask)description.DepthWriteMask,
+                    DepthFunc = (ComparisonFunc)description.DepthComparison,
                     StencilEnable = new Bool32(description.IsStencilEnabled),
                     StencilReadMask = description.StencilReadMask,
                     StencilWriteMask = description.StencilWriteMask,
@@ -384,17 +384,17 @@ namespace HelixToolkit.SharpDX.Core {
 
             public static DepthStencilopDesc ToSilkDesc(this DepthStencilOperationDescription description) {
                 return new DepthStencilopDesc {
-                    StencilFailOp = (StencilOp) description.FailOperation,
-                    StencilDepthFailOp = (StencilOp) description.DepthFailOperation,
-                    StencilPassOp = (StencilOp) description.PassOperation,
-                    StencilFunc = (ComparisonFunc) description.Comparison
+                    StencilFailOp = (StencilOp)description.FailOperation,
+                    StencilDepthFailOp = (StencilOp)description.DepthFailOperation,
+                    StencilPassOp = (StencilOp)description.PassOperation,
+                    StencilFunc = (ComparisonFunc)description.Comparison
                 };
             }
 
             public static RasterizerDesc ToSilkDesc(this RasterizerStateDescription description) {
                 return new RasterizerDesc {
-                    FillMode = (Silk.NET.Direct3D11.FillMode) description.FillMode,
-                    CullMode = (Silk.NET.Direct3D11.CullMode) description.CullMode,
+                    FillMode = (Silk.NET.Direct3D11.FillMode)description.FillMode,
+                    CullMode = (Silk.NET.Direct3D11.CullMode)description.CullMode,
                     FrontCounterClockwise = new Bool32(description.IsFrontCounterClockwise),
                     DepthBias = description.DepthBias,
                     DepthBiasClamp = description.DepthBiasClamp,
@@ -408,13 +408,13 @@ namespace HelixToolkit.SharpDX.Core {
 
             public static unsafe SamplerDesc ToSilkDesc(this SamplerStateDescription description) {
                 var desc = new SamplerDesc {
-                    Filter = (Silk.NET.Direct3D11.Filter) description.Filter,
-                    AddressU = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressU,
-                    AddressV = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressV,
-                    AddressW = (Silk.NET.Direct3D11.TextureAddressMode) description.AddressW,
+                    Filter = (Silk.NET.Direct3D11.Filter)description.Filter,
+                    AddressU = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressU,
+                    AddressV = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressV,
+                    AddressW = (Silk.NET.Direct3D11.TextureAddressMode)description.AddressW,
                     MipLODBias = description.MipLodBias,
-                    MaxAnisotropy = (uint) description.MaximumAnisotropy,
-                    ComparisonFunc = (ComparisonFunc) description.ComparisonFunction,
+                    MaxAnisotropy = (uint)description.MaximumAnisotropy,
+                    ComparisonFunc = (ComparisonFunc)description.ComparisonFunction,
                     MinLOD = description.MinimumLod,
                     MaxLOD = description.MaximumLod
                 };

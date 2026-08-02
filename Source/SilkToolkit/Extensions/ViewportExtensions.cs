@@ -27,7 +27,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Provides extension methods for <see cref="Viewport3DX" />.
 /// </summary>
 public static class ViewportExtensions {
-    public static readonly HitTestResult[] EmptyHits = new HitTestResult[0];
+    public static readonly HitTestResult[] EmptyHits = [];
 
     /// <summary>
     ///     Gets the total number of triangles in the viewport.
@@ -148,7 +148,7 @@ public static class ViewportExtensions {
     ///     The action.
     /// </param>
     public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D {
-        var sceneNode = new[] {element.SceneNode};
+        var sceneNode = new[] { element.SceneNode };
         element.Traverse(action);
     }
 
@@ -336,23 +336,22 @@ public static class ViewportExtensions {
     public static BitmapSource RenderBitmap(this Viewport3DX view) {
         if (view.RenderHost != null && view.RenderHost.IsRendering) {
             view.RenderHost.UpdateAndRender();
-            using (var memoryStream = new MemoryStream()) {
-                if (view.RenderHost != null && view.RenderHost.IsRendering) {
-                    if (view.EnableSwapChainRendering) view.RenderHost.UpdateAndRender();
-                    // be sure to render the Scene before capture, otherwise the image is just black
-                    ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
-                                                               view.RenderHost.RenderBuffer.BackBuffer
-                                                                   .Resource as Texture2D,
-                                                               memoryStream);
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    memoryStream.Position = 0;
-                    bitmap.StreamSource = memoryStream;
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    bitmap.Freeze();
-                    return bitmap;
-                }
+            using var memoryStream = new MemoryStream();
+            if (view.RenderHost != null && view.RenderHost.IsRendering) {
+                if (view.EnableSwapChainRendering) view.RenderHost.UpdateAndRender();
+                // be sure to render the Scene before capture, otherwise the image is just black
+                ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
+                                                           view.RenderHost.RenderBuffer.BackBuffer
+                                                               .Resource as Texture2D,
+                                                           memoryStream);
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                memoryStream.Position = 0;
+                bitmap.StreamSource = memoryStream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                return bitmap;
             }
         }
 
@@ -375,7 +374,7 @@ public static class ViewportExtensions {
         var h = view.RenderHost.ActualHeight;
         view.RenderHost.Resize(width, height);
         var rtb = view.RenderBitmap();
-        view.RenderHost.Resize((int) w, (int) h);
+        view.RenderHost.Resize((int)w, (int)h);
         return rtb;
     }
 

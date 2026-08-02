@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -65,17 +65,17 @@ namespace HelixToolkit.SharpDX.Core {
 
                 blendState = passDescription.BlendStateDescription != null
                                  ? manager.StateManager.Register(
-                                     (BlendStateDescription) passDescription.BlendStateDescription)
+                                     (BlendStateDescription)passDescription.BlendStateDescription)
                                  : BlendStateProxy.Empty;
 
                 depthStencilState = passDescription.DepthStencilStateDescription != null
                                         ? manager.StateManager.Register(
-                                            (DepthStencilStateDescription) passDescription.DepthStencilStateDescription)
+                                            (DepthStencilStateDescription)passDescription.DepthStencilStateDescription)
                                         : DepthStencilStateProxy.Empty;
 
                 rasterState = passDescription.RasterStateDescription != null
                                   ? manager.StateManager.Register(
-                                      (RasterizerStateDescription) passDescription.RasterStateDescription)
+                                      (RasterizerStateDescription)passDescription.RasterStateDescription)
                                   : RasterizerStateProxy.Empty;
 
                 BlendFactor = passDescription.BlendFactor;
@@ -180,7 +180,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (Layout != null) context.InputLayout = Layout;
             }
 
-        #region Set Shaders
+            #region Set Shaders
 
             /// <summary>
             ///     Sets the shader.
@@ -215,7 +215,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #endregion
+            #endregion
 
             /// <summary>
             ///     Binds the states.
@@ -282,7 +282,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Get Shaders
+            #region Get Shaders
 
             /// <summary>
             ///     <see cref="ShaderPass.GetShader(ShaderStage)" />
@@ -369,7 +369,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return ComputeShader;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

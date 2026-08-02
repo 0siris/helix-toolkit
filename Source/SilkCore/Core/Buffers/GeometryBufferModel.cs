@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -14,8 +14,8 @@ namespace HelixToolkit.SharpDX.Core {
         ///     General Geometry Buffer Model.
         /// </summary>
         public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBufferModel {
-            private static readonly IElementsBufferProxy[] emptyBuffers = new IElementsBufferProxy[0];
-            private static readonly VertexBufferBinding[] emptyBinding = new VertexBufferBinding[0];
+            private static readonly IElementsBufferProxy[] emptyBuffers = [];
+            private static readonly VertexBufferBinding[] emptyBinding = [];
 
             private Geometry3D geometry;
 
@@ -80,9 +80,9 @@ namespace HelixToolkit.SharpDX.Core {
                 get => geometry;
                 set {
                     if (geometry == value) return;
-                    if (geometry != null) geometry.PropertyChanged -= Geometry_PropertyChanged;
+                    geometry?.PropertyChanged -= Geometry_PropertyChanged;
                     geometry = value;
-                    if (geometry != null) geometry.PropertyChanged += Geometry_PropertyChanged;
+                    geometry?.PropertyChanged += Geometry_PropertyChanged;
                     for (var i = 0; i < VertexBuffer.Length; ++i) VertexChanged |= 1u << i;
                     IndexChanged = true;
                     InvalidateRenderer();
@@ -209,10 +209,10 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             protected virtual VertexBufferBinding[] OnCreateVertexBufferBinding() {
-                return VertexBuffer.Select(x =>
+                return [.. VertexBuffer.Select(x =>
                                                x != null
                                                    ? new VertexBufferBinding(x.Buffer, x.StructureSize, x.Offset)
-                                                   : new VertexBufferBinding()).ToArray();
+                                                   : new VertexBufferBinding())];
             }
 
             /// <summary>
@@ -281,7 +281,7 @@ namespace HelixToolkit.SharpDX.Core {
             ///     release only unmanaged resources.
             /// </param>
             protected override void OnDispose(bool disposeManagedResources) {
-                if (geometry != null) geometry.PropertyChanged -= Geometry_PropertyChanged;
+                geometry?.PropertyChanged -= Geometry_PropertyChanged;
                 geometry = null;
                 for (var i = 0; i < VertexBuffer.Length; ++i) RemoveAndDispose(VertexBuffer[i]);
                 VertexBuffer = emptyBuffers;
@@ -291,7 +291,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDispose(disposeManagedResources);
             }
 
-        #region Constructors
+            #region Constructors
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="GeometryBufferModel" /> class.
@@ -305,7 +305,7 @@ namespace HelixToolkit.SharpDX.Core {
                 IElementsBufferProxy indexBuffer
             ) {
                 Topology = topology;
-                VertexBuffer = vertexBuffer != null ? new[] {vertexBuffer} : emptyBuffers;
+                VertexBuffer = vertexBuffer != null ? [vertexBuffer] : emptyBuffers;
                 VertexChanged = 1u;
                 this.IndexBuffer = indexBuffer;
             }
@@ -330,7 +330,7 @@ namespace HelixToolkit.SharpDX.Core {
                 this.IndexBuffer = indexBuffer;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

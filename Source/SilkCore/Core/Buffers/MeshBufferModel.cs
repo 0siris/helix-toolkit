@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -14,8 +14,8 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         /// <typeparam name="VertexStruct"></typeparam>
         public abstract class MeshGeometryBufferModel<VertexStruct> : GeometryBufferModel where VertexStruct : struct {
-            protected static readonly VertexStruct[] emptyVerts = new VertexStruct[0];
-            protected static readonly int[] emptyIndices = new int[0];
+            protected static readonly VertexStruct[] emptyVerts = [];
+            protected static readonly int[] emptyIndices = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="MeshGeometryBufferModel{VertexStruct}" /> class.
@@ -118,19 +118,19 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVertex> {
-            private static readonly Vector2[] emptyTextureArray = new Vector2[0];
-            private static readonly Vector4[] emptyColorArray = new Vector4[0];
+            private static readonly Vector2[] emptyTextureArray = [];
+            private static readonly Vector4[] emptyColorArray = [];
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel" /> class.
             /// </summary>
             public DefaultMeshGeometryBufferModel()
                 : base(PrimitiveTopology.TriangleList,
-                       new[] {
+                       [
                            new ImmutableBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
                            new ImmutableBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
                            new ImmutableBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
-                       }) { }
+                       ]) { }
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="DefaultMeshGeometryBufferModel" /> class.
@@ -264,11 +264,11 @@ namespace HelixToolkit.SharpDX.Core {
             ///     Initializes a new instance of the <see cref="DynamicMeshGeometryBufferModel" /> class.
             /// </summary>
             public DynamicMeshGeometryBufferModel()
-                : base(new[] {
+                : base([
                            new DynamicBufferProxy(DefaultVertex.SizeInBytes, BindFlags.VertexBuffer),
                            new DynamicBufferProxy(SilkMath.Vector2SizeInBytes, BindFlags.VertexBuffer),
                            new DynamicBufferProxy(SilkMath.Vector4SizeInBytes, BindFlags.VertexBuffer)
-                       },
+                       ],
                        true) { }
         }
     }

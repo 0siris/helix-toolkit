@@ -57,7 +57,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(VertexShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +72,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(DomainShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,7 +87,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(HullShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,7 +102,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(GeometryShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -117,7 +117,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(PixelShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,7 +132,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ShaderResourceView[] GetShaderResources(ComputeShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<ShaderResourceView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -167,7 +167,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public UnorderedAccessView[] GetUnorderedAccessView(ComputeShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<UnorderedAccessView>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -182,7 +182,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(VertexShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -197,7 +197,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(DomainShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -212,7 +212,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(HullShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -227,7 +227,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(GeometryShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -242,7 +242,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(PixelShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -257,7 +257,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SamplerStateProxy[] GetSampler(ComputeShaderType shaderType, int startSlot, int num) {
-                return Array.Empty<SamplerStateProxy>();
+                return [];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

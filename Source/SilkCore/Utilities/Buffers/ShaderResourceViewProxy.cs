@@ -131,28 +131,27 @@ namespace HelixToolkit.SharpDX.Core {
                 try {
                     if (texture.CanSeek) texture.Position = 0;
 
-                    using (var image = Image.Load(texture)) {
-                        if (image == null || image.Description.Dimension != TextureDimension.Texture2D) return;
+                    using var image = Image.Load(texture);
+                    if (image == null || image.Description.Dimension != TextureDimension.Texture2D) return;
 
-                        RemoveAndDispose(ref textureView);
-                        RemoveAndDispose(ref resource);
+                    RemoveAndDispose(ref textureView);
+                    RemoveAndDispose(ref resource);
 
-                        var description = new Texture2DDescription {
-                            Width = image.Description.Width,
-                            Height = image.Description.Height,
-                            MipLevels = image.Description.MipLevels,
-                            ArraySize = image.Description.ArraySize,
-                            Format = image.Description.Format,
-                            SampleDescription = new SampleDescription(1, 0),
-                            BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
-                            CpuAccessFlags = CpuAccessFlags.None,
-                            OptionFlags = ResourceOptionFlags.None,
-                            Usage = ResourceUsage.Immutable
-                        };
-                        resource = nativeDevice.CreateTexture2D(description, image.ToDataBox());
-                        TextureFormat = description.Format;
-                        if (createSRV) CreateTextureView();
-                    }
+                    var description = new Texture2DDescription {
+                        Width = image.Description.Width,
+                        Height = image.Description.Height,
+                        MipLevels = image.Description.MipLevels,
+                        ArraySize = image.Description.ArraySize,
+                        Format = image.Description.Format,
+                        SampleDescription = new SampleDescription(1, 0),
+                        BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                        CpuAccessFlags = CpuAccessFlags.None,
+                        OptionFlags = ResourceOptionFlags.None,
+                        Usage = ResourceUsage.Immutable
+                    };
+                    resource = nativeDevice.CreateTexture2D(description, image.ToDataBox());
+                    TextureFormat = description.Format;
+                    if (createSRV) CreateTextureView();
                 } finally {
                     if (texture.CanSeek) texture.Position = originalPosition;
                 }
@@ -248,7 +247,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (array == null || length <= 0) return;
                 unsafe {
                     fixed (T* arrayPtr = array) {
-                        CreateView((nint) arrayPtr, length, format, sizeof(T), createSRV, generateMipMaps);
+                        CreateView((nint)arrayPtr, length, format, sizeof(T), createSRV, generateMipMaps);
                     }
                 }
             }
@@ -276,7 +275,7 @@ namespace HelixToolkit.SharpDX.Core {
                 if (array == null) return;
                 unsafe {
                     fixed (T* arrayPtr = array) {
-                        CreateView((nint) arrayPtr,
+                        CreateView((nint)arrayPtr,
                                    width,
                                    height,
                                    format,
@@ -310,7 +309,7 @@ namespace HelixToolkit.SharpDX.Core {
                 where T : unmanaged {
                 unsafe {
                     fixed (T* pixelsPtr = pixels) {
-                        CreateView((nint) pixelsPtr,
+                        CreateView((nint)pixelsPtr,
                                    width,
                                    height,
                                    depth,
@@ -365,7 +364,7 @@ namespace HelixToolkit.SharpDX.Core {
                     OptionFlags = ResourceOptionFlags.None,
                     Usage = ResourceUsage.Immutable
                 };
-                resource = nativeDevice.CreateTexture1D(desc, new[] {new DataBox(dataPtr, width * bytesPerPixel, 0)});
+                resource = nativeDevice.CreateTexture1D(desc, [new DataBox(dataPtr, width * bytesPerPixel, 0)]);
 
                 if (createSRV) {
                     var srvDesc = new ShaderResourceViewDescription {
@@ -409,11 +408,11 @@ namespace HelixToolkit.SharpDX.Core {
                     Usage = ResourceUsage.Immutable
                 };
                 resource = nativeDevice.CreateTexture2D(desc,
-                                                        new[] {
+                                                        [
                                                             new DataBox(dataPtr,
                                                                         width * bytesPerPixel,
                                                                         width * height * bytesPerPixel)
-                                                        });
+                                                        ]);
 
                 if (createSRV) {
                     var srvDesc = new ShaderResourceViewDescription {
@@ -476,14 +475,14 @@ namespace HelixToolkit.SharpDX.Core {
 
             private static int GetFormatSizeInBytes(Format format) {
                 return format switch {
-                    Format.FormatR8Unorm           => 1,
-                    Format.FormatR16Unorm          => 2,
-                    Format.FormatR32Float          => 4,
-                    Format.FormatR8G8B8A8Unorm     => 4,
-                    Format.FormatB8G8R8A8Unorm     => 4,
+                    Format.FormatR8Unorm => 1,
+                    Format.FormatR16Unorm => 2,
+                    Format.FormatR32Float => 4,
+                    Format.FormatR8G8B8A8Unorm => 4,
+                    Format.FormatB8G8R8A8Unorm => 4,
                     Format.FormatR16G16B16A16Float => 8,
                     Format.FormatR32G32B32A32Float => 16,
-                    _                              => 0
+                    _ => 0
                 };
             }
 
@@ -628,24 +627,24 @@ namespace HelixToolkit.SharpDX.Core {
 
             private static NativeD3DDevice ResolveNativeDevice(object device) {
                 return device switch {
-                    DeviceContextProxy contextProxy        => contextProxy.NativeDevice,
-                    NativeD3DDevice silkDevice             => silkDevice,
+                    DeviceContextProxy contextProxy => contextProxy.NativeDevice,
+                    NativeD3DDevice silkDevice => silkDevice,
                     INativeDeviceResources nativeResources => nativeResources.Device,
-                    IDevice3DResources deviceResources     => deviceResources.NativeDeviceResources?.Device,
-                    _                                      => null
+                    IDevice3DResources deviceResources => deviceResources.NativeDeviceResources?.Device,
+                    _ => null
                 };
             }
 
             public static implicit operator ShaderResourceView(ShaderResourceViewProxy proxy) {
-                return proxy == null ? null : proxy.textureView;
+                return proxy?.textureView;
             }
 
             public static implicit operator DepthStencilView(ShaderResourceViewProxy proxy) {
-                return proxy == null ? null : proxy.depthStencilView;
+                return proxy?.depthStencilView;
             }
 
             public static implicit operator RenderTargetView(ShaderResourceViewProxy proxy) {
-                return proxy == null ? null : proxy.renderTargetView;
+                return proxy?.renderTargetView;
             }
         }
     }

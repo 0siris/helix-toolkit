@@ -88,7 +88,7 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected override bool CanStart() 
+    protected override bool CanStart()
         => Controller.IsPanEnabled && Controller.CameraMode != CameraMode.FixedPosition;
 
     /// <summary>
@@ -98,7 +98,7 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
     ///     The elapsed time (milliseconds).
     /// </param>
     protected override void OnInertiaStarting(double elapsedTime) {
-        var speed = (LastPoint - MouseDownPoint) * (40.0f / (float) elapsedTime);
+        var speed = (LastPoint - MouseDownPoint) * (40.0f / (float)elapsedTime);
         Controller.AddPanForce(speed.X, speed.Y);
     }
 }

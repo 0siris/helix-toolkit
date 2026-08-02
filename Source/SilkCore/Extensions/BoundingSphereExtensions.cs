@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -44,7 +44,7 @@ public static class BoundingSphereExtensions {
         }
 
         //Find the real distance from the DistanceSquared.
-        radius = (float) Math.Sqrt(radius);
+        radius = (float)Math.Sqrt(radius);
 
         //Construct the sphere.
         return new BoundingSphere(center, radius);
@@ -94,7 +94,7 @@ public static class BoundingSphereExtensions {
         var discriminant = b * b - 4f * a * c;
         if (discriminant < 0) return false;
 
-        var root = (float) Math.Sqrt(discriminant);
+        var root = (float)Math.Sqrt(discriminant);
         var inverse = 0.5f / a;
         return (-b - root) * inverse >= 0 || (-b + root) * inverse >= 0;
     }
@@ -122,7 +122,7 @@ public static class BoundingSphereExtensions {
         var worldEdgeY = SilkMath.Transform(edgeY, m);
         var worldEdgeZ = SilkMath.Transform(edgeZ, m);
 
-        var maxRadius = (float) Math.Sqrt(Math.Max(Math.Max((worldEdgeX - worldCenter).LengthSquared(),
+        var maxRadius = (float)Math.Sqrt(Math.Max(Math.Max((worldEdgeX - worldCenter).LengthSquared(),
                                                             (worldEdgeY - worldCenter).LengthSquared()),
                                                    (worldEdgeZ - worldCenter).LengthSquared()));
 

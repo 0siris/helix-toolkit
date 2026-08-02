@@ -34,7 +34,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     public ViewportCore(IRenderHost renderHost) {
         RenderHost = renderHost;
         RenderHost.Viewport = this;
-        RenderHost.DpiScale = (float) DpiScale;
+        RenderHost.DpiScale = (float)DpiScale;
         BackgroundColor = Color.Black;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
@@ -191,7 +191,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         base.OnDispose(disposeManagedResources);
     }
 
-#region Private Methods
+    #region Private Methods
 
     private void HandleExceptionOccured(Exception exception) {
         ErrorOccurred?.Invoke(this, exception);
@@ -231,5 +231,5 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         CameraCore.AnimateTo(newPosition, lookDirection, upDirection, 500);
     }
 
-#endregion
+    #endregion
 }

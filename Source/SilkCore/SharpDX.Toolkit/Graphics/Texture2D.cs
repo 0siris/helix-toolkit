@@ -169,7 +169,7 @@ public class Texture2D : Texture2DBase {
                                         height,
                                         1,
                                         format,
-                                        new[] {GetDataBox(format, width, height, 1, textureData, ptr)},
+                                        [GetDataBox(format, width, height, 1, textureData, ptr)],
                                         flags,
                                         1,
                                         usage);
@@ -262,7 +262,7 @@ public class Texture2D : Texture2DBase {
         if (!(texture is Texture2D))
             throw new ArgumentException(string.Format("Texture is not type of [Texture2D] but [{0}]",
                                                       texture.GetType().Name));
-        return (Texture2D) texture;
+        return (Texture2D)texture;
     }
 
     /// <summary>
@@ -280,9 +280,8 @@ public class Texture2D : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(device, stream, flags, usage);
-        }
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(device, stream, flags, usage);
     }
 
     /// <summary>
@@ -290,6 +289,6 @@ public class Texture2D : Texture2DBase {
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
     public static implicit operator NativeD3DResource(Texture2D from) {
-        return from == null ? null : from.Resource;
+        return from?.Resource;
     }
 }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RenderContext.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
@@ -161,9 +161,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
                 return;
             }
 
-            if (camera != null) camera.PropertyChanged -= Camera_PropertyChanged;
+            camera?.PropertyChanged -= Camera_PropertyChanged;
             camera = value;
-            if (camera != null) camera.PropertyChanged += Camera_PropertyChanged;
+            camera?.PropertyChanged += Camera_PropertyChanged;
             Update();
         }
     }
@@ -227,8 +227,8 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ///     The oit weight mode.
     /// </value>
     public OITWeightMode OITWeightMode {
-        get => (OITWeightMode) globalTransform.OITWeightMode;
-        set => globalTransform.OITWeightMode = (int) value;
+        get => (OITWeightMode)globalTransform.OITWeightMode;
+        set => globalTransform.OITWeightMode = (int)value;
     }
 
     /// <summary>
@@ -244,7 +244,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ///     <c>true</c> if [ssao enabled]; otherwise, <c>false</c>.
     /// </value>
     public bool SSAOEnabled {
-        get => globalTransform.SSAOEnabled == 1u ? true : false;
+        get => globalTransform.SSAOEnabled == 1u;
         set => globalTransform.SSAOEnabled = value ? 1u : 0;
     }
 
@@ -409,7 +409,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
             new Vector4(CameraParams.FOV, CameraParams.AspectRatio, CameraParams.ZNear, CameraParams.ZFar);
         globalTransform.EyePos = CameraParams.Position;
         globalTransform.IsPerspective = !BoundingFrustum.IsOrthographic;
-        globalTransform.TimeStamp = (float) Stopwatch.GetTimestamp() / Stopwatch.Frequency;
+        globalTransform.TimeStamp = (float)Stopwatch.GetTimestamp() / Stopwatch.Frequency;
         globalTransform.DpiScale = DpiScale;
         Viewport = new ViewportF(0, 0, ActualWidth, ActualHeight);
         ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;

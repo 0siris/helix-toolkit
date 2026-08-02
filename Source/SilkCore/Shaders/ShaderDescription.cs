@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -16,7 +16,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// </summary>
         [DataContract]
         public sealed class ShaderDescription {
-            private static readonly ILogger logger = LogManager.Create<ShaderDescription>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             private readonly IShaderByteCodeReader byteCodeReader;
 
@@ -56,9 +56,9 @@ namespace HelixToolkit.SharpDX.Core {
                 ShaderStage type,
                 FeatureLevel featureLevel,
                 byte[] byteCode,
-                ConstantBufferMapping[] constantBuffers = null,
-                TextureMapping[] textures = null,
-                SamplerMapping[] samplers = null
+                ConstantBufferMapping[]? constantBuffers = null,
+                TextureMapping[]? textures = null,
+                SamplerMapping[]? samplers = null
             )
                 : this(name, type, byteCode) {
                 Level = featureLevel;
@@ -96,7 +96,7 @@ namespace HelixToolkit.SharpDX.Core {
                 ShaderStage type,
                 IShaderReflector reflector,
                 string byteCodeName,
-                IShaderByteCodeReader byteCodeReader = null
+                IShaderByteCodeReader? byteCodeReader = null
             ) {
                 Name = name;
                 ShaderType = type;
@@ -211,23 +211,23 @@ namespace HelixToolkit.SharpDX.Core {
             /// <returns></returns>
             internal ShaderBase CreateShader(SilkD3DDevice device, IConstantBufferPool pool) {
                 if (ByteCode == null) return null;
-                ShaderReflector = ShaderReflector ?? new ShaderReflector();
+                ShaderReflector ??= new ShaderReflector();
                 ShaderReflector.Parse(ByteCode, ShaderType);
                 Level = ShaderReflector.FeatureLevel;
                 var deviceFeatureLevel = device.FeatureLevel.ToFeatureLevel();
                 if (Level > deviceFeatureLevel) {
-                    logger.LogWarning(
-                        "Shader {0} requires FeatureLevel {1}. Current device only supports FeatureLevel {2} and below.",
+                    Logger.Warn(
+                        "Shader {Value0} requires FeatureLevel {Value1}. Current device only supports FeatureLevel {Value2} and below.",
                         Name,
                         Level,
                         deviceFeatureLevel);
                     return null;
                 }
 
-                ConstantBufferMappings = ShaderReflector.ConstantBufferMappings.Values.ToArray();
-                TextureMappings = ShaderReflector.TextureMappings.Values.ToArray();
-                UAVMappings = ShaderReflector.UAVMappings.Values.ToArray();
-                SamplerMappings = ShaderReflector.SamplerMappings.Values.ToArray();
+                ConstantBufferMappings = [.. ShaderReflector.ConstantBufferMappings.Values];
+                TextureMappings = [.. ShaderReflector.TextureMappings.Values];
+                UAVMappings = [.. ShaderReflector.UAVMappings.Values];
+                SamplerMappings = [.. ShaderReflector.SamplerMappings.Values];
 
                 ShaderBase shader = null;
                 switch (ShaderType) {
@@ -289,11 +289,11 @@ namespace HelixToolkit.SharpDX.Core {
                                              ShaderType,
                                              Level,
                                              ByteCode,
-                                             ConstantBufferMappings.Select(x => x.Clone()).ToArray(),
-                                             TextureMappings.Select(x => x.Clone()).ToArray());
+                                             [.. ConstantBufferMappings.Select(x => x.Clone())],
+                                             [.. TextureMappings.Select(x => x.Clone())]);
             }
 
-        #region GS Stream output Only
+            #region GS Stream output Only
 
             /// <summary>
             ///     Gets or sets a value indicating whether this instance is gs stream out.
@@ -331,7 +331,7 @@ namespace HelixToolkit.SharpDX.Core {
             [DataMember]
             public int GSSORasterized { get; set; } = -1;
 
-        #endregion
+            #endregion
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core
-{
-    public sealed class HitTestContext {
+namespace HelixToolkit.SharpDX.Core;
+public sealed class HitTestContext {
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
@@ -15,11 +14,11 @@ namespace HelixToolkit.SharpDX.Core
         ///     The hit point on screen space. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP) {
-            RenderMatrices = metrices;
-            RayWS = rayWS;
-            HitPointSP = hitSP;
-        }
+    public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP) {
+        RenderMatrices = metrices;
+        RayWS = rayWS;
+        HitPointSP = hitSP;
+    }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
@@ -30,8 +29,8 @@ namespace HelixToolkit.SharpDX.Core
         ///     The hit point on screen space. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-        public HitTestContext(IRenderMatrices metrices, Ray rayWS, Vector2 hitSP)
-            : this(metrices, ref rayWS, ref hitSP) { }
+    public HitTestContext(IRenderMatrices metrices, Ray rayWS, Vector2 hitSP)
+        : this(metrices, ref rayWS, ref hitSP) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
@@ -39,11 +38,11 @@ namespace HelixToolkit.SharpDX.Core
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
         /// <param name="rayWS">The ray in world space.</param>
-        public HitTestContext(IRenderMatrices metrices, ref Ray rayWS) {
-            RenderMatrices = metrices;
-            RayWS = rayWS;
-            if (metrices != null) HitPointSP = metrices.Project(rayWS.Position);
-        }
+    public HitTestContext(IRenderMatrices metrices, ref Ray rayWS) {
+        RenderMatrices = metrices;
+        RayWS = rayWS;
+        if (metrices != null) HitPointSP = metrices.Project(rayWS.Position);
+    }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
@@ -54,14 +53,14 @@ namespace HelixToolkit.SharpDX.Core
         ///     Screen hit point. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-        public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP) {
-            RenderMatrices = metrices;
-            HitPointSP = hitSP;
-            if (metrices != null) {
-                metrices.UnProject(hitSP, out var ray);
-                RayWS = ray;
-            }
+    public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP) {
+        RenderMatrices = metrices;
+        HitPointSP = hitSP;
+        if (metrices != null) {
+            metrices.UnProject(hitSP, out var ray);
+            RayWS = ray;
         }
+    }
 
         /// <summary>
         ///     Gets or sets the render matrices. This is only needed for line/point hit test.
@@ -69,7 +68,7 @@ namespace HelixToolkit.SharpDX.Core
         /// <value>
         ///     The render matrices.
         /// </value>
-        public IRenderMatrices RenderMatrices { get; set; }
+    public IRenderMatrices RenderMatrices { get; set; }
 
         /// <summary>
         ///     Gets or sets the ray in world space.
@@ -77,7 +76,7 @@ namespace HelixToolkit.SharpDX.Core
         /// <value>
         ///     The ray.
         /// </value>
-        public Ray RayWS { get; set; }
+    public Ray RayWS { get; set; }
 
         /// <summary>
         ///     Gets or sets the hit point on screen space. This is the hit point on viewport region without DpiScaled coordinate.
@@ -85,6 +84,5 @@ namespace HelixToolkit.SharpDX.Core
         /// <value>
         ///     The screen hit point.
         /// </value>
-        public Vector2 HitPointSP { get; set; }
-    }
+    public Vector2 HitPointSP { get; set; }
 }

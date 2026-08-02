@@ -4,19 +4,19 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Media3D = System.Windows.Media.Media3D;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
-using System.Windows.Input;
-using System.Linq;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using Media3D = System.Windows.Media.Media3D;
 
 namespace MorphTargetAnimationDemo;
 
@@ -41,7 +41,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref currTime, value)) {
                 foreach (IAnimationUpdater updater in animationUpdaters) {
-                    updater.Update((float) value, 1);
+                    updater.Update((float)value, 1);
                 }
             }
         }
@@ -74,7 +74,7 @@ public class MainViewModel : BaseViewModel {
         ModelGroup.AddNode(scn.Root);
 
         //Setup each animation, this will actively play all (not always desired)
-        animationUpdaters = new List<IAnimationUpdater>(scn.Animations.CreateAnimationUpdaters().Values);
+        animationUpdaters = [.. scn.Animations.CreateAnimationUpdaters().Values];
         EndTime = scn.Animations.Max(x => x.EndTime);
         PlayCommand = new RelayCommand((o) => {
             if (!IsPlaying) {
@@ -96,7 +96,7 @@ public class MainViewModel : BaseViewModel {
         }
 
         //Update animation. Ensures all animation times are in sync
-        CurrTime = ((t - initTime) / (double) Stopwatch.Frequency) % EndTime;
+        CurrTime = ((t - initTime) / (double)Stopwatch.Frequency) % EndTime;
         t = Stopwatch.GetTimestamp() - t;
         DebugLabel = t.ToString();
     }

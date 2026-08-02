@@ -39,7 +39,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     protected Texture(NativeD3DDevice device, TextureDescription description) : base(device) {
         Description = description;
         IsBlockCompressed = FormatHelper.IsCompressed(description.Format);
-        RowStride = Description.Width * ((PixelFormat) Description.Format).SizeInBytes;
+        RowStride = Description.Width * ((PixelFormat)Description.Format).SizeInBytes;
         DepthStride = RowStride * Description.Height;
     }
 
@@ -177,7 +177,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <returns></returns>
     public static int CalculateMipSize(int width, int mipLevel) {
         mipLevel = Math.Min(mipLevel, CountMips(width));
-        width = width >> mipLevel;
+        width >>= mipLevel;
         return width > 0 ? width : 1;
     }
 
@@ -199,14 +199,14 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <exception cref="System.ArgumentException">If the size is invalid</exception>
     public int CalculateWidth<TData>(int mipLevel = 0) where TData : struct {
         var widthOnMip = CalculateMipSize(Description.Width, mipLevel);
-        var rowStride = widthOnMip * ((PixelFormat) Description.Format).SizeInBytes;
+        var rowStride = widthOnMip * ((PixelFormat)Description.Format).SizeInBytes;
 
         var dataStrideInBytes = Utilities.SizeOf<TData>() * widthOnMip;
-        var width = (double) rowStride / dataStrideInBytes * widthOnMip;
-        if (Math.Abs(width - (int) width) > double.Epsilon)
+        var width = (double)rowStride / dataStrideInBytes * widthOnMip;
+        if (Math.Abs(width - (int)width) > double.Epsilon)
             throw new ArgumentException("sizeof(TData) / sizeof(Format) * Width is not an integer");
 
-        return (int) width;
+        return (int)width;
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     ///     A copy of this texture.
     /// </returns>
     public T Clone<T>() where T : Texture {
-        return (T) Clone();
+        return (T)Clone();
     }
 
     /// <summary>
@@ -331,9 +331,8 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            return Load(device, stream, flags, usage);
-        }
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return Load(device, stream, flags, usage);
     }
 
     /// <summary>
@@ -346,7 +345,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <returns>The resulting mipmap count (clamp to [1, maxMipMapCount] for this texture)</returns>
     internal static int CalculateMipMapCount(MipMapCount requestedLevel, int width, int height = 0, int depth = 0) {
         var size = Math.Max(Math.Max(width, height), depth);
-        var maxMipMap = 1 + (int) Math.Log(size, 2);
+        var maxMipMap = 1 + (int)Math.Log(size, 2);
 
         return requestedLevel == 0 ? maxMipMap : Math.Min(requestedLevel, maxMipMap);
     }
@@ -388,7 +387,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         TextureFlags flags,
         ResourceUsage usage
     ) {
-        var desc = (TextureDescription) image.Description;
+        var desc = (TextureDescription)image.Description;
         desc.BindFlags = BindFlags.ShaderResource;
         desc.Usage = usage;
         if ((flags & TextureFlags.UnorderedAccess) != 0)
@@ -437,12 +436,12 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
 
     internal int GetViewCount() {
         var arrayOrDepthSize = Description.Depth > 1 ? Description.Depth : Description.ArraySize;
-        return GetViewIndex((ViewType) 4, arrayOrDepthSize, Description.MipLevels);
+        return GetViewIndex((ViewType)4, arrayOrDepthSize, Description.MipLevels);
     }
 
     internal int GetViewIndex(ViewType viewType, int arrayOrDepthIndex, int mipIndex) {
         var arrayOrDepthSize = Description.Depth > 1 ? Description.Depth : Description.ArraySize;
-        return ((int) viewType * arrayOrDepthSize + arrayOrDepthIndex) * Description.MipLevels + mipIndex;
+        return ((int)viewType * arrayOrDepthSize + arrayOrDepthIndex) * Description.MipLevels + mipIndex;
     }
 
     private static bool IsPow2(int x) {
@@ -535,13 +534,13 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj))
                 return false;
-            return obj is TextureViewKey && Equals((TextureViewKey) obj);
+            return obj is TextureViewKey && Equals((TextureViewKey)obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (int) ViewFormat;
-                hashCode = (hashCode * 397) ^ (int) ViewType;
+                var hashCode = (int)ViewFormat;
+                hashCode = (hashCode * 397) ^ (int)ViewType;
                 hashCode = (hashCode * 397) ^ ArrayOrDepthSlice;
                 hashCode = (hashCode * 397) ^ MipIndex;
                 return hashCode;

@@ -11,8 +11,8 @@ using System;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
-using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfColor = System.Windows.Media.Color;
+using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace HelixToolkit.Wpf.SharpDX;
@@ -126,8 +126,9 @@ public class RectangleAdorner : Adorner {
         var dpiFactor = 1 / m.M11;
 
         pen = new Pen(new WpfSolidColorBrush(color1), thickness1 * dpiFactor);
-        pen2 = new Pen(new WpfSolidColorBrush(color2), thickness2 * dpiFactor);
-        pen2.DashStyle = dashStyle2;
+        pen2 = new Pen(new WpfSolidColorBrush(color2), thickness2 * dpiFactor) {
+            DashStyle = dashStyle2
+        };
         this.crossHairSize = crossHairSize;
     }
 
@@ -155,13 +156,13 @@ public class RectangleAdorner : Adorner {
 
         var mx = (Rectangle.Left + Rectangle.Right) / 2;
         var my = (Rectangle.Top + Rectangle.Bottom) / 2;
-        mx = (int) mx + halfPenWidth;
-        my = (int) my + halfPenWidth;
+        mx = (int)mx + halfPenWidth;
+        my = (int)my + halfPenWidth;
 
-        var rect = new Rect((int) Rectangle.Left + halfPenWidth,
-                            (int) Rectangle.Top + halfPenWidth,
-                            (int) Rectangle.Width,
-                            (int) Rectangle.Height);
+        var rect = new Rect((int)Rectangle.Left + halfPenWidth,
+                            (int)Rectangle.Top + halfPenWidth,
+                            (int)Rectangle.Width,
+                            (int)Rectangle.Height);
 
         // Create a guidelines set
         /*GuidelineSet guidelines = new GuidelineSet();

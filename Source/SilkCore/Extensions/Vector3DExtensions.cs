@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -36,9 +36,9 @@ public static class VectorExtensions {
         float theta;
 
         if (ratio < 0)
-            theta = (float) (Math.PI - 2.0 * Math.Asin((-vector1 - vector2).Length / 2.0));
+            theta = (float)(Math.PI - 2.0 * Math.Asin((-vector1 - vector2).Length / 2.0));
         else
-            theta = (float) (2.0 * Math.Asin((vector1 - vector2).Length / 2.0));
+            theta = (float)(2.0 * Math.Asin((vector1 - vector2).Length / 2.0));
         return theta;
     }
 
@@ -285,7 +285,7 @@ public static class VectorComparisonExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Size2 ToSize2(this Vector2 s) {
-        return new Size2((int) s.X, (int) s.Y);
+        return new Size2((int)s.X, (int)s.Y);
     }
 
     /// <summary>
@@ -305,7 +305,7 @@ public static class VectorComparisonExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Rectangle ToRectangle(this Vector2 v) {
-        return new Rectangle(0, 0, (int) v.X, (int) v.Y);
+        return new Rectangle(0, 0, (int)v.X, (int)v.Y);
     }
 
     /// <summary>
@@ -345,7 +345,7 @@ public static class VectorComparisonExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Size2 ToSize2(this Size2F s) {
-        return new Size2((int) s.Width, (int) s.Height);
+        return new Size2((int)s.Width, (int)s.Height);
     }
 
     /// <summary>

@@ -6,13 +6,6 @@
 
 namespace FileLoadDemo;
 
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Animations;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Controls;
-using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -21,6 +14,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Model;
+using Microsoft.Win32;
 using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 public class MainViewModel : ObservableObject {
@@ -91,11 +91,11 @@ public class MainViewModel : ObservableObject {
         get { return enableAnimation; }
     }
 
-    public ObservableCollection<Animation> Animations { get; } = new ObservableCollection<Animation>();
+    public ObservableCollection<Animation> Animations { get; } = [];
 
     public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
 
-    private Animation selectedAnimation = null;
+    private Animation? selectedAnimation = null;
 
     public Animation SelectedAnimation {
         set {
@@ -122,8 +122,8 @@ public class MainViewModel : ObservableObject {
     private SynchronizationContext context = SynchronizationContext.Current;
     private HelixToolkitScene scene;
     private NodeAnimationUpdater animationUpdater;
-    private List<BoneSkinMeshNode> boneSkinNodes = new List<BoneSkinMeshNode>();
-    private List<BoneSkinMeshNode> skeletonNodes = new List<BoneSkinMeshNode>();
+    private List<BoneSkinMeshNode> boneSkinNodes = [];
+    private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new CompositionTargetEx();
 
 
@@ -142,7 +142,7 @@ public class MainViewModel : ObservableObject {
             (Camera as OrthographicCamera).FarPlaneDistance = 5000;
             (Camera as OrthographicCamera).NearPlaneDistance = 0.1f;
         });
-        ExportCommand = new DelegateCommand(() => { ExportFile(); });
+        ExportCommand = new DelegateCommand(ExportFile);
         EnvironmentMap = LoadFileToMemory("Cubemap_Grandcanyon.dds");
     }
 
@@ -163,39 +163,39 @@ public class MainViewModel : ObservableObject {
             var loader = new Importer();
             return loader.Load(path);
         }).ContinueWith((result) => {
-                            IsLoading = false;
-                            if (result.IsCompleted) {
-                                scene = result.Result;
-                                Animations.Clear();
-                                GroupModel.Clear();
-                                if (scene != null) {
-                                    if (scene.Root != null) {
-                                        foreach (var node in scene.Root.Traverse()) {
-                                            if (node is MaterialGeometryNode m) {
-                                                if (m.Material is PBRMaterialCore pbr) {
-                                                    pbr.RenderEnvironmentMap = RenderEnvironmentMap;
-                                                } else if (m.Material is PhongMaterialCore phong) {
-                                                    phong.RenderEnvironmentMap = RenderEnvironmentMap;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    GroupModel.AddNode(scene.Root);
-                                    if (scene.HasAnimation) {
-                                        foreach (var ani in scene.Animations) {
-                                            Animations.Add(ani);
-                                        }
-                                    }
-
-                                    foreach (var n in scene.Root.Traverse()) {
-                                        n.Tag = new AttachedNodeViewModel(n);
-                                    }
+            IsLoading = false;
+            if (result.IsCompleted) {
+                scene = result.Result;
+                Animations.Clear();
+                GroupModel.Clear();
+                if (scene != null) {
+                    if (scene.Root != null) {
+                        foreach (var node in scene.Root.Traverse()) {
+                            if (node is MaterialGeometryNode m) {
+                                if (m.Material is PBRMaterialCore pbr) {
+                                    pbr.RenderEnvironmentMap = RenderEnvironmentMap;
+                                } else if (m.Material is PhongMaterialCore phong) {
+                                    phong.RenderEnvironmentMap = RenderEnvironmentMap;
                                 }
-                            } else if (result.IsFaulted && result.Exception != null) {
-                                MessageBox.Show(result.Exception.Message);
                             }
-                        },
+                        }
+                    }
+
+                    GroupModel.AddNode(scene.Root);
+                    if (scene.HasAnimation) {
+                        foreach (var ani in scene.Animations) {
+                            Animations.Add(ani);
+                        }
+                    }
+
+                    foreach (var n in scene.Root.Traverse()) {
+                        n.Tag = new AttachedNodeViewModel(n);
+                    }
+                }
+            } else if (result.IsFaulted && result.Exception != null) {
+                MessageBox.Show(result.Exception.Message);
+            }
+        },
                         TaskScheduler.FromCurrentSynchronizationContext());
     }
 
@@ -208,9 +208,7 @@ public class MainViewModel : ObservableObject {
     }
 
     private void CompositeHelper_Rendering(object sender, System.Windows.Media.RenderingEventArgs e) {
-        if (animationUpdater != null) {
-            animationUpdater.Update(Stopwatch.GetTimestamp(), Stopwatch.Frequency);
-        }
+        animationUpdater?.Update(Stopwatch.GetTimestamp(), Stopwatch.Frequency);
     }
 
     private void ExportFile() {
@@ -238,8 +236,9 @@ public class MainViewModel : ObservableObject {
     }
 
     private int SaveFileDialog(string filter, out string path) {
-        var d = new SaveFileDialog();
-        d.Filter = filter;
+        var d = new SaveFileDialog {
+            Filter = filter
+        };
         if (d.ShowDialog() == true) {
             path = d.FileName;
             return d.FilterIndex - 1; //This is tarting from 1. So must minus 1
@@ -270,10 +269,9 @@ public class MainViewModel : ObservableObject {
     }
 
     public static MemoryStream LoadFileToMemory(string filePath) {
-        using (var file = new FileStream(filePath, FileMode.Open)) {
-            var memory = new MemoryStream();
-            file.CopyTo(memory);
-            return memory;
-        }
+        using var file = new FileStream(filePath, FileMode.Open);
+        var memory = new MemoryStream();
+        file.CopyTo(memory);
+        return memory;
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Model {

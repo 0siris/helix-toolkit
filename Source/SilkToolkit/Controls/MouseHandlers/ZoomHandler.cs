@@ -231,7 +231,7 @@ internal class ZoomHandler : MouseGestureHandler {
             }
         }
 
-        var f = (float) Math.Pow(2.5, delta);
+        var f = (float)Math.Pow(2.5, delta);
         var newRelativePosition = relativePosition * f;
         var newRelativeTarget = relativeTarget * f;
         var newTarget = zoomAround - newRelativeTarget;
@@ -242,7 +242,7 @@ internal class ZoomHandler : MouseGestureHandler {
 
         if (newDistance > Controller.ZoomDistanceLimitFar &&
             (oldDistance < Controller.ZoomDistanceLimitFar || newDistance > oldDistance)) {
-            var ratio = (newDistance - (float) Controller.ZoomDistanceLimitFar) / newDistance;
+            var ratio = (newDistance - (float)Controller.ZoomDistanceLimitFar) / newDistance;
             f *= 1 - ratio;
             newRelativePosition = relativePosition * f;
             newRelativeTarget = relativeTarget * f;
@@ -255,7 +255,7 @@ internal class ZoomHandler : MouseGestureHandler {
 
         if (newDistance < Controller.ZoomDistanceLimitNear &&
             (oldDistance > Controller.ZoomDistanceLimitNear || newDistance < oldDistance)) {
-            var ratio = ((float) Controller.ZoomDistanceLimitNear - newDistance) / newDistance;
+            var ratio = ((float)Controller.ZoomDistanceLimitNear - newDistance) / newDistance;
             f *= 1 + ratio;
             newRelativePosition = relativePosition * f;
             newRelativeTarget = relativeTarget * f;

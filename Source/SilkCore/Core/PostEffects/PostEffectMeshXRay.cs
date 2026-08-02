@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -139,15 +139,15 @@ namespace HelixToolkit.SharpDX.Core {
                 return IsAttached && !string.IsNullOrEmpty(EffectName);
             }
 
-        #region Variables
+            #region Variables
 
-            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = new();
+            private readonly List<KeyValuePair<SceneNode, IEffectAttributes>> currentCores = [];
             private readonly ConstantBufferComponent modelCB;
             private BorderEffectStruct modelStruct;
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             private string effectName = DefaultRenderTechniqueNames.PostEffectMeshXRay;
 
@@ -198,7 +198,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => SetAffectsRender(ref doublePass, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

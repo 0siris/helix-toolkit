@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -9,7 +9,7 @@ using System.Collections.Specialized;
 namespace HelixToolkit.SharpDX.Core;
 
 public class BillboardImage3D : BillboardBase {
-    private ObservableCollection<ImageInfo> imageInfos = new();
+    private ObservableCollection<ImageInfo> imageInfos = [];
 
     private Color4 maskColor = Color.Transparent;
 
@@ -43,7 +43,7 @@ public class BillboardImage3D : BillboardBase {
             if (Set(ref imageInfos, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
-                if (value != null) value.CollectionChanged += CollectionChanged;
+                value?.CollectionChanged += CollectionChanged;
             }
         }
     }

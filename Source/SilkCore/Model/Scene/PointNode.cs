@@ -65,7 +65,7 @@ namespace HelixToolkit.SharpDX.Core {
                     IsDepthClipEnabled = IsDepthClipEnabled,
                     IsFrontCounterClockwise = true,
                     IsMultisampleEnabled = false,
-                    IsScissorEnabled = IsThrowingShadow ? false : IsScissorEnabled
+                    IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
                 };
             }
 
@@ -106,10 +106,10 @@ namespace HelixToolkit.SharpDX.Core {
                                                              totalModelMatrix,
                                                              ref hits,
                                                              WrapperSource,
-                                                             (float) HitTestThickness);
+                                                             (float)HitTestThickness);
             }
 
-        #region Properties
+            #region Properties
 
             private double hitTestThickness = 4;
 
@@ -121,7 +121,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => Set(ref hitTestThickness, value);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

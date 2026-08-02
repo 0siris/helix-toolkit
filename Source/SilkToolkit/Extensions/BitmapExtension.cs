@@ -142,11 +142,10 @@ public static class BitmapExtension {
     }
 
     public static byte[] ToByteArray(this BitmapSource bitmapSource) {
-        using (var ms = new MemoryStream()) {
-            var encoder = new BmpBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-            encoder.Save(ms);
-            return ms.ToArray();
-        }
+        using var ms = new MemoryStream();
+        var encoder = new BmpBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+        encoder.Save(ms);
+        return ms.ToArray();
     }
 }

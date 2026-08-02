@@ -1,6 +1,3 @@
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,26 +8,29 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace OctreeDemo;
 
 public class BindingProxy : Freezable {
-#region Overrides of Freezable
+    #region Overrides of Freezable
 
     protected override Freezable CreateInstanceCore() {
         return new BindingProxy();
     }
 
-#endregion
+    #endregion
 
     public object Data {
-        get { return (object) GetValue(DataProperty); }
+        get { return (object)GetValue(DataProperty); }
         set { SetValue(DataProperty, value); }
     }
 
@@ -138,7 +138,7 @@ public class MainViewModel : BaseViewModel {
 
     public bool HitThrough { set; get; }
 
-    private readonly IList<DataModel> HighlightItems = new List<DataModel>();
+    private readonly IList<DataModel> HighlightItems = [];
 
     private int sphereSize = 1;
 
@@ -197,20 +197,21 @@ public class MainViewModel : BaseViewModel {
         this.AmbientLightColor = Colors.DimGray;
         SetupCameraBindings(this.Camera);
         LineColor = Colors.Blue;
-        Items = new ObservableCollection<DataModel>();
+        Items = [];
         var sw = Stopwatch.StartNew();
         CreateDefaultModels();
         sw.Stop();
         Console.WriteLine("Create Models total time =" + sw.ElapsedMilliseconds + " ms");
-        timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromMilliseconds(50);
+        timer = new DispatcherTimer {
+            Interval = TimeSpan.FromMilliseconds(50)
+        };
         timer.Tick += Timer_Tick;
         AddModelCommand = new RelayCommand(AddModel);
         RemoveModelCommand = new RelayCommand(RemoveModel);
         ClearModelCommand = new RelayCommand(ClearModel);
         AutoTestCommand = new RelayCommand(AutoTestAddRemove);
         MultiViewportCommand = new RelayCommand((o) => {
-            var win = new MultiviewportWin() {DataContext = this};
+            var win = new MultiviewportWin() { DataContext = this };
             win.Show();
         });
     }
@@ -220,7 +221,7 @@ public class MainViewModel : BaseViewModel {
         var b2 = new MeshBuilder(true, true, true);
         b2.AddSphere(new Vector3(15f, 0f, 0f), 4, 64, 64);
         b2.AddSphere(new Vector3(25f, 0f, 0f), 2, 32, 32);
-        b2.AddTube(new Vector3[] {new Vector3(10f, 5f, 0f), new Vector3(10f, 7f, 0f)}, 2, 12, false, true, true);
+        b2.AddTube(new Vector3[] { new Vector3(10f, 5f, 0f), new Vector3(10f, 7f, 0f) }, 2, 12, false, true, true);
         DefaultModel = b2.ToMeshGeometry3D();
         DefaultModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
 
@@ -247,7 +248,7 @@ public class MainViewModel : BaseViewModel {
 
         LinesModel = b3.ToLineGeometry3D();
         LinesModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
-        PointsHitModel = new PointGeometry3D() {Positions = new Vector3Collection(), Indices = new IntCollection()};
+        PointsHitModel = new PointGeometry3D() { Positions = [], Indices = [] };
         //var landerItems = Load3ds("Car.3ds").Select(x => new DataModel() { Model = x.Geometry as MeshGeometry3D, Material = PhongMaterials.Copper }).ToList();
         //var scale = new Vector3(0.007f);
         //var offset = new Vector3(15, 15, 15);
@@ -263,6 +264,7 @@ public class MainViewModel : BaseViewModel {
         //LanderItems = landerItems;
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         var reader = new StudioReader();
         var list = reader.Read(path);
@@ -282,9 +284,10 @@ public class MainViewModel : BaseViewModel {
         object viewModel,
         BindingMode mode = BindingMode.TwoWay
     ) {
-        var binding = new Binding(path);
-        binding.Source = viewModel;
-        binding.Mode = mode;
+        var binding = new Binding(path) {
+            Source = viewModel,
+            Mode = mode
+        };
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
@@ -313,12 +316,14 @@ public class MainViewModel : BaseViewModel {
                         if (hit.TriangleIndices != null) {
                             Material = PhongMaterials.Yellow;
                         } else {
-                            var v = new Vector3Collection();
-                            v.Add(hit.PointHit);
+                            var v = new Vector3Collection {
+                                hit.PointHit
+                            };
                             PointsHitModel.Positions = v;
-                            var idx = new IntCollection();
-                            idx.Add(0);
-                            PointsHitModel = new PointGeometry3D() {Positions = v, Indices = idx};
+                            var idx = new IntCollection {
+                                0
+                            };
+                            PointsHitModel = new PointGeometry3D() { Positions = v, Indices = idx };
                         }
                     }
                 }
@@ -333,12 +338,14 @@ public class MainViewModel : BaseViewModel {
                         if (hit.TriangleIndices != null) {
                             Material = PhongMaterials.Yellow;
                         } else {
-                            var v = new Vector3Collection();
-                            v.Add(hit.PointHit);
+                            var v = new Vector3Collection {
+                                hit.PointHit
+                            };
                             PointsHitModel.Positions = v;
-                            var idx = new IntCollection();
-                            idx.Add(0);
-                            PointsHitModel = new PointGeometry3D() {Positions = v, Indices = idx};
+                            var idx = new IntCollection {
+                                0
+                            };
+                            PointsHitModel = new PointGeometry3D() { Positions = v, Indices = idx };
                         }
                     }
                 }
@@ -350,11 +357,11 @@ public class MainViewModel : BaseViewModel {
     private double newModelZ = -5;
 
     private void AddModel(object o) {
-        var x = 10 * (float) Math.Sin(theta);
-        var y = 10 * (float) Math.Cos(theta);
+        var x = 10 * (float)Math.Sin(theta);
+        var y = 10 * (float)Math.Cos(theta);
         theta += 0.3;
         newModelZ += 0.5;
-        var z = (float) (newModelZ);
+        var z = (float)(newModelZ);
         Items.Add(new SphereModel(new Vector3(x, y + 20, z + 14), 1));
     }
 

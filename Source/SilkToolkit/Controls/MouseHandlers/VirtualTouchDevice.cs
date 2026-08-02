@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="VirtualTouchDevice.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -21,7 +21,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     A virtual <see cref="TouchDevice" /> enabling Windows.Forms controls to generate Touch/Manipulation-Events.
 /// </summary>
 public class VirtualTouchDevice : TouchDevice {
-    private static readonly Dictionary<int, VirtualTouchDevice> Devices = new();
+    private static readonly Dictionary<int, VirtualTouchDevice> Devices = [];
 
     private TouchAction lastAction;
 
@@ -79,7 +79,7 @@ public class VirtualTouchDevice : TouchDevice {
     }
 
     public override TouchPointCollection GetIntermediateTouchPoints(IInputElement relativeTo) {
-        return new TouchPointCollection();
+        return [];
     }
 
     public override TouchPoint GetTouchPoint(IInputElement relativeTo) {
@@ -125,7 +125,7 @@ public class VirtualTouchDevice : TouchDevice {
         public static extern bool GetTouchInputInfo(
             PointerSize hTouchInput,
             int cInputs,
-            [In] [Out] TOUCHINPUT[] pInputs,
+            [In][Out] TOUCHINPUT[] pInputs,
             int cbSize
         );
 

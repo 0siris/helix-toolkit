@@ -6,22 +6,22 @@
 
 namespace InstancingDemo;
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Threading;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using System;
-using System.Windows.Threading;
-using System.Linq;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
@@ -111,13 +111,13 @@ public class MainViewModel : BaseViewModel {
         CreateModels();
     }
 
-    const int num = 40;
-    List<Matrix> instances = new List<Matrix>(num * 2);
-    List<Matrix> selectedLineInstances = new List<Matrix>();
-    List<InstanceParameter> parameters = new List<InstanceParameter>(num * 2);
+    private const int num = 40;
+    private List<Matrix> instances = new List<Matrix>(num * 2);
+    private List<Matrix> selectedLineInstances = [];
+    private List<InstanceParameter> parameters = new List<InstanceParameter>(num * 2);
 
-    List<Matrix> billboardinstances = new List<Matrix>(num * 2);
-    List<BillboardInstanceParameter> billboardParams = new List<BillboardInstanceParameter>(num * 2);
+    private List<Matrix> billboardinstances = new List<Matrix>(num * 2);
+    private List<BillboardInstanceParameter> billboardParams = new List<BillboardInstanceParameter>(num * 2);
 
     private void CreateModels() {
         instances.Clear();
@@ -139,8 +139,8 @@ public class MainViewModel : BaseViewModel {
             aniDir = true;
         }
 
-        for (int i = -num - (int) aniX; i < num + aniX; i++) {
-            for (int j = -num - (int) aniX; j < num + aniX; j++) {
+        for (int i = -num - (int)aniX; i < num + aniX; i++) {
+            for (int j = -num - (int)aniX; j < num + aniX; j++) {
                 var matrix = RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
                              * Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
                 var color = new Color4(1,
@@ -160,13 +160,13 @@ public class MainViewModel : BaseViewModel {
                     offset = new Vector2(aniX, 0.5f);
                 }
 
-                parameters.Add(new InstanceParameter() {DiffuseColor = color, TexCoordOffset = offset});
+                parameters.Add(new InstanceParameter() { DiffuseColor = color, TexCoordOffset = offset });
                 instances.Add(matrix);
             }
         }
 
-        InstanceParam = parameters.ToArray();
-        ModelInstances = instances.ToArray();
+        InstanceParam = [.. parameters];
+        ModelInstances = [.. instances];
         SubTitle = "Number of Instances: " + parameters.Count.ToString();
 
         if (BillboardInstances == null) {
@@ -180,8 +180,8 @@ public class MainViewModel : BaseViewModel {
                                            new Vector3(NextFloat(0, 100), NextFloat(0, 100), NextFloat(-50, 50))));
             }
 
-            BillboardInstanceParams = billboardParams.ToArray();
-            BillboardInstances = billboardinstances.ToArray();
+            BillboardInstanceParams = [.. billboardParams];
+            BillboardInstances = [.. billboardinstances];
         } else {
             for (int i = 0; i < billboardinstances.Count; ++i) {
                 var current = billboardinstances[i];
@@ -191,7 +191,7 @@ public class MainViewModel : BaseViewModel {
                 billboardinstances[i] = current;
             }
 
-            BillboardInstances = billboardinstances.ToArray();
+            BillboardInstances = [.. billboardinstances];
         }
     }
 
@@ -210,15 +210,15 @@ public class MainViewModel : BaseViewModel {
         if (hitTests.Count > 0) {
             foreach (var hit in hitTests) {
                 if (hit.ModelHit is InstancingMeshGeometryModel3D) {
-                    var index = (int) hit.Tag;
+                    var index = (int)hit.Tag;
                     InstanceParam[index].EmissiveColor = InstanceParam[index].EmissiveColor != Colors.Yellow.ToColor4()
                                                              ? Colors.Yellow.ToColor4()
                                                              : Colors.Black.ToColor4();
-                    InstanceParam = (InstanceParameter[]) InstanceParam.Clone();
+                    InstanceParam = (InstanceParameter[])InstanceParam.Clone();
                     break;
                 } else if (hit.ModelHit is LineGeometryModel3D) {
-                    var index = (int) hit.Tag;
-                    SelectedLineInstances = new Matrix[] {ModelInstances[index]};
+                    var index = (int)hit.Tag;
+                    SelectedLineInstances = [ModelInstances[index]];
                     break;
                 }
             }
@@ -267,6 +267,6 @@ public class MainViewModel : BaseViewModel {
     }
 
     private float NextFloat(float min, float max) {
-        return min + (max - min) * (float) rnd.NextDouble();
+        return min + (max - min) * (float)rnd.NextDouble();
     }
 }

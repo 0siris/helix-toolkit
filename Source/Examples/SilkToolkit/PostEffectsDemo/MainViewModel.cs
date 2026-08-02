@@ -1,18 +1,18 @@
-﻿using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
+using Color = System.Windows.Media.Color;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace PostEffectsDemo;
 
@@ -68,12 +68,13 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 5, 0));
         lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 0, 5));
         LineModel = lineBuilder.ToLineGeometry3D();
-        LineModel.Colors = new Color4Collection() {
+        LineModel.Colors = [
             new Color4(1, 0, 0, 1), new Color4(1, 0, 0, 1), new Color4(0, 1, 0, 1), new Color4(0, 1, 0, 1),
             new Color4(0, 0, 1, 1), new Color4(0, 0, 1, 1),
-        };
+        ];
     }
 
+    [Obsolete]
     public List<Object3D> Load3ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
@@ -84,7 +85,7 @@ public class MainViewModel : BaseViewModel {
             var list = reader.Read(path);
             return list;
         } else {
-            return new List<Object3D>();
+            return [];
         }
     }
 }

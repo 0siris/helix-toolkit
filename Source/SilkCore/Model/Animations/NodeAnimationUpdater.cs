@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -9,7 +9,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 namespace HelixToolkit.SharpDX.Core {
     namespace Animations {
         public class NodeAnimationUpdater : IAnimationUpdater {
-            private readonly List<SceneNode> animationRoots = new();
+            private readonly List<SceneNode> animationRoots = [];
             private bool changed;
             private float previousTimeElapsed = float.MinValue;
 
@@ -48,17 +48,17 @@ namespace HelixToolkit.SharpDX.Core {
                 if (timeElapsed > Animation.EndTime)
                     switch (RepeatMode) {
                         case AnimationRepeatMode.PlayOnce: {
-                            SetToStart();
-                            return;
-                        }
+                                SetToStart();
+                                return;
+                            }
                         case AnimationRepeatMode.PlayOnceHold: {
-                            timeElapsed = Animation.EndTime;
-                            break;
-                        }
+                                timeElapsed = Animation.EndTime;
+                                break;
+                            }
                         case AnimationRepeatMode.Loop: {
-                            timeElapsed = timeElapsed % (EndTime - StartTime) + StartTime;
-                            break;
-                        }
+                                timeElapsed = timeElapsed % (EndTime - StartTime) + StartTime;
+                                break;
+                            }
                     }
 
                 previousTimeElapsed = timeElapsed;

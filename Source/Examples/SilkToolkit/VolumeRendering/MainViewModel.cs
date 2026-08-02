@@ -1,11 +1,12 @@
-﻿using DemoCore;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Model;
 using HelixToolkit.Wpf.SharpDX.Utilities;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -13,7 +14,6 @@ using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using System.Linq;
 
 
 namespace VolumeRendering;
@@ -74,14 +74,15 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 1.5f, 0));
         lineBuilder.AddLine(Vector3.Zero, new Vector3(0, 0, 1.5f));
         AxisModel = lineBuilder.ToLineGeometry3D();
-        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count);
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Red.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Green.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
-        AxisModel.Colors.Add(Colors.Blue.ToColor4());
-        AxisModelMaterial = new LineArrowHeadMaterial() {Color = Colors.White, ArrowSize = 0.05};
+        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count) {
+            Colors.Red.ToColor4(),
+            Colors.Red.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Green.ToColor4(),
+            Colors.Blue.ToColor4(),
+            Colors.Blue.ToColor4()
+        };
+        AxisModelMaterial = new LineArrowHeadMaterial() { Color = Colors.White, ArrowSize = 0.05 };
         //Load(0);
     }
 
@@ -105,10 +106,10 @@ public class MainViewModel : BaseViewModel {
 
             return null;
         }).ContinueWith((result) => {
-                            VolumeMaterial = result.Result.Item1.Clone() as Material;
-                            Transform = result.Result.Item2;
-                            IsLoading = false;
-                        },
+            VolumeMaterial = result.Result.Item1.Clone() as Material;
+            Transform = result.Result.Item2;
+            IsLoading = false;
+        },
                         TaskScheduler.FromCurrentSynchronizationContext());
     }
 
@@ -122,7 +123,7 @@ public class MainViewModel : BaseViewModel {
         m.TransferMap = transferMap;
         m.Freeze();
         var scale = Scaling(2, 2, 178 / 256f * 2);
-        var rotate = RotationAxis(new Vector3(1, 0, 0), (float) Math.PI);
+        var rotate = RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
         var t = new Media3D.MatrixTransform3D((scale * rotate).ToMatrix3D());
         t.Freeze();
         return new Tuple<Material, Media3D.Transform3D>(m, t);
@@ -135,16 +136,17 @@ public class MainViewModel : BaseViewModel {
         m.Color = new Color4(0.6f, 0.6f, 0.6f, 1f);
         m.TransferMap = transferMap;
         m.Freeze();
-        var rotate = RotationAxis(new Vector3(1, 0, 0), (float) Math.PI);
+        var rotate = RotationAxis(new Vector3(1, 0, 0), (float)Math.PI);
         var transform = new Media3D.MatrixTransform3D(rotate.ToMatrix3D());
         transform.Freeze();
         return new Tuple<Material, Media3D.Transform3D>(m, transform);
     }
 
     private Tuple<Material, Media3D.Transform3D> LoadNoise() {
-        var m = new VolumeTextureDDS3DMaterial();
-        m.Texture = TextureModel.Create("NoiseVolume.dds");
-        m.Color = new Color4(1, 1, 1, 0.01f);
+        var m = new VolumeTextureDDS3DMaterial {
+            Texture = TextureModel.Create("NoiseVolume.dds"),
+            Color = new Color4(1, 1, 1, 0.01f)
+        };
         m.Freeze();
         var transform = new Media3D.ScaleTransform3D(1, 1, 1);
         transform.Freeze();
@@ -160,7 +162,7 @@ public class MainViewModel : BaseViewModel {
         float[] fdata = new float[data.Length];
 
         for (int i = 0; i < data.Length; ++i) {
-            fdata[i] = (float) data[i] / max;
+            fdata[i] = (float)data[i] / max;
             histogram[data[i]]++;
         }
 
@@ -186,7 +188,7 @@ public class MainViewModel : BaseViewModel {
 
         float[] fdata = new float[data.Length];
         for (int i = 0; i < data.Length; ++i) {
-            fdata[i] = (float) data[i] / byte.MaxValue;
+            fdata[i] = (float)data[i] / byte.MaxValue;
             histogram[data[i]]++;
         }
 
@@ -199,19 +201,19 @@ public class MainViewModel : BaseViewModel {
     private float[] normalize(byte[] data) {
         float[] fdata = new float[data.Length];
         for (int i = 0; i < data.Length; ++i) {
-            fdata[i] = (float) data[i] / byte.MaxValue;
+            fdata[i] = (float)data[i] / byte.MaxValue;
         }
 
         return fdata;
     }
 
-    private static readonly Color4[] ColorCandidates = new Color4[] {
+    private static readonly Color4[] ColorCandidates = [
         Colors.LightPink.ToColor4(),
         Colors.DarkGray.ToColor4(),
         Colors.Yellow.ToColor4(),
         Colors.Red.ToColor4(),
         Colors.Green.ToColor4(),
-    };
+    ];
 
     /// <summary>
     /// Gets the transfer function. Please create your own color transfer map.
@@ -227,7 +229,7 @@ public class MainViewModel : BaseViewModel {
     ) {
         float[] percentage = new float[histogram.Length];
         for (int i = 0; i < histogram.Length; ++i) {
-            percentage[i] = (float) histogram[i] / total;
+            percentage[i] = (float)histogram[i] / total;
             if (percentage[i] > maxPercent || percentage[i] < minPercent) {
                 percentage[i] = 0;
             }
@@ -252,14 +254,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     private static ushort[] ReadDat(string file, out int width, out int height, out int depth) {
-        using (var f = File.OpenRead(file)) {
-            using (var stream = new BinaryReader(f)) {
-                width = stream.ReadUInt16();
-                height = stream.ReadUInt16();
-                depth = stream.ReadUInt16();
-                return stream.ReadUInt16(width * height * depth);
-            }
-        }
+        using var f = File.OpenRead(file);
+        using var stream = new BinaryReader(f);
+        width = stream.ReadUInt16();
+        height = stream.ReadUInt16();
+        depth = stream.ReadUInt16();
+        return stream.ReadUInt16(width * height * depth);
     }
 
     private static Matrix RotationAxis(Vector3 axis, float angle) {

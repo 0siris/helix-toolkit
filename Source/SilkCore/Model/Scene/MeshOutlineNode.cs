@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
 */
@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new MeshOutlineRenderCore();
             }
 
-        #region Properties
+            #region Properties
 
             /// <summary>
             ///     Gets or sets a value indicating whether [enable outline].
@@ -63,7 +63,7 @@ namespace HelixToolkit.SharpDX.Core {
                 set => (RenderCore as IMeshOutlineParams).OutlineFadingFactor = value;
             }
 
-        #endregion
+            #endregion
         }
     }
 }

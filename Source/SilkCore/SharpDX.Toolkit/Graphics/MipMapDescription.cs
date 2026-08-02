@@ -103,7 +103,7 @@ public class MipMapDescription : IEquatable<MipMapDescription> {
             return true;
         if (obj.GetType() != GetType())
             return false;
-        return Equals((MipMapDescription) obj);
+        return Equals((MipMapDescription)obj);
     }
 
     /// <summary>

@@ -6,16 +6,17 @@
 
 namespace ScreenSpaceDemo;
 
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using DemoCore;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model;
+using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using RotateTransform3D = System.Windows.Media.Media3D.RotateTransform3D;
@@ -23,9 +24,8 @@ using ScaleTransform3D = System.Windows.Media.Media3D.ScaleTransform3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
-using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection ModelGeometry { get; private set; }
@@ -46,6 +46,7 @@ public class MainViewModel : BaseViewModel {
     public Color4 BackgroundColor { get; private set; }
     public IRenderTechnique RenderTechnique { get; private set; }
 
+    [Obsolete]
     public MainViewModel() {
         // ----------------------------------------------
         // titles
@@ -78,13 +79,13 @@ public class MainViewModel : BaseViewModel {
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/CornellBox-Glossy.obj");
 
-        this.ModelGeometry = new ObservableElement3DCollection();
-        foreach (var model in objModel.Select(x => new MeshGeometryModel3D() {
-                     Geometry = x.Geometry as MeshGeometry3D,
-                     Material = GetMaterialFromMaterialCore(x.Material as PhongMaterialCore),
-                 })) {
-            this.ModelGeometry.Add(model);
-        }
+        this.ModelGeometry =
+        [
+            .. objModel.Select(x => new MeshGeometryModel3D() {
+                Geometry = x.Geometry as MeshGeometry3D,
+                Material = GetMaterialFromMaterialCore(x.Material as PhongMaterialCore),
+            }),
+        ];
 
         // model trafos
         this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);

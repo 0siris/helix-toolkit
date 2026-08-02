@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -52,7 +52,7 @@ namespace HelixToolkit.SharpDX.Core {
                 spritePass.PixelShader.BindTexture(deviceContext, texSlot, textureView);
                 spritePass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
                 deviceContext.SetViewport(0, 0, context.ActualWidth, context.ActualHeight);
-                deviceContext.SetScissorRectangle(0, 0, (int) context.ActualWidth, (int) context.ActualHeight);
+                deviceContext.SetScissorRectangle(0, 0, (int)context.ActualWidth, (int)context.ActualHeight);
                 deviceContext.DrawIndexed(Buffer.IndexBuffer.ElementCount, 0, 0);
                 RaiseInvalidateRender();
             }

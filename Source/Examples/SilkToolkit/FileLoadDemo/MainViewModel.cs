@@ -6,26 +6,26 @@
 
 namespace FileLoadDemo;
 
-using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.SharpDX.Core.Animations;
-using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Linq;
-using Point3D = System.Windows.Media.Media3D.Point3D;
+using DemoCore;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Model;
+using Microsoft.Win32;
 using BoundingBox = HelixToolkit.SharpDX.Core.BoundingBox;
+using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public class MainViewModel : BaseViewModel {
@@ -121,11 +121,11 @@ public class MainViewModel : BaseViewModel {
         get => currAnimationTime;
     }
 
-    public ObservableCollection<IAnimationUpdater> Animations { get; } = new ObservableCollection<IAnimationUpdater>();
+    public ObservableCollection<IAnimationUpdater> Animations { get; } = [];
 
     public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
 
-    private IAnimationUpdater selectedAnimation = null;
+    private IAnimationUpdater? selectedAnimation = null;
 
     public IAnimationUpdater SelectedAnimation {
         set {
@@ -175,12 +175,12 @@ public class MainViewModel : BaseViewModel {
     private SynchronizationContext context = SynchronizationContext.Current;
     private HelixToolkitScene scene;
     private IAnimationUpdater animationUpdater;
-    private List<BoneSkinMeshNode> boneSkinNodes = new List<BoneSkinMeshNode>();
-    private List<BoneSkinMeshNode> skeletonNodes = new List<BoneSkinMeshNode>();
+    private List<BoneSkinMeshNode> boneSkinNodes = [];
+    private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new CompositionTargetEx();
     private long initTimeStamp = 0;
 
-    private MainWindow mainWindow = null;
+    private MainWindow? mainWindow = null;
 
     public MainViewModel(MainWindow window) {
         mainWindow = window;
@@ -199,7 +199,7 @@ public class MainViewModel : BaseViewModel {
             (Camera as OrthographicCamera).FarPlaneDistance = 5000;
             (Camera as OrthographicCamera).NearPlaneDistance = 0.1f;
         });
-        ExportCommand = new DelegateCommand(() => { ExportFile(); });
+        ExportCommand = new DelegateCommand(ExportFile);
 
         CopyAsBitmapCommand = new DelegateCommand(() => { CopyAsBitmapToClipBoard(mainWindow.view); });
         CopyAsHiresBitmapCommand = new DelegateCommand(() => { CopyAsHiResBitmapToClipBoard(mainWindow.view); });
@@ -270,49 +270,49 @@ public class MainViewModel : BaseViewModel {
 
             return scene;
         }).ContinueWith((result) => {
-                            IsLoading = false;
-                            if (result.IsCompleted) {
-                                scene = result.Result;
-                                Animations.Clear();
-                                var oldNode = GroupModel.SceneNode.Items.ToArray();
-                                GroupModel.Clear(false);
-                                Task.Run(() => {
-                                    foreach (var node in oldNode) {
-                                        node.Dispose();
-                                    }
-                                });
-                                if (scene != null) {
-                                    if (scene.Root != null) {
-                                        foreach (var node in scene.Root.Traverse()) {
-                                            if (node is MaterialGeometryNode m) {
-                                                //m.Geometry.SetAsTransient();
-                                                if (m.Material is PBRMaterialCore pbr) {
-                                                    pbr.RenderEnvironmentMap = RenderEnvironmentMap;
-                                                } else if (m.Material is PhongMaterialCore phong) {
-                                                    phong.RenderEnvironmentMap = RenderEnvironmentMap;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    GroupModel.AddNode(scene.Root);
-                                    if (scene.HasAnimation) {
-                                        var dict = scene.Animations.CreateAnimationUpdaters();
-                                        foreach (var ani in dict.Values) {
-                                            Animations.Add(ani);
-                                        }
-                                    }
-
-                                    foreach (var n in scene.Root.Traverse()) {
-                                        n.Tag = new AttachedNodeViewModel(n);
-                                    }
-
-                                    FocusCameraToScene();
+            IsLoading = false;
+            if (result.IsCompleted) {
+                scene = result.Result;
+                Animations.Clear();
+                var oldNode = GroupModel.SceneNode.Items.ToArray();
+                GroupModel.Clear(false);
+                Task.Run(() => {
+                    foreach (var node in oldNode) {
+                        node.Dispose();
+                    }
+                });
+                if (scene != null) {
+                    if (scene.Root != null) {
+                        foreach (var node in scene.Root.Traverse()) {
+                            if (node is MaterialGeometryNode m) {
+                                //m.Geometry.SetAsTransient();
+                                if (m.Material is PBRMaterialCore pbr) {
+                                    pbr.RenderEnvironmentMap = RenderEnvironmentMap;
+                                } else if (m.Material is PhongMaterialCore phong) {
+                                    phong.RenderEnvironmentMap = RenderEnvironmentMap;
                                 }
-                            } else if (result.IsFaulted && result.Exception != null) {
-                                MessageBox.Show(result.Exception.Message);
                             }
-                        },
+                        }
+                    }
+
+                    GroupModel.AddNode(scene.Root);
+                    if (scene.HasAnimation) {
+                        var dict = scene.Animations.CreateAnimationUpdaters();
+                        foreach (var ani in dict.Values) {
+                            Animations.Add(ani);
+                        }
+                    }
+
+                    foreach (var n in scene.Root.Traverse()) {
+                        n.Tag = new AttachedNodeViewModel(n);
+                    }
+
+                    FocusCameraToScene();
+                }
+            } else if (result.IsFaulted && result.Exception != null) {
+                MessageBox.Show(result.Exception.Message);
+            }
+        },
                         TaskScheduler.FromCurrentSynchronizationContext());
     }
 
@@ -371,8 +371,9 @@ public class MainViewModel : BaseViewModel {
     }
 
     private int SaveFileDialog(string filter, out string path) {
-        var d = new SaveFileDialog();
-        d.Filter = filter;
+        var d = new SaveFileDialog {
+            Filter = filter
+        };
         if (d.ShowDialog() == true) {
             path = d.FileName;
             return d.FilterIndex - 1; //This is tarting from 1. So must minus 1

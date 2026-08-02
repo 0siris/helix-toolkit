@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -11,7 +11,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public class DeferredContextRenderer : ImmediateContextRenderer {
-            private readonly List<KeyValuePair<int, CommandList>> commandList = new();
+            private readonly List<KeyValuePair<int, CommandList>> commandList = [];
             private readonly IRenderTaskScheduler scheduler;
             private IDeviceContextPool deferredContextPool;
 

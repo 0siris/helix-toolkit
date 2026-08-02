@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -17,14 +17,14 @@ namespace HelixToolkit.SharpDX.Core {
                 Clear
             }
 
-            protected readonly Dictionary<Guid, SceneNode> itemHashSet = new();
+            protected readonly Dictionary<Guid, SceneNode> itemHashSet = [];
             private IRenderHost renderHost;
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="GroupNodeBase" /> class.
             /// </summary>
             public GroupNodeBase() {
-                ItemsInternal = new ObservableFastList<SceneNode>();
+                ItemsInternal = [];
                 Items = new ReadOnlyObservableFastList<SceneNode>(ItemsInternal);
             }
 

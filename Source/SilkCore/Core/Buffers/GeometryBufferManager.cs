@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -13,12 +13,12 @@ namespace HelixToolkit.SharpDX.Core {
         ///     Same geometry with same buffer type will share the same buffer across all models.
         /// </summary>
         public sealed class GeometryBufferManager : IDisposable, IGeometryBufferManager {
-            private static readonly ILogger logger = LogManager.Create<GeometryBufferManager>();
+            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
             /// <summary>
             ///     The buffer dictionary. Key1=<see cref="Geometry3D.GUID" />, Key2=Typeof(Buffer)
             /// </summary>
-            private readonly DoubleKeyDictionary<Type, Guid, DisposeObject> bufferDictionary = new();
+            private readonly DoubleKeyDictionary<Type, Guid, DisposeObject> bufferDictionary = [];
 
             private readonly IEffectsManager manager;
 
@@ -44,19 +44,19 @@ namespace HelixToolkit.SharpDX.Core {
                 lock (bufferDictionary) {
                     IGeometryBufferModel container;
                     if (bufferDictionary.TryGetValue(typeof(T), geometry.GUID, out var obj)) {
-                        if (logger.IsEnabled(LogLevel.Trace))
-                            logger.LogTrace("Existing buffer found, GeomoetryGUID = {0}", geometry.GUID);
+                        if (Logger.IsEnabled(LogLevel.Trace))
+                            Logger.Verbose("Existing buffer found, GeomoetryGUID = {Value0}", geometry.GUID);
                         container = obj as IGeometryBufferModel;
                         obj.IncRef();
                     } else {
-                        if (logger.IsEnabled(LogLevel.Trace))
-                            logger.LogTrace("Buffer not found, create new buffer. GeomoetryGUID = {0}", geometry.GUID);
+                        if (Logger.IsEnabled(LogLevel.Trace))
+                            Logger.Verbose("Buffer not found, create new buffer. GeomoetryGUID = {Value0}", geometry.GUID);
                         container = new T();
                         var id = geometry.GUID;
                         obj = container as DisposeObject;
                         obj.Disposed += (s, e) => {
-                            if (logger.IsEnabled(LogLevel.Trace))
-                                logger.LogTrace("Disposing Geometry Buffer. GeomoetryGUID = {0}", id);
+                            if (Logger.IsEnabled(LogLevel.Trace))
+                                Logger.Verbose("Disposing Geometry Buffer. GeomoetryGUID = {Value0}", id);
                             lock (bufferDictionary) {
                                 bufferDictionary.Remove(typeof(T), id);
                             }
@@ -70,7 +70,7 @@ namespace HelixToolkit.SharpDX.Core {
                 }
             }
 
-        #region IDisposable Support
+            #region IDisposable Support
 
             private bool disposedValue; // To detect redundant calls
 
@@ -103,7 +103,7 @@ namespace HelixToolkit.SharpDX.Core {
                 // GC.SuppressFinalize(this);
             }
 
-        #endregion
+            #endregion
         }
     }
 }

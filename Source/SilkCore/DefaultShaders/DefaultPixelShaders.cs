@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -752,7 +752,7 @@ namespace HelixToolkit.SharpDX.Core {
                                                                       new ShaderReflector(),
                                                                       DefaultPSShaderByteCodes.PSSSAOBlur);
 
-        #region Mesh Clipping
+            #region Mesh Clipping
 
             /// <summary>
             ///     /
@@ -770,7 +770,7 @@ namespace HelixToolkit.SharpDX.Core {
                 new ShaderReflector(),
                 DefaultPSShaderByteCodes.PSMeshClipPlaneQuad);
 
-        #endregion
+            #endregion
         }
     }
 }

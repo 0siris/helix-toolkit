@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ItemsModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -67,7 +67,7 @@ public class ItemsModel3D : CompositeModel3D {
                                      e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
                              }));
 
-    private readonly Dictionary<object, Element3D> elementDict = new();
+    private readonly Dictionary<object, Element3D> elementDict = [];
     private IEnumerable itemsSourceInternal;
 
     public ItemsModel3D() {
@@ -82,7 +82,7 @@ public class ItemsModel3D : CompositeModel3D {
     ///     The item template.
     /// </value>
     public DataTemplate ItemTemplate {
-        get => (DataTemplate) GetValue(ItemTemplateProperty);
+        get => (DataTemplate)GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
     }
 
@@ -93,12 +93,12 @@ public class ItemsModel3D : CompositeModel3D {
     ///     The items source.
     /// </value>
     public IEnumerable ItemsSource {
-        get => (IEnumerable) GetValue(ItemsSourceProperty);
+        get => (IEnumerable)GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
     }
 
     public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper) GetValue(OctreeManagerProperty);
+        get => (IOctreeManagerWrapper)GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 

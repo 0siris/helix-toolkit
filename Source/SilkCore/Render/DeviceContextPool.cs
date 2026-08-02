@@ -1,4 +1,4 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -32,7 +32,7 @@ namespace HelixToolkit.SharpDX.Core {
         /// <summary>
         /// </summary>
         public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool {
-            private readonly ConcurrentBag<DeviceContextProxy> contextPool = new();
+            private readonly ConcurrentBag<DeviceContextProxy> contextPool = [];
 
             private readonly NativeD3DDevice device;
 

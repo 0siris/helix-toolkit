@@ -12,32 +12,24 @@ using Color4 = Silk.NET.Maths.Vector4D<float>;
 namespace DynamicCodeSurfaceDemo;
 
 public class MainViewModel : BaseViewModel {
-    private double parameterW = 1;
-
     public double ParameterW {
-        set => SetValue(ref parameterW, value);
-        get => parameterW;
-    }
-
-    private int meshSizeU = 120;
+        set => SetValue(ref field, value);
+        get;
+    } = 1;
 
     public int MeshSizeU {
-        set => SetValue(ref meshSizeU, value);
-        get => meshSizeU;
-    }
-
-    private int meshSizeV = 120;
+        set => SetValue(ref field, value);
+        get;
+    } = 120;
 
     public int MeshSizeV {
-        set => SetValue(ref meshSizeV, value);
-        get => meshSizeV;
-    }
-
-    private Material material;
+        set => SetValue(ref field, value);
+        get;
+    } = 120;
 
     public Material Material {
-        set => SetValue(ref material, value);
-        get => material;
+        set => SetValue(ref field, value);
+        get;
     }
 
     public string[] Materials { private set; get; }
@@ -59,22 +51,18 @@ public class MainViewModel : BaseViewModel {
         get => selectedModel;
     }
 
-    private string selectedMaterial;
-
     public string SelectedMaterial {
         set {
-            if (SetValue(ref selectedMaterial, value)) {
+            if (SetValue(ref field, value)) {
                 Material = materialDict[value];
             }
         }
-        get => selectedMaterial;
+        get;
     }
 
-    private string sourceCode;
-
     public string SourceCode {
-        set { SetValue(ref sourceCode, value); }
-        get => sourceCode;
+        set { SetValue(ref field, value); }
+        get;
     }
 
     public MainViewModel() {

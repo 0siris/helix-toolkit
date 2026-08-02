@@ -6,6 +6,8 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
+#pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 [DataContract]
@@ -941,6 +943,8 @@ public class PBRMaterial : Material {
         };
     }
 }
+
+#pragma warning restore CS8601, CS8602
 
 /// <summary>
 ///     https://google.github.io/filament/images/material_chart.jpg

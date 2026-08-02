@@ -9,6 +9,8 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Media = System.Windows.Media;
 
+#pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class LineMaterial : Material {
@@ -19,7 +21,7 @@ public class LineMaterial : Material {
         Color = core.LineColor.ToColor();
         Smoothness = core.Smoothness;
         Thickness = core.Thickness;
-        EnableDistanceFading = EnableDistanceFading;
+        EnableDistanceFading = core.EnableDistanceFading;
         FadingNearDistance = core.FadingNearDistance;
         FadingFarDistance = core.FadingFarDistance;
         Texture = core.Texture;

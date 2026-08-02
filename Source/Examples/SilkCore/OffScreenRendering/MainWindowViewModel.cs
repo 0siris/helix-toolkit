@@ -14,11 +14,9 @@ using CommunityToolkit.Mvvm.Input;
 namespace OffScreenRendering;
 
 internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.ObservableObject {
-    private ImageSource image;
-
     public ImageSource Image {
-        get => image;
-        set => SetProperty(ref image, value);
+        get;
+        set => SetProperty(ref field, value);
     }
 
     public ICommand RenderCommand { get; }

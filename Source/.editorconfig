@@ -260,3 +260,18 @@ dotnet_style_prefer_simplified_interpolation = true:warning
 dotnet_style_prefer_collection_expression = when_types_loosely_match:warning
 dotnet_style_namespace_match_folder = true:suggestion
 dotnet_diagnostic.CS1591.severity = warning
+
+# Public API compatibility: keep these visible as suggestions without breaking
+# existing field, parameter, event, delegate, or type names.
+dotnet_diagnostic.CA1000.severity = suggestion
+dotnet_diagnostic.CA1051.severity = suggestion
+dotnet_diagnostic.CA1707.severity = suggestion
+dotnet_diagnostic.CA1708.severity = suggestion
+dotnet_diagnostic.CA1710.severity = suggestion
+dotnet_diagnostic.CA1711.severity = suggestion
+dotnet_diagnostic.CA1715.severity = suggestion
+dotnet_diagnostic.CA1716.severity = suggestion
+dotnet_diagnostic.CA1725.severity = suggestion
+dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1805.severity = suggestion
+dotnet_diagnostic.CA2211.severity = suggestion

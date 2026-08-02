@@ -23,51 +23,43 @@ namespace BoneSkinDemo;
 public class MainViewModel : BaseViewModel {
     public SceneNodeGroupModel3D ModelGroup { get; } = new SceneNodeGroupModel3D();
 
-    private bool showWireframe = false;
-
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (var m in boneSkinNodes) {
                     m.RenderWireframe = value;
                 }
             }
         }
-        get { return showWireframe; }
-    }
-
-    private bool showSkeleton = false;
+        get { return field; }
+    } = false;
 
     public bool ShowSkeleton {
         set {
-            if (SetValue(ref showSkeleton, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (var m in skeletonNodes) {
                     m.Visible = value;
                 }
             }
         }
-    }
-
-    private bool enableAnimation = true;
+    } = false;
 
     public bool EnableAnimation {
         set {
-            enableAnimation = value;
+            field = value;
             OnPropertyChanged();
-            if (enableAnimation) {
+            if (field) {
                 compositeHelper.Rendering += CompositeHelper_Rendering;
             } else {
                 compositeHelper.Rendering -= CompositeHelper_Rendering;
             }
         }
-        get { return enableAnimation; }
-    }
-
-    private string selectedAnimation;
+        get { return field; }
+    } = true;
 
     public string SelectedAnimation {
         set {
-            if (SetValue(ref selectedAnimation, value)) {
+            if (SetValue(ref field, value)) {
                 reset = true;
                 var curr = scene.Animations.Where(x => x.Name == value).FirstOrDefault();
                 animationUpdater = new NodeAnimationUpdater(curr) {
@@ -75,7 +67,7 @@ public class MainViewModel : BaseViewModel {
                 };
             }
         }
-        get { return selectedAnimation; }
+        get { return field; }
     }
 
     private AnimationRepeatMode selectedRepeatMode = AnimationRepeatMode.Loop;

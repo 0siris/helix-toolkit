@@ -57,7 +57,7 @@ public class MainViewModel : BaseViewModel {
         b1.AddSphere(new Vector3(0, 0, 0), 0.05);
 
         var meshGeometry = b1.ToMeshGeometry3D();
-        meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
+        meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
         this.Model = meshGeometry;
 
         // Create Billboard Text

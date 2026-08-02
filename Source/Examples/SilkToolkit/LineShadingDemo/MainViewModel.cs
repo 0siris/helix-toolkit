@@ -33,12 +33,12 @@ public class MainViewModel : BaseViewModel {
     public bool GridEnabled { get; set; }
 
     public bool FixedSize {
-        get => fixedSize;
+        get;
         set {
-            fixedSize = value;
+            field = value;
             LineThickness = FixedSize ? 2 : 0.005;
         }
-    }
+    } = true;
 
     public PhongMaterial Material1 { get; private set; }
     public PhongMaterial Material2 { get; private set; }
@@ -57,12 +57,9 @@ public class MainViewModel : BaseViewModel {
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
 
-    private bool enableArrowHeadTail = false;
-    private bool fixedSize = true;
-
     public bool EnableArrowHeadTail {
         set {
-            if (SetValue(ref enableArrowHeadTail, value)) {
+            if (SetValue(ref field, value)) {
                 var texture = LineMaterial.Texture;
                 var tscale = LineMaterial.TextureScale;
                 LineMaterial = value
@@ -75,8 +72,8 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged(nameof(LineMaterial));
             }
         }
-        get { return enableArrowHeadTail; }
-    }
+        get { return field; }
+    } = false;
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();

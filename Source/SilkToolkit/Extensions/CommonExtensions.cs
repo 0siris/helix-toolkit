@@ -83,6 +83,7 @@ public static class CommonExtensions {
         }
     }
 
+    #pragma warning disable CA2000 // Gradient stop collections are owned by the returned Direct2D brush.
     public static Brush ToD2DBrush(this Media.Brush brush, D2DDeviceContext target) {
         if (brush is Media.SolidColorBrush solid) return new SolidColorBrush(target, solid.Color.ToColor4());
 
@@ -120,6 +121,7 @@ public static class CommonExtensions {
 
         throw new NotImplementedException("Brush does not support yet.");
     }
+    #pragma warning restore CA2000
 
     public static CapStyle ToD2DCapStyle(this Media.PenLineCap cap) {
         switch (cap) {

@@ -47,31 +47,27 @@ public class PBRViewModel : BaseViewModel {
         get { return albedoColor; }
     }
 
-    private bool renderEnvironment = true;
-
     public bool RenderEnvironment {
         set {
-            if (SetValue(ref renderEnvironment, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (var m in materials) {
                     m.RenderEnvironmentMap = value;
                 }
             }
         }
-        get { return renderEnvironment; }
-    }
-
-    private bool renderNormalMap = true;
+        get { return field; }
+    } = true;
 
     public bool RenderNormalMap {
         set {
-            if (SetValue(ref renderNormalMap, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (var m in materials) {
                     m.RenderNormalMap = value;
                 }
             }
         }
-        get { return renderNormalMap; }
-    }
+        get { return field; }
+    } = true;
 
     public PBRViewModel(IEffectsManager manager) {
         EffectsManager = manager;

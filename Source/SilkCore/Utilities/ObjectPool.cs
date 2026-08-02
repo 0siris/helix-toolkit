@@ -9,7 +9,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public ObjectPool(Func<T> objectGenerator, int maxCapacity = int.MaxValue / 2) {
                 if (objectGenerator == null)
-                    throw new ArgumentNullException("objectGenerator");
+                    ArgumentNullException.ThrowIfNull(objectGenerator);
                 _objects = [];
                 _objectGenerator = objectGenerator;
                 MaxCapacity = maxCapacity;

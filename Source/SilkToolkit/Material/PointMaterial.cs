@@ -9,6 +9,8 @@ using HelixToolkit.SharpDX.Core.Model;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
+#pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class PointMaterial : Material {

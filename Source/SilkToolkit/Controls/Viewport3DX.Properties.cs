@@ -19,6 +19,8 @@ using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning control and scene graph.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>

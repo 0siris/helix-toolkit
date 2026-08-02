@@ -40,52 +40,44 @@ public class BindingProxy : Freezable {
 }
 
 public class MainViewModel : BaseViewModel {
-    private Vector3D light1Direction = new Vector3D();
-
     public Vector3D Light1Direction {
         set {
-            if (light1Direction != value) {
-                light1Direction = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
             }
         }
-        get { return light1Direction; }
-    }
-
-    private FillMode fillMode = FillMode.Solid;
+        get { return field; }
+    } = new Vector3D();
 
     public FillMode FillMode {
         set {
-            fillMode = value;
+            field = value;
             OnPropertyChanged();
         }
-        get { return fillMode; }
-    }
-
-    private bool showWireframe = false;
+        get { return field; }
+    } = FillMode.Solid;
 
     public bool ShowWireframe {
         set {
-            showWireframe = value;
+            field = value;
             OnPropertyChanged();
-            if (showWireframe) {
+            if (field) {
                 FillMode = FillMode.Wireframe;
             } else {
                 FillMode = FillMode.Solid;
             }
         }
-        get { return showWireframe; }
-    }
-
-    private bool visibility = true;
+        get { return field; }
+    } = false;
 
     public bool Visibility {
         set {
-            visibility = value;
+            field = value;
             OnPropertyChanged();
         }
-        get { return visibility; }
-    }
+        get { return field; }
+    } = true;
 
     public Color Light1Color { get; set; }
 
@@ -102,49 +94,41 @@ public class MainViewModel : BaseViewModel {
 
     public Color LineColor { set; get; }
 
-    private PhongMaterial material;
-
     public PhongMaterial Material {
-        private set { SetValue<PhongMaterial>(ref material, value, nameof(Material)); }
-        get { return material; }
+        private set { SetValue<PhongMaterial>(ref field, value, nameof(Material)); }
+        get { return field; }
     }
 
     public MeshGeometry3D DefaultModel { private set; get; }
     public PointGeometry3D PointsModel { private set; get; }
 
-    private PointGeometry3D pointsHitModel;
-
     public PointGeometry3D PointsHitModel {
-        set { SetValue(ref pointsHitModel, value, nameof(PointsHitModel)); }
-        get { return pointsHitModel; }
+        set { SetValue(ref field, value, nameof(PointsHitModel)); }
+        get { return field; }
     }
 
     public LineGeometry3D LinesModel { private set; get; }
     public ObservableCollection<DataModel> Items { set; get; }
     public List<DataModel> LanderItems { private set; get; }
 
-    private Vector3D camLookDir = new Vector3D(-10, -10, -10);
-
     public Vector3D CamLookDir {
         set {
-            if (camLookDir != value) {
-                camLookDir = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
                 Light1Direction = value;
             }
         }
-        get { return camLookDir; }
-    }
+        get { return field; }
+    } = new Vector3D(-10, -10, -10);
 
     public bool HitThrough { set; get; }
 
     private readonly IList<DataModel> HighlightItems = [];
 
-    private int sphereSize = 1;
-
     public int SphereSize {
         set {
-            if (SetValue<int>(ref sphereSize, value, nameof(SphereSize))) {
+            if (SetValue<int>(ref field, value, nameof(SphereSize))) {
                 if (HighlightItems.Count > 0) {
                     foreach (SphereModel item in HighlightItems) {
                         item.Radius = value;
@@ -152,28 +136,24 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return sphereSize; }
-    }
-
-    private bool autoDeleteEmptyNode = true;
+        get { return field; }
+    } = 1;
 
     public bool AutoDeleteEmptyNode {
         set {
-            autoDeleteEmptyNode = value;
+            field = value;
             OnPropertyChanged();
         }
-        get { return autoDeleteEmptyNode; }
-    }
-
-    private bool octreeFrameVisible = false;
+        get { return field; }
+    } = true;
 
     public bool OctreeFrameVisible {
         set {
-            octreeFrameVisible = value;
+            field = value;
             OnPropertyChanged();
         }
-        get { return octreeFrameVisible; }
-    }
+        get { return field; }
+    } = false;
 
     public ICommand AddModelCommand { private set; get; }
     public ICommand RemoveModelCommand { private set; get; }
@@ -221,15 +201,15 @@ public class MainViewModel : BaseViewModel {
         var b2 = new MeshBuilder(true, true, true);
         b2.AddSphere(new Vector3(15f, 0f, 0f), 4, 64, 64);
         b2.AddSphere(new Vector3(25f, 0f, 0f), 2, 32, 32);
-        b2.AddTube(new Vector3[] { new Vector3(10f, 5f, 0f), new Vector3(10f, 7f, 0f) }, 2, 12, false, true, true);
+        b2.AddTube([new Vector3(10f, 5f, 0f), new Vector3(10f, 7f, 0f)], 2, 12, false, true, true);
         DefaultModel = b2.ToMeshGeometry3D();
         DefaultModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
 
         PointsModel = new PointGeometry3D();
         var offset = new Vector3(1, 1, 1);
 
-        PointsModel.Positions = new Vector3Collection(DefaultModel.Positions.Select(x => x + offset));
-        PointsModel.Indices = new IntCollection(Enumerable.Range(0, PointsModel.Positions.Count));
+        PointsModel.Positions = [.. DefaultModel.Positions.Select(x => x + offset)];
+        PointsModel.Indices = [.. Enumerable.Range(0, PointsModel.Positions.Count)];
         PointsModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
         for (int i = 0; i < 50; ++i) {
             for (int j = 0; j < 10; ++j) {
@@ -379,23 +359,20 @@ public class MainViewModel : BaseViewModel {
 
     private DispatcherTimer timer;
     private int counter = 0;
-    private bool autoTesting = false;
 
     public bool AutoTesting {
         set {
-            if (SetValue<bool>(ref autoTesting, value, nameof(AutoTesting))) {
+            if (SetValue<bool>(ref field, value, nameof(AutoTesting))) {
                 Enabled = !value;
             }
         }
-        get { return autoTesting; }
-    }
-
-    private bool enabled = true;
+        get { return field; }
+    } = false;
 
     public bool Enabled {
-        set { SetValue<bool>(ref enabled, value, nameof(Enabled)); }
-        get { return enabled; }
-    }
+        set { SetValue<bool>(ref field, value, nameof(Enabled)); }
+        get { return field; }
+    } = true;
 
     private Random rnd = new Random();
 

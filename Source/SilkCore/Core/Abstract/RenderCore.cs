@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -204,8 +204,6 @@ namespace HelixToolkit.SharpDX.Core {
             /// </summary>
             public Guid GUID { get; } = Guid.NewGuid();
 
-            private RenderType renderType = RenderType.None;
-
             /// <summary>
             ///     Gets or sets the type of the render.
             /// </summary>
@@ -213,8 +211,8 @@ namespace HelixToolkit.SharpDX.Core {
             ///     The type of the render.
             /// </value>
             public RenderType RenderType {
-                get => renderType;
-                set => SetAffectsRender(ref renderType, value);
+                get;
+                set => SetAffectsRender(ref field, value);
             }
 
             /// <summary>
@@ -238,16 +236,14 @@ namespace HelixToolkit.SharpDX.Core {
             ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
             ///     </para>
             /// </summary>
-            public bool NeedUpdate { get; protected set; } = false;
-
-            private bool isThrowingShadow;
+            public bool NeedUpdate { get; protected set; }
 
             /// <summary>
             ///     <see cref="IThrowingShadow.IsThrowingShadow" />
             /// </summary>
             public bool IsThrowingShadow {
-                get => isThrowingShadow;
-                set => SetAffectsRender(ref isThrowingShadow, value);
+                get;
+                set => SetAffectsRender(ref field, value);
             }
 
             /// <summary>

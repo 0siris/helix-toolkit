@@ -8,6 +8,8 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
+#pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class DiffuseMaterial : Material {
@@ -212,6 +214,8 @@ public class DiffuseMaterial : Material {
         return CloneMaterial();
     }
 }
+
+#pragma warning restore CS8601, CS8602
 
 public class DiffuseMaterialCollection : ObservableCollection<DiffuseMaterial> {
     public DiffuseMaterialCollection() {

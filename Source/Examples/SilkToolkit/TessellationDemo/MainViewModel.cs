@@ -41,18 +41,14 @@ public class MainViewModel : BaseViewModel {
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
 
-    private FillMode fillMode = FillMode.Solid;
-
     public FillMode FillMode {
-        set { SetValue(ref fillMode, value); }
-        get { return fillMode; }
-    }
-
-    private bool wireFrame = false;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = FillMode.Solid;
 
     public bool Wireframe {
         set {
-            if (SetValue(ref wireFrame, value)) {
+            if (SetValue(ref field, value)) {
                 if (value) {
                     FillMode = FillMode.Wireframe;
                 } else {
@@ -60,8 +56,8 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return wireFrame; }
-    }
+        get { return field; }
+    } = false;
 
     private MeshTopologyEnum meshTopology = MeshTopologyEnum.PNTriangles;
 
@@ -134,10 +130,10 @@ public class MainViewModel : BaseViewModel {
         builder.AddBox(new Vector3(0, -5, 0), 60, 0.5, 60, BoxFaces.All);
         FloorModel = builder.ToMesh();
 
-        Instances = new Matrix[] {
+        Instances = [
             Matrix.Identity, Translation(10, 0, 10), Translation(-10, 0, 10), Translation(10, 0, -10),
             Translation(-10, 0, -10),
-        };
+        ];
     }
 
     /// <summary>
@@ -151,7 +147,7 @@ public class MainViewModel : BaseViewModel {
         var reader = new ObjReader();
         var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
         var model = objModel[0].Geometry as MeshGeometry3D;
-        model.Colors = new Color4Collection(model.Positions.Select(x => new Color4(1, 0, 0, 1)));
+        model.Colors = [.. model.Positions.Select(x => new Color4(1, 0, 0, 1))];
         DefaultModel = model;
     }
 

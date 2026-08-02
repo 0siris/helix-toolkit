@@ -14,11 +14,9 @@ namespace FileLoadDemo;
 /// </summary>
 /// <seealso cref="DemoCore.ObservableObject" />
 public class AttachedNodeViewModel : ObservableObject {
-    private bool selected = false;
-
     public bool Selected {
         set {
-            if (Set(ref selected, value)) {
+            if (Set(ref field, value)) {
                 if (node is MeshNode m) {
                     m.PostEffects = value ? $"highlight[color:#FFFF00]" : "";
                     foreach (var n in node.TraverseUp()) {
@@ -29,15 +27,13 @@ public class AttachedNodeViewModel : ObservableObject {
                 }
             }
         }
-        get => selected;
-    }
-
-    private bool expanded = false;
+        get;
+    } = false;
 
     public bool Expanded {
-        set => Set(ref expanded, value);
-        get => expanded;
-    }
+        set => Set(ref field, value);
+        get;
+    } = false;
 
     public bool IsAnimationNode {
         get => node.IsAnimationNode;

@@ -4,6 +4,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FileLoadDemo;
 
 using System;
@@ -31,33 +33,28 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 public class MainViewModel : BaseViewModel {
     private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
     private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
-    private bool showWireframe = false;
 
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 ShowWireframeFunct(value);
             }
         }
-        get { return showWireframe; }
-    }
-
-    private bool renderFlat = false;
+        get { return field; }
+    } = false;
 
     public bool RenderFlat {
         set {
-            if (SetValue(ref renderFlat, value)) {
+            if (SetValue(ref field, value)) {
                 RenderFlatFunct(value);
             }
         }
-        get { return renderFlat; }
-    }
-
-    private bool renderEnvironmentMap = true;
+        get { return field; }
+    } = false;
 
     public bool RenderEnvironmentMap {
         set {
-            if (SetValue(ref renderEnvironmentMap, value) && scene != null && scene.Root != null) {
+            if (SetValue(ref field, value) && scene != null && scene.Root != null) {
                 foreach (var node in scene.Root.Traverse()) {
                     if (node is MaterialGeometryNode m && m.Material is PBRMaterialCore material) {
                         material.RenderEnvironmentMap = value;
@@ -65,8 +62,8 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => renderEnvironmentMap;
-    }
+        get;
+    } = true;
 
     public ICommand OpenFileCommand { get; set; }
 
@@ -85,28 +82,20 @@ public class MainViewModel : BaseViewModel {
         get => isLoading;
     }
 
-    private bool isPlaying = false;
-
     public bool IsPlaying {
-        private set => SetValue(ref isPlaying, value);
-        get => isPlaying;
-    }
-
-    private float startTime;
+        private set => SetValue(ref field, value);
+        get;
+    } = false;
 
     public float StartTime {
-        private set => SetValue(ref startTime, value);
-        get => startTime;
+        private set => SetValue(ref field, value);
+        get;
     }
-
-    private float endTime;
 
     public float EndTime {
-        private set => SetValue(ref endTime, value);
-        get => endTime;
+        private set => SetValue(ref field, value);
+        get;
     }
-
-    private float currAnimationTime = 0;
 
     public float CurrAnimationTime {
         set {
@@ -114,22 +103,21 @@ public class MainViewModel : BaseViewModel {
                 return;
             }
 
-            if (SetValue(ref currAnimationTime, value % EndTime + StartTime)) {
+            if (SetValue(ref field, value % EndTime + StartTime)) {
                 animationUpdater?.Update(value, 1);
             }
         }
-        get => currAnimationTime;
-    }
+        get;
+    } = 0;
 
     public ObservableCollection<IAnimationUpdater> Animations { get; } = [];
 
     public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
 
-    private IAnimationUpdater? selectedAnimation = null;
-
+    [field: AllowNull, MaybeNull]
     public IAnimationUpdater SelectedAnimation {
         set {
-            if (SetValue(ref selectedAnimation, value)) {
+            if (SetValue(ref field, value)) {
                 StopAnimation();
                 CurrAnimationTime = 0;
                 if (value != null) {
@@ -144,8 +132,8 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return selectedAnimation; }
-    }
+        get { return field; }
+    } = null;
 
     private float speed = 1.0f;
 
@@ -154,12 +142,10 @@ public class MainViewModel : BaseViewModel {
         get => speed;
     }
 
-    private Point3D modelCentroid = default;
-
     public Point3D ModelCentroid {
-        private set => SetValue(ref modelCentroid, value);
-        get => modelCentroid;
-    }
+        private set => SetValue(ref field, value);
+        get;
+    } = default;
 
     private BoundingBox modelBound = new BoundingBox();
 

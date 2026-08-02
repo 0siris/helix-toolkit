@@ -35,7 +35,7 @@ public class ManipulationBinding : InputBinding {
             if (value is ManipulationGesture newGesture) {
                 if (oldGesture != newGesture) base.Gesture = newGesture;
             } else {
-                throw new ArgumentException(nameof(value));
+                throw new ArgumentException("The gesture must be a ManipulationGesture.", nameof(value));
             }
         }
     }

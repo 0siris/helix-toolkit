@@ -66,7 +66,7 @@ public class MainViewModel : BaseViewModel {
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2, BoxFaces.All);
 
         var meshGeometry = b1.ToMeshGeometry3D();
-        meshGeometry.Colors = new Color4Collection(meshGeometry.TextureCoordinates.Select(x => x.ToColor4()));
+        meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
         this.Model = meshGeometry;
 
         // lines model3d

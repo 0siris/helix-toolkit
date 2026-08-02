@@ -676,7 +676,7 @@ public class CameraController {
     /// <param name="animationTime">
     ///     The animation time.
     /// </param>
-    [Obsolete]
+    [Obsolete("Use ChangeDirection or the camera's equivalent method.")]
     public void LookAt(Vector3 target, double animationTime) {
         if (!IsPanEnabled) return;
 

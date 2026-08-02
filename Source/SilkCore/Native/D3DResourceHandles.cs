@@ -287,6 +287,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             if (nativeResource.Handle != null) nativeResource.Dispose();
             IsDisposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 

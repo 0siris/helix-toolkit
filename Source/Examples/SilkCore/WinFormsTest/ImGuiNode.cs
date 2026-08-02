@@ -31,18 +31,18 @@ public class ImGuiNode : SceneNode {
         RenderTechnique = new TechniqueDescription(ImGuiRenderTechnique) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSSprite2D,
                                                                 VSInputImGui2D),
-            PassDescriptions = new[] {
+            PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
-                    ShaderList = new[] {
+                    ShaderList = [
                         DefaultVSShaderDescriptions.VSSprite2D,
                         DefaultPSShaderDescriptions.PSSprite2D,
-                    },
+                    ],
                     Topology = PrimitiveTopology.TriangleList,
                     BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
                     RasterStateDescription = DefaultRasterDescriptions.RSSpriteCW,
                 }
-            }
+            ]
         };
     }
 

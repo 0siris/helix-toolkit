@@ -64,17 +64,12 @@ public class MainViewModel : BaseViewModel {
     public Color4 AmbientLightColor { get; private set; }
 
     /// <summary>
-    /// The Polygon-Material
-    /// </summary>
-    private PhongMaterial mMaterial;
-
-    /// <summary>
     /// Accessor to the Polygon-Material
     /// </summary>
     public PhongMaterial Material {
-        get { return mMaterial; }
+        get { return field; }
         set {
-            mMaterial = value;
+            field = value;
             OnPropertyChanged("Material");
         }
     }
@@ -97,17 +92,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     /// <summary>
-    /// Draw the Triangles or not
-    /// </summary>
-    private Boolean mShowTriangleLines;
-
-    /// <summary>
     /// Accessor to the Boolean
     /// </summary>
     public Boolean ShowTriangleLines {
-        get { return mShowTriangleLines; }
+        get { return field; }
         set {
-            mShowTriangleLines = value;
+            field = value;
             OnPropertyChanged("ShowTriangleLines");
         }
     }

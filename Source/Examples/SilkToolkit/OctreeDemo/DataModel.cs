@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,35 +13,30 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace OctreeDemo;
 
 public class DataModel : DemoCore.ObservableObject {
-    private MeshGeometry3D? model = null;
-
+    [field: AllowNull, MaybeNull]
     public MeshGeometry3D Model {
-        set { SetValue<MeshGeometry3D>(ref model, value, nameof(Model)); }
-        get { return model; }
-    }
+        set { SetValue<MeshGeometry3D>(ref field, value, nameof(Model)); }
+        get { return field; }
+    } = null;
 
     public readonly Media3D.ScaleTransform3D scaleTransform = new Media3D.ScaleTransform3D();
     public readonly Media3D.TranslateTransform3D translateTransform = new Media3D.TranslateTransform3D();
     public Media3D.Transform3DGroup DynamicTransform { get; private set; } = new Media3D.Transform3DGroup();
 
 
-    private PhongMaterial material;
-
     public PhongMaterial Material {
-        set { SetValue<PhongMaterial>(ref material, value, nameof(Material)); }
-        get { return material; }
+        set { SetValue<PhongMaterial>(ref field, value, nameof(Material)); }
+        get { return field; }
     }
-
-    private bool highlight = false;
 
     public bool Highlight {
         set {
-            if (highlight == value) {
+            if (field == value) {
                 return;
             }
 
-            highlight = value;
-            if (highlight) {
+            field = value;
+            if (field) {
                 //orgMaterial = material;
                 Material.EmissiveColor = Color.Yellow;
             } else {
@@ -48,8 +44,8 @@ public class DataModel : DemoCore.ObservableObject {
                 //Material = orgMaterial;
             }
         }
-        get { return highlight; }
-    }
+        get { return field; }
+    } = false;
 
     public DataModel() {
         DynamicTransform.Children.Add(scaleTransform);
@@ -98,27 +94,23 @@ public class SphereModel : DataModel {
         Material = new PhongMaterial() { DiffuseColor = color.ToColor4() };
     }
 
-    private Vector3 center;
-
     public Vector3 Center {
         set {
-            if (SetValue<Vector3>(ref center, value, nameof(Center))) {
+            if (SetValue<Vector3>(ref field, value, nameof(Center))) {
                 translateTransform.OffsetX = translateTransform.OffsetY = translateTransform.OffsetZ = value.X;
             }
         }
-        get { return center; }
+        get { return field; }
     }
-
-    private double radius = 1;
 
     public double Radius {
         set {
-            if (SetValue<double>(ref radius, value, nameof(Radius))) {
+            if (SetValue<double>(ref field, value, nameof(Radius))) {
                 scaleTransform.ScaleX = scaleTransform.ScaleY = scaleTransform.ScaleZ = value;
             }
         }
-        get { return radius; }
-    }
+        get { return field; }
+    } = 1;
 
     private void CreateModel() {
         int type = rnd.Next(0, 3);

@@ -255,7 +255,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <param name="description">The description.</param>
     /// <returns>A Texture instance, either a RenderTarget or DepthStencilBuffer or Texture, depending on Binding flags.</returns>
     public static Texture New(NativeD3DDevice graphicsDevice, TextureDescription description) {
-        if (graphicsDevice == null) throw new ArgumentNullException("graphicsDevice");
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
 
         if ((description.BindFlags & BindFlags.RenderTarget) != 0)
             throw new NotSupportedException("RenderTarget is not supported.");
@@ -370,7 +370,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     ) where T : unmanaged {
         // Check that the textureData size is correct
         if (textureData == null)
-            throw new ArgumentNullException("textureData");
+            ArgumentNullException.ThrowIfNull(textureData);
         int rowPitch;
         int slicePitch;
         int widthCount;

@@ -60,17 +60,17 @@ namespace HelixToolkit.Wpf.SharpDX {
             protected override void OnPaint(PaintEventArgs e) {
                 base.OnPaint(e);
                 if (DesignMode) {
-                    fontForDesignMode ??= new Font(new FontFamily("Calibri"),
-                                                     24,
-                                                     System.Drawing.FontStyle.Regular);
+                    using var fontFamily = new FontFamily("Calibri");
+                    fontForDesignMode ??= new Font(fontFamily, 24, System.Drawing.FontStyle.Regular);
 
                     e.Graphics.Clear(Color.WhiteSmoke);
                     var text = "SharpDX RenderControl";
                     var sizeText = e.Graphics.MeasureString(text, fontForDesignMode);
 
+                    using var brush = new SolidBrush(Color.Black);
                     e.Graphics.DrawString(text,
                                           fontForDesignMode,
-                                          new SolidBrush(Color.Black),
+                                          brush,
                                           (Width - sizeText.Width) / 2,
                                           (Height - sizeText.Height) / 2);
                 }

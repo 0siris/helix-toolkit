@@ -33,14 +33,12 @@ public class MainViewModel : BaseViewModel {
         get { return this; }
     }
 
-    private MeshGeometry3D model;
-
     public MeshGeometry3D Model {
-        get { return model; }
+        get { return field; }
         private set {
-            if (SetValue(ref model, value)) {
-                NumberOfTriangles = model.Indices.Count / 3;
-                NumberOfVertices = model.Positions.Count;
+            if (SetValue(ref field, value)) {
+                NumberOfTriangles = field.Indices.Count / 3;
+                NumberOfVertices = field.Positions.Count;
             }
         }
     }
@@ -53,18 +51,17 @@ public class MainViewModel : BaseViewModel {
     public Vector3D Light1Direction { get; set; }
     public Color Light1Color { get; set; }
     public Color AmbientLightColor { get; set; }
-    private Vector3D camLookDir = new Vector3D(-100, -100, -100);
 
     public Vector3D CamLookDir {
         set {
-            if (camLookDir != value) {
-                camLookDir = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
                 Light1Direction = value;
             }
         }
-        get { return camLookDir; }
-    }
+        get { return field; }
+    } = new Vector3D(-100, -100, -100);
 
     public ICommand SimplifyCommand { private set; get; }
     public ICommand ResetCommand { private set; get; }
@@ -73,16 +70,14 @@ public class MainViewModel : BaseViewModel {
 
     public bool Busy { set; get; } = false;
 
-    private bool showWireframe = true;
-
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get { return showWireframe; }
-    }
+        get { return field; }
+    } = true;
 
     public FillMode FillMode { set; get; } = FillMode.Wireframe;
 

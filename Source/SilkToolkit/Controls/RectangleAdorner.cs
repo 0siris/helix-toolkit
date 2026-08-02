@@ -111,7 +111,7 @@ public class RectangleAdorner : Adorner {
         WpfDashStyle dashStyle2
     )
         : base(adornedElement) {
-        if (adornedElement == null) throw new ArgumentNullException("adornedElement");
+        ArgumentNullException.ThrowIfNull(adornedElement);
 
         Rectangle = rectangle;
 

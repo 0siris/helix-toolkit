@@ -4,6 +4,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace TemplateDemo;
 
 using System.Collections.Generic;
@@ -16,12 +18,11 @@ public class MainViewModel : BaseViewModel {
     public ObservableCollection<SelectionViewModel> ViewModels { get; } =
         [];
 
-    private SelectionViewModel? selectedViewModel = null;
-
+    [field: AllowNull, MaybeNull]
     public SelectionViewModel SelectedViewModel {
-        set { SetValue(ref selectedViewModel, value); }
-        get { return selectedViewModel; }
-    }
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = null;
 
     private PhongMaterialCollection materials = [];
 

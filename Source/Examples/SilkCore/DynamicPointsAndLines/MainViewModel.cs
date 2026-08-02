@@ -92,16 +92,14 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
     public IEffectsManager EffectsManager { get; }
     public Camera Camera { get; }
 
-    private int numberOfPoints;
-
     public int NumberOfPoints {
-        get => numberOfPoints;
+        get;
         set {
             StopWatch.Stop();
 
-            SetValue(ref numberOfPoints, value);
-            Lines.Indices = new IntCollection(numberOfPoints * 2);
-            for (int i = 0; i < numberOfPoints * 2; i++) {
+            SetValue(ref field, value);
+            Lines.Indices = new IntCollection(field * 2);
+            for (int i = 0; i < field * 2; i++) {
                 Lines.Indices.Add(i);
             }
 

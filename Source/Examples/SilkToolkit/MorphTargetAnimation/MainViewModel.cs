@@ -28,32 +28,26 @@ public class MainViewModel : BaseViewModel {
     private CompositionTargetEx compositeHelper = new CompositionTargetEx();
     private List<IAnimationUpdater> animationUpdaters;
 
-    private double endTime = 0;
-
     public double EndTime {
-        set { SetValue(ref endTime, value); }
-        get { return endTime; }
-    }
-
-    private double currTime = 0;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = 0;
 
     public double CurrTime {
         set {
-            if (SetValue(ref currTime, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (IAnimationUpdater updater in animationUpdaters) {
                     updater.Update((float)value, 1);
                 }
             }
         }
-        get { return currTime; }
-    }
-
-    private bool isPlaying = false;
+        get { return field; }
+    } = 0;
 
     public bool IsPlaying {
-        private set { SetValue(ref isPlaying, value); }
-        get { return isPlaying; }
-    }
+        private set { SetValue(ref field, value); }
+        get { return field; }
+    } = false;
 
     public ICommand PlayCommand { get; }
 

@@ -4,6 +4,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FileLoadDemo;
 
 using System.Collections.Generic;
@@ -26,33 +28,28 @@ using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 public class MainViewModel : ObservableObject {
     private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
     private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
-    private bool showWireframe = false;
 
     public bool ShowWireframe {
         set {
-            if (Set(ref showWireframe, value)) {
+            if (Set(ref field, value)) {
                 ShowWireframeFunct(value);
             }
         }
-        get { return showWireframe; }
-    }
-
-    private bool renderFlat = false;
+        get { return field; }
+    } = false;
 
     public bool RenderFlat {
         set {
-            if (Set(ref renderFlat, value)) {
+            if (Set(ref field, value)) {
                 RenderFlatFunct(value);
             }
         }
-        get { return renderFlat; }
-    }
-
-    private bool renderEnvironmentMap = true;
+        get { return field; }
+    } = false;
 
     public bool RenderEnvironmentMap {
         set {
-            if (Set(ref renderEnvironmentMap, value) && scene != null && scene.Root != null) {
+            if (Set(ref field, value) && scene != null && scene.Root != null) {
                 foreach (var node in scene.Root.Traverse()) {
                     if (node is MaterialGeometryNode m && m.Material is PBRMaterialCore material) {
                         material.RenderEnvironmentMap = value;
@@ -60,8 +57,8 @@ public class MainViewModel : ObservableObject {
                 }
             }
         }
-        get => renderEnvironmentMap;
-    }
+        get;
+    } = true;
 
     public ICommand OpenFileCommand { get; set; }
 
@@ -95,11 +92,10 @@ public class MainViewModel : ObservableObject {
 
     public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
 
-    private Animation? selectedAnimation = null;
-
+    [field: AllowNull, MaybeNull]
     public Animation SelectedAnimation {
         set {
-            if (Set(ref selectedAnimation, value)) {
+            if (Set(ref field, value)) {
                 StopAnimation();
                 if (value != null) {
                     animationUpdater = new NodeAnimationUpdater(value);
@@ -112,8 +108,8 @@ public class MainViewModel : ObservableObject {
                 }
             }
         }
-        get { return selectedAnimation; }
-    }
+        get { return field; }
+    } = null;
 
     public TextureModel EnvironmentMap { get; }
     public HelixToolkit.SharpDX.Core.EffectsManager EffectsManager { get; }

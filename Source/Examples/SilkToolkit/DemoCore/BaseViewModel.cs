@@ -23,25 +23,19 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
     public const string Perspective = "Perspective Camera";
 
-    private string cameraModel;
-
-    private Camera camera;
-
-    private string subTitle;
-
-    private string title;
+    private string cameraModel = null!;
 
     public string Title {
-        get { return title; }
-        set { SetValue(ref title, value, "Title"); }
-    }
+        get { return field; }
+        set { SetValue(ref field, value, "Title"); }
+    } = null!;
 
     public string SubTitle {
-        get { return subTitle; }
-        set { SetValue(ref subTitle, value, "SubTitle"); }
-    }
+        get { return field; }
+        set { SetValue(ref field, value, "SubTitle"); }
+    } = null!;
 
-    public List<string> CameraModelCollection { get; private set; }
+    public List<string> CameraModelCollection { get; private set; } = [];
 
     public string CameraModel {
         get { return cameraModel; }
@@ -53,24 +47,22 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     }
 
     public Camera Camera {
-        get { return camera; }
+        get { return field; }
 
         protected set {
-            SetValue(ref camera, value, "Camera");
+            SetValue(ref field, value, "Camera");
             CameraModel = value is PerspectiveCamera
                               ? Perspective
                               : value is OrthographicCamera
                                   ? Orthographic
-                                  : null;
+                              : null!;
         }
-    }
-
-    private IEffectsManager effectsManager;
+    } = null!;
 
     public IEffectsManager EffectsManager {
-        get { return effectsManager; }
-        protected set { SetValue(ref effectsManager, value); }
-    }
+        get { return field; }
+        protected set { SetValue(ref field, value); }
+    } = null!;
 
     protected OrthographicCamera defaultOrthographicCamera = new OrthographicCamera {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
@@ -85,7 +77,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         FarPlaneDistance = 150
     };
 
-    public event EventHandler CameraModelChanged;
+    public event EventHandler? CameraModelChanged;
 
     protected BaseViewModel() {
         // camera models
@@ -115,15 +107,12 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     }
 
     protected virtual void OnCameraModelChanged() {
-        var eh = CameraModelChanged;
-        if (eh != null) {
-            eh(this, new EventArgs());
-        }
+        CameraModelChanged?.Invoke(this, EventArgs.Empty);
     }
 
     #region IDisposable Support
 
-    private bool disposedValue = false; // To detect redundant calls
+    private bool disposedValue; // To detect redundant calls
 
     protected virtual void Dispose(bool disposing) {
         if (!disposedValue) {

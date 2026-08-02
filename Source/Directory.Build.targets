@@ -1,0 +1,11 @@
+<Project>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' and '$(TargetPlatformIdentifier)' == 'Windows'">
+    <Compile Include="$(MSBuildThisFileDirectory)SupportedOSPlatform.cs" Link="Properties\SupportedOSPlatform.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Fody;PropertyChanged.Fody">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

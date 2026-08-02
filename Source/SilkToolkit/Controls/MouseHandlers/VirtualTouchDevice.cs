@@ -118,7 +118,7 @@ public class VirtualTouchDevice : TouchDevice {
 
         public const int WM_TOUCH = 0x0240;
 
-        public static readonly int TOUCHINPUT_SIZE = Marshal.SizeOf(typeof(TOUCHINPUT));
+        public static readonly int TOUCHINPUT_SIZE = Marshal.SizeOf<TOUCHINPUT>();
 
         [DllImport("user32")]
         [return: MarshalAs(UnmanagedType.Bool)]

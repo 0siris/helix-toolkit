@@ -14,6 +14,8 @@ using HelixToolkit.Wpf.SharpDX.Model;
 using PlatformColor = System.Windows.Media.Color;
 using PlatformColors = System.Windows.Media.Colors;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>

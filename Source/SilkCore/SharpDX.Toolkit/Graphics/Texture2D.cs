@@ -236,7 +236,7 @@ public class Texture2D : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image == null)
-            throw new ArgumentNullException("image");
+            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture2D)
             throw new ArgumentException("Invalid image. Must be 2D", "image");
 

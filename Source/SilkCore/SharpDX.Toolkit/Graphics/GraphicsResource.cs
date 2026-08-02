@@ -27,7 +27,7 @@ public abstract class GraphicsResource : Component {
     /// <param name="name"></param>
     protected GraphicsResource(NativeD3DDevice graphicsDevice, string name) : base(name) {
         if (graphicsDevice == null)
-            throw new ArgumentNullException("graphicsDevice");
+            ArgumentNullException.ThrowIfNull(graphicsDevice);
 
         GraphicsDevice = graphicsDevice;
     }

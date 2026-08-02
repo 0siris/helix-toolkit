@@ -3,8 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Microsoft.Extensions.Logging;
 using HelixToolkit.SharpDX.Core.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core {
     namespace Model.Scene2D {

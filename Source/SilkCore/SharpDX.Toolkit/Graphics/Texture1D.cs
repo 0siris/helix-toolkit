@@ -187,7 +187,7 @@ public class Texture1D : Texture1DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image == null)
-            throw new ArgumentNullException("image");
+            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture1D)
             throw new ArgumentException("Invalid image. Must be 1D", "image");
 

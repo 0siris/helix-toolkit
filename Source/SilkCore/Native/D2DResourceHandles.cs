@@ -42,6 +42,7 @@ namespace HelixToolkit.SharpDX.Core {
                     disposable.Dispose();
 
                 IsDisposed = true;
+                GC.SuppressFinalize(this);
             }
         }
 

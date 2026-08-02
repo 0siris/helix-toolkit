@@ -18,9 +18,9 @@ using Media3D = System.Windows.Media.Media3D;
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class TransformManipulator3D : GroupElement3D {
-    private static readonly Geometry3D TranslationXGeometry;
-    private static readonly Geometry3D RotationXGeometry;
-    private static readonly Geometry3D ScalingGeometry;
+    private static readonly Geometry3D TranslationXGeometry = null!;
+    private static readonly Geometry3D RotationXGeometry = null!;
+    private static readonly Geometry3D ScalingGeometry = null!;
 
     private ManipulationType manipulationType = ManipulationType.None;
 

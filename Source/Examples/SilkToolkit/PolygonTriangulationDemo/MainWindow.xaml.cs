@@ -111,7 +111,7 @@ public partial class MainWindow : Window {
             geometry.Normals.Add(new Vector3(0, 1, 0));
         }
 
-        geometry.Indices = new IntCollection(sLTI);
+        geometry.Indices = [.. sLTI];
         triangulatedPolygon.Geometry = geometry;
 
         var lb = new LineBuilder();

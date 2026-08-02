@@ -256,7 +256,7 @@ public static class CameraExtensions {
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
     public static Matrix GetViewProjectionMatrix(this CameraCore camera, double aspectRatio) {
-        if (camera == null) throw new ArgumentNullException("camera");
+        ArgumentNullException.ThrowIfNull(camera);
         return camera.GetViewMatrix() * camera.GetProjectionMatrix(aspectRatio);
     }
 

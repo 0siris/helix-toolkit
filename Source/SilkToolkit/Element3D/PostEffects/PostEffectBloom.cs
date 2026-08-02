@@ -4,6 +4,8 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Model;
 using Color = System.Windows.Media.Color;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>

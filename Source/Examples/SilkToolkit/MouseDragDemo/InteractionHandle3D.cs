@@ -210,10 +210,10 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         BoundingBox bb;
         if (sender == cornerHandles[0] || sender == cornerHandles[2]) {
             Application.Current.MainWindow.Cursor = Cursors.SizeNESW;
-            bb = BoundingBoxExtensions.FromPoints(new[] { positions[0], positions[2] });
+            bb = BoundingBoxExtensions.FromPoints([positions[0], positions[2]]);
         } else if (sender == cornerHandles[1] || sender == cornerHandles[3]) {
             Application.Current.MainWindow.Cursor = Cursors.SizeNWSE;
-            bb = BoundingBoxExtensions.FromPoints(new[] { positions[1], positions[3] });
+            bb = BoundingBoxExtensions.FromPoints([positions[1], positions[3]]);
         } else {
             if (sender == midpointHandles[0] || sender == midpointHandles[2]) {
                 Application.Current.MainWindow.Cursor = Cursors.SizeNS;

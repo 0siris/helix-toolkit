@@ -122,8 +122,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     private bool IsAttached;
 
-    private Element2D mouseOverModel2D;
-
     private Window parentWindow;
 
     private ItemsControl partItemsControl;
@@ -197,13 +195,13 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         };
     }
 
-    public Element2D MouseOverModel2D {
-        get => mouseOverModel2D;
+    public Element2D? MouseOverModel2D {
+        get;
         private set {
-            if (mouseOverModel2D == value) return;
-            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseLeave2DEvent, mouseOverModel2D, this));
-            mouseOverModel2D = value;
-            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseEnter2DEvent, mouseOverModel2D, this));
+            if (field == value) return;
+            field?.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseLeave2DEvent, field, this));
+            field = value;
+            field?.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseEnter2DEvent, field, this));
         }
     }
 
@@ -242,7 +240,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         get {
             if (renderHostInternal != null) {
                 foreach (var item in Items) yield return item.SceneNode;
-                if (renderHostInternal.EnableSharingModelMode && renderHostInternal.SharedModelContainer != null)
+                if (renderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
                     foreach (var item in renderHostInternal.SharedModelContainer.Renderables)
                         yield return item;
 
@@ -524,7 +522,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Hides the target adorner.
     /// </summary>
     public void HideTargetAdorner() {
-        if (!(hostPresenter is Visual visual)) return;
+        if (hostPresenter is not Visual visual) return;
 
         var myAdornerLayer = AdornerLayer.GetAdornerLayer(visual);
         if (myAdornerLayer == null) return;
@@ -539,7 +537,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Hides the zoom rectangle.
     /// </summary>
     public void HideZoomRectangle() {
-        if (!(hostPresenter is Visual visual)) return;
+        if (hostPresenter is not Visual visual) return;
 
         var myAdornerLayer = AdornerLayer.GetAdornerLayer(visual);
         if (myAdornerLayer == null) return;
@@ -747,7 +745,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         if (targetAdorner != null) return;
 
-        if (!(hostPresenter is UIElement visual)) return;
+        if (hostPresenter is not UIElement visual) return;
 
         var myAdornerLayer = AdornerLayer.GetAdornerLayer(visual);
         if (myAdornerLayer == null) return;
@@ -765,7 +763,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             return;
         }
 
-        if (!(hostPresenter is UIElement visual)) return;
+        if (hostPresenter is not UIElement visual) return;
 
         var myAdornerLayer = AdornerLayer.GetAdornerLayer(visual);
         if (myAdornerLayer == null) return;
@@ -823,7 +821,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         ViewportExtensions.ZoomExtents(this, animationTime);
     }
 
-    private void NodeInvalidated(object sender, InvalidateTypes e) {
+    private void NodeInvalidated(object? sender, InvalidateTypes e) {
         renderHostInternal?.Invalidate(e);
     }
 
@@ -1092,7 +1090,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
     }
 
-    private void CameraInternal_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+    private void CameraInternal_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
         InvalidateRender();
         // Raise notification
         RaiseCameraChangedEvent();
@@ -1153,7 +1151,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
     }
 
-    private void ParentWindow_Closed(object sender, EventArgs e) {
+    private void ParentWindow_Closed(object? sender, EventArgs e) {
         ControlUnloaded(sender, null);
         if (hostPresenter.Content is IDisposable d) {
             hostPresenter.Content = null;
@@ -1234,7 +1232,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    private void HandleRenderException(object sender, RelayExceptionEventArgs e) {
+    private void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
         var bindingExpression = GetBindingExpression(RenderExceptionProperty);
         if (bindingExpression != null) {
             // If RenderExceptionProperty is bound, we assume the exception will be handled.
@@ -1538,11 +1536,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void RaiseRenderHostRendered(object sender, EventArgs e) {
+    private void RaiseRenderHostRendered(object? sender, EventArgs e) {
         OnRendered?.Invoke(sender, e);
     }
 
-    public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
+    public static T? FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
         if (obj != null) {
             var parent = VisualTreeHelper.GetParent(obj);
             while (parent != null) {
@@ -1603,8 +1601,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
-        // TODO: uncomment the following line if the finalizer is overridden above.
-        // GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);
     }
 
     #endregion

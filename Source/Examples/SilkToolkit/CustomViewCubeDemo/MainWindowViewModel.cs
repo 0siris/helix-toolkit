@@ -71,7 +71,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         builder.AddLine(Vector3.Zero, Vector3.UnitY * 5);
         builder.AddLine(Vector3.Zero, Vector3.UnitZ * 5);
         Coordinate = builder.ToLineGeometry3D();
-        Coordinate.Colors = new Color4Collection(Enumerable.Repeat<Color4>(Color.White, 6));
+        Coordinate.Colors = [.. Enumerable.Repeat<Color4>(Color.White, 6)];
         Coordinate.Colors[0] = Coordinate.Colors[1] = Color.Red;
         Coordinate.Colors[2] = Coordinate.Colors[3] = Color.Green;
         Coordinate.Colors[4] = Coordinate.Colors[5] = Color.Blue;

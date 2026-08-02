@@ -72,58 +72,51 @@ public class MainViewModel : BaseViewModel {
     public bool RenderLight2 { get; set; }
     public bool RenderLight3 { get; set; }
     public bool RenderLight4 { get; set; }
-    private bool renderDiffuseMap = true;
 
     public bool RenderDiffuseMap {
         set {
-            if (SetValue(ref renderDiffuseMap, value)) {
+            if (SetValue(ref field, value)) {
                 ModelMaterial.RenderDiffuseMap = FloorMaterial.RenderDiffuseMap = value;
             }
         }
-        get { return renderDiffuseMap; }
-    }
-
-    private bool renderNormalMap = true;
+        get { return field; }
+    } = true;
 
     public bool RenderNormalMap {
         set {
-            if (SetValue(ref renderNormalMap, value)) {
+            if (SetValue(ref field, value)) {
                 ModelMaterial.RenderNormalMap = FloorMaterial.RenderNormalMap = value;
             }
         }
-        get { return renderNormalMap; }
-    }
+        get { return field; }
+    } = true;
 
     public string[] TextureFiles { get; } = [
         @"TextureCheckerboard2.jpg", @"TextureCheckerboard3.jpg", @"TextureNoise1.jpg", @"TextureNoise1_dot3.jpg",
         @"TextureCheckerboard2_dot3.jpg"
     ];
 
-    private string selectedDiffuseTexture = @"TextureCheckerboard2.jpg";
-
     public string SelectedDiffuseTexture {
         set {
-            if (SetValue(ref selectedDiffuseTexture, value)) {
+            if (SetValue(ref field, value)) {
                 ModelMaterial.DiffuseMap =
                     TextureModel.Create(new System.Uri(value, System.UriKind.RelativeOrAbsolute).ToString());
                 FloorMaterial.DiffuseMap = ModelMaterial.DiffuseMap;
             }
         }
-        get { return selectedDiffuseTexture; }
-    }
-
-    private string selectedNormalTexture = @"TextureCheckerboard2_dot3.jpg";
+        get { return field; }
+    } = @"TextureCheckerboard2.jpg";
 
     public string SelectedNormalTexture {
         set {
-            if (SetValue(ref selectedNormalTexture, value)) {
+            if (SetValue(ref field, value)) {
                 ModelMaterial.NormalMap =
                     TextureModel.Create(new System.Uri(value, System.UriKind.RelativeOrAbsolute).ToString());
                 FloorMaterial.NormalMap = ModelMaterial.NormalMap;
             }
         }
-        get { return selectedNormalTexture; }
-    }
+        get { return field; }
+    } = @"TextureCheckerboard2_dot3.jpg";
 
     public System.Windows.Media.Color DiffuseColor {
         set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }

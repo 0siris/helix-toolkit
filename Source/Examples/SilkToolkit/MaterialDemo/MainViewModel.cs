@@ -121,7 +121,7 @@ public class MainViewModel : BaseViewModel {
         for (int i = 0; i < objs.Count; ++i) {
             var ob = objs[i];
             var vertColor = new Color4((float)i / objs.Count, 0, 1 - (float)i / objs.Count, 1);
-            ob.Geometry.Colors = new Color4Collection(Enumerable.Repeat(vertColor, ob.Geometry.Positions.Count));
+            ob.Geometry.Colors = [.. Enumerable.Repeat(vertColor, ob.Geometry.Positions.Count)];
             ob.Geometry.UpdateOctree();
             ob.Geometry.UpdateBounds();
 

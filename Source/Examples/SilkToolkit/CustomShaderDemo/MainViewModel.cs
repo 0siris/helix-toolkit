@@ -49,10 +49,10 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref startColor, value)) {
                 ColorGradient =
-                    new Color4Collection(GetGradients(startColor.ToColor4(),
+                    [.. GetGradients(startColor.ToColor4(),
                                                       midColor.ToColor4(),
                                                       endColor.ToColor4(),
-                                                      100));
+                                                      100)];
             }
         }
         get { return startColor; }
@@ -70,10 +70,10 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref midColor, value)) {
                 ColorGradient =
-                    new Color4Collection(GetGradients(startColor.ToColor4(),
+                    [.. GetGradients(startColor.ToColor4(),
                                                       midColor.ToColor4(),
                                                       endColor.ToColor4(),
-                                                      100));
+                                                      100)];
             }
         }
         get { return midColor; }
@@ -91,43 +91,37 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref endColor, value)) {
                 ColorGradient =
-                    new Color4Collection(GetGradients(startColor.ToColor4(),
+                    [.. GetGradients(startColor.ToColor4(),
                                                       midColor.ToColor4(),
                                                       endColor.ToColor4(),
-                                                      100));
+                                                      100)];
             }
         }
         get { return endColor; }
     }
 
-    private Color4Collection colorGradient;
-
     public Color4Collection ColorGradient {
         private set {
-            if (SetValue(ref colorGradient, value)) {
+            if (SetValue(ref field, value)) {
                 ModelMaterial.ColorStripeX = value;
             }
         }
-        get { return colorGradient; }
+        get { return field; }
     }
-
-    private FillMode fillMode = FillMode.Solid;
 
     public FillMode FillMode {
-        set { SetValue(ref fillMode, value); }
-        get { return fillMode; }
-    }
-
-    private bool showWireframe = false;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = FillMode.Solid;
 
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get { return showWireframe; }
-    }
+        get { return field; }
+    } = false;
 
     private int Width = 100;
     private int Height = 100;

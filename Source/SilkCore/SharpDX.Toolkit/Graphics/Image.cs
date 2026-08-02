@@ -473,7 +473,7 @@ public sealed class Image : Component {
     /// </remarks>
     public static unsafe Image Load(byte[] buffer) {
         if (buffer == null)
-            throw new ArgumentNullException("buffer");
+            ArgumentNullException.ThrowIfNull(buffer);
 
         var size = buffer.Length;
 

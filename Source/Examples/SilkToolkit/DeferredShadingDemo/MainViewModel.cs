@@ -61,17 +61,17 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection PointLightCollection { get; set; }
 
     public Color PointLightColor {
-        get { return this.pointLightColor; }
+        get { return field; }
         set {
-            this.pointLightColor = value;
+            field = value;
             this.UpdatePointLightCollection();
         }
     }
 
     public Vector3D PointLightAttenuation {
-        get { return this.pointLightAttenuation; }
+        get { return field; }
         set {
-            this.pointLightAttenuation = value;
+            field = value;
             this.UpdatePointLightCollection();
         }
     }
@@ -82,9 +82,9 @@ public class MainViewModel : BaseViewModel {
     }
 
     public int PointLightSpread {
-        get { return this.pointLightSpread; }
+        get { return field; }
         set {
-            this.pointLightSpread = value;
+            field = value;
             this.InitPointLightCollection(this.PointLightCount);
         }
     }
@@ -92,17 +92,17 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection SpotLightCollection { get; set; }
 
     public Color SpotLightColor {
-        get { return this.spotLightColor; }
+        get { return field; }
         set {
-            this.spotLightColor = value;
+            field = value;
             this.UpdateSpotLightCollection();
         }
     }
 
     public Vector3D SpotLightAttenuation {
-        get { return this.spotLightAttenuation; }
+        get { return field; }
         set {
-            this.spotLightAttenuation = value;
+            field = value;
             this.UpdateSpotLightCollection();
         }
     }
@@ -113,9 +113,9 @@ public class MainViewModel : BaseViewModel {
     }
 
     public double SpotLightSpread {
-        get { return this.spotLightSpread; }
+        get { return field; }
         set {
-            this.spotLightSpread = value;
+            field = value;
             this.InitSpotLightCollection(this.SpotLightCount);
         }
     }
@@ -383,14 +383,6 @@ public class MainViewModel : BaseViewModel {
         return memory;
     }
 
-
-    private Vector3D pointLightAttenuation;
-    private Color pointLightColor;
-    private int pointLightSpread;
-
-    private Vector3D spotLightAttenuation;
-    private Color spotLightColor;
-    private double spotLightSpread;
 
     private string meshTopology = MeshFaces.Default.ToString();
 }

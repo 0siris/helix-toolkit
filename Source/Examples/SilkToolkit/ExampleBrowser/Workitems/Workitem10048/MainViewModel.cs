@@ -15,18 +15,16 @@ using HelixToolkit.Wpf.SharpDX.Extensions;
 public class MainViewModel : BaseViewModel {
     private static readonly Point3D NoHit = new Point3D(double.NaN, double.NaN, double.NaN);
 
-    private Point3D pointHit = NoHit;
-
     public Point3D PointHit {
-        get { return this.pointHit; }
+        get { return field; }
 
         set {
-            if (this.pointHit != value) {
-                this.pointHit = value;
+            if (field != value) {
+                field = value;
                 this.OnPropertyChanged(nameof(this.PointHit));
             }
         }
-    }
+    } = NoHit;
 
     public MainViewModel() {
         // titles

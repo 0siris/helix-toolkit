@@ -46,51 +46,40 @@ public class MainViewModel : BaseViewModel {
     public PhongMaterial LightModelMaterial { get; set; }
 
     public Color Light1Color { get; set; }
-    private bool enablePlane1 = true;
 
     public bool EnablePlane1 {
-        set { SetValue(ref enablePlane1, value); }
-        get => enablePlane1;
-    }
-
-    private Plane plane1 = new Plane(new Vector3(0, -1, 0), -8);
+        set { SetValue(ref field, value); }
+        get;
+    } = true;
 
     public Plane Plane1 {
-        set { SetValue(ref plane1, value); }
-        get => plane1;
-    }
-
-    private bool enablePlane2 = true;
+        set { SetValue(ref field, value); }
+        get;
+    } = new Plane(new Vector3(0, -1, 0), -8);
 
     public bool EnablePlane2 {
-        set { SetValue(ref enablePlane2, value); }
-        get => enablePlane2;
-    }
-
-    private Plane plane2 = new Plane(new Vector3(-1, 0, 0), -8);
+        set { SetValue(ref field, value); }
+        get;
+    } = true;
 
     public Plane Plane2 {
-        set { SetValue(ref plane2, value); }
-        get => plane2;
-    }
-
-    private int cuttingOperationIndex;
+        set { SetValue(ref field, value); }
+        get;
+    } = new Plane(new Vector3(-1, 0, 0), -8);
 
     public int CuttingOperationIndex {
         set {
-            if (SetValue(ref cuttingOperationIndex, value)) {
+            if (SetValue(ref field, value)) {
                 CuttingOperation = (CuttingOperation)value;
             }
         }
-        get { return cuttingOperationIndex; }
+        get { return field; }
     }
-
-    private CuttingOperation cuttingOperation = CuttingOperation.Intersect;
 
     public CuttingOperation CuttingOperation {
-        set { SetValue(ref cuttingOperation, value); }
-        get => cuttingOperation;
-    }
+        set { SetValue(ref field, value); }
+        get;
+    } = CuttingOperation.Intersect;
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -179,19 +168,16 @@ public class MainViewModel : BaseViewModel {
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
-    private Vector3? constraintVector = new Vector3(0, 1, 0);
-    private object modelAtCursor;
-
     public Vector3? ConstraintVector {
-        get => constraintVector;
-        set => SetValue(ref constraintVector, value);
-    }
+        get;
+        set => SetValue(ref field, value);
+    } = new Vector3(0, 1, 0);
 
     public object ModelAtCursor {
-        get => modelAtCursor;
+        get;
         set {
-            if (modelAtCursor != value) {
-                modelAtCursor = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(NameOfModelAtCursor));
             }

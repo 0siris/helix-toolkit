@@ -24,42 +24,36 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace DynamicTextureDemo;
 
 public class MainViewModel : BaseViewModel {
-    private Vector3D light1Direction = new Vector3D();
-
     public Vector3D Light1Direction {
         set {
-            if (light1Direction != value) {
-                light1Direction = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
             }
         }
-        get { return light1Direction; }
-    }
-
-    private FillMode fillMode = FillMode.Solid;
+        get { return field; }
+    } = new Vector3D();
 
     public FillMode FillMode {
         set {
-            fillMode = value;
+            field = value;
             OnPropertyChanged();
         }
-        get { return fillMode; }
-    }
-
-    private bool showWireframe = false;
+        get { return field; }
+    } = FillMode.Solid;
 
     public bool ShowWireframe {
         set {
-            showWireframe = value;
+            field = value;
             OnPropertyChanged();
-            if (showWireframe) {
+            if (field) {
                 FillMode = FillMode.Wireframe;
             } else {
                 FillMode = FillMode.Solid;
             }
         }
-        get { return showWireframe; }
-    }
+        get { return field; }
+    } = false;
 
     public Color Light1Color { get; set; }
     public PhongMaterial ModelMaterial { get; set; }
@@ -85,18 +79,16 @@ public class MainViewModel : BaseViewModel {
     public bool AnimateUVOffset { set; get; } = true;
     public bool ReverseInnerRotation { set; get; } = false;
 
-    private Vector3D camLookDir = new Vector3D(-10, -10, -10);
-
     public Vector3D CamLookDir {
         set {
-            if (camLookDir != value) {
-                camLookDir = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
                 Light1Direction = value;
             }
         }
-        get { return camLookDir; }
-    }
+        get { return field; }
+    } = new Vector3D(-10, -10, -10);
 
     private Vector3Collection initialPosition;
     private IntCollection initialIndicies;
@@ -185,7 +177,7 @@ public class MainViewModel : BaseViewModel {
 
         #region Line Model
 
-        LineModel = new LineGeometry3D() { IsDynamic = true, Positions = new Vector3Collection(PointModel.Positions) };
+        LineModel = new LineGeometry3D() { IsDynamic = true, Positions = [.. PointModel.Positions] };
         LineModel.Positions.Add(Vector3.Zero);
         var indices = new IntCollection(count * 2);
         for (int i = 0; i < count; ++i) {
@@ -231,7 +223,7 @@ public class MainViewModel : BaseViewModel {
         if (DynamicTexture) {
             Vector2Collection texture = null;
             if (!AnimateUVOffset) {
-                texture = new Vector2Collection(Model.TextureCoordinates);
+                texture = [.. Model.TextureCoordinates];
                 var t0 = texture[0];
                 for (int i = 1; i < texture.Count; ++i) {
                     texture[i - 1] = texture[i];

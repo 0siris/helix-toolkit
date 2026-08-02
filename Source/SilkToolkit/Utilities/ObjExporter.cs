@@ -147,11 +147,10 @@ public class ObjExporter : Exporter {
             writer.WriteLine("o object{0}", objectNo++);
             writer.WriteLine("g group{0}", groupNo++);
 
-            if (exportedMaterials.ContainsKey(model.Material)) {
-                var matName = exportedMaterials[model.Material];
+            if (exportedMaterials.TryGetValue(model.Material, out var matName)) {
                 writer.WriteLine("usemtl {0}", matName);
             } else {
-                var matName = string.Format("mat{0}", matNo++);
+                matName = string.Format(CultureInfo.InvariantCulture, "mat{0}", matNo++);
                 writer.WriteLine("usemtl {0}", matName);
                 ExportMaterial(matName, model.Material);
                 exportedMaterials.Add(model.Material, matName);
@@ -176,10 +175,8 @@ public class ObjExporter : Exporter {
     /// <param name="t">
     ///     The t.
     /// </param>
-    public void ExportMesh(MeshGeometry3D m, Matrix t) {
-        if (m == null) throw new ArgumentNullException("m");
-
-        if (t == null) throw new ArgumentNullException("t");
+    public void ExportMesh(MeshGeometry3D? m, Matrix t) {
+        ArgumentNullException.ThrowIfNull(m);
 
         // mapping from local indices (0-based) to the obj file indices (1-based)
         var vertexIndexMap = new Dictionary<int, int>();
@@ -225,13 +222,19 @@ public class ObjExporter : Exporter {
             var hasTextureIndex = textureIndexMap.ContainsKey(i0);
             var hasNormalIndex = normalIndexMap.ContainsKey(i0);
             if (hasTextureIndex && hasNormalIndex)
-                return string.Format("{0}/{1}/{2}", vertexIndexMap[i0], textureIndexMap[i0], normalIndexMap[i0]);
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "{0}/{1}/{2}",
+                                     vertexIndexMap[i0],
+                                     textureIndexMap[i0],
+                                     normalIndexMap[i0]);
 
-            if (hasTextureIndex) return string.Format("{0}/{1}", vertexIndexMap[i0], textureIndexMap[i0]);
+            if (hasTextureIndex)
+                return string.Format(CultureInfo.InvariantCulture, "{0}/{1}", vertexIndexMap[i0], textureIndexMap[i0]);
 
-            if (hasNormalIndex) return string.Format("{0}//{1}", vertexIndexMap[i0], normalIndexMap[i0]);
+            if (hasNormalIndex)
+                return string.Format(CultureInfo.InvariantCulture, "{0}//{1}", vertexIndexMap[i0], normalIndexMap[i0]);
 
-            return vertexIndexMap[i0].ToString();
+            return vertexIndexMap[i0].ToString(CultureInfo.InvariantCulture);
         };
 
         if (m.Indices != null) {

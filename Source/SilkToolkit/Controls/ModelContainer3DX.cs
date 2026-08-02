@@ -429,7 +429,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     Detaches this instance.
     /// </summary>
     /// <param name="host"></param>
-    /// <exception cref="IndexOutOfRangeException">D3DCounter is negative.</exception>
+    /// <exception cref="InvalidOperationException">D3DCounter is negative.</exception>
     public void Detach(IRenderHost host) {
         if (host != null && attachedRenderHosts.Remove(host)) {
             if (Interlocked.Decrement(ref d3dCounter) == 0)
@@ -438,7 +438,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                     renderable.RenderHost = null;
                     renderable.Invalidated -= RenderableInvalidated;
                 }
-            else if (d3dCounter < 0) throw new IndexOutOfRangeException("D3DCounter is negative.");
+            else if (d3dCounter < 0) throw new InvalidOperationException("D3DCounter is negative.");
         }
     }
 
@@ -564,8 +564,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
-        // TODO: uncomment the following line if the finalizer is overridden above.
-        // GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);
     }
 
     #endregion

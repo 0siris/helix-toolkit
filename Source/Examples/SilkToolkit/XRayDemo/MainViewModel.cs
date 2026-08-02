@@ -50,18 +50,17 @@ public class MainViewModel : BaseViewModel {
     public Vector3D Light1Direction { get; set; }
     public Color Light1Color { get; set; }
     public Color AmbientLightColor { get; set; }
-    private Vector3D camLookDir = new Vector3D(-100, -100, -100);
 
     public Vector3D CamLookDir {
         set {
-            if (camLookDir != value) {
-                camLookDir = value;
+            if (field != value) {
+                field = value;
                 OnPropertyChanged();
                 Light1Direction = value;
             }
         }
-        get { return camLookDir; }
-    }
+        get { return field; }
+    } = new Vector3D(-100, -100, -100);
 
     public Matrix[] Instances { private set; get; }
     public Matrix[] OutlineInstances { private set; get; }

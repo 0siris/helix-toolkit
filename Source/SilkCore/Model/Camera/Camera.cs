@@ -13,8 +13,6 @@ namespace HelixToolkit.SharpDX.Core {
             private float accumTime;
             private float aniTime;
 
-            private bool createLeftHandSystem;
-
             private Vector3 lookDirection;
             private Vector3 oldLookDir;
             private Vector3 oldPosition;
@@ -26,8 +24,6 @@ namespace HelixToolkit.SharpDX.Core {
 
             private Vector3 targetPosition;
             private Vector3 targetUpDirection;
-
-            private Vector3 upDirection;
 
             public Vector3 Target => position + lookDirection;
 
@@ -42,8 +38,8 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             public Vector3 UpDirection {
-                get => upDirection;
-                set => Set(ref upDirection, value);
+                get;
+                set => Set(ref field, value);
             }
 
             /// <summary>
@@ -53,8 +49,8 @@ namespace HelixToolkit.SharpDX.Core {
             ///     <c>true</c> if creating a left hand system; otherwise, <c>false</c>.
             /// </value>
             public bool CreateLeftHandSystem {
-                get => createLeftHandSystem;
-                set => Set(ref createLeftHandSystem, value);
+                get;
+                set => Set(ref field, value);
             }
 
             public abstract Matrix CreateProjectionMatrix(float aspectRatio);
@@ -160,10 +156,6 @@ namespace HelixToolkit.SharpDX.Core {
         }
 
         public abstract class ProjectionCameraCore : CameraCore {
-            private float farPlane = 100;
-
-            private float nearPlane = 0.001f;
-
             /// <summary>
             ///     Gets or sets the far plane distance.
             /// </summary>
@@ -171,9 +163,9 @@ namespace HelixToolkit.SharpDX.Core {
             ///     The far plane distance.
             /// </value>
             public float FarPlaneDistance {
-                get => farPlane;
-                set => Set(ref farPlane, value);
-            }
+                get;
+                set => Set(ref field, value);
+            } = 100;
 
             /// <summary>
             ///     Gets or sets the near plane distance.
@@ -182,9 +174,9 @@ namespace HelixToolkit.SharpDX.Core {
             ///     The near plane distance.
             /// </value>
             public float NearPlaneDistance {
-                get => nearPlane;
-                set => Set(ref nearPlane, value);
-            }
+                get;
+                set => Set(ref field, value);
+            } = 0.001f;
 
             public override Matrix CreateViewMatrix() {
                 return CreateLeftHandSystem
@@ -200,12 +192,10 @@ namespace HelixToolkit.SharpDX.Core {
         }
 
         public class OrthographicCameraCore : ProjectionCameraCore {
-            private float width = 100;
-
             public float Width {
-                get => width;
-                set => Set(ref width, value);
-            }
+                get;
+                set => Set(ref field, value);
+            } = 100;
 
             public override FrustumCameraParams CreateCameraParams(float aspectRatio) {
                 return CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);

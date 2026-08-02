@@ -19,18 +19,14 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace VolumeRendering;
 
 public class MainViewModel : BaseViewModel {
-    private Material volumeMaterial;
-
     public Material VolumeMaterial {
-        set { SetValue(ref volumeMaterial, value); }
-        get { return volumeMaterial; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
 
-    private Media3D.Transform3D transform;
-
     public Media3D.Transform3D Transform {
-        set { SetValue(ref transform, value); }
-        get { return transform; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
 
     public Geometry3D MeshModel { get; }
@@ -41,12 +37,10 @@ public class MainViewModel : BaseViewModel {
 
     public Material AxisModelMaterial { get; }
 
-    private bool isLoading = false;
-
     public bool IsLoading {
-        private set { SetValue(ref isLoading, value); }
-        get { return isLoading; }
-    }
+        private set { SetValue(ref field, value); }
+        get { return field; }
+    } = false;
 
     public ICommand LoadTeapotCommand { get; }
     public ICommand LoadSkullCommand { get; }

@@ -11,6 +11,8 @@ using WpfFontStyle = System.Windows.FontStyle;
 using WpfFontWeight = System.Windows.FontWeight;
 using WpfTextAlignment = System.Windows.TextAlignment;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {
         [ContentProperty("Text")]

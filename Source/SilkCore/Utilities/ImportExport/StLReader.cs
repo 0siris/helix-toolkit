@@ -188,7 +188,7 @@ public class StLReader : ModelReader {
     ///     The expected token ID was not matched.
     /// </exception>
     private static void ReadLine(StreamReader reader, string token) {
-        if (token == null) throw new ArgumentNullException("token");
+        ArgumentNullException.ThrowIfNull(token);
 
         var line = reader.ReadLine();
         string id, values;

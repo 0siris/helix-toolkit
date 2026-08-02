@@ -7,6 +7,8 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
+#pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
@@ -187,3 +189,5 @@ public class ColorStripeMaterial : Material {
         };
     }
 }
+
+#pragma warning restore CS8601, CS8602

@@ -21,6 +21,8 @@ using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class ParticleStormModel3D : Element3D {

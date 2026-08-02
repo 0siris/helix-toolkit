@@ -9,6 +9,8 @@ using WpfBrush = System.Windows.Media.Brush;
 using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {
         public abstract class ShapeModel2D : Element2D {

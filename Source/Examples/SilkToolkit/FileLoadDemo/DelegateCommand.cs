@@ -8,28 +8,26 @@ using System.Windows.Input;
 namespace FileLoadDemo;
 
 public class DelegateCommand : ICommand {
-    private Action execute;
+    private Action? execute;
 
     public void Dispose() {
         this.execute = null;
         this.canExecute = null;
     }
 
-    private Func<bool> canExecute;
+    private Func<bool>? canExecute;
 
     public DelegateCommand(Action execute)
         : this(execute, null) { }
 
-    public DelegateCommand(Action execute, Func<bool> canExecute) {
-        if (execute == null) {
-            throw new ArgumentNullException("execute");
-        }
+    public DelegateCommand(Action execute, Func<bool>? canExecute) {
+        ArgumentNullException.ThrowIfNull(execute);
 
         this.execute = execute;
         this.canExecute = canExecute;
     }
 
-    public event EventHandler CanExecuteChanged {
+    public event EventHandler? CanExecuteChanged {
         add {
             if (canExecute != null) {
                 CommandManager.RequerySuggested += value;
@@ -47,11 +45,11 @@ public class DelegateCommand : ICommand {
         CommandManager.InvalidateRequerySuggested();
     }
 
-    public bool CanExecute(object parameter) {
+    public bool CanExecute(object? parameter) {
         return canExecute == null || canExecute();
     }
 
-    public void Execute(object parameter) {
-        execute();
+    public void Execute(object? parameter) {
+        execute?.Invoke();
     }
 }

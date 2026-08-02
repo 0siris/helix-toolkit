@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core.Cameras;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning camera and core.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 public interface IProjectionCameraModel : ICameraModel {

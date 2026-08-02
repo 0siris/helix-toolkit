@@ -16,40 +16,32 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace BatchedMeshDemo;
 
 public class MainViewModel : BaseViewModel {
-    private IList<BatchedMeshGeometryConfig> batchedMeshes;
-
     public IList<BatchedMeshGeometryConfig> BatchedMeshes {
-        set { SetValue(ref batchedMeshes, value); }
-        get { return batchedMeshes; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
 
-    private IList<Material> batchedMaterial;
-
     public IList<Material> BatchedMaterials {
-        set { SetValue(ref batchedMaterial, value); }
-        get { return batchedMaterial; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
 
     public Media3D.Transform3D BatchedTransform { get; } = new Media3D.ScaleTransform3D(0.1, 0.1, 0.1);
 
-    private Geometry3D selectedGeometry;
-
     public Geometry3D SelectedGeometry {
         set {
-            if (SetValue(ref selectedGeometry, value)) {
+            if (SetValue(ref field, value)) {
                 SelectedTransform = new Media3D.MatrixTransform3D(
                     BatchedMeshes.Where(x => x.Geometry == value).Select(x => x.ModelTransform).First().ToMatrix3D() *
                     BatchedTransform.Value);
             }
         }
-        get { return selectedGeometry; }
+        get { return field; }
     }
 
-    private Media3D.Transform3D selectedTransform;
-
     public Media3D.Transform3D SelectedTransform {
-        set { SetValue(ref selectedTransform, value); }
-        get { return selectedTransform; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
 
     public Material MainMaterial { get; } = PhongMaterials.White;

@@ -31,7 +31,7 @@ public class VisualWrapper<T> : FrameworkElement where T : Visual {
     protected override Visual GetVisualChild(int index) {
         if (_child != null && index == 0) return _child;
 
-        throw new ArgumentOutOfRangeException("index");
+        throw new ArgumentOutOfRangeException(nameof(index));
     }
 }
 

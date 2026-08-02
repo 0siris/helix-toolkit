@@ -13,6 +13,8 @@ using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>

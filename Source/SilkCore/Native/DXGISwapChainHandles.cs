@@ -119,6 +119,7 @@ public unsafe class SwapChain1 : IDisposable {
         swapChain.Dispose();
         factory.Dispose();
         IsDisposed = true;
+        GC.SuppressFinalize(this);
     }
 
     public virtual PresentResult Present(

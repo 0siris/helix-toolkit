@@ -72,21 +72,17 @@ public class MainViewModel : DemoCore.BaseViewModel {
         get => FlagsCollection.Flags;
     }
 
-    private bool fixedSize = true;
-
     public bool FixedSize {
-        set { SetValue(ref fixedSize, value); }
-        get { return fixedSize; }
-    }
-
-    private Flag selectedFlag;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = true;
 
     public Flag SelectedFlag {
         set {
-            SetValue(ref selectedFlag, value);
+            SetValue(ref field, value);
             UpdateSelectedFlagBillboard(value);
         }
-        get { return selectedFlag; }
+        get { return field; }
     }
 
     private Color4 prevLocColor, prevLocColor2;

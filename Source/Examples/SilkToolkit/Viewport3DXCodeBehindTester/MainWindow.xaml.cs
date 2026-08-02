@@ -109,12 +109,10 @@ public class ViewModel : BaseViewModel {
         get { return enableButtons; }
     }
 
-    private bool enableEnvironmentButtons = true;
-
     public bool EnableEnvironmentButtons {
-        set { SetValue(ref enableEnvironmentButtons, value); }
-        get { return enableEnvironmentButtons && enableButtons; }
-    }
+        set { SetValue(ref field, value); }
+        get { return field && enableButtons; }
+    } = true;
 }
 
 public class Models {

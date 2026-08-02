@@ -14,10 +14,6 @@ using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
 public class MainViewModel : BaseViewModel {
-    private Exception renderException;
-
-    private string viewportMessage;
-
     public MainViewModel() {
         // titles
         this.Title = "Simple Demo (Workitem 10053)";
@@ -31,11 +27,11 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the render exception.
     /// </summary>
     public Exception RenderException {
-        get { return this.renderException; }
+        get { return field; }
 
         set {
-            if (this.renderException != value) {
-                this.renderException = value;
+            if (field != value) {
+                field = value;
                 this.OnPropertyChanged();
             }
         }
@@ -45,11 +41,11 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the viewport message.
     /// </summary>
     public string ViewportMessage {
-        get { return this.viewportMessage; }
+        get { return field; }
 
         set {
-            if (this.viewportMessage != value) {
-                this.viewportMessage = value;
+            if (field != value) {
+                field = value;
                 this.OnPropertyChanged();
             }
         }

@@ -33,39 +33,33 @@ public class MainViewModel : BaseViewModel {
 
     public Media3D.Transform3D GridTransform { private set; get; }
 
-    private bool showWireframe = false;
-
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 foreach (var model in ModelGeometry) {
                     (model as MeshGeometryModel3D).RenderWireframe = value;
                 }
             }
         }
-        get { return showWireframe; }
-    }
+        get { return field; }
+    } = false;
 
     public OutlineMode DrawMode { set; get; } = OutlineMode.Merged;
 
-    private bool highlightSeparated = false;
-
     public bool HighlightSeparated {
         set {
-            if (SetValue(ref highlightSeparated, value)) {
+            if (SetValue(ref field, value)) {
                 DrawMode = value ? OutlineMode.Separated : OutlineMode.Merged;
                 OnPropertyChanged(nameof(DrawMode));
             }
         }
-        get { return highlightSeparated; }
-    }
-
-    private bool oitWeightModeEnabled = false;
+        get { return field; }
+    } = false;
 
     public bool OITWeightedModeEnabled {
-        set { SetValue(ref oitWeightModeEnabled, value); }
-        get { return oitWeightModeEnabled; }
-    }
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = false;
 
     private bool oitDepthPeelModeEnabled = true;
 
@@ -74,11 +68,9 @@ public class MainViewModel : BaseViewModel {
         get { return oitDepthPeelModeEnabled; }
     }
 
-    private OITRenderType oitRenderType = OITRenderType.DepthPeeling;
-
     public OITRenderType OITRenderType {
         set {
-            if (SetValue(ref oitRenderType, value)) {
+            if (SetValue(ref field, value)) {
                 switch (value) {
                     case OITRenderType.None:
                         OITDepthPeelModeEnabled = OITWeightedModeEnabled = false;
@@ -94,8 +86,8 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => oitRenderType;
-    }
+        get;
+    } = OITRenderType.DepthPeeling;
 
     private MaterialType materialType = MaterialType.BlinnPhong;
 
@@ -114,41 +106,35 @@ public class MainViewModel : BaseViewModel {
 
     public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.PBR, MaterialType.Diffuse];
 
-    private int redPlaneOpacity = 60;
-
     public int RedPlaneOpacity {
         set {
-            if (SetValue(ref redPlaneOpacity, value)) {
+            if (SetValue(ref field, value)) {
                 var m = (PlaneGeometry[0] as MeshGeometryModel3D).Material as PhongMaterial;
                 m.DiffuseColor = new Color4(1, 0, 0, value / 100f);
             }
         }
-        get => redPlaneOpacity;
-    }
-
-    private int greenPlaneOpacity = 60;
+        get;
+    } = 60;
 
     public int GreenPlaneOpacity {
         set {
-            if (SetValue(ref greenPlaneOpacity, value)) {
+            if (SetValue(ref field, value)) {
                 var m = (PlaneGeometry[1] as MeshGeometryModel3D).Material as PhongMaterial;
                 m.DiffuseColor = new Color4(0, 1, 0, value / 100f);
             }
         }
-        get => greenPlaneOpacity;
-    }
-
-    private int bluePlaneOpacity = 60;
+        get;
+    } = 60;
 
     public int BluePlaneOpacity {
         set {
-            if (SetValue(ref bluePlaneOpacity, value)) {
+            if (SetValue(ref field, value)) {
                 var m = (PlaneGeometry[2] as MeshGeometryModel3D).Material as PhongMaterial;
                 m.DiffuseColor = new Color4(0, 0, 1, value / 100f);
             }
         }
-        get => bluePlaneOpacity;
-    }
+        get;
+    } = 60;
 
     public ICommand ResetCameraCommand { set; get; }
 

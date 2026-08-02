@@ -18,137 +18,109 @@ namespace ParticleSystemDemo;
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { private set; get; }
 
-    private Media3D.Transform3D emitterTransform =
-        new Media3D.MatrixTransform3D(new Media3D.Matrix3D(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, -4, 0, 1));
-
     public Media3D.Transform3D EmitterTransform {
-        get { return emitterTransform; }
+        get { return field; }
         set {
-            SetValue(ref emitterTransform, value);
+            SetValue(ref field, value);
             EmitterLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
         }
-    }
-
-    private double emitterRadius = 0.5;
+    } = new Media3D.MatrixTransform3D(new Media3D.Matrix3D(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, -4, 0, 1));
 
     public double EmitterRadius {
         set {
-            if (SetValue(ref emitterRadius, value)) {
+            if (SetValue(ref field, value)) {
                 var matrix = EmitterTransform.Value;
                 matrix.M11 = matrix.M22 = matrix.M33 = value;
                 EmitterTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get { return emitterRadius; }
-    }
-
-    private Media3D.Point3D emitterLocation = new Media3D.Point3D(0, -4, 0);
+        get { return field; }
+    } = 0.5;
 
     public Media3D.Point3D EmitterLocation {
-        set { SetValue(ref emitterLocation, value); }
-        get { return emitterLocation; }
-    }
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media3D.Point3D(0, -4, 0);
 
-
-    private Media3D.Transform3D consumerTransform =
-        new Media3D.MatrixTransform3D(new Media3D.Matrix3D(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 4, 0, 1));
 
     public Media3D.Transform3D ConsumerTransform {
-        get { return consumerTransform; }
+        get { return field; }
         set {
-            SetValue(ref consumerTransform, value);
+            SetValue(ref field, value);
             ConsumerLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
         }
-    }
-
-    private Media3D.Point3D consumerLocation = new Media3D.Point3D(0, 4, 0);
+    } = new Media3D.MatrixTransform3D(new Media3D.Matrix3D(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 4, 0, 1));
 
     public Media3D.Point3D ConsumerLocation {
-        set { SetValue(ref consumerLocation, value); }
-        get { return consumerLocation; }
-    }
-
-    private double consumerRadius = 0.5;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media3D.Point3D(0, 4, 0);
 
     public double ConsumerRadius {
         set {
-            if (SetValue(ref consumerRadius, value)) {
+            if (SetValue(ref field, value)) {
                 var matrix = ConsumerTransform.Value;
                 matrix.M11 = matrix.M22 = matrix.M33 = value;
                 ConsumerTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get { return consumerRadius; }
-    }
+        get { return field; }
+    } = 0.5;
 
     public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
 
     public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1) };
 
-    private Stream particleTexture;
-
     public Stream ParticleTexture {
-        set { SetValue(ref particleTexture, value); }
-        get { return particleTexture; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
-
-    private Media3D.Vector3D acceleration = new Media3D.Vector3D(0, 1, 0);
 
     public Media3D.Vector3D Acceleration {
-        set { SetValue(ref acceleration, value); }
-        get { return acceleration; }
-    }
-
-    private int accelerationX = 0;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media3D.Vector3D(0, 1, 0);
 
     public int AccelerationX {
         set {
-            if (SetValue(ref accelerationX, value)) {
+            if (SetValue(ref field, value)) {
                 UpdateAcceleration();
             }
         }
-        get { return accelerationX; }
-    }
-
-    private Size particlesize = new Size(0.1, 0.1);
+        get { return field; }
+    } = 0;
 
     public Size ParticleSize {
-        set { SetValue(ref particlesize, value); }
-        get { return particlesize; }
-    }
-
-    private int sizeSlider = 10;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Size(0.1, 0.1);
 
     public int SizeSlider {
         set {
-            if (SetValue(ref sizeSlider, value)) {
+            if (SetValue(ref field, value)) {
                 ParticleSize = new Size(((double)value) / 100, ((double)value) / 100);
             }
         }
-        get { return sizeSlider; }
-    }
-
-    private int accelerationY = 100;
+        get { return field; }
+    } = 10;
 
     public int AccelerationY {
         set {
-            if (SetValue(ref accelerationY, value)) {
+            if (SetValue(ref field, value)) {
                 UpdateAcceleration();
             }
         }
-        get { return accelerationY; }
-    }
-
-    private int accelerationZ = 0;
+        get { return field; }
+    } = 100;
 
     public int AccelerationZ {
         set {
-            if (SetValue(ref accelerationZ, value)) {
+            if (SetValue(ref field, value)) {
                 UpdateAcceleration();
             }
         }
-        get { return accelerationZ; }
-    }
+        get { return field; }
+    } = 0;
 
     private const int DefaultBoundScale = 10;
     public LineGeometry3D BoundingLines { private set; get; }
@@ -156,187 +128,148 @@ public class MainViewModel : BaseViewModel {
     public Media3D.ScaleTransform3D BoundingLineTransform { private set; get; } =
         new Media3D.ScaleTransform3D(DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
-    private Media3D.Rect3D particleBounds =
-        new Media3D.Rect3D(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
-
     public Media3D.Rect3D ParticleBounds {
-        set { SetValue(ref particleBounds, value); }
-        get { return particleBounds; }
-    }
-
-    private int boundScale = DefaultBoundScale;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media3D.Rect3D(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public int BoundScale {
         set {
-            if (SetValue(ref boundScale, value)) {
+            if (SetValue(ref field, value)) {
                 ParticleBounds = new Media3D.Rect3D(0, 0, 0, value, value, value);
                 BoundingLineTransform.ScaleX = BoundingLineTransform.ScaleY = BoundingLineTransform.ScaleZ = value;
             }
         }
-        get { return boundScale; }
-    }
-
-    private Media.Color blendColor = Media.Colors.White;
+        get { return field; }
+    } = DefaultBoundScale;
 
     public Media.Color BlendColor {
         set {
-            if (SetValue(ref blendColor, value)) {
+            if (SetValue(ref field, value)) {
                 BlendColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get { return blendColor; }
-    }
-
-    private int redValue = 255;
+        get { return field; }
+    } = Media.Colors.White;
 
     public int RedValue {
         set {
-            if (SetValue(ref redValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return redValue; }
-    }
-
-    private int greenValue = 255;
+        get { return field; }
+    } = 255;
 
     public int GreenValue {
         set {
-            if (SetValue(ref greenValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return greenValue; }
-    }
-
-    private int blueValue = 255;
+        get { return field; }
+    } = 255;
 
     public int BlueValue {
         set {
-            if (SetValue(ref blueValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return blueValue; }
-    }
-
-    private Media.SolidColorBrush blendColorBrush = new Media.SolidColorBrush(Media.Colors.White);
+        get { return field; }
+    } = 255;
 
     public Media.SolidColorBrush BlendColorBrush {
-        set { SetValue(ref blendColorBrush, value); }
-        get { return blendColorBrush; }
-    }
-
-    private int numTextureRows;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media.SolidColorBrush(Media.Colors.White);
 
     public int NumTextureRows {
-        set { SetValue(ref numTextureRows, value); }
-        get { return numTextureRows; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
-
-    private int numTextureColumns;
 
     public int NumTextureColumns {
-        set { SetValue(ref numTextureColumns, value); }
-        get { return numTextureColumns; }
+        set { SetValue(ref field, value); }
+        get { return field; }
     }
-
-    private int selectedTextureIndex = 0;
 
     public int SelectedTextureIndex {
         set {
-            if (SetValue(ref selectedTextureIndex, value)) {
+            if (SetValue(ref field, value)) {
                 LoadTexture(value);
             }
         }
-        get { return selectedTextureIndex; }
-    }
+        get { return field; }
+    } = 0;
 
     public Array BlendOperationArray { get; } = Enum.GetValues(typeof(BlendOperation));
 
     public Array BlendOptionArray { get; } = Enum.GetValues(typeof(BlendOption));
 
-    private BlendOption sourceBlendOption = BlendOption.One;
-
     public BlendOption SourceBlendOption {
-        set { SetValue(ref sourceBlendOption, value); }
-        get { return sourceBlendOption; }
-    }
-
-    private BlendOption sourceAlphaBlendOption = BlendOption.One;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = BlendOption.One;
 
     public BlendOption SourceAlphaBlendOption {
-        set { SetValue(ref sourceAlphaBlendOption, value); }
-        get { return sourceAlphaBlendOption; }
-    }
-
-    private BlendOption destBlendOption = BlendOption.One;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = BlendOption.One;
 
     public BlendOption DestBlendOption {
-        set { SetValue(ref destBlendOption, value); }
-        get { return destBlendOption; }
-    }
-
-    private BlendOption destAlphaBlendOption = BlendOption.Zero;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = BlendOption.One;
 
     public BlendOption DestAlphaBlendOption {
-        set { SetValue(ref destAlphaBlendOption, value); }
-        get { return destAlphaBlendOption; }
-    }
-
-    private Media.Color blendFactorColor = Media.Colors.White;
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = BlendOption.Zero;
 
     public Media.Color BlendFactorColor {
         set {
-            if (SetValue(ref blendFactorColor, value)) {
+            if (SetValue(ref field, value)) {
                 BlendFactorColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get { return blendFactorColor; }
-    }
-
-    private int redFactorValue = 255;
+        get { return field; }
+    } = Media.Colors.White;
 
     public int RedFactorValue {
         set {
-            if (SetValue(ref redFactorValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendFactorColor =
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return redFactorValue; }
-    }
-
-    private int greenFactorValue = 255;
+        get { return field; }
+    } = 255;
 
     public int GreenFactorValue {
         set {
-            if (SetValue(ref greenFactorValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendFactorColor =
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return greenFactorValue; }
-    }
-
-    private int blueFactorValue = 255;
+        get { return field; }
+    } = 255;
 
     public int BlueFactorValue {
         set {
-            if (SetValue(ref blueFactorValue, value)) {
+            if (SetValue(ref field, value)) {
                 BlendFactorColor =
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return blueFactorValue; }
-    }
-
-    private Media.SolidColorBrush blendFactorColorBrush = new Media.SolidColorBrush(Media.Colors.White);
+        get { return field; }
+    } = 255;
 
     public Media.SolidColorBrush BlendFactorColorBrush {
-        set { SetValue(ref blendFactorColorBrush, value); }
-        get { return blendFactorColorBrush; }
-    }
+        set { SetValue(ref field, value); }
+        get { return field; }
+    } = new Media.SolidColorBrush(Media.Colors.White);
 
     public IList<Matrix> Instances { private set; get; }
 
@@ -361,11 +294,11 @@ public class MainViewModel : BaseViewModel {
             Position = new Media3D.Point3D(0, 0, 20), UpDirection = new Media3D.Vector3D(0, 1, 0),
             LookDirection = new Media3D.Vector3D(0, 0, -20)
         };
-        Instances = new Matrix[] {
+        Instances = [
             Matrix.Identity, Scaling(1, -1, 1) * Translation(10, 0, 10), Translation(-10, 0, 10),
             Translation(10, 0, -10),
             RotationAxis(new Vector3(1, 0, 0), 90) * Translation(-10, 0, -10),
-        };
+        ];
     }
 
     private void LoadTexture(int index) {

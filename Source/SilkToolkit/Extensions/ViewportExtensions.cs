@@ -432,7 +432,7 @@ public static class ViewportExtensions {
     /// <param name="format">The format.</param>
     public static void SaveScreen(this Viewport3DX view, string fileName, Direct2DImageFormat format) {
         using (var file = File.OpenWrite(fileName)) {
-            if (!file.CanWrite) throw new AccessViolationException($"File cannot be written. {fileName}");
+            if (!file.CanWrite) throw new IOException($"File cannot be written. {fileName}");
         }
 
         if (view.RenderHost != null && view.RenderHost.IsRendering) {

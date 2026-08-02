@@ -68,17 +68,13 @@ public class MainViewModel : BaseViewModel {
     public bool RenderNormalMap { set; get; } = true;
 
 
-    private string selectedDiffuseTexture = @"TextureCheckerboard2.jpg";
-
     public string SelectedDiffuseTexture {
-        get { return selectedDiffuseTexture; }
-    }
-
-    private string selectedNormalTexture = @"TextureCheckerboard2_dot3.jpg";
+        get { return field; }
+    } = @"TextureCheckerboard2.jpg";
 
     public string SelectedNormalTexture {
-        get { return selectedNormalTexture; }
-    }
+        get { return field; }
+    } = @"TextureCheckerboard2_dot3.jpg";
 
     public System.Windows.Media.Color DiffuseColor {
         set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }
@@ -112,18 +108,17 @@ public class MainViewModel : BaseViewModel {
 
     public int NumberOfTriangles { set; get; } = 0;
     public int NumberOfVertices { set; get; } = 0;
-    private bool showWireframe = false;
 
     public bool ShowWireframe {
         set {
-            if (SetValue(ref showWireframe, value)) {
+            if (SetValue(ref field, value)) {
                 FillMode = value
                                ? HelixToolkit.SharpDX.Core.FillMode.Wireframe
                                : HelixToolkit.SharpDX.Core.FillMode.Solid;
             }
         }
-        get { return showWireframe; }
-    }
+        get { return field; }
+    } = false;
 
     public LineGeometry3D LineGeo { set; get; }
     private SynchronizationContext context = SynchronizationContext.Current;

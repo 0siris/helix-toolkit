@@ -80,7 +80,7 @@ public class MainViewModel : BaseViewModel {
         var l1 = new LineBuilder();
         l1.AddBox(new Vector3(0, 0, 0), 1.1, 1.1, 1.1);
         Lines = l1.ToLineGeometry3D();
-        Lines.Colors = new Color4Collection(Enumerable.Repeat(Colors.White.ToColor4(), Lines.Positions.Count));
+        Lines.Colors = [.. Enumerable.Repeat(Colors.White.ToColor4(), Lines.Positions.Count)];
         // model trafo
         ModelTransform =
             Media3D.Transform3D

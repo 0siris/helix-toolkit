@@ -245,7 +245,7 @@ public class TextureCube : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image == null)
-            throw new ArgumentNullException("image");
+            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.TextureCube)
             throw new ArgumentException("Invalid image. Must be Cube", "image");
 

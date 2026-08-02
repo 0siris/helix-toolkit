@@ -238,7 +238,7 @@ public class Texture3D : Texture3DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image == null)
-            throw new ArgumentNullException("image");
+            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture3D)
             throw new ArgumentException("Invalid image. Must be 3D", "image");
 

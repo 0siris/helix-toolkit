@@ -9,6 +9,8 @@ using HelixToolkit.Wpf.SharpDX.Core2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
+#pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
+
 namespace HelixToolkit.Wpf.SharpDX {
     namespace Elements2D {
         public abstract class Element2D : Element2DCore, ITransformable2D, IHitable2D {

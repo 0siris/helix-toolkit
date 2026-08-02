@@ -240,20 +240,20 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         // 3 --- 2
         // |     |
         // 0 --- 1
-        edgeHandle.Instances = new Matrix[4] {
+        edgeHandle.Instances = [
             Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Translation(positions[0] * sizeScale),
             Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) * Translation(positions[3] * sizeScale),
             Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) *
             RotationAxis(new Vector3(0, 0, 1), (float) (Math.PI / 2)) * Translation(positions[1] * sizeScale),
             Scaling(2 * sizeScale, edgeThicknessScale, edgeThicknessScale) *
             RotationAxis(new Vector3(0, 0, 1), (float) (Math.PI / 2)) * Translation(positions[0] * sizeScale)
-        };
-        cornerHandle.Instances = new Matrix[4] {
+        ];
+        cornerHandle.Instances = [
             Scaling(cornerScale) * Translation(positions[0] * sizeScale),
             Scaling(cornerScale) * Translation(positions[1] * sizeScale),
             Scaling(cornerScale) * Translation(positions[2] * sizeScale),
             Scaling(cornerScale) * Translation(positions[3] * sizeScale),
-        };
+        ];
     }
 
     private void UpdateCornerMaterial(Material material) {

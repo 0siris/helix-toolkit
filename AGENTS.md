@@ -41,6 +41,24 @@
 dotnet build Source\SilkToolkit.slnx
 ```
 
+## Rider/ReSharper MCP Workflow
+
+- Project MCP configuration: `.mcp.json` defines `rider` at `http://127.0.0.1:64482/stream` and `resharper` at `http://127.0.0.1:23741/`.
+- Rider context is always `rootFolder: "F:/Repositories/helix-toolkit/Source"`; Rider file and project paths are relative to that solution root.
+- ReSharper context is always `solutionName: "SilkToolkit"`; ReSharper source file paths are absolute. Multiple Rider solutions may be open, so never rely on implicit solution selection.
+- Before a build or test, probe Rider with `rider_get_solution_projects` and require a successful response containing `SilkCore` or `SilkToolkit`.
+- If the probe succeeds, build with `rider_build_solution_start` (`rebuild: false` for normal builds), then poll `rider_build_solution_state` with its `sessionId` until a terminal state. A started build with `buildIsSuccess: false` is a build failure, not a reason to rerun through `dotnet`.
+- Use `dotnet build Source\SilkToolkit.slnx` from the repository root only when the Rider probe or build start fails because the MCP is unavailable or lacks the solution context.
+- For the standard tests, use Rider MCP `rider_execute_terminal_command` in the solution root with `executeInShell: false` and `dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"`. The tested wrapper fails when `executeInShell: true`; this route preserves the deterministic repository filter, and the discovered test run configurations do not support dynamic launch overrides.
+- If Rider is unavailable before tests start, use `dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"` from the repository root. Do not rerun a started test process through the fallback after a test failure.
+- Use `rider_get_run_configurations` and `rider_execute_run_configuration` for targeted projects or run points. Do not combine `configurationName` with `filePath`/`line`, and only pass launch overrides when `supportsDynamicLaunchOverrides` is `true`.
+- After code edits, run `resharper_get_diagnostics` with `solutionName: "SilkToolkit"`; use `minSeverity: "warning"` for the normal gate and `"error"` for a blocker-only check.
+- Before applying a positional fix, list options with `resharper_list_quick_fixes`; apply only the selected `fixId` through `resharper_apply_quick_fix`. Use `resharper_fix_usings` for unambiguous imports and explicit `resolutions` for ambiguous types.
+- Format changed C# files with `resharper_format_file`, `mode: "format"`, absolute paths, and `solutionName: "SilkToolkit"`. Use `mode: "cleanup"` and `resharper_apply_suggestions` only after an explicit dry run or inspection selection; they can make semantic style changes.
+- If ReSharper formatting is unavailable, use `rider_reformat_file` with solution-relative paths. Use `rider_lint_files` for batches and `rider_get_file_problems` for a single-file error check.
+- For symbol work, use Rider/ReSharper navigation and semantic APIs before text search: `rider_search_symbol`, `resharper_go_to_definition`, `resharper_find_usages`, `resharper_find_implementations`, `resharper_get_call_hierarchy`, `resharper_flow`, and semantic rename APIs.
+- `Hardware` and `DX12` tests remain opt-in. Debugger APIs, cleanup, and global suggestions are opt-in and must not be part of the standard quality gate.
+
 ## OKF Rules
 
 - Add durable repository knowledge under `knowledge/`.

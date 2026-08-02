@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "rider": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:64482/stream",
+      "headers": {
+        "IJ_MCP_SERVER_PROJECT_PATH": "F:/Repositories/helix-toolkit/Source"
+      }
+    },
+    "resharper": {
+      "type": "http",
+      "url": "http://127.0.0.1:23741/"
+    }
+  }
+}

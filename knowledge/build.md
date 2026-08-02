@@ -19,13 +19,21 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 # Build
 
+## Rider MCP primary route
+
+Before a build, probe `rider_get_solution_projects` with `rootFolder: "F:/Repositories/helix-toolkit/Source"` and require the SilkToolkit solution context. If the probe succeeds, call `rider_build_solution_start` with `rebuild: false` and poll `rider_build_solution_state` with the returned `sessionId` until it reaches a terminal state. A started build with `buildIsSuccess: false` is a real build failure and must not be hidden by a second backend.
+
+## CLI fallback
+
+Use the `dotnet` command only when the Rider MCP is unavailable or cannot resolve the solution context:
+
 ```powershell
 dotnet build Source\SilkToolkit.slnx
 ```
 
-# Notes
+## Notes
 
-The root `global.json` pins SDK `10.0.0` and allows latest-major roll-forward. `Source/Directory.Build.props` sets `LangVersion` to `10.0`, disables assembly signing, and suppresses several repository-wide warnings.
+The root `global.json` pins SDK `10.0.0` and allows latest-major roll-forward. `Source/Directory.Build.props` sets `LangVersion` to `10.0`, disables assembly signing, and suppresses several repository-wide warnings. Rider paths are relative to the solution root; ReSharper paths are absolute and require `solutionName: "SilkToolkit"` because multiple solutions may be open.
 
 # Related Concepts
 

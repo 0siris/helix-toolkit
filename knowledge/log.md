@@ -26,3 +26,7 @@
 * **Initialization**: Built the project source knowledge graph with 7,668 nodes, 17,157 edges, and 422 communities; normalized all source paths to `Source/...`.
 * **Creation**: Added the reproducible `tools/build_graphify_source.py` builder and its OKF concept documentation.
 * **Creation**: Added the phased C#/.NET coding-conventions policy covering LoggerLib, Assertions, analyzer enforcement, tests, and additive library compatibility.
+
+## 2026-08-02
+
+* **Update**: Documented Rider MCP-first build and deterministic test execution with `dotnet` fallback rules, plus ReSharper diagnostics, quick-fix, formatting, and semantic navigation guidance.

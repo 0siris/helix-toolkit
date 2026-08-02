@@ -18,12 +18,26 @@ Tests use only xUnit assertions. `Unit`, `Warp`, and `Wpf` tests run by default.
 
 ## Local Commands
 
-Build and run the standard suite:
+### Rider MCP primary route
+
+After a successful Rider build, run the deterministic standard suite through `rider_execute_terminal_command` with `rootFolder: "F:/Repositories/helix-toolkit/Source"`, `executeInShell: false`, and:
+
+```powershell
+dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
+```
+
+The discovered `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests` Rider configurations do not support dynamic launch overrides, so the terminal route preserves the repository's category filter. Use `rider_get_run_configurations` plus `rider_execute_run_configuration` only for targeted projects or run points.
+
+### CLI fallback
+
+If Rider is unavailable before the test process starts, run the same standard suite from the repository root:
 
 ```powershell
 dotnet build Source\SilkToolkit.slnx
 dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
 ```
+
+Do not rerun a started Rider test process through the fallback after a test failure. `Hardware` and `DX12` remain explicit opt-in categories.
 
 Run explicit smokes locally through the VSTest RunSettings option:
 

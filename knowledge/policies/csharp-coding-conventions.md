@@ -1,0 +1,54 @@
+---
+type: Policy
+title: CSharp Coding Conventions
+description: Adopted C# and .NET coding, logging, guard, testing, and migration rules for this repository.
+tags: [csharp, dotnet, coding-standards, logging, assertions, testing]
+generated: { by: process:conventions-adoption, at: 2026-08-01T00:00:00Z }
+status: draft
+---
+
+# Purpose
+
+This policy defines the C#/.NET conventions used by the repository. The policy is applied in phases: agent guidance first, library integration second, analyzer configuration third, and source migration only after the compatibility gates pass.
+
+# Code Style
+
+- Four-space indentation for C# and two-space indentation for MSBuild/XML.
+- Approximately 120 characters per line where practical.
+- Nullable reference types enabled and redundant null checks removed.
+- File-scoped namespaces for single-namespace files; block-scoped namespaces require a documented technical reason.
+- Braces omitted only for clear single-statement control-flow bodies.
+- Collection expressions, simple extension methods, immutable semantic value types, and expression-bodied members are used when they preserve readability and behavior.
+- Comments and technical documentation are written in English.
+
+# Logging
+
+`LoggerLib` is the logging implementation after Phase 2. Existing `HelixToolkit.Logger.LogManager` public signatures remain stable through an adapter. New and migrated calls use structured templates, PascalCase properties, caller metadata supplied by the compiler, no interpolation, and no trailing periods. Secrets and credentials are never logged.
+
+# Assertions
+
+`Assertions` supplies fluent BCL guards. Argument validation uses `AssertArgument...` methods and preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use state assertions only where `AssertException` is the correct failure type. New assertion methods remain chainable and carry the existing caller-expression and analyzer attributes.
+
+# Async and API Design
+
+- No `.Result`, `.Wait()`, or `async void` except framework-required event handlers.
+- `CancellationToken cancellationToken = default` is the last parameter of new async APIs.
+- Task-returning methods use the `Async` suffix with documented framework entry-point exceptions.
+- New DI services may use primary constructors; new DTO/request properties may use `required` when WPF, EF, serialization, and multi-constructor constraints permit.
+- Public collection boundaries use read-only collection interfaces; `List<T>` does not cross module boundaries.
+
+# Testing
+
+Tests use the existing xUnit v3 projects and categories. Names follow `MethodName_StateUnderTest_ExpectedBehavior`. Tests use Arrange-Act-Assert, verify one behavior, are deterministic, avoid shared mutable state, `Thread.Sleep`, and `DateTime.Now`, and mock interfaces rather than concrete classes. Small fakes are preferred for non-trivial dependencies.
+
+# Compatibility
+
+Submodule library changes are additive only. Existing public members, namespaces, parameters, and behavior remain unchanged. If an API gap is found, use a target-side adapter or extension first; extend a submodule only when necessary, add tests, and pin the new submodule commit.
+
+# Phase Gates
+
+1. Agent and OKF policy gate.
+2. Submodule restore/build, ProjectReference, adapter, integration-test, and API-compatibility gate.
+3. `.editorconfig`/analyzer gate.
+4. Source migration and regression gate.
+5. Full solution, explicit renderer smoke, documentation, and runtime name-hygiene gate.

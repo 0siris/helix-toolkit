@@ -45,5 +45,5 @@ public interface IElementsBufferModel<T> : IElementsBufferModel {
     /// <value>
     ///     The elements.
     /// </value>
-    IList<T> Elements { get; set; }
+    IList<T>? Elements { get; set; }
 }

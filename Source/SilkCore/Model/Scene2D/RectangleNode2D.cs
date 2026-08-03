@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new RectangleRenderCore2D();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 hitResult = null;
                 if (LayoutBoundWithTransform.Contains(mousePoint)) {
                     hitResult = new HitTest2DResult(WrapperSource);

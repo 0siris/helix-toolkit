@@ -601,7 +601,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.IASetInputLayout(inputLayout?.Handle);
     }
 
-    public void SetIndexBuffer(Buffer buffer, Format format, int offset) {
+    public void SetIndexBuffer(Buffer? buffer, Format format, int offset) {
         nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint)offset);
     }
 

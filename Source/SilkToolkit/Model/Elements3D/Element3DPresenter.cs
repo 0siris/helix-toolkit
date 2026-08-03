@@ -15,18 +15,18 @@ public class Element3DPresenter : Element3D {
                                     typeof(Element3DPresenter),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             var model = d as Element3DPresenter;
+                                                              var model = (Element3DPresenter)d;
                                                              if (e.OldValue != null) {
                                                                  model.RemoveLogicalChild(e.OldValue);
                                                                  if (e.OldValue is Element3D ele)
-                                                                     (model.SceneNode as GroupNode).RemoveChildNode(
+                                                                      ((GroupNode)model.SceneNode).RemoveChildNode(
                                                                          ele.SceneNode);
                                                              }
 
                                                              if (e.NewValue != null) {
                                                                  model.AddLogicalChild(e.NewValue);
                                                                  if (e.NewValue is Element3D ele)
-                                                                     (model.SceneNode as GroupNode).AddChildNode(
+                                                                      ((GroupNode)model.SceneNode).AddChildNode(
                                                                          ele.SceneNode);
                                                              }
                                                          }));
@@ -41,8 +41,8 @@ public class Element3DPresenter : Element3D {
     /// <value>
     ///     The content.
     /// </value>
-    public Element3D Content {
-        get => (Element3D)GetValue(ContentProperty);
+    public Element3D? Content {
+        get => (Element3D?)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
     }
 
@@ -50,7 +50,7 @@ public class Element3DPresenter : Element3D {
         return new GroupNode();
     }
 
-    private void Element3DPresenter_Loaded(object sender, RoutedEventArgs e) {
+    private void Element3DPresenter_Loaded(object? sender, RoutedEventArgs e) {
         if (Content != null) {
             RemoveLogicalChild(Content);
             AddLogicalChild(Content);

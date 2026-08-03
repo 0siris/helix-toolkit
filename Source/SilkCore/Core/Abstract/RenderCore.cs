@@ -1,286 +1,290 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        /// <summary>
-        /// </summary>
-        public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
-            private readonly List<CoreComponent> components = [];
+namespace HelixToolkit.SharpDX.Core.Core;
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="RenderCore" /> class.
-            /// </summary>
-            /// <param name="renderType">Type of the render.</param>
-            public RenderCore(RenderType renderType) {
-                RenderType = renderType;
-            }
+/// <summary>
+/// </summary>
+public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
+    private readonly List<CoreComponent> components = [];
 
-            protected T AddComponent<T>(T component) where T : CoreComponent {
-                components.Add(component);
-                component.InvalidateRender += (s, e) => { RaiseInvalidateRender(); };
-                return component;
-            }
+     public event EventHandler<EventArgs>? InvalidateRender;
 
-            /// <summary>
-            ///     Call to attach the render core.
-            /// </summary>
-            /// <param name="technique"></param>
-            public void Attach(IRenderTechnique technique) {
-                if (IsAttached) return;
-                EffectTechnique = technique;
-                foreach (var comp in components) comp.Attach(technique);
-                IsAttached = OnAttach(technique);
-                UpdateCanRenderFlag();
-            }
+    /// <summary>
+    ///     <see cref="IGUID.GUID" />
+    /// </summary>
+    public Guid GUID { get; } = Guid.NewGuid();
 
-            /// <summary>
-            ///     During attatching render core. Create all local resources. Use Collect(resource) to let object be released
-            ///     automatically during Detach().
-            /// </summary>
-            /// <param name="technique"></param>
-            /// <returns></returns>
-            protected abstract bool OnAttach(IRenderTechnique technique);
+    /// <summary>
+    ///     Gets or sets the type of the render.
+    /// </summary>
+    /// <value>
+    ///     The type of the render.
+    /// </value>
+    public RenderType RenderType {
+        get;
+        set => SetAffectsRender(ref field, value);
+    }
 
-            /// <summary>
-            ///     Detach render core. Release all resources
-            /// </summary>
-            public void Detach() {
-                if (!IsAttached) return;
-                OnDetach();
+    /// <summary>
+    ///     Gets or sets a value indicating whether this instance can be rendered. Update this flag using
+    ///     <see cref="UpdateCanRenderFlag" />
+    /// </summary>
+    /// <value>
+    ///     <c>true</c> if this instance can render; otherwise, <c>false</c>.
+    /// </value>
+    internal bool CanRenderFlag;
 
-                foreach (var comp in components) comp.Detach();
-                IsAttached = false;
-                UpdateCanRenderFlag();
-            }
+    /// <summary>
+    ///     Indicate whether render host should call <see cref="Update(RenderContext, DeviceContextProxy)" /> before
+    ///     <see cref="Render(RenderContext, DeviceContextProxy)" />
+    ///     <para>
+    ///         <see cref="Update(RenderContext, DeviceContextProxy)" /> is used to run such as compute shader before
+    ///         rendering.
+    ///     </para>
+    ///     <para>
+    ///         Compute shader can be run at the beginning of any other
+    ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
+    ///     </para>
+    /// </summary>
+    public bool NeedUpdate { get; protected set; }
 
-            /// <summary>
-            ///     On detaching, default is to release all resources
-            /// </summary>
-            protected abstract void OnDetach();
+    /// <summary>
+    ///     <see cref="IThrowingShadow.IsThrowingShadow" />
+    /// </summary>
+    public bool IsThrowingShadow {
+        get;
+        set => SetAffectsRender(ref field, value);
+    }
 
-            /// <summary>
-            ///     Render routine
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="deviceContext"></param>
-            public abstract void Render(RenderContext context, DeviceContextProxy deviceContext);
+    /// <summary>
+    ///     Gets or sets the default state binding.
+    /// </summary>
+    /// <value>
+    ///     The default state binding.
+    /// </value>
+    public StateType DefaultStateBinding { get; set; } = StateType.BlendState | StateType.DepthStencilState;
 
-            /// <summary>
-            ///     Renders the shadow pass. Used to generate shadow map.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="deviceContext">The device context.</param>
-            public virtual void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
+    /// <summary>
+    ///     Gets or sets the default state binding.
+    /// </summary>
+    /// <value>
+    ///     The default state binding.
+    /// </value>
+    public StateType ShadowStateBinding { get; set; } = StateType.BlendState | StateType.DepthStencilState;
 
-            /// <summary>
-            ///     Renders the custom pass. Must apply render pass externally. Usually used during PostEffect rendering.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="deviceContext">The device context.</param>
-            public virtual void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
+    /// <summary>
+    ///     Model matrix
+    /// </summary>
+    public Matrix ModelMatrix = Matrix.Identity;
 
-            /// <summary>
-            ///     Renders the depth pass.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="deviceContext">The device context.</param>
-            /// <param name="customPass"></param>
-            public virtual void RenderDepth(
-                RenderContext context,
-                DeviceContextProxy deviceContext,
-                ShaderPass customPass
-            ) { }
+    /// <summary>
+    /// Is null when not attached
+    /// </summary>
+    public IRenderTechnique? EffectTechnique { get; private set; }
 
-            /// <summary>
-            ///     Update routine. Only used to run update computation such as compute shader in particle system.
-            ///     <para>
-            ///         Compute shader can be run at the beginning of any other
-            ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
-            ///     </para>
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="deviceContext"></param>
-            public void Update(RenderContext context, DeviceContextProxy deviceContext) {
-                if (CanRenderFlag) OnUpdate(context, deviceContext);
-            }
+    /// <summary>
+    /// </summary>
+    public NativeD3DDevice? Device => EffectTechnique?.Device;
 
-            /// <summary>
-            ///     Only used for running compute shader such as in particle system.
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="deviceContext"></param>
-            protected virtual void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) { }
+    /// <summary>
+    ///     Is render core has been attached
+    /// </summary>
+    public bool IsAttached { get; private set; }
 
-            /// <summary>
-            ///     Updates the can render flag.
-            /// </summary>
-            public void UpdateCanRenderFlag() {
-                var flag = OnUpdateCanRenderFlag();
-                if (CanRenderFlag != flag) {
-                    CanRenderFlag = flag;
-                    RaiseInvalidateRender();
-                }
-            }
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="RenderCore" /> class.
+    /// </summary>
+    /// <param name="renderType">Type of the render.</param>
+    public RenderCore(RenderType renderType)
+        => RenderType = renderType;
 
-            /// <summary>
-            ///     Called when [update can render flag].
-            /// </summary>
-            /// <returns></returns>
-            protected virtual bool OnUpdateCanRenderFlag() {
-                return IsAttached;
-            }
+    protected T AddComponent<T>(T component) where T : CoreComponent {
+        components.Add(component);
+        component.InvalidateRender += (_, _) => RaiseInvalidateRender();
+        return component;
+    }
 
-            /// <summary>
-            ///     Resets the invalidate handler.
-            /// </summary>
-            public void ResetInvalidateHandler() {
-                InvalidateRender = null;
-            }
+    /// <summary>
+    ///     Call to attach the render core.
+    /// </summary>
+    /// <param name="technique"></param>
+    [MemberNotNull(nameof(EffectTechnique))]
+    public void Attach(IRenderTechnique technique) {
+        if (IsAttached) {
+            EffectTechnique.AssertNotNull("EffectTechnique can not be null when attached");
+            return;
+        }
 
-            /// <summary>
-            ///     Invalidates the renderer.
-            /// </summary>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected void RaiseInvalidateRender() {
-                InvalidateRender?.Invoke(this, EventArgs.Empty);
-            }
 
-            /// <summary>
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="backingField"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsRender<T>(ref T backingField, T value) {
-                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+        EffectTechnique = technique;
+        foreach (var comp in components)
+            comp.Attach(technique);
 
-                backingField = value;
-                RaiseInvalidateRender();
-                return true;
-            }
+        IsAttached = OnAttach(technique);
+        UpdateCanRenderFlag();
+    }
 
-            /// <summary>
-            ///     Sets the affects can render flag. This will also invalidate renderer.
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="backingField">The backing field.</param>
-            /// <param name="value">The value.</param>
-            /// <returns></returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsCanRenderFlag<T>(ref T backingField, T value) {
-                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+    /// <summary>
+    ///     During attatching render core. Create all local resources. Use Collect(resource) to let object be released
+    ///     automatically during Detach().
+    /// </summary>
+    /// <param name="technique"></param>
+    /// <returns></returns>
+    protected abstract bool OnAttach(IRenderTechnique technique);
 
-                backingField = value;
-                UpdateCanRenderFlag();
-                RaiseInvalidateRender();
-                return true;
-            }
+    /// <summary>
+    ///     Detach render core. Release all resources
+    /// </summary>
+    public void Detach() {
+        if (!IsAttached) return;
+        OnDetach();
 
-            protected override void OnDispose(bool disposeManagedResources) {
-                if (disposeManagedResources)
-                    foreach (var comp in components)
-                        comp.Dispose();
+        foreach (var comp in components) comp.Detach();
+        IsAttached = false;
+        UpdateCanRenderFlag();
+    }
 
-                base.OnDispose(disposeManagedResources);
-            }
+    /// <summary>
+    ///     On detaching, default is to release all resources
+    /// </summary>
+    protected abstract void OnDetach();
 
-            #region Properties
+    /// <summary>
+    ///     Render routine
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="deviceContext"></param>
+    public abstract void Render(RenderContext context, DeviceContextProxy deviceContext);
 
-            /// <summary>
-            /// </summary>
-            public event EventHandler<EventArgs> InvalidateRender;
+    /// <summary>
+    ///     Renders the shadow pass. Used to generate shadow map.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="deviceContext">The device context.</param>
+    public virtual void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            /// <summary>
-            ///     <see cref="IGUID.GUID" />
-            /// </summary>
-            public Guid GUID { get; } = Guid.NewGuid();
+    /// <summary>
+    ///     Renders the custom pass. Must apply render pass externally. Usually used during PostEffect rendering.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="deviceContext">The device context.</param>
+    public virtual void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            /// <summary>
-            ///     Gets or sets the type of the render.
-            /// </summary>
-            /// <value>
-            ///     The type of the render.
-            /// </value>
-            public RenderType RenderType {
-                get;
-                set => SetAffectsRender(ref field, value);
-            }
+    /// <summary>
+    ///     Renders the depth pass.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="deviceContext">The device context.</param>
+    /// <param name="customPass"></param>
+    public virtual void RenderDepth(
+        RenderContext context,
+        DeviceContextProxy deviceContext,
+        ShaderPass customPass
+    ) { }
 
-            /// <summary>
-            ///     Gets or sets a value indicating whether this instance can be rendered. Update this flag using
-            ///     <see cref="UpdateCanRenderFlag" />
-            /// </summary>
-            /// <value>
-            ///     <c>true</c> if this instance can render; otherwise, <c>false</c>.
-            /// </value>
-            internal bool CanRenderFlag;
+    /// <summary>
+    ///     Update routine. Only used to run update computation such as compute shader in particle system.
+    ///     <para>
+    ///         Compute shader can be run at the beginning of any other
+    ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
+    ///     </para>
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="deviceContext"></param>
+    public void Update(RenderContext context, DeviceContextProxy deviceContext) {
+        if (CanRenderFlag)
+            OnUpdate(context, deviceContext);
+    }
 
-            /// <summary>
-            ///     Indicate whether render host should call <see cref="Update(RenderContext, DeviceContextProxy)" /> before
-            ///     <see cref="Render(RenderContext, DeviceContextProxy)" />
-            ///     <para>
-            ///         <see cref="Update(RenderContext, DeviceContextProxy)" /> is used to run such as compute shader before
-            ///         rendering.
-            ///     </para>
-            ///     <para>
-            ///         Compute shader can be run at the beginning of any other
-            ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
-            ///     </para>
-            /// </summary>
-            public bool NeedUpdate { get; protected set; }
+    /// <summary>
+    ///     Only used for running compute shader such as in particle system.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="deviceContext"></param>
+    protected virtual void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            /// <summary>
-            ///     <see cref="IThrowingShadow.IsThrowingShadow" />
-            /// </summary>
-            public bool IsThrowingShadow {
-                get;
-                set => SetAffectsRender(ref field, value);
-            }
-
-            /// <summary>
-            ///     Gets or sets the default state binding.
-            /// </summary>
-            /// <value>
-            ///     The default state binding.
-            /// </value>
-            public StateType DefaultStateBinding { get; set; } = StateType.BlendState | StateType.DepthStencilState;
-
-            /// <summary>
-            ///     Gets or sets the default state binding.
-            /// </summary>
-            /// <value>
-            ///     The default state binding.
-            /// </value>
-            public StateType ShadowStateBinding { get; set; } = StateType.BlendState | StateType.DepthStencilState;
-
-            /// <summary>
-            ///     Model matrix
-            /// </summary>
-            public Matrix ModelMatrix = Matrix.Identity;
-
-            /// <summary>
-            /// </summary>
-            public IRenderTechnique EffectTechnique { get; private set; }
-
-            /// <summary>
-            /// </summary>
-            public NativeD3DDevice Device => EffectTechnique?.Device;
-
-            /// <summary>
-            ///     Is render core has been attached
-            /// </summary>
-            public bool IsAttached { get; private set; }
-
-            #endregion
+    /// <summary>
+    ///     Updates the can render flag.
+    /// </summary>
+    public void UpdateCanRenderFlag() {
+        var flag = OnUpdateCanRenderFlag();
+        if (CanRenderFlag != flag) {
+            CanRenderFlag = flag;
+            RaiseInvalidateRender();
         }
     }
+
+    /// <summary>
+    ///     Called when [update can render flag].
+    /// </summary>
+    /// <returns></returns>
+    protected virtual bool OnUpdateCanRenderFlag()
+        => IsAttached;
+
+    /// <summary>
+    ///     Resets the invalidate handler.
+    /// </summary>
+    public void ResetInvalidateHandler()
+        => InvalidateRender = null;
+
+    /// <summary>
+    ///     Invalidates the renderer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void RaiseInvalidateRender()
+        => InvalidateRender?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="backingField"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool SetAffectsRender<T>(ref T backingField, T value) {
+        if (EqualityComparer<T>.Default.Equals(backingField, value))
+            return false;
+
+        backingField = value;
+        RaiseInvalidateRender();
+        return true;
+    }
+
+    /// <summary>
+    ///     Sets the affects can render flag. This will also invalidate renderer.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="backingField">The backing field.</param>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool SetAffectsCanRenderFlag<T>(ref T backingField, T value) {
+        if (EqualityComparer<T>.Default.Equals(backingField, value))
+            return false;
+
+        backingField = value;
+        UpdateCanRenderFlag();
+        RaiseInvalidateRender();
+        return true;
+    }
+
+    protected override void OnDispose(bool disposeManagedResources) {
+        if (disposeManagedResources) {
+            foreach (var comp in components)
+                comp.Dispose();
+        }
+
+        base.OnDispose(disposeManagedResources);
+    }
+
+
 }

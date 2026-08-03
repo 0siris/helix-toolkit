@@ -20,15 +20,15 @@ namespace HelixToolkit.Wpf.SharpDX {
                 return new ClickableNode2D();
             }
 
-            private void Clickable2D_MouseLeave2D(object sender, Mouse2DEventArgs e) { }
+            private void Clickable2D_MouseLeave2D(object? sender, Mouse2DEventArgs e) { }
 
-            private void Clickable2D_MouseEnter2D(object sender, Mouse2DEventArgs e) { }
+            private void Clickable2D_MouseEnter2D(object? sender, Mouse2DEventArgs e) { }
 
-            private void Clickable2D_MouseDown2D(object sender, Mouse2DEventArgs e) {
-                if (e.InputArgs is TouchEventArgs || (e.InputArgs is MouseEventArgs &&
-                                                      (e.InputArgs as MouseEventArgs).LeftButton ==
-                                                      MouseButtonState.Pressed)) {
-                    long time = e.InputArgs.Timestamp;
+            private void Clickable2D_MouseDown2D(object? sender, Mouse2DEventArgs e) {
+                var inputArgs = e.InputArgs;
+                if (inputArgs is TouchEventArgs ||
+                    inputArgs is MouseEventArgs { LeftButton: MouseButtonState.Pressed }) {
+                    long time = inputArgs.Timestamp;
                     if (time - lastClickedTime < DoubleClickThreshold) {
                         RaiseEvent(new Mouse2DEventArgs(DoubleClicked2DEvent, this));
 #if DEBUG
@@ -53,8 +53,8 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(Clickable2D),
                 new PropertyMetadata(null));
 
-            public ICommand Command {
-                get => (ICommand)GetValue(CommandProperty);
+            public ICommand? Command {
+                get => (ICommand?)GetValue(CommandProperty);
                 set => SetValue(CommandProperty, value);
             }
 

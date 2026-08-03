@@ -77,7 +77,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new Size2F(Math.Max(0, Width * DpiScale), Math.Max(0, Height * DpiScale));
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 hitResult = null;
                 if (LayoutBoundWithTransform.Contains(mousePoint)) {
                     hitResult = new HitTest2DResult(this);

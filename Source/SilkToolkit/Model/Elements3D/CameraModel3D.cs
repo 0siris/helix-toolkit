@@ -15,16 +15,16 @@ public class CameraModel3D : CompositeModel3D {
                                     typeof(CameraModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             (d as CameraModel3D).camera =
-                                                                 e.NewValue as ProjectionCamera;
-                                                         }));
+                                                              ((CameraModel3D)d).camera =
+                                                                  e.NewValue as ProjectionCamera;
+                                                          }));
 
-    private ProjectionCamera _camera;
+    private ProjectionCamera? _camera;
 
     protected bool isCaptured;
     protected Vector3 lastHitPos;
-    protected Viewport3DX viewport;
-    protected CameraCore viewportCamera;
+    protected Viewport3DX? viewport;
+    protected CameraCore? viewportCamera;
 
     public CameraModel3D() {
         var b1 = new MeshBuilder();
@@ -67,17 +67,17 @@ public class CameraModel3D : CompositeModel3D {
     /// <summary>
     ///     Distance of the directional light from origin
     /// </summary>
-    public ProjectionCamera Camera {
-        get => (ProjectionCamera)GetValue(CameraProperty);
+    public ProjectionCamera? Camera {
+        get => (ProjectionCamera?)GetValue(CameraProperty);
         set => SetValue(CameraProperty, value);
     }
 
-    protected ProjectionCamera camera {
+    protected ProjectionCamera? camera {
         get => _camera;
         private set {
             if (_camera == value) return;
             _camera = value;
-            Transform = new MatrixTransform3D(_camera.GetInversedViewMatrix());
+            Transform = _camera is null ? null : new MatrixTransform3D(_camera.GetInversedViewMatrix());
         }
     }
 
@@ -107,13 +107,13 @@ public class CameraModel3D : CompositeModel3D {
     protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
         if (isCaptured) {
-            var args = e as Mouse3DEventArgs;
+            var args = (Mouse3DEventArgs)e;
 
-            // move dragmodel                         
-            var normal = viewportCamera.LookDirection;
+            // move dragmodel
+            var normal = viewportCamera!.LookDirection;
 
-            // hit position                        
-            var newHit = viewport.UnProjectOnPlane(args.Position, lastHitPos.ToPoint3D(), normal.ToVector3D());
+            // hit position
+            var newHit = viewport!.UnProjectOnPlane(args.Position, lastHitPos.ToPoint3D(), normal.ToVector3D());
             if (newHit.HasValue) {
                 var offset = newHit.Value - lastHitPos.ToPoint3D();
                 lastHitPos = newHit.Value.ToVector3();
@@ -126,7 +126,7 @@ public class CameraModel3D : CompositeModel3D {
         }
     }
 
-    private void SceneNode_OnTransformChanged(object sender, TransformArgs e) {
+    private void SceneNode_OnTransformChanged(object? sender, TransformArgs e) {
         if (camera != null) {
             var m = e.Transform;
             camera.Position = new Point3D(m.M41, m.M42, m.M43);

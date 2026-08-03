@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -9,23 +9,62 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.SharpDX.Core;
 
+public interface IDisposeObject: IDisposable
+{
+    /// <summary>
+    ///     Occurs when this instance is starting to be disposed.
+    /// </summary>
+    event EventHandler<BoolEventArgs>? Disposing;
+
+    /// <summary>
+    ///     Occurs when this instance is fully disposed.
+    /// </summary>
+    event EventHandler<BoolEventArgs>? Disposed;
+
+    int RefCount { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether this instance is disposed.
+    /// </summary>
+    /// <value>
+    ///     <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+    /// </value>
+    bool IsDisposed { get; }
+
+    /// <summary>
+    ///     Increase reference counter
+    /// </summary>
+    /// <returns></returns>
+    int IncRef();
+
+    /// <summary>
+    ///     Forces the dispose.
+    /// </summary>
+    void ForceDispose();
+
+    /// <summary>
+    ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    void Dispose(bool disposing);
+}
+
 /// <summary>
 ///     Base class to handle disposable.
 /// </summary>
-public abstract class DisposeObject : IDisposable {
-    internal Action<DisposeObject> AddBackToPool;
+public abstract class DisposeObject : IDisposable, IDisposeObject {
+    internal Action<DisposeObject>? AddBackToPool;
 
     /// <summary>
     ///     Occurs when this instance is starting to be disposed.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public event EventHandler<BoolEventArgs> Disposing;
+    public event EventHandler<BoolEventArgs>? Disposing;
 
     /// <summary>
     ///     Occurs when this instance is fully disposed.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public event EventHandler<BoolEventArgs> Disposed;
+    public event EventHandler<BoolEventArgs>? Disposed;
 
     /// <summary>
     ///     Disposes of object resources.
@@ -40,29 +79,10 @@ public abstract class DisposeObject : IDisposable {
     ///     Dispose a disposable object and set the reference to null. Removes this object from this instance..
     /// </summary>
     /// <param name="objectToDispose">Object to dispose.</param>
-    public static void RemoveAndDispose<T>(ref T objectToDispose) where T : class, IDisposable {
-        if (objectToDispose is IDisposable disposible) {
-            // Dispose the component
-            disposible.Dispose();
-#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
-#pragma warning disable CS8601 // Possible null reference assignment.
-            objectToDispose = null;
-#pragma warning restore CS8601 // Possible null reference assignment.
-#pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
-        }
+    public static void RemoveAndDispose<T>(ref T? objectToDispose) where T : class, IDisposable {
+        objectToDispose?.Dispose();
+        objectToDispose = null;
     }
-
-    /// <summary>
-    ///     Dispose a disposable object. Removes this object from this instance..
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="objectToDispose">The object to dispose.</param>
-    public static void RemoveAndDispose<T>(T objectToDispose) where T : class, IDisposable {
-        if (objectToDispose is IDisposable disposible)
-            // Dispose the component
-            disposible.Dispose();
-    }
-
 
     /// <summary>
     /// </summary>
@@ -78,9 +98,9 @@ public abstract class DisposeObject : IDisposable {
 
     #region IDisposible
 
-    public int RefCount => AtomicHelper.Read(ref refCounter_);
+    public int RefCount => AtomicHelper.Read(ref refCounter);
 
-    private int refCounter_ = 1;
+    private int refCounter = 1;
 
     /// <summary>
     ///     Increase reference counter
@@ -88,8 +108,8 @@ public abstract class DisposeObject : IDisposable {
     /// <returns></returns>
     public int IncRef() {
         // Increment only greater than 1
-        AtomicHelper.IncrementIfGreaterThan(ref refCounter_, 0);
-        return AtomicHelper.Read(ref refCounter_);
+        AtomicHelper.IncrementIfGreaterThan(ref refCounter, 0);
+        return AtomicHelper.Read(ref refCounter);
     }
 
     /// <summary>
@@ -97,7 +117,7 @@ public abstract class DisposeObject : IDisposable {
     /// </summary>
     public void ForceDispose() {
         // Set ref counter to 1 if greater than 1
-        AtomicHelper.ExchangeIfGreaterThan(ref refCounter_, 1, 1);
+        AtomicHelper.ExchangeIfGreaterThan(ref refCounter, 1, 1);
         Dispose();
     }
 
@@ -109,7 +129,7 @@ public abstract class DisposeObject : IDisposable {
     /// </value>
     public bool IsDisposed { get; private set; }
 
-    private int disposeCount_;
+    private int disposeCount;
 
     /// <summary>
     ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -126,18 +146,18 @@ public abstract class DisposeObject : IDisposable {
     ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
 #pragma warning disable CA1063 // Implement IDisposable Correctly
-    private void Dispose(bool disposing)
+    public void Dispose(bool disposing)
 #pragma warning restore CA1063 // Implement IDisposable Correctly
     {
         // If already 0, return.
-        if (!AtomicHelper.DecrementIfGreaterThan(ref refCounter_, 0)) {
+        if (!AtomicHelper.DecrementIfGreaterThan(ref refCounter, 0)) {
             Debug.Assert(RefCount == 0);
             return;
         }
 
         var currRef = RefCount;
         if (currRef == 0 && !IsDisposed) {
-            if (Interlocked.Increment(ref disposeCount_) == 1) {
+            if (Interlocked.Increment(ref disposeCount) == 1) {
                 AddBackToPool = null;
                 Disposing?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
                 Disposing = null;

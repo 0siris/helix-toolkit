@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
@@ -198,7 +198,7 @@ namespace HelixToolkit.SharpDX.Core {
                     if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
                         buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
                     else
-                        buffer.UploadDataToBuffer(context, emptyVerts, 0);
+                        buffer.UploadDataToBuffer(context, EmptyVerts, 0);
                 }
             }
         }

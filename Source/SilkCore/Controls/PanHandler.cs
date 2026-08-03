@@ -12,10 +12,13 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
     /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
     public override void Delta(Vector2 e) {
         base.Delta(e);
-        if (Camera.LookDirection.LengthSquared() < 1e-5f) return;
+        if (Camera.LookDirection.LengthSquared() < 1e-5f)
+            return;
+
         var thisPoint3D = UnProject(e, panPoint3D, Camera.LookDirection);
 
-        if (LastPoint3D == null || thisPoint3D == null) return;
+        if (LastPoint3D == null || thisPoint3D == null)
+            return;
 
         var delta3D = LastPoint3D.Value - thisPoint3D.Value;
         Pan(delta3D);
@@ -32,13 +35,17 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
     /// </param>
     /// <param name="stopOther">Stop other manipulation</param>
     public void Pan(Vector3 delta, bool stopOther = true) {
-        if (!Controller.IsPanEnabled) return;
+        if (!Controller.IsPanEnabled)
+            return;
+
         if (stopOther) {
             Controller.StopSpin();
             Controller.StopZooming();
         }
 
-        if (CameraMode == CameraMode.FixedPosition) return;
+        if (CameraMode == CameraMode.FixedPosition)
+            return;
+
         Camera.Position += delta;
     }
 
@@ -59,7 +66,8 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
 
         var thisPoint3D = UnProject(mousePoint, panPoint3D, Camera.LookDirection);
 
-        if (LastPoint3D == null || thisPoint3D == null) return;
+        if (LastPoint3D is null || thisPoint3D is null)
+            return;
 
         var delta3D = LastPoint3D.Value - thisPoint3D.Value;
         Pan(delta3D);
@@ -76,7 +84,9 @@ public sealed class PanHandler(CameraController cameraController) : MouseGesture
     protected override void Started(Vector2 e) {
         base.Started(e);
         panPoint3D = Camera.Target;
-        if (MouseDownNearestPoint3D.HasValue) panPoint3D = MouseDownNearestPoint3D.Value;
+
+        if (MouseDownNearestPoint3D.HasValue)
+            panPoint3D = MouseDownNearestPoint3D.Value;
 
         LastPoint3D = UnProject(MouseDownPoint, panPoint3D, Camera.LookDirection);
     }

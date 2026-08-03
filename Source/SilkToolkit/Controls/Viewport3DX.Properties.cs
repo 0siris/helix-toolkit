@@ -1526,7 +1526,7 @@ public partial class Viewport3DX {
     /// <value>
     ///     The render host internal.
     /// </value>
-    protected IRenderHost renderHostInternal;
+    protected IRenderHost? renderHostInternal;
 
     /// <summary>
     ///     Background WpfColor
@@ -2601,7 +2601,7 @@ public partial class Viewport3DX {
     /// <value>
     ///     The shared model container internal.
     /// </value>
-    protected IModelContainer SharedModelContainerInternal { get; private set; }
+    protected IModelContainer? SharedModelContainerInternal { get; private set; }
 
     /// <summary>
     ///     <para>Use HwndHost as rendering surface, swapchain for rendering. Much faster than using D3DImage.</para>

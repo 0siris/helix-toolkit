@@ -264,10 +264,10 @@ public sealed class CameraController {
         zoomHandler = new ZoomHandler(this);
         panHandler = new PanHandler(this);
         rotateHandler = new RotateHandler(this);
-        rotateHandler.MouseCaptureRequested += (s, e) => { IsRotating = true; };
-        panHandler.MouseCaptureRequested += (s, e) => { IsPanning = true; };
-        rotateHandler.MouseReleaseRequested += (s, e) => { IsRotating = false; };
-        panHandler.MouseReleaseRequested += (s, e) => { IsPanning = false; };
+        rotateHandler.MouseCaptureRequested += (_, _) => IsRotating = true;
+        panHandler.MouseCaptureRequested += (_, _) => IsPanning = true;
+        rotateHandler.MouseReleaseRequested += (_, _) => IsRotating = false;
+        panHandler.MouseReleaseRequested += (_, _) => IsPanning = false;
     }
 
     /// <summary>
@@ -277,7 +277,7 @@ public sealed class CameraController {
         get => modelUpDirection;
         set {
             modelUpDirection = value;
-            Viewport?.ModelUpDirection = value;
+            Viewport.ModelUpDirection = value;
         }
     }
 
@@ -584,9 +584,7 @@ public sealed class CameraController {
     /// <summary>
     ///     The refresh viewport.
     /// </summary>
-    public void RefreshViewport() {
-        Viewport.InvalidateRender();
-    }
+    public void RefreshViewport() => Viewport.InvalidateRender();
 
     /// <summary>
     ///     Resets the camera.
@@ -814,7 +812,7 @@ public sealed class CameraController {
             zoomSpeed = 0;
         }
 
-        if (ActualCamera != null && ActualCamera.OnTimeStep()) needUpdate = true;
+        if (ActualCamera.OnTimeStep()) needUpdate = true;
         if (needUpdate) {
             lastTick = ticks;
             Viewport.InvalidateRender();

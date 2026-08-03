@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -23,7 +23,7 @@ public interface IAttachableBufferModel : IGUID, IDisposable {
     /// <value>
     ///     The vertex buffer.
     /// </value>
-    IElementsBufferProxy[] VertexBuffer { get; }
+    IElementsBufferProxy?[] VertexBuffer { get; } //TODO check why we allow null values in the array
 
     /// <summary>
     ///     Gets the size of the vertex structure.
@@ -39,7 +39,7 @@ public interface IAttachableBufferModel : IGUID, IDisposable {
     /// <value>
     ///     The index buffer.
     /// </value>
-    IElementsBufferProxy IndexBuffer { get; }
+    IElementsBufferProxy? IndexBuffer { get; }
 
     /// <summary>
     ///     Attaches the buffers.
@@ -68,7 +68,7 @@ public interface IGeometryBufferModel : IAttachableBufferModel {
     /// <value>
     ///     The effects manager.
     /// </value>
-    IEffectsManager EffectsManager { get; set; }
+    IEffectsManager? EffectsManager { get; set; }
 
     /// <summary>
     ///     Gets or sets the geometry.
@@ -76,10 +76,10 @@ public interface IGeometryBufferModel : IAttachableBufferModel {
     /// <value>
     ///     The geometry.
     /// </value>
-    Geometry3D Geometry { get; set; }
+    Geometry3D? Geometry { get; set; }
 
-    event EventHandler VertexBufferUpdated;
-    event EventHandler IndexBufferUpdated;
+    event EventHandler? VertexBufferUpdated;
+    event EventHandler? IndexBufferUpdated;
 }
 
 /// <summary>
@@ -107,7 +107,7 @@ public interface IBillboardBufferModel : IDisposable {
 public interface IBoneSkinMeshBufferModel : IGeometryBufferModel {
     IElementsBufferProxy BoneIdBuffer { get; }
 
-    event EventHandler BoneIdBufferUpdated;
+    event EventHandler? BoneIdBufferUpdated;
 }
 
 /// <summary>

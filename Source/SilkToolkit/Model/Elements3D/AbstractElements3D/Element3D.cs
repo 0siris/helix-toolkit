@@ -30,13 +30,13 @@ public abstract class Element3D : Element3DCore, IVisible {
         OnSceneNodeCreated += Element3D_OnSceneNodeCreated;
     }
 
-    private void Element3D_OnSceneNodeCreated(object sender, SceneNodeCreatedEventArgs e) {
+    private void Element3D_OnSceneNodeCreated(object? sender, SceneNodeCreatedEventArgs e) {
         e.Node.MouseDown += Node_MouseDown;
         e.Node.MouseMove += Node_MouseMove;
         e.Node.MouseUp += Node_MouseUp;
     }
 
-    private void Node_MouseUp(object sender, SceneNodeMouseUpArgs e) {
+    private void Node_MouseUp(object? sender, SceneNodeMouseUpArgs e) {
         RaiseEvent(new MouseUp3DEventArgs(this,
                                           e.HitResult,
                                           new Point(e.Position.X, e.Position.Y),
@@ -44,7 +44,7 @@ public abstract class Element3D : Element3DCore, IVisible {
                                           e.OriginalInputEventArgs as InputEventArgs));
     }
 
-    private void Node_MouseMove(object sender, SceneNodeMouseMoveArgs e) {
+    private void Node_MouseMove(object? sender, SceneNodeMouseMoveArgs e) {
         RaiseEvent(new MouseMove3DEventArgs(this,
                                             e.HitResult,
                                             new Point(e.Position.X, e.Position.Y),
@@ -52,7 +52,7 @@ public abstract class Element3D : Element3DCore, IVisible {
                                             e.OriginalInputEventArgs as InputEventArgs));
     }
 
-    private void Node_MouseDown(object sender, SceneNodeMouseDownArgs e) {
+    private void Node_MouseDown(object? sender, SceneNodeMouseDownArgs e) {
         RaiseEvent(new MouseDown3DEventArgs(this,
                                             e.HitResult,
                                             new Point(e.Position.X, e.Position.Y),
@@ -68,7 +68,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     /// <returns>
     ///     The first visual ancestor of type <typeparamref name="T" /> if exists, else <c>null</c>.
     /// </returns>
-    public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
+    public static T? FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
         if (obj != null) {
             var parent = Media.VisualTreeHelper.GetParent(obj);
             while (parent != null) {
@@ -94,8 +94,8 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     typeof(Element3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as Element3D).SceneNode.Visible =
-                                                                 (bool)e.NewValue && (d as Element3D).Visibility ==
+                                                              ((Element3D)d).SceneNode.Visible =
+                                                                  (bool)e.NewValue && ((Element3D)d).Visibility ==
                                                                  Visibility.Visible;
                                                          }));
 
@@ -118,9 +118,9 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     typeof(Element3D),
                                     new PropertyMetadata(Visibility.Visible,
                                                          (d, e) => {
-                                                             (d as Element3D).SceneNode.Visible =
-                                                                 (Visibility)e.NewValue == Visibility.Visible &&
-                                                                 (d as Element3D).IsRendering;
+                                                              ((Element3D)d).SceneNode.Visible =
+                                                                  (Visibility)e.NewValue == Visibility.Visible &&
+                                                                  ((Element3D)d).IsRendering;
                                                          }));
 
     /// <summary>
@@ -138,16 +138,16 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     typeof(Element3D),
                                     new PropertyMetadata(Transform3D.Identity,
                                                          (d, e) => {
-                                                             (d as Element3D).SceneNode.ModelMatrix =
-                                                                 e.NewValue != null
-                                                                     ? (e.NewValue as Transform3D).Value.ToMatrix()
+                                                              ((Element3D)d).SceneNode.ModelMatrix =
+                                                                  e.NewValue != null
+                                                                      ? ((Transform3D)e.NewValue).Value.ToMatrix()
                                                                      : Matrix.Identity;
                                                          }));
 
     /// <summary>
     /// </summary>
-    public Transform3D Transform {
-        get => (Transform3D)GetValue(TransformProperty);
+    public Transform3D? Transform {
+        get => (Transform3D?)GetValue(TransformProperty);
         set => SetValue(TransformProperty, value);
     }
 
@@ -157,7 +157,7 @@ public abstract class Element3D : Element3DCore, IVisible {
     public static readonly DependencyProperty IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible",
         typeof(bool),
         typeof(Element3D),
-        new PropertyMetadata(true, (d, e) => { (d as Element3D).SceneNode.IsHitTestVisible = (bool)e.NewValue; }));
+        new PropertyMetadata(true, (d, e) => { ((Element3D)d).SceneNode.IsHitTestVisible = (bool)e.NewValue; }));
 
     /// <summary>
     ///     Indicates, if this element should be hit-tested.
@@ -189,7 +189,7 @@ public abstract class Element3D : Element3DCore, IVisible {
                                     typeof(Element3D),
                                     new PropertyMetadata(0,
                                                          (d, e) => {
-                                                             (d as Element3D).SceneNode.RenderOrder =
+                                                              ((Element3D)d).SceneNode.RenderOrder =
                                                                  (ushort)Math.Max(
                                                                      0,
                                                                      Math.Min(ushort.MaxValue, (int)e.NewValue));
@@ -242,20 +242,20 @@ public abstract class Element3D : Element3DCore, IVisible {
     }
 
     protected virtual void OnMouse3DDown(object sender, RoutedEventArgs e) {
-        Mouse3DDown?.Invoke(this, e as MouseDown3DEventArgs);
+        Mouse3DDown?.Invoke(this, (MouseDown3DEventArgs)e);
     }
 
     protected virtual void OnMouse3DUp(object sender, RoutedEventArgs e) {
-        Mouse3DUp?.Invoke(this, e as MouseUp3DEventArgs);
+        Mouse3DUp?.Invoke(this, (MouseUp3DEventArgs)e);
     }
 
     protected virtual void OnMouse3DMove(object sender, RoutedEventArgs e) {
-        Mouse3DMove?.Invoke(this, e as MouseMove3DEventArgs);
+        Mouse3DMove?.Invoke(this, (MouseMove3DEventArgs)e);
     }
 
-    public event EventHandler<MouseDown3DEventArgs> Mouse3DDown;
-    public event EventHandler<MouseUp3DEventArgs> Mouse3DUp;
-    public event EventHandler<MouseMove3DEventArgs> Mouse3DMove;
+    public event EventHandler<MouseDown3DEventArgs>? Mouse3DDown;
+    public event EventHandler<MouseUp3DEventArgs>? Mouse3DUp;
+    public event EventHandler<MouseMove3DEventArgs>? Mouse3DMove;
 
     #endregion
 
@@ -289,9 +289,9 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
         OriginalInputEventArgs = originalInputEventArgs;
     }
 
-    public HitTestResult HitTestResult { get; private set; }
+    public HitTestResult? HitTestResult { get; private set; }
 
-    public Viewport3DX Viewport { get; private set; }
+    public Viewport3DX? Viewport { get; private set; }
 
     public Point Position { get; private set; }
 
@@ -299,7 +299,7 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
     ///     The original mouse/touch event that generated this one.
     ///     Useful for knowing what mouse button got pressed.
     /// </summary>
-    public InputEventArgs OriginalInputEventArgs { get; }
+    public InputEventArgs? OriginalInputEventArgs { get; }
 
 
     public new bool Handled {

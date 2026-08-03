@@ -170,28 +170,28 @@ namespace HelixToolkit.Wpf.SharpDX {
         public RelativePositionCanvas2D MoverCanvas { get; }
             = new() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
 
-        private ScreenSpacePositionMoverBase mover;
+        private ScreenSpacePositionMoverBase? mover;
 
         private bool isMoverInitialized;
 
         private void InitializeMover() {
             if (isMoverInitialized) return;
             mover = OnCreateMover();
-            MoverCanvas.Children.Add(mover);
-            SetBinding(nameof(RelativeScreenLocationX), mover, RelativePositionCanvas2D.RelativeXProperty, this);
-            SetBinding(nameof(RelativeScreenLocationY), mover, RelativePositionCanvas2D.RelativeYProperty, this);
+            MoverCanvas.Children.Add(mover!);
+            SetBinding(nameof(RelativeScreenLocationX), mover!, RelativePositionCanvas2D.RelativeXProperty, this);
+            SetBinding(nameof(RelativeScreenLocationY), mover!, RelativePositionCanvas2D.RelativeYProperty, this);
             SetBinding(nameof(IsRendering),
-                       mover,
+                       mover!,
                        Element2D.VisibilityProperty,
                        this,
                        BindingMode.OneWay,
                        new BoolToVisibilityConverter());
             SetBinding(nameof(EnableMover),
-                       mover,
+                       mover!,
                        ScreenSpacePositionMoverBase.EnableMoverProperty,
                        this,
                        BindingMode.OneWay);
-            mover.OnMoveClicked += Mover_OnMoveClicked;
+            mover!.OnMoveClicked += Mover_OnMoveClicked;
             isMoverInitialized = true;
         }
 
@@ -199,7 +199,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             return new ScreenSpacePositionMover();
         }
 
-        private void Mover_OnMoveClicked(object sender, ScreenSpaceMoveDirArgs e) {
+        private void Mover_OnMoveClicked(object? sender, ScreenSpaceMoveDirArgs e) {
             switch (e.Direction) {
                 case ScreenSpaceMoveDirection.LeftTop:
                     RelativeScreenLocationX = -Math.Abs(RelativeScreenLocationX);
@@ -280,7 +280,7 @@ namespace HelixToolkit.Wpf.SharpDX {
                                             typeof(ScreenSpacePositionMover),
                                             new PropertyMetadata(true,
                                                                  (d, e) => {
-                                                                     ((d as Element2D).SceneNode as Node2DMoverBase)
+                                                                  ((Node2DMoverBase)((Element2D)d).SceneNode)
                                                                          .EnableMover = (bool)e.NewValue;
                                                                  }));
 
@@ -298,7 +298,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             /// <summary>
             ///     Occurs when [on move clicked].
             /// </summary>
-            public event EventHandler<ScreenSpaceMoveDirArgs> OnMoveClicked;
+            public event EventHandler<ScreenSpaceMoveDirArgs>? OnMoveClicked;
 
             /// <summary>
             ///     Raises the on move click.
@@ -390,7 +390,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
             public sealed class Node2DMover : Node2DMoverBase {
-                public Button2D[] Buttons { get; set; }
+                public Button2D[]? Buttons { get; set; }
 
                 /// <summary>
                 ///     Called when [hit test].
@@ -398,15 +398,15 @@ namespace HelixToolkit.Wpf.SharpDX {
                 /// <param name="mousePoint">The mouse point.</param>
                 /// <param name="hitResult">The hit result.</param>
                 /// <returns></returns>
-                protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+                protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                     hitResult = null;
                     if (!EnableMover) return false;
                     if (LayoutBoundWithTransform.Contains(mousePoint)) {
-                        foreach (var b in Buttons) b.Visibility = System.Windows.Visibility.Visible;
+                        foreach (var b in Buttons!) b.Visibility = System.Windows.Visibility.Visible;
                         return base.OnHitTest(ref mousePoint, out hitResult);
                     }
 
-                    foreach (var b in Buttons) b.Visibility = System.Windows.Visibility.Hidden;
+                    foreach (var b in Buttons!) b.Visibility = System.Windows.Visibility.Hidden;
                     return false;
                 }
             }

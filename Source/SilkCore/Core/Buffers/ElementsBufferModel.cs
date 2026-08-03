@@ -1,100 +1,113 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        /// <summary>
-        ///     Used for managing instance buffer update
-        /// </summary>
-        public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> where T : unmanaged {
-            public static readonly ElementsBufferModel<T> Empty = new(0);
-            private VertexBufferBinding bufferBinding;
-            private IElementsBufferProxy elementBuffer;
+namespace HelixToolkit.SharpDX.Core.Core;
 
-            private IList<T> elements;
-            private volatile bool instanceChanged = true;
+/// <summary>
+///     Used for managing instance buffer update
+/// </summary>
+public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> where T : unmanaged {
+    public static readonly ElementsBufferModel<T> Empty = new(0);
+    private VertexBufferBinding bufferBinding;
+    
+    /// <summary>
+    /// We have locks on this reference
+    /// </summary>
+    private IElementsBufferProxy? elementBuffer;
 
-            public ElementsBufferModel(int structSize) {
-                StructSize = structSize;
-            }
+    private IList<T>? elements;
 
-            public int StructSize { get; }
+    /// <summary>
+    /// Indicates whether the instance data has been modified and requires a buffer update.
+    /// Used to track changes in the data model that impact the associated instance buffer.
+    /// 
+    /// Set to true when:
+    /// - Elements has changed
+    /// - first init
+    /// 
+    /// Set to false when:
+    /// - Buffer data is uploaded in AttachBuffer() to elementBuffer
+    /// </summary>
+    private volatile bool instanceChanged = true;
 
-            public event EventHandler<EventArgs> ElementChanged;
-            public Guid GUID { get; } = Guid.NewGuid();
+    public ElementsBufferModel(int structSize) => StructSize = structSize;
 
-            public bool Initialized { get; private set; }
+    public int StructSize { get; }
 
-            public bool HasElements { get; private set; }
-            public IElementsBufferProxy Buffer => elementBuffer;
+    public event EventHandler<EventArgs>? ElementChanged;
+    public Guid GUID { get; } = Guid.NewGuid();
 
-            public bool Changed => instanceChanged;
+    [MemberNotNullWhen(true, nameof(elementBuffer))]
+    public bool Initialized { get; private set; }
 
-            public IList<T> Elements {
-                get => elements;
-                set {
-                    if (elements != value) {
-                        elements = value;
-                        instanceChanged = true;
-                        HasElements = elements != null && elements.Any();
-                        ElementChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                }
-            }
+    [MemberNotNullWhen(true, nameof(elements))]
+    [MemberNotNullWhen(true, nameof(Elements))]
+    public bool HasElements { get; private set; }
+    public IElementsBufferProxy Buffer => elementBuffer;
 
-            public int ElementCount => HasElements ? Elements.Count : 0;
-
-            public void Initialize() {
-                elementBuffer = new DynamicBufferProxy(StructSize, BindFlags.VertexBuffer);
-                Initialized = true;
-                instanceChanged = true;
-            }
-
-            public virtual void AttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot) {
-                if (HasElements) {
-                    if (instanceChanged)
-                        lock (elementBuffer) {
-                            if (instanceChanged) {
-                                elementBuffer.UploadDataToBuffer(context, elements, elements.Count);
-                                instanceChanged = false;
-                                bufferBinding =
-                                    new VertexBufferBinding(Buffer.Buffer, Buffer.StructureSize, Buffer.Offset);
-                            }
-                        }
-
-                    context.SetVertexBuffers(vertexBufferStartSlot, bufferBinding);
-                }
-
-                ++vertexBufferStartSlot;
-            }
-
-            public void DisposeAndClear() {
-                Initialized = false;
-                RemoveAndDispose(ref elementBuffer);
-            }
-
-            protected override void OnDispose(bool disposeManagedResources) {
-                DisposeAndClear();
-                base.OnDispose(disposeManagedResources);
-            }
-        }
-
-        public class MatrixInstanceBufferModel : ElementsBufferModel<Matrix> {
-            public MatrixInstanceBufferModel()
-                : base(SilkMath.MatrixSizeInBytes) { }
-        }
-
-        public class InstanceParamsBufferModel<T> : ElementsBufferModel<T> where T : unmanaged {
-            public InstanceParamsBufferModel(int structSize) : base(structSize) { }
-        }
-
-        public class VertexBoneIdBufferModel<T> : ElementsBufferModel<T> where T : unmanaged {
-            public VertexBoneIdBufferModel(int structSize) : base(structSize) { }
+    public bool Changed => instanceChanged;
+    
+    public IList<T>? Elements {
+        get => elements;
+        set {
+            if (elements == value)  //TODO check what this should be , Reference Equals?
+                return;
+            
+            elements = value;
+            instanceChanged = true;
+            HasElements = elements != null && elements.Any();
+            ElementChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    public int ElementCount => HasElements ? Elements.Count : 0;
+
+    [MemberNotNull(nameof(elementBuffer))]
+    public void Initialize() {
+        elementBuffer = new DynamicBufferProxy(StructSize, BindFlags.VertexBuffer);
+        Initialized = true;
+        instanceChanged = true;
+    }
+
+    public virtual void AttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot) {
+        if (HasElements) {
+            if (instanceChanged)
+                lock (elementBuffer.AssertNotNull("Models musst be initialized")) {
+                    if (instanceChanged) {
+                        elementBuffer.UploadDataToBuffer(context, elements, elements.Count);
+                        instanceChanged = false;
+                        bufferBinding = new VertexBufferBinding(Buffer.Buffer, Buffer.StructureSize, Buffer.Offset);
+                    }
+                }
+
+            context.SetVertexBuffers(vertexBufferStartSlot, bufferBinding);
+        }
+
+        ++vertexBufferStartSlot;
+    }
+
+    public void DisposeAndClear() {
+        Initialized = false;
+        RemoveAndDispose(ref elementBuffer);
+    }
+
+    protected override void OnDispose(bool disposeManagedResources) {
+        DisposeAndClear();
+        base.OnDispose(disposeManagedResources);
+    }
 }
+
+public class MatrixInstanceBufferModel() : ElementsBufferModel<Matrix>(SilkMath.MatrixSizeInBytes);
+
+public class InstanceParamsBufferModel<T>(int structSize) : ElementsBufferModel<T>(structSize)
+    where T : unmanaged;
+
+public class VertexBoneIdBufferModel<T>(int structSize) : ElementsBufferModel<T>(structSize)
+    where T : unmanaged;

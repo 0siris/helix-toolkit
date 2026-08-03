@@ -13,8 +13,8 @@ namespace HelixToolkit.Wpf.SharpDX {
                 typeof(ContentPresenter2D),
                 new PropertyMetadata(null,
                                      (d, e) => {
-                                         var model = d as ContentPresenter2D;
-                                         var node = model.SceneNode as PresenterNode2D;
+                                          var model = (ContentPresenter2D)d;
+                                          var node = (PresenterNode2D)model.SceneNode;
                                          if (e.OldValue is Element2D old) {
                                              model.RemoveLogicalChild(old);
                                              node.Content = null;
@@ -27,8 +27,8 @@ namespace HelixToolkit.Wpf.SharpDX {
                                      }));
 
             [Bindable(true)]
-            public Element2D Content2D {
-                get => (Element2D)GetValue(Content2DProperty);
+            public Element2D? Content2D {
+                get => (Element2D?)GetValue(Content2DProperty);
                 set => SetValue(Content2DProperty, value);
             }
 

@@ -337,7 +337,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <param name="mousePoint">The mouse point.</param>
             /// <param name="hitResult">The hit result.</param>
             /// <returns></returns>
-            protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult);
+            protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult);
 
             /// <summary>
             ///     Use InvalidateVisual if render update required.

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -6,497 +6,495 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Utilities {
-        /// <summary>
-        /// </summary>
-        public interface IElementsBufferProxy : IBufferProxy {
-            /// <summary>
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count"></param>
-            void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count) where T : unmanaged;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
-            /// <summary>
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count"></param>
-            /// <param name="offset"></param>
-            /// <param name="minBufferCount">
-            ///     Used to initialize a buffer which size is Max(count, minBufferCount). Only used in dynamic
-            ///     buffer.
-            /// </param>
-            void UploadDataToBuffer<T>(
-                DeviceContextProxy context,
-                IList<T> data,
-                int count,
-                int offset,
-                int minBufferCount = default
-            ) where T : unmanaged;
+/// <summary>
+/// </summary>
+public interface IElementsBufferProxy : IBufferProxy {
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count"></param>
+    void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count) where T : unmanaged;
 
-            /// <summary>
-            ///     Uploads the data to buffer using data pointer.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="data">The data.</param>
-            /// <param name="countByBytes">The count by bytes.</param>
-            /// <param name="offsetByBytes">The offset by bytes.</param>
-            /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
-            void UploadDataToBuffer(
-                DeviceContextProxy context,
-                nint data,
-                int countByBytes,
-                int offsetByBytes,
-                int minBufferCountByBytes = default
-            );
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count"></param>
+    /// <param name="offset"></param>
+    /// <param name="minBufferCount">
+    ///     Used to initialize a buffer which size is Max(count, minBufferCount). Only used in dynamic
+    ///     buffer.
+    /// </param>
+    void UploadDataToBuffer<T>(
+        DeviceContextProxy context,
+        IList<T> data,
+        int count,
+        int offset,
+        int minBufferCount = default
+    ) where T : unmanaged;
 
-            /// <summary>
-            ///     Creates the buffer with size = count * structure size;
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="count">The count.</param>
-            void CreateBuffer(DeviceContextProxy context, int count);
+    /// <summary>
+    ///     Uploads the data to buffer using data pointer.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="data">The data.</param>
+    /// <param name="countByBytes">The count by bytes.</param>
+    /// <param name="offsetByBytes">The offset by bytes.</param>
+    /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
+    void UploadDataToBuffer(
+        DeviceContextProxy context,
+        nint data,
+        int countByBytes,
+        int offsetByBytes,
+        int minBufferCountByBytes = default
+    );
 
-            /// <summary>
-            ///     Dispose and clear internal buffers. Does not dispose this object.
-            /// </summary>
-            void DisposeAndClear();
+    /// <summary>
+    ///     Creates the buffer with size = count * structure size;
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="count">The count.</param>
+    void CreateBuffer(DeviceContextProxy context, int count);
+
+    /// <summary>
+    ///     Dispose and clear internal buffers. Does not dispose this object.
+    /// </summary>
+    void DisposeAndClear();
+}
+
+/// <summary>
+/// </summary>
+public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy {
+    /// <summary>
+    /// </summary>
+    /// <param name="structureSize"></param>
+    /// <param name="bindFlags"></param>
+    /// <param name="optionFlags"></param>
+    /// <param name="usage"></param>
+    public ImmutableBufferProxy(
+        int structureSize,
+        BindFlags bindFlags,
+        ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+        ResourceUsage usage = ResourceUsage.Immutable
+    )
+        : base(structureSize, bindFlags) {
+        OptionFlags = optionFlags;
+        Usage = usage;
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ImmutableBufferProxy" /> class.
+    /// </summary>
+    /// <param name="structureSize">Size of the structure.</param>
+    /// <param name="bindFlags">The bind flags.</param>
+    /// <param name="cpuAccess">The cpu access.</param>
+    /// <param name="optionFlags">The option flags.</param>
+    /// <param name="usage">The usage.</param>
+    public ImmutableBufferProxy(
+        int structureSize,
+        BindFlags bindFlags,
+        CpuAccessFlags cpuAccess,
+        ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+        ResourceUsage usage = ResourceUsage.Immutable
+    )
+        : base(structureSize, bindFlags) {
+        OptionFlags = optionFlags;
+        Usage = usage;
+        CpuAccess = cpuAccess;
+    }
+
+    /// <summary>
+    /// </summary>
+    public ResourceOptionFlags OptionFlags { get; }
+
+    public ResourceUsage Usage { get; } = ResourceUsage.Immutable;
+
+    public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.None;
+
+    /// <summary>
+    ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count"></param>
+    public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count)
+        where T : unmanaged {
+        UploadDataToBuffer(context, data, count, 0);
+    }
+
+    /// <summary>
+    ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count"></param>
+    /// <param name="offset"></param>
+    /// <param name="minBufferCount">This is not being used in ImmutableBuffer</param>
+    public void UploadDataToBuffer<T>(
+        DeviceContextProxy context,
+        IList<T> data,
+        int count,
+        int offset,
+        int minBufferCount = default
+    ) where T : unmanaged {
+        RemoveAndDispose(ref buffer);
+        ElementCount = count;
+        if (count == 0) return;
+        var buffdesc = new BufferDescription {
+            BindFlags = BindFlags,
+            CpuAccessFlags = CpuAccess,
+            OptionFlags = OptionFlags,
+            SizeInBytes = StructureSize * count,
+            StructureByteStride = StructureSize,
+            Usage = Usage
+        };
+        buffer = Buffer.Create(context, data.GetArrayByType(), buffdesc);
+    }
+
+    /// <summary>
+    ///     Uploads the data to buffer using data pointer.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="data">The data pointer.</param>
+    /// <param name="countByBytes">The count by bytes.</param>
+    /// <param name="offsetByBytes">The offset by bytes.</param>
+    /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
+    public void UploadDataToBuffer(
+        DeviceContextProxy context,
+        nint data,
+        int countByBytes,
+        int offsetByBytes,
+        int minBufferCountByBytes = default
+    ) {
+        RemoveAndDispose(ref buffer);
+        ElementCount = countByBytes / StructureSize;
+        if (countByBytes == 0) return;
+        var buffdesc = new BufferDescription {
+            BindFlags = BindFlags,
+            CpuAccessFlags = CpuAccess,
+            OptionFlags = OptionFlags,
+            SizeInBytes = countByBytes,
+            StructureByteStride = StructureSize,
+            Usage = Usage
+        };
+        buffer = new Buffer(context, data, buffdesc);
+    }
+
+    /// <summary>
+    ///     Creates the buffer with size of count * structure size.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="count">The element count.</param>
+    public void CreateBuffer(DeviceContextProxy context, int count) {
+        RemoveAndDispose(ref buffer);
+        ElementCount = count;
+        if (count == 0) return;
+        var buffdesc = new BufferDescription {
+            BindFlags = BindFlags,
+            CpuAccessFlags = CpuAccess,
+            OptionFlags = OptionFlags,
+            SizeInBytes = StructureSize * count,
+            StructureByteStride = StructureSize,
+            Usage = Usage
+        };
+        buffer = new Buffer(context, buffdesc);
+    }
+
+    protected override void OnDispose(bool disposeManagedResources) {
+        RemoveAndDispose(ref buffer);
+        base.OnDispose(disposeManagedResources);
+    }
+}
+
+/// <summary>
+/// </summary>
+public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
+    public readonly bool CanOverwrite;
+    public readonly bool LazyResize = true;
+
+    /// <summary>
+    /// </summary>
+    /// <param name="structureSize"></param>
+    /// <param name="bindFlags"></param>
+    /// <param name="optionFlags"></param>
+    /// <param name="lazyResize">
+    ///     If existing data size is smaller than buffer size, reuse existing. Otherwise create a new
+    ///     buffer with exact same size
+    /// </param>
+    public DynamicBufferProxy(
+        int structureSize,
+        BindFlags bindFlags,
+        ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+        bool lazyResize = true
+    )
+        : base(structureSize, bindFlags) {
+        CanOverwrite = (bindFlags & (BindFlags.VertexBuffer | BindFlags.IndexBuffer)) != 0;
+        OptionFlags = optionFlags;
+        LazyResize = lazyResize;
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
+    /// </summary>
+    /// <param name="structureSize">Size of the structure.</param>
+    /// <param name="bindFlags">The bind flags.</param>
+    /// <param name="optionFlags">The option flags.</param>
+    /// <param name="lazyResize">if set to <c>true</c> [lazy resize].</param>
+    /// <param name="canOverWrite">if set to <c>true</c> [can over write].</param>
+    public DynamicBufferProxy(
+        int structureSize,
+        BindFlags bindFlags,
+        bool canOverWrite,
+        ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+        bool lazyResize = true
+    )
+        : base(structureSize, bindFlags) {
+        CanOverwrite = canOverWrite;
+        OptionFlags = optionFlags;
+        LazyResize = lazyResize;
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
+    /// </summary>
+    /// <param name="structureSize">Size of the structure.</param>
+    /// <param name="bindFlags">The bind flags.</param>
+    /// <param name="canOverWrite">if set to <c>true</c> [can over write].</param>
+    /// <param name="cpuAccess">The cpu access.</param>
+    /// <param name="optionFlags">The option flags.</param>
+    /// <param name="lazyResize">if set to <c>true</c> [lazy resize].</param>
+    public DynamicBufferProxy(
+        int structureSize,
+        BindFlags bindFlags,
+        bool canOverWrite,
+        CpuAccessFlags cpuAccess,
+        ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
+        bool lazyResize = true
+    )
+        : base(structureSize, bindFlags) {
+        CanOverwrite = canOverWrite;
+        OptionFlags = optionFlags;
+        LazyResize = lazyResize;
+        CpuAccess = cpuAccess;
+    }
+
+    /// <summary>
+    /// </summary>
+    public ResourceOptionFlags OptionFlags { get; }
+
+    /// <summary>
+    ///     Gets the capacity in bytes.
+    /// </summary>
+    /// <value>
+    ///     The capacity.
+    /// </value>
+    public int Capacity { get; private set; }
+
+    /// <summary>
+    ///     Gets the capacity used in bytes.
+    /// </summary>
+    /// <value>
+    ///     The capacity used.
+    /// </value>
+    public int CapacityUsed { get; private set; }
+
+    public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.Write;
+
+    /// <summary>
+    ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count"></param>
+    public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count)
+        where T : unmanaged {
+        UploadDataToBuffer(context, data, count, 0);
+    }
+
+    /// <summary>
+    ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="data"></param>
+    /// <param name="count">Data Count</param>
+    /// <param name="offset"></param>
+    /// <param name="minBufferCount">Used to create a dynamic buffer with size of Max(count, minBufferCount).</param>
+    public void UploadDataToBuffer<T>(
+        DeviceContextProxy context,
+        IList<T> data,
+        int count,
+        int offset,
+        int minBufferCount = default
+    ) where T : unmanaged {
+        ElementCount = count;
+        var newSizeInBytes = StructureSize * count;
+        if (count == 0) return;
+        EnsureBufferCapacity(context, ElementCount, minBufferCount);
+        var mapMode = MapMode.WriteNoOverwrite;
+        if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite) {
+            Offset = CapacityUsed;
+            CapacityUsed += newSizeInBytes;
+        } else {
+            mapMode = MapMode.WriteDiscard;
+            Offset = CapacityUsed = 0;
         }
 
-        /// <summary>
-        /// </summary>
-        public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy {
-            /// <summary>
-            /// </summary>
-            /// <param name="structureSize"></param>
-            /// <param name="bindFlags"></param>
-            /// <param name="optionFlags"></param>
-            /// <param name="usage"></param>
-            public ImmutableBufferProxy(
-                int structureSize,
-                BindFlags bindFlags,
-                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                ResourceUsage usage = ResourceUsage.Immutable
-            )
-                : base(structureSize, bindFlags) {
-                OptionFlags = optionFlags;
-                Usage = usage;
-            }
+        var dataArray = data.GetArrayByType();
+        var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
+        UnsafeHelper.Write(dataBox.DataPointer + Offset, dataArray, offset, count);
+        context.UnmapSubresource(buffer, 0);
+    }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="ImmutableBufferProxy" /> class.
-            /// </summary>
-            /// <param name="structureSize">Size of the structure.</param>
-            /// <param name="bindFlags">The bind flags.</param>
-            /// <param name="cpuAccess">The cpu access.</param>
-            /// <param name="optionFlags">The option flags.</param>
-            /// <param name="usage">The usage.</param>
-            public ImmutableBufferProxy(
-                int structureSize,
-                BindFlags bindFlags,
-                CpuAccessFlags cpuAccess,
-                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                ResourceUsage usage = ResourceUsage.Immutable
-            )
-                : base(structureSize, bindFlags) {
-                OptionFlags = optionFlags;
-                Usage = usage;
-                CpuAccess = cpuAccess;
-            }
-
-            /// <summary>
-            /// </summary>
-            public ResourceOptionFlags OptionFlags { get; }
-
-            public ResourceUsage Usage { get; } = ResourceUsage.Immutable;
-
-            public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.None;
-
-            /// <summary>
-            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count"></param>
-            public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count)
-                where T : unmanaged {
-                UploadDataToBuffer(context, data, count, 0);
-            }
-
-            /// <summary>
-            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count"></param>
-            /// <param name="offset"></param>
-            /// <param name="minBufferCount">This is not being used in ImmutableBuffer</param>
-            public void UploadDataToBuffer<T>(
-                DeviceContextProxy context,
-                IList<T> data,
-                int count,
-                int offset,
-                int minBufferCount = default
-            ) where T : unmanaged {
-                RemoveAndDispose(ref buffer);
-                ElementCount = count;
-                if (count == 0) return;
-                var buffdesc = new BufferDescription {
-                    BindFlags = BindFlags,
-                    CpuAccessFlags = CpuAccess,
-                    OptionFlags = OptionFlags,
-                    SizeInBytes = StructureSize * count,
-                    StructureByteStride = StructureSize,
-                    Usage = Usage
-                };
-                buffer = Buffer.Create(context, data.GetArrayByType(), buffdesc);
-            }
-
-            /// <summary>
-            ///     Uploads the data to buffer using data pointer.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="data">The data pointer.</param>
-            /// <param name="countByBytes">The count by bytes.</param>
-            /// <param name="offsetByBytes">The offset by bytes.</param>
-            /// <param name="minBufferCountByBytes">The minimum buffer count by bytes.</param>
-            public void UploadDataToBuffer(
-                DeviceContextProxy context,
-                nint data,
-                int countByBytes,
-                int offsetByBytes,
-                int minBufferCountByBytes = default
-            ) {
-                RemoveAndDispose(ref buffer);
-                ElementCount = countByBytes / StructureSize;
-                if (countByBytes == 0) return;
-                var buffdesc = new BufferDescription {
-                    BindFlags = BindFlags,
-                    CpuAccessFlags = CpuAccess,
-                    OptionFlags = OptionFlags,
-                    SizeInBytes = countByBytes,
-                    StructureByteStride = StructureSize,
-                    Usage = Usage
-                };
-                buffer = new Buffer(context, data, buffdesc);
-            }
-
-            /// <summary>
-            ///     Creates the buffer with size of count * structure size.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="count">The element count.</param>
-            public void CreateBuffer(DeviceContextProxy context, int count) {
-                RemoveAndDispose(ref buffer);
-                ElementCount = count;
-                if (count == 0) return;
-                var buffdesc = new BufferDescription {
-                    BindFlags = BindFlags,
-                    CpuAccessFlags = CpuAccess,
-                    OptionFlags = OptionFlags,
-                    SizeInBytes = StructureSize * count,
-                    StructureByteStride = StructureSize,
-                    Usage = Usage
-                };
-                buffer = new Buffer(context, buffdesc);
-            }
-
-            protected override void OnDispose(bool disposeManagedResources) {
-                RemoveAndDispose(ref buffer);
-                base.OnDispose(disposeManagedResources);
-            }
+    /// <summary>
+    ///     Uploads the data pointer to buffer.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="data">The data.</param>
+    /// <param name="byteCount">The count by bytes.</param>
+    /// <param name="byteOffset">The offset by bytes.</param>
+    /// <param name="minBufferSizeByBytes">The minimum buffer count by bytes.</param>
+    public void UploadDataToBuffer(
+        DeviceContextProxy context,
+        nint data,
+        int byteCount,
+        int byteOffset,
+        int minBufferSizeByBytes = default
+    ) {
+        ElementCount = byteCount / StructureSize;
+        var newSizeInBytes = byteCount;
+        if (byteCount == 0) return;
+        EnsureBufferCapacity(context, ElementCount, minBufferSizeByBytes / StructureSize);
+        var mapMode = MapMode.WriteNoOverwrite;
+        if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite) {
+            Offset = CapacityUsed;
+            CapacityUsed += newSizeInBytes;
+        } else {
+            mapMode = MapMode.WriteDiscard;
+            Offset = CapacityUsed = 0;
         }
 
-        /// <summary>
-        /// </summary>
-        public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
-            public readonly bool CanOverwrite;
-            public readonly bool LazyResize = true;
+        var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
+        UnsafeHelper.Write(dataBox.DataPointer + Offset, data, byteOffset, byteCount);
+        context.UnmapSubresource(buffer, 0);
+    }
 
-            /// <summary>
-            /// </summary>
-            /// <param name="structureSize"></param>
-            /// <param name="bindFlags"></param>
-            /// <param name="optionFlags"></param>
-            /// <param name="lazyResize">
-            ///     If existing data size is smaller than buffer size, reuse existing. Otherwise create a new
-            ///     buffer with exact same size
-            /// </param>
-            public DynamicBufferProxy(
-                int structureSize,
-                BindFlags bindFlags,
-                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                bool lazyResize = true
-            )
-                : base(structureSize, bindFlags) {
-                CanOverwrite = (bindFlags & (BindFlags.VertexBuffer | BindFlags.IndexBuffer)) != 0;
-                OptionFlags = optionFlags;
-                LazyResize = lazyResize;
+    /// <summary>
+    ///     Creates the buffer with size of count * structure size.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="count">The element count.</param>
+    public void CreateBuffer(DeviceContextProxy context, int count) {
+        Initialize(context, count);
+    }
+
+    /// <summary>
+    ///     Ensures the buffer capacity is enough.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="count">The count.</param>
+    /// <param name="minSizeCount">The minimum size count.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void EnsureBufferCapacity(DeviceContextProxy context, int count, int minSizeCount) {
+        var bytes = count * StructureSize;
+        if (buffer == null || Capacity < bytes || (!LazyResize && Capacity != bytes))
+            Initialize(context, count, minSizeCount);
+    }
+
+    /// <summary>
+    ///     Maps the buffer. Make sure to call <see cref="EnsureBufferCapacity(DeviceContextProxy, int, int)" /> to make sure
+    ///     buffer has enough space
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="action">The action.</param>
+    public void MapBuffer(DeviceContextProxy context, Action<DataBox> action) {
+        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+        action(dataBox);
+        context.UnmapSubresource(buffer, 0);
+        Offset = CapacityUsed = 0;
+    }
+
+    /// <summary>
+    ///     Initializes the specified device.
+    /// </summary>
+    /// <param name="device">The device.</param>
+    /// <param name="count">The count.</param>
+    /// <param name="minBufferCount">The minimum buffer count.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default) {
+        RemoveAndDispose(ref buffer);
+        var buffdesc = new BufferDescription {
+            BindFlags = BindFlags,
+            CpuAccessFlags = CpuAccess,
+            OptionFlags = OptionFlags,
+            SizeInBytes = StructureSize * Math.Max(count, minBufferCount),
+            StructureByteStride = StructureSize,
+            Usage = ResourceUsage.Dynamic
+        };
+        Capacity = buffdesc.SizeInBytes;
+        CapacityUsed = 0;
+        buffer = new Buffer(context, buffdesc);
+        OnBufferChanged(buffer);
+    }
+
+    protected virtual void OnBufferChanged(Buffer newBuffer) { }
+
+    protected override void OnDispose(bool disposeManagedResources) {
+        RemoveAndDispose(ref buffer);
+        base.OnDispose(disposeManagedResources);
+    }
+}
+
+public sealed class StructuredBufferProxy : DynamicBufferProxy {
+    private ShaderResourceViewProxy srv;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="StructuredBufferProxy" /> class.
+    /// </summary>
+    /// <param name="structureSize">Size of the structure.</param>
+    /// <param name="lazyResize">
+    ///     If existing data size is smaller than buffer size, reuse existing.
+    ///     Otherwise create a new buffer with exact same size
+    /// </param>
+    public StructuredBufferProxy(int structureSize, bool lazyResize = true)
+        : base(structureSize, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured, lazyResize) { }
+
+    public ShaderResourceViewProxy SRV => srv;
+
+    protected override void OnBufferChanged(Buffer newBuffer) {
+        RemoveAndDispose(ref srv);
+        if (newBuffer == null || ElementCount <= 0) return;
+
+        var desc = new ShaderResourceViewDescription {
+            Format = Format.FormatUnknown,
+            Dimension = ShaderResourceViewDimension.Buffer,
+            Buffer = new ShaderResourceViewDescription.BufferResource {
+                FirstElement = 0,
+                ElementCount = ElementCount
             }
+        };
+        srv = new ShaderResourceViewProxy(newBuffer,
+                                          newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
+    }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
-            /// </summary>
-            /// <param name="structureSize">Size of the structure.</param>
-            /// <param name="bindFlags">The bind flags.</param>
-            /// <param name="optionFlags">The option flags.</param>
-            /// <param name="lazyResize">if set to <c>true</c> [lazy resize].</param>
-            /// <param name="canOverWrite">if set to <c>true</c> [can over write].</param>
-            public DynamicBufferProxy(
-                int structureSize,
-                BindFlags bindFlags,
-                bool canOverWrite,
-                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                bool lazyResize = true
-            )
-                : base(structureSize, bindFlags) {
-                CanOverwrite = canOverWrite;
-                OptionFlags = optionFlags;
-                LazyResize = lazyResize;
-            }
+    protected override void OnDispose(bool disposeManagedResources) {
+        RemoveAndDispose(ref srv);
+        base.OnDispose(disposeManagedResources);
+    }
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="DynamicBufferProxy" /> class.
-            /// </summary>
-            /// <param name="structureSize">Size of the structure.</param>
-            /// <param name="bindFlags">The bind flags.</param>
-            /// <param name="canOverWrite">if set to <c>true</c> [can over write].</param>
-            /// <param name="cpuAccess">The cpu access.</param>
-            /// <param name="optionFlags">The option flags.</param>
-            /// <param name="lazyResize">if set to <c>true</c> [lazy resize].</param>
-            public DynamicBufferProxy(
-                int structureSize,
-                BindFlags bindFlags,
-                bool canOverWrite,
-                CpuAccessFlags cpuAccess,
-                ResourceOptionFlags optionFlags = ResourceOptionFlags.None,
-                bool lazyResize = true
-            )
-                : base(structureSize, bindFlags) {
-                CanOverwrite = canOverWrite;
-                OptionFlags = optionFlags;
-                LazyResize = lazyResize;
-                CpuAccess = cpuAccess;
-            }
+    public static implicit operator ShaderResourceViewProxy(StructuredBufferProxy proxy) {
+        return proxy.srv;
+    }
 
-            /// <summary>
-            /// </summary>
-            public ResourceOptionFlags OptionFlags { get; }
-
-            /// <summary>
-            ///     Gets the capacity in bytes.
-            /// </summary>
-            /// <value>
-            ///     The capacity.
-            /// </value>
-            public int Capacity { get; private set; }
-
-            /// <summary>
-            ///     Gets the capacity used in bytes.
-            /// </summary>
-            /// <value>
-            ///     The capacity used.
-            /// </value>
-            public int CapacityUsed { get; private set; }
-
-            public CpuAccessFlags CpuAccess { get; } = CpuAccessFlags.Write;
-
-            /// <summary>
-            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int)" />
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count"></param>
-            public void UploadDataToBuffer<T>(DeviceContextProxy context, IList<T> data, int count)
-                where T : unmanaged {
-                UploadDataToBuffer(context, data, count, 0);
-            }
-
-            /// <summary>
-            ///     <see cref="IElementsBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, IList{T}, int, int, int)" />
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="context"></param>
-            /// <param name="data"></param>
-            /// <param name="count">Data Count</param>
-            /// <param name="offset"></param>
-            /// <param name="minBufferCount">Used to create a dynamic buffer with size of Max(count, minBufferCount).</param>
-            public void UploadDataToBuffer<T>(
-                DeviceContextProxy context,
-                IList<T> data,
-                int count,
-                int offset,
-                int minBufferCount = default
-            ) where T : unmanaged {
-                ElementCount = count;
-                var newSizeInBytes = StructureSize * count;
-                if (count == 0) return;
-                EnsureBufferCapacity(context, ElementCount, minBufferCount);
-                var mapMode = MapMode.WriteNoOverwrite;
-                if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite) {
-                    Offset = CapacityUsed;
-                    CapacityUsed += newSizeInBytes;
-                } else {
-                    mapMode = MapMode.WriteDiscard;
-                    Offset = CapacityUsed = 0;
-                }
-
-                var dataArray = data.GetArrayByType();
-                var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
-                UnsafeHelper.Write(dataBox.DataPointer + Offset, dataArray, offset, count);
-                context.UnmapSubresource(buffer, 0);
-            }
-
-            /// <summary>
-            ///     Uploads the data pointer to buffer.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="data">The data.</param>
-            /// <param name="byteCount">The count by bytes.</param>
-            /// <param name="byteOffset">The offset by bytes.</param>
-            /// <param name="minBufferSizeByBytes">The minimum buffer count by bytes.</param>
-            public void UploadDataToBuffer(
-                DeviceContextProxy context,
-                nint data,
-                int byteCount,
-                int byteOffset,
-                int minBufferSizeByBytes = default
-            ) {
-                ElementCount = byteCount / StructureSize;
-                var newSizeInBytes = byteCount;
-                if (byteCount == 0) return;
-                EnsureBufferCapacity(context, ElementCount, minBufferSizeByBytes / StructureSize);
-                var mapMode = MapMode.WriteNoOverwrite;
-                if (CapacityUsed + newSizeInBytes <= Capacity && !context.IsDeferred && CanOverwrite) {
-                    Offset = CapacityUsed;
-                    CapacityUsed += newSizeInBytes;
-                } else {
-                    mapMode = MapMode.WriteDiscard;
-                    Offset = CapacityUsed = 0;
-                }
-
-                var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
-                UnsafeHelper.Write(dataBox.DataPointer + Offset, data, byteOffset, byteCount);
-                context.UnmapSubresource(buffer, 0);
-            }
-
-            /// <summary>
-            ///     Creates the buffer with size of count * structure size.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="count">The element count.</param>
-            public void CreateBuffer(DeviceContextProxy context, int count) {
-                Initialize(context, count);
-            }
-
-            /// <summary>
-            ///     Ensures the buffer capacity is enough.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="count">The count.</param>
-            /// <param name="minSizeCount">The minimum size count.</param>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void EnsureBufferCapacity(DeviceContextProxy context, int count, int minSizeCount) {
-                var bytes = count * StructureSize;
-                if (buffer == null || Capacity < bytes || (!LazyResize && Capacity != bytes))
-                    Initialize(context, count, minSizeCount);
-            }
-
-            /// <summary>
-            ///     Maps the buffer. Make sure to call <see cref="EnsureBufferCapacity(DeviceContextProxy, int, int)" /> to make sure
-            ///     buffer has enough space
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="action">The action.</param>
-            public void MapBuffer(DeviceContextProxy context, Action<DataBox> action) {
-                var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                action(dataBox);
-                context.UnmapSubresource(buffer, 0);
-                Offset = CapacityUsed = 0;
-            }
-
-            /// <summary>
-            ///     Initializes the specified device.
-            /// </summary>
-            /// <param name="device">The device.</param>
-            /// <param name="count">The count.</param>
-            /// <param name="minBufferCount">The minimum buffer count.</param>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default) {
-                RemoveAndDispose(ref buffer);
-                var buffdesc = new BufferDescription {
-                    BindFlags = BindFlags,
-                    CpuAccessFlags = CpuAccess,
-                    OptionFlags = OptionFlags,
-                    SizeInBytes = StructureSize * Math.Max(count, minBufferCount),
-                    StructureByteStride = StructureSize,
-                    Usage = ResourceUsage.Dynamic
-                };
-                Capacity = buffdesc.SizeInBytes;
-                CapacityUsed = 0;
-                buffer = new Buffer(context, buffdesc);
-                OnBufferChanged(buffer);
-            }
-
-            protected virtual void OnBufferChanged(Buffer newBuffer) { }
-
-            protected override void OnDispose(bool disposeManagedResources) {
-                RemoveAndDispose(ref buffer);
-                base.OnDispose(disposeManagedResources);
-            }
-        }
-
-        public sealed class StructuredBufferProxy : DynamicBufferProxy {
-            private ShaderResourceViewProxy srv;
-
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="StructuredBufferProxy" /> class.
-            /// </summary>
-            /// <param name="structureSize">Size of the structure.</param>
-            /// <param name="lazyResize">
-            ///     If existing data size is smaller than buffer size, reuse existing.
-            ///     Otherwise create a new buffer with exact same size
-            /// </param>
-            public StructuredBufferProxy(int structureSize, bool lazyResize = true)
-                : base(structureSize, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured, lazyResize) { }
-
-            public ShaderResourceViewProxy SRV => srv;
-
-            protected override void OnBufferChanged(Buffer newBuffer) {
-                RemoveAndDispose(ref srv);
-                if (newBuffer == null || ElementCount <= 0) return;
-
-                var desc = new ShaderResourceViewDescription {
-                    Format = Format.FormatUnknown,
-                    Dimension = ShaderResourceViewDimension.Buffer,
-                    Buffer = new ShaderResourceViewDescription.BufferResource {
-                        FirstElement = 0,
-                        ElementCount = ElementCount
-                    }
-                };
-                srv = new ShaderResourceViewProxy(newBuffer,
-                                                  newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
-            }
-
-            protected override void OnDispose(bool disposeManagedResources) {
-                RemoveAndDispose(ref srv);
-                base.OnDispose(disposeManagedResources);
-            }
-
-            public static implicit operator ShaderResourceViewProxy(StructuredBufferProxy proxy) {
-                return proxy.srv;
-            }
-
-            public static implicit operator ShaderResourceView(StructuredBufferProxy proxy) {
-                return proxy.srv;
-            }
-        }
+    public static implicit operator ShaderResourceView(StructuredBufferProxy proxy) {
+        return proxy.srv;
     }
 }

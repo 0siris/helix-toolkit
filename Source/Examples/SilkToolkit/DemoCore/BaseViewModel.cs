@@ -23,17 +23,17 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
     public const string Perspective = "Perspective Camera";
 
-    private string cameraModel = null!;
+    private string cameraModel = Perspective;
 
     public string Title {
         get { return field; }
         set { SetValue(ref field, value, "Title"); }
-    } = null!;
+    } = "Demo (HelixToolkitDX)";
 
     public string SubTitle {
         get { return field; }
         set { SetValue(ref field, value, "SubTitle"); }
-    } = null!;
+    } = "Default Base View Model";
 
     public List<string> CameraModelCollection { get; private set; } = [];
 
@@ -55,14 +55,14 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
                               ? Perspective
                               : value is OrthographicCamera
                                   ? Orthographic
-                              : null!;
+                              : throw new InvalidOperationException("Unsupported camera type.");
         }
-    } = null!;
+    }
 
-    public IEffectsManager EffectsManager {
+    public IEffectsManager? EffectsManager {
         get { return field; }
         protected set { SetValue(ref field, value); }
-    } = null!;
+    }
 
     protected OrthographicCamera defaultOrthographicCamera = new OrthographicCamera {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
@@ -80,6 +80,8 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     public event EventHandler? CameraModelChanged;
 
     protected BaseViewModel() {
+        Camera = defaultPerspectiveCamera;
+
         // camera models
         CameraModelCollection = [
             Orthographic,
@@ -122,10 +124,8 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.
-            if (EffectsManager != null) {
-                var effectManager = EffectsManager as IDisposable;
-                Disposer.RemoveAndDispose(ref effectManager);
-            }
+            if (EffectsManager is IDisposable effectManager)
+                effectManager.Dispose();
 
             disposedValue = true;
             GC.SuppressFinalize(this);

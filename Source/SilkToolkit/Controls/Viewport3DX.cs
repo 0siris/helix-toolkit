@@ -96,21 +96,21 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <summary>
     ///     The coordinate view.
     /// </summary>
-    private ScreenSpacedElement3D coordinateView;
+    private ScreenSpacedElement3D? coordinateView;
 
     /// <summary>
     ///     The nearest valid result during a hit test.
     /// </summary>
-    private HitTestResult currentHit;
+    private HitTestResult? currentHit;
 
     /// <summary>
     ///     Current 2D model hit
     /// </summary>
-    private HitTest2DResult currentHit2D;
+    private HitTest2DResult? currentHit2D;
 
     private bool enableMouseButtonHitTest = true;
 
-    private FrameStatisticsModel2D frameStatisticModel;
+    private FrameStatisticsModel2D? frameStatisticModel;
 
     /// <summary>
     ///     The "control has been loaded before" flag.
@@ -118,33 +118,33 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private bool hasBeenLoadedBefore;
 
     private List<HitTestResult> hits = [];
-    private ContentPresenter hostPresenter;
+    private ContentPresenter? hostPresenter;
 
     private bool IsAttached;
 
-    private Window parentWindow;
+    private Window? parentWindow;
 
-    private ItemsControl partItemsControl;
+    private ItemsControl? partItemsControl;
 
     /// <summary>
     ///     The rectangle adorner.
     /// </summary>
-    private RectangleAdorner rectangleAdorner;
+    private RectangleAdorner? rectangleAdorner;
 
     /// <summary>
     ///     The target adorner.
     /// </summary>
-    private Adorner targetAdorner;
+    private Adorner? targetAdorner;
 
     /// <summary>
     ///     The <see cref="TouchDevice" /> of the first TouchDown.
     /// </summary>
-    private TouchDevice touchDownDevice;
+    private TouchDevice? touchDownDevice;
 
     /// <summary>
     ///     The view cube.
     /// </summary>
-    private ScreenSpacedElement3D viewCube;
+    private ScreenSpacedElement3D? viewCube;
 
     /// <summary>
     ///     Initializes static members of the <see cref="Viewport3DX" /> class.
@@ -259,7 +259,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     public CameraCore CameraCore => CameraController.ActualCamera;
 
-    public IRenderHost RenderHost => renderHostInternal;
+    public IRenderHost? RenderHost => renderHostInternal;
 
     public Rectangle ViewportRectangle => new(0, 0, (int)ActualWidth, (int)ActualHeight);
 
@@ -331,7 +331,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Occurs when each render frame finished rendering. Called directly from RenderHost after each frame.
     ///     Use this event carefully. Unsubscrible this event when not used. Otherwise may cause performance issue.
     /// </summary>
-    public event EventHandler OnRendered;
+    public event EventHandler? OnRendered;
 
     private void InitCameraController() {
         #region Assign Defaults

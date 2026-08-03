@@ -1,9 +1,9 @@
-using HelixToolkit.SharpDX.Core.Model;
+﻿using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.SharpDX.Core;
 
 public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
-    private readonly DoubleKeyDictionary<Guid, Guid, MaterialVariable> dictionary = [];
+    private readonly Dictionary<(Guid, Guid), MaterialVariable> dictionary = [];
     private readonly IEffectsManager effectsManager;
     private ushort IDMAX;
 
@@ -18,7 +18,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
         var guid = material.Guid;
         var techGuid = technique.GUID;
         lock (dictionary) {
-            if (dictionary.TryGetValue(guid, techGuid, out var value)) {
+            if (dictionary.TryGetValue((guid, techGuid), out var value)) {
                 value.IncRef();
                 return value;
             }
@@ -27,11 +27,11 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
             v.Initialize();
             v.Disposed += (s, e) => {
                 lock (dictionary) {
-                    dictionary.Remove(guid, techGuid);
+                    dictionary.Remove((guid, techGuid));
                     --Count;
                 }
             };
-            dictionary.Add(guid, techGuid, v);
+            dictionary.Add((guid, techGuid), v);
             ++Count;
             if (IDMAX - (ushort)Count > 1000) {
                 IDMAX = 0;

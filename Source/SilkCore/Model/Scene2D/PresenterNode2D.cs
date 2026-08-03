@@ -8,14 +8,14 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core {
     namespace Model.Scene2D {
         public class PresenterNode2D : SceneNode2D {
-            private SceneNode2D content;
+            private SceneNode2D? content;
 
             public PresenterNode2D() {
                 ItemsInternal = [];
                 Items = new ReadOnlyObservableFastList<SceneNode2D>(ItemsInternal);
             }
 
-            public SceneNode2D Content {
+            public SceneNode2D? Content {
                 get => content;
                 set {
                     if (content != value) {
@@ -60,7 +60,7 @@ namespace HelixToolkit.SharpDX.Core {
             //    }
             //}
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 if (content != null) return content.HitTest(mousePoint, out hitResult);
 
                 hitResult = null;

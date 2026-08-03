@@ -1,4 +1,4 @@
-using HelixToolkit.SharpDX.Core.Cameras;
+﻿using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -8,7 +8,7 @@ namespace HelixToolkit.SharpDX.Core;
 public partial class ViewportCore {
     private readonly FrameStatisticsNode2D frameStatisticsNode = new();
 
-    private SceneNode currentNode;
+    private SceneNode? currentNode;
 
     private List<HitTestResult> hits = [];
 
@@ -34,8 +34,6 @@ public partial class ViewportCore {
     /// </value>
     public bool IsShadowMappingEnabled { get; set; }
 
-    private IEffectsManager effectsManager;
-
     /// <summary>
     ///     Gets or sets the effects manager.
     /// </summary>
@@ -43,10 +41,10 @@ public partial class ViewportCore {
     ///     The effects manager.
     /// </value>
     public IEffectsManager EffectsManager {
-        get => effectsManager;
+        get;
         set {
-            if (effectsManager != value) {
-                effectsManager = value;
+            if (field != value) {
+                field = value;
                 RenderHost?.EffectsManager = value;
             }
         }
@@ -253,15 +251,13 @@ public partial class ViewportCore {
     /// </value>
     public double ActualHeight { get; private set; }
 
-    private double dpiScale = 1;
-
     public double DpiScale {
-        get => dpiScale;
+        get;
         set {
-            dpiScale = value;
-            RenderHost?.DpiScale = (float)value;
+            field = value;
+            RenderHost?.DpiScale = (float) value;
         }
-    }
+    } = 1;
 
     private Vector3 modelUpDirection = Vector3.UnitY;
 
@@ -351,21 +347,21 @@ public partial class ViewportCore {
     /// <summary>
     ///     Occurs when [on start rendering].
     /// </summary>
-    public event EventHandler StartRendering;
+    public event EventHandler? StartRendering;
 
     /// <summary>
     ///     Occurs when [on stop rendering].
     /// </summary>
-    public event EventHandler StopRendering;
+    public event EventHandler? StopRendering;
 
     /// <summary>
     ///     Occurs when [on error occurred].
     /// </summary>
-    public event EventHandler<Exception> ErrorOccurred;
+    public event EventHandler<Exception>? ErrorOccurred;
 
-    public event EventHandler<SceneNodeMouseDownArgs> NodeHitOnMouseDown;
-    public event EventHandler<SceneNodeMouseUpArgs> NodeHitOnMouseUp;
-    public event EventHandler<SceneNodeMouseMoveArgs> NodeHitOnMouseMove;
+    public event EventHandler<SceneNodeMouseDownArgs>? NodeHitOnMouseDown;
+    public event EventHandler<SceneNodeMouseUpArgs>? NodeHitOnMouseUp;
+    public event EventHandler<SceneNodeMouseMoveArgs>? NodeHitOnMouseMove;
 
     #endregion
 }

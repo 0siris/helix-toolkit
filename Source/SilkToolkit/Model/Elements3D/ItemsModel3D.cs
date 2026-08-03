@@ -59,16 +59,17 @@ public class ItemsModel3D : CompositeModel3D {
         typeof(ItemsModel3D),
         new PropertyMetadata(null,
                              (s, e) => {
-                                 var d = s as ItemsModel3D;
-                                 if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
+                                  var d = (ItemsModel3D)s;
+                                  if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
 
-                                 if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
-                                 (d.SceneNode as GroupNode).OctreeManager =
-                                     e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
-                             }));
+                                  if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
+                                  var groupNode = (GroupNode)d.SceneNode;
+                                  groupNode.OctreeManager =
+                                      e.NewValue == null ? null : ((IOctreeManagerWrapper)e.NewValue).Manager;
+                              }));
 
     private readonly Dictionary<object, Element3D> elementDict = [];
-    private IEnumerable itemsSourceInternal;
+    private IEnumerable? itemsSourceInternal;
 
     public ItemsModel3D() {
         SceneNode.Attached += SceneNode_Attached;
@@ -81,8 +82,8 @@ public class ItemsModel3D : CompositeModel3D {
     /// <value>
     ///     The item template.
     /// </value>
-    public DataTemplate ItemTemplate {
-        get => (DataTemplate)GetValue(ItemTemplateProperty);
+    public DataTemplate? ItemTemplate {
+        get => (DataTemplate?)GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
     }
 
@@ -92,27 +93,27 @@ public class ItemsModel3D : CompositeModel3D {
     /// <value>
     ///     The items source.
     /// </value>
-    public IEnumerable ItemsSource {
-        get => (IEnumerable)GetValue(ItemsSourceProperty);
+    public IEnumerable? ItemsSource {
+        get => (IEnumerable?)GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
     }
 
-    public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper)GetValue(OctreeManagerProperty);
+    public IOctreeManagerWrapper? OctreeManager {
+        get => (IOctreeManagerWrapper?)GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 
-    private IOctreeBasic Octree => (SceneNode as GroupNode)?.OctreeManager?.Octree;
+    private IOctreeBasic? Octree => ((GroupNode)SceneNode).OctreeManager?.Octree;
 
-    private void SceneNode_Attached(object sender, EventArgs e) {
+    private void SceneNode_Attached(object? sender, EventArgs e) {
         if (ItemsSource != null) ItemsSourceChanged(ItemsSource);
     }
 
-    private void SceneNode_Detached(object sender, EventArgs e) {
+    private void SceneNode_Detached(object? sender, EventArgs e) {
         if (itemsSourceInternal != null) ItemsSourceChanged(null);
     }
 
-    private void ItemsSourceChanged(IEnumerable itemsSource) {
+    private void ItemsSourceChanged(IEnumerable? itemsSource) {
         if (itemsSourceInternal == itemsSource) return;
         if (itemsSourceInternal is INotifyCollectionChanged o) o.CollectionChanged -= ItemsModel3D_CollectionChanged;
         if (itemsSourceInternal == null && itemsSource != null && Children.Count > 0)
@@ -148,10 +149,10 @@ public class ItemsModel3D : CompositeModel3D {
                     throw new InvalidOperationException("Cannot create a Model3D from ItemTemplate.");
                 }
 
-        if (Children.Count > 0) (SceneNode as GroupNode).OctreeManager?.RequestRebuild();
+        if (Children.Count > 0) ((GroupNode)SceneNode).OctreeManager?.RequestRebuild();
     }
 
-    protected void ItemsModel3D_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    protected void ItemsModel3D_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         switch (e.Action) {
             case NotifyCollectionChangedAction.Replace:
             case NotifyCollectionChangedAction.Remove:

@@ -7,11 +7,12 @@ using HelixToolkit.SharpDX.Core.Cameras;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
-public sealed class RotateHandler : MouseGestureHandler {
+public sealed class RotateHandler(CameraController controller, bool changeLookAt = false)
+    : MouseGestureHandler(controller) {
     /// <summary>
     ///     The change look at.
     /// </summary>
-    private readonly bool changeLookAt;
+    private readonly bool changeLookAt = changeLookAt;
 
     private bool invertUpDir;
 
@@ -34,11 +35,6 @@ public sealed class RotateHandler : MouseGestureHandler {
     ///     The 3D rotation point.
     /// </summary>
     private Vector3 rotationPoint3D;
-
-    public RotateHandler(CameraController controller, bool changeLookAt = false)
-        : base(controller) {
-        this.changeLookAt = changeLookAt;
-    }
 
     /// <summary>
     ///     Gets the camera rotation mode.
@@ -155,7 +151,7 @@ public sealed class RotateHandler : MouseGestureHandler {
     /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
     protected override void Started(Vector2 e) {
         base.Started(e);
-        rotationPoint = new Vector2(Controller.Width / 2, Controller.Height / 2);
+        rotationPoint = new Vector2(Controller.Width / 2f, Controller.Height / 2f);
         rotationPoint3D = Camera.Target;
         invertUpDir = SilkMath.Dot(Controller.CameraUpDirection, ModelUpDirection) < 0;
 
@@ -167,10 +163,10 @@ public sealed class RotateHandler : MouseGestureHandler {
             default:
                 if (Controller.FixedRotationPointEnabled) {
                     rotationPoint3D = Controller.FixedRotationPoint;
-                } else if (changeLookAt && MouseDownNearestPoint3D != null) {
+                } else if (changeLookAt && MouseDownNearestPoint3D is not null) {
                     LookAt(MouseDownNearestPoint3D.Value, 0);
                     rotationPoint3D = Camera.Target;
-                } else if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D != null) {
+                } else if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D is not null) {
                     rotationPoint = MouseDownPoint;
                     rotationPoint3D = MouseDownNearestPoint3D.Value;
                 }
@@ -180,7 +176,6 @@ public sealed class RotateHandler : MouseGestureHandler {
 
         switch (CameraRotationMode) {
             case CameraRotationMode.Trackball:
-                break;
             case CameraRotationMode.Turntable:
                 break;
             case CameraRotationMode.Turnball:

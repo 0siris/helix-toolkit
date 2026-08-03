@@ -35,7 +35,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new BorderRenderCore2D();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 if (Content != null && LayoutBoundWithTransform.Contains(mousePoint))
                     return Content.HitTest(mousePoint, out hitResult);
 

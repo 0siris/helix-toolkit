@@ -16,10 +16,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     /// <param name="deferred">if set to <c>true</c> [deferred].</param>
     public ViewportCore(nint nativeWindowPointer, bool deferred = false)
         : this(deferred
-                   ? new SwapChainRenderHost(nativeWindowPointer,
-                                             device => new DeferredContextRenderer(
-                                                 device,
-                                                 new AutoRenderTaskScheduler()))
+                   ? new SwapChainRenderHost(nativeWindowPointer, device => new DeferredContextRenderer(device, new AutoRenderTaskScheduler()))
                    : new SwapChainRenderHost(nativeWindowPointer)) { }
 
     /// <summary>
@@ -38,7 +35,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         BackgroundColor = Color.Black;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
-        RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
+        RenderHost.ExceptionOccurred += (s, e) => HandleExceptionOccured(e.Exception);
         Items2D.ItemsInternal.Add(frameStatisticsNode);
     }
 
@@ -91,16 +88,14 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     /// <summary>
     ///     Invalidates the render.
     /// </summary>
-    public void InvalidateRender() {
-        RenderHost.InvalidateRender();
-    }
+    public void InvalidateRender() 
+        => RenderHost.InvalidateRender();
 
     /// <summary>
     ///     Invalidates the scene graph.
     /// </summary>
-    public void InvalidateSceneGraph() {
-        RenderHost.InvalidateSceneGraph();
-    }
+    public void InvalidateSceneGraph() 
+        => RenderHost.InvalidateSceneGraph();
 
     /// <summary>
     /// </summary>
@@ -110,29 +105,25 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     /// <summary>
     ///     Renders this instance.
     /// </summary>
-    public void Render() {
-        RenderHost.UpdateAndRender();
-    }
+    public void Render() 
+        => RenderHost.UpdateAndRender();
 
     /// <summary>
     ///     Starts the d3 d.
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public void StartD3D(int width, int height) {
-        RenderHost.StartD3D(width, height);
-    }
+    public void StartD3D(int width, int height) 
+        => RenderHost.StartD3D(width, height);
 
     /// <summary>
     ///     Ends the d3 d.
     /// </summary>
-    public void EndD3D() {
-        RenderHost.EndD3D();
-    }
+    public void EndD3D() 
+        => RenderHost.EndD3D();
 
-    private void Items_Invalidated(object sender, InvalidateTypes e) {
-        RenderHost?.Invalidate(e);
-    }
+    private void Items_Invalidated(object? sender, InvalidateTypes e) 
+        => RenderHost?.Invalidate(e);
 
     /// <summary>
     ///     Mouses down.
@@ -193,17 +184,14 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
 
     #region Private Methods
 
-    private void HandleExceptionOccured(Exception exception) {
-        ErrorOccurred?.Invoke(this, exception);
-    }
+    private void HandleExceptionOccured(Exception exception) 
+        => ErrorOccurred?.Invoke(this, exception);
 
-    private void RenderHost_StopRenderLoop(object sender, EventArgs e) {
-        StopRendering?.Invoke(this, EventArgs.Empty);
-    }
+    private void RenderHost_StopRenderLoop(object? sender, EventArgs e) 
+        => StopRendering?.Invoke(this, EventArgs.Empty);
 
-    private void RenderHost_StartRenderLoop(object sender, EventArgs e) {
-        StartRendering?.Invoke(this, EventArgs.Empty);
-    }
+    private void RenderHost_StartRenderLoop(object? sender, EventArgs e) 
+        => StartRendering?.Invoke(this, EventArgs.Empty);
 
     private bool ViewCubeHitTest(ref Ray ray, ref Vector2 position) {
         var hitContext = new HitTestContext(RenderContext, ray, position);

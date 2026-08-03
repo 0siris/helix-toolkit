@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -67,27 +67,24 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         set => Set(ref bound, value);
     }
 
-    private BoundingSphere boundingSphere;
-
     /// <summary>
     ///     Geometry Bounding Sphere
     /// </summary>
     [IgnoreDataMember]
     public BoundingSphere BoundingSphere {
-        get => boundingSphere;
-        set => Set(ref boundingSphere, value);
+        get;
+        set => Set(ref field, value);
     }
-
-    private Color4Collection colors;
 
     /// <summary>
     ///     Vertex Color
     /// </summary>
     [DataMember]
-    public Color4Collection Colors {
-        get => colors;
+    public Color4Collection? Colors {
+        get;
         set {
-            if (Set(ref colors, value, false)) RaisePropertyChanged(colorsPropChanged);
+            if (Set(ref field, value, false)) 
+                RaisePropertyChanged(colorsPropChanged);
         }
     }
 

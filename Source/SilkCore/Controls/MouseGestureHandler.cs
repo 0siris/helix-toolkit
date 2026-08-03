@@ -53,9 +53,8 @@ public abstract class MouseGestureHandler {
     /// <param name="cameraController">
     ///     The viewport.
     /// </param>
-    protected MouseGestureHandler(CameraController cameraController) {
-        Controller = cameraController;
-    }
+    protected MouseGestureHandler(CameraController cameraController)
+        => Controller = cameraController;
 
     /// <summary>
     ///     Gets the origin.
@@ -65,9 +64,7 @@ public abstract class MouseGestureHandler {
             if (Controller.RotateAroundMouseDownPoint && MouseDownNearestPoint3D.HasValue)
                 return MouseDownNearestPoint3D.Value;
 
-            if (MouseDownPoint3D.HasValue) return MouseDownPoint3D.Value;
-
-            return new Vector3();
+            return MouseDownPoint3D ?? new Vector3();
         }
     }
 
@@ -75,7 +72,8 @@ public abstract class MouseGestureHandler {
     ///     Gets the camera.
     /// </summary>
     /// <value>The camera.</value>
-    protected ProjectionCameraCore Camera => Controller.ActualCamera as ProjectionCameraCore;
+    protected ProjectionCameraCore Camera
+        => Controller.ActualCamera as ProjectionCameraCore ?? throw new InvalidOperationException(); //TODO is there an assert thas this is allways a projection camera?
 
     /// <summary>
     ///     Gets the camera mode.
@@ -90,10 +88,10 @@ public abstract class MouseGestureHandler {
     protected Vector3 ModelUpDirection => Controller.ModelUpDirection;
 
     /// <summary>
-    ///     Gets or sets the mouse down nearest hit model bounding box center.
+    ///     Gets or sets the mouse down the nearest hit model bounding box center.
     /// </summary>
     /// <value>
-    ///     The mouse down nearest model bound center.
+    ///     The mouse down the nearest model bound center.
     /// </value>
     protected Vector3? MouseDownNearestModelBoundCenter { get; set; }
 
@@ -115,8 +113,8 @@ public abstract class MouseGestureHandler {
     /// <value>The zoom sensitivity.</value>
     protected float ZoomSensitivity => Controller.ZoomSensitivity;
 
-    public event EventHandler MouseCaptureRequested;
-    public event EventHandler MouseReleaseRequested;
+    public event EventHandler? MouseCaptureRequested;
+    public event EventHandler? MouseReleaseRequested;
 
 
     /// <summary>
@@ -126,7 +124,6 @@ public abstract class MouseGestureHandler {
     ///     The <see cref="Vector2" /> instance containing the event data.
     /// </param>
     public virtual void Delta(Vector2 e) { }
-
 
     /// <summary>
     ///     Occurs when the manipulation is started.
@@ -162,13 +159,15 @@ public abstract class MouseGestureHandler {
     public Vector3? UnProject(Vector2 p, Vector3 position, Vector3 normal) {
         var ray = GetRay(p);
         var plane = new Plane(position, normal);
-        if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point)) return point;
+
+        if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point))
+            return point;
 
         return null;
     }
 
     /// <summary>
-    ///     Un-projects a Vector2 from the screen (2D) to a Vector2 on the plane trough the camera target Vector2.
+    ///     Un-projects a Vector2 from the screen (2D) to a Vector2 on the plane through the camera target Vector2.
     /// </summary>
     /// <param name="p">
     ///     The 2D Vector2.
@@ -176,9 +175,8 @@ public abstract class MouseGestureHandler {
     /// <returns>
     ///     A 3D Vector2.
     /// </returns>
-    public Vector3? UnProject(Vector2 p) {
-        return UnProject(p, Camera.Target, Camera.LookDirection);
-    }
+    public Vector3? UnProject(Vector2 p)
+        => UnProject(p, Camera.Target, Camera.LookDirection);
 
     /// <summary>
     ///     Get the ray into the view volume given by the position in 2D (screen coordinates)
@@ -189,10 +187,10 @@ public abstract class MouseGestureHandler {
     /// <returns>
     ///     A ray
     /// </returns>
-    protected Ray GetRay(Vector2 position) {
-        if (Controller.Viewport.UnProject(position, out var ray)) return ray;
-        return new Ray();
-    }
+    protected Ray GetRay(Vector2 position)
+        => Controller.Viewport.UnProject(position, out var ray)
+               ? ray
+               : new Ray();
 
     /// <summary>
     ///     Called when inertia is starting.
@@ -208,18 +206,17 @@ public abstract class MouseGestureHandler {
     /// <param name="e">The e.</param>
     /// <returns></returns>
     public virtual bool Start(Vector2 e) {
-        if (CanStart()) {
-            MouseCaptureRequested?.Invoke(this, EventArgs.Empty);
-            Started(e);
-            return true;
-        }
+        if (!CanStart())
+            return false;
 
-        return false;
-    }
-
-    protected virtual bool CanStart() {
+        MouseCaptureRequested?.Invoke(this, EventArgs.Empty);
+        Started(e);
         return true;
+
     }
+
+    protected virtual bool CanStart()
+        => true;
 
     /// <summary>
     ///     Mouses the move.
@@ -240,10 +237,11 @@ public abstract class MouseGestureHandler {
     }
 
     protected virtual void Completed(Vector2 e) {
-        var elapsed =
-            (double)(Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency *
-            1000; //this.ManipulationWatch.ElapsedMilliseconds;
-        if (elapsed > 0 && elapsed < Controller.SpinReleaseTime) OnInertiaStarting(elapsed);
+        var elapsed = (double) (Stopwatch.GetTimestamp() - startTick) / Stopwatch.Frequency * 1000; //this.ManipulationWatch.ElapsedMilliseconds;
+
+        if (elapsed > 0 && elapsed < Controller.SpinReleaseTime)
+            OnInertiaStarting(elapsed);
+
         startTick = Stopwatch.GetTimestamp();
     }
 
@@ -256,9 +254,8 @@ public abstract class MouseGestureHandler {
     /// <returns>
     ///     The 2D Vector2.
     /// </returns>
-    protected Vector2 Project(Vector3 p) {
-        return Controller.Viewport.Project(p);
-    }
+    protected Vector2 Project(Vector3 p)
+        => Controller.Viewport.Project(p);
 
     /// <summary>
     ///     Sets mouse down Vector2.

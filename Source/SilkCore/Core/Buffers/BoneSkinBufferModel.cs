@@ -7,8 +7,8 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
+namespace HelixToolkit.SharpDX.Core.Core {
+    
         /// <summary>
         /// </summary>
         public sealed class BoneSkinnedMeshBufferModel : DefaultMeshGeometryBufferModel, IBoneSkinMeshBufferModel {
@@ -258,7 +258,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return 0;
             }
 
-            private void MeshBuffer_OnBoneIdBufferUpdated(object sender, EventArgs e) {
+            private void MeshBuffer_OnBoneIdBufferUpdated(object? sender, EventArgs e) {
                 if (originalVertexBuffer != null)
                     skinnedOutputBindings = [
                         new VertexBufferBinding(originalVertexBuffer.Buffer,
@@ -270,7 +270,7 @@ namespace HelixToolkit.SharpDX.Core {
                     ];
             }
 
-            private void MeshBuffer_OnVertexBufferUpdated(object sender, EventArgs e) {
+            private void MeshBuffer_OnVertexBufferUpdated(object? sender, EventArgs e) {
                 vertexBufferUpdate = true;
                 stagingBufferValid = false;
             }
@@ -285,4 +285,4 @@ namespace HelixToolkit.SharpDX.Core {
             }
         }
     }
-}
+

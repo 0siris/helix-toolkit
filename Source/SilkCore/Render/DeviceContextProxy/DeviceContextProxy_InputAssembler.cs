@@ -23,7 +23,7 @@ namespace HelixToolkit.SharpDX.Core {
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void SetIndexBuffer(Buffer buffer, Format format, int offset) {
+            public void SetIndexBuffer(Buffer? buffer, Format format, int offset) {
                 NativeContext.SetIndexBuffer(buffer, format, offset);
             }
 

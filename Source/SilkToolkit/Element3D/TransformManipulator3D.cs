@@ -171,21 +171,21 @@ public class TransformManipulator3D : GroupElement3D {
             GridColor = Media.Colors.Gray
 #endif
         };
-        (xrayEffect.SceneNode as NodePostEffectXRayGrid).XRayDrawingPassName =
+        ((NodePostEffectXRayGrid)xrayEffect.SceneNode).XRayDrawingPassName =
             DefaultPassNames.EffectMeshDiffuseXRayGridP3;
         Children.Add(xrayEffect);
         SceneNode.Attached += SceneNode_OnAttached;
         SceneNode.Detached += SceneNode_OnDetached;
     }
 
-    private void SceneNode_OnDetached(object sender, EventArgs e) {
+    private void SceneNode_OnDetached(object? sender, EventArgs e) {
         //if (target != null)
         //{
         //    target.SceneNode.OnTransformChanged -= SceneNode_OnTransformChanged;
         //}
     }
 
-    private void SceneNode_OnAttached(object sender, EventArgs e) {
+    private void SceneNode_OnAttached(object? sender, EventArgs e) {
         OnTargetChanged(target);
     }
 
@@ -193,10 +193,10 @@ public class TransformManipulator3D : GroupElement3D {
         return true;
     }
 
-    private void Manipulation_Mouse3DUp(object sender, MouseUp3DEventArgs e) {
+    private void Manipulation_Mouse3DUp(object? sender, MouseUp3DEventArgs e) {
         if (isCaptured) {
-            var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
-            material.DiffuseColor = currentColor;
+            var material = ((MeshGeometryModel3D)e.HitTestResult!.ModelHit).Material as DiffuseMaterial;
+            material!.DiffuseColor = currentColor;
         }
 
         manipulationType = ManipulationType.None;
@@ -213,7 +213,7 @@ public class TransformManipulator3D : GroupElement3D {
     ///     Called when [target changed]. Use target boundingbox center as Manipulator center
     /// </summary>
     /// <param name="target">The target.</param>
-    private void OnTargetChanged(Element3D target) {
+    private void OnTargetChanged(Element3D? target) {
         Debug.WriteLine("OnTargetChanged");
         //if(target != null)
         //{
@@ -227,7 +227,7 @@ public class TransformManipulator3D : GroupElement3D {
             SceneNode_OnTransformChanged(target.SceneNode, new TransformArgs(target.SceneNode.ModelMatrix));
     }
 
-    private void SceneNode_OnTransformChanged(object sender, TransformArgs e) {
+    private void SceneNode_OnTransformChanged(object? sender, TransformArgs e) {
         var m = e.Transform;
         m.Decompose(out var scale, out var rotation, out var translation);
         scaleMatrix = SilkMath.Scaling(scale);
@@ -562,7 +562,7 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).xrayEffect.IsRendering =
+                                                              ((TransformManipulator3D)d).xrayEffect.IsRendering =
                                                                  (bool)e.NewValue;
                                                          }));
 
@@ -614,8 +614,8 @@ public class TransformManipulator3D : GroupElement3D {
     private Matrix scaleMatrix = Matrix.Identity;
     private Matrix targetMatrix = Matrix.Identity;
 
-    private Element3D target;
-    private Viewport3DX currentViewport;
+    private Element3D? target;
+    private Viewport3DX? currentViewport;
     private Vector3 lastHitPosWS;
     private Vector3 normal;
 
@@ -629,7 +629,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Handle Translation
 
-    private void Translation_Mouse3DDown(object sender, MouseDown3DEventArgs e) {
+    private void Translation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         if (!(e.HitTestResult.ModelHit is Element3D elem)) {
             manipulationType = ManipulationType.None;
@@ -655,20 +655,20 @@ public class TransformManipulator3D : GroupElement3D {
         var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport;
+        currentViewport = e.Viewport!;
         var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
         lastHitPosWS = e.HitTestResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
-    private void Translation_Mouse3DMove(object sender, MouseMove3DEventArgs e) {
+    private void Translation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured) return;
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             switch (manipulationType) {
@@ -692,7 +692,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Handle Rotation
 
-    private void Rotation_Mouse3DDown(object sender, MouseDown3DEventArgs e) {
+    private void Rotation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         if (!(e.HitTestResult.ModelHit is Element3D elem)) {
             manipulationType = ManipulationType.None;
@@ -718,20 +718,20 @@ public class TransformManipulator3D : GroupElement3D {
         var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport;
+        currentViewport = e.Viewport!;
         normal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
         lastHitPosWS = e.HitTestResult.PointHit;
         //var up = SilkMath.Cross(cameraNormal, direction);
         //normal = SilkMath.Cross(up, direction);
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
-    private void Rotation_Mouse3DMove(object sender, MouseMove3DEventArgs e) {
+    private void Rotation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured) return;
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var position = translationVector + centerOffset;
             var v = SilkMath.Normalize(currentHit - position);
             var u = SilkMath.Normalize(hit - position);
@@ -772,7 +772,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Handle Scaling
 
-    private void Scaling_Mouse3DDown(object sender, MouseDown3DEventArgs e) {
+    private void Scaling_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         if (!(e.HitTestResult.ModelHit is Element3D elem)) {
             manipulationType = ManipulationType.None;
@@ -798,20 +798,20 @@ public class TransformManipulator3D : GroupElement3D {
         var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport;
+        currentViewport = e.Viewport!;
         var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
         lastHitPosWS = e.HitTestResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
-    private void Scaling_Mouse3DMove(object sender, MouseMove3DEventArgs e) {
+    private void Scaling_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured) return;
-        if (currentViewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             var orgAxis = Vector3.Zero;

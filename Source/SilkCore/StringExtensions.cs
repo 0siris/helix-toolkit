@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -19,18 +19,17 @@ public static class StringExtensions {
         /// <summary>
         ///     A regular expression containing "a one or more whitespaces" pattern.
         /// </summary>
-    private static readonly Regex oneOrMoreWhitespaces = new(@"\s+");
+    private static readonly Regex OneOrMoreWhitespaces = new(@"\s+");
 
         /// <summary>
         ///     Splits the string on whitespace.
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <returns>Array of strings.</returns>
-    public static string[] SplitOnWhitespace(this string input) {
-        return oneOrMoreWhitespaces.Split(input.Trim());
-    }
+    public static string[] SplitOnWhitespace(this string input) 
+            => OneOrMoreWhitespaces.Split(input.Trim());
 
-        /// <summary>
+    /// <summary>
         ///     Creates a string from the items in an enumerable.
         /// </summary>
         /// <param name="items">The items.</param>

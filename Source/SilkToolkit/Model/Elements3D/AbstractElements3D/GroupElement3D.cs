@@ -45,12 +45,13 @@ public abstract class GroupElement3D : Element3D {
         typeof(GroupElement3D),
         new PropertyMetadata(null,
                              (s, e) => {
-                                 var d = s as GroupElement3D;
-                                 if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
+                                  var d = (GroupElement3D)s;
+                                  if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
 
-                                 if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
-                                 (d.SceneNode as GroupNode).OctreeManager =
-                                     e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
+                                  if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
+                                  var groupNode = (GroupNode)d.SceneNode;
+                                  groupNode.OctreeManager =
+                                      e.NewValue == null ? null : ((IOctreeManagerWrapper)e.NewValue).Manager;
                              }));
 
     // Using a DependencyProperty as the backing store for AlwaysHittable.  This enables animation, styling, binding, etc...
@@ -60,11 +61,11 @@ public abstract class GroupElement3D : Element3D {
                                     typeof(GroupElement3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             (d as GroupElement3D).SceneNode.AlwaysHittable =
+                                                              ((GroupElement3D)d).SceneNode.AlwaysHittable =
                                                                  (bool)e.NewValue;
                                                          }));
 
-    private IEnumerable<Element3D> itemsSourceInternal;
+    private IEnumerable<Element3D>? itemsSourceInternal;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GroupElement3D" /> class.
@@ -81,13 +82,13 @@ public abstract class GroupElement3D : Element3D {
     ///     ItemsSource for binding to collection. Please use ObservableElement3DCollection for observable, otherwise may cause
     ///     memory leak.
     /// </summary>
-    public IList<Element3D> ItemsSource {
-        get => (IList<Element3D>)GetValue(ItemsSourceProperty);
+    public IList<Element3D>? ItemsSource {
+        get => (IList<Element3D>?)GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
     }
 
-    public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper)GetValue(OctreeManagerProperty);
+    public IOctreeManagerWrapper? OctreeManager {
+        get => (IOctreeManagerWrapper?)GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 
@@ -102,7 +103,7 @@ public abstract class GroupElement3D : Element3D {
         set => SetValue(AlwaysHittableProperty, value);
     }
 
-    private IOctreeBasic Octree => (SceneNode as GroupNode).OctreeManager?.Octree;
+    private IOctreeBasic? Octree => ((GroupNode)SceneNode).OctreeManager?.Octree;
 
     /// <summary>
     ///     Gets the children.
@@ -112,15 +113,15 @@ public abstract class GroupElement3D : Element3D {
     /// </value>
     public ObservableElement3DCollection Children { get; } = [];
 
-    private void SceneNode_Attached(object sender, EventArgs e) {
+    private void SceneNode_Attached(object? sender, EventArgs e) {
         if (ItemsSource != null) OnItemsSourceChanged(ItemsSource);
     }
 
-    private void SceneNode_Detached(object sender, EventArgs e) {
+    private void SceneNode_Detached(object? sender, EventArgs e) {
         if (itemsSourceInternal != null) OnItemsSourceChanged(null);
     }
 
-    private void GroupElement3D_Loaded(object sender, RoutedEventArgs e) {
+    private void GroupElement3D_Loaded(object? sender, RoutedEventArgs e) {
         foreach (var c in Children)
             if (c.Parent == this)
                 RemoveLogicalChild(c);
@@ -134,8 +135,8 @@ public abstract class GroupElement3D : Element3D {
         return new GroupNode { AlwaysHittable = AlwaysHittable };
     }
 
-    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-        var node = SceneNode as GroupNode;
+    private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+        var node = (GroupNode)SceneNode;
         switch (e.Action) {
             case NotifyCollectionChangedAction.Remove:
             case NotifyCollectionChangedAction.Replace:
@@ -179,7 +180,7 @@ public abstract class GroupElement3D : Element3D {
         }
     }
 
-    private void OnItemsSourceChanged(IEnumerable<Element3D> itemsSource) {
+    private void OnItemsSourceChanged(IEnumerable<Element3D>? itemsSource) {
         if (itemsSourceInternal == itemsSource) return;
         if (itemsSourceInternal != null)
             if (itemsSourceInternal is INotifyCollectionChanged s)
@@ -196,7 +197,7 @@ public abstract class GroupElement3D : Element3D {
         }
     }
 
-    private void S_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void S_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         switch (e.Action) {
             case NotifyCollectionChangedAction.Reset:
                 Children.Clear();
@@ -209,7 +210,7 @@ public abstract class GroupElement3D : Element3D {
 
         switch (e.Action) {
             case NotifyCollectionChangedAction.Reset:
-                foreach (var item in itemsSourceInternal) Children.Add(item);
+                foreach (var item in itemsSourceInternal!) Children.Add(item);
                 break;
             case NotifyCollectionChangedAction.Add:
             case NotifyCollectionChangedAction.Replace:

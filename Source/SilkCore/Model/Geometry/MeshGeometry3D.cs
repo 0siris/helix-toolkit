@@ -39,16 +39,17 @@ public class MeshGeometry3D : Geometry3D {
     ///     Does not raise property changed event
     /// </summary>
     [DataMember]
-    public Vector3Collection Normals { get; set; }
+    public Vector3Collection? Normals { get; set; }
 
     /// <summary>
     ///     Texture Coordinates
     /// </summary>
     [DataMember]
-    public Vector2Collection TextureCoordinates {
+    public Vector2Collection? TextureCoordinates {
         get => textureCoordinates;
         set {
-            if (Set(ref textureCoordinates, value, false)) RaisePropertyChanged(textureCoordChangedArgs);
+            if (Set(ref textureCoordinates, value, false))
+                RaisePropertyChanged(textureCoordChangedArgs);
         }
     }
 
@@ -56,13 +57,13 @@ public class MeshGeometry3D : Geometry3D {
     ///     Does not raise property changed event
     /// </summary>
     [DataMember]
-    public Vector3Collection Tangents { get; set; }
+    public Vector3Collection? Tangents { get; set; }
 
     /// <summary>
     ///     Does not raise property changed event
     /// </summary>
     [DataMember]
-    public Vector3Collection BiTangents { get; set; }
+    public Vector3Collection? BiTangents { get; set; }
 
     public IEnumerable<Triangle> Triangles {
         get {

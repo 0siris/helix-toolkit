@@ -161,28 +161,15 @@ internal static class SilkMath {
     }
 
     public static Matrix Scaling(float x, float y, float z) {
-        return new Matrix(x,
-                          0,
-                          0,
-                          0,
-                          0,
-                          y,
-                          0,
-                          0,
-                          0,
-                          0,
-                          z,
-                          0,
-                          0,
-                          0,
-                          0,
-                          1);
+        return new Matrix(x, 0, 0, 0,
+                          0, y, 0, 0,
+                          0, 0, z, 0,
+                          0, 0, 0, 1);
     }
 
-    public static Matrix RotationQuaternion(Quaternion value) {
-        return FromNumerics(Matrix4x4.CreateFromQuaternion(
-                                new System.Numerics.Quaternion(value.X, value.Y, value.Z, value.W)));
-    }
+    public static Matrix RotationQuaternion(Quaternion value) =>
+        FromNumerics(Matrix4x4.CreateFromQuaternion(
+                         new System.Numerics.Quaternion(value.X, value.Y, value.Z, value.W)));
 
     public static Quaternion QuaternionRotationAxis(Vector3 axis, float angle) {
         axis = Normalize(axis);

@@ -76,7 +76,7 @@ namespace HelixToolkit.SharpDX.Core {
                 base.OnDetach();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 hitResult = null;
                 if (!LayoutBoundWithTransform.Contains(mousePoint)) return false;
                 foreach (var item in ItemsInternal.Reverse())

@@ -1,4 +1,4 @@
-namespace HelixToolkit.SharpDX.Core;
+﻿namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
@@ -12,5 +12,5 @@ public interface IGeometryBufferManager : IDisposable {
     /// <param name="modelGuid">The model unique identifier.</param>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    IGeometryBufferModel Register<T>(Guid modelGuid, Geometry3D geometry) where T : class, IGeometryBufferModel, new();
+    IGeometryBufferModel Register<T>(Guid modelGuid, Geometry3D? geometry) where T : class, IGeometryBufferModel,IDisposeObject, new();
 }

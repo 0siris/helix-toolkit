@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core {
                 return new EllipseRenderCore2D();
             }
 
-            protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult hitResult) {
+        protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
                 hitResult = null;
                 return false;
             }

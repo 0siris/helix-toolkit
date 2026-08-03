@@ -20,7 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             }
 
 
-            protected virtual void Element2D_MouseLeave2D(object sender, RoutedEventArgs e) {
+            protected virtual void Element2D_MouseLeave2D(object? sender, RoutedEventArgs e) {
                 if (!IsAttached) return;
                 IsMouseOver = false;
 #if DEBUGMOUSEEVENT
@@ -28,7 +28,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 #endif
             }
 
-            protected virtual void Element2D_MouseEnter2D(object sender, RoutedEventArgs e) {
+            protected virtual void Element2D_MouseEnter2D(object? sender, RoutedEventArgs e) {
                 if (!IsAttached) return;
                 IsMouseOver = true;
 #if DEBUGMOUSEEVENT
@@ -298,7 +298,7 @@ namespace HelixToolkit.Wpf.SharpDX {
 
             #region Events
 
-            public delegate void Mouse2DRoutedEventHandler(object sender, Mouse2DEventArgs e);
+            public delegate void Mouse2DRoutedEventHandler(object? sender, Mouse2DEventArgs e);
 
             public static readonly RoutedEvent MouseDown2DEvent =
                 EventManager.RegisterRoutedEvent("MouseDown2D",
@@ -362,7 +362,7 @@ namespace HelixToolkit.Wpf.SharpDX {
             public Mouse2DEventArgs(
                 RoutedEvent routedEvent,
                 object source,
-                HitTest2DResult hitTestResult,
+                HitTest2DResult? hitTestResult,
                 Point position,
                 Viewport3DX? viewport = null,
                 InputEventArgs? inputArgs = null
@@ -379,13 +379,13 @@ namespace HelixToolkit.Wpf.SharpDX {
                 Viewport = viewport;
             }
 
-            public HitTest2DResult HitTest2DResult { get; private set; }
+            public HitTest2DResult? HitTest2DResult { get; private set; }
 
-            public Viewport3DX Viewport { get; private set; }
+            public Viewport3DX? Viewport { get; private set; }
 
             public Point Position { get; private set; }
 
-            public InputEventArgs InputArgs { get; private set; }
+            public InputEventArgs? InputArgs { get; private set; }
         }
     }
 }

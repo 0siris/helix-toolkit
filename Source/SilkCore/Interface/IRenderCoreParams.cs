@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The instance buffer.
             /// </value>
-            IElementsBufferModel InstanceBuffer { get; set; }
+            IElementsBufferModel? InstanceBuffer { get; set; }
 
             /// <summary>
             ///     Gets or sets the geometry buffer.
@@ -25,7 +25,7 @@ namespace HelixToolkit.SharpDX.Core {
             /// <value>
             ///     The geometry buffer.
             /// </value>
-            IAttachableBufferModel GeometryBuffer { get; set; }
+            IAttachableBufferModel? GeometryBuffer { get; set; }
 
             /// <summary>
             ///     Gets or sets the raster description.

@@ -26,4 +26,14 @@ public static class Disposer {
 
         resource = null;
     }
+
+    public static void DisposeAll<T>(this IEnumerable<T> values) where T : IDisposable {
+        foreach (var value in values)
+            try {
+                value.Dispose();
+            } catch (Exception e) {
+                LoggerLib.Logger.Error(e, "Dispose failed");
+                //TODO should we throw?
+            }
+    }
 }

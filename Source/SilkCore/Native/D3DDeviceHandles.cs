@@ -815,12 +815,13 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void GenerateMips(ShaderResourceView shaderResourceView) {
-        if (shaderResourceView == null) return;
+        if (shaderResourceView == null) 
+            return;
 
         nativeContext.GenerateMips(shaderResourceView.Handle);
     }
 
-    public void SetShaderResource(int shaderStage, int slot, ShaderResourceView shaderResourceView) {
+    public void SetShaderResource(int shaderStage, int slot, ShaderResourceView? shaderResourceView) {
         if (slot < 0) return;
 
         var viewPtr = shaderResourceView?.Handle;
@@ -1005,12 +1006,12 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.SOSetTargets((uint)buffers.Length, bufferPtrs, offsets);
     }
 
-    public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView renderTargetView) {
+    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView renderTargetView) {
         var renderTargetViewPtr = renderTargetView?.Handle;
         nativeContext.OMSetRenderTargets(1, &renderTargetViewPtr, depthStencilView?.Handle);
     }
 
-    public void SetRenderTargets(DepthStencilView depthStencilView, RenderTargetView[] renderTargetViews) {
+    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView[] renderTargetViews) {
         if (renderTargetViews == null || renderTargetViews.Length == 0) {
             nativeContext.OMSetRenderTargets(0, null, depthStencilView?.Handle);
             return;

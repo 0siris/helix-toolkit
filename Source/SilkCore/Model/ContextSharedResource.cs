@@ -5,52 +5,50 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Model {
-        public sealed class ContextSharedResource : IDisposable {
-            public ShaderResourceViewProxy ShadowView { get; set; }
+namespace HelixToolkit.SharpDX.Core.Model;
 
-            public ShaderResourceViewProxy EnvironementMap { get; set; }
+public sealed class ContextSharedResource : IDisposable {
+    public ShaderResourceViewProxy? ShadowView { get; set; }
 
-            public ShaderResourceViewProxy SSAOMap { get; set; }
+    public ShaderResourceViewProxy? EnvironementMap { get; set; }
 
-            public int EnvironmentMapMipLevels { get; set; }
+    public ShaderResourceViewProxy? SSAOMap { get; set; }
 
-            #region IDisposable Support
+    public int EnvironmentMapMipLevels { get; set; }
 
-            private bool disposedValue; // To detect redundant calls
+#region IDisposable Support
 
-            private void Dispose(bool disposing) {
-                if (!disposedValue) {
-                    if (disposing) {
-                        ShadowView = null;
-                        EnvironementMap = null;
-                        SSAOMap = null;
-                        // TODO: dispose managed state (managed objects).
-                    }
+    private bool disposedValue; // To detect redundant calls
 
-                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                    // TODO: set large fields to null.
-
-                    disposedValue = true;
-                }
+    private void Dispose(bool disposing) {
+        if (!disposedValue) {
+            if (disposing) {
+                ShadowView = null;
+                EnvironementMap = null;
+                SSAOMap = null;
+                // TODO: dispose managed state (managed objects).
             }
 
-            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-            // ~ContextSharedResource() {
-            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            //   Dispose(false);
-            // }
+            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+            // TODO: set large fields to null.
 
-            // This code added to correctly implement the disposable pattern.
-            public void Dispose() {
-                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-                Dispose(true);
-                // TODO: uncomment the following line if the finalizer is overridden above.
-                // GC.SuppressFinalize(this);
-            }
-
-            #endregion
+            disposedValue = true;
         }
     }
+
+    // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+    // ~ContextSharedResource() {
+    //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    //   Dispose(false);
+    // }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose() {
+        // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        Dispose(true);
+        // TODO: uncomment the following line if the finalizer is overridden above.
+        // GC.SuppressFinalize(this);
+    }
+
+#endregion
 }

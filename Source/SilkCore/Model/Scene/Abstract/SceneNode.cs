@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Core;
@@ -753,7 +754,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="deviceContext">The device context.</param>
     /// <param name="pass"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass pass) {
+    public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass? pass) {
         core.ModelMatrix = TotalModelMatrixInternal;
         core.RenderDepth(context, deviceContext, pass);
     }
@@ -986,7 +987,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectName">Name of the effect.</param>
     /// <param name="effect">The effect.</param>
     /// <returns></returns>
-    public bool TryGetPostEffect(string effectName, out IEffectAttributes? effect)
+    
+    public bool TryGetPostEffect(string effectName, [NotNullWhen(true)] out IEffectAttributes? effect)
         => postEffectNames.TryGetValue(effectName, out effect);
 
     /// <summary>

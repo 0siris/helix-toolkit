@@ -1,59 +1,66 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core.Components {
-        public abstract class CoreComponent : DisposeObject {
-            public bool IsAttached { get; private set; }
+namespace HelixToolkit.SharpDX.Core.Core.Components;
 
-            public IRenderTechnique Technique { get; private set; }
+public abstract class CoreComponent : DisposeObject {
+    [MemberNotNullWhen(true, nameof(Technique))]
+    public virtual bool IsAttached { get; private set; }
 
-            public event EventHandler InvalidateRender;
+    /// <summary>
+    /// Can be null if not attached. The name of the used render technique.
+    /// </summary>
+    public IRenderTechnique? Technique { get; private set; }
 
-            public void Attach(IRenderTechnique technique) {
-                if (IsAttached) return;
-                IsAttached = true;
-                Technique = technique;
-                OnAttach(technique);
-            }
+    public event EventHandler? InvalidateRender;
 
-            protected abstract void OnAttach(IRenderTechnique technique);
+    
+    public void Attach(IRenderTechnique technique) {
+        if (IsAttached) 
+            return;
+        
+        IsAttached = true;
+        Technique = technique;
+        OnAttach(technique);
+    }
 
-            public void Detach() {
-                if (!IsAttached) return;
-                OnDetach();
-                IsAttached = false;
-            }
+    protected abstract void OnAttach(IRenderTechnique technique);
 
-            protected abstract void OnDetach();
+    public void Detach() {
+        if (!IsAttached) 
+            return;
+        
+        OnDetach();
+        IsAttached = false;
+    }
 
-            /// <summary>
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="backingField"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected bool SetAffectsRender<T>(ref T backingField, T value) {
-                if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+    protected abstract void OnDetach();
 
-                backingField = value;
-                RaiseInvalidateRender();
-                return true;
-            }
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="backingField"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool SetAffectsRender<T>(ref T backingField, T value) {
+        if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
-            public void RaiseInvalidateRender() {
-                InvalidateRender?.Invoke(this, EventArgs.Empty);
-            }
+        backingField = value;
+        RaiseInvalidateRender();
+        return true;
+    }
 
-            protected override void OnDispose(bool disposeManagedResources) {
-                Detach();
-                base.OnDispose(disposeManagedResources);
-            }
-        }
+    public void RaiseInvalidateRender() 
+        => InvalidateRender?.Invoke(this, EventArgs.Empty);
+
+    protected override void OnDispose(bool disposeManagedResources) {
+        Detach();
+        base.OnDispose(disposeManagedResources);
     }
 }

@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core {
             private readonly NativeD3DDevice nativeDevice;
             private DepthStencilView depthStencilView;
             private RenderTargetView renderTargetView;
-            private Resource resource;
+            private Resource? resource;
             private ShaderResourceView textureView;
 
             private ShaderResourceViewProxy() { }
@@ -97,7 +97,7 @@ namespace HelixToolkit.SharpDX.Core {
 
             public RenderTargetView RenderTargetView => renderTargetView;
 
-            public Resource Resource => resource;
+            public Resource? Resource => resource;
 
             public Format TextureFormat { get; private set; }
 

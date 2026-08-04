@@ -188,7 +188,7 @@ public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
     public virtual void RenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     ) { }
 
     /// <summary>

@@ -12,195 +12,193 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        public sealed class VolumeRenderCore : RenderCore {
-            private static readonly MeshGeometry3D BoxMesh;
-            private readonly ConstantBufferComponent modelCB;
-            private int backTexSlot;
+namespace HelixToolkit.SharpDX.Core.Core;
 
-            private VolumeCubeBufferModel buffer;
+public sealed class VolumeRenderCore : RenderCore {
+    private static readonly MeshGeometry3D BoxMesh;
+    private readonly ConstantBufferComponent modelCB;
+    private int backTexSlot;
 
-            private ShaderPass cubeBackPass;
-            private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
-            private ShaderPass meshFrontPass;
-            private ModelMatrices modelMatrices;
-            private ShaderPass volumePass;
+    private VolumeCubeBufferModel buffer;
 
-            static VolumeRenderCore() {
-                BoxMesh = new MeshGeometry3D {
-                    Positions = [
-                        new Vector3(-0.5f, -0.5f, -0.5f),
-                        new Vector3(0.5f, -0.5f, -0.5f),
-                        new Vector3(-0.5f, 0.5f, -0.5f),
-                        new Vector3(0.5f, 0.5f, -0.5f),
-                        new Vector3(-0.5f, -0.5f, 0.5f),
-                        new Vector3(0.5f, -0.5f, 0.5f),
-                        new Vector3(-0.5f, 0.5f, 0.5f),
-                        new Vector3(0.5f, 0.5f, 0.5f)
-                    ],
-                    Indices = [
-                        0, 2, 3,
-                        3, 1, 0,
-                        4, 5, 7,
-                        7, 6, 4,
-                        0, 1, 5,
-                        5, 4, 0,
-                        1, 3, 7,
-                        7, 5, 1,
-                        3, 2, 6,
-                        6, 7, 3,
-                        2, 0, 4,
-                        4, 6, 2
-                    ]
-                };
-            }
+    private ShaderPass cubeBackPass;
+    private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
+    private ShaderPass meshFrontPass;
+    private ModelMatrices modelMatrices;
+    private ShaderPass volumePass;
 
-            public VolumeRenderCore()
-                : base(RenderType.Particle) {
-                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                                       DefaultBufferNames.VolumeModelCB,
-                                                                       VolumeParamsStruct.SizeInBytes)));
-            }
+    static VolumeRenderCore() {
+        BoxMesh = new MeshGeometry3D {
+            Positions = [
+                new Vector3(-0.5f, -0.5f, -0.5f),
+                new Vector3(0.5f, -0.5f, -0.5f),
+                new Vector3(-0.5f, 0.5f, -0.5f),
+                new Vector3(0.5f, 0.5f, -0.5f),
+                new Vector3(-0.5f, -0.5f, 0.5f),
+                new Vector3(0.5f, -0.5f, 0.5f),
+                new Vector3(-0.5f, 0.5f, 0.5f),
+                new Vector3(0.5f, 0.5f, 0.5f)
+            ],
+            Indices = [
+                0, 2, 3,
+                3, 1, 0,
+                4, 5, 7,
+                7, 6, 4,
+                0, 1, 5,
+                5, 4, 0,
+                1, 3, 7,
+                7, 5, 1,
+                3, 2, 6,
+                6, 7, 3,
+                2, 0, 4,
+                4, 6, 2
+            ]
+        };
+    }
 
-            /// <summary>
-            ///     Used to wrap all material resources
-            /// </summary>
-            public MaterialVariable MaterialVariables {
-                get => materialVariables;
-                set {
-                    var old = materialVariables;
-                    if (SetAffectsCanRenderFlag(ref materialVariables, value))
-                        if (value == null)
-                            materialVariables = EmptyMaterialVariable.EmptyVariable;
-                }
-            }
+    public VolumeRenderCore()
+        : base(RenderType.Particle) {
+        modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+                                                               DefaultBufferNames.VolumeModelCB,
+                                                               VolumeParamsStruct.SizeInBytes)));
+    }
 
-            protected override bool OnAttach(IRenderTechnique technique) {
-                buffer = new VolumeCubeBufferModel {
-                    Geometry = BoxMesh,
-                    Topology = PrimitiveTopology.TriangleList
-                };
-                cubeBackPass = technique[DefaultPassNames.Backface];
-                meshFrontPass = technique[DefaultPassNames.Positions];
-                modelCB.Attach(technique);
-                return true;
-            }
+    /// <summary>
+    ///     Used to wrap all material resources
+    /// </summary>
+    public MaterialVariable MaterialVariables {
+        get => materialVariables;
+        set {
+            var old = materialVariables;
+            if (SetAffectsCanRenderFlag(ref materialVariables, value))
+                if (value == null)
+                    materialVariables = EmptyMaterialVariable.EmptyVariable;
+        }
+    }
 
-            protected override void OnDetach() {
-                RemoveAndDispose(ref buffer);
-            }
+    protected override bool OnAttach(IRenderTechnique technique) {
+        buffer = new VolumeCubeBufferModel {
+            Geometry = BoxMesh,
+            Topology = PrimitiveTopology.TriangleList
+        };
+        cubeBackPass = technique[DefaultPassNames.Backface];
+        meshFrontPass = technique[DefaultPassNames.Positions];
+        modelCB.Attach(technique);
+        return true;
+    }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-                using var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float);
-                var slot = 0;
-                using (var depth =
-                       context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
-                    deviceContext.ClearDepthStencilView(depth,
-                                                        DepthStencilClearFlags.Depth |
-                                                        DepthStencilClearFlags.Stencil,
-                                                        1,
-                                                        1);
-                    deviceContext.ClearRenderTargetView(back, new Color4(0, 0, 0, 0));
-                    BindTarget(depth, back, deviceContext, (int)context.ActualWidth, (int)context.ActualHeight);
+    protected override void OnDetach() {
+        RemoveAndDispose(ref buffer);
+    }
 
-                    #region Render box back face and set stencil buffer to 0
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+        using var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float);
+        var slot = 0;
+        using (var depth =
+               context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
+            deviceContext.ClearDepthStencilView(depth,
+                                                DepthStencilClearFlags.Depth |
+                                                DepthStencilClearFlags.Stencil,
+                                                1,
+                                                1);
+            deviceContext.ClearRenderTargetView(back, new Color4(0, 0, 0, 0));
+            BindTarget(depth, back, deviceContext, (int)context.ActualWidth, (int)context.ActualHeight);
 
-                    modelMatrices.Update(ref ModelMatrix);
-                    if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelMatrices)) return;
-                    buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
-                    cubeBackPass.BindShader(deviceContext);
-                    cubeBackPass.BindStates(deviceContext, StateType.All);
-                    deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
+        #region Render box back face and set stencil buffer to 0
 
-                    #endregion
+            modelMatrices.Update(ref ModelMatrix);
+            if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelMatrices)) return;
+            buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
+            cubeBackPass.BindShader(deviceContext);
+            cubeBackPass.BindStates(deviceContext, StateType.All);
+            deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
 
-                    #region Render all mesh Positions onto off-screen texture region with stencil = 0 only
+        #endregion
 
-                    if (context.RenderHost.PerFrameOpaqueNodesInFrustum.Count > 0)
-                        for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
-                            var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
-                            var meshPass = mesh.EffectTechnique[DefaultPassNames.Positions];
-                            if (meshPass.IsNULL) continue;
-                            meshPass.BindShader(deviceContext);
-                            meshPass.BindStates(deviceContext, StateType.BlendState);
-                            // Set special depth stencil state to only render into region with stencil region is 0
-                            meshFrontPass.BindStates(deviceContext, StateType.DepthStencilState);
-                            mesh.RenderCustom(context, deviceContext);
-                        }
+        #region Render all mesh Positions onto off-screen texture region with stencil = 0 only
 
-                    #endregion
+            if (context.RenderHost.PerFrameOpaqueNodesInFrustum.Count > 0)
+                for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
+                    var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
+                    var meshPass = mesh.EffectTechnique[DefaultPassNames.Positions];
+                    if (meshPass.IsNULL) continue;
+                    meshPass.BindShader(deviceContext);
+                    meshPass.BindStates(deviceContext, StateType.BlendState);
+                    // Set special depth stencil state to only render into region with stencil region is 0
+                    meshFrontPass.BindStates(deviceContext, StateType.DepthStencilState);
+                    mesh.RenderCustom(context, deviceContext);
                 }
 
-                #region Render box back face again and do actual volume sampling
+        #endregion
+        }
 
-                context.RenderHost.SetDefaultRenderTargets(false);
-                var pass = materialVariables.GetPass(RenderType.Opaque, context);
-                if (pass != volumePass) {
-                    volumePass = pass;
-                    backTexSlot =
-                        volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
-                            .VolumeBack);
-                }
+    #region Render box back face again and do actual volume sampling
 
-                slot = 0;
-                buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
-                materialVariables.BindMaterialResources(context, deviceContext, pass);
-                volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, back);
-                volumePass.BindShader(deviceContext);
-                volumePass.BindStates(deviceContext, StateType.All);
-                deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
+        context.RenderHost.SetDefaultRenderTargets(false);
+        var pass = materialVariables.GetPass(RenderType.Opaque, context);
+        if (pass != volumePass) {
+            volumePass = pass;
+            backTexSlot =
+                volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
+                    .VolumeBack);
+        }
 
-                #endregion
+        slot = 0;
+        buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
+        materialVariables.BindMaterialResources(context, deviceContext, pass);
+        volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, back);
+        volumePass.BindShader(deviceContext);
+        volumePass.BindStates(deviceContext, StateType.All);
+        deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
 
-                volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
+    #endregion
+
+        volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void BindTarget(
+        DepthStencilView dsv,
+        RenderTargetView targetView,
+        DeviceContextProxy context,
+        int width,
+        int height
+    ) {
+        context.SetRenderTargets(dsv, targetView == null ? null : [targetView]);
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    private struct ModelMatrices {
+        public Matrix ModelMatrix;
+        public Matrix ModelMatrixInv;
+
+        public void Update(ref Matrix modelMatrix) {
+            if (ModelMatrix != modelMatrix) {
+                ModelMatrix = modelMatrix;
+                ModelMatrixInv = modelMatrix.Inverted();
             }
+        }
+    }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static void BindTarget(
-                DepthStencilView dsv,
-                RenderTargetView targetView,
-                DeviceContextProxy context,
-                int width,
-                int height
-            ) {
-                context.SetRenderTargets(dsv, targetView == null ? null : [targetView]);
-            }
+    /// <summary>
+    /// </summary>
+    private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3> {
+        public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
+            Topology = PrimitiveTopology.TriangleList;
+        }
 
-            [StructLayout(LayoutKind.Sequential, Pack = 4)]
-            private struct ModelMatrices {
-                public Matrix ModelMatrix;
-                public Matrix ModelMatrixInv;
-
-                public void Update(ref Matrix modelMatrix) {
-                    if (ModelMatrix != modelMatrix) {
-                        ModelMatrix = modelMatrix;
-                        ModelMatrixInv = modelMatrix.Inverted();
-                    }
-                }
-            }
-
-            /// <summary>
-            /// </summary>
-            private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3> {
-                public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
-                    Topology = PrimitiveTopology.TriangleList;
-                }
-
-                protected override void OnCreateVertexBuffer(
-                    DeviceContextProxy context,
-                    IElementsBufferProxy buffer,
-                    int bufferIndex,
-                    Geometry3D geometry,
-                    IDeviceResources deviceResources
-                ) {
-                    // -- set geometry if given
-                    if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
-                        buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
-                    else
-                        buffer.UploadDataToBuffer(context, EmptyVerts, 0);
-                }
-            }
+        protected override void OnCreateVertexBuffer(
+            DeviceContextProxy context,
+            IElementsBufferProxy buffer,
+            int bufferIndex,
+            Geometry3D geometry,
+            IDeviceResources deviceResources
+        ) {
+            // -- set geometry if given
+            if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
+                buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
+            else
+                buffer.UploadDataToBuffer(context, EmptyVerts, 0);
         }
     }
 }

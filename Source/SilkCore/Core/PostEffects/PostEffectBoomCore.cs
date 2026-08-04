@@ -8,230 +8,228 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        public interface IPostEffectBloom : IPostEffect {
-            Color4 ThresholdColor { get; set; }
+namespace HelixToolkit.SharpDX.Core.Core;
 
-            float BloomExtractIntensity { get; set; }
+public interface IPostEffectBloom : IPostEffect {
+    Color4 ThresholdColor { get; set; }
 
-            float BloomPassIntensity { get; set; }
+    float BloomExtractIntensity { get; set; }
 
-            float BloomCombineSaturation { get; set; }
+    float BloomPassIntensity { get; set; }
 
-            float BloomCombineIntensity { get; set; }
+    float BloomCombineSaturation { get; set; }
 
-            int NumberOfBlurPass { get; set; }
-        }
+    float BloomCombineIntensity { get; set; }
 
-        /// <summary>
-        ///     Outline blur effect
-        ///     <para>
-        ///         Must not put in shared model across multiple viewport, otherwise may causes performance issue if each
-        ///         viewport sizes are different.
-        ///     </para>
-        /// </summary>
-        public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
-            /// </summary>
-            public PostEffectBloomCore() : base(RenderType.GlobalEffect) {
-                modelCB = AddComponent(new ConstantBufferComponent(
-                                           new ConstantBufferDescription(
-                                               DefaultBufferNames.BorderEffectCB,
-                                               BorderEffectStruct.SizeInBytes)));
-                ThresholdColor = new Color4(0.8f, 0.8f, 0.8f, 0f);
-                BloomExtractIntensity = 1f;
-                BloomPassIntensity = 0.95f;
-                BloomCombineIntensity = 0.7f;
-                BloomCombineSaturation = 0.7f;
-            }
+    int NumberOfBlurPass { get; set; }
+}
 
-            protected override bool OnAttach(IRenderTechnique technique) {
-                screenQuadPass = technique.GetPass(DefaultPassNames.ScreenQuad);
-                screenQuadCopy = technique.GetPass(DefaultPassNames.ScreenQuadCopy);
-                blurPassVertical = technique.GetPass(DefaultPassNames.EffectBlurVertical);
-                blurPassHorizontal = technique.GetPass(DefaultPassNames.EffectBlurHorizontal);
-                screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
-                textureSlot =
-                    screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
-                        .DiffuseMapTB);
-                samplerSlot =
-                    screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames
-                        .SurfaceSampler);
-                sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
-                blurCore = new PostEffectBlurCore(blurPassVertical,
-                                                  blurPassHorizontal,
-                                                  textureSlot,
-                                                  samplerSlot,
-                                                  DefaultSamplers.LinearSamplerClampAni1,
-                                                  technique.EffectsManager);
-                return true;
-            }
+/// <summary>
+///     Outline blur effect
+///     <para>
+///         Must not put in shared model across multiple viewport, otherwise may causes performance issue if each
+///         viewport sizes are different.
+///     </para>
+/// </summary>
+public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
+    /// </summary>
+    public PostEffectBloomCore() : base(RenderType.GlobalEffect) {
+        modelCB = AddComponent(new ConstantBufferComponent(
+                                   new ConstantBufferDescription(
+                                       DefaultBufferNames.BorderEffectCB,
+                                       BorderEffectStruct.SizeInBytes)));
+        
+        ThresholdColor = new Color4(0.8f, 0.8f, 0.8f, 0f);
+        BloomExtractIntensity = 1f;
+        BloomPassIntensity = 0.95f;
+        BloomCombineIntensity = 0.7f;
+        BloomCombineSaturation = 0.7f;
+    }
 
-            protected override bool OnUpdateCanRenderFlag() {
-                return IsAttached && !string.IsNullOrEmpty(EffectName);
-            }
+    protected override bool OnAttach(IRenderTechnique technique) {
+        screenQuadPass = technique.GetPass(DefaultPassNames.ScreenQuad);
+        screenQuadCopy = technique.GetPass(DefaultPassNames.ScreenQuadCopy);
+        blurPassVertical = technique.GetPass(DefaultPassNames.EffectBlurVertical);
+        blurPassHorizontal = technique.GetPass(DefaultPassNames.EffectBlurHorizontal);
+        screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
+        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+       
+        samplerSlot = screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
+        
+        sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
+        blurCore = new PostEffectBlurCore(blurPassVertical,
+                                          blurPassHorizontal,
+                                          textureSlot,
+                                          samplerSlot,
+                                          DefaultSamplers.LinearSamplerClampAni1,
+                                          technique.EffectsManager);
+        return true;
+    }
 
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-                var buffer = context.RenderHost.RenderBuffer;
+    protected override bool OnUpdateCanRenderFlag() 
+        => IsAttached && !string.IsNullOrEmpty(EffectName);
 
-                #region Do Bloom Pass
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+        var buffer = context.RenderHost.RenderBuffer;
 
-                modelCB.Upload(deviceContext, ref modelStruct);
-                //Extract bloom samples
-                deviceContext.SetRenderTarget(buffer.FullResPPBuffer.NextRTV);
+    #region Do Bloom Pass
 
-                screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.CurrentSRV);
-                screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
-                screenQuadPass.BindShader(deviceContext);
-                screenQuadPass.BindStates(deviceContext, StateType.All);
-                deviceContext.Draw(4, 0);
-                var viewport = context.Viewport;
-                // Down sampling
-                for (var i = 0; i < numberOfBlurPass; ++i)
-                    blurCore.Run(context,
-                                 deviceContext,
-                                 buffer.FullResPPBuffer.NextRTV,
-                                 ref viewport,
-                                 PostEffectBlurCore.BlurDepth.Two,
-                                 ref modelStruct);
+        modelCB.Upload(deviceContext, ref modelStruct);
+        //Extract bloom samples
+        deviceContext.SetRenderTarget(buffer.FullResPPBuffer.NextRTV);
 
-                #endregion
+        screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.CurrentSRV);
+        screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
+        screenQuadPass.BindShader(deviceContext);
+        screenQuadPass.BindStates(deviceContext, StateType.All);
+        deviceContext.Draw(4, 0);
+        var viewport = context.Viewport;
+        // Down sampling
+        for (var i = 0; i < numberOfBlurPass; ++i)
+            blurCore.Run(context,
+                         deviceContext,
+                         buffer.FullResPPBuffer.NextRTV,
+                         ref viewport,
+                         PostEffectBlurCore.BlurDepth.Two,
+                         ref modelStruct);
 
-                #region Draw outline onto original target
+    #endregion
 
-                BindTarget(null,
-                           buffer.FullResPPBuffer.CurrentRTV,
-                           deviceContext,
-                           buffer.TargetWidth,
-                           buffer.TargetHeight,
-                           false);
-                screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.NextSRV);
-                screenOutlinePass.BindShader(deviceContext);
-                screenOutlinePass.BindStates(deviceContext, StateType.All);
-                deviceContext.Draw(4, 0);
-                screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, null);
+    #region Draw outline onto original target
 
-                #endregion
-            }
+        BindTarget(null,
+                   buffer.FullResPPBuffer.CurrentRTV,
+                   deviceContext,
+                   buffer.TargetWidth,
+                   buffer.TargetHeight,
+                   false);
+        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.NextSRV);
+        screenOutlinePass.BindShader(deviceContext);
+        screenOutlinePass.BindStates(deviceContext, StateType.All);
+        deviceContext.Draw(4, 0);
+        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, null);
 
-            protected override void OnDetach() {
-                RemoveAndDispose(ref sampler);
-                RemoveAndDispose(ref blurCore);
-            }
+    #endregion
+    }
 
-            private static void BindTarget(
-                DepthStencilView dsv,
-                RenderTargetView targetView,
-                DeviceContextProxy context,
-                int width,
-                int height,
-                bool clear = true
-            ) {
-                if (clear) context.ClearRenderTargetView(targetView, Color.Transparent);
-                context.SetRenderTargets(dsv, [targetView]);
-                context.SetViewport(0, 0, width, height);
-                context.SetScissorRectangle(0, 0, width, height);
-            }
+    protected override void OnDetach() {
+        RemoveAndDispose(ref sampler);
+        RemoveAndDispose(ref blurCore);
+    }
 
-            #region Variables
+    private static void BindTarget(
+        DepthStencilView? dsv,
+        RenderTargetView targetView,
+        DeviceContextProxy context,
+        int width,
+        int height,
+        bool clear = true
+    ) {
+        if (clear) 
+            context.ClearRenderTargetView(targetView, Color.Transparent);
+        
+        context.SetRenderTargets(dsv, [targetView]);
+        context.SetViewport(0, 0, width, height);
+        context.SetScissorRectangle(0, 0, width, height);
+    }
 
-            private SamplerStateProxy sampler;
-            private ShaderPass screenQuadPass;
+#region Variables
 
-            private ShaderPass screenQuadCopy;
+    private SamplerStateProxy sampler;
+    private ShaderPass screenQuadPass;
 
-            private ShaderPass blurPassVertical;
+    private ShaderPass screenQuadCopy;
 
-            private ShaderPass blurPassHorizontal;
+    private ShaderPass blurPassVertical;
 
-            private ShaderPass screenOutlinePass;
+    private ShaderPass blurPassHorizontal;
 
-            private int textureSlot;
+    private ShaderPass screenOutlinePass;
 
-            private int samplerSlot;
+    private int textureSlot;
 
-            private readonly ConstantBufferComponent modelCB;
+    private int samplerSlot;
 
-            private BorderEffectStruct modelStruct;
+    private readonly ConstantBufferComponent modelCB;
 
-            private PostEffectBlurCore blurCore;
+    private BorderEffectStruct modelStruct;
 
-            #endregion
+    private PostEffectBlurCore blurCore;
 
-            #region Properties
+#endregion
 
-            private string effectName = DefaultRenderTechniqueNames.PostEffectBloom;
+#region Properties
 
-            /// <summary>
-            ///     Gets or sets the name of the effect.
-            /// </summary>
-            /// <value>
-            ///     The name of the effect.
-            /// </value>
-            public string EffectName {
-                get => effectName;
-                set => SetAffectsCanRenderFlag(ref effectName, value);
-            }
+    private string effectName = DefaultRenderTechniqueNames.PostEffectBloom;
 
-            /// <summary>
-            ///     Gets or sets the color of the border.
-            /// </summary>
-            /// <value>
-            ///     The color of the border.
-            /// </value>
-            public Color4 ThresholdColor {
-                get => modelStruct.Color;
-                set => SetAffectsRender(ref modelStruct.Color, value);
-            }
+    /// <summary>
+    ///     Gets or sets the name of the effect.
+    /// </summary>
+    /// <value>
+    ///     The name of the effect.
+    /// </value>
+    public string EffectName {
+        get => effectName;
+        set => SetAffectsCanRenderFlag(ref effectName, value);
+    }
 
-            public float BloomExtractIntensity {
-                get => modelStruct.Param.M11;
-                set {
-                    var current = modelStruct.Param.M11;
-                    if (SetAffectsRender(ref current, value)) modelStruct.Param.M11 = current;
-                }
-            }
+    /// <summary>
+    ///     Gets or sets the color of the border.
+    /// </summary>
+    /// <value>
+    ///     The color of the border.
+    /// </value>
+    public Color4 ThresholdColor {
+        get => modelStruct.Color;
+        set => SetAffectsRender(ref modelStruct.Color, value);
+    }
 
-            public float BloomPassIntensity {
-                get => modelStruct.Param.M12;
-                set {
-                    var current = modelStruct.Param.M12;
-                    if (SetAffectsRender(ref current, value)) modelStruct.Param.M12 = current;
-                }
-            }
-
-            public float BloomCombineSaturation {
-                get => modelStruct.Param.M13;
-                set {
-                    var current = modelStruct.Param.M13;
-                    if (SetAffectsRender(ref current, value)) modelStruct.Param.M13 = current;
-                }
-            }
-
-            public float BloomCombineIntensity {
-                get => modelStruct.Param.M14;
-                set {
-                    var current = modelStruct.Param.M14;
-                    if (SetAffectsRender(ref current, value)) modelStruct.Param.M14 = current;
-                }
-            }
-
-            private int numberOfBlurPass = 1;
-
-            /// <summary>
-            ///     Gets or sets the number of blur pass.
-            /// </summary>
-            /// <value>
-            ///     The number of blur pass.
-            /// </value>
-            public int NumberOfBlurPass {
-                get => numberOfBlurPass;
-                set => SetAffectsRender(ref numberOfBlurPass, value);
-            }
-
-            #endregion
+    public float BloomExtractIntensity {
+        get => modelStruct.Param.M11;
+        set {
+            var current = modelStruct.Param.M11;
+            if (SetAffectsRender(ref current, value)) modelStruct.Param.M11 = current;
         }
     }
+
+    public float BloomPassIntensity {
+        get => modelStruct.Param.M12;
+        set {
+            var current = modelStruct.Param.M12;
+            if (SetAffectsRender(ref current, value)) modelStruct.Param.M12 = current;
+        }
+    }
+
+    public float BloomCombineSaturation {
+        get => modelStruct.Param.M13;
+        set {
+            var current = modelStruct.Param.M13;
+            if (SetAffectsRender(ref current, value)) modelStruct.Param.M13 = current;
+        }
+    }
+
+    public float BloomCombineIntensity {
+        get => modelStruct.Param.M14;
+        set {
+            var current = modelStruct.Param.M14;
+            if (SetAffectsRender(ref current, value)) modelStruct.Param.M14 = current;
+        }
+    }
+
+    private int numberOfBlurPass = 1;
+
+    /// <summary>
+    ///     Gets or sets the number of blur pass.
+    /// </summary>
+    /// <value>
+    ///     The number of blur pass.
+    /// </value>
+    public int NumberOfBlurPass {
+        get => numberOfBlurPass;
+        set => SetAffectsRender(ref numberOfBlurPass, value);
+    }
+
+#endregion
 }

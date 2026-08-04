@@ -13,15 +13,11 @@ namespace HelixToolkit.SharpDX.Core.Core;
 /// <summary>
 /// </summary>
 public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
-    private RasterizerStateProxy invertCullModeState;
-
     private RasterizerStateDescription rasterDescription = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None
     };
-
-    private RasterizerStateProxy rasterState;
-
+    
     /// <summary>
     ///     Initializes a new instance of the <see cref="GeometryRenderCore" /> class.
     /// </summary>
@@ -35,13 +31,28 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
 
     /// <summary>
     /// </summary>
-    public RasterizerStateProxy RasterState => rasterState;
+    public RasterizerStateProxy? RasterState {
+        get;
+        private set {
+            if(field != value)
+                field?.Dispose();
+            field = value;
 
-    public RasterizerStateProxy InvertCullModeState => invertCullModeState;
+        }
+    }
+
+    public RasterizerStateProxy? InvertCullModeState {
+        get;
+        set {
+            if(field != value)
+                field?.Dispose();
+            field = value;
+        }
+    }
 
     /// <summary>
     /// </summary>
-    public IElementsBufferModel InstanceBuffer {
+    public IElementsBufferModel? InstanceBuffer {
         get;
         set {
             var old = field;
@@ -57,7 +68,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
 
     /// <summary>
     /// </summary>
-    public IAttachableBufferModel GeometryBuffer {
+    public IAttachableBufferModel? GeometryBuffer {
         get;
         set {
             if (SetAffectsCanRenderFlag(ref field, value))
@@ -86,10 +97,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         if (description.CullMode != CullMode.None)
             invCull.CullMode = description.CullMode == CullMode.Back ? CullMode.Front : CullMode.Back;
         var newInvertCullModeState = EffectTechnique.EffectsManager.StateManager.Register(invCull);
-        RemoveAndDispose(ref rasterState);
-        RemoveAndDispose(ref invertCullModeState);
-        rasterState = newRasterState;
-        invertCullModeState = newInvertCullModeState;
+
+        RasterState = newRasterState;
+        InvertCullModeState = newInvertCullModeState;
         return true;
     }
 
@@ -103,15 +113,15 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     }
 
     protected override void OnDetach() {
-        RemoveAndDispose(ref rasterState);
-        RemoveAndDispose(ref invertCullModeState);
+        RasterState = null;
+        InvertCullModeState = null;
     }
 
     /// <summary>
     ///     Called when [geometry buffer changed].
     /// </summary>
     /// <param name="buffer">The buffer.</param>
-    protected virtual void OnGeometryBufferChanged(IAttachableBufferModel buffer) { }
+    protected virtual void OnGeometryBufferChanged(IAttachableBufferModel? buffer) { }
 
     /// <summary>
     ///     Set all necessary states and buffers
@@ -119,9 +129,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="context"></param>
     /// <param name="isInvertCullMode"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode) {
-        context.SetRasterState(!isInvertCullMode ? rasterState : invertCullModeState);
-    }
+    protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode) 
+        => context.SetRasterState(!isInvertCullMode ? RasterState : InvertCullModeState);
 
     /// <summary>
     ///     Attach vertex buffer routine
@@ -142,9 +151,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     ///     Called when [update can render flag].
     /// </summary>
     /// <returns></returns>
-    protected override bool OnUpdateCanRenderFlag() {
-        return base.OnUpdateCanRenderFlag() && GeometryBuffer != null;
-    }
+    protected override bool OnUpdateCanRenderFlag() 
+        => base.OnUpdateCanRenderFlag() && GeometryBuffer != null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void DrawIndexed(
@@ -184,24 +192,28 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="context"></param>
     /// <param name="deviceContext"></param>
     public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (PreRender(context, deviceContext)) OnRender(context, deviceContext);
+        if (PreRender(context, deviceContext)) 
+            OnRender(context, deviceContext);
     }
 
 
     public sealed override void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
-        if (PreRender(context, deviceContext)) OnRenderShadow(context, deviceContext);
+        if (PreRender(context, deviceContext)) 
+            OnRenderShadow(context, deviceContext);
     }
 
     public sealed override void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
-        if (PreRender(context, deviceContext)) OnRenderCustom(context, deviceContext);
+        if (PreRender(context, deviceContext)) 
+            OnRenderCustom(context, deviceContext);
     }
 
     public sealed override void RenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     ) {
-        if (PreRender(context, deviceContext)) OnRenderDepth(context, deviceContext, customPass);
+        if (PreRender(context, deviceContext)) 
+            OnRenderDepth(context, deviceContext, customPass);
     }
 
     /// <summary>
@@ -232,15 +244,13 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     protected abstract void OnRenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     );
 
-    protected void OnElementChanged(object sender, EventArgs e) {
+    protected void OnElementChanged(object? sender, EventArgs e) {
         UpdateCanRenderFlag();
         RaiseInvalidateRender();
     }
 
-    protected void OnInvalidateRendererEvent(object sender, EventArgs e) {
-        RaiseInvalidateRender();
-    }
+    protected void OnInvalidateRendererEvent(object? sender, EventArgs e) => RaiseInvalidateRender();
 }

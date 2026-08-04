@@ -6,722 +6,718 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define OUTPUTDEBUGGING
 //#endif
 
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        /// <summary>
-        /// </summary>
-        public class ParticleRenderCore : RenderCore {
-            private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
+namespace HelixToolkit.SharpDX.Core.Core;
+
+/// <summary>
+/// </summary>
+public class ParticleRenderCore : RenderCore {
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 #pragma warning disable 1591
-            public static readonly int DefaultParticleCount = 512;
-            public static readonly float DefaultInitialVelocity = 1f;
-            public static readonly Vector3 DefaultAcceleration = new(0, 0.1f, 0);
-            public static readonly Vector2 DefaultParticleSize = new(1, 1);
-            public static readonly Vector3 DefaultEmitterLocation = Vector3.Zero;
-            public static readonly Vector3 DefaultConsumerLocation = new(0, 10, 0);
-            public static readonly float DefaultConsumerGravity = 0;
-            public static readonly float DefaultConsumerRadius = 0;
-            public static readonly Vector3 DefaultBoundMaximum = new(5, 5, 5);
-            public static readonly Vector3 DefaultBoundMinimum = new(-5, -5, -5);
-            public static readonly float DefaultInitialEnergy = 5;
-            public static readonly float DefaultEnergyDissipationRate = 1f;
+    public static readonly int DefaultParticleCount = 512;
+    public static readonly float DefaultInitialVelocity = 1f;
+    public static readonly Vector3 DefaultAcceleration = new(0, 0.1f, 0);
+    public static readonly Vector2 DefaultParticleSize = new(1, 1);
+    public static readonly Vector3 DefaultEmitterLocation = Vector3.Zero;
+    public static readonly Vector3 DefaultConsumerLocation = new(0, 10, 0);
+    public static readonly float DefaultConsumerGravity = 0;
+    public static readonly float DefaultConsumerRadius = 0;
+    public static readonly Vector3 DefaultBoundMaximum = new(5, 5, 5);
+    public static readonly Vector3 DefaultBoundMinimum = new(-5, -5, -5);
+    public static readonly float DefaultInitialEnergy = 5;
+    public static readonly float DefaultEnergyDissipationRate = 1f;
 #pragma warning restore
 
-            #region variables
-
-            /// <summary>
-            ///     Texture tile columns
-            /// </summary>
-            public uint NumTextureColumn {
-                get => FrameVariables.NumTexCol;
-                set => FrameVariables.NumTexCol = value;
-            }
-
-            /// <summary>
-            ///     Texture tile rows
-            /// </summary>
-            public uint NumTextureRow {
-                get => FrameVariables.NumTexRow;
-                set => FrameVariables.NumTexRow = value;
-            }
-
-            /// <summary>
-            ///     Change Sprite based on particle energy, sequence from (1,1) to (NumTextureRow, NumTextureColumn) evenly divided by
-            ///     tile counts
-            /// </summary>
-            public bool AnimateSpriteByEnergy {
-                get => FrameVariables.AnimateByEnergyLevel == 1;
-                set => FrameVariables.AnimateByEnergyLevel = value ? 1 : 0;
-            }
-
-            public float Turbulance {
-                get => FrameVariables.Turbulance;
-                set => FrameVariables.Turbulance = value;
-            }
-
-            /// <summary>
-            ///     Minimum time elapse to insert new particles
-            /// </summary>
-            public float InsertElapseThrottle { get; private set; }
-
-            private double prevTimeMillis;
-
-            /// <summary>
-            ///     Random generator, used to generate particle for different direction, etc
-            /// </summary>
-            public IRandomVector VectorGenerator { get; set; } = new UniformRandomVectorGenerator();
-
-            private bool isRestart = true;
-
-            private bool isInitialParticleChanged = true;
-
-            private int particleCount = DefaultParticleCount;
-
-            /// <summary>
-            ///     Maximum Particle count
-            /// </summary>
-            public int ParticleCount {
-                get => particleCount;
-                set {
-                    if (particleCount == value) return;
-                    particleCount = value;
-                    if (IsAttached) OnInitialParticleChanged(value);
-                }
-            }
-
-            private TextureModel particleTexture;
-
-            /// <summary>
-            ///     Particle Texture
-            /// </summary>
-            public TextureModel ParticleTexture {
-                get => particleTexture;
-                set {
-                    if (Set(ref particleTexture, value) && IsAttached) OnTextureChanged();
-                }
-            }
-
-            private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerWrapAni1;
-
-            /// <summary>
-            ///     Particle texture sampler description.
-            /// </summary>
-            public SamplerStateDescription SamplerDescription {
-                get => samplerDescription;
-                set {
-                    if (Set(ref samplerDescription, value) && IsAttached) {
-                        var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
-                        RemoveAndDispose(ref textureSampler);
-                        textureSampler = newSampler;
-                    }
-                }
-            }
-
-            /// <summary>
-            ///     Gets a value indicating whether this instance has texture.
-            /// </summary>
-            /// <value>
-            ///     <c>true</c> if this instance has texture; otherwise, <c>false</c>.
-            /// </value>
-            public bool HasTexture => particleTexture != null;
-
-            /// <summary>
-            ///     Particle Size
-            /// </summary>
-            public Vector2 ParticleSize {
-                get => FrameVariables.ParticleSize;
-                set => FrameVariables.ParticleSize = value;
-            }
-
-            /// <summary>
-            /// </summary>
-            public Vector3 EmitterLocation {
-                get => InsertVariables.EmitterLocation;
-                set => InsertVariables.EmitterLocation = value;
-            }
-
-            /// <summary>
-            /// </summary>
-            public bool CumulateAtBound {
-                get => FrameVariables.CumulateAtBound == 1;
-                set => FrameVariables.CumulateAtBound = value ? 1u : 0;
-            }
-
-            /// <summary>
-            /// </summary>
-            public Vector3 ExtraAcceleration {
-                get => FrameVariables.ExtraAcceleration;
-                set => FrameVariables.ExtraAcceleration = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the domain bound maximum.
-            /// </summary>
-            /// <value>
-            ///     The domain bound maximum.
-            /// </value>
-            public Vector3 DomainBoundMax {
-                get => FrameVariables.DomainBoundsMax;
-                set => FrameVariables.DomainBoundsMax = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the domain bound minimum.
-            /// </summary>
-            /// <value>
-            ///     The domain bound minimum.
-            /// </value>
-            public Vector3 DomainBoundMin {
-                get => FrameVariables.DomainBoundsMin;
-                set {
-                    if (FrameVariables.DomainBoundsMin != value) {
-                        FrameVariables.DomainBoundsMin = value;
-                        RaiseInvalidateRender();
-                    }
-                }
-            }
-
-            /// <summary>
-            ///     Gets or sets the consumer gravity.
-            /// </summary>
-            /// <value>
-            ///     The consumer gravity.
-            /// </value>
-            public float ConsumerGravity {
-                get => FrameVariables.ConsumerGravity;
-                set => FrameVariables.ConsumerGravity = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the consumer location.
-            /// </summary>
-            /// <value>
-            ///     The consumer location.
-            /// </value>
-            public Vector3 ConsumerLocation {
-                get => FrameVariables.ConsumerLocation;
-                set => FrameVariables.ConsumerLocation = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the consumer radius.
-            /// </summary>
-            /// <value>
-            ///     The consumer radius.
-            /// </value>
-            public float ConsumerRadius {
-                get => FrameVariables.ConsumerRadius;
-                set => FrameVariables.ConsumerRadius = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the energy dissipation rate.
-            /// </summary>
-            /// <value>
-            ///     The energy dissipation rate.
-            /// </value>
-            public float EnergyDissipationRate {
-                get => InsertVariables.EnergyDissipationRate;
-                set => InsertVariables.EnergyDissipationRate = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the initial acceleration.
-            /// </summary>
-            /// <value>
-            ///     The initial acceleration.
-            /// </value>
-            public Vector3 InitialAcceleration {
-                get => InsertVariables.InitialAcceleration;
-                set => InsertVariables.InitialAcceleration = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the initial energy.
-            /// </summary>
-            /// <value>
-            ///     The initial energy.
-            /// </value>
-            public float InitialEnergy {
-                get => InsertVariables.InitialEnergy;
-                set => InsertVariables.InitialEnergy = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the initial velocity.
-            /// </summary>
-            /// <value>
-            ///     The initial velocity.
-            /// </value>
-            public float InitialVelocity {
-                get => InsertVariables.InitialVelocity;
-                set => InsertVariables.InitialVelocity = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the color of the particle blend.
-            /// </summary>
-            /// <value>
-            ///     The color of the particle blend.
-            /// </value>
-            public Color4 ParticleBlendColor {
-                get => InsertVariables.ParticleBlendColor;
-                set => InsertVariables.ParticleBlendColor = value;
-            }
-
-            /// <summary>
-            ///     Gets or sets the emitter radius.
-            /// </summary>
-            /// <value>
-            ///     The emitter radius.
-            /// </value>
-            public float EmitterRadius {
-                get => InsertVariables.EmitterRadius;
-                set => InsertVariables.EmitterRadius = value;
-            }
-
-            /// <summary>
-            ///     Particle per frame parameters
-            /// </summary>
-            private ParticlePerFrame FrameVariables = new() {
-                ExtraAcceleration = DefaultAcceleration,
-                CumulateAtBound = 0,
-                DomainBoundsMax = DefaultBoundMaximum,
-                DomainBoundsMin = DefaultBoundMinimum,
-                ConsumerGravity = DefaultConsumerGravity,
-                ConsumerLocation = DefaultConsumerLocation,
-                ConsumerRadius = DefaultConsumerRadius
-            };
-
-            /// <summary>
-            ///     Particle insert parameters
-            /// </summary>
-            private ParticleInsertParameters InsertVariables = new() {
-                EmitterLocation = DefaultEmitterLocation,
-                EmitterRadius = DefaultConsumerRadius,
-                EnergyDissipationRate = DefaultEnergyDissipationRate,
-                InitialAcceleration = DefaultAcceleration,
-                InitialEnergy = DefaultInitialEnergy,
-                InitialVelocity = DefaultInitialVelocity,
-                ParticleBlendColor = Color.White.ToColor4()
-            };
-
-            #region ShaderVariables
-
-            private ShaderPass updatePass;
-            private ShaderPass insertPass;
-            private ShaderPass renderPass;
-
-            private readonly ConstantBufferComponent perFrameCB;
-            private readonly ConstantBufferComponent insertCB;
-            private readonly ConstantBufferComponent modelCB;
-
-            private ShaderResourceViewProxy textureView;
-            private SamplerStateProxy textureSampler;
-            private BlendStateProxy blendState;
-            private double totalElapsed;
-            private ParticleModelStruct modelStruct;
-
-            #endregion
-
-            #region Buffers
-
-            private IElementsBufferModel instanceBuffer = MatrixInstanceBufferModel.Empty;
-
-            /// <summary>
-            ///     Gets or sets the instance buffer.
-            /// </summary>
-            /// <value>
-            ///     The instance buffer.
-            /// </value>
-            public IElementsBufferModel InstanceBuffer {
-                get => instanceBuffer;
-                set {
-                    if (Set(ref instanceBuffer, value))
-                        if (value == null)
-                            instanceBuffer = MatrixInstanceBufferModel.Empty;
-                }
-            }
-
-            private BufferDescription bufferDesc = new() {
-                BindFlags = BindFlags.UnorderedAccess | BindFlags.ShaderResource,
-                OptionFlags = ResourceOptionFlags.BufferStructured,
-                StructureByteStride = Particle.SizeInBytes,
-                CpuAccessFlags = CpuAccessFlags.None,
-                Usage = ResourceUsage.Default
-            };
-
-            //Buffer indirectArgsBuffer;
-            private readonly ConstantBufferProxy particleCountGSIABuffer
-                = new("particleCount",
-                      ParticleCountIndirectArgs.SizeInBytes,
-                      BindFlags.None,
-                      CpuAccessFlags.None,
-                      ResourceOptionFlags.DrawIndirectArguments);
-
-            private readonly ConstantBufferProxy particleCountStaging
-                = new("particleStaging",
-                      4 * sizeof(int),
-                      BindFlags.None,
-                      CpuAccessFlags.Read,
-                      ResourceOptionFlags.None,
-                      ResourceUsage.Staging);
-
-            private UnorderedAccessViewDescription UAVBufferViewDesc = new() {
-                Dimension = UnorderedAccessViewDimension.Buffer,
-                Format = Format.FormatUnknown,
-                Buffer = new UnorderedAccessViewDescription.BufferResource { FirstElement = 0, Flags = UnorderedAccessViewBufferFlags.Append }
-            };
-
-            private ShaderResourceViewDescription SRVBufferViewDesc = new() {
-                Dimension = ShaderResourceViewDimension.Buffer
-            };
-
-            /// <summary>
-            ///     Gets or sets the buffer proxies.
-            /// </summary>
-            /// <value>
-            ///     The buffer proxies.
-            /// </value>
-            protected UAVBufferViewProxy[] BufferProxies { get; } = new UAVBufferViewProxy[2];
-
-            private ParticleCountIndirectArgs drawArgument;
-
-            #endregion
-
-            private BlendStateDescription blendDesc = new() { IndependentBlendEnable = false, AlphaToCoverageEnable = false };
-
-            /// <summary>
-            ///     Particle blend state description
-            /// </summary>
-            public BlendStateDescription BlendDescription {
-                get => blendDesc;
-                set {
-                    if (Set(ref blendDesc, value) && IsAttached) OnBlendStateChanged();
-                }
-            }
-
-            private Color4 blendFactor = Color.White;
-
-            /// <summary>
-            ///     Gets or sets the blend factor used for blending.
-            /// </summary>
-            /// <value>
-            ///     The blend factor.
-            /// </value>
-            public Color4 BlendFactor {
-                get => blendFactor;
-                set => SetAffectsRender(ref blendFactor, value);
-            }
-
-            private int sampleMask = -1;
-
-            /// <summary>
-            ///     Gets or sets the sample mask used for blending.
-            /// </summary>
-            /// <value>
-            ///     The sample mask.
-            /// </value>
-            public int SampleMask {
-                get => sampleMask;
-                set => SetAffectsRender(ref sampleMask, value);
-            }
-
-            /// <summary>
-            ///     Gets or sets the vertex layout.
-            /// </summary>
-            /// <value>
-            ///     The vertex layout.
-            /// </value>
-            public InputLayoutProxy VertexLayout { get; private set; }
-
-            #region Shader Variable Names
-
-            /// <summary>
-            ///     Set current sim state variable name inside compute shader for binding
-            /// </summary>
-            public string CurrentSimStateUAVBufferName { get; set; } = DefaultBufferNames.CurrentSimulationStateUB;
-
-            /// <summary>
-            ///     Set new sim state variable name inside compute shader for binding
-            /// </summary>
-            public string NewSimStateUAVBufferName { get; set; } = DefaultBufferNames.NewSimulationStateUB;
-
-            /// <summary>
-            ///     Set sim state name inside vertex shader for binding
-            /// </summary>
-            public string SimStateBufferName { get; set; } = DefaultBufferNames.SimulationStateTB;
-
-            /// <summary>
-            ///     Set texture variable name inside shader for binding
-            /// </summary>
-            public string ShaderTextureBufferName { get; set; } = DefaultBufferNames.ParticleMapTB;
-
-            /// <summary>
-            ///     Set texture sampler variable name inside shader for binding
-            /// </summary>
-            public string ShaderTextureSamplerName { get; set; } = DefaultSamplerStateNames.ParticleTextureSampler;
-
-            #endregion
-
-            private int currentStateSlot;
-            private int newStateSlot;
-            private int renderStateSlot;
-            private int textureSlot;
-            private int samplerSlot;
-
-            #endregion
-
-            private readonly object lockObject = new();
-
-            public ParticleRenderCore() : base(RenderType.Particle) {
-                modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                                       DefaultBufferNames.ParticleModelCB,
-                                                                       ParticleModelStruct.SizeInBytes)));
-                perFrameCB = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleFrameCB,
-                                                                      ParticlePerFrame.SizeInBytes));
-                insertCB = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleCreateParameters,
-                                                                    ParticleInsertParameters.SizeInBytes));
-                NeedUpdate = true;
-            }
-
-            private void OnUpdatePerModelStruct(RenderContext context) {
-                modelStruct.World = ModelMatrix;
-                modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
-                modelStruct.HasTexture = HasTexture ? 1 : 0;
-                FrameVariables.RandomVector = VectorGenerator.RandomVector3;
-            }
-
-            /// <summary>
-            ///     Called when [attach].
-            /// </summary>
-            /// <param name="technique">The technique.</param>
-            /// <returns></returns>
-            protected override bool OnAttach(IRenderTechnique technique) {
-                VertexLayout = technique.Layout;
-                updatePass = technique[DefaultParticlePassNames.Update];
-                insertPass = technique[DefaultParticlePassNames.Insert];
-                renderPass = technique[DefaultParticlePassNames.Default];
-
-                #region Get binding slots
-
-                currentStateSlot = updatePass.GetShader(ShaderStage.Compute).UnorderedAccessViewMapping
-                                             .TryGetBindSlot(CurrentSimStateUAVBufferName);
-                newStateSlot = updatePass.GetShader(ShaderStage.Compute).UnorderedAccessViewMapping
-                                         .TryGetBindSlot(NewSimStateUAVBufferName);
-
-                renderStateSlot = renderPass.GetShader(ShaderStage.Vertex).ShaderResourceViewMapping
-                                            .TryGetBindSlot(SimStateBufferName);
-                textureSlot = renderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureBufferName);
-                samplerSlot = renderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderTextureSamplerName);
-
-                #endregion
-
-                if (isInitialParticleChanged) OnInitialParticleChanged(ParticleCount);
-                textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
-                OnTextureChanged();
-                OnBlendStateChanged();
-                return true;
-            }
-
-            /// <summary>
-            ///     Updates the insert throttle.
-            /// </summary>
-            public void UpdateInsertThrottle() {
-                InsertElapseThrottle = 8.0f * InsertVariables.InitialEnergy / InsertVariables.EnergyDissipationRate /
-                                       Math.Max(0, particleCount + 8);
-            }
-
-            private void UpdateTime(RenderContext context, ref double totalElapsed) {
-                var timeElapsed = Math.Max(0, (context.TimeStamp.TotalMilliseconds - prevTimeMillis) / 1000);
-                prevTimeMillis = context.TimeStamp.TotalMilliseconds;
-                totalElapsed += timeElapsed;
-                //Update perframe variables
-                FrameVariables.TimeFactors = (float)timeElapsed;
-            }
-
-
-            private void OnInitialParticleChanged(int count) {
-                isInitialParticleChanged = true;
-                if (count <= 0) return;
-
-                if (bufferDesc.SizeInBytes <
-                    count * Particle.SizeInBytes) // Create new buffer, otherwise reuse existing buffers
-                {
-                    DisposeBuffers();
-                    InitializeBuffers(count);
-                }
-
-                UpdateInsertThrottle();
-                isInitialParticleChanged = false;
-                isRestart = true;
-                UpdateCanRenderFlag();
-            }
-
-            private void DisposeBuffers() {
-                bufferDesc.SizeInBytes = 0;
-                particleCountGSIABuffer.DisposeAndClear();
-
-                particleCountStaging.DisposeAndClear();
-
-                if (BufferProxies != null)
-                    for (var i = 0; i < BufferProxies.Length; ++i)
-                        RemoveAndDispose(ref BufferProxies[i]);
-            }
-
-            /// <summary>
-            ///     Called when [detach].
-            /// </summary>
-            protected override void OnDetach() {
-                DisposeBuffers();
-                isInitialParticleChanged = true;
+#region variables
+
+    /// <summary>
+    ///     Texture tile columns
+    /// </summary>
+    public uint NumTextureColumn {
+        get => FrameVariables.NumTexCol;
+        set => FrameVariables.NumTexCol = value;
+    }
+
+    /// <summary>
+    ///     Texture tile rows
+    /// </summary>
+    public uint NumTextureRow {
+        get => FrameVariables.NumTexRow;
+        set => FrameVariables.NumTexRow = value;
+    }
+
+    /// <summary>
+    ///     Change Sprite based on particle energy, sequence from (1,1) to (NumTextureRow, NumTextureColumn) evenly divided by
+    ///     tile counts
+    /// </summary>
+    public bool AnimateSpriteByEnergy {
+        get => FrameVariables.AnimateByEnergyLevel == 1;
+        set => FrameVariables.AnimateByEnergyLevel = value ? 1 : 0;
+    }
+
+    public float Turbulance {
+        get => FrameVariables.Turbulance;
+        set => FrameVariables.Turbulance = value;
+    }
+
+    /// <summary>
+    ///     Minimum time elapse to insert new particles
+    /// </summary>
+    public float InsertElapseThrottle { get; private set; }
+
+    private double prevTimeMillis;
+
+    /// <summary>
+    ///     Random generator, used to generate particle for different direction, etc
+    /// </summary>
+    public IRandomVector VectorGenerator { get; set; } = new UniformRandomVectorGenerator();
+
+    private bool isRestart = true;
+
+    private bool isInitialParticleChanged = true;
+
+    private int particleCount = DefaultParticleCount;
+
+    /// <summary>
+    ///     Maximum Particle count
+    /// </summary>
+    public int ParticleCount {
+        get => particleCount;
+        set {
+            if (particleCount == value) return;
+            particleCount = value;
+            if (IsAttached) OnInitialParticleChanged(value);
+        }
+    }
+
+    private TextureModel particleTexture;
+
+    /// <summary>
+    ///     Particle Texture
+    /// </summary>
+    public TextureModel ParticleTexture {
+        get => particleTexture;
+        set {
+            if (Set(ref particleTexture, value) && IsAttached) OnTextureChanged();
+        }
+    }
+
+    private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerWrapAni1;
+
+    /// <summary>
+    ///     Particle texture sampler description.
+    /// </summary>
+    public SamplerStateDescription SamplerDescription {
+        get => samplerDescription;
+        set {
+            if (Set(ref samplerDescription, value) && IsAttached) {
+                var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
                 RemoveAndDispose(ref textureSampler);
-                RemoveAndDispose(ref blendState);
-                RemoveAndDispose(ref textureView);
+                textureSampler = newSampler;
             }
+        }
+    }
 
-            private void InitializeBuffers(int count) {
-                bufferDesc.SizeInBytes = particleCount * Particle.SizeInBytes;
-                UAVBufferViewDesc.Buffer.ElementCount = particleCount;
+    /// <summary>
+    ///     Gets a value indicating whether this instance has texture.
+    /// </summary>
+    /// <value>
+    ///     <c>true</c> if this instance has texture; otherwise, <c>false</c>.
+    /// </value>
+    public bool HasTexture => particleTexture != null;
 
-                for (var i = 0; i < BufferProxies.Length; ++i)
-                    BufferProxies[i] = new UAVBufferViewProxy(Device,
-                                                              ref bufferDesc,
-                                                              ref UAVBufferViewDesc,
-                                                              ref SRVBufferViewDesc);
+    /// <summary>
+    ///     Particle Size
+    /// </summary>
+    public Vector2 ParticleSize {
+        get => FrameVariables.ParticleSize;
+        set => FrameVariables.ParticleSize = value;
+    }
 
-                particleCountStaging.CreateBuffer(Device);
-                particleCountGSIABuffer.CreateBuffer(Device);
+    /// <summary>
+    /// </summary>
+    public Vector3 EmitterLocation {
+        get => InsertVariables.EmitterLocation;
+        set => InsertVariables.EmitterLocation = value;
+    }
+
+    /// <summary>
+    /// </summary>
+    public bool CumulateAtBound {
+        get => FrameVariables.CumulateAtBound == 1;
+        set => FrameVariables.CumulateAtBound = value ? 1u : 0;
+    }
+
+    /// <summary>
+    /// </summary>
+    public Vector3 ExtraAcceleration {
+        get => FrameVariables.ExtraAcceleration;
+        set => FrameVariables.ExtraAcceleration = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the domain bound maximum.
+    /// </summary>
+    /// <value>
+    ///     The domain bound maximum.
+    /// </value>
+    public Vector3 DomainBoundMax {
+        get => FrameVariables.DomainBoundsMax;
+        set => FrameVariables.DomainBoundsMax = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the domain bound minimum.
+    /// </summary>
+    /// <value>
+    ///     The domain bound minimum.
+    /// </value>
+    public Vector3 DomainBoundMin {
+        get => FrameVariables.DomainBoundsMin;
+        set {
+            if (FrameVariables.DomainBoundsMin != value) {
+                FrameVariables.DomainBoundsMin = value;
+                RaiseInvalidateRender();
             }
+        }
+    }
 
-            private void OnTextureChanged() {
-                var newView = EffectTechnique.EffectsManager.MaterialTextureManager.Register(ParticleTexture);
-                RemoveAndDispose(ref textureView);
-                textureView = newView;
-            }
+    /// <summary>
+    ///     Gets or sets the consumer gravity.
+    /// </summary>
+    /// <value>
+    ///     The consumer gravity.
+    /// </value>
+    public float ConsumerGravity {
+        get => FrameVariables.ConsumerGravity;
+        set => FrameVariables.ConsumerGravity = value;
+    }
 
-            private void OnBlendStateChanged() {
-                var newState = EffectTechnique.EffectsManager.StateManager.Register(blendDesc);
-                RemoveAndDispose(ref blendState);
-                blendState = newState;
-            }
+    /// <summary>
+    ///     Gets or sets the consumer location.
+    /// </summary>
+    /// <value>
+    ///     The consumer location.
+    /// </value>
+    public Vector3 ConsumerLocation {
+        get => FrameVariables.ConsumerLocation;
+        set => FrameVariables.ConsumerLocation = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the consumer radius.
+    /// </summary>
+    /// <value>
+    ///     The consumer radius.
+    /// </value>
+    public float ConsumerRadius {
+        get => FrameVariables.ConsumerRadius;
+        set => FrameVariables.ConsumerRadius = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the energy dissipation rate.
+    /// </summary>
+    /// <value>
+    ///     The energy dissipation rate.
+    /// </value>
+    public float EnergyDissipationRate {
+        get => InsertVariables.EnergyDissipationRate;
+        set => InsertVariables.EnergyDissipationRate = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the initial acceleration.
+    /// </summary>
+    /// <value>
+    ///     The initial acceleration.
+    /// </value>
+    public Vector3 InitialAcceleration {
+        get => InsertVariables.InitialAcceleration;
+        set => InsertVariables.InitialAcceleration = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the initial energy.
+    /// </summary>
+    /// <value>
+    ///     The initial energy.
+    /// </value>
+    public float InitialEnergy {
+        get => InsertVariables.InitialEnergy;
+        set => InsertVariables.InitialEnergy = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the initial velocity.
+    /// </summary>
+    /// <value>
+    ///     The initial velocity.
+    /// </value>
+    public float InitialVelocity {
+        get => InsertVariables.InitialVelocity;
+        set => InsertVariables.InitialVelocity = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the color of the particle blend.
+    /// </summary>
+    /// <value>
+    ///     The color of the particle blend.
+    /// </value>
+    public Color4 ParticleBlendColor {
+        get => InsertVariables.ParticleBlendColor;
+        set => InsertVariables.ParticleBlendColor = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the emitter radius.
+    /// </summary>
+    /// <value>
+    ///     The emitter radius.
+    /// </value>
+    public float EmitterRadius {
+        get => InsertVariables.EmitterRadius;
+        set => InsertVariables.EmitterRadius = value;
+    }
+
+    /// <summary>
+    ///     Particle per frame parameters
+    /// </summary>
+    private ParticlePerFrame FrameVariables = new() {
+        ExtraAcceleration = DefaultAcceleration,
+        CumulateAtBound = 0,
+        DomainBoundsMax = DefaultBoundMaximum,
+        DomainBoundsMin = DefaultBoundMinimum,
+        ConsumerGravity = DefaultConsumerGravity,
+        ConsumerLocation = DefaultConsumerLocation,
+        ConsumerRadius = DefaultConsumerRadius
+    };
+
+    /// <summary>
+    ///     Particle insert parameters
+    /// </summary>
+    private ParticleInsertParameters InsertVariables = new() {
+        EmitterLocation = DefaultEmitterLocation,
+        EmitterRadius = DefaultConsumerRadius,
+        EnergyDissipationRate = DefaultEnergyDissipationRate,
+        InitialAcceleration = DefaultAcceleration,
+        InitialEnergy = DefaultInitialEnergy,
+        InitialVelocity = DefaultInitialVelocity,
+        ParticleBlendColor = Color.White.ToColor4()
+    };
+
+#region ShaderVariables
+
+    private ShaderPass updatePass;
+    private ShaderPass insertPass;
+    private ShaderPass renderPass;
+
+    private readonly ConstantBufferComponent perFrameCB;
+    private readonly ConstantBufferComponent insertCB;
+    private readonly ConstantBufferComponent modelCB;
+
+    private ShaderResourceViewProxy textureView;
+    private SamplerStateProxy textureSampler;
+    private BlendStateProxy blendState;
+    private double totalElapsed;
+    private ParticleModelStruct modelStruct;
+
+#endregion
+
+#region Buffers
+
+    private IElementsBufferModel instanceBuffer = MatrixInstanceBufferModel.Empty;
+
+    /// <summary>
+    ///     Gets or sets the instance buffer.
+    /// </summary>
+    /// <value>
+    ///     The instance buffer.
+    /// </value>
+    public IElementsBufferModel InstanceBuffer {
+        get => instanceBuffer;
+        set {
+            if (Set(ref instanceBuffer, value))
+                if (value == null)
+                    instanceBuffer = MatrixInstanceBufferModel.Empty;
+        }
+    }
+
+    private BufferDescription bufferDesc = new() {
+        BindFlags = BindFlags.UnorderedAccess | BindFlags.ShaderResource,
+        OptionFlags = ResourceOptionFlags.BufferStructured,
+        StructureByteStride = Particle.SizeInBytes,
+        CpuAccessFlags = CpuAccessFlags.None,
+        Usage = ResourceUsage.Default
+    };
+
+    //Buffer indirectArgsBuffer;
+    private readonly ConstantBufferProxy particleCountGSIABuffer
+        = new("particleCount",
+              ParticleCountIndirectArgs.SizeInBytes,
+              BindFlags.None,
+              CpuAccessFlags.None,
+              ResourceOptionFlags.DrawIndirectArguments);
+
+    private readonly ConstantBufferProxy particleCountStaging
+        = new("particleStaging",
+              4 * sizeof(int),
+              BindFlags.None,
+              CpuAccessFlags.Read,
+              ResourceOptionFlags.None,
+              ResourceUsage.Staging);
+
+    private UnorderedAccessViewDescription UAVBufferViewDesc = new() {
+        Dimension = UnorderedAccessViewDimension.Buffer,
+        Format = Format.FormatUnknown,
+        Buffer = new UnorderedAccessViewDescription.BufferResource { FirstElement = 0, Flags = UnorderedAccessViewBufferFlags.Append }
+    };
+
+    private ShaderResourceViewDescription SRVBufferViewDesc = new() {
+        Dimension = ShaderResourceViewDimension.Buffer
+    };
+
+    /// <summary>
+    ///     Gets or sets the buffer proxies.
+    /// </summary>
+    /// <value>
+    ///     The buffer proxies.
+    /// </value>
+    protected UAVBufferViewProxy[] BufferProxies { get; } = new UAVBufferViewProxy[2];
+
+    private ParticleCountIndirectArgs drawArgument;
+
+#endregion
+
+    private BlendStateDescription blendDesc = new() { IndependentBlendEnable = false, AlphaToCoverageEnable = false };
+
+    /// <summary>
+    ///     Particle blend state description
+    /// </summary>
+    public BlendStateDescription BlendDescription {
+        get => blendDesc;
+        set {
+            if (Set(ref blendDesc, value) && IsAttached) OnBlendStateChanged();
+        }
+    }
+
+    private Color4 blendFactor = Color.White;
+
+    /// <summary>
+    ///     Gets or sets the blend factor used for blending.
+    /// </summary>
+    /// <value>
+    ///     The blend factor.
+    /// </value>
+    public Color4 BlendFactor {
+        get => blendFactor;
+        set => SetAffectsRender(ref blendFactor, value);
+    }
+
+    private int sampleMask = -1;
+
+    /// <summary>
+    ///     Gets or sets the sample mask used for blending.
+    /// </summary>
+    /// <value>
+    ///     The sample mask.
+    /// </value>
+    public int SampleMask {
+        get => sampleMask;
+        set => SetAffectsRender(ref sampleMask, value);
+    }
+
+    /// <summary>
+    ///     Gets or sets the vertex layout.
+    /// </summary>
+    /// <value>
+    ///     The vertex layout.
+    /// </value>
+    public InputLayoutProxy VertexLayout { get; private set; }
+
+#region Shader Variable Names
+
+    /// <summary>
+    ///     Set current sim state variable name inside compute shader for binding
+    /// </summary>
+    public string CurrentSimStateUAVBufferName { get; set; } = DefaultBufferNames.CurrentSimulationStateUB;
+
+    /// <summary>
+    ///     Set new sim state variable name inside compute shader for binding
+    /// </summary>
+    public string NewSimStateUAVBufferName { get; set; } = DefaultBufferNames.NewSimulationStateUB;
+
+    /// <summary>
+    ///     Set sim state name inside vertex shader for binding
+    /// </summary>
+    public string SimStateBufferName { get; set; } = DefaultBufferNames.SimulationStateTB;
+
+    /// <summary>
+    ///     Set texture variable name inside shader for binding
+    /// </summary>
+    public string ShaderTextureBufferName { get; set; } = DefaultBufferNames.ParticleMapTB;
+
+    /// <summary>
+    ///     Set texture sampler variable name inside shader for binding
+    /// </summary>
+    public string ShaderTextureSamplerName { get; set; } = DefaultSamplerStateNames.ParticleTextureSampler;
+
+#endregion
+
+    private int currentStateSlot;
+    private int newStateSlot;
+    private int renderStateSlot;
+    private int textureSlot;
+    private int samplerSlot;
+
+#endregion
+
+    private readonly object lockObject = new();
+
+    public ParticleRenderCore() : base(RenderType.Particle) {
+        modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+                                                               DefaultBufferNames.ParticleModelCB,
+                                                               ParticleModelStruct.SizeInBytes)));
+        perFrameCB = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleFrameCB,
+                                                              ParticlePerFrame.SizeInBytes));
+        insertCB = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleCreateParameters,
+                                                            ParticleInsertParameters.SizeInBytes));
+        NeedUpdate = true;
+    }
+
+    private void OnUpdatePerModelStruct(RenderContext context) {
+        modelStruct.World = ModelMatrix;
+        modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
+        modelStruct.HasTexture = HasTexture ? 1 : 0;
+        FrameVariables.RandomVector = VectorGenerator.RandomVector3;
+    }
+
+    /// <summary>
+    ///     Called when [attach].
+    /// </summary>
+    /// <param name="technique">The technique.</param>
+    /// <returns></returns>
+    protected override bool OnAttach(IRenderTechnique technique) {
+        VertexLayout = technique.Layout;
+        updatePass = technique[DefaultParticlePassNames.Update];
+        insertPass = technique[DefaultParticlePassNames.Insert];
+        renderPass = technique[DefaultParticlePassNames.Default];
+
+    #region Get binding slots
+
+        currentStateSlot = updatePass.GetShader(ShaderStage.Compute).UnorderedAccessViewMapping
+                                     .TryGetBindSlot(CurrentSimStateUAVBufferName);
+        newStateSlot = updatePass.GetShader(ShaderStage.Compute).UnorderedAccessViewMapping
+                                 .TryGetBindSlot(NewSimStateUAVBufferName);
+
+        renderStateSlot = renderPass.GetShader(ShaderStage.Vertex).ShaderResourceViewMapping
+                                    .TryGetBindSlot(SimStateBufferName);
+        textureSlot = renderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureBufferName);
+        samplerSlot = renderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderTextureSamplerName);
+
+    #endregion
+
+        if (isInitialParticleChanged) OnInitialParticleChanged(ParticleCount);
+        textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
+        OnTextureChanged();
+        OnBlendStateChanged();
+        return true;
+    }
+
+    /// <summary>
+    ///     Updates the insert throttle.
+    /// </summary>
+    public void UpdateInsertThrottle() {
+        InsertElapseThrottle = 8.0f * InsertVariables.InitialEnergy / InsertVariables.EnergyDissipationRate /
+                               Math.Max(0, particleCount + 8);
+    }
+
+    private void UpdateTime(RenderContext context, ref double totalElapsed) {
+        var timeElapsed = Math.Max(0, (context.TimeStamp.TotalMilliseconds - prevTimeMillis) / 1000);
+        prevTimeMillis = context.TimeStamp.TotalMilliseconds;
+        totalElapsed += timeElapsed;
+        //Update perframe variables
+        FrameVariables.TimeFactors = (float)timeElapsed;
+    }
 
 
-            protected override bool OnUpdateCanRenderFlag() {
-                return base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
-            }
+    private void OnInitialParticleChanged(int count) {
+        isInitialParticleChanged = true;
+        if (count <= 0) return;
 
-            /// <summary>
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="deviceContext"></param>
-            protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
-                UpdateTime(context, ref totalElapsed);
-                //Set correct instance count from instance buffer
-                drawArgument.InstanceCount =
-                    !InstanceBuffer.HasElements ? 1 : (uint)InstanceBuffer.Buffer.ElementCount;
-                //Upload the draw argument
-                particleCountGSIABuffer.UploadDataToBuffer(deviceContext, ref drawArgument);
+        if (bufferDesc.SizeInBytes <
+            count * Particle.SizeInBytes) // Create new buffer, otherwise reuse existing buffers
+        {
+            DisposeBuffers();
+            InitializeBuffers(count);
+        }
 
-                updatePass.BindShader(deviceContext);
-                updatePass.ComputeShader.BindUAV(deviceContext, currentStateSlot, BufferProxies[0]);
-                updatePass.ComputeShader.BindUAV(deviceContext, newStateSlot, BufferProxies[1]);
-                if (isRestart) {
-                    FrameVariables.NumParticles = 0;
-                    perFrameCB.Upload(deviceContext, ref FrameVariables);
-                    // Call ComputeShader to add initial particles
-                    deviceContext.Dispatch(1, 1, 1);
-                    isRestart = false;
-                } else {
-                    #region Get consume buffer count
+        UpdateInsertThrottle();
+        isInitialParticleChanged = false;
+        isRestart = true;
+        UpdateCanRenderFlag();
+    }
 
-                    // Get consume buffer count.
-                    //Due to some intel integrated graphic card having issue copy structure count directly into constant buffer.
-                    //Has to use staging buffer to read and pass into constant buffer              
-                    FrameVariables.NumParticles = (uint)ReadCount(string.Empty, deviceContext, BufferProxies[0]);
-                    perFrameCB.Upload(deviceContext, ref FrameVariables);
+    private void DisposeBuffers() {
+        bufferDesc.SizeInBytes = 0;
+        particleCountGSIABuffer.DisposeAndClear();
 
-                    #endregion
+        particleCountStaging.DisposeAndClear();
 
-                    deviceContext.Dispatch(Math.Max(1, (int)Math.Ceiling((double)FrameVariables.NumParticles / 512)),
-                                           1,
-                                           1);
-                    // Get append buffer count
-                    BufferProxies[1].CopyCount(deviceContext, particleCountGSIABuffer.Buffer, 0);
-                }
+        if (BufferProxies != null)
+            for (var i = 0; i < BufferProxies.Length; ++i)
+                RemoveAndDispose(ref BufferProxies[i]);
+    }
+
+    /// <summary>
+    ///     Called when [detach].
+    /// </summary>
+    protected override void OnDetach() {
+        DisposeBuffers();
+        isInitialParticleChanged = true;
+        RemoveAndDispose(ref textureSampler);
+        RemoveAndDispose(ref blendState);
+        RemoveAndDispose(ref textureView);
+    }
+
+    private void InitializeBuffers(int count) {
+        bufferDesc.SizeInBytes = particleCount * Particle.SizeInBytes;
+        UAVBufferViewDesc.Buffer.ElementCount = particleCount;
+
+        for (var i = 0; i < BufferProxies.Length; ++i)
+            BufferProxies[i] = new UAVBufferViewProxy(Device,
+                                                      ref bufferDesc,
+                                                      ref UAVBufferViewDesc,
+                                                      ref SRVBufferViewDesc);
+
+        particleCountStaging.CreateBuffer(Device);
+        particleCountGSIABuffer.CreateBuffer(Device);
+    }
+
+    private void OnTextureChanged() {
+        var newView = EffectTechnique.EffectsManager.MaterialTextureManager.Register(ParticleTexture);
+        RemoveAndDispose(ref textureView);
+        textureView = newView;
+    }
+
+    private void OnBlendStateChanged() {
+        var newState = EffectTechnique.EffectsManager.StateManager.Register(blendDesc);
+        RemoveAndDispose(ref blendState);
+        blendState = newState;
+    }
+
+
+    protected override bool OnUpdateCanRenderFlag() {
+        return base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="deviceContext"></param>
+    protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
+        UpdateTime(context, ref totalElapsed);
+        //Set correct instance count from instance buffer
+        drawArgument.InstanceCount =
+            !InstanceBuffer.HasElements ? 1 : (uint)InstanceBuffer.Buffer.ElementCount;
+        //Upload the draw argument
+        particleCountGSIABuffer.UploadDataToBuffer(deviceContext, ref drawArgument);
+
+        updatePass.BindShader(deviceContext);
+        updatePass.ComputeShader.BindUAV(deviceContext, currentStateSlot, BufferProxies[0]);
+        updatePass.ComputeShader.BindUAV(deviceContext, newStateSlot, BufferProxies[1]);
+        if (isRestart) {
+            FrameVariables.NumParticles = 0;
+            perFrameCB.Upload(deviceContext, ref FrameVariables);
+            // Call ComputeShader to add initial particles
+            deviceContext.Dispatch(1, 1, 1);
+            isRestart = false;
+        } else {
+        #region Get consume buffer count
+
+            // Get consume buffer count.
+            //Due to some intel integrated graphic card having issue copy structure count directly into constant buffer.
+            //Has to use staging buffer to read and pass into constant buffer              
+            FrameVariables.NumParticles = (uint)ReadCount(string.Empty, deviceContext, BufferProxies[0]);
+            perFrameCB.Upload(deviceContext, ref FrameVariables);
+
+        #endregion
+
+            deviceContext.Dispatch(Math.Max(1, (int)Math.Ceiling((double)FrameVariables.NumParticles / 512)),
+                                   1,
+                                   1);
+            // Get append buffer count
+            BufferProxies[1].CopyCount(deviceContext, particleCountGSIABuffer.Buffer, 0);
+        }
 
 #if OUTPUTDEBUGGING
                 ReadCount("UAV 0", deviceContext, BufferProxies[0].UAV);
 #endif
 
 
-                if (totalElapsed > InsertElapseThrottle) {
-                    insertCB.Upload(deviceContext, ref InsertVariables);
-                    // Add more particles 
-                    insertPass.BindShader(deviceContext);
-                    insertPass.ComputeShader.BindUAV(deviceContext, newStateSlot, BufferProxies[1]);
-                    deviceContext.Dispatch(1, 1, 1);
-                    totalElapsed = 0;
+        if (totalElapsed > InsertElapseThrottle) {
+            insertCB.Upload(deviceContext, ref InsertVariables);
+            // Add more particles 
+            insertPass.BindShader(deviceContext);
+            insertPass.ComputeShader.BindUAV(deviceContext, newStateSlot, BufferProxies[1]);
+            deviceContext.Dispatch(1, 1, 1);
+            totalElapsed = 0;
 #if OUTPUTDEBUGGING
                     ReadCount("UAV 1", deviceContext, BufferProxies[1].UAV);
 #endif
-                }
+        }
 
-                // Swap UAV buffers for next frame
-                var bproxy = BufferProxies[0];
-                BufferProxies[0] = BufferProxies[1];
-                BufferProxies[1] = bproxy;
-            }
+        // Swap UAV buffers for next frame
+        var bproxy = BufferProxies[0];
+        BufferProxies[0] = BufferProxies[1];
+        BufferProxies[1] = bproxy;
+    }
 
-            /// <summary>
-            ///     Called when [render].
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="deviceContext">The device context.</param>
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-                OnUpdatePerModelStruct(context);
-                perFrameCB.Upload(deviceContext, ref FrameVariables);
-                modelCB.Upload(deviceContext, ref modelStruct);
-                // Clear binding
-                updatePass.ComputeShader.BindUAV(deviceContext, currentStateSlot, null);
-                updatePass.ComputeShader.BindUAV(deviceContext, newStateSlot, null);
+    /// <summary>
+    ///     Called when [render].
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="deviceContext">The device context.</param>
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+        OnUpdatePerModelStruct(context);
+        perFrameCB.Upload(deviceContext, ref FrameVariables);
+        modelCB.Upload(deviceContext, ref modelStruct);
+        // Clear binding
+        updatePass.ComputeShader.BindUAV(deviceContext, currentStateSlot, null);
+        updatePass.ComputeShader.BindUAV(deviceContext, newStateSlot, null);
 
-                // Render existing particles
-                renderPass.BindShader(deviceContext);
-                renderPass.BindStates(deviceContext, StateType.RasterState | StateType.DepthStencilState);
+        // Render existing particles
+        renderPass.BindShader(deviceContext);
+        renderPass.BindStates(deviceContext, StateType.RasterState | StateType.DepthStencilState);
 
-                renderPass.VertexShader.BindTexture(deviceContext, renderStateSlot, BufferProxies[0]);
-                renderPass.PixelShader.BindTexture(deviceContext, textureSlot, textureView);
-                renderPass.PixelShader.BindSampler(deviceContext, samplerSlot, textureSampler);
-                deviceContext.InputLayout = VertexLayout;
-                var firstSlot = 0;
-                InstanceBuffer?.AttachBuffer(deviceContext, ref firstSlot);
-                deviceContext.SetBlendState(blendState, blendFactor, sampleMask);
-                deviceContext.DrawInstancedIndirect(particleCountGSIABuffer.Buffer, 0);
-                RaiseInvalidateRender(); //Since particle is running all the time. Invalidate once finished rendering
-            }
+        renderPass.VertexShader.BindTexture(deviceContext, renderStateSlot, BufferProxies[0]);
+        renderPass.PixelShader.BindTexture(deviceContext, textureSlot, textureView);
+        renderPass.PixelShader.BindSampler(deviceContext, samplerSlot, textureSampler);
+        deviceContext.InputLayout = VertexLayout;
+        var firstSlot = 0;
+        InstanceBuffer?.AttachBuffer(deviceContext, ref firstSlot);
+        deviceContext.SetBlendState(blendState, blendFactor, sampleMask);
+        deviceContext.DrawInstancedIndirect(particleCountGSIABuffer.Buffer, 0);
+        RaiseInvalidateRender(); //Since particle is running all the time. Invalidate once finished rendering
+    }
 
 
-            private int ReadCount(string src, DeviceContextProxy context, UnorderedAccessView uav) {
-                context.CopyStructureCount(particleCountStaging, 0, uav);
-                var db = context.MapSubresource(particleCountStaging, MapMode.Read, MapFlags.None);
-                var currentParticleCount = UnsafeHelper.Read<int>(db.DataPointer);
+    private int ReadCount(string src, DeviceContextProxy context, UnorderedAccessView uav) {
+        context.CopyStructureCount(particleCountStaging, 0, uav);
+        var db = context.MapSubresource(particleCountStaging, MapMode.Read, MapFlags.None);
+        var currentParticleCount = UnsafeHelper.Read<int>(db.DataPointer);
 #if OUTPUTDEBUGGING
                 if (Logger.IsEnabled(LogLevel.Debug))
                 {
                     Logger.Debug("{Value0}: {Value1}", src, currentParticleCount);
                 }
 #endif
-                context.UnmapSubresource(particleCountStaging, 0);
-                return currentParticleCount;
-            }
-        }
+        context.UnmapSubresource(particleCountStaging, 0);
+        return currentParticleCount;
     }
 }

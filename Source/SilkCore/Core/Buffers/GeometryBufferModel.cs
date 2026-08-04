@@ -316,7 +316,7 @@ public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBuffe
     protected GeometryBufferModel(
         PrimitiveTopology topology,
         IElementsBufferProxy? vertexBuffer,
-        IElementsBufferProxy indexBuffer
+        IElementsBufferProxy? indexBuffer
     ) {
         Topology = topology;
         VertexBuffer = vertexBuffer != null 
@@ -336,7 +336,7 @@ public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBuffe
     protected GeometryBufferModel(
         PrimitiveTopology topology,
         IElementsBufferProxy[]? vertexBuffer,
-        IElementsBufferProxy indexBuffer
+        IElementsBufferProxy? indexBuffer
     ) {
         Topology = topology;
         if (vertexBuffer is not null) {

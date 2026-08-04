@@ -16,6 +16,6 @@ public class CustomMeshCore : MeshRenderCore {
 
     protected override void OnUpdatePerModelStruct(RenderContext context) {
         base.OnUpdatePerModelStruct(context);
-        modelStruct.Params.Y = dataHeightScale;
+        ModelStruct.Params.Y = dataHeightScale;
     }
 }

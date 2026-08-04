@@ -5,28 +5,24 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core {
-        /// <summary>
-        /// </summary>
-        public sealed class EmptyRenderCore : RenderCore {
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="EmptyRenderCore" /> class.
-            /// </summary>
-            public EmptyRenderCore() : base(RenderType.None) { }
+namespace HelixToolkit.SharpDX.Core.Core;
 
-            /// <summary>
-            ///     Called when [render].
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="deviceContext">The device context.</param>
-            public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
+/// <summary>
+/// </summary>
+public sealed class EmptyRenderCore : RenderCore {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EmptyRenderCore" /> class.
+    /// </summary>
+    public EmptyRenderCore() : base(RenderType.None) { }
 
-            protected override bool OnAttach(IRenderTechnique technique) {
-                return true;
-            }
+    /// <summary>
+    ///     Called when [render].
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="deviceContext">The device context.</param>
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
-            protected override void OnDetach() { }
-        }
-    }
+    protected override bool OnAttach(IRenderTechnique technique) => true;
+
+    protected override void OnDetach() { }
 }

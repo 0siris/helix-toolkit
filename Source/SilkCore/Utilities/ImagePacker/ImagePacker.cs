@@ -28,28 +28,25 @@
 
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Utilities.ImagePacker {
-            /// <summary>
-            ///     Pack a list of bitmaps into a single large bitmap.
-            /// </summary>
-        public sealed class ImagePacker : SpritePackerBase<Bitmap, Bitmap> {
-            public ImagePacker(IDevice2DResources deviceResources) : base(deviceResources) { }
+namespace HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
+    /// <summary>
+    ///     Pack a list of bitmaps into a single large bitmap.
+    /// </summary>
+public sealed class ImagePacker : SpritePackerBase<Bitmap, Bitmap> {
+    public ImagePacker(IDevice2DResources deviceResources) : base(deviceResources) { }
 
-            protected override void DrawOntoOutputTarget(D2DDeviceContext target) {
-                foreach (var image in ItemArray) {
-                    var location = ImagePlacement[image.Key];
-                    target.DrawBitmap(image.Value, location, 1, BitmapInterpolationMode.Linear);
-                }
-            }
-
-            protected override KeyValuePair<int, Bitmap>[] GetArray(IEnumerable<Bitmap> items) {
-                return [.. items.Select((x, i) => new KeyValuePair<int, Bitmap>(i, x))];
-            }
-
-            protected override Size2F GetSize(Bitmap value) {
-                return value.Size;
-            }
+    protected override void DrawOntoOutputTarget(D2DDeviceContext target) {
+        foreach (var image in ItemArray) {
+            var location = ImagePlacement[image.Key];
+            target.DrawBitmap(image.Value, location, 1, BitmapInterpolationMode.Linear);
         }
+    }
+
+    protected override KeyValuePair<int, Bitmap>[] GetArray(IEnumerable<Bitmap> items) {
+        return [.. items.Select((x, i) => new KeyValuePair<int, Bitmap>(i, x))];
+    }
+
+    protected override Size2F GetSize(Bitmap value) {
+        return value.Size;
     }
 }

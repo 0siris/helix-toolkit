@@ -7,35 +7,32 @@ using Silk.NET.Core.Native;
 using Silk.NET.Direct3D12;
 using SilkD3D12DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12Device>;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Native {
-        public static unsafe class SilkD3D12DeviceFactory {
-            // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
-            internal static readonly D3D12 Api = D3D12.GetApi();
+namespace HelixToolkit.SharpDX.Core.Native;
+public static unsafe class SilkD3D12DeviceFactory {
+    // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
+    internal static readonly D3D12 Api = D3D12.GetApi();
 
-            public static SilkD3D12Device CreateDefault(
-                SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level_11_0
-            ) {
-                ID3D12Device* nativeDevice = null;
-                var deviceGuid = ID3D12Device.Guid;
+    public static SilkD3D12Device CreateDefault(
+        SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level_11_0
+    ) {
+        ID3D12Device* nativeDevice = null;
+        var deviceGuid = ID3D12Device.Guid;
 
-                SilkMarshal.ThrowHResult(Api.CreateDevice((IUnknown*)null,
-                                                          ToSilkFeatureLevel(minimumFeatureLevel),
-                                                          ref deviceGuid,
-                                                          (void**)&nativeDevice));
+        SilkMarshal.ThrowHResult(Api.CreateDevice((IUnknown*)null,
+                                                  ToSilkFeatureLevel(minimumFeatureLevel),
+                                                  ref deviceGuid,
+                                                  (void**)&nativeDevice));
 
-                return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel);
-            }
+        return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel);
+    }
 
-            private static D3DFeatureLevel ToSilkFeatureLevel(SilkFeatureLevel featureLevel) {
-                return featureLevel switch {
-                    SilkFeatureLevel.Level_11_1 => D3DFeatureLevel.Level111,
-                    SilkFeatureLevel.Level_11_0 => D3DFeatureLevel.Level110,
-                    SilkFeatureLevel.Level_10_1 => D3DFeatureLevel.Level101,
-                    SilkFeatureLevel.Level_10_0 => D3DFeatureLevel.Level100,
-                    _ => D3DFeatureLevel.Level110
-                };
-            }
-        }
+    private static D3DFeatureLevel ToSilkFeatureLevel(SilkFeatureLevel featureLevel) {
+        return featureLevel switch {
+            SilkFeatureLevel.Level_11_1 => D3DFeatureLevel.Level111,
+            SilkFeatureLevel.Level_11_0 => D3DFeatureLevel.Level110,
+            SilkFeatureLevel.Level_10_1 => D3DFeatureLevel.Level101,
+            SilkFeatureLevel.Level_10_0 => D3DFeatureLevel.Level100,
+            _ => D3DFeatureLevel.Level110
+        };
     }
 }

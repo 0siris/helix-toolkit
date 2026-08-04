@@ -9,201 +9,198 @@ using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Model {
-        /// <summary>
-        /// </summary>
-        public class ColorStripeMaterialVariables : MaterialVariable {
-            private readonly IDevice3DResources deviceResources;
+namespace HelixToolkit.SharpDX.Core.Model;
+/// <summary>
+/// </summary>
+public class ColorStripeMaterialVariables : MaterialVariable {
+    private readonly IDevice3DResources deviceResources;
 
-            private readonly ColorStripeMaterialCore material;
-            private readonly IStatePoolManager statePoolManager;
-            private readonly ITextureResourceManager textureManager;
-            private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[2];
-            private SamplerStateProxy sampler;
-            private int samplerDiffuseSlot;
+    private readonly ColorStripeMaterialCore material;
+    private readonly IStatePoolManager statePoolManager;
+    private readonly ITextureResourceManager textureManager;
+    private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[2];
+    private SamplerStateProxy sampler;
+    private int samplerDiffuseSlot;
 
-            private int texStripeXSlot, texStripeYSlot;
+    private int texStripeXSlot, texStripeYSlot;
 
-            private uint textureIndex;
+    private uint textureIndex;
 
-            /// <summary>
-            /// </summary>
-            /// <param name="manager"></param>
-            /// <param name="technique"></param>
-            /// <param name="materialCore"></param>
-            public ColorStripeMaterialVariables(
-                IEffectsManager manager,
-                IRenderTechnique technique,
-                ColorStripeMaterialCore materialCore
-            )
-                : base(manager, technique, DefaultMeshConstantBufferDesc, materialCore) {
-                material = materialCore;
-                deviceResources = manager;
-                texStripeXSlot = texStripeYSlot = -1;
-                samplerDiffuseSlot = -1;
-                textureManager = manager.MaterialTextureManager;
-                statePoolManager = manager.StateManager;
-                MaterialPass = technique[DefaultPassNames.ColorStripe1D];
-                WireframePass = technique[DefaultPassNames.Wireframe];
-                ShadowPass = technique[DefaultPassNames.ShadowPass];
-                DepthPass = technique[DefaultPassNames.DepthPrepass];
-                UpdateMappings(MaterialPass);
-                CreateTextureViews();
-                CreateSamplers();
-            }
+    /// <summary>
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="technique"></param>
+    /// <param name="materialCore"></param>
+    public ColorStripeMaterialVariables(
+        IEffectsManager manager,
+        IRenderTechnique technique,
+        ColorStripeMaterialCore materialCore
+    )
+        : base(manager, technique, DefaultMeshConstantBufferDesc, materialCore) {
+        material = materialCore;
+        deviceResources = manager;
+        texStripeXSlot = texStripeYSlot = -1;
+        samplerDiffuseSlot = -1;
+        textureManager = manager.MaterialTextureManager;
+        statePoolManager = manager.StateManager;
+        MaterialPass = technique[DefaultPassNames.ColorStripe1D];
+        WireframePass = technique[DefaultPassNames.Wireframe];
+        ShadowPass = technique[DefaultPassNames.ShadowPass];
+        DepthPass = technique[DefaultPassNames.DepthPrepass];
+        UpdateMappings(MaterialPass);
+        CreateTextureViews();
+        CreateSamplers();
+    }
 
-            public ShaderPass MaterialPass { get; } = ShaderPass.NullPass;
-            public ShaderPass WireframePass { get; } = ShaderPass.NullPass;
+    public ShaderPass MaterialPass { get; } = ShaderPass.NullPass;
+    public ShaderPass WireframePass { get; } = ShaderPass.NullPass;
 
-            public ShaderPass ShadowPass { get; } = ShaderPass.NullPass;
+    public ShaderPass ShadowPass { get; } = ShaderPass.NullPass;
 
-            public ShaderPass DepthPass { get; }
+    public ShaderPass DepthPass { get; }
 
-            /// <summary>
-            /// </summary>
-            public string ShaderStripeTexXName { get; set; } = DefaultBufferNames.ColorStripe1DXTB;
+    /// <summary>
+    /// </summary>
+    public string ShaderStripeTexXName { get; set; } = DefaultBufferNames.ColorStripe1DXTB;
 
-            public string ShaderStripeTexYName { get; set; } = DefaultBufferNames.ColorStripe1DYTB;
+    public string ShaderStripeTexYName { get; set; } = DefaultBufferNames.ColorStripe1DYTB;
 
-            /// <summary>
-            /// </summary>
-            public string ShaderSamplerDiffuseTexName { get; set; } = DefaultSamplerStateNames.SurfaceSampler;
+    /// <summary>
+    /// </summary>
+    public string ShaderSamplerDiffuseTexName { get; set; } = DefaultSamplerStateNames.SurfaceSampler;
 
-            protected override void OnInitialPropertyBindings() {
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.DiffuseColor),
-                                   () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeX),
-                                   () => {
-                                       CreateTextureView(material.ColorStripeX, 0);
-                                       WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
-                                                  material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
-                                   });
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeY),
-                                   () => {
-                                       CreateTextureView(material.ColorStripeY, 1);
-                                       WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
-                                                  material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
-                                                      ? 1
-                                                      : 0);
-                                   });
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeSampler),
-                                   () => {
-                                       var newSampler = statePoolManager.Register(material.ColorStripeSampler);
-                                       RemoveAndDispose(ref sampler);
-                                       sampler = newSampler;
-                                   });
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeXEnabled),
-                                   () => {
-                                       WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
-                                                  material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
-                                   });
-                AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeYEnabled),
-                                   () => {
-                                       WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
-                                                  material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
-                                                      ? 1
-                                                      : 0);
-                                   });
+    protected override void OnInitialPropertyBindings() {
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.DiffuseColor),
+                           () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeX),
+                           () => {
+                               CreateTextureView(material.ColorStripeX, 0);
+                               WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                                          material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
+                           });
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeY),
+                           () => {
+                               CreateTextureView(material.ColorStripeY, 1);
+                               WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
+                                          material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
+                                              ? 1
+                                              : 0);
+                           });
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeSampler),
+                           () => {
+                               var newSampler = statePoolManager.Register(material.ColorStripeSampler);
+                               RemoveAndDispose(ref sampler);
+                               sampler = newSampler;
+                           });
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeXEnabled),
+                           () => {
+                               WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                                          material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
+                           });
+        AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeYEnabled),
+                           () => {
+                               WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
+                                          material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
+                                              ? 1
+                                              : 0);
+                           });
 
-                WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, new Vector4(1, 0, 0, 0));
-                WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, new Vector4(0, 1, 0, 0));
-            }
+        WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, new Vector4(1, 0, 0, 0));
+        WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, new Vector4(0, 1, 0, 0));
+    }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void CreateTextureView(IList<Color4> colors, int which) {
-                RemoveAndDispose(ref textures[which]);
-                textures[which] = colors == null || colors.Count == 0
-                                      ? null
-                                      : new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
-                textures[which]?.CreateViewFromColorArray([.. colors]);
-                if (textures[which] != null)
-                    textureIndex |= 1u << which;
-                else
-                    textureIndex &= ~(1u << which);
-            }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void CreateTextureView(IList<Color4> colors, int which) {
+        RemoveAndDispose(ref textures[which]);
+        textures[which] = colors == null || colors.Count == 0
+                              ? null
+                              : new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
+        textures[which]?.CreateViewFromColorArray([.. colors]);
+        if (textures[which] != null)
+            textureIndex |= 1u << which;
+        else
+            textureIndex &= ~(1u << which);
+    }
 
-            private void CreateTextureViews() {
-                if (material != null) {
-                    CreateTextureView(material.ColorStripeX, 0);
-                    CreateTextureView(material.ColorStripeY, 1);
-                } else {
-                    for (var i = 0; i < textures.Length; ++i) RemoveAndDispose(ref textures[i]);
-                    textureIndex = 0;
-                }
-            }
-
-            private void CreateSamplers() {
-                var newSampler = statePoolManager.Register(material.ColorStripeSampler);
-                RemoveAndDispose(ref sampler);
-                if (material != null) sampler = newSampler;
-            }
-
-            public override bool BindMaterialResources(
-                RenderContext context,
-                DeviceContextProxy deviceContext,
-                ShaderPass shaderPass
-            ) {
-                if (textureIndex != 0) OnBindMaterialTextures(deviceContext, shaderPass.PixelShader);
-                return true;
-            }
-
-            /// <summary>
-            ///     Actual bindings
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="shader"></param>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
-                if (shader.IsNULL) return;
-                shader.BindTexture(context, texStripeXSlot, textures[0]);
-                shader.BindTexture(context, texStripeYSlot, textures[1]);
-                shader.BindSampler(context, samplerDiffuseSlot, sampler);
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void UpdateMappings(ShaderPass shaderPass) {
-                texStripeXSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderStripeTexXName);
-                texStripeYSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderStripeTexYName);
-                samplerDiffuseSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderSamplerDiffuseTexName);
-            }
-
-
-            /// <summary>
-            /// </summary>
-            /// <param name="disposeManagedResources"></param>
-            protected override void OnDispose(bool disposeManagedResources) {
-                if (disposeManagedResources) {
-                    for (var i = 0; i < textures.Length; ++i) RemoveAndDispose(ref textures[i]);
-                    RemoveAndDispose(ref sampler);
-                }
-
-                base.OnDispose(disposeManagedResources);
-            }
-
-            public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-                return MaterialPass;
-            }
-
-            public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-                return ShadowPass;
-            }
-
-            public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-                return WireframePass;
-            }
-
-            public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-                return DepthPass;
-            }
-
-            public override void Draw(
-                DeviceContextProxy deviceContext,
-                IAttachableBufferModel bufferModel,
-                int instanceCount
-            ) {
-                DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
-            }
+    private void CreateTextureViews() {
+        if (material != null) {
+            CreateTextureView(material.ColorStripeX, 0);
+            CreateTextureView(material.ColorStripeY, 1);
+        } else {
+            for (var i = 0; i < textures.Length; ++i) RemoveAndDispose(ref textures[i]);
+            textureIndex = 0;
         }
+    }
+
+    private void CreateSamplers() {
+        var newSampler = statePoolManager.Register(material.ColorStripeSampler);
+        RemoveAndDispose(ref sampler);
+        if (material != null) sampler = newSampler;
+    }
+
+    public override bool BindMaterialResources(
+        RenderContext context,
+        DeviceContextProxy deviceContext,
+        ShaderPass shaderPass
+    ) {
+        if (textureIndex != 0) OnBindMaterialTextures(deviceContext, shaderPass.PixelShader);
+        return true;
+    }
+
+    /// <summary>
+    ///     Actual bindings
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="shader"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
+        if (shader.IsNULL) return;
+        shader.BindTexture(context, texStripeXSlot, textures[0]);
+        shader.BindTexture(context, texStripeYSlot, textures[1]);
+        shader.BindSampler(context, samplerDiffuseSlot, sampler);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateMappings(ShaderPass shaderPass) {
+        texStripeXSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderStripeTexXName);
+        texStripeYSlot = shaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderStripeTexYName);
+        samplerDiffuseSlot = shaderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderSamplerDiffuseTexName);
+    }
+
+
+    /// <summary>
+    /// </summary>
+    /// <param name="disposeManagedResources"></param>
+    protected override void OnDispose(bool disposeManagedResources) {
+        if (disposeManagedResources) {
+            for (var i = 0; i < textures.Length; ++i) RemoveAndDispose(ref textures[i]);
+            RemoveAndDispose(ref sampler);
+        }
+
+        base.OnDispose(disposeManagedResources);
+    }
+
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
+        return MaterialPass;
+    }
+
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
+        return ShadowPass;
+    }
+
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
+        return WireframePass;
+    }
+
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
+        return DepthPass;
+    }
+
+    public override void Draw(
+        DeviceContextProxy deviceContext,
+        IAttachableBufferModel bufferModel,
+        int instanceCount
+    ) {
+        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
     }
 }

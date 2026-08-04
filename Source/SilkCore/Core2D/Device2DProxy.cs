@@ -6,44 +6,41 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core2D {
-        /// <summary>
-        /// </summary>
-        public sealed class D2DTargetProxy : DisposeObject {
-            private BitmapProxy d2DTarget;
+namespace HelixToolkit.SharpDX.Core.Core2D;
+/// <summary>
+/// </summary>
+public sealed class D2DTargetProxy : DisposeObject {
+    private BitmapProxy d2DTarget;
 
-            /// <summary>
-            ///     Gets the d2d target. Which is bind to the 3D back buffer/texture
-            /// </summary>
-            /// <value>
-            ///     The d2d target.
-            /// </value>
-            public BitmapProxy D2DTarget => d2DTarget;
+    /// <summary>
+    ///     Gets the d2d target. Which is bind to the 3D back buffer/texture
+    /// </summary>
+    /// <value>
+    ///     The d2d target.
+    /// </value>
+    public BitmapProxy D2DTarget => d2DTarget;
 
 
-            /// <summary>
-            /// </summary>
-            /// <param name="swapChain"></param>
-            /// <param name="deviceContext"></param>
-            public void Initialize(object swapChain, D2DDeviceContext deviceContext) {
-                RemoveAndDispose(ref d2DTarget);
-                d2DTarget = BitmapProxy.Create("SwapChainTarget", deviceContext, swapChain);
-            }
+    /// <summary>
+    /// </summary>
+    /// <param name="swapChain"></param>
+    /// <param name="deviceContext"></param>
+    public void Initialize(object swapChain, D2DDeviceContext deviceContext) {
+        RemoveAndDispose(ref d2DTarget);
+        d2DTarget = BitmapProxy.Create("SwapChainTarget", deviceContext, swapChain);
+    }
 
-            /// <summary>
-            /// </summary>
-            /// <param name="texture"></param>
-            /// <param name="deviceContext"></param>
-            public void Initialize(Texture2D texture, D2DDeviceContext deviceContext) {
-                RemoveAndDispose(ref d2DTarget);
-                d2DTarget = BitmapProxy.Create("TextureTarget", deviceContext, texture);
-            }
+    /// <summary>
+    /// </summary>
+    /// <param name="texture"></param>
+    /// <param name="deviceContext"></param>
+    public void Initialize(Texture2D texture, D2DDeviceContext deviceContext) {
+        RemoveAndDispose(ref d2DTarget);
+        d2DTarget = BitmapProxy.Create("TextureTarget", deviceContext, texture);
+    }
 
-            protected override void OnDispose(bool disposeManagedResources) {
-                RemoveAndDispose(ref d2DTarget);
-                base.OnDispose(disposeManagedResources);
-            }
-        }
+    protected override void OnDispose(bool disposeManagedResources) {
+        RemoveAndDispose(ref d2DTarget);
+        base.OnDispose(disposeManagedResources);
     }
 }

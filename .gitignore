@@ -220,4 +220,4 @@ skills-lock.json
 
 # Graphify source-graph staging and local AST cache
 /.graphify-code-corpus/
-/graphify-out/cache/
+/graphify-out/

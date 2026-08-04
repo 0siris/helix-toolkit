@@ -10,133 +10,130 @@ using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 #endif
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Model.Scene {
-        public static class DynamicCodeSurfaceTemplate {
-            public const string template =
-                @"
-            using System;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
+public static class DynamicCodeSurfaceTemplate {
+    public const string template =
+        @"
+    using System;
 
-            namespace MyNamespace {
-            public class MyEvaluator {
-            const double pi = Math.PI;
-            public double cos(double x) { return Math.Cos(x); }
-            public double sin(double x) { return Math.Sin(x); }
-            public double abs(double x) { return Math.Abs(x); }
-            public double sqrt(double x) { return Math.Sqrt(x); }
-            public double sign(double x) { return Math.Sign(x); }
-            public double sqr(double x) { return x*x; }
-            public double log(double x) { return Math.Log(x); }
-            public double exp(double x) { return Math.Exp(x); }
-            public double pow(double x, double y) { return Math.Pow(x,y); }
-            public Tuple<double,double,double,double> Evaluate(double u, double v, double w) {
-            double x=0,y=0,z=0;
-            double color=u;
-            #code#
-            return new Tuple<double,double,double,double>(x,y,z,color);
-            }
-            }
-            }";
-        }
+    namespace MyNamespace {
+    public class MyEvaluator {
+    const double pi = Math.PI;
+    public double cos(double x) { return Math.Cos(x); }
+    public double sin(double x) { return Math.Sin(x); }
+    public double abs(double x) { return Math.Abs(x); }
+    public double sqrt(double x) { return Math.Sqrt(x); }
+    public double sign(double x) { return Math.Sign(x); }
+    public double sqr(double x) { return x*x; }
+    public double log(double x) { return Math.Log(x); }
+    public double exp(double x) { return Math.Exp(x); }
+    public double pow(double x, double y) { return Math.Pow(x,y); }
+    public Tuple<double,double,double,double> Evaluate(double u, double v, double w) {
+    double x=0,y=0,z=0;
+    double color=u;
+    #code#
+    return new Tuple<double,double,double,double>(x,y,z,color);
+    }
+    }
+    }";
+}
 #if !WINDOWS_UWP
-        /// <summary>
-        /// </summary>
-        public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
-            private object _codeInstance;
+/// <summary>
+/// </summary>
+public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
+    private object _codeInstance;
 
-            // Type and instance of the dynamic code
-            private Type _codeType;
+    // Type and instance of the dynamic code
+    private Type _codeType;
 
-            private CompilerErrorCollection errors;
-            private float parameterW = 1f;
+    private CompilerErrorCollection errors;
+    private float parameterW = 1f;
 
-            private string source;
-            private string sourceCode;
+    private string source;
+    private string sourceCode;
 
-            public float ParameterW {
-                get => parameterW;
-                set {
-                    if (Set(ref parameterW, value)) UpdateSource();
-                }
-            }
-
-            /// <summary>
-            ///     Gets or sets the source code
-            /// </summary>
-            /// <value>
-            ///     The source.
-            /// </value>
-            public string Source {
-                get => source;
-                set {
-                    if (Set(ref source, value)) UpdateSource();
-                }
-            }
-
-            public CompilerErrorCollection Errors {
-                get => errors;
-                private set {
-                    if (Set(ref errors, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
-                }
-            }
-
-            public event EventHandler OnCompileError;
-
-            private void UpdateSource() {
-                sourceCode = Source;
-                _codeType = null;
-                _codeInstance = null;
-                if (string.IsNullOrEmpty(sourceCode))
-                    return;
-
-                var provider = new CSharpCodeProvider();
-                var options = new CompilerParameters { GenerateInMemory = true };
-                var qn = typeof(Vector3).Assembly.Location;
-                options.ReferencedAssemblies.Add("System.dll");
-                options.ReferencedAssemblies.Add(qn);
-                var src = GetTemplate().Replace("#code#", sourceCode);
-                var compilerResults = provider.CompileAssemblyFromSource(options, src);
-                if (!compilerResults.Errors.HasErrors) {
-                    Errors = null;
-                    var assembly = compilerResults.CompiledAssembly;
-                    _codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
-                    _codeType = _codeInstance.GetType();
-                    TessellateAsync();
-                } else {
-                    // correct line numbers
-                    Errors = compilerResults.Errors;
-                    for (var i = 0; i < Errors.Count; i++)
-                        Errors[i].Line -= 17;
-                }
-            }
-
-            protected virtual string GetTemplate() {
-                return DynamicCodeSurfaceTemplate.template;
-            }
-
-            protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
-                if (_codeType == null) {
-                    texCoord = new Vector2();
-                    return Vector3.Zero;
-                }
-
-                var parameters = new object[3];
-                parameters[0] = u;
-                parameters[1] = v;
-                parameters[2] = ParameterW;
-                var result = _codeType.InvokeMember("Evaluate",
-                                                    BindingFlags.InvokeMethod,
-                                                    null,
-                                                    _codeInstance,
-                                                    parameters);
-                var p = (Tuple<double, double, double, double>)result;
-
-                // todo: why doesn't this work??
-                //            texCoord = new Point(p.W, 0); // (double)parameters[2], 0);
-                texCoord = new Vector2((float)u, (float)v);
-                return new Vector3((float)p.Item1, (float)p.Item2, (float)p.Item3);
-            }
+    public float ParameterW {
+        get => parameterW;
+        set {
+            if (Set(ref parameterW, value)) UpdateSource();
         }
-#endif
+    }
+
+    /// <summary>
+    ///     Gets or sets the source code
+    /// </summary>
+    /// <value>
+    ///     The source.
+    /// </value>
+    public string Source {
+        get => source;
+        set {
+            if (Set(ref source, value)) UpdateSource();
+        }
+    }
+
+    public CompilerErrorCollection Errors {
+        get => errors;
+        private set {
+            if (Set(ref errors, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public event EventHandler OnCompileError;
+
+    private void UpdateSource() {
+        sourceCode = Source;
+        _codeType = null;
+        _codeInstance = null;
+        if (string.IsNullOrEmpty(sourceCode))
+            return;
+
+        var provider = new CSharpCodeProvider();
+        var options = new CompilerParameters { GenerateInMemory = true };
+        var qn = typeof(Vector3).Assembly.Location;
+        options.ReferencedAssemblies.Add("System.dll");
+        options.ReferencedAssemblies.Add(qn);
+        var src = GetTemplate().Replace("#code#", sourceCode);
+        var compilerResults = provider.CompileAssemblyFromSource(options, src);
+        if (!compilerResults.Errors.HasErrors) {
+            Errors = null;
+            var assembly = compilerResults.CompiledAssembly;
+            _codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
+            _codeType = _codeInstance.GetType();
+            TessellateAsync();
+        } else {
+            // correct line numbers
+            Errors = compilerResults.Errors;
+            for (var i = 0; i < Errors.Count; i++)
+                Errors[i].Line -= 17;
+        }
+    }
+
+    protected virtual string GetTemplate() {
+        return DynamicCodeSurfaceTemplate.template;
+    }
+
+    protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
+        if (_codeType == null) {
+            texCoord = new Vector2();
+            return Vector3.Zero;
+        }
+
+        var parameters = new object[3];
+        parameters[0] = u;
+        parameters[1] = v;
+        parameters[2] = ParameterW;
+        var result = _codeType.InvokeMember("Evaluate",
+                                            BindingFlags.InvokeMethod,
+                                            null,
+                                            _codeInstance,
+                                            parameters);
+        var p = (Tuple<double, double, double, double>)result;
+
+        // todo: why doesn't this work??
+        //            texCoord = new Point(p.W, 0); // (double)parameters[2], 0);
+        texCoord = new Vector2((float)u, (float)v);
+        return new Vector3((float)p.Item1, (float)p.Item2, (float)p.Item3);
     }
 }
+#endif

@@ -3,18 +3,15 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Native {
-        public interface INativeDeviceResources : IDisposable {
-            int AdapterIndex { get; }
+namespace HelixToolkit.SharpDX.Core.Native;
+public interface INativeDeviceResources : IDisposable {
+    int AdapterIndex { get; }
 
-            SilkD3DDevice Device { get; }
+    SilkD3DDevice Device { get; }
 
-            SilkD3DDeviceContext ImmediateContext { get; }
+    SilkD3DDeviceContext ImmediateContext { get; }
 
-            SilkDriverType DriverType { get; }
+    SilkDriverType DriverType { get; }
 
-            SilkFeatureLevel FeatureLevel { get; }
-        }
-    }
+    SilkFeatureLevel FeatureLevel { get; }
 }

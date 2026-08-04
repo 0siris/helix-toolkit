@@ -1,46 +1,43 @@
-﻿/*
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 #if !NETFX_CORE
-namespace HelixToolkit.Wpf.SharpDX
+namespace HelixToolkit.Wpf.SharpDX.Assimp;
 #else
 #if CORE
-namespace HelixToolkit.SharpDX.Core
+namespace HelixToolkit.SharpDX.Core.Assimp;
 #else
-namespace HelixToolkit.UWP
+namespace HelixToolkit.UWP.Assimp;
 #endif
 #endif
-{
-    namespace Assimp {
-#if !CORE
-        public partial class Exporter
-        {
-            public ErrorCode ExportToFile(string filePath, Element3D root, string formatId)
-            {
-                SyncNamesWithElement3DAndSceneNode(root.SceneNode);
-                return ExportToFile(filePath, root.SceneNode, formatId);
-            }
 
-            private void SyncNamesWithElement3DAndSceneNode(HxScene.SceneNode node)
+#if !CORE
+public partial class Exporter
+{
+    public ErrorCode ExportToFile(string filePath, Element3D root, string formatId)
+    {
+        SyncNamesWithElement3DAndSceneNode(root.SceneNode);
+        return ExportToFile(filePath, root.SceneNode, formatId);
+    }
+
+    private void SyncNamesWithElement3DAndSceneNode(HxScene.SceneNode node)
+    {
+        foreach(var n in node.Traverse())
+        {
+            if(n.WrapperSource is Element3D ele)
             {
-                foreach(var n in node.Traverse())
+                if(string.IsNullOrEmpty(ele.Name))
                 {
-                    if(n.WrapperSource is Element3D ele)
-                    {
-                        if(string.IsNullOrEmpty(ele.Name))
-                        {
-                            continue;
-                        }
-                        else if (string.IsNullOrEmpty(node.Name))
-                        {
-                            node.Name = ele.Name;
-                        }
-                    }
+                    continue;
+                }
+                else if (string.IsNullOrEmpty(node.Name))
+                {
+                    node.Name = ele.Name;
                 }
             }
         }
-#endif
     }
 }
+#endif

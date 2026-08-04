@@ -4,28 +4,25 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Core2D {
-        /// <summary>
-        ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
-        /// </summary>
-        public interface ISegment {
-            bool IsDirty { get; }
+namespace HelixToolkit.SharpDX.Core.Core2D;
+/// <summary>
+///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
+/// </summary>
+public interface ISegment {
+    bool IsDirty { get; }
 
-            void Create(GeometrySink sink);
-        }
+    void Create(GeometrySink sink);
+}
 
-        /// <summary>
-        ///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
-        /// </summary>
-        public abstract class Segment : ISegment {
-            public bool IsDirty { get; private set; }
+/// <summary>
+///     <see href="https://jeremiahmorrill.wordpress.com/2013/02/06/direct2d-gui-librarygraphucks/" />
+/// </summary>
+public abstract class Segment : ISegment {
+    public bool IsDirty { get; private set; }
 
-            public abstract void Create(GeometrySink sink);
+    public abstract void Create(GeometrySink sink);
 
-            protected void Invalidate() {
-                IsDirty = true;
-            }
-        }
+    protected void Invalidate() {
+        IsDirty = true;
     }
 }

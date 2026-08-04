@@ -6,102 +6,99 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core {
-    namespace Shaders {
-        public struct ConstantBufferVariable {
-            //
-            // Summary:
-            //     The variable name.
-            public string Name;
+namespace HelixToolkit.SharpDX.Core.Shaders;
+public struct ConstantBufferVariable {
+    //
+    // Summary:
+    //     The variable name.
+    public string Name;
 
-            //
-            // Summary:
-            //     Offset from the start of the parent structure to the beginning of the variable.
-            public int StartOffset;
+    //
+    // Summary:
+    //     Offset from the start of the parent structure to the beginning of the variable.
+    public int StartOffset;
 
-            //
-            // Summary:
-            //     Size of the variable (in bytes).
-            public int Size;
-        }
+    //
+    // Summary:
+    //     Size of the variable (in bytes).
+    public int Size;
+}
 
-        public sealed class ConstantBufferDescription {
-            public ConstantBufferDescription(string name, int structSize, int strideSize = 0) {
-                Name = name;
-                StructSize = structSize;
-                StrideSize = strideSize;
-            }
+public sealed class ConstantBufferDescription {
+    public ConstantBufferDescription(string name, int structSize, int strideSize = 0) {
+        Name = name;
+        StructSize = structSize;
+        StrideSize = strideSize;
+    }
 
-            public ConstantBufferDescription(
-                string name,
-                int structSize,
-                IEnumerable<ConstantBufferVariable> variables,
-                int strideSize = 0
-            )
-                : this(name, structSize, strideSize) {
-                if (variables == null) return;
+    public ConstantBufferDescription(
+        string name,
+        int structSize,
+        IEnumerable<ConstantBufferVariable> variables,
+        int strideSize = 0
+    )
+        : this(name, structSize, strideSize) {
+        if (variables == null) return;
 
-                foreach (var variable in variables) Variables.Add(variable);
-            }
+        foreach (var variable in variables) Variables.Add(variable);
+    }
 
-            public string Name { get; set; }
+    public string Name { get; set; }
 
-            public int StructSize { get; set; }
+    public int StructSize { get; set; }
 
-            public int StrideSize { get; set; }
+    public int StrideSize { get; set; }
 
-            public BindFlags BindFlags { get; set; } = BindFlags.ConstantBuffer;
+    public BindFlags BindFlags { get; set; } = BindFlags.ConstantBuffer;
 
-            public CpuAccessFlags CpuAccessFlags { get; set; } = CpuAccessFlags.Write;
+    public CpuAccessFlags CpuAccessFlags { get; set; } = CpuAccessFlags.Write;
 
-            public ResourceOptionFlags OptionFlags { get; set; } = ResourceOptionFlags.None;
+    public ResourceOptionFlags OptionFlags { get; set; } = ResourceOptionFlags.None;
 
-            public ResourceUsage Usage { get; set; } = ResourceUsage.Dynamic;
+    public ResourceUsage Usage { get; set; } = ResourceUsage.Dynamic;
 
-            public ShaderStage Stage { get; set; }
+    public ShaderStage Stage { get; set; }
 
-            public int Slot { get; set; }
+    public int Slot { get; set; }
 
-            public List<ConstantBufferVariable> Variables { get; } = [];
+    public List<ConstantBufferVariable> Variables { get; } = [];
 
-            public ConstantBufferProxy CreateBuffer() {
-                return new ConstantBufferProxy(this);
-            }
+    public ConstantBufferProxy CreateBuffer() {
+        return new ConstantBufferProxy(this);
+    }
 
-            public ConstantBufferMapping CreateMapping(int slot) {
-                return new ConstantBufferMapping(slot, this);
-            }
+    public ConstantBufferMapping CreateMapping(int slot) {
+        return new ConstantBufferMapping(slot, this);
+    }
 
-            public ConstantBufferDescription Clone() {
-                return new ConstantBufferDescription(Name, StructSize, StrideSize) {
-                    BindFlags = BindFlags,
-                    CpuAccessFlags = CpuAccessFlags,
-                    OptionFlags = OptionFlags,
-                    Usage = Usage
-                };
-            }
-        }
+    public ConstantBufferDescription Clone() {
+        return new ConstantBufferDescription(Name, StructSize, StrideSize) {
+            BindFlags = BindFlags,
+            CpuAccessFlags = CpuAccessFlags,
+            OptionFlags = OptionFlags,
+            Usage = Usage
+        };
+    }
+}
 
-        [DataContract]
-        public sealed class ConstantBufferMapping {
-            public ConstantBufferMapping(int slot, ConstantBufferDescription description) {
-                Slot = slot;
-                Description = description;
-            }
+[DataContract]
+public sealed class ConstantBufferMapping {
+    public ConstantBufferMapping(int slot, ConstantBufferDescription description) {
+        Slot = slot;
+        Description = description;
+    }
 
-            [DataMember]
-            public int Slot { get; set; }
+    [DataMember]
+    public int Slot { get; set; }
 
-            [DataMember]
-            public ConstantBufferDescription Description { get; set; }
+    [DataMember]
+    public ConstantBufferDescription Description { get; set; }
 
-            public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description) {
-                return new ConstantBufferMapping(slot, description);
-            }
+    public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description) {
+        return new ConstantBufferMapping(slot, description);
+    }
 
-            public ConstantBufferMapping Clone() {
-                return new ConstantBufferMapping(Slot, Description.Clone());
-            }
-        }
+    public ConstantBufferMapping Clone() {
+        return new ConstantBufferMapping(Slot, Description.Clone());
     }
 }

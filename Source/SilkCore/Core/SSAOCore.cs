@@ -22,7 +22,6 @@ public sealed class SSAOCore : RenderCore {
 
     private OffScreenTextureSize offScreenTextureSize = OffScreenTextureSize.Half;
 
-    private SSAOQuality quality = SSAOQuality.Low;
     private float radius = 0.5f;
     private SSAOParamStruct ssaoParam;
     private ShaderPass ssaoPass, ssaoBlur;
@@ -55,14 +54,14 @@ public sealed class SSAOCore : RenderCore {
     }
 
     public SSAOQuality Quality {
-        get => quality;
+        get;
         set {
-            if (SetAffectsRender(ref quality, value))
+            if (SetAffectsRender(ref field, value))
                 offScreenTextureSize = value == SSAOQuality.High
                                            ? OffScreenTextureSize.Full
                                            : OffScreenTextureSize.Half;
         }
-    }
+    } = SSAOQuality.Low;
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         EnsureTextureResources((int)context.ActualWidth, (int)context.ActualHeight, deviceContext);

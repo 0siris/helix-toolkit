@@ -19,8 +19,6 @@ public class CameraModel3D : CompositeModel3D {
                                                                   e.NewValue as ProjectionCamera;
                                                           }));
 
-    private ProjectionCamera? _camera;
-
     protected bool isCaptured;
     protected Vector3 lastHitPos;
     protected Viewport3DX? viewport;
@@ -73,11 +71,11 @@ public class CameraModel3D : CompositeModel3D {
     }
 
     protected ProjectionCamera? camera {
-        get => _camera;
+        get;
         private set {
-            if (_camera == value) return;
-            _camera = value;
-            Transform = _camera is null ? null : new MatrixTransform3D(_camera.GetInversedViewMatrix());
+            if (field == value) return;
+            field = value;
+            Transform = field is null ? null : new MatrixTransform3D(field.GetInversedViewMatrix());
         }
     }
 

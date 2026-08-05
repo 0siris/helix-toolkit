@@ -36,8 +36,6 @@ public class RectangleAdorner : Adorner {
     /// </summary>
     private readonly Pen pen2;
 
-    private Rect rectangle;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleAdorner" /> class.
     /// </summary>
@@ -136,10 +134,10 @@ public class RectangleAdorner : Adorner {
     ///     Gets or sets Rectangle.
     /// </summary>
     public Rect Rectangle {
-        get => rectangle;
+        get;
         set {
-            if (rectangle != value) {
-                rectangle = value;
+            if (field != value) {
+                field = value;
                 InvalidateVisual();
             }
         }

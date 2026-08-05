@@ -24,26 +24,27 @@ public abstract class RenderCore2DBase : RenderCore2D {
     /// </summary>
     /// <param name="context">The context.</param>
     public override void Render(RenderContext2D context) {
-        if (CanRender(context)) {
-            context.DeviceContext.Transform = Transform;
-            if (ShowDrawingBorder)
-                using (var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1))) {
-                    using var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                                                new StrokeStyleProperties { DashStyle = DashStyle.DashDot });
-                    using var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory,
-                                                                 new StrokeStyleProperties { DashStyle = DashStyle.Solid });
-                    context.DeviceContext.DrawRectangle(LayoutBound,
-                                                        borderBrush,
-                                                        1f,
-                                                        IsMouseOver ? borderLineStyle : borderDotStyle);
-                    context.DeviceContext.DrawRectangle(LayoutClippingBound,
-                                                        borderBrush,
-                                                        0.5f,
-                                                        borderDotStyle);
-                }
-
-            OnRender(context);
+        if (!CanRender(context)) 
+            return;
+        
+        context.DeviceContext.Transform = Transform;
+        if (ShowDrawingBorder) {
+            using var borderBrush = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
+            using var borderDotStyle = new StrokeStyle(context.DeviceContext.Factory,
+                                                       new StrokeStyleProperties { DashStyle = DashStyle.DashDot });
+            using var borderLineStyle = new StrokeStyle(context.DeviceContext.Factory,
+                                                        new StrokeStyleProperties { DashStyle = DashStyle.Solid });
+            context.DeviceContext.DrawRectangle(LayoutBound,
+                                                borderBrush,
+                                                1f,
+                                                IsMouseOver ? borderLineStyle : borderDotStyle);
+            context.DeviceContext.DrawRectangle(LayoutClippingBound,
+                                                borderBrush,
+                                                0.5f,
+                                                borderDotStyle);
         }
+
+        OnRender(context);
     }
 
     /// <summary>
@@ -59,7 +60,5 @@ public abstract class RenderCore2DBase : RenderCore2D {
     /// <returns>
     ///     <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool CanRender(RenderContext2D context) {
-        return IsAttached && IsRendering;
-    }
+    protected virtual bool CanRender(RenderContext2D context) => IsAttached && IsRendering;
 }

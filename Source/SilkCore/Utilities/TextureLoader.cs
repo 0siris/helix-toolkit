@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
+
 /// <summary>
 ///     Utilities to load textures.
 /// </summary>

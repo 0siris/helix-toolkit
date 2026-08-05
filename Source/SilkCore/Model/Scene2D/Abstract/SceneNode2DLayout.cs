@@ -45,12 +45,10 @@ public partial class SceneNode2D {
     /// </value>
     public bool IsVisualDirty { get; set; } = true;
 
-    private Thickness margin;
-
     public Thickness Margin {
-        get => margin;
+        get;
         set {
-            if (Set(ref margin, value)) {
+            if (Set(ref field, value)) {
                 MarginWidthHeight = new Vector2(value.Left + value.Right, value.Top + value.Bottom);
                 InvalidateMeasure();
             }
@@ -77,70 +75,54 @@ public partial class SceneNode2D {
         }
     }
 
-    private float minimumWidth;
-
     public float MinimumWidth {
-        get => minimumWidth;
+        get;
         set {
-            if (Set(ref minimumWidth, value) && value > width) InvalidateMeasure();
+            if (Set(ref field, value) && value > width) InvalidateMeasure();
         }
     }
-
-    private float minimumHeight;
 
     public float MinimumHeight {
-        get => minimumHeight;
+        get;
         set {
-            if (Set(ref minimumHeight, value) && value > height) InvalidateMeasure();
+            if (Set(ref field, value) && value > height) InvalidateMeasure();
         }
     }
-
-    private float maximumWidth = float.PositiveInfinity;
 
     public float MaximumWidth {
-        get => maximumWidth;
+        get;
         set {
-            if (Set(ref maximumWidth, value) && value < width) InvalidateMeasure();
+            if (Set(ref field, value) && value < width) InvalidateMeasure();
         }
-    }
-
-    private float maximumHeight = float.PositiveInfinity;
+    } = float.PositiveInfinity;
 
     public float MaximumHeight {
-        get => maximumHeight;
+        get;
         set {
-            if (Set(ref maximumHeight, value) && value < height) InvalidateMeasure();
+            if (Set(ref field, value) && value < height) InvalidateMeasure();
         }
-    }
-
-    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.Stretch;
+    } = float.PositiveInfinity;
 
     public HorizontalAlignment HorizontalAlignment {
-        get => horizontalAlignment;
+        get;
         set {
-            if (Set(ref horizontalAlignment, value)) InvalidateArrange();
+            if (Set(ref field, value)) InvalidateArrange();
         }
-    }
-
-    private VerticalAlignment verticalAlignment = VerticalAlignment.Stretch;
+    } = HorizontalAlignment.Stretch;
 
     public VerticalAlignment VerticalAlignment {
-        get => verticalAlignment;
+        get;
         set {
-            if (Set(ref verticalAlignment, value)) InvalidateArrange();
+            if (Set(ref field, value)) InvalidateArrange();
         }
-    }
-
-    private Vector2 layoutOffset = Vector2.Zero;
+    } = VerticalAlignment.Stretch;
 
     public Vector2 LayoutOffsets {
-        get => layoutOffset;
+        get;
         private set {
-            if (Set(ref layoutOffset, value)) InvalidateTransform();
+            if (Set(ref field, value)) InvalidateTransform();
         }
-    }
-
-    private Vector2 renderSize = Vector2.Zero;
+    } = Vector2.Zero;
 
     /// <summary>
     ///     Gets the render size. Same as the <see cref="LayoutBound" /> size
@@ -149,20 +131,18 @@ public partial class SceneNode2D {
     ///     The size of the render.
     /// </value>
     public Vector2 RenderSize {
-        get => renderSize;
+        get;
         private set {
-            if (Set(ref renderSize, value)) InvalidateTransform();
+            if (Set(ref field, value)) InvalidateTransform();
         }
-    }
-
-    private Vector2 renderTransformOrigin = new(0.5f, 0.5f);
+    } = Vector2.Zero;
 
     public Vector2 RenderTransformOrigin {
-        get => renderTransformOrigin;
+        get;
         set {
-            if (Set(ref renderTransformOrigin, value)) InvalidateRender();
+            if (Set(ref field, value)) InvalidateRender();
         }
-    }
+    } = new(0.5f, 0.5f);
 
     /// <summary>
     ///     Gets the size of the desired size after measure.

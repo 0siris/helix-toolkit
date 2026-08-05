@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define TEST
 
 using HelixToolkit.SharpDX.Core.Core.Components;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
@@ -60,7 +59,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             Format = dsvTextureDesc.Format,
             Dimension = DepthStencilViewDimension.Texture2DArray,
             Flags = DepthStencilViewFlags.None,
-            Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource { MipSlice = 0, FirstArraySlice = 0, ArraySize = 1 }
+            Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource
+                {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
         };
         
         for (var i = 0; i < 6; ++i) {
@@ -339,7 +339,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public bool IsLeftHanded {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) UpdateTargets();
+            if (SetAffectsRender(ref field, value)) 
+                UpdateTargets();
         }
     }
 
@@ -352,7 +353,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public float NearField {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) UpdateTargets();
+            if (SetAffectsRender(ref field, value)) 
+                UpdateTargets();
         }
     } = 0.1f;
 
@@ -365,7 +367,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public float FarField {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) UpdateTargets();
+            if (SetAffectsRender(ref field, value))
+                UpdateTargets();
         }
     } = 100f;
 
@@ -380,7 +383,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public Vector3 Center {
         get => center;
         set {
-            if (SetAffectsRender(ref center, value)) UpdateTargets();
+            if (SetAffectsRender(ref center, value)) 
+                UpdateTargets();
         }
     }
 

@@ -10,10 +10,6 @@ namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>
 /// </summary>
 public class PathRenderCore2D : ShapeRenderCore2DBase {
-    private List<Figure> figures = [];
-
-    private D2DFillMode fillMode = D2DFillMode.Alternate;
-
     /// <summary>
     ///     The geometry
     /// </summary>
@@ -31,11 +27,11 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     ///     The figures.
     /// </value>
     public List<Figure> Figures {
-        get => figures;
+        get;
         set {
-            if (SetAffectsRender(ref figures, value)) isGeometryChanged = true;
+            if (SetAffectsRender(ref field, value)) isGeometryChanged = true;
         }
-    }
+    } = [];
 
     /// <summary>
     ///     Gets or sets the fill mode.
@@ -44,11 +40,11 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     ///     The fill mode.
     /// </value>
     public D2DFillMode FillMode {
-        get => fillMode;
+        get;
         set {
-            if (SetAffectsRender(ref fillMode, value)) isGeometryChanged = true;
+            if (SetAffectsRender(ref field, value)) isGeometryChanged = true;
         }
-    }
+    } = D2DFillMode.Alternate;
 
     /// <summary>
     ///     Called when [attach].

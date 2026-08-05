@@ -22,7 +22,7 @@ public abstract class MaterialGeometryModel3D : GeometryModel3D {
         base.AssignDefaultValuesToSceneNode(node);
     }
 
-    #region Dependency Properties
+#region Dependency Properties
 
     /// <summary>
     /// </summary>
@@ -48,13 +48,13 @@ public abstract class MaterialGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(false,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as MaterialGeometryNode)
-                                                                 .IsTransparent = (bool)e.NewValue;
+                                                                 .IsTransparent = (bool) e.NewValue;
                                                          }));
 
     /// <summary>
     /// </summary>
     public Material Material {
-        get => (Material)GetValue(MaterialProperty);
+        get => (Material) GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 
@@ -64,9 +64,9 @@ public abstract class MaterialGeometryModel3D : GeometryModel3D {
     ///     are preserved.
     /// </summary>
     public bool IsTransparent {
-        get => (bool)GetValue(IsTransparentProperty);
+        get => (bool) GetValue(IsTransparentProperty);
         set => SetValue(IsTransparentProperty, value);
     }
 
-    #endregion
+#endregion
 }

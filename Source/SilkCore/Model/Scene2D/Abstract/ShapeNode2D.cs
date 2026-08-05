@@ -9,22 +9,6 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public abstract class ShapeNode2D : SceneNode2D {
     protected ShapeRenderCore2DBase shapeRenderable;
 
-    private float[] strokeDashArray;
-
-    private CapStyle strokeDashCap = CapStyle.Flat;
-
-    private float strokeDashOffset;
-
-    private DashStyle strokeDashStyle = DashStyle.Solid;
-
-    private CapStyle strokeEndLineCap = CapStyle.Flat;
-
-    private LineJoin strokeLineJoin = LineJoin.Miter;
-
-    private float strokeMiterLimit = 1;
-
-    private CapStyle strokeStartLineCap = CapStyle.Flat;
-
     private bool strokeStyleChanged = true;
 
     public Brush Fill {
@@ -38,53 +22,53 @@ public abstract class ShapeNode2D : SceneNode2D {
     }
 
     public CapStyle StrokeDashCap {
-        get => strokeDashCap;
+        get;
         set {
-            if (SetAffectsRender(ref strokeDashCap, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = CapStyle.Flat;
 
     public CapStyle StrokeStartLineCap {
-        get => strokeStartLineCap;
+        get;
         set {
-            if (SetAffectsRender(ref strokeStartLineCap, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = CapStyle.Flat;
 
     public CapStyle StrokeEndLineCap {
-        get => strokeEndLineCap;
+        get;
         set {
-            if (SetAffectsRender(ref strokeEndLineCap, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = CapStyle.Flat;
 
     public DashStyle StrokeDashStyle {
-        get => strokeDashStyle;
+        get;
         set {
-            if (SetAffectsRender(ref strokeDashStyle, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = DashStyle.Solid;
 
     public float StrokeDashOffset {
-        get => strokeDashOffset;
+        get;
         set {
-            if (SetAffectsRender(ref strokeDashOffset, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
     }
 
     public LineJoin StrokeLineJoin {
-        get => strokeLineJoin;
+        get;
         set {
-            if (SetAffectsRender(ref strokeLineJoin, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = LineJoin.Miter;
 
     public float StrokeMiterLimit {
-        get => strokeMiterLimit;
+        get;
         set {
-            if (SetAffectsRender(ref strokeMiterLimit, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = 1;
 
     public float StrokeThickness {
         get => (RenderCore as ShapeRenderCore2DBase).StrokeWidth / DpiScale;
@@ -92,9 +76,9 @@ public abstract class ShapeNode2D : SceneNode2D {
     }
 
     public float[] StrokeDashArray {
-        get => strokeDashArray;
+        get;
         set {
-            if (SetAffectsRender(ref strokeDashArray, value)) strokeStyleChanged = true;
+            if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
     }
 

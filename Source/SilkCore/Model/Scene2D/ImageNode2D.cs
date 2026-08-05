@@ -7,12 +7,10 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class ImageNode2D : SceneNode2D {
-    private Stream imageStream;
-
     public Stream ImageStream {
-        get => imageStream;
+        get;
         set {
-            if (SetAffectsMeasure(ref imageStream, value)) bitmapChanged = true;
+            if (SetAffectsMeasure(ref field, value)) bitmapChanged = true;
         }
     }
 

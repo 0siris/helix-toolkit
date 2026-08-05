@@ -8,16 +8,14 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class TextNode2D : SceneNode2D {
-    private string text = string.Empty;
-
     private TextRenderCore2D textRenderable;
 
     public string Text {
-        get => text;
+        get;
         set {
-            if (SetAffectsMeasure(ref text, value)) (RenderCore as TextRenderCore2D).Text = value;
+            if (SetAffectsMeasure(ref field, value)) (RenderCore as TextRenderCore2D).Text = value;
         }
-    }
+    } = string.Empty;
 
     public Brush Foreground {
         get => (RenderCore as TextRenderCore2D).Foreground;

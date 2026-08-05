@@ -23,16 +23,14 @@ public abstract class Geometry3D : ObservableObject, IGUID {
     [DataMember]
     public Guid GUID { get; set; } = Guid.NewGuid();
 
-    private IntCollection indices;
-
     /// <summary>
     ///     Indices, can be triangle list, line list, etc.
     /// </summary>
     [DataMember]
     public IntCollection Indices {
-        get => indices;
+        get;
         set {
-            if (Set(ref indices, value, false)) {
+            if (Set(ref field, value, false)) {
                 ClearOctree();
                 RaisePropertyChanged(indicesPropChanged);
             }
@@ -56,15 +54,13 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         }
     }
 
-    private BoundingBox bound;
-
     /// <summary>
     ///     Geometry AABB
     /// </summary>
     [IgnoreDataMember]
     public BoundingBox Bound {
-        get => bound;
-        set => Set(ref bound, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>

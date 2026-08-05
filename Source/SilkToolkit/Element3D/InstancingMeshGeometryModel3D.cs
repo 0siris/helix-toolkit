@@ -8,7 +8,7 @@ using HelixToolkit.Wpf.SharpDX.Model;
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
-    #region DependencyProperties
+#region DependencyProperties
 
     /// <summary>
     ///     If bind to identifiers, hit test returns identifier as Tag in HitTestResult.
@@ -57,12 +57,12 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
     ///     If bind to identifiers, hit test returns identifier as Tag in HitTestResult.
     /// </summary>
     public IList<Guid> InstanceIdentifiers {
-        get => (IList<Guid>)GetValue(InstanceIdentifiersProperty);
+        get => (IList<Guid>) GetValue(InstanceIdentifiersProperty);
         set => SetValue(InstanceIdentifiersProperty, value);
     }
 
     public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper)GetValue(OctreeManagerProperty);
+        get => (IOctreeManagerWrapper) GetValue(OctreeManagerProperty);
         set => SetValue(OctreeManagerProperty, value);
     }
 
@@ -70,11 +70,11 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
     ///     List of instance parameters.
     /// </summary>
     public IList<InstanceParameter> InstanceParamArray {
-        get => (IList<InstanceParameter>)GetValue(InstanceAdvArrayProperty);
+        get => (IList<InstanceParameter>) GetValue(InstanceAdvArrayProperty);
         set => SetValue(InstanceAdvArrayProperty, value);
     }
 
-    #endregion
+#endregion
 
     protected override SceneNode OnCreateSceneNode() {
         return new InstancingMeshNode();

@@ -8,8 +8,6 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class ScreenQuadNode : SceneNode {
-    private float depth = 1f;
-
     public ScreenQuadNode() {
         IsHitTestVisible = false;
     }
@@ -37,16 +35,16 @@ public class ScreenQuadNode : SceneNode {
     }
 
     public float Depth {
-        get => depth;
+        get;
         set {
-            if (SetAffectsRender(ref depth, value)) {
+            if (SetAffectsRender(ref field, value)) {
                 var core = RenderCore as DrawScreenQuadCore;
                 core.ModelStruct.TopLeft.Z = core.ModelStruct.TopRight.Z =
                                                  core.ModelStruct.BottomLeft.Z =
                                                      core.ModelStruct.BottomRight.Z = value;
             }
         }
-    }
+    } = 1f;
 
     protected override RenderCore OnCreateRenderCore() {
         return new DrawScreenQuadCore();

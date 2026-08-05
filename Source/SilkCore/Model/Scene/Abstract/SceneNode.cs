@@ -434,8 +434,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         }
     }
 
-    private bool isRenderable = true;
-
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is renderable.
     /// </summary>
@@ -443,11 +441,11 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     <c>true</c> if this instance is renderable; otherwise, <c>false</c>.
     /// </value>
     public bool IsRenderable {
-        get => isRenderable;
+        get;
         private set {
-            if (Set(ref isRenderable, value)) InvalidatePerFrameRenderables();
+            if (Set(ref field, value)) InvalidatePerFrameRenderables();
         }
-    }
+    } = true;
 
     /// <summary>
     ///     If this has been attached onto renderhost.

@@ -38,7 +38,6 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     private readonly WinformHostExtend winformHost = new();
     private bool belongsToParentWindow;
 
-    private bool enableDpiScale = true;
     private D3DImageExt image3D;
     private Window parentWindow;
 
@@ -79,12 +78,12 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     public event EventHandler<RelayExceptionEventArgs> ExceptionOccurred = delegate { };
 
     public bool EnableDpiScale {
-        get => enableDpiScale;
+        get;
         set {
-            enableDpiScale = value;
-            RenderHost?.DpiScale = value ? (float)DpiScale : 1;
+            field = value;
+            RenderHost?.DpiScale = value ? (float) DpiScale : 1;
         }
-    }
+    } = true;
 
     public double DpiScale {
         get => winformHost.DpiScale;

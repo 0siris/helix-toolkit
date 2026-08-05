@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
+
 public static class ScreenCapture {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
@@ -33,10 +34,10 @@ public static class ScreenCapture {
             desc.SampleDescription.Quality = 0;
             using var texture = context.NativeDevice.CreateTexture2D(desc);
             for (var i = 0; i < desc.ArraySize; ++i)
-                for (var level = 0; level < desc.MipLevels; ++level) {
-                    var index = level + i * desc.MipLevels;
-                    context.ResolveSubresource(source, index, texture, index, desc.Format);
-                }
+            for (var level = 0; level < desc.MipLevels; ++level) {
+                var index = level + i * desc.MipLevels;
+                context.ResolveSubresource(source, index, texture, index, desc.Format);
+            }
 
             desc.BindFlags = BindFlags.None;
             desc.Usage = ResourceUsage.Staging;
@@ -141,7 +142,7 @@ public static class ScreenCapture {
             try {
                 if (stagingTexture.Description.Format != Format.FormatB8G8R8A8Unorm) {
                     Logger.Warn("Screen capture format {Value0} is not supported for WPF encoding.",
-                                      stagingTexture.Description.Format);
+                                stagingTexture.Description.Format);
                     return false;
                 }
 

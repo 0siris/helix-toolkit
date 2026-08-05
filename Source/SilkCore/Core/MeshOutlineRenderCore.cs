@@ -15,9 +15,7 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
     /// <summary>
     ///     Initializes a new instance of the <see cref="MeshOutlineRenderCore" /> class.
     /// </summary>
-    public MeshOutlineRenderCore() {
-        OutlineFadingFactor = 1.5f;
-    }
+    public MeshOutlineRenderCore() => OutlineFadingFactor = 1.5f;
 
 #region Variables
 
@@ -84,15 +82,13 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
         set => SetAffectsRender(ref field, value);
     }
 
-    private bool drawMesh = true;
-
     /// <summary>
     ///     Draw original mesh
     /// </summary>
     public bool DrawMesh {
-        get => drawMesh;
-        set => SetAffectsRender(ref drawMesh, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Draw outline order

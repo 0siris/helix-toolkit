@@ -99,34 +99,17 @@ public interface IVolumeTextureMaterial {
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTextureMaterial {
-    private Color4 color = new(1, 1, 1, 1);
-
-    private bool enablePlaneAlignment = true;
-
-    private double isoValue;
-
-    private int iterationOffset;
-
-    private int maxIterations = 512;
-
-    private double sampleDistance = 1.0;
-
-    private SamplerStateDescription sampler = DefaultSamplers.VolumeSampler;
-
-    private Color4[] transferMap;
-    private T volumeTexture;
-
     public T VolumeTexture {
-        get => volumeTexture;
-        set => Set(ref volumeTexture, value);
+        get;
+        set => Set(ref field, value);
     }
 
     protected virtual string DefaultPassName { get; } = DefaultPassNames.Default;
 
     public SamplerStateDescription Sampler {
-        get => sampler;
-        set => Set(ref sampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.VolumeSampler;
 
     /// <summary>
     ///     Gets or sets the step size, controls the quality.
@@ -135,9 +118,9 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     ///     The size of the step.
     /// </value>
     public double SampleDistance {
-        get => sampleDistance;
-        set => Set(ref sampleDistance, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1.0;
 
     /// <summary>
     ///     Gets or sets the iteration. Usually set to VolumeDepth.
@@ -146,9 +129,9 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     ///     The iteration.
     /// </value>
     public int MaxIterations {
-        get => maxIterations;
-        set => Set(ref maxIterations, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 512;
 
     /// <summary>
     ///     Gets or sets the iteration offset. This can be used to achieve cross section
@@ -157,8 +140,8 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     ///     The iteration offset.
     /// </value>
     public int IterationOffset {
-        get => iterationOffset;
-        set => Set(ref iterationOffset, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -169,8 +152,8 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     ///     The iso value.
     /// </value>
     public double IsoValue {
-        get => isoValue;
-        set => Set(ref isoValue, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -180,19 +163,19 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     ///     The color.
     /// </value>
     public Color4 Color {
-        get => color;
-        set => Set(ref color, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = new(1, 1, 1, 1);
 
     public Color4[] TransferMap {
-        get => transferMap;
-        set => Set(ref transferMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public bool EnablePlaneAlignment {
-        get => enablePlaneAlignment;
-        set => Set(ref enablePlaneAlignment, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,

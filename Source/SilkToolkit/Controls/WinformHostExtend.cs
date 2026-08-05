@@ -24,8 +24,6 @@ public class WinformHostExtend : WindowsFormsHost {
                                          typeof(FormMouseWheelEventHandler),
                                          typeof(WinformHostExtend));
 
-    private double dpiScale = 1;
-
     public WinformHostExtend() {
         ChildChanged += OnChildChanged;
     }
@@ -33,13 +31,13 @@ public class WinformHostExtend : WindowsFormsHost {
     protected UIElement ParentControl { get; set; }
 
     public double DpiScale {
-        get => dpiScale;
+        get;
         set {
-            if (dpiScale == value) return;
-            dpiScale = value;
+            if (field == value) return;
+            field = value;
             DpiScaleChanged?.Invoke(this, value);
         }
-    }
+    } = 1;
 
     public event FormMouseMoveEventHandler FormMouseMove {
         add => AddHandler(FormMouseMoveEvent, value);

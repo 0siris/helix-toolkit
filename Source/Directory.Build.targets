@@ -1,6 +1,6 @@
 <Project>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' and '$(TargetPlatformIdentifier)' == 'Windows'">
-    <Compile Include="$(MSBuildThisFileDirectory)SupportedOSPlatform.cs" Link="Properties\SupportedOSPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SupportedOSPlatform.cs" Link="Properties\SupportedOSPlatform.cs"/>
   </ItemGroup>
 
   <ItemGroup>

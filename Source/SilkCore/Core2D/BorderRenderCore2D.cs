@@ -11,10 +11,6 @@ public class BorderRenderCore2D : RenderCore2DBase {
 
     private Brush background;
 
-    private Vector4 borderThickness = Vector4.Zero;
-
-    private float cornerRadius;
-
     private bool isBorderGeometryChanged;
 
     private Brush strokeBrush;
@@ -59,9 +55,9 @@ public class BorderRenderCore2D : RenderCore2DBase {
     ///     The stroke thickness.
     /// </value>
     public Vector4 BorderThickness {
-        get => borderThickness;
-        set => SetAffectsRender(ref borderThickness, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = Vector4.Zero;
 
     /// <summary>
     ///     Gets or sets the stroke style.
@@ -87,9 +83,9 @@ public class BorderRenderCore2D : RenderCore2DBase {
     ///     The corner radius.
     /// </value>
     public float CornerRadius {
-        get => cornerRadius;
+        get;
         set {
-            if (SetAffectsRender(ref cornerRadius, value)) isBorderGeometryChanged = true;
+            if (SetAffectsRender(ref field, value)) isBorderGeometryChanged = true;
         }
     }
 

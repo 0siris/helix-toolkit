@@ -43,9 +43,6 @@ public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
     private const int RingBufferSize = 120;
     private readonly SimpleRingBuffer<double> ringBuffer = new(RingBufferSize);
 
-    private double averageFrequency;
-
-    private double averageValue;
     private uint counter;
     private double movingAverage;
     private double total;
@@ -55,9 +52,9 @@ public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
     ///     Average latency
     /// </summary>
     public double AverageValue {
-        get => averageValue;
+        get;
         private set {
-            if (Set(ref averageValue, value)) {
+            if (Set(ref field, value)) {
                 AverageFrequency = 1000 / value;
                 OnValueChanged?.Invoke(this, new FrameStatisticsArg(value, AverageFrequency));
             }
@@ -71,8 +68,8 @@ public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
     ///     The average frequency.
     /// </value>
     public double AverageFrequency {
-        get => averageFrequency;
-        private set => Set(ref averageFrequency, value);
+        get;
+        private set => Set(ref field, value);
     }
 
     /// <summary>

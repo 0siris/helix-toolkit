@@ -49,7 +49,8 @@ public abstract class CoreComponent : DisposeObject {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool SetAffectsRender<T>(ref T backingField, T value) {
-        if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+        if (EqualityComparer<T>.Default.Equals(backingField, value)) 
+            return false;
 
         backingField = value;
         RaiseInvalidateRender();

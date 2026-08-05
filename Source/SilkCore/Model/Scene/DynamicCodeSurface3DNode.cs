@@ -46,18 +46,14 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
     // Type and instance of the dynamic code
     private Type _codeType;
 
-    private CompilerErrorCollection errors;
-    private float parameterW = 1f;
-
-    private string source;
     private string sourceCode;
 
     public float ParameterW {
-        get => parameterW;
+        get;
         set {
-            if (Set(ref parameterW, value)) UpdateSource();
+            if (Set(ref field, value)) UpdateSource();
         }
-    }
+    } = 1f;
 
     /// <summary>
     ///     Gets or sets the source code
@@ -66,16 +62,16 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
     ///     The source.
     /// </value>
     public string Source {
-        get => source;
+        get;
         set {
-            if (Set(ref source, value)) UpdateSource();
+            if (Set(ref field, value)) UpdateSource();
         }
     }
 
     public CompilerErrorCollection Errors {
-        get => errors;
+        get;
         private set {
-            if (Set(ref errors, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
+            if (Set(ref field, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
         }
     }
 

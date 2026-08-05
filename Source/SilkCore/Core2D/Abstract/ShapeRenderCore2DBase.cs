@@ -5,14 +5,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
-/// <summary>
-/// </summary>
+
 public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
-    private Brush fillBrush;
+    private Brush? fillBrush;
 
-    private Brush strokeBrush;
+    private Brush? strokeBrush;
 
-    private StrokeStyle strokeStyle;
+    private StrokeStyle? strokeStyle;
 
     /// <summary>
     ///     Gets or sets the fill brush.
@@ -20,11 +19,12 @@ public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
     /// <value>
     ///     The fill brush.
     /// </value>
-    public Brush FillBrush {
+    public Brush? FillBrush {
         get => fillBrush;
         set {
             var old = fillBrush;
-            if (SetAffectsRender(ref fillBrush, value)) RemoveAndDispose(ref old);
+            if (SetAffectsRender(ref fillBrush, value)) 
+                RemoveAndDispose(ref old);
         }
     }
 
@@ -34,11 +34,12 @@ public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
     /// <value>
     ///     The stroke brush.
     /// </value>
-    public Brush StrokeBrush {
+    public Brush? StrokeBrush {
         get => strokeBrush;
         set {
             var old = strokeBrush;
-            if (SetAffectsRender(ref strokeBrush, value)) RemoveAndDispose(ref old);
+            if (SetAffectsRender(ref strokeBrush, value)) 
+                RemoveAndDispose(ref old);
         }
     }
 
@@ -56,11 +57,12 @@ public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
     /// <value>
     ///     The stroke style.
     /// </value>
-    public StrokeStyle StrokeStyle {
+    public StrokeStyle? StrokeStyle {
         get => strokeStyle;
         set {
             var old = strokeStyle;
-            if (SetAffectsRender(ref strokeStyle, value)) RemoveAndDispose(ref old);
+            if (SetAffectsRender(ref strokeStyle, value))
+                RemoveAndDispose(ref old);
         }
     }
 

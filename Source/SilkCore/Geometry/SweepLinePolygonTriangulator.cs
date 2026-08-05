@@ -506,12 +506,6 @@ internal class StatusHelper {
 /// </summary>
 internal class StatusHelperElement {
     /// <summary>
-    ///     Factor used for x-Value Calculation
-    /// </summary>
-    private readonly double mFactor;
-
-
-    /// <summary>
     ///     Constructor taking an Edge and a Helper
     /// </summary>
     /// <param name="edge">The Edge of the StatusHelperElement</param>
@@ -520,7 +514,7 @@ internal class StatusHelperElement {
         Edge = edge;
         Helper = point;
         var vector = edge.PointTwo.Point - edge.PointOne.Point;
-        mFactor = vector.X / vector.Y;
+        Factor = vector.X / vector.Y;
         MinX = Math.Min(edge.PointOne.X, edge.PointTwo.X);
     }
 
@@ -537,7 +531,7 @@ internal class StatusHelperElement {
     /// <summary>
     ///     Accessor for the Factor
     /// </summary>
-    public double Factor => mFactor;
+    public double Factor { get; }
 
     /// <summary>
     ///     Used to early-skip the Search for the right Status and Helper
@@ -560,12 +554,6 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     private PolygonEdge mEdgeTwo;
 
     /// <summary>
-    ///     The Index of this Point in the original Polygon
-    ///     that needs to be triangulated
-    /// </summary>
-    private int mIndex;
-
-    /// <summary>
     ///     The actual Point of this PolygonPoint
     /// </summary>
     private Point mPoint;
@@ -577,7 +565,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     internal PolygonPoint(Point p) {
         // Set the Point-Data, the Index must be set later
         mPoint = p;
-        mIndex = -1;
+        Index = -1;
     }
 
     /// <summary>
@@ -624,8 +612,8 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     ///     Accessor for the iriginal Point-Index
     /// </summary>
     public int Index {
-        get => mIndex;
-        set => mIndex = value;
+        get;
+        set => field = value;
     }
 
     /// <summary>

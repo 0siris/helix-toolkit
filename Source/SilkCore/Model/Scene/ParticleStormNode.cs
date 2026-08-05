@@ -13,8 +13,6 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     private volatile bool blendChanged = true;
 
-    private bool enableViewFrustumCheck = true;
-
     public ParticleStormNode() {
         HasBound = true;
     }
@@ -26,9 +24,9 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableViewFrustumCheck {
-        get => enableViewFrustumCheck && HasBound;
-        set => enableViewFrustumCheck = value;
-    }
+        get => field && HasBound;
+        set;
+    } = true;
 
     private ParticleRenderCore particleCore => RenderCore as ParticleRenderCore;
 
@@ -329,8 +327,6 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set => particleCore.InitialAcceleration = value;
     }
 
-    private Vector3 domainBoundMax = ParticleRenderCore.DefaultBoundMaximum;
-
     /// <summary>
     ///     Gets or sets the domain bound maximum.
     /// </summary>
@@ -338,16 +334,14 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The domain bound maximum.
     /// </value>
     public Vector3 DomainBoundMax {
-        get => domainBoundMax;
+        get;
         set {
-            if (Set(ref domainBoundMax, value)) {
+            if (Set(ref field, value)) {
                 particleCore.DomainBoundMax = value;
                 boundChanged = true;
             }
         }
-    }
-
-    private Vector3 domainBoundMin = ParticleRenderCore.DefaultBoundMinimum;
+    } = ParticleRenderCore.DefaultBoundMaximum;
 
     /// <summary>
     ///     Gets or sets the domain bound minimum.
@@ -356,14 +350,14 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The domain bound minimum.
     /// </value>
     public Vector3 DomainBoundMin {
-        get => domainBoundMin;
+        get;
         set {
-            if (Set(ref domainBoundMin, value)) {
+            if (Set(ref field, value)) {
                 particleCore.DomainBoundMin = value;
                 boundChanged = true;
             }
         }
-    }
+    } = ParticleRenderCore.DefaultBoundMinimum;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [cumulate at bound].
@@ -409,8 +403,6 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set => particleCore.Turbulance = value;
     }
 
-    private BlendOperation blend = BlendOperation.Add;
-
     /// <summary>
     ///     Gets or sets the blend.
     /// </summary>
@@ -418,13 +410,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The blend.
     /// </value>
     public BlendOperation Blend {
-        get => blend;
+        get;
         set {
-            if (Set(ref blend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
-
-    private BlendOperation alphaBlend = BlendOperation.Add;
+    } = BlendOperation.Add;
 
     /// <summary>
     ///     Gets or sets the alpha blend.
@@ -433,13 +423,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The alpha blend.
     /// </value>
     public BlendOperation AlphaBlend {
-        get => alphaBlend;
+        get;
         set {
-            if (Set(ref alphaBlend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
-
-    private BlendOption sourceBlend = BlendOption.One;
+    } = BlendOperation.Add;
 
     /// <summary>
     ///     Gets or sets the source blend.
@@ -448,13 +436,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The source blend.
     /// </value>
     public BlendOption SourceBlend {
-        get => sourceBlend;
+        get;
         set {
-            if (Set(ref sourceBlend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
-
-    private BlendOption destBlend = BlendOption.One;
+    } = BlendOption.One;
 
     /// <summary>
     ///     Gets or sets the dest blend.
@@ -463,13 +449,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The dest blend.
     /// </value>
     public BlendOption DestBlend {
-        get => destBlend;
+        get;
         set {
-            if (Set(ref destBlend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
-
-    private BlendOption sourceAlphaBlend = BlendOption.One;
+    } = BlendOption.One;
 
     /// <summary>
     ///     Gets or sets the source alpha blend.
@@ -478,13 +462,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The source alpha blend.
     /// </value>
     public BlendOption SourceAlphaBlend {
-        get => sourceAlphaBlend;
+        get;
         set {
-            if (Set(ref sourceAlphaBlend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
-
-    private BlendOption destAlphaBlend = BlendOption.Zero;
+    } = BlendOption.One;
 
     /// <summary>
     ///     Gets or sets the dest alpha blend.
@@ -493,11 +475,11 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The dest alpha blend.
     /// </value>
     public BlendOption DestAlphaBlend {
-        get => destAlphaBlend;
+        get;
         set {
-            if (Set(ref destAlphaBlend, value)) OnBlendStateChanged();
+            if (Set(ref field, value)) OnBlendStateChanged();
         }
-    }
+    } = BlendOption.Zero;
 
     /// <summary>
     ///     Gets or sets the blend factor for blending
@@ -521,8 +503,6 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set => particleCore.SampleMask = value;
     }
 
-    private IList<Matrix> instances;
-
     /// <summary>
     ///     Gets or sets the instances.
     /// </summary>
@@ -530,9 +510,9 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The instances.
     /// </value>
     public IList<Matrix> Instances {
-        get => instances;
+        get;
         set {
-            if (Set(ref instances, value)) {
+            if (Set(ref field, value)) {
                 InstanceBuffer.Elements = value;
                 boundChanged = true;
             }

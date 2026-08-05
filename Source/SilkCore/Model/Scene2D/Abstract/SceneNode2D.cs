@@ -16,17 +16,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 
     private readonly WeakReference<SceneNode2D> parent = new(null);
 
-    private Matrix3x2 layoutTranslate = Matrix3x2.Identity;
-
-    private Matrix3x2 modelMatrix = Matrix3x2.Identity;
-
-    private Matrix3x2 parentMatrix = Matrix3x2.Identity;
-
     private RenderCore2D renderCore;
-
-    private Matrix3x2 totalTransform = Matrix3x2.Identity;
-
-    private Visibility visibility = Visibility.Visible;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
@@ -67,11 +57,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     <c>true</c> if visible; otherwise, <c>false</c>.
     /// </value>
     public Visibility Visibility {
-        get => visibility;
+        get;
         set {
-            if (Set(ref visibility, value)) InvalidateVisual();
+            if (Set(ref field, value)) InvalidateVisual();
         }
-    }
+    } = Visibility.Visible;
 
     /// <summary>
     ///     Gets or sets the wrapper source used to link the external wrapper with the node.
@@ -149,14 +139,14 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     The model matrix.
     /// </value>
     public Matrix3x2 ModelMatrix {
-        get => modelMatrix;
+        get;
         set {
-            if (Set(ref modelMatrix, value)) {
+            if (Set(ref field, value)) {
                 RenderCore.LocalTransform = value;
                 InvalidateVisual();
             }
         }
-    }
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets the layout translate.
@@ -165,11 +155,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     The layout translate.
     /// </value>
     public Matrix3x2 LayoutTranslate {
-        get => layoutTranslate;
+        get;
         set {
-            if (Set(ref layoutTranslate, value)) InvalidateRender();
+            if (Set(ref field, value)) InvalidateRender();
         }
-    }
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets the parent matrix.
@@ -178,11 +168,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     The parent matrix.
     /// </value>
     public Matrix3x2 ParentMatrix {
-        get => parentMatrix;
+        get;
         set {
-            if (Set(ref parentMatrix, value)) IsTransformDirty = true;
+            if (Set(ref field, value)) IsTransformDirty = true;
         }
-    }
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets the total model matrix.
@@ -191,15 +181,15 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     The total model matrix.
     /// </value>
     public Matrix3x2 TotalModelMatrix {
-        get => totalTransform;
+        get;
         private set {
-            if (Set(ref totalTransform, value)) {
-                for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = totalTransform;
+            if (Set(ref field, value)) {
+                for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = field;
                 TransformChanged(ref value);
                 OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
             }
         }
-    }
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets the transform matrix relative to its parent

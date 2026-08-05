@@ -29,11 +29,6 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 
     private static readonly Vector3 epsilon = new(float.Epsilon, float.Epsilon, float.Epsilon);
 
-    /// <summary>
-    ///     These are all of the possible child octants for this node in the tree.
-    /// </summary>
-    private readonly IDynamicOctree[] childNodes = new IDynamicOctree[8];
-
     private readonly List<BoundingBox> hitPathBoundingBoxes = [];
 
     /// <summary>
@@ -164,7 +159,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <summary>
     ///     <see cref="IDynamicOctree.ChildNodes" />
     /// </summary>
-    public IDynamicOctree[] ChildNodes => childNodes;
+    public IDynamicOctree[] ChildNodes { get; } = new IDynamicOctree[8];
 
     /// <summary>
     ///     <see cref="IDynamicOctree.ActiveNodes" />
@@ -1225,13 +1220,6 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 /// <summary>
 /// </summary>
 public sealed class OctreeBuildParameter : ObservableObject {
-    private bool autoDeleteIfEmpty = true;
-
-    private bool cubify;
-    private float minimumOctantSize = 1f;
-
-    private int minObjectSizeToSplit = 2;
-
     /// <summary>
     /// </summary>
     public OctreeBuildParameter() { }
@@ -1263,32 +1251,32 @@ public sealed class OctreeBuildParameter : ObservableObject {
     ///     Minimum Octant size.
     /// </summary>
     public float MinimumOctantSize {
-        get => minimumOctantSize;
-        set => Set(ref minimumOctantSize, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1f;
 
     /// <summary>
     ///     Minimum object in each octant to start splitting into smaller octant during build
     /// </summary>
     public int MinObjectSizeToSplit {
-        get => minObjectSizeToSplit;
-        set => Set(ref minObjectSizeToSplit, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 2;
 
     /// <summary>
     ///     Delete empty octant automatically
     /// </summary>
     public bool AutoDeleteIfEmpty {
-        get => autoDeleteIfEmpty;
-        set => Set(ref autoDeleteIfEmpty, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Generate cube octants instead of rectangle octants
     /// </summary>
     public bool Cubify {
-        get => cubify;
-        set => Set(ref cubify, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>

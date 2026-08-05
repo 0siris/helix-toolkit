@@ -9,20 +9,6 @@ using HelixToolkit.SharpDX.Core.Shaders;
 namespace HelixToolkit.SharpDX.Core.Model;
 [DataContract]
 public class DiffuseMaterialCore : MaterialCore {
-    private Color4 diffuseColor = Color.White;
-    private TextureModel diffuseMap;
-    private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
-
-    private bool enableFlatShading;
-
-    private bool enableUnLit;
-
-    private bool renderDiffuseMap = true;
-
-    private UVTransform uvTransform = UVTransform.Identity;
-
-    private float vertexColorBlendingFactor;
-
     /// <summary>
     ///     Gets or sets the color of the diffuse.
     /// </summary>
@@ -30,9 +16,9 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     The color of the diffuse.
     /// </value>
     public Color4 DiffuseColor {
-        get => diffuseColor;
-        set => Set(ref diffuseColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets the diffuse map.
@@ -41,8 +27,8 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     The diffuse map.
     /// </value>
     public TextureModel DiffuseMap {
-        get => diffuseMap;
-        set => Set(ref diffuseMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -60,9 +46,9 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => uvTransform;
-        set => Set(ref uvTransform, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = UVTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the DiffuseMapSampler.
@@ -71,16 +57,16 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     DiffuseMapSampler
     /// </value>
     public SamplerStateDescription DiffuseMapSampler {
-        get => diffuseMapSampler;
-        set => Set(ref diffuseMapSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerWrapAni4;
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseMap {
-        get => renderDiffuseMap;
-        set => Set(ref renderDiffuseMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether disable lighting. Directly render diffuse color and diffuse map
@@ -89,8 +75,8 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableUnLit {
-        get => enableUnLit;
-        set => Set(ref enableUnLit, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -100,8 +86,8 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => enableFlatShading;
-        set => Set(ref enableFlatShading, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -113,8 +99,8 @@ public class DiffuseMaterialCore : MaterialCore {
     ///     The vert color blending factor.
     /// </value>
     public float VertexColorBlendingFactor {
-        get => vertexColorBlendingFactor;
-        set => Set(ref vertexColorBlendingFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public override MaterialVariable CreateMaterialVariables(

@@ -8,8 +8,6 @@ using HelixToolkit.SharpDX.Core.Animations;
 namespace HelixToolkit.SharpDX.Core;
 
 public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
-    private IList<BoneIds> vertexBoneIds;
-
     public BoneSkinnedMeshGeometry3D() { }
 
     public BoneSkinnedMeshGeometry3D(MeshGeometry3D mesh) {
@@ -23,8 +21,8 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
     ///     The vertex bone ids.
     /// </value>
     public IList<BoneIds> VertexBoneIds {
-        get => vertexBoneIds;
-        set => Set(ref vertexBoneIds, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>

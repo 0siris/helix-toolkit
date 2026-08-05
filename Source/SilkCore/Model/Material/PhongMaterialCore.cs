@@ -9,72 +9,6 @@ namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>
 /// </summary>
 public class PhongMaterialCore : MaterialCore {
-    private Color4 ambientColor = Color.DarkGray;
-
-    private TextureModel diffuseAlphaMap;
-
-    private Color4 diffuseColor = Color.White;
-
-    private TextureModel diffuseMap;
-
-    private SamplerStateDescription diffuseMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
-
-    private TextureModel displacementMap;
-
-
-    private SamplerStateDescription displacementMapSampler = DefaultSamplers.LinearSamplerWrapAni1;
-
-    private Vector4 displacementMapScaleMask;
-
-    private Color4 emissiveColor = Color.Black;
-
-    private TextureModel emissiveMap;
-
-    private bool enableAutoTangent;
-
-    private bool enableFlatShading;
-
-    private bool enableTessellation;
-
-    private float maxDistanceTessellationFactor = 1;
-
-    private float maxTessellationDistance = 100;
-
-    private MeshTopologyEnum meshType = MeshTopologyEnum.PNTriangles;
-
-    private float minDistanceTessellationFactor = 2;
-
-    private float minTessellationDistance = 10;
-
-    private TextureModel normalMap;
-
-    private Color4 reflectiveColor = Color.Black;
-
-    private bool renderDiffuseAlphaMap = true;
-
-    private bool renderDiffuseMap = true;
-
-    private bool renderDisplacementMap = true;
-
-    private bool renderEmissiveMap = true;
-
-    private bool renderEnvironmentMap;
-    private bool renderNormalMap = true;
-
-    private bool renderShadowMap;
-
-    private bool renderSpecularColorMap = true;
-
-    private Color4 specularColor = Color.Gray;
-
-    private TextureModel specularColorMap;
-
-    private float specularShininess = 1;
-
-    private UVTransform uvTransform = UVTransform.Identity;
-
-    private float vertexColorBlendingFactor;
-
     /// <summary>
     ///     Gets or sets the color of the ambient.
     /// </summary>
@@ -82,9 +16,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The color of the ambient.
     /// </value>
     public Color4 AmbientColor {
-        get => ambientColor;
-        set => Set(ref ambientColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.DarkGray;
 
     /// <summary>
     ///     Gets or sets the color of the diffuse.
@@ -93,9 +27,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The color of the diffuse.
     /// </value>
     public Color4 DiffuseColor {
-        get => diffuseColor;
-        set => Set(ref diffuseColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets the color of the emissive.
@@ -104,9 +38,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The color of the emissive.
     /// </value>
     public Color4 EmissiveColor {
-        get => emissiveColor;
-        set => Set(ref emissiveColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.Black;
 
     /// <summary>
     ///     Gets or sets the color of the reflective.
@@ -115,9 +49,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The color of the reflective.
     /// </value>
     public Color4 ReflectiveColor {
-        get => reflectiveColor;
-        set => Set(ref reflectiveColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.Black;
 
     /// <summary>
     ///     Gets or sets the color of the specular.
@@ -126,9 +60,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The color of the specular.
     /// </value>
     public Color4 SpecularColor {
-        get => specularColor;
-        set => Set(ref specularColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.Gray;
 
     /// <summary>
     ///     Gets or sets the specular shininess.
@@ -139,9 +73,9 @@ public class PhongMaterialCore : MaterialCore {
     /// <exception cref="System.NotImplementedException">
     /// </exception>
     public float SpecularShininess {
-        get => specularShininess;
-        set => Set(ref specularShininess, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     /// <summary>
     ///     Gets or sets the diffuse map.
@@ -150,8 +84,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     The diffuse map.
     /// </value>
     public TextureModel DiffuseMap {
-        get => diffuseMap;
-        set => Set(ref diffuseMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -169,8 +103,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     DiffuseAlphaMap
     /// </value>
     public TextureModel DiffuseAlphaMap {
-        get => diffuseAlphaMap;
-        set => Set(ref diffuseAlphaMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -188,8 +122,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     NormalMap
     /// </value>
     public TextureModel NormalMap {
-        get => normalMap;
-        set => Set(ref normalMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -207,8 +141,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     The specular color map.
     /// </value>
     public TextureModel SpecularColorMap {
-        get => specularColorMap;
-        set => Set(ref specularColorMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -226,8 +160,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     DisplacementMap
     /// </value>
     public TextureModel DisplacementMap {
-        get => displacementMap;
-        set => Set(ref displacementMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -245,8 +179,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     The emissive map.
     /// </value>
     public TextureModel EmissiveMap {
-        get => emissiveMap;
-        set => Set(ref emissiveMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -264,8 +198,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     DisplacementMapScaleMask
     /// </value>
     public Vector4 DisplacementMapScaleMask {
-        get => displacementMapScaleMask;
-        set => Set(ref displacementMapScaleMask, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -275,9 +209,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => uvTransform;
-        set => Set(ref uvTransform, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = UVTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the DiffuseMapSampler.
@@ -286,9 +220,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     DiffuseMapSampler
     /// </value>
     public SamplerStateDescription DiffuseMapSampler {
-        get => diffuseMapSampler;
-        set => Set(ref diffuseMapSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerWrapAni4;
 
     /// <summary>
     ///     Gets or sets the DisplacementMapSampler.
@@ -297,30 +231,30 @@ public class PhongMaterialCore : MaterialCore {
     ///     DisplacementMapSampler
     /// </value>
     public SamplerStateDescription DisplacementMapSampler {
-        get => displacementMapSampler;
-        set => Set(ref displacementMapSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerWrapAni1;
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseMap {
-        get => renderDiffuseMap;
-        set => Set(ref renderDiffuseMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseAlphaMap {
-        get => renderDiffuseAlphaMap;
-        set => Set(ref renderDiffuseAlphaMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     /// </summary>
     public bool RenderNormalMap {
-        get => renderNormalMap;
-        set => Set(ref renderNormalMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [render specular color map].
@@ -329,16 +263,16 @@ public class PhongMaterialCore : MaterialCore {
     ///     <c>true</c> if [render specular color map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderSpecularColorMap {
-        get => renderSpecularColorMap;
-        set => Set(ref renderSpecularColorMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => renderDisplacementMap;
-        set => Set(ref renderDisplacementMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [render emissive map].
@@ -347,9 +281,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     <c>true</c> if [render emissive map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEmissiveMap {
-        get => renderEmissiveMap;
-        set => Set(ref renderEmissiveMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable automatic tangent].
@@ -358,19 +292,19 @@ public class PhongMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => enableAutoTangent;
-        set => Set(ref enableAutoTangent, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public float MinTessellationDistance {
-        get => minTessellationDistance;
-        set => Set(ref minTessellationDistance, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 10;
 
     public float MaxTessellationDistance {
-        get => maxTessellationDistance;
-        set => Set(ref maxTessellationDistance, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 100;
 
     /// <summary>
     ///     Gets or sets the tessellation factor at <see cref="MinTessellationDistance" />.
@@ -379,9 +313,9 @@ public class PhongMaterialCore : MaterialCore {
     ///     The minimum distance tessellation factor.
     /// </value>
     public float MinDistanceTessellationFactor {
-        get => minDistanceTessellationFactor;
-        set => Set(ref minDistanceTessellationFactor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 2;
 
     /// <summary>
     ///     Gets or sets the tessellation factor at <see cref="MaxDistanceTessellationFactor" />
@@ -390,32 +324,32 @@ public class PhongMaterialCore : MaterialCore {
     ///     The maximum distance tessellation factor.
     /// </value>
     public float MaxDistanceTessellationFactor {
-        get => maxDistanceTessellationFactor;
-        set => Set(ref maxDistanceTessellationFactor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     public MeshTopologyEnum MeshType {
-        get => meshType;
-        set => Set(ref meshType, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = MeshTopologyEnum.PNTriangles;
 
     public bool EnableTessellation {
-        get => enableTessellation;
-        set => Set(ref enableTessellation, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderShadowMap {
-        get => renderShadowMap;
-        set => Set(ref renderShadowMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEnvironmentMap {
-        get => renderEnvironmentMap;
-        set => Set(ref renderEnvironmentMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -425,8 +359,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => enableFlatShading;
-        set => Set(ref enableFlatShading, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -438,8 +372,8 @@ public class PhongMaterialCore : MaterialCore {
     ///     The vert color blending factor.
     /// </value>
     public float VertexColorBlendingFactor {
-        get => vertexColorBlendingFactor;
-        set => Set(ref vertexColorBlendingFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public override MaterialVariable CreateMaterialVariables(

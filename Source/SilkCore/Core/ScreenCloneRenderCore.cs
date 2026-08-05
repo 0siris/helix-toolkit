@@ -41,10 +41,6 @@ public interface IScreenClone {
 ///     is kept so scene nodes continue to compile; real Silk.NET DXGI duplication is a separate interop edge.
 /// </remarks>
 public class ScreenCloneRenderCore : RenderCore, IScreenClone {
-    private Rectangle cloneRectangle;
-    private int output;
-    private bool stretchToFill;
-
     public ScreenCloneRenderCore()
         : base(RenderType.Opaque) { }
 
@@ -52,24 +48,24 @@ public class ScreenCloneRenderCore : RenderCore, IScreenClone {
     ///     Gets or sets the output.
     /// </summary>
     public int Output {
-        get => output;
-        set => Set(ref output, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
     ///     Gets or sets the clone rectangle.
     /// </summary>
     public Rectangle CloneRectangle {
-        get => cloneRectangle;
-        set => Set(ref cloneRectangle, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
     ///     Gets or sets a value indicating cloned rectangle is stretched during rendering, default is false.
     /// </summary>
     public bool StretchToFill {
-        get => stretchToFill;
-        set => Set(ref stretchToFill, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>

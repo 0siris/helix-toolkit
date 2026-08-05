@@ -10,24 +10,7 @@ namespace HelixToolkit.SharpDX.Core.Core2D;
 public class TextRenderCore2D : RenderCore2DBase {
     private Brush background;
 
-    private FlowDirection flowDirection = FlowDirection.LeftToRight;
-
-    private string fontFamily = "Arial";
-
-    private int fontSize = 12;
-
-    private FontStyle fontStyle = FontStyle.Normal;
-
-    private FontWeight fontWeight = FontWeight.Normal;
-
     private Brush foreground;
-
-    private float maxHeight;
-
-    private float maxWidth;
-    private string text = string.Empty;
-
-    private TextAlignment textAlignment = TextAlignment.Leading;
 
     private DirectWriteFactory textFactory;
     private TextFormat textFormat;
@@ -37,17 +20,19 @@ public class TextRenderCore2D : RenderCore2DBase {
     protected bool textLayoutDirty = true;
 
     public string Text {
-        get => text;
+        get;
         set {
-            if (SetAffectsRender(ref text, value)) textLayoutDirty = true;
+            if (SetAffectsRender(ref field, value)) 
+                textLayoutDirty = true;
         }
-    }
+    } = string.Empty;
 
     public Brush Foreground {
         get => foreground;
         set {
             var old = foreground;
-            if (SetAffectsRender(ref foreground, value)) RemoveAndDispose(ref old);
+            if (SetAffectsRender(ref foreground, value)) 
+                RemoveAndDispose(ref old);
         }
     }
 
@@ -60,44 +45,44 @@ public class TextRenderCore2D : RenderCore2DBase {
     }
 
     public string FontFamily {
-        get => fontFamily;
+        get;
         set {
-            if (SetAffectsRender(ref fontFamily, value) && IsAttached) UpdateFontFormat();
+            if (SetAffectsRender(ref field, value) && IsAttached) UpdateFontFormat();
         }
-    }
+    } = "Arial";
 
     public int FontSize {
-        get => fontSize;
+        get;
         set {
-            if (SetAffectsRender(ref fontSize, value) && IsAttached) UpdateFontFormat();
+            if (SetAffectsRender(ref field, value) && IsAttached) UpdateFontFormat();
         }
-    }
+    } = 12;
 
     public FontWeight FontWeight {
-        get => fontWeight;
+        get;
         set {
-            if (SetAffectsRender(ref fontWeight, value) && IsAttached) UpdateFontFormat();
+            if (SetAffectsRender(ref field, value) && IsAttached) UpdateFontFormat();
         }
-    }
+    } = FontWeight.Normal;
 
     public FontStyle FontStyle {
-        get => fontStyle;
+        get;
         set {
-            if (SetAffectsRender(ref fontStyle, value) && IsAttached) UpdateFontFormat();
+            if (SetAffectsRender(ref field, value) && IsAttached) UpdateFontFormat();
         }
-    }
+    } = FontStyle.Normal;
 
     public DrawTextOptions DrawingOptions { get; set; } = DrawTextOptions.None;
 
     public TextAlignment TextAlignment {
-        get => textAlignment;
-        set => SetAffectsRender(ref textAlignment, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = TextAlignment.Leading;
 
     public FlowDirection FlowDirection {
-        get => flowDirection;
-        set => SetAffectsRender(ref flowDirection, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = FlowDirection.LeftToRight;
 
     public TextMetrics Metrices {
         get {
@@ -107,16 +92,16 @@ public class TextRenderCore2D : RenderCore2DBase {
     }
 
     public float MaxWidth {
-        get => maxWidth;
+        get;
         set {
-            if (Set(ref maxWidth, value)) textLayoutDirty = true;
+            if (Set(ref field, value)) textLayoutDirty = true;
         }
     }
 
     public float MaxHeight {
-        get => maxHeight;
+        get;
         set {
-            if (Set(ref maxHeight, value)) textLayoutDirty = true;
+            if (Set(ref field, value)) textLayoutDirty = true;
         }
     }
 

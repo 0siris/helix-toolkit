@@ -11,22 +11,23 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderParams {
+
     public CrossSectionMeshRenderCore() {
-        clipParamCB = AddComponent(new ConstantBufferComponent(
+        clipParamCb = AddComponent(new ConstantBufferComponent(
                                        new ConstantBufferDescription(
                                            DefaultBufferNames.ClipParamsCB,
                                            ClipPlaneStruct.SizeInBytes)));
     }
 
     protected override bool OnAttach(IRenderTechnique technique) {
-        if (base.OnAttach(technique)) {
-            needsAssignVariables = true;
-            drawBackfacePass = technique[DefaultPassNames.Backface];
-            drawScreenQuadPass = technique[DefaultPassNames.ScreenQuad];
-            return true;
-        }
+        if (!base.OnAttach(technique))
+            return false;
+        
+        needsAssignVariables.Invalidate();
+        drawBackfacePass = technique[DefaultPassNames.Backface];
+        drawScreenQuadPass = technique[DefaultPassNames.ScreenQuad];
+        return true;
 
-        return false;
     }
 
     protected override void OnDetach() {
@@ -35,11 +36,10 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     }
 
     protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
-        if (!base.CreateRasterState(description, force)) return false;
+        if (!base.CreateRasterState(description, force)) 
+            return false;
 
-    #region Create states
-
-        var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(new RasterizerStateDescription {
+        var desc = new RasterizerStateDescription {
             FillMode = FillMode.Solid,
             CullMode = CullMode.Front,
             DepthBias = description.DepthBias,
@@ -49,43 +49,43 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
             IsFrontCounterClockwise = description.IsFrontCounterClockwise,
             IsMultisampleEnabled = false,
             IsScissorEnabled = false
-        });
-        BackfaceRasterState = newRasterState;
+        };
+        
 
-    #endregion
-
+        BackfaceRasterState = EffectTechnique.EffectsManager.StateManager.Register(desc);
+        
         return true;
     }
 
     protected override void OnRender(RenderContext renderContext, DeviceContextProxy deviceContext) {
-        if (needsAssignVariables)
-            lock (clipParamCB) {
-                if (needsAssignVariables) {
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)cuttingOperation);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, sectionColor);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, planeEnabled);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, plane5To8Enabled);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, plane1Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, plane2Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, plane3Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, plane4Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, plane5Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, plane6Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, plane7Params);
-                    clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, plane8Params);
-                    needsAssignVariables = false;
-                }
-            }
+        needsAssignVariables.TryExecute(() => {
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)cuttingOperation);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, sectionColor);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, planeEnabled);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, plane5To8Enabled);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, plane1Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, plane2Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, plane3Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, plane4Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, plane5Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, plane6Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, plane7Params);
+            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, plane8Params);
+        });
+        
 
-        clipParamCB.Upload(deviceContext);
+        clipParamCb.Upload(deviceContext);
         base.OnRender(renderContext, deviceContext);
+        
         // Draw backface into stencil buffer
         var dsView = renderContext.RenderHost.DepthStencilBufferView;
         deviceContext.ClearDepthStencilView(dsView, DepthStencilClearFlags.Stencil, 0);
         deviceContext.SetDepthStencil(dsView); //Remove render target
         deviceContext.SetRasterState(BackfaceRasterState);
+        
         drawBackfacePass.BindShader(deviceContext);
         drawBackfacePass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
+        
         DrawIndexed(deviceContext, GeometryBuffer.IndexBuffer, InstanceBuffer);
 
         //Draw full screen quad to fill cross section            
@@ -111,9 +111,11 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
             field = value;
         } }
 
-    private readonly ConstantBufferComponent clipParamCB;
+    private readonly ConstantBufferComponent clipParamCb;
 
-    private bool needsAssignVariables = true;
+    //private bool needsAssignVariables = true;   
+    private readonly DirtyGate needsAssignVariables = new();
+
 
 #endregion
 
@@ -131,7 +133,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => cuttingOperation;
         set {
             if (SetAffectsRender(ref cuttingOperation, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)value);
         }
     }
 
@@ -144,7 +146,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => sectionColor;
         set {
             if (SetAffectsRender(ref sectionColor, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, value);
         }
     }
 
@@ -154,7 +156,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => planeEnabled;
         set {
             if (SetAffectsRender(ref planeEnabled, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, value);
         }
     }
 
@@ -164,7 +166,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane5To8Enabled;
         set {
             if (SetAffectsRender(ref plane5To8Enabled, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, value);
         }
     }
 
@@ -177,7 +179,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane1Params;
         set {
             if (SetAffectsRender(ref plane1Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, value);
         }
     }
 
@@ -190,7 +192,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane2Params;
         set {
             if (SetAffectsRender(ref plane2Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, value);
         }
     }
 
@@ -203,7 +205,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane3Params;
         set {
             if (SetAffectsRender(ref plane3Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, value);
         }
     }
 
@@ -216,7 +218,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane4Params;
         set {
             if (SetAffectsRender(ref plane4Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, value);
         }
     }
 
@@ -229,7 +231,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane5Params;
         set {
             if (SetAffectsRender(ref plane5Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, value);
         }
     }
 
@@ -242,7 +244,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane6Params;
         set {
             if (SetAffectsRender(ref plane6Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, value);
         }
     }
 
@@ -255,7 +257,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane7Params;
         set {
             if (SetAffectsRender(ref plane7Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, value);
         }
     }
 
@@ -268,7 +270,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         get => plane8Params;
         set {
             if (SetAffectsRender(ref plane8Params, value))
-                clipParamCB.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, value);
+                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, value);
         }
     }
 

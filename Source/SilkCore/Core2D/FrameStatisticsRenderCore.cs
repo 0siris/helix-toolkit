@@ -10,16 +10,24 @@ namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>
 /// </summary>
 public class FrameStatisticsRenderCore : RenderCore2DBase {
-    private Brush background;
-    private DirectWriteFactory factory;
+    private DirectWriteFactory? Factory {
+        get;
+        set => SetDispose(ref field, value);
+    }
 
-    private Brush foreground;
-    private TextFormat format;
+    private TextFormat? Format {
+        get;
+        set => SetDispose(ref field, value);
+    }
+    
     private string previousStr = string.Empty;
     private RectangleF renderBound = new(0, 0, 100, 0);
-    private IRenderStatistics statistics;
+    private IRenderStatistics? statistics;
 
-    private TextLayout textLayout;
+    private TextLayout? TextLayout {
+        get;
+        set => SetDispose(ref field, value);
+    }
 
     /// <summary>
     ///     Gets or sets the foreground.
@@ -27,12 +35,9 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     /// <value>
     ///     The foreground.
     /// </value>
-    public Brush Foreground {
-        get => foreground;
-        set {
-            var old = foreground;
-            if (SetAffectsRender(ref foreground, value)) RemoveAndDispose(ref old);
-        }
+    public Brush? Foreground {
+        get;
+        set => SetAffectsRender2(ref field, value)?.Dispose();
     }
 
     /// <summary>
@@ -41,12 +46,9 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     /// <value>
     ///     The background.
     /// </value>
-    public Brush Background {
-        get => background;
-        set {
-            var old = background;
-            if (SetAffectsRender(ref background, value)) RemoveAndDispose(ref old);
-        }
+    public Brush? Background {
+        get;
+        set => SetAffectsRender2(ref field, value)?.Dispose();
     }
 
     /// <summary>
@@ -55,19 +57,19 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     /// <param name="target">The target.</param>
     /// <returns></returns>
     protected override bool OnAttach(IRenderHost target) {
-        factory = new DirectWriteFactory();
-        format = new TextFormat(factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
+        Factory = new DirectWriteFactory();
+        Format = new TextFormat(Factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
         previousStr = string.Empty;
         statistics = target.RenderStatistics;
         return base.OnAttach(target);
     }
 
     protected override void OnDetach() {
-        RemoveAndDispose(ref format);
-        RemoveAndDispose(ref foreground);
-        RemoveAndDispose(ref background);
-        RemoveAndDispose(ref textLayout);
-        RemoveAndDispose(ref factory);
+        Format = null;
+        Foreground = null;
+        Background = null;
+        TextLayout = null;
+        Factory = null;
         base.OnDetach();
     }
 
@@ -78,31 +80,31 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     /// <returns>
     ///     <c>true</c> if this instance can render the specified context; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool CanRender(RenderContext2D context) {
-        return base.CanRender(context) && statistics != null && statistics.FrameDetail != RenderDetail.None;
-    }
+    protected override bool CanRender(RenderContext2D context) 
+        => base.CanRender(context) && statistics != null && statistics.FrameDetail != RenderDetail.None;
 
     /// <summary>
     ///     Called when [render].
     /// </summary>
     /// <param name="context">The context.</param>
     protected override void OnRender(RenderContext2D context) {
-        if (background == null)
-            Background = new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
-        if (foreground == null) Foreground = new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
-        var str = statistics.GetDetailString();
-        if (str != previousStr || textLayout == null) {
+        Background ??= new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
+        Foreground ??= new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
+        
+        var str = statistics.AssertNotNull("Must be attached")
+                            .GetDetailString();
+        
+        if (str != previousStr || TextLayout == null) {
             previousStr = str;
-            RemoveAndDispose(ref textLayout);
-            textLayout = new TextLayout(factory, str, format, float.MaxValue, float.MaxValue);
+            TextLayout = new TextLayout(Factory, str, Format, float.MaxValue, float.MaxValue);
         }
 
-        var metrices = textLayout.Metrics;
+        var metrices = TextLayout.Metrics;
         renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
         renderBound.Height = metrices.Height;
         context.DeviceContext.Transform =
             Matrix3x2.Translation((float)context.ActualWidth - renderBound.Width, 0);
-        context.DeviceContext.FillRectangle(renderBound, background);
-        context.DeviceContext.DrawTextLayout(Vector2.Zero, textLayout, foreground);
+        context.DeviceContext.FillRectangle(renderBound, Background);
+        context.DeviceContext.DrawTextLayout(Vector2.Zero, TextLayout, Foreground);
     }
 }

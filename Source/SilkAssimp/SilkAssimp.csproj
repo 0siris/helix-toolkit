@@ -18,11 +18,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
-    <InternalsVisibleTo Include="SilkAssimp.Tests" />
+    <InternalsVisibleTo Include="SilkAssimp.Tests"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
-    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

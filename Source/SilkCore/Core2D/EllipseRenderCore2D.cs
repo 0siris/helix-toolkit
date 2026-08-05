@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -18,8 +18,10 @@ public class EllipseRenderCore2D : ShapeRenderCore2DBase {
         ellipse.Point = LayoutBound.Center;
         ellipse.RadiusX = LayoutBound.Width / 2;
         ellipse.RadiusY = LayoutBound.Height / 2;
-        if (FillBrush != null) context.DeviceContext.FillEllipse(ellipse, FillBrush);
-        if (StrokeBrush != null && StrokeStyle != null)
-            context.DeviceContext.DrawEllipse(ellipse, StrokeBrush, StrokeWidth, StrokeStyle);
+        if (FillBrush is { } brush) 
+            context.DeviceContext.FillEllipse(ellipse, brush);
+        
+        if (StrokeBrush is { } stroke && StrokeStyle is { } style)
+            context.DeviceContext.DrawEllipse(ellipse, stroke, StrokeWidth, style);
     }
 }

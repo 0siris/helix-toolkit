@@ -69,10 +69,9 @@ public sealed class VolumeRenderCore : RenderCore {
     public MaterialVariable MaterialVariables {
         get => materialVariables;
         set {
-            var old = materialVariables;
-            if (SetAffectsCanRenderFlag(ref materialVariables, value))
-                if (value == null)
-                    materialVariables = EmptyMaterialVariable.EmptyVariable;
+            value.AssertNotNull("Use EmptyVariable const");
+
+            SetAffectsCanRenderFlag(ref materialVariables, value);
         }
     }
 

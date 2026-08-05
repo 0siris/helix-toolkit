@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Render;
@@ -57,7 +58,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         Clear(invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) {
             viewportRenderables.AddRange(Viewport.Renderables);
-            renderer.UpdateSceneGraph(RenderContext, viewportRenderables, perFrameFlattenedScene);
+            Renderer.UpdateSceneGraph(RenderContext, viewportRenderables, perFrameFlattenedScene);
             if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Flatten Scene Graph");
         }
 
@@ -170,7 +171,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         SeparateRenderables(RenderContext, invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) TriggerSceneGraphUpdated();
         asyncTask = parallelThread.EnqueueAction(() => {
-            renderer?.UpdateNotRenderParallel(RenderContext, perFrameFlattenedScene);
+            Renderer?.UpdateNotRenderParallel(RenderContext, perFrameFlattenedScene);
         });
         var ft = Stopwatch.GetTimestamp();
         FrustumTestAction();
@@ -236,40 +237,40 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
             RenderLight = RenderConfiguration.RenderLights,
             UpdatePerFrameData = RenderConfiguration.UpdatePerFrameData
         };
-        renderer.SetRenderTargets(ref renderParameter);
-        renderer.UpdateGlobalVariables(RenderContext, lightNodes, ref renderParameter);
+        Renderer.SetRenderTargets(ref renderParameter);
+        Renderer.UpdateGlobalVariables(RenderContext, lightNodes, ref renderParameter);
         for (var i = 0; i < needUpdateCores.Count; ++i)
-            needUpdateCores[i].Update(RenderContext, renderer.ImmediateContext);
+            needUpdateCores[i].Update(RenderContext, Renderer.ImmediateContext);
         numRendered += needUpdateCores.Count;
         if (RenderBuffer.HasMSAA) {
             numRendered += DoDepthPrepass();
-            renderer.SetRenderTargets(ref renderParameter);
+            Renderer.SetRenderTargets(ref renderParameter);
         }
 
-        renderer.RenderPreProc(RenderContext, preProcNodes, ref renderParameter);
-        numRendered += renderer.RenderOpaque(RenderContext, opaqueNodesInFrustum, ref renderParameter, false);
-        numRendered += renderer.RenderOpaque(RenderContext, particleNodes, ref renderParameter, true);
+        Renderer.RenderPreProc(RenderContext, preProcNodes, ref renderParameter);
+        numRendered += Renderer.RenderOpaque(RenderContext, opaqueNodesInFrustum, ref renderParameter, false);
+        numRendered += Renderer.RenderOpaque(RenderContext, particleNodes, ref renderParameter, true);
         numRendered +=
-            renderer.RenderTransparent(RenderContext, transparentNodesInFrustum, ref renderParameter);
+            Renderer.RenderTransparent(RenderContext, transparentNodesInFrustum, ref renderParameter);
 
         getPostEffectCoreTask?.Wait();
         RemoveAndDispose(ref getPostEffectCoreTask);
         if (RenderConfiguration.FXAALevel != FXAALevel.None
             || postEffectNodes.Count > 0 || globalEffectNodes.Count > 0) {
-            renderer.RenderToPingPongBuffer(RenderContext, ref renderParameter);
+            Renderer.RenderToPingPongBuffer(RenderContext, ref renderParameter);
             renderParameter.IsMSAATexture = false;
             renderParameter.CurrentTargetTexture = RenderBuffer.FullResPPBuffer.CurrentTexture;
             renderParameter.RenderTargetView[0] = RenderBuffer.FullResPPBuffer.CurrentRTV;
         }
 
         if (postEffectNodes.Count > 0) {
-            renderer.RenderPostProc(RenderContext, postEffectNodes, ref renderParameter);
+            Renderer.RenderPostProc(RenderContext, postEffectNodes, ref renderParameter);
             renderParameter.CurrentTargetTexture = RenderBuffer.FullResPPBuffer.CurrentTexture;
             renderParameter.RenderTargetView[0] = RenderBuffer.FullResPPBuffer.CurrentRTV;
         }
 
         if (globalEffectNodes.Count > 0) {
-            renderer.RenderPostProc(RenderContext, globalEffectNodes, ref renderParameter);
+            Renderer.RenderPostProc(RenderContext, globalEffectNodes, ref renderParameter);
             renderParameter.CurrentTargetTexture = RenderBuffer.FullResPPBuffer.CurrentTexture;
             renderParameter.RenderTargetView[0] = RenderBuffer.FullResPPBuffer.CurrentRTV;
         }
@@ -286,12 +287,12 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
                             nodesWithPostEffect.Add(screenSpacedNodes[i]);
                     }
 
-                    renderer.RenderScreenSpaced(RenderContext,
+                    Renderer.RenderScreenSpaced(RenderContext,
                                                 screenSpacedNodes,
                                                 start,
                                                 i - start,
                                                 ref renderParameter);
-                    renderer.RenderPostProc(RenderContext, postEffectNodes, ref renderParameter);
+                    Renderer.RenderPostProc(RenderContext, postEffectNodes, ref renderParameter);
                     RenderContext.RestoreGlobalTransform();
                     start = i;
                 } else {
@@ -299,7 +300,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
                 }
         }
 
-        renderer.RenderToBackBuffer(RenderContext, ref renderParameter);
+        Renderer.RenderToBackBuffer(RenderContext, ref renderParameter);
         numRendered += preProcNodes.Count + postEffectNodes.Count + screenSpacedNodes.Count;
         if (ShowRenderDetail != RenderDetail.None) {
             getTriangleCountTask?.Wait();
@@ -309,13 +310,13 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     }
 
     private int DoDepthPrepass() {
-        renderer.ImmediateContext.ClearDepthStencilView(RenderBuffer.DepthStencilBufferNoMSAA,
+        Renderer.ImmediateContext.ClearDepthStencilView(RenderBuffer.DepthStencilBufferNoMSAA,
                                                         DepthStencilClearFlags.Depth |
                                                         DepthStencilClearFlags.Stencil);
-        renderer.ImmediateContext.SetRenderTarget(RenderBuffer.DepthStencilBufferNoMSAA, null);
+        Renderer.ImmediateContext.SetRenderTarget(RenderBuffer.DepthStencilBufferNoMSAA, null);
         RenderContext.CustomPassName = DefaultPassNames.DepthPrepass;
         for (var i = 0; i < PerFrameOpaqueNodesInFrustum.Count; ++i)
-            PerFrameOpaqueNodesInFrustum[i].RenderDepth(RenderContext, renderer.ImmediateContext, null);
+            PerFrameOpaqueNodesInFrustum[i].RenderDepth(RenderContext, Renderer.ImmediateContext, null);
         return PerFrameOpaqueNodesInFrustum.Count;
     }
 
@@ -345,14 +346,16 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
 
         if (!renderD2D) return;
         viewportRenderable2D.AddRange(Viewport.D2DRenderables);
-        renderer.UpdateSceneGraph2D(RenderContext2D, viewportRenderable2D);
+        Renderer.UpdateSceneGraph2D(RenderContext2D, viewportRenderable2D);
 
-        for (var i = 0; i < viewportRenderable2D.Count; ++i) viewportRenderable2D[i].Render(RenderContext2D);
+        foreach (var node2D in viewportRenderable2D)
+            node2D.Render(RenderContext2D);
+
         //Draw bitmap cache to render target
         RenderContext2D.PushRenderTarget(D2DTarget.D2DTarget, false);
         if (renderD2D || ShowRenderDetail != RenderDetail.None)
-            for (var i = 0; i < viewportRenderable2D.Count; ++i)
-                viewportRenderable2D[i].RenderBitmapCache(RenderContext2D);
+            foreach (var node2D in viewportRenderable2D)
+                node2D.RenderBitmapCache(RenderContext2D);
 
         RenderContext2D.PopRenderTarget();
     }
@@ -424,7 +427,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     }
 
     private void FrustumTestDefault() {
-        var frustum = renderContext.BoundingFrustum;
+        var frustum = RenderContext.BoundingFrustum;
         for (var i = 0; i < opaqueNodes.Count; ++i) {
             opaqueNodes.Items[i].IsInFrustum = opaqueNodes.Items[i].TestViewFrustum(ref frustum);
             if (opaqueNodes.Items[i].IsInFrustum) opaqueNodesInFrustum.Add(opaqueNodes.Items[i]);
@@ -432,7 +435,8 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
 
         for (var i = 0; i < transparentNodes.Count; ++i) {
             transparentNodes.Items[i].IsInFrustum = transparentNodes.Items[i].TestViewFrustum(ref frustum);
-            if (transparentNodes.Items[i].IsInFrustum) transparentNodesInFrustum.Add(transparentNodes.Items[i]);
+            if (transparentNodes.Items[i].IsInFrustum) 
+                transparentNodesInFrustum.Add(transparentNodes.Items[i]);
         }
     }
 

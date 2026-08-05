@@ -99,10 +99,12 @@ public class MainViewModel : BaseViewModel {
         materialDict.Add("PolishedBronze", PhongMaterials.PolishedBronze);
         materialDict.Add("ColorStripe",
                          new ColorStripeMaterial() {
-                             ColorStripeX = [.. GetGradients(new Color4(1, 0, 0, 1),
-                                                         new Color4(0, 1, 0, 1),
-                                                         new Color4(0, 0, 1, 1),
-                                                         48)]
+                             ColorStripeX = [
+                                 .. GetGradients(new Color4(1, 0, 0, 1),
+                                                 new Color4(0, 1, 0, 1),
+                                                 new Color4(0, 0, 1, 1),
+                                                 48)
+                             ]
                          });
         materialDict.Add("Diffuse", DiffuseMaterials.Orange);
         Materials = [.. materialDict.Keys];

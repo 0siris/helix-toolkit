@@ -345,10 +345,9 @@ public sealed unsafe class TextFormat : D2DNativeResource {
 
 public sealed unsafe class TextLayout : D2DNativeResource {
     private SilkDWriteTextLayoutPtr nativeLayout;
-    private TextAlignment textAlignment = TextAlignment.Leading;
 
     public TextLayout(
-        DirectWriteFactory factory,
+        DirectWriteFactory? factory,
         string text,
         TextFormat textFormat,
         float maxWidth,
@@ -387,7 +386,7 @@ public sealed unsafe class TextLayout : D2DNativeResource {
         }
     }
 
-    public DirectWriteFactory Factory { get; }
+    public DirectWriteFactory? Factory { get; }
 
     public string Text { get; }
 
@@ -398,14 +397,14 @@ public sealed unsafe class TextLayout : D2DNativeResource {
     public float MaxHeight { get; }
 
     public TextAlignment TextAlignment {
-        get => textAlignment;
+        get;
         set {
-            textAlignment = value;
+            field = value;
             if (nativeLayout.Handle != null)
                 SilkMarshal.ThrowHResult(
-                    nativeLayout.Handle->SetTextAlignment((Silk.NET.DirectWrite.TextAlignment)value));
+                    nativeLayout.Handle->SetTextAlignment((Silk.NET.DirectWrite.TextAlignment) value));
         }
-    }
+    } = TextAlignment.Leading;
 
     public TextMetrics Metrics { get; }
 

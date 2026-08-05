@@ -1,6 +1,7 @@
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 public sealed class InputLayoutProxy : DisposeObject {
     private InputLayout layout;
 

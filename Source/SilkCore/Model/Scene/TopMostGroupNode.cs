@@ -12,19 +12,17 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 ///     Child items do not support post effects.
 /// </summary>
 public class TopMostGroupNode : GroupNode {
-    private bool enableTopMost = true;
-
     public TopMostGroupNode() {
         AffectsGlobalVariable = true;
     }
 
     public bool EnableTopMost {
-        get => enableTopMost;
+        get;
         set {
-            if (SetAffectsRender(ref enableTopMost, value))
+            if (SetAffectsRender(ref field, value))
                 RenderType = value ? RenderType.ScreenSpaced : RenderType.Opaque;
         }
-    }
+    } = true;
 
     protected override RenderCore OnCreateRenderCore() {
         var core = new TopMostMeshRenderCore();

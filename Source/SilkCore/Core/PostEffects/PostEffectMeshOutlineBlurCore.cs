@@ -317,8 +317,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
 
 #region Properties
 
-    private string effectName = DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur;
-
     /// <summary>
     ///     Gets or sets the name of the effect.
     /// </summary>
@@ -326,9 +324,9 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => effectName;
-        set => SetAffectsCanRenderFlag(ref effectName, value);
-    }
+        get;
+        set => SetAffectsCanRenderFlag(ref field, value);
+    } = DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur;
 
     /// <summary>
     ///     Gets or sets the color of the border.
@@ -354,8 +352,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         set => SetAffectsRender(ref scaleX, value);
     }
 
-    private float scaleY = 1;
-
     /// <summary>
     ///     Gets or sets the scale y.
     /// </summary>
@@ -363,9 +359,9 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     ///     The scale y.
     /// </value>
     public float ScaleY {
-        get => scaleY;
-        set => SetAffectsRender(ref scaleY, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 1;
 
     private int numberOfBlurPass = 1;
 

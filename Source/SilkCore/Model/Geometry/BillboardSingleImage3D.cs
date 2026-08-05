@@ -17,32 +17,26 @@ public class BillboardSingleImage3D : BillboardBase {
     /// </summary>
     public override BillboardType Type => BillboardType.Image;
 
-    private Vector3 center = Vector3.Zero;
-
     /// <summary>
     ///     Billboard center location
     /// </summary>
     public Vector3 Center {
-        get => center;
+        get;
         set {
-            if (Set(ref center, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private Color4 maskColor = Color.Transparent;
+    } = Vector3.Zero;
 
     /// <summary>
     ///     If color in image is equal to the mask color, the color will set to transparent in image.
     ///     Default color is Transparent, which did not mask any color.
     /// </summary>
     public Color4 MaskColor {
-        get => maskColor;
+        get;
         set {
-            if (Set(ref maskColor, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private float angle;
+    } = Color.Transparent;
 
     /// <summary>
     ///     Gets or sets the rotation angle in radians.
@@ -51,13 +45,11 @@ public class BillboardSingleImage3D : BillboardBase {
     ///     The angle in radians.
     /// </value>
     public float Angle {
-        get => angle;
+        get;
         set {
-            if (Set(ref angle, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
     }
-
-    private BillboardHorizontalAlignment horizontalAlignment = BillboardHorizontalAlignment.Center;
 
     /// <summary>
     ///     Sets or gets the horizontal alignment. Default = <see cref="BillboardHorizontalAlignment.Center" />
@@ -70,13 +62,11 @@ public class BillboardSingleImage3D : BillboardBase {
     ///     The horizontal alignment.
     /// </value>
     public BillboardHorizontalAlignment HorizontalAlignment {
-        get => horizontalAlignment;
+        get;
         set {
-            if (Set(ref horizontalAlignment, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private BillboardVerticalAlignment verticalAlignment = BillboardVerticalAlignment.Center;
+    } = BillboardHorizontalAlignment.Center;
 
     /// <summary>
     ///     Sets or gets the vertical alignment. Default = <see cref="BillboardVerticalAlignment.Center" />
@@ -89,27 +79,27 @@ public class BillboardSingleImage3D : BillboardBase {
     ///     The vertical alignment.
     /// </value>
     public BillboardVerticalAlignment VerticalAlignment {
-        get => verticalAlignment;
+        get;
         set {
-            if (Set(ref verticalAlignment, value)) {
-                verticalAlignment = value;
+            if (Set(ref field, value)) {
+                field = value;
                 IsInitialized = false;
             }
         }
-    }
+    } = BillboardVerticalAlignment.Center;
 
-    private Vector2 offset = Vector2.Zero;
     /// <summary>
     ///     Additional offset for billboard display location.
     ///     Behavior depends on whether billboard is fixed sized or not.
     ///     When billboard is fixed sized, the offset is screen spaced.
     /// </summary>
     public Vector2 Offset {
-        get => offset;
+        get;
         set {
-            if (Set(ref offset, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
+    } = Vector2.Zero;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardSingleImage3D" /> class.
     /// </summary>

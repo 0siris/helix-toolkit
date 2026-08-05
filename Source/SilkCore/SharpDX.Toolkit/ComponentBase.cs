@@ -23,8 +23,6 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     //internal event EventHandler<EventArgs> Disposing;
     private string name;
 
-    private object tag;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="ComponentBase" /> class with a mutable name.
     /// </summary>
@@ -47,11 +45,11 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// <value>The tag.</value>
     [DefaultValue(null)]
     public object Tag {
-        get { return tag; }
+        get { return field; }
         set {
-            if (ReferenceEquals(tag, value))
+            if (ReferenceEquals(field, value))
                 return;
-            tag = value;
+            field = value;
             OnPropertyChanged("Tag");
         }
     }

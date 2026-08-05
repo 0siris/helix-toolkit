@@ -18,8 +18,6 @@ public sealed class InputLayoutDescription {
 
     private readonly IShaderByteCodeReader byteCodeReader;
 
-    private byte[] shaderByteCode;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="InputLayoutDescription" /> class.
     /// </summary>
@@ -61,11 +59,11 @@ public sealed class InputLayoutDescription {
     [DataMember]
     public byte[] ShaderByteCode {
         get {
-            if (shaderByteCode == null && !string.IsNullOrEmpty(ShaderByteCodeName))
-                shaderByteCode = UWPShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
-            return shaderByteCode;
+            if (field == null && !string.IsNullOrEmpty(ShaderByteCodeName))
+                field = UWPShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
+            return field;
         }
-        set => shaderByteCode = value;
+        set;
     }
 
     [IgnoreDataMember]

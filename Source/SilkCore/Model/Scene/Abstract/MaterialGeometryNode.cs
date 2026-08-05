@@ -7,7 +7,6 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public abstract class MaterialGeometryNode : GeometryNode {
-    private bool isTransparent;
     private MaterialCore material;
     private MaterialVariable materialVariable;
 
@@ -17,9 +16,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
     ///     are preserved.
     /// </summary>
     public bool IsTransparent {
-        get => isTransparent;
+        get;
         set {
-            if (Set(ref isTransparent, value))
+            if (Set(ref field, value))
                 if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
                     RenderType = value ? RenderType.Transparent : RenderType.Opaque;
         }

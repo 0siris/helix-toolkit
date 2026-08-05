@@ -36,4 +36,27 @@ public static class Disposer {
                 //TODO should we throw?
             }
     }
+    
+    public static bool SetDispose<T>(ref T? backingField, T? newValue) where T : IDisposable {
+        if (Equals(backingField, newValue))
+            return false;
+        
+        backingField?.Dispose();
+
+        backingField = newValue;
+        return true;
+    }
+    
+    public static bool SetDispose<T>(ref T? backingField, T? newValue, Action<T> onDispose) where T : IDisposable {
+        if (Equals(backingField, newValue))
+            return false;
+        if (backingField is not null) {
+            onDispose(backingField);
+            backingField.Dispose();    
+        }
+        
+        backingField = newValue;
+        return true;
+    }
+
 }

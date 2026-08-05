@@ -5,16 +5,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class StackPanelNode2D : PanelNode2D {
-    private Orientation orientation = Orientation.Horizontal;
-
     public StackPanelNode2D() {
         EnableBitmapCache = true;
     }
 
     public Orientation Orientation {
-        get => orientation;
-        set => SetAffectsMeasure(ref orientation, value);
-    }
+        get;
+        set => SetAffectsMeasure(ref field, value);
+    } = Orientation.Horizontal;
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
         var constraint = availableSize;

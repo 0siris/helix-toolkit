@@ -20,8 +20,6 @@ public abstract class Material : Freezable {
                                                              (d as Material).Core.Name = (string)e.NewValue;
                                                          }));
 
-    private MaterialCore core;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="Material" /> class.
     /// </summary>
@@ -32,14 +30,14 @@ public abstract class Material : Freezable {
     /// </summary>
     /// <param name="core">The core.</param>
     public Material(MaterialCore core) {
-        this.core = core;
+        this.Core = core;
         Name = core.Name;
     }
 
     public MaterialCore Core {
         get {
-            core ??= OnCreateCore();
-            return core;
+            field ??= OnCreateCore();
+            return field;
         }
     }
 

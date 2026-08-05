@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 /// <summary>
 /// </summary>
 public abstract class LightNode : SceneNode, ILight3D {

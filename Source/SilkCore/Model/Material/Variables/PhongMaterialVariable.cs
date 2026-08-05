@@ -29,7 +29,6 @@ public class PhongMaterialVariables : MaterialVariable {
     private readonly ITextureResourceManager textureManager;
     private readonly ShaderResourceViewProxy[] textureResources = new ShaderResourceViewProxy[NUMTEXTURES];
 
-    private bool enableTessellation;
     private int samplerDiffuseSlot, samplerDisplaceSlot, samplerShadowSlot;
     private SamplerStateProxy surfaceSampler, displacementSampler, shadowSampler;
 
@@ -160,9 +159,9 @@ public class PhongMaterialVariables : MaterialVariable {
     public string ShaderSamplerShadowMapName { get; } = DefaultSamplerStateNames.ShadowMapSampler;
 
     public bool EnableTessellation {
-        get => enableTessellation;
+        get;
         private set {
-            if (Set(ref enableTessellation, value)) {
+            if (Set(ref field, value)) {
                 UpdateMappings(currentMaterialPass);
                 InvalidateRenderer();
             }

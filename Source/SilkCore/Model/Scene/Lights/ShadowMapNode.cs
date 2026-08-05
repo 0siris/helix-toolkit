@@ -17,12 +17,6 @@ public class ShadowMapNode : SceneNode {
 
     private float distance = 200;
 
-    private float farField = 500;
-
-    private ProjectionCameraCore lightCamera;
-
-    private float nearField = 500;
-
     private float orthoWidth = 100;
     private bool sceneChanged;
 
@@ -73,14 +67,14 @@ public class ShadowMapNode : SceneNode {
     ///     The far field.
     /// </value>
     public float FarField {
-        get => farField;
+        get;
         set {
-            if (SetAffectsRender(ref farField, value)) {
+            if (SetAffectsRender(ref field, value)) {
                 orthoCamera.FarPlaneDistance = value;
                 persCamera.FarPlaneDistance = value;
             }
         }
-    }
+    } = 500;
 
     /// <summary>
     ///     Gets or sets the near field.
@@ -89,24 +83,24 @@ public class ShadowMapNode : SceneNode {
     ///     The far field.
     /// </value>
     public float NearField {
-        get => nearField;
+        get;
         set {
-            if (SetAffectsRender(ref nearField, value)) {
+            if (SetAffectsRender(ref field, value)) {
                 orthoCamera.NearPlaneDistance = value;
                 persCamera.NearPlaneDistance = value;
             }
         }
-    }
+    } = 500;
 
     /// <summary>
     ///     Distance of the directional light from origin
     /// </summary>
     public ProjectionCameraCore LightCamera {
-        get => lightCamera;
+        get;
         set {
-            lightCamera?.PropertyChanged -= LightCamera_PropertyChanged;
-            SetAffectsRender(ref lightCamera, value);
-            lightCamera?.PropertyChanged += LightCamera_PropertyChanged;
+            field?.PropertyChanged -= LightCamera_PropertyChanged;
+            SetAffectsRender(ref field, value);
+            field?.PropertyChanged += LightCamera_PropertyChanged;
         }
     }
 

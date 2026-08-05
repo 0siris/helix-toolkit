@@ -174,17 +174,15 @@ public struct RenderTargetBlendDescription {
 }
 
 public struct BlendStateDescription {
-    private RenderTargetBlendDescription[] renderTarget;
-
     public bool AlphaToCoverageEnable;
     public bool IndependentBlendEnable;
 
     public RenderTargetBlendDescription[] RenderTarget {
         get {
-            if (renderTarget == null) {
-                renderTarget = new RenderTargetBlendDescription[8];
-                for (var i = 0; i < renderTarget.Length; i++)
-                    renderTarget[i] = new RenderTargetBlendDescription {
+            if (field == null) {
+                field = new RenderTargetBlendDescription[8];
+                for (var i = 0; i < field.Length; i++)
+                    field[i] = new RenderTargetBlendDescription {
                         SourceBlend = BlendOption.One,
                         DestinationBlend = BlendOption.Zero,
                         BlendOperation = BlendOperation.Add,
@@ -195,9 +193,9 @@ public struct BlendStateDescription {
                     };
             }
 
-            return renderTarget;
+            return field;
         }
-        set => renderTarget = value;
+        set;
     }
 }
 

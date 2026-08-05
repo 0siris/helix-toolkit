@@ -19,6 +19,6 @@
     <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj"/>
   </ItemGroup>
 </Project>

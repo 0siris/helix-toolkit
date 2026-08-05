@@ -7,83 +7,6 @@ using HelixToolkit.SharpDX.Core.Shaders;
 
 namespace HelixToolkit.SharpDX.Core.Model;
 public class PBRMaterialCore : MaterialCore {
-    private Color4 albedoColor = Color.White;
-
-    private TextureModel albedoMap;
-
-    private float ambientOcclusionFactor = 1;
-
-    private TextureModel ambientOcculsionMap;
-
-    private float clearCoatRoughness;
-
-    private float clearCoatStrength;
-
-
-    private TextureModel displacementMap;
-
-    private SamplerStateDescription displacementMapSampler = DefaultSamplers.LinearSamplerWrapAni1;
-
-    private Vector4 displacementMapScaleMask;
-
-    private Color4 emissiveColor = Color.Black;
-
-    private TextureModel emissiveMap;
-
-    private bool enableAutoTangent;
-
-    private bool enableFlatShading;
-
-    private bool enableTessellation;
-
-    private SamplerStateDescription iblSampler = DefaultSamplers.IBLSampler;
-
-    private TextureModel irradianceMap;
-
-    private float maxDistanceTessellationFactor = 1;
-
-    private float maxTessellationDistance = 100;
-
-    private MeshTopologyEnum meshType = MeshTopologyEnum.PNTriangles;
-
-    private float metallicFactor;
-
-    private float minDistanceTessellationFactor = 2;
-
-    private float minTessellationDistance = 10;
-
-    private TextureModel normalMap;
-
-    private float reflectanceFactor;
-
-    private bool renderAlbodoMap = true;
-
-    private bool renderAmbientOcclusionMap = true;
-
-    private bool renderDisplacementMap = true;
-
-    private bool renderEmissiveMap = true;
-
-    private bool renderEnvironmentMap;
-
-    private bool renderIrradianceMap = true;
-
-    private bool renderNormalMap = true;
-
-    private bool renderRoughnessMetallicMap = true;
-
-    private bool renderShadowMap;
-
-    private float roughnessFactor;
-
-    private TextureModel roughnessMetallicMap;
-
-    private SamplerStateDescription surfaceMapSampler = DefaultSamplers.LinearSamplerWrapAni4;
-
-    private UVTransform uvTransform = UVTransform.Identity;
-
-    private float vertexColorBlendingFactor;
-
     /// <summary>
     ///     Gets or sets the color of the albedo.
     /// </summary>
@@ -91,9 +14,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The color of the albedo.
     /// </value>
     public Color4 AlbedoColor {
-        get => albedoColor;
-        set => Set(ref albedoColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets the color of the emissive.
@@ -102,9 +25,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The color of the emissive.
     /// </value>
     public Color4 EmissiveColor {
-        get => emissiveColor;
-        set => Set(ref emissiveColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.Black;
 
     /// <summary>
     ///     Gets or sets the metallic factor. If RMA map is used, for each pixel, metallic factor =
@@ -114,8 +37,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The metallic factor.
     /// </value>
     public float MetallicFactor {
-        get => metallicFactor;
-        set => Set(ref metallicFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -126,8 +49,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The roughness factor.
     /// </value>
     public float RoughnessFactor {
-        get => roughnessFactor;
-        set => Set(ref roughnessFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -138,9 +61,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The ambient occlusion factor.
     /// </value>
     public float AmbientOcclusionFactor {
-        get => ambientOcclusionFactor;
-        set => Set(ref ambientOcclusionFactor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     /// <summary>
     ///     Gets or sets the reflectance factor.
@@ -149,8 +72,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The reflectance factor.
     /// </value>
     public float ReflectanceFactor {
-        get => reflectanceFactor;
-        set => Set(ref reflectanceFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -160,8 +83,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The clear coat strength.
     /// </value>
     public float ClearCoatStrength {
-        get => clearCoatStrength;
-        set => Set(ref clearCoatStrength, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -171,49 +94,49 @@ public class PBRMaterialCore : MaterialCore {
     ///     The clear coat roughness.
     /// </value>
     public float ClearCoatRoughness {
-        get => clearCoatRoughness;
-        set => Set(ref clearCoatRoughness, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public bool RenderAlbedoMap {
-        get => renderAlbodoMap;
-        set => Set(ref renderAlbodoMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     public bool RenderNormalMap {
-        get => renderNormalMap;
-        set => Set(ref renderNormalMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     public bool RenderRoughnessMetallicMap {
-        get => renderRoughnessMetallicMap;
-        set => Set(ref renderRoughnessMetallicMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     public bool RenderAmbientOcclusionMap {
-        get => renderAmbientOcclusionMap;
-        set => Set(ref renderAmbientOcclusionMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => renderDisplacementMap;
-        set => Set(ref renderDisplacementMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     /// </summary>
     public bool RenderShadowMap {
-        get => renderShadowMap;
-        set => Set(ref renderShadowMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEnvironmentMap {
-        get => renderEnvironmentMap;
-        set => Set(ref renderEnvironmentMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -223,9 +146,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     <c>true</c> if [render irrandiance map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderIrradianceMap {
-        get => renderIrradianceMap;
-        set => Set(ref renderIrradianceMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [render emissive map].
@@ -234,9 +157,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     <c>true</c> if [render emissive map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEmissiveMap {
-        get => renderEmissiveMap;
-        set => Set(ref renderEmissiveMap, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable automatic tangent].
@@ -245,8 +168,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => enableAutoTangent;
-        set => Set(ref enableAutoTangent, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -256,8 +179,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The albedo map.
     /// </value>
     public TextureModel AlbedoMap {
-        get => albedoMap;
-        set => Set(ref albedoMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -275,8 +198,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The emissive map.
     /// </value>
     public TextureModel EmissiveMap {
-        get => emissiveMap;
-        set => Set(ref emissiveMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -294,8 +217,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     NormalMap
     /// </value>
     public TextureModel NormalMap {
-        get => normalMap;
-        set => Set(ref normalMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -313,8 +236,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     DisplacementMap
     /// </value>
     public TextureModel DisplacementMap {
-        get => displacementMap;
-        set => Set(ref displacementMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -332,8 +255,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The irradiance map.
     /// </value>
     public TextureModel IrradianceMap {
-        get => irradianceMap;
-        set => Set(ref irradianceMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -354,8 +277,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The rma map.
     /// </value>
     public TextureModel RoughnessMetallicMap {
-        get => roughnessMetallicMap;
-        set => Set(ref roughnessMetallicMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -376,8 +299,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The ao map.
     /// </value>
     public TextureModel AmbientOcculsionMap {
-        get => ambientOcculsionMap;
-        set => Set(ref ambientOcculsionMap, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -395,8 +318,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     DisplacementMapScaleMask
     /// </value>
     public Vector4 DisplacementMapScaleMask {
-        get => displacementMapScaleMask;
-        set => Set(ref displacementMapScaleMask, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -406,9 +329,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The uv transform.
     /// </value>
     public UVTransform UVTransform {
-        get => uvTransform;
-        set => Set(ref uvTransform, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = UVTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the surface map sampler.
@@ -417,9 +340,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The surface map sampler.
     /// </value>
     public SamplerStateDescription SurfaceMapSampler {
-        get => surfaceMapSampler;
-        set => Set(ref surfaceMapSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerWrapAni4;
 
     /// <summary>
     ///     Gets or sets the DisplacementMapSampler.
@@ -428,9 +351,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     DisplacementMapSampler
     /// </value>
     public SamplerStateDescription DisplacementMapSampler {
-        get => displacementMapSampler;
-        set => Set(ref displacementMapSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerWrapAni1;
 
     /// <summary>
     ///     Gets or sets the IBL sampler.
@@ -439,19 +362,19 @@ public class PBRMaterialCore : MaterialCore {
     ///     The IBL sampler.
     /// </value>
     public SamplerStateDescription IBLSampler {
-        get => iblSampler;
-        set => Set(ref iblSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.IBLSampler;
 
     public float MinTessellationDistance {
-        get => minTessellationDistance;
-        set => Set(ref minTessellationDistance, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 10;
 
     public float MaxTessellationDistance {
-        get => maxTessellationDistance;
-        set => Set(ref maxTessellationDistance, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 100;
 
     /// <summary>
     ///     Gets or sets the tessellation factor at <see cref="MinTessellationDistance" />.
@@ -460,9 +383,9 @@ public class PBRMaterialCore : MaterialCore {
     ///     The minimum distance tessellation factor.
     /// </value>
     public float MinDistanceTessellationFactor {
-        get => minDistanceTessellationFactor;
-        set => Set(ref minDistanceTessellationFactor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 2;
 
     /// <summary>
     ///     Gets or sets the tessellation factor at <see cref="MaxDistanceTessellationFactor" />
@@ -471,18 +394,18 @@ public class PBRMaterialCore : MaterialCore {
     ///     The maximum distance tessellation factor.
     /// </value>
     public float MaxDistanceTessellationFactor {
-        get => maxDistanceTessellationFactor;
-        set => Set(ref maxDistanceTessellationFactor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     public MeshTopologyEnum MeshType {
-        get => meshType;
-        set => Set(ref meshType, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = MeshTopologyEnum.PNTriangles;
 
     public bool EnableTessellation {
-        get => enableTessellation;
-        set => Set(ref enableTessellation, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -492,8 +415,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => enableFlatShading;
-        set => Set(ref enableFlatShading, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -505,8 +428,8 @@ public class PBRMaterialCore : MaterialCore {
     ///     The vert color blending factor.
     /// </value>
     public float VertexColorBlendingFactor {
-        get => vertexColorBlendingFactor;
-        set => Set(ref vertexColorBlendingFactor, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public override MaterialVariable CreateMaterialVariables(

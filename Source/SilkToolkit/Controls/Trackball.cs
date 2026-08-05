@@ -77,7 +77,6 @@ public class Trackball {
     private readonly Transform3DGroup _transform;
     private readonly TranslateTransform3D _translate = new();
     private readonly double _zoomFactor;
-    private FrameworkElement _eventSource;
     private Point _previousPosition2D;
     private Vector3D _previousPosition3D = new(0, 0, 1);
 
@@ -106,24 +105,24 @@ public class Trackball {
     ///     The FrameworkElement we listen to for mouse events.
     /// </summary>
     public FrameworkElement EventSource {
-        get => _eventSource;
+        get;
 
         set {
-            if (_eventSource != null) {
+            if (field != null) {
                 //_eventSource.MouseDown -= this.OnMouseDown;
                 //_eventSource.MouseUp -= this.OnMouseUp;
                 //_eventSource.MouseMove -= this.OnMouseMove;
 
-                _eventSource.PreviewMouseDown -= OnMouseDown;
-                _eventSource.PreviewMouseUp -= OnMouseUp;
-                _eventSource.PreviewMouseMove -= OnMouseMove;
+                field.PreviewMouseDown -= OnMouseDown;
+                field.PreviewMouseUp -= OnMouseUp;
+                field.PreviewMouseMove -= OnMouseMove;
             }
 
-            _eventSource = value;
+            field = value;
 
-            _eventSource.PreviewMouseDown += OnMouseDown;
-            _eventSource.PreviewMouseUp += OnMouseUp;
-            _eventSource.PreviewMouseMove += OnMouseMove;
+            field.PreviewMouseDown += OnMouseDown;
+            field.PreviewMouseUp += OnMouseUp;
+            field.PreviewMouseMove += OnMouseMove;
         }
     }
 

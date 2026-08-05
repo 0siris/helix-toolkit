@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 public enum TextureType {
     Texture,
     Structured,

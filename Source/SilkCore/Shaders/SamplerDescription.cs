@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 /// <summary>
 /// </summary>
 [DataContract]

@@ -221,8 +221,6 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         }
     }
 
-    private IList<Matrix> instances;
-
     /// <summary>
     ///     Gets or sets the instances.
     /// </summary>
@@ -230,9 +228,9 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     The instances.
     /// </value>
     public IList<Matrix> Instances {
-        get => instances;
+        get;
         set {
-            if (Set(ref instances, value)) {
+            if (Set(ref field, value)) {
                 BoundManager.Instances = value;
                 InstanceBuffer.Elements = value;
                 InstancesChanged();
@@ -357,8 +355,6 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
 
     #region Rasterizer parameters
 
-    private int depthBias;
-
     /// <summary>
     ///     Gets or sets the depth bias.
     /// </summary>
@@ -366,13 +362,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     The depth bias.
     /// </value>
     public int DepthBias {
-        get => depthBias;
+        get;
         set {
-            if (Set(ref depthBias, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
     }
-
-    private float slopScaledDepthBias;
 
     /// <summary>
     ///     Gets or sets the slope scaled depth bias.
@@ -381,13 +375,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     The slope scaled depth bias.
     /// </value>
     public float SlopeScaledDepthBias {
-        get => slopScaledDepthBias;
+        get;
         set {
-            if (Set(ref slopScaledDepthBias, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
     }
-
-    private bool isMSAAEnabled = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether Multisampling Anti-Aliasing enabled.
@@ -396,13 +388,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     <c>true</c> if this instance is msaa enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsMSAAEnabled {
-        get { return isMSAAEnabled = true; }
+        get { return field = true; }
         set {
-            if (Set(ref isMSAAEnabled, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
-
-    private bool isScissorEnabled = true;
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is scissor enabled.
@@ -411,13 +401,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     <c>true</c> if this instance is scissor enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsScissorEnabled {
-        get => isScissorEnabled;
+        get;
         set {
-            if (Set(ref isScissorEnabled, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
-
-    private FillMode fillMode = FillMode.Solid;
+    } = true;
 
     /// <summary>
     ///     Gets or sets the fill mode.
@@ -426,13 +414,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     The fill mode.
     /// </value>
     public FillMode FillMode {
-        get => fillMode;
+        get;
         set {
-            if (Set(ref fillMode, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
-
-    private bool isDepthClipEnabled = true;
+    } = FillMode.Solid;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is depth clip enabled.
@@ -441,15 +427,13 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     <c>true</c> if this instance is depth clip enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsDepthClipEnabled {
-        get => isDepthClipEnabled;
+        get;
         set {
-            if (Set(ref isDepthClipEnabled, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
+    } = true;
 
-    #endregion Rasterizer parameters
-
-    private bool enableViewFrustumCheck = true;
+#endregion Rasterizer parameters
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable view frustum check].
@@ -458,11 +442,9 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     <c>true</c> if [enable view frustum check]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableViewFrustumCheck {
-        get => enableViewFrustumCheck && HasBound;
-        set => enableViewFrustumCheck = value;
-    }
-
-    private string postEffects;
+        get => field && HasBound;
+        set;
+    } = true;
 
     /// <summary>
     ///     Gets or sets the post effects.
@@ -471,9 +453,9 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     The post effects.
     /// </value>
     public string PostEffects {
-        get => postEffects;
+        get;
         set {
-            if (Set(ref postEffects, value)) {
+            if (Set(ref field, value)) {
                 ClearPostEffect();
                 if (value is string effects)
                     if (!string.IsNullOrEmpty(effects))

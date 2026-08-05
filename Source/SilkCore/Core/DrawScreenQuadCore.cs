@@ -11,7 +11,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class DrawScreenQuadCore : RenderCore {
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
 
     public ScreenQuadModelStruct ModelStruct;
 
@@ -43,7 +43,7 @@ public class DrawScreenQuadCore : RenderCore {
     private int textureSlot;
 
     public DrawScreenQuadCore() : base(RenderType.Opaque) {
-        modelCB = AddComponent(new ConstantBufferComponent(
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
                                        DefaultBufferNames.ScreenQuadCB,
                                        ScreenQuadModelStruct.SizeInBytes)));
@@ -64,11 +64,8 @@ public class DrawScreenQuadCore : RenderCore {
         set {
             if (SetAffectsRender(ref passName, value) && IsAttached) {
                 pass = EffectTechnique[value];
-                textureSlot =
-                    pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
-                samplerSlot =
-                    pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames
-                                                                                  .SurfaceSampler);
+                textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+                samplerSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
             }
         }
     }
@@ -82,7 +79,8 @@ public class DrawScreenQuadCore : RenderCore {
     public TextureModel Texture {
         get => texture;
         set {
-            if (SetAffectsRender(ref texture, value) && IsAttached) UpdateTexture(value);
+            if (SetAffectsRender(ref texture, value) && IsAttached) 
+                UpdateTexture(value);
         }
     }
 
@@ -95,7 +93,7 @@ public class DrawScreenQuadCore : RenderCore {
     public SamplerStateDescription SamplerDescription {
         get => samplerDescription;
         set {
-            if (SetAffectsRender(ref samplerDescription, value) && IsAttached) { }
+            SetAffectsRender(ref samplerDescription, value);
         }
     }
 
@@ -106,20 +104,17 @@ public class DrawScreenQuadCore : RenderCore {
         TextureProxy = newTexture;
     }
 
-    private void UpdateSampler() {
-        var newSampler = EffectTechnique.EffectsManager.StateManager.Register(samplerDescription);
-        Sampler = newSampler;
-    }
+    private void UpdateSampler() 
+        => Sampler = EffectTechnique.EffectsManager.StateManager.Register(samplerDescription);
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (pass.IsNULL) 
             return;
         
         ModelStruct.mWorld = ModelMatrix;
-        modelCB.Upload(deviceContext, ref ModelStruct);
+        modelCb.Upload(deviceContext, ref ModelStruct);
         pass.BindShader(deviceContext);
-        pass.BindStates(deviceContext,
-                        StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
+        pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
         pass.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler);
         pass.PixelShader.BindTexture(deviceContext, textureSlot, TextureProxy);
         deviceContext.Draw(4, 0);
@@ -127,8 +122,7 @@ public class DrawScreenQuadCore : RenderCore {
 
     protected override bool OnAttach(IRenderTechnique technique) {
         pass = technique[passName];
-        textureSlot =
-            pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+        textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
         samplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         UpdateTexture(texture);
         UpdateSampler();

@@ -14,9 +14,12 @@ public class TopMostMeshRenderCore : RenderCore {
     public TopMostMeshRenderCore() : base(RenderType.ScreenSpaced) { }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (RenderType != RenderType.ScreenSpaced) return;
+        if (RenderType != RenderType.ScreenSpaced) 
+            return;
+        
         deviceContext.GetDepthStencilView(out var dsView);
-        if (dsView == null) return;
+        if (dsView == null) 
+            return;
 
         deviceContext.ClearDepthStencilView(dsView, DepthStencilClearFlags.Depth);
         dsView.Dispose();

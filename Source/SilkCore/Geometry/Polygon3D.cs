@@ -11,15 +11,10 @@ using Vector3D = Color3;
 /// </summary>
 public class Polygon3D {
     /// <summary>
-    ///     The points.
-    /// </summary>
-    private IList<Point3D> points;
-
-    /// <summary>
     ///     Initializes a new instance of the <see cref="Polygon3D" /> class.
     /// </summary>
     public Polygon3D() {
-        points = [];
+        Points = [];
     }
 
     /// <summary>
@@ -29,7 +24,7 @@ public class Polygon3D {
     ///     The PTS.
     /// </param>
     public Polygon3D(IList<Point3D> pts) {
-        points = pts;
+        Points = pts;
     }
 
     /// <summary>
@@ -37,9 +32,9 @@ public class Polygon3D {
     /// </summary>
     /// <value>The points.</value>
     public IList<Point3D> Points {
-        get => points;
+        get;
 
-        set => points = value;
+        set => field = value;
     }
 
     //// http://en.wikipedia.org/wiki/Polygon_triangulation

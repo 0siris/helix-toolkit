@@ -138,8 +138,11 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="context"></param>
     /// <param name="vertStartSlot"></param>
     protected virtual bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot) {
-        if (GeometryBuffer != null && EffectTechnique != null &&
-            GeometryBuffer.AttachBuffers(context, ref vertStartSlot, EffectTechnique.EffectsManager)) {
+        if(GeometryBuffer is null || EffectTechnique is null || InstanceBuffer is null)
+            return false;
+
+        var geoAttached = GeometryBuffer.AttachBuffers(context, ref vertStartSlot, EffectTechnique.EffectsManager);
+        if (geoAttached) {
             InstanceBuffer.AttachBuffer(context, ref vertStartSlot);
             return true;
         }
@@ -181,7 +184,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool PreRender(RenderContext context, DeviceContextProxy deviceContext) {
         var vertStartSlot = 0;
-        if (!OnAttachBuffers(deviceContext, ref vertStartSlot)) return false;
+        if (!OnAttachBuffers(deviceContext, ref vertStartSlot))
+            return false;
+        
         OnBindRasterState(deviceContext, context.IsInvertCullMode);
         return CanRenderFlag;
     }

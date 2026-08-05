@@ -84,8 +84,6 @@ public sealed unsafe class D2DDevice : D2DNativeResource {
 public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     private static readonly Guid DxgiSurfaceGuid = new("cafcb56c-6ac3-4889-bf47-9e23bbd260ec");
     private SilkD2DDeviceContextPtr nativeContext;
-    private BitmapProxy target;
-    private Matrix3x2 transform = Matrix3x2.Identity;
 
     public D2DDeviceContext(object? nativeResource = null) {
         if (nativeResource is D2DDevice device && device.Handle != null) {
@@ -97,11 +95,11 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     }
 
     public BitmapProxy Target {
-        get => target;
+        get;
         set {
-            target = value;
+            field = value;
             if (nativeContext.Handle != null)
-                nativeContext.Handle->SetTarget((ID2D1Image*)value?.Bitmap?.Handle);
+                nativeContext.Handle->SetTarget((ID2D1Image*) value?.Bitmap?.Handle);
         }
     }
 
@@ -110,9 +108,9 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     public int MaximumBitmapSize { get; set; }
 
     public Matrix3x2 Transform {
-        get => transform;
+        get;
         set {
-            transform = value;
+            field = value;
             if (nativeContext.Handle != null) {
                 var nativeTransform = new Matrix3X2<float>(value.M11,
                                                            value.M12,
@@ -123,7 +121,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
                 nativeContext.Handle->SetTransform(&nativeTransform);
             }
         }
-    }
+    } = Matrix3x2.Identity;
 
     public D2DFactory Factory { get; set; } = new();
 

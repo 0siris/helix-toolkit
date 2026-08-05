@@ -91,7 +91,7 @@ public interface IScreenSpacedRenderParams {
     /// </value>
     float NearPlane { get; set; }
 
-    event EventHandler<BoolArgs> OnCoordinateSystemChanged;
+    event EventHandler<BoolArgs>? OnCoordinateSystemChanged;
 }
 
 /// <summary>
@@ -104,19 +104,10 @@ public interface IScreenSpacedRenderParams {
 public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams {
     private Vector3 absolutePosition;
 
-    private ScreenSpacedCameraType cameraType = ScreenSpacedCameraType.Auto;
-
     private bool isMainCameraPerspective;
-
-    private bool isRightHand = true;
 
     private ScreenSpacedMode mode = ScreenSpacedMode.RelativeScreenSpaced;
     private Matrix projectionMatrix;
-    private float relativeScreenLocX = -0.8f;
-
-    private float relativeScreenLocY = -0.8f;
-
-    private float sizeScale = 1;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ScreenSpacedMeshRenderCore" /> class.
@@ -126,12 +117,12 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     /// <summary>
     /// </summary>
     public bool IsRightHand {
-        get => isRightHand;
+        get;
         private set {
-            if (Set(ref isRightHand, value))
+            if (Set(ref field, value))
                 OnCoordinateSystemChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
         }
-    }
+    } = true;
 
     public event EventHandler<BoolArgs> OnCoordinateSystemChanged;
 
@@ -143,17 +134,17 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     ///     Relative position X of the center of viewport
     /// </summary>
     public float RelativeScreenLocationX {
-        get => relativeScreenLocX;
-        set => SetAffectsRender(ref relativeScreenLocX, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = -0.8f;
 
     /// <summary>
     ///     Relative position Y of the center of viewport
     /// </summary>
     public float RelativeScreenLocationY {
-        get => relativeScreenLocY;
-        set => SetAffectsRender(ref relativeScreenLocY, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = -0.8f;
 
     public ScreenSpacedMode Mode {
         get => mode;
@@ -169,17 +160,17 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     ///     Size scaling
     /// </summary>
     public float SizeScale {
-        get => sizeScale;
-        set => SetAffectsRender(ref sizeScale, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 1;
 
     /// <summary>
     ///     Only being used when <see cref="Mode" /> is RelativeScreenSpaced
     /// </summary>
     public ScreenSpacedCameraType CameraType {
-        get => cameraType;
-        set => SetAffectsRender(ref cameraType, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = ScreenSpacedCameraType.Auto;
 
     /// <summary>
     ///     Viewport Width

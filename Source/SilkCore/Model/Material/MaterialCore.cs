@@ -7,12 +7,10 @@ namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>
 /// </summary>
 public abstract class MaterialCore : ObservableObject, IMaterial {
-    private string name = "Material";
-
     public string Name {
-        get => name;
-        set => Set(ref name, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = "Material";
 
     public Guid Guid { get; } = Guid.NewGuid();
 

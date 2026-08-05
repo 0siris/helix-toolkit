@@ -48,9 +48,11 @@ public class VolumeTextureNode : SceneNode {
     protected virtual void AttachMaterial() {
         var newVar = material != null && RenderCore is VolumeRenderCore
                          ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
-                         : null;
+                         : EmptyMaterialVariable.EmptyVariable;
+        
         RemoveAndDispose(ref materialVariable);
-        if (RenderCore is VolumeRenderCore core) materialVariable = core.MaterialVariables = newVar;
+        if (RenderCore is VolumeRenderCore core) 
+            materialVariable = core.MaterialVariables = newVar;
     }
 
 

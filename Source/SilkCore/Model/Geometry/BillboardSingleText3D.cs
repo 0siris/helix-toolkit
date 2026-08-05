@@ -19,8 +19,6 @@ public class BillboardSingleText3D : BillboardBase {
     /// </summary>
     public override BillboardType Type => BillboardType.SingleText;
 
-    private TextInfo mTextInfo = new(string.Empty, new Vector3());
-
     /// <summary>
     ///     Gets or sets the text information.
     /// </summary>
@@ -28,13 +26,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The text information.
     /// </value>
     public TextInfo TextInfo {
-        get => mTextInfo;
+        get;
         set {
-            if (Set(ref mTextInfo, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private Color4 mFontColor = Color.Black;
+    } = new(string.Empty, new Vector3());
 
     /// <summary>
     ///     Gets or sets the color of the font.
@@ -43,13 +39,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The color of the font.
     /// </value>
     public Color4 FontColor {
-        get => mFontColor;
+        get;
         set {
-            if (Set(ref mFontColor, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private Color4 mBackgroundColor = Color.Transparent;
+    } = Color.Black;
 
     /// <summary>
     ///     Gets or sets the color of the background.
@@ -58,13 +52,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The color of the background.
     /// </value>
     public Color4 BackgroundColor {
-        get => mBackgroundColor;
+        get;
         set {
-            if (Set(ref mBackgroundColor, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private int mFontSize = 12;
+    } = Color.Transparent;
 
     /// <summary>
     ///     Gets or sets the size of the font.
@@ -73,13 +65,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The size of the font.
     /// </value>
     public int FontSize {
-        get => mFontSize;
+        get;
         set {
-            if (Set(ref mFontSize, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private string mFontFamily = "Arial";
+    } = 12;
 
     /// <summary>
     ///     Gets or sets the font family.
@@ -88,13 +78,12 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The font family.
     /// </value>
     public string FontFamily {
-        get => mFontFamily;
+        get;
         set {
-            if (Set(ref mFontFamily, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
+    } = "Arial";
 
-    private FontWeight mFontWeight = FontWeight.Normal;
     /// <summary>
     ///     Gets or sets the font weight.
     /// </summary>
@@ -102,12 +91,12 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The font weight.
     /// </value>
     public FontWeight FontWeight {
-        get { return mFontWeight; }
+        get { return field; }
         set {
-            if (Set(ref mFontWeight, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-    private FontStyle mFontStyle = FontStyle.Normal;
+    } = FontWeight.Normal;
+
     /// <summary>
     ///     Gets or sets the font style.
     /// </summary>
@@ -115,13 +104,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The font style.
     /// </value>
     public FontStyle FontStyle {
-        get { return mFontStyle; }
+        get { return field; }
         set {
-            if (Set(ref mFontStyle, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private Thickness mPadding = new(0);
+    } = FontStyle.Normal;
 
     /// <summary>
     ///     Gets or sets the padding.
@@ -130,13 +117,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The padding.
     /// </value>
     public Thickness Padding {
-        get => mPadding;
+        get;
         set {
-            if (Set(ref mPadding, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private BillboardHorizontalAlignment horizontalAlignment = BillboardHorizontalAlignment.Center;
+    } = new(0);
 
     /// <summary>
     ///     Sets or gets the horizontal alignment. Default = <see cref="BillboardHorizontalAlignment.Center" />
@@ -149,13 +134,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The horizontal alignment.
     /// </value>
     public BillboardHorizontalAlignment HorizontalAlignment {
-        get => horizontalAlignment;
+        get;
         set {
-            if (Set(ref horizontalAlignment, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private BillboardVerticalAlignment verticalAlignment = BillboardVerticalAlignment.Center;
+    } = BillboardHorizontalAlignment.Center;
 
     /// <summary>
     ///     Sets or gets the vertical alignment. Default = <see cref="BillboardVerticalAlignment.Center" />
@@ -168,13 +151,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The vertical alignment.
     /// </value>
     public BillboardVerticalAlignment VerticalAlignment {
-        get => verticalAlignment;
+        get;
         set {
-            if (Set(ref verticalAlignment, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
-
-    private Vector2 offset = Vector2.Zero;
+    } = BillboardVerticalAlignment.Center;
 
     /// <summary>
     ///     Additional offset for billboard display location.
@@ -182,11 +163,11 @@ public class BillboardSingleText3D : BillboardBase {
     ///     When billboard is fixed sized, the offset is screen spaced.
     /// </summary>
     public Vector2 Offset {
-        get => offset;
+        get;
         set {
-            if (Set(ref offset, value)) IsInitialized = false;
+            if (Set(ref field, value)) IsInitialized = false;
         }
-    }
+    } = Vector2.Zero;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardSingleText3D" /> class.

@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <PackageReference Include="Expression.Interaction" Version="3.0.40218"/>
-    <PackageReference Include="Fody" Version="6.2.1"/>
-    <PackageReference Include="PropertyChanged.Fody" Version="3.2.8"/>
+    <PackageReference Include="Fody" Version="6.9.3"/>
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0"/>
   </ItemGroup>
 
   <ItemGroup>

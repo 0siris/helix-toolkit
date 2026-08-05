@@ -12,11 +12,11 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class AxisPlaneGridCore : RenderCore {
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
     private bool autoSpacing = true;
 
     private float autoSpacingChangeRate = 5;
-    private ShaderPass? DefaultShaderPass;
+    private ShaderPass? defaultShaderPass;
 
     private PlaneGridModelStruct modelStruct;
     private int samplerSlot;
@@ -37,13 +37,14 @@ public class AxisPlaneGridCore : RenderCore {
     ///     Initializes a new instance of the <see cref="AxisPlaneGridCore" /> class.
     /// </summary>
     public AxisPlaneGridCore() : base(RenderType.Particle) {
-        modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
                                                                DefaultBufferNames.PlaneGridModelCB,
                                                                PlaneGridModelStruct.SizeInBytes)));
         modelStruct = new PlaneGridModelStruct {
             World = Matrix.Identity,
             Axis = 1
         };
+        
         GridSpacing = 10;
         GridThickness = 0.05f;
         FadingFactor = 0.2f;
@@ -201,25 +202,25 @@ public class AxisPlaneGridCore : RenderCore {
     } = GridPattern.Tile;
 
     [MemberNotNull(nameof(ShadowSampler))]
-    [MemberNotNull(nameof(DefaultShaderPass))]
+    [MemberNotNull(nameof(defaultShaderPass))]
     protected override bool OnAttach(IRenderTechnique technique) {
-        DefaultShaderPass = technique[DefaultPassNames.Default];
-        samplerSlot = DefaultShaderPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.ShadowMapSampler);
-        shadowMapSlot = DefaultShaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ShadowMapTB);
+        defaultShaderPass = technique[DefaultPassNames.Default];
+        samplerSlot = defaultShaderPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.ShadowMapSampler);
+        shadowMapSlot = defaultShaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ShadowMapTB);
         ShadowSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.ShadowSampler);
         return true;
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         OnUpdatePerModelStruct(context);
-        modelCB.Upload(deviceContext, ref modelStruct);
-        DefaultShaderPass.BindShader(deviceContext);
-        DefaultShaderPass.BindStates(deviceContext,
+        modelCb.Upload(deviceContext, ref modelStruct);
+        defaultShaderPass.BindShader(deviceContext);
+        defaultShaderPass.BindStates(deviceContext,
                                      StateType.BlendState | StateType.DepthStencilState |
                                      StateType.RasterState);
         if (RenderShadowMap && context.SharedResource.ShadowView != null) {
-            DefaultShaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot, context.SharedResource.ShadowView);
-            DefaultShaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, ShadowSampler);
+            defaultShaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot, context.SharedResource.ShadowView);
+            defaultShaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, ShadowSampler);
         }
 
         deviceContext.Draw(4, 0);

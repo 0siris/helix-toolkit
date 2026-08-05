@@ -116,8 +116,6 @@ public class InstancingMeshNode : MeshNode {
 
     #region Properties
 
-    private IList<Guid> instanceIdentifiers;
-
     /// <summary>
     ///     Gets or sets the instance identifiers.
     /// </summary>
@@ -125,8 +123,8 @@ public class InstancingMeshNode : MeshNode {
     ///     The instance identifiers.
     /// </value>
     public IList<Guid> InstanceIdentifiers {
-        get => instanceIdentifiers;
-        set => Set(ref instanceIdentifiers, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>

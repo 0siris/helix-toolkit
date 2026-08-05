@@ -45,43 +45,44 @@ namespace HelixToolkit.Wpf.SharpDX;
 // THE SOFTWARE.
 
 /// <summary>
+/// DPFCanvas (DirectX Presentation Foundation Canvas) - A WPF Image control that hosts DirectX 11 content.
+/// Inherits from System.Windows.Controls.Image and presents DirectX/Direct3D content within WPF applications
+/// using a DX11ImageSource as the image source. The name is derived as an analogy to WPF (Windows Presentation Foundation):
+/// WPF presents standard WPF content, while DPFCanvas presents DirectX content within WPF.
+/// Originally introduced in the SharpDX WPFHost sample project for displaying DX10ImageSource content.
 /// </summary>
 /// <seealso cref="System.Windows.Controls.Image" />
-public class DPFCanvas : Image, IRenderCanvas, IDisposable {
+public sealed class DPFCanvas : Image, IRenderCanvas, IDisposable {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     private readonly bool belongsToParentWindow;
 
     private readonly CompositionTargetEx compositionTarget = new();
-    private double dpiScale = 1;
 
-    private bool enableDpiScale = true;
-    private Window parentWindow;
+    private Window? parentWindow;
 
-    private DispatcherOperation resizeOperation;
+    private DispatcherOperation? resizeOperation;
 
-    /// <summary>
-    /// </summary>
-    static DPFCanvas() {
-        StretchProperty.OverrideMetadata(typeof(DPFCanvas), new FrameworkPropertyMetadata(Stretch.Fill));
-    }
+    static DPFCanvas() 
+        => StretchProperty.OverrideMetadata(typeof(DPFCanvas), 
+                                            new FrameworkPropertyMetadata(Stretch.Fill));
 
-    /// <summary>
-    /// </summary>
     public DPFCanvas(bool deferredRendering = false, bool attachedToWindow = true) {
-        if (deferredRendering)
-            RenderHost =
-                new DX11ImageSourceRenderHost(device => new DeferredContextRenderer(
-                                                  device,
-                                                  new AutoRenderTaskScheduler()));
-        else
-            RenderHost = new DX11ImageSourceRenderHost();
+        var renderhost = deferredRendering
+                             ? new DX11ImageSourceRenderHost(device => new DeferredContextRenderer(device, new AutoRenderTaskScheduler()))
+                             : new DX11ImageSourceRenderHost();
+        
+        RenderHost = renderhost;
+                             
+        
+        
+        
         RenderHost.DpiScale = EnableDpiScale ? (float)DpiScale : 1;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
         RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
-        (RenderHost as DX11ImageSourceRenderHost).OnImageSourceChanged += DPFCanvas_OnImageSourceChanged;
+        renderhost.OnImageSourceChanged += DPFCanvas_OnImageSourceChanged;
         belongsToParentWindow = attachedToWindow;
     }
 
@@ -94,34 +95,39 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
     public IRenderHost RenderHost { get; }
 
     public double DpiScale {
-        get => dpiScale;
+        get;
         set {
-            dpiScale = value;
-            RenderHost?.DpiScale = (float)value;
+            field = value;
+            RenderHost.DpiScale = (float) value;
         }
-    }
+    } = 1;
 
+
+    /// <summary>
+    /// Gets or sets a value indicating whether DPI scaling is enabled
+    /// for rendering on the canvas.
+    /// </summary>
+    /// <value>
+    /// A boolean value where <c>true</c> enables DPI scaling to
+    /// adjust rendering based on the system DPI; otherwise, <c>false</c>.
+    /// The default is <c>true</c>.
+    /// </value>
     public bool EnableDpiScale {
-        get => enableDpiScale;
+        get;
         set {
-            enableDpiScale = value;
-            RenderHost?.DpiScale = value ? (float)DpiScale : 1;
+            field = value;
+            RenderHost.DpiScale = value ? (float) DpiScale : 1;
         }
-    }
+    } = true;
 
     /// <summary>
     ///     Fired whenever an exception occurred on this object.
     /// </summary>
     public event EventHandler<RelayExceptionEventArgs> ExceptionOccurred = delegate { };
 
-    private void DPFCanvas_OnImageSourceChanged(object sender, DX11ImageSourceArgs e) {
-        Source = e.Source;
-    }
+    private void DPFCanvas_OnImageSourceChanged(object? sender, DX11ImageSourceArgs e) 
+        => Source = e.Source;
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void OnLoaded(object sender, RoutedEventArgs e) {
         try {
             if (belongsToParentWindow) {
@@ -146,15 +152,11 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
         }
     }
 
-    private void ParentWindow_Closed(object sender, EventArgs e) {
+    private void ParentWindow_Closed(object? sender, EventArgs e) {
         Source = null;
         EndD3D();
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void OnUnloaded(object sender, RoutedEventArgs e) {
         if (belongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
         if (DataContext == null && RenderHost.EffectsManager == null && belongsToParentWindow)
@@ -163,36 +165,24 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
             RenderHost.StopRendering();
     }
 
-    /// <summary>
-    /// </summary>
     private bool StartD3D() {
         RenderHost.StartD3D((int)ActualWidth, (int)ActualHeight);
         return true;
     }
 
-    private void RenderHost_StopRenderLoop(object sender, EventArgs e) {
-        compositionTarget.Rendering -= CompositionTargetEx_Rendering;
-    }
-
-    private void RenderHost_StartRenderLoop(object sender, EventArgs e) {
+    private void RenderHost_StartRenderLoop(object? sender, EventArgs e) {
         compositionTarget.Rendering -= CompositionTargetEx_Rendering;
         compositionTarget.Rendering += CompositionTargetEx_Rendering;
     }
 
-    private void CompositionTargetEx_Rendering(object sender, RenderingEventArgs e) {
-        RenderHost.UpdateAndRender();
-    }
+    private void RenderHost_StopRenderLoop(object? sender, EventArgs e) 
+        => compositionTarget.Rendering -= CompositionTargetEx_Rendering;
 
-    /// <summary>
-    /// </summary>
-    private void EndD3D() {
-        RenderHost.EndD3D();
-    }
+    private void CompositionTargetEx_Rendering(object? sender, RenderingEventArgs e) 
+        => RenderHost.UpdateAndRender();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    private void EndD3D() => RenderHost.EndD3D();
+
     private void OnIsFrontBufferAvailableChanged(object sender, DependencyPropertyChangedEventArgs e) {
         if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("OnIsFrontBufferAvailableChanged: {Value0}", (bool)e.NewValue);
         // this fires when the screensaver kicks in, the machine goes into sleep or hibernate
@@ -209,26 +199,25 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
             }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sizeInfo"></param>
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-        if (resizeOperation != null && resizeOperation.Status == DispatcherOperationStatus.Pending)
+        if (resizeOperation is {Status: DispatcherOperationStatus.Pending})
             resizeOperation.Abort();
+        
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                                                 (Action)(() => {
-                                                     if (IsLoaded)
-                                                         try {
-                                                             RenderHost.Resize(
-                                                                 (int)ActualWidth,
-                                                                 (int)ActualHeight);
-                                                         } catch (Exception ex) {
-                                                             if (!HandleExceptionOccured(ex))
-                                                                 MessageBox.Show(
-                                                                     $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
-                                                                     "Error");
-                                                         }
-                                                 }));
+                                                 (Action) (() => {
+                                                                  if (!IsLoaded) 
+                                                                      return;
+                                                                  
+                                                                  try {
+                                                                      RenderHost.Resize((int) ActualWidth,
+                                                                          (int) ActualHeight);
+                                                                  } catch (Exception ex) {
+                                                                      if (!HandleExceptionOccured(ex))
+                                                                          MessageBox.Show(
+                                                                              $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
+                                                                              "Error");
+                                                                  }
+                                                              }));
     }
 
     /// <summary>
@@ -245,27 +234,26 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
             return true;
         }
 
-        Logger.Error(exception, "Render canvas exception.");
+        Logger.Error(exception, "Render canvas exception");
         var args = new RelayExceptionEventArgs(exception);
         ExceptionOccurred(this, args);
         return args.Handled;
     }
 
-    private static bool IsDeviceLost(int hresult) {
-        return hresult == unchecked((int)0x887A0005)
-               || hresult == unchecked((int)0x887A0006)
-               || hresult == unchecked((int)0x887A0007)
-               || hresult == unchecked((int)0x887A0026);
-    }
+    private static bool IsDeviceLost(int hresult) => hresult is unchecked((int)0x887A0005) or // DXGI_ERROR_DEVICE_REMOVED
+                                                         unchecked((int)0x887A0006) or // DXGI_ERROR_DEVICE_HUNG
+                                                         unchecked((int)0x887A0007) or // DXGI_ERROR_DEVICE_RESET
+                                                         unchecked((int)0x887A0026);   // DXGI_ERROR_DRIVER_INTERNAL_ERROR
+    
+    public static T? FindVisualAncestor<T>(DependencyObject? obj) where T : DependencyObject {
+        if (obj == null) 
+            return null;
+        
+        var parent = VisualTreeHelper.GetParent(obj);
+        while (parent != null) {
+            if (parent is T typed) return typed;
 
-    public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
-        if (obj != null) {
-            var parent = VisualTreeHelper.GetParent(obj);
-            while (parent != null) {
-                if (parent is T typed) return typed;
-
-                parent = VisualTreeHelper.GetParent(parent);
-            }
+            parent = VisualTreeHelper.GetParent(parent);
         }
 
         return null;
@@ -275,7 +263,7 @@ public class DPFCanvas : Image, IRenderCanvas, IDisposable {
 
     private bool disposedValue; // To detect redundant calls
 
-    protected virtual void Dispose(bool disposing) {
+    private void Dispose(bool disposing) {
         if (!disposedValue) {
             if (disposing) {
                 if (!belongsToParentWindow)

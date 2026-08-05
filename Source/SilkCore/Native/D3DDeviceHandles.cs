@@ -491,7 +491,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     private SilkD3D11ContextPtr nativeContext;
 
     // ponytail: cache until Silk exposes the base ID3D11DeviceContext getter.
-    private D3DPrimitiveTopology primitiveTopology;
 
     public SilkD3DDeviceContext(SilkD3D11ContextPtr nativeContext, bool isDeferred) {
         if (nativeContext.Handle == null) throw new ArgumentNullException(nameof(nativeContext));
@@ -511,10 +510,10 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     public bool IsDisposed { get; private set; }
 
     public D3DPrimitiveTopology PrimitiveTopology {
-        get => primitiveTopology;
+        get;
         set {
             nativeContext.IASetPrimitiveTopology(value);
-            primitiveTopology = value;
+            field = value;
         }
     }
 

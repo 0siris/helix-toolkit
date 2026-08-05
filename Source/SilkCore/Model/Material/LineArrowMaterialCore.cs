@@ -5,8 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 namespace HelixToolkit.SharpDX.Core.Model;
 public class LineArrowHeadMaterialCore : LineMaterialCore {
-    private float arrowSize = 0.1f;
-
     /// <summary>
     ///     Gets or sets the size of the arrow.
     /// </summary>
@@ -14,9 +12,9 @@ public class LineArrowHeadMaterialCore : LineMaterialCore {
     ///     The size of the arrow.
     /// </value>
     public float ArrowSize {
-        get => arrowSize;
-        set => Set(ref arrowSize, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 0.1f;
 
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,

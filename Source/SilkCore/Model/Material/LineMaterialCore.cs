@@ -19,56 +19,42 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
 
     #region Properties
 
-    private float thickness = 0.5f;
-
     /// <summary>
     /// </summary>
     public float Thickness {
-        get => thickness;
-        set => Set(ref thickness, value);
-    }
-
-    private float smoothness;
+        get;
+        set => Set(ref field, value);
+    } = 0.5f;
 
     /// <summary>
     /// </summary>
     public float Smoothness {
-        get => smoothness;
-        set => Set(ref smoothness, value);
+        get;
+        set => Set(ref field, value);
     }
-
-    private Color4 lineColor = Color.Blue;
 
     /// <summary>
     ///     Final Line Color = LineColor * PerVertexLineColor
     /// </summary>
     public Color4 LineColor {
-        get => lineColor;
-        set => Set(ref lineColor, value);
-    }
-
-    private bool enableDistanceFading;
+        get;
+        set => Set(ref field, value);
+    } = Color.Blue;
 
     public bool EnableDistanceFading {
-        get => enableDistanceFading;
-        set => Set(ref enableDistanceFading, value);
+        get;
+        set => Set(ref field, value);
     }
-
-    private float fadingNearDistance = 100;
 
     public float FadingNearDistance {
-        get => fadingNearDistance;
-        set => Set(ref fadingNearDistance, value);
-    }
-
-    private float fadingFarDistance;
+        get;
+        set => Set(ref field, value);
+    } = 100;
 
     public float FadingFarDistance {
-        get => fadingFarDistance;
-        set => Set(ref fadingFarDistance, value);
+        get;
+        set => Set(ref field, value);
     }
-
-    private bool fixedSize = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [fixed size].
@@ -77,11 +63,9 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     ///     <c>true</c> if [fixed size]; otherwise, <c>false</c>.
     /// </value>
     public bool FixedSize {
-        get => fixedSize;
-        set => Set(ref fixedSize, value);
-    }
-
-    private TextureModel texture;
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets the texture.
@@ -90,11 +74,9 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     ///     The texture.
     /// </value>
     public TextureModel Texture {
-        get => texture;
-        set => Set(ref texture, value);
+        get;
+        set => Set(ref field, value);
     }
-
-    private float textureScale = 1;
 
     /// <summary>
     ///     Gets or sets the texture scale.
@@ -103,11 +85,9 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     ///     The texture scale.
     /// </value>
     public float TextureScale {
-        get => textureScale;
-        set => Set(ref textureScale, value);
-    }
-
-    private float alphaThreshold = 0.2f;
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     /// <summary>
     ///     Gets or sets the alpha threshold. Pixel with color alpha value smaller than threshold will be set to transparent.
@@ -117,20 +97,18 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     ///     The alpha threshold
     /// </value>
     public float AlphaThreshold {
-        get => alphaThreshold;
-        set => Set(ref alphaThreshold, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 0.2f;
 
-
-    private SamplerStateDescription samplerDescription = DefaultSamplers.LineSamplerUWrapVClamp;
 
     /// <summary>
     ///     Billboard texture sampler description
     /// </summary>
     public SamplerStateDescription SamplerDescription {
-        get => samplerDescription;
-        set => Set(ref samplerDescription, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LineSamplerUWrapVClamp;
 
-    #endregion
+#endregion
 }

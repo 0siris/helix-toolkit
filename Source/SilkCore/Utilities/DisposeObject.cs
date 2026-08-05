@@ -91,7 +91,9 @@ public abstract class DisposeObject : IDisposable, IDisposeObject {
     /// <param name="value"></param>
     /// <returns></returns>
     protected static bool Set<T>(ref T backingField, T value) {
-        if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+        if (EqualityComparer<T>.Default.Equals(backingField, value))
+            return false;
+        
         backingField = value;
         return true;
     }

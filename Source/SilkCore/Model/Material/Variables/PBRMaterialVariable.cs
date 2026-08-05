@@ -32,7 +32,6 @@ public class PBRMaterialVariable : MaterialVariable {
     private readonly IStatePoolManager statePoolManager;
     private readonly ITextureResourceManager textureManager;
     private readonly ShaderResourceViewProxy[] TextureResources = new ShaderResourceViewProxy[NUMTEXTURES];
-    private bool enableTessellation;
     private int samplerSurfaceSlot, samplerIBLSlot, samplerShadowSlot, samplerDisplaceSlot;
 
     private int texDiffuseSlot,
@@ -102,9 +101,9 @@ public class PBRMaterialVariable : MaterialVariable {
     public ShaderPass DepthPass { get; }
 
     public bool EnableTessellation {
-        get => enableTessellation;
+        get;
         private set {
-            if (Set(ref enableTessellation, value)) {
+            if (Set(ref field, value)) {
                 UpdateMappings(currentMaterialPass);
                 InvalidateRenderer();
             }

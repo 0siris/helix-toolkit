@@ -122,8 +122,6 @@ public sealed class CameraController {
     /// <value> The minimum field of view. </value>
     public float MinimumFieldOfView = 10.0f;
 
-    private Vector3 modelUpDirection = Vector3.UnitY;
-
     /// <summary>
     ///     Gets or sets the move sensitivity.
     /// </summary>
@@ -274,12 +272,12 @@ public sealed class CameraController {
     ///     Gets or sets the model up direction.
     /// </summary>
     public Vector3 ModelUpDirection {
-        get => modelUpDirection;
+        get;
         set {
-            modelUpDirection = value;
+            field = value;
             Viewport.ModelUpDirection = value;
         }
-    }
+    } = Vector3.UnitY;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is panning.

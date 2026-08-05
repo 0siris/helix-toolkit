@@ -17,16 +17,12 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    private bool mEnabled = true;
-
     /// <summary>
     ///     The m octree
     /// </summary>
     protected BoundableNodeOctree mOctree;
 
     private volatile bool mRequestUpdateOctree;
-
-    private IOctreeBasic octree;
 
     /// <summary>
     ///     Occurs when [on octree created].
@@ -40,9 +36,9 @@ public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
     ///     The octree.
     /// </value>
     public IOctreeBasic Octree {
-        get => octree;
+        get;
         protected set {
-            if (Set(ref octree, value)) OnOctreeCreated?.Invoke(this, new OctreeArgs(value));
+            if (Set(ref field, value)) OnOctreeCreated?.Invoke(this, new OctreeArgs(value));
         }
     }
 
@@ -61,12 +57,12 @@ public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
     ///     <c>true</c> if enabled; otherwise, <c>false</c>.
     /// </value>
     public bool Enabled {
-        get => mEnabled;
+        get;
         set {
-            mEnabled = value;
-            if (!mEnabled) Clear();
+            field = value;
+            if (!field) Clear();
         }
-    }
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [request update octree].

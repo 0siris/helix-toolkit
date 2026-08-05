@@ -9,17 +9,6 @@ using HelixToolkit.SharpDX.Core.Shaders;
 namespace HelixToolkit.SharpDX.Core.Model;
 [DataContract]
 public class ColorStripeMaterialCore : MaterialCore {
-    private SamplerStateDescription colorStripeSampler = DefaultSamplers.LinearSamplerClampAni1;
-
-    private IList<Color4> colorStripeX;
-
-    private bool colorStripeXEnabled = true;
-
-    private IList<Color4> colorStripeY;
-
-    private bool colorStripeYEnabled = true;
-    private Color4 diffuseColor = Color.White;
-
     /// <summary>
     ///     Gets or sets the color of the diffuse.
     /// </summary>
@@ -27,9 +16,9 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     The color of the diffuse.
     /// </value>
     public Color4 DiffuseColor {
-        get => diffuseColor;
-        set => Set(ref diffuseColor, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets the color stripe x. Use texture coordinate X for sampling
@@ -38,8 +27,8 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     The color stripe x.
     /// </value>
     public IList<Color4> ColorStripeX {
-        get => colorStripeX;
-        set => Set(ref colorStripeX, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -49,8 +38,8 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     The color stripe y.
     /// </value>
     public IList<Color4> ColorStripeY {
-        get => colorStripeY;
-        set => Set(ref colorStripeY, value);
+        get;
+        set => Set(ref field, value);
     }
 
     /// <summary>
@@ -60,9 +49,9 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     <c>true</c> if [color stripe x enabled]; otherwise, <c>false</c>.
     /// </value>
     public bool ColorStripeXEnabled {
-        get => colorStripeXEnabled;
-        set => Set(ref colorStripeXEnabled, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [color stripe y enabled].
@@ -71,9 +60,9 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     <c>true</c> if [color stripe y enabled]; otherwise, <c>false</c>.
     /// </value>
     public bool ColorStripeYEnabled {
-        get => colorStripeYEnabled;
-        set => Set(ref colorStripeYEnabled, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets the DiffuseMapSampler.
@@ -82,9 +71,9 @@ public class ColorStripeMaterialCore : MaterialCore {
     ///     DiffuseMapSampler
     /// </value>
     public SamplerStateDescription ColorStripeSampler {
-        get => colorStripeSampler;
-        set => Set(ref colorStripeSampler, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = DefaultSamplers.LinearSamplerClampAni1;
 
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,

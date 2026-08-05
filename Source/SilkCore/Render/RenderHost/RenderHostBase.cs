@@ -6,12 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Render;
 /// <summary>
@@ -23,7 +21,6 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     private const int DxgiErrorAccessLost = unchecked((int)0x887A0026);
     private const int MinWidth = 10;
     private const int MinHeight = 10;
-    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DX11RenderHostBase" /> class.
@@ -34,9 +31,10 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     Initializes a new instance of the <see cref="DX11RenderHostBase" /> class.
     /// </summary>
     /// <param name="createRenderer">The create renderer.</param>
-    public DX11RenderHostBase(Func<IDevice3DResources, IRenderer> createRenderer) {
-        createRendererFunction = createRenderer;
-    }
+    public DX11RenderHostBase(Func<IDevice3DResources, IRenderer> createRenderer) 
+        => createRendererFunction = createRenderer;
+
+    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
     ///     Invalidates the render.
@@ -84,75 +82,87 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     Updates the and render.
     /// </summary>
     public bool UpdateAndRender() {
-        if (CanRender()) {
-            if (EnableSharingModelMode && SharedModelContainer != null)
-                SharedModelContainer.CurrentRenderHost = this;
-            IsBusy = true;
-            var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
-            renderStatistics.FPSStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
-            renderStatistics.Camera = viewport.CameraCore;
-            lastRenderTime = t0;
-            UpdateRequested = false;
-            ++updateCounter;
-            renderContext.AutoUpdateOctree = RenderConfiguration.AutoUpdateOctree;
-            renderContext.EnableBoundingFrustum = EnableRenderFrustum;
-            if (RenderConfiguration.UpdatePerFrameData) {
-                viewport.Update(t0);
-                renderContext.TimeStamp = t0;
-                renderContext.Camera = viewport.CameraCore;
-                renderContext.OITWeightPower = RenderConfiguration.OITWeightPower;
-                renderContext.OITWeightDepthSlope = RenderConfiguration.OITWeightDepthSlope;
-                renderContext.OITWeightMode = RenderConfiguration.OITWeightMode;
-                renderContext.SSAOEnabled = RenderConfiguration.EnableSSAO;
-                renderContext.SSAOBias = RenderConfiguration.SSAOBias;
-                renderContext.SSAOIntensity = RenderConfiguration.SSAOIntensity;
-                RenderContext.OITDepthPeelingIteration = RenderConfiguration.OITDepthPeelingIteration;
-            }
-
-            renderBuffer.VSyncInterval = RenderConfiguration.EnableVSync ? 1 : 0;
-            var updateSceneGraph = updateSceneGraphRequested;
-            var updatePerFrameRenderable = updatePerFrameRenderableRequested;
-            renderContext.updateSceneGraphRequested = updateSceneGraphRequested;
-            renderContext.updatePerFrameRenderableRequested = updatePerFrameRenderableRequested;
-            updateSceneGraphRequested = false;
-            updatePerFrameRenderableRequested = false;
-            PreRender(updateSceneGraph, updatePerFrameRenderable);
-            try {
-                if (renderBuffer.BeginDraw()) {
-                    OnRender(t0);
-                    renderBuffer.EndDraw();
-                    renderStatistics.NumDrawCalls = renderer.ImmediateContext.ResetDrawCalls() +
-                                                    EffectsManager.DeviceContextPool.ResetDrawCalls();
-                }
-
-                if (RenderConfiguration.RenderD2D && D2DTarget.D2DTarget != null) OnRender2D(t0);
-                renderBuffer.Present();
-            } catch (COMException ex) {
-                if (IsDeviceLost(ex.HResult)) {
-                    Logger.Warn("Device Lost, code = {Value0}", ex.HResult);
-                    RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
-                } else {
-                    Logger.Error(ex, "DirectX Error during rendering");
-                    EndD3D();
-                    ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
-                }
-            } catch (Exception ex) {
-                Logger.Error(ex, "Error during rendering");
-                EndD3D();
-                ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
-            } finally {
-                PostRender();
-                IsBusy = false;
-            }
-
-            lastRenderingDuration =
-                TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency) - t0;
-            RenderStatistics.LatencyStatistics.Push(lastRenderingDuration.TotalMilliseconds);
-            Rendered?.Invoke(this, EventArgs.Empty);
-            return true;
+        if (!CanRender())
+            return false;
+        
+        if (EnableSharingModelMode && SharedModelContainer != null)
+            SharedModelContainer.CurrentRenderHost = this;
+        
+        IsBusy = true;
+        
+        var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
+        renderStatistics.FPSStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
+        renderStatistics.Camera = Viewport.CameraCore;
+        
+        lastRenderTime = t0;
+        
+        UpdateRequested = false;
+        ++updateCounter;
+        
+        RenderContext.AutoUpdateOctree = RenderConfiguration.AutoUpdateOctree;
+        RenderContext.EnableBoundingFrustum = EnableRenderFrustum;
+        
+        if (RenderConfiguration.UpdatePerFrameData) {
+            Viewport.Update(t0);
+            RenderContext.TimeStamp = t0;
+            RenderContext.Camera = Viewport.CameraCore;
+            RenderContext.OITWeightPower = RenderConfiguration.OITWeightPower;
+            RenderContext.OITWeightDepthSlope = RenderConfiguration.OITWeightDepthSlope;
+            RenderContext.OITWeightMode = RenderConfiguration.OITWeightMode;
+            RenderContext.SSAOEnabled = RenderConfiguration.EnableSSAO;
+            RenderContext.SSAOBias = RenderConfiguration.SSAOBias;
+            RenderContext.SSAOIntensity = RenderConfiguration.SSAOIntensity;
+            RenderContext.OITDepthPeelingIteration = RenderConfiguration.OITDepthPeelingIteration;
         }
 
-        return false;
+        RenderBuffer.VSyncInterval = RenderConfiguration.EnableVSync 
+                                         ? 1 
+                                         : 0;
+        
+        var updateSceneGraph = updateSceneGraphRequested;
+        var updatePerFrameRenderable = updatePerFrameRenderableRequested;
+        RenderContext.updateSceneGraphRequested = updateSceneGraphRequested;
+        RenderContext.updatePerFrameRenderableRequested = updatePerFrameRenderableRequested;
+        updateSceneGraphRequested = false;
+        updatePerFrameRenderableRequested = false;
+        
+        PreRender(updateSceneGraph, updatePerFrameRenderable);
+        try {
+            if (RenderBuffer.BeginDraw()) {
+                OnRender(t0);
+                RenderBuffer.EndDraw();
+                renderStatistics.NumDrawCalls = Renderer.ImmediateContext.ResetDrawCalls() +
+                                                EffectsManager.DeviceContextPool.ResetDrawCalls();
+            }
+
+            if (RenderConfiguration.RenderD2D && D2DTarget.D2DTarget != null) 
+                OnRender2D(t0);
+            
+            RenderBuffer.Present();
+        } catch (COMException ex) {
+            if (IsDeviceLost(ex.HResult)) {
+                Logger.Warn("Device Lost, code = {Value0}", ex.HResult);
+                RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
+            } else {
+                Logger.Error(ex, "DirectX Error during rendering");
+                EndD3D();
+                ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
+            }
+        } catch (Exception ex) {
+            Logger.Error(ex, "Error during rendering");
+            EndD3D();
+            ExceptionOccurred?.Invoke(this, new RelayExceptionEventArgs(ex));
+        } finally {
+            PostRender();
+            IsBusy = false;
+        }
+
+        lastRenderingDuration = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency) - t0;
+        RenderStatistics.LatencyStatistics.Push(lastRenderingDuration.TotalMilliseconds);
+        Rendered?.Invoke(this, EventArgs.Empty);
+        
+        return true;
+
     }
 
     /// <summary>
@@ -165,9 +175,8 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         DeviceContextProxy context,
         bool clearBackBuffer,
         bool clearDepthStencilBuffer
-    ) {
-        renderBuffer?.ClearRenderTarget(context, ClearColor, clearBackBuffer, clearDepthStencilBuffer);
-    }
+    ) =>
+        RenderBuffer?.ClearRenderTarget(context, ClearColor, clearBackBuffer, clearDepthStencilBuffer);
 
     /// <summary>
     /// </summary>
@@ -175,7 +184,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         lock (lockObj) {
             Logger.Info("Starting D3D. Width = {Value0}; Height = {Value1};", width, height);
             if (IsInitialized) {
-                Logger.Info("RenderHost already Initialized.");
+                Logger.Info("RenderHost already Initialized");
                 StartRendering();
                 return;
             }
@@ -183,19 +192,19 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             ActualWidth = width * DpiScale;
             ActualHeight = height * DpiScale;
             isLoaded = true;
-            if (EffectsManager == null || EffectsManager.NativeDeviceResources?.Device == null ||
+            if (EffectsManager?.NativeDeviceResources?.Device == null ||
                 EffectsManager.NativeDeviceResources.Device.IsDisposed) {
                 Logger.Info("EffectsManager is not valid");
                 return;
             }
 
-            immediateDeviceContext = new DeviceContextProxy(
-                effectsManager.NativeDeviceResources.ImmediateContext,
-                effectsManager.NativeDeviceResources.Device);
+            ImmediateDeviceContext = new DeviceContextProxy(effectsManager.NativeDeviceResources.ImmediateContext,
+                                                            effectsManager.NativeDeviceResources.Device);
+            
             RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
             CreateAndBindBuffers();
             IsInitialized = true;
-            Logger.Info("Initialized.");
+            Logger.Info("Initialized");
             AttachRenderable(EffectsManager);
             OnStartD3D();
             StartRendering();
@@ -207,7 +216,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </summary>
     public virtual void StartRendering() {
         lock (lockObj) {
-            Logger.Info("Start rendering.");
+            Logger.Info("Start rendering");
             renderStatistics.Reset();
             lastRenderingDuration = TimeSpan.Zero;
             lastRenderTime = TimeSpan.Zero;
@@ -221,10 +230,11 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </summary>
     public void EndD3D() {
         lock (lockObj) {
-            Logger.Info("Ending D3D.");
+            Logger.Info("Ending D3D");
             StopRendering();
             IsInitialized = false;
-            RemoveAndDispose(ref immediateDeviceContext);
+            ImmediateDeviceContext = null;
+            
 
             OnEndingD3D();
             DetachRenderable();
@@ -245,17 +255,15 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public void Resize(int width, int height) {
-        Resize(width, height, false);
-    }
+    public void Resize(int width, int height) 
+        => Resize(width, height, false);
 
     /// <summary>
     ///     Sets the default render targets.
     /// </summary>
     /// <param name="clear">if set to <c>true</c> [clear].</param>
-    public virtual void SetDefaultRenderTargets(bool clear) {
-        SetDefaultRenderTargets(immediateDeviceContext, clear);
-    }
+    public virtual void SetDefaultRenderTargets(bool clear) 
+        => SetDefaultRenderTargets(ImmediateDeviceContext, clear);
 
     /// <summary>
     ///     Creates the render buffer.
@@ -269,18 +277,16 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <returns>
     ///     <c>true</c> if this instance can render; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool CanRender() {
-        return IsInitialized && IsRendering &&
-               (UpdateRequested || updateCounter < RenderConfiguration.MinimumUpdateCount)
-               && viewport != null && viewport.CameraCore != null && ActualWidth > 10 && ActualHeight > 10;
-    }
+    protected virtual bool CanRender() =>
+        IsInitialized && IsRendering &&
+        (UpdateRequested || updateCounter < RenderConfiguration.MinimumUpdateCount)
+        && Viewport is {CameraCore: not null} && ActualWidth > 10 && ActualHeight > 10;
 
     /// <summary>
     ///     Called before OnRender.
     /// </summary>
-    protected virtual void PreRender(bool invalidateSceneGraph, bool invalidatePerFrameRenderables) {
-        SetDefaultRenderTargets(immediateDeviceContext, RenderConfiguration.ClearEachFrame);
-    }
+    protected virtual void PreRender(bool invalidateSceneGraph, bool invalidatePerFrameRenderables) 
+        => SetDefaultRenderTargets(ImmediateDeviceContext, RenderConfiguration.ClearEachFrame);
 
     /// <summary>
     ///     Called after OnRender.
@@ -306,9 +312,13 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="clear"></param>
     /// <returns>Set successful?</returns>
     public bool SetDefaultRenderTargets(DeviceContextProxy context, bool clear = true) {
-        if (!IsInitialized) return false;
-        renderBuffer.SetDefaultRenderTargets(context);
-        if (clear) renderBuffer.ClearRenderTarget(context, ClearColor);
+        if (!IsInitialized) 
+            return false;
+        
+        RenderBuffer.SetDefaultRenderTargets(context);
+        if (clear) 
+            RenderBuffer.ClearRenderTarget(context, ClearColor);
+        
         return true;
     }
 
@@ -338,18 +348,16 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </summary>
     protected void CreateAndBindBuffers() {
         Logger.Info("CreateAndBindBuffers");
-        RemoveAndDispose(ref renderBuffer);
-        renderBuffer = CreateRenderBuffer();
-        renderBuffer.OnNewBufferCreated += RenderBuffer_OnNewBufferCreated;
-        renderBuffer.DeviceLost += RenderBuffer_OnDeviceLost;
-        renderer?.Detach();
-        RemoveAndDispose(ref renderer);
-        renderer = CreateRenderer();
-        renderer.Attach(this);
-        OnInitializeBuffers(renderBuffer, renderer);
+        
+        RenderBuffer = CreateRenderBuffer();
+        Renderer?.Detach();
+        Renderer = null;
+        Renderer = CreateRenderer();
+        Renderer.Attach(this);
+        OnInitializeBuffers(RenderBuffer, Renderer);
     }
 
-    private void RenderBuffer_OnDeviceLost(object sender, EventArgs e) {
+    private void RenderBuffer_OnDeviceLost(object? sender, EventArgs e) {
         EndD3D();
         EffectsManager?.DisposeAllResources();
         EffectsManager?.Reinitialize();
@@ -359,24 +367,19 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     Creates the renderer.
     /// </summary>
     /// <returns></returns>
-    private IRenderer CreateRenderer() {
-        if (createRendererFunction != null) return createRendererFunction.Invoke(EffectsManager);
+    private IRenderer CreateRenderer() 
+        => createRendererFunction?.Invoke(EffectsManager) ?? new ImmediateContextRenderer(EffectsManager);
 
-        return new ImmediateContextRenderer(EffectsManager);
-    }
-
-    private void RenderBuffer_OnNewBufferCreated(object sender, Texture2DArgs e) {
-        OnNewRenderTargetTexture?.Invoke(this, e);
-    }
+    private void RenderBuffer_OnNewBufferCreated(object? sender, Texture2DArgs e) 
+        => OnNewRenderTargetTexture?.Invoke(this, e);
 
     /// <summary>
     ///     Called when [initialize buffers].
     /// </summary>
     /// <param name="buffer">The buffer.</param>
     /// <param name="renderer">The renderer.</param>
-    protected virtual void OnInitializeBuffers(DX11RenderBufferProxyBase buffer, IRenderer renderer) {
-        buffer.Initialize((int)ActualWidth, (int)ActualHeight, MSAA);
-    }
+    protected virtual void OnInitializeBuffers(DX11RenderBufferProxyBase buffer, IRenderer renderer) 
+        => buffer.Initialize((int)ActualWidth, (int)ActualHeight, MSAA);
 
     /// <summary>
     ///     Attaches the renderable.
@@ -384,39 +387,37 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="deviceResources">The device resources.</param>
     protected virtual void AttachRenderable(IDeviceResources deviceResources) {
         if (!IsInitialized || Viewport == null) return;
-        Logger.Info("Attaching renderable.");
+        Logger.Info("Attaching renderable");
         if (EnableSharingModelMode && SharedModelContainer != null)
             SharedModelContainer.CurrentRenderHost = this;
-        viewport.Attach(this);
-        renderContext = CreateRenderContext();
+        Viewport.Attach(this);
+        RenderContext = CreateRenderContext();
 
-        renderContext2D = CreateRenderContext2D(deviceResources.DeviceContext2D);
+        RenderContext2D = CreateRenderContext2D(deviceResources.DeviceContext2D);
     }
 
     /// <summary>
     ///     Creates the render context.
     /// </summary>
     /// <returns></returns>
-    protected virtual RenderContext CreateRenderContext() {
-        return new RenderContext(this);
-    }
+    protected virtual RenderContext CreateRenderContext() 
+        => new(this);
 
     /// <summary>
     ///     Creates the render context2 d.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <returns></returns>
-    protected virtual RenderContext2D CreateRenderContext2D(D2DDeviceContext context) {
-        return new RenderContext2D(context, this);
-    }
+    protected virtual RenderContext2D CreateRenderContext2D(D2DDeviceContext context) 
+        => new(context, this);
 
     /// <summary>
     ///     Called when [ending d3 d].
     /// </summary>
     protected virtual void OnEndingD3D() { }
 
-    private void OnManagerDisposed(object sender, EventArgs args) {
-        Logger.Info("OnManagerDisposed.");
+    private void OnManagerDisposed(object? sender, EventArgs args) {
+        Logger.Trace();
         EndD3D();
     }
 
@@ -424,15 +425,10 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     Disposes the buffers.
     /// </summary>
     protected virtual void DisposeBuffers() {
-        Logger.Info("Disposing buffers");
-        if (renderBuffer != null) {
-            renderBuffer.OnNewBufferCreated -= RenderBuffer_OnNewBufferCreated;
-            renderBuffer.DeviceLost -= RenderBuffer_OnDeviceLost;
-        }
-
-        renderer?.Detach();
-        RemoveAndDispose(ref renderer);
-        RemoveAndDispose(ref renderBuffer);
+        Logger.Trace();
+        Renderer?.Detach();
+        Renderer = null;
+        RenderBuffer = null;
     }
 
     /// <summary>
@@ -440,21 +436,23 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </summary>
     protected virtual void DetachRenderable() {
         Logger.Info("Detaching renderable");
-        RemoveAndDispose(ref renderContext);
-        RemoveAndDispose(ref renderContext2D);
+        RenderContext = null;
+        RenderContext2D = null;
         Viewport?.Detach();
     }
 
     private void Resize(int width, int height, bool dpiChanged) {
         if (Math.Abs(ActualWidth - width * DpiScale) < 1e-6f &&
-            Math.Abs(ActualHeight - height * DpiScale) < 1e-6f) return;
+            Math.Abs(ActualHeight - height * DpiScale) < 1e-6f) 
+            return;
+        
         ActualWidth = Math.Max(2, width * DpiScale);
         ActualHeight = Math.Max(2, height * DpiScale);
         Logger.Info("Resizing. Width = {Value0}; Height = {Value1};", width, height);
         lock (lockObj) {
             if (IsInitialized) {
                 StopRendering();
-                var texture = renderBuffer.Resize((int)Math.Floor(ActualWidth),
+                var texture = RenderBuffer.Resize((int)Math.Floor(ActualWidth),
                                                   (int)Math.Floor(ActualHeight));
                 OnNewRenderTargetTexture?.Invoke(this, new Texture2DArgs(texture));
                 if (Viewport != null) {
@@ -474,20 +472,18 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         }
     }
 
-    private static bool IsDeviceLost(int hresult) {
-        return hresult == DxgiErrorDeviceRemoved
-               || hresult == DxgiErrorDeviceReset
-               || hresult == DxgiErrorDeviceHung
-               || hresult == DxgiErrorAccessLost;
+    private static bool IsDeviceLost(int hresult) => hresult is 
+                                                         DxgiErrorDeviceRemoved or
+                                                         DxgiErrorDeviceReset or 
+                                                         DxgiErrorDeviceHung or
+                                                         DxgiErrorAccessLost;
+
+    private void EffectsManager_DeviceCreated(object? sender, EventArgs e) {
+        if (isLoaded && !IsInitialized)
+            StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
     }
 
-    private void EffectsManager_DeviceCreated(object sender, EventArgs e) {
-        if (isLoaded && !IsInitialized) StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
-    }
-
-    private void EffectsManager_OnInvalidateRenderer(object sender, EventArgs e) {
-        InvalidateRender();
-    }
+    private void EffectsManager_OnInvalidateRenderer(object? sender, EventArgs e) => InvalidateRender();
 
     public void ReinitializeEffectsManager() {
         lock (lockObj) {
@@ -503,6 +499,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <summary>
     ///     Releases unmanaged and - optionally - managed resources.
     /// </summary>
+    /// 
     /// <param name="disposeManagedResources">
     ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to
     ///     release only unmanaged resources.
@@ -520,13 +517,13 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             Rendered = null;
         }
 
-        RemoveAndDispose(ref renderContext);
-        RemoveAndDispose(ref renderContext2D);
+        RenderContext = null;
+        RenderContext2D = null;
         DisposeBuffers();
         base.OnDispose(disposeManagedResources);
     }
 
-    #region Properties
+#region Properties
 
     /// <summary>
     ///     Gets the unique identifier.
@@ -536,7 +533,6 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public Guid GUID { get; } = Guid.NewGuid();
 
-    private DX11RenderBufferProxyBase renderBuffer;
 
     /// <summary>
     ///     Gets the render buffer.
@@ -544,7 +540,21 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The render buffer.
     /// </value>
-    public DX11RenderBufferProxyBase RenderBuffer => renderBuffer;
+    public DX11RenderBufferProxyBase? RenderBuffer {
+        get;
+        private set {
+            var newBuffer = Disposer.SetDispose(ref field, value,
+                                              buffer => {
+                                                  buffer.OnNewBufferCreated -= RenderBuffer_OnNewBufferCreated;
+                                                  buffer.DeviceLost -= RenderBuffer_OnDeviceLost;
+                                              });
+            
+            if (newBuffer && field is not null) {
+                field.OnNewBufferCreated += RenderBuffer_OnNewBufferCreated;
+                field.DeviceLost += RenderBuffer_OnDeviceLost;
+            }
+        }
+    }
 
     /// <summary>
     ///     Gets the device.
@@ -554,15 +564,20 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public SilkD3DDevice Device => EffectsManager.NativeDeviceResources.Device;
 
-    private DeviceContextProxy immediateDeviceContext;
-
     /// <summary>
     ///     Gets the immediate device context.
     /// </summary>
     /// <value>
     ///     The immediate device context.
     /// </value>
-    public DeviceContextProxy ImmediateDeviceContext => immediateDeviceContext;
+    public DeviceContextProxy? ImmediateDeviceContext {
+        get;
+        private set {
+            if(field != value)
+                field?.Dispose();
+            field = value;
+        }
+    }
 
     /// <summary>
     ///     Gets the device2d.
@@ -572,8 +587,6 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public D2DDevice Device2D => EffectsManager.Device2D;
 
-    private Color4 clearColor = Color.White;
-
     /// <summary>
     ///     Gets or sets the color of the clear.
     /// </summary>
@@ -581,14 +594,12 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     The color of the clear.
     /// </value>
     public Color4 ClearColor {
-        get => clearColor;
+        get;
         set {
-            clearColor = value;
+            field = value;
             InvalidateRender();
         }
-    }
-
-    private bool isShadowMapEnabled;
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets a value indicating whether shadow map enabled.
@@ -597,14 +608,12 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     <c>true</c> if this instance is shadow map enabled; otherwise, <c>false</c>.
     /// </value>
     public bool IsShadowMapEnabled {
-        get => isShadowMapEnabled;
+        get;
         set {
-            isShadowMapEnabled = value;
+            field = value;
             InvalidateRender();
         }
     }
-
-    private MSAALevel msaa = MSAALevel.Disable;
 
     /// <summary>
     ///     Gets or sets the Multi-Sampling-Anti-Alias.
@@ -613,35 +622,37 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     The msaa.
     /// </value>
     public MSAALevel MSAA {
-        get => msaa;
+        get;
         set {
-            if (Set(ref msaa, value)) Restart(true);
+            if (Set(ref field, value)) Restart(true);
         }
-    }
-
-    private IViewport3DX viewport;
+    } = MSAALevel.Disable;
 
     /// <summary>
     ///     <see cref="IRenderHost.Viewport" />
     /// </summary>
-    public IViewport3DX Viewport {
-        get => viewport;
+    public IViewport3DX? Viewport {
+        get;
         set {
-            if (viewport == value) return;
+            if (field == value) 
+                return;
+            
             Logger.Info("Set Viewport, Initialized = {Value0}", IsInitialized);
             DetachRenderable();
-            viewport = value;
-            if (IsInitialized) AttachRenderable(EffectsManager);
+            field = value;
+            
+            if (IsInitialized) 
+                AttachRenderable(EffectsManager);
         }
     }
 
-    protected RenderContext renderContext;
 
     /// <summary>
     /// </summary>
-    public RenderContext RenderContext => renderContext;
-
-    private RenderContext2D renderContext2D;
+    public RenderContext? RenderContext { 
+        get;
+        private set => Disposer.SetDispose(ref field, value);
+    }
 
     /// <summary>
     ///     Gets the render context2d.
@@ -649,9 +660,12 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The render context2d.
     /// </value>
-    public RenderContext2D RenderContext2D => renderContext2D;
+    public RenderContext2D? RenderContext2D {
+        get;
+        set => Disposer.SetDispose(ref field, value);
+    }
 
-    private IEffectsManager effectsManager;
+    private IEffectsManager? effectsManager;
 
     /// <summary>
     ///     Gets or sets the effects manager.
@@ -659,20 +673,20 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The effects manager.
     /// </value>
-    public IEffectsManager EffectsManager {
+    public IEffectsManager? EffectsManager {
         get => effectsManager;
         set {
             var currentManager = effectsManager;
             if (Set(ref effectsManager, value)) {
-                EffectsManagerChanged?.Invoke(this, value);
-                Logger.Info("Set new EffectsManager.");
+                EffectsManagerChanged?.Invoke(this, value.AssertNotNull());
+                Logger.Info("Set new EffectsManager");
                 if (currentManager != null) {
                     currentManager.DisposingResources -= OnManagerDisposed;
                     currentManager.Reinitialized -= EffectsManager_DeviceCreated;
                     currentManager.InvalidateRender -= EffectsManager_OnInvalidateRenderer;
                 }
 
-                RemoveAndDispose(ref immediateDeviceContext);
+                ImmediateDeviceContext = null;
                 if (effectsManager != null) {
                     effectsManager.DisposingResources += OnManagerDisposed;
                     effectsManager.InvalidateRender += EffectsManager_OnInvalidateRenderer;
@@ -680,7 +694,8 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
                     FeatureLevel = effectsManager.NativeDeviceResources.FeatureLevel.ToFeatureLevel();
                     if (IsInitialized)
                         Restart(false);
-                    else if (isLoaded) StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
+                    else if (isLoaded) 
+                        StartD3D((int)Math.Floor(ActualWidth), (int)Math.Floor(ActualHeight));
                 } else {
                     RenderTechnique = null;
                     EndD3D();
@@ -689,18 +704,17 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         }
     }
 
-    private IRenderTechnique renderTechnique;
-
     /// <summary>
     ///     Gets or sets the render technique.
     /// </summary>
     /// <value>
     ///     The render technique.
     /// </value>
-    public IRenderTechnique RenderTechnique {
-        get => renderTechnique;
+    public IRenderTechnique? RenderTechnique {
+        get;
         set {
-            if (Set(ref renderTechnique, value) && IsInitialized) Restart(false);
+            if (Set(ref field, value) && IsInitialized) 
+                Restart(false);
         }
     }
 
@@ -712,8 +726,6 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public bool IsDeferredLighting => false;
 
-    private float height = MinHeight;
-
     /// <summary>
     ///     Gets or sets the actual height.
     /// </summary>
@@ -721,11 +733,9 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     The actual height.
     /// </value>
     public float ActualHeight {
-        get => height;
-        private set => height = Math.Max(MinHeight, value);
-    }
-
-    private float width = MinWidth;
+        get;
+        private set => field = Math.Max(MinHeight, value);
+    } = MinHeight;
 
     /// <summary>
     ///     Gets or sets the actual width.
@@ -734,20 +744,18 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     The actual width.
     /// </value>
     public float ActualWidth {
-        get => width;
-        private set => width = Math.Max(MinWidth, value);
-    }
-
-    private float dpiScale = 1;
+        get;
+        private set => field = Math.Max(MinWidth, value);
+    } = MinWidth;
 
     public float DpiScale {
-        get => dpiScale;
+        get;
         set {
-            var oldDpiScale = dpiScale;
-            if (Set(ref dpiScale, value))
-                Resize((int)(ActualWidth / oldDpiScale), (int)(ActualHeight / oldDpiScale), true);
+            var oldDpiScale = field;
+            if (Set(ref field, value))
+                Resize((int) (ActualWidth / oldDpiScale), (int) (ActualHeight / oldDpiScale), true);
         }
-    }
+    } = 1;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is busy.
@@ -757,8 +765,6 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public bool IsBusy { get; private set; }
 
-    private bool enableRenderFrustum = true;
-
     /// <summary>
     ///     Gets or sets a value indicating whether [enable render frustum].
     /// </summary>
@@ -766,13 +772,13 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     <c>true</c> if [enable render frustum]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableRenderFrustum {
-        get => enableRenderFrustum;
+        get;
         set {
-            if (enableRenderFrustum == value) return;
-            enableRenderFrustum = value;
+            if (field == value) return;
+            field = value;
             FrustumEnabledChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
         }
-    }
+    } = true;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable sharing model mode].
@@ -788,7 +794,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The shared model container.
     /// </value>
-    public IModelContainer SharedModelContainer { get; set; }
+    public IModelContainer? SharedModelContainer { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is rendering.
@@ -814,7 +820,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The color buffer view.
     /// </value>
-    public RenderTargetView RenderTargetBufferView => renderBuffer.ColorBuffer;
+    public RenderTargetView RenderTargetBufferView => RenderBuffer.ColorBuffer;
 
     /// <summary>
     ///     Gets the depth stencil buffer view.
@@ -822,7 +828,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The depth stencil buffer view.
     /// </value>
-    public DepthStencilView DepthStencilBufferView => renderBuffer.DepthStencilBuffer;
+    public DepthStencilView DepthStencilBufferView => RenderBuffer.DepthStencilBuffer;
 
     /// <summary>
     ///     Gets the d2d controls.
@@ -842,7 +848,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
 
     protected readonly RenderStatistics renderStatistics = new();
 
-    #region Perframe renderables
+#region Perframe renderables
 
     /// <summary>
     ///     Gets the current frame renderables for rendering.
@@ -908,9 +914,9 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public abstract FastList<SceneNode> PerFrameTransparentNodes { get; }
 
-    #endregion
+#endregion
 
-    #region Configuration
+#region Configuration
 
     /// <summary>
     ///     Gets or sets a value indicating whether [show render statistics].
@@ -946,55 +952,58 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
 
     public bool EnableParallelProcessing { get; set; } = true;
 
-    #endregion
+#endregion
 
-    #endregion
+#endregion
 
-    #region Events
+#region Events
 
     /// <summary>
     ///     Occurs when [exception occurred].
     /// </summary>
-    public event EventHandler<RelayExceptionEventArgs> ExceptionOccurred;
+    public event EventHandler<RelayExceptionEventArgs>? ExceptionOccurred;
 
     /// <summary>
     ///     Occurs when [start render loop].
     /// </summary>
-    public event EventHandler<EventArgs> StartRenderLoop;
+    public event EventHandler<EventArgs>? StartRenderLoop;
 
     /// <summary>
     ///     Occurs when [stop render loop].
     /// </summary>
-    public event EventHandler<EventArgs> StopRenderLoop;
+    public event EventHandler<EventArgs>? StopRenderLoop;
 
     /// <summary>
     ///     Occurs when [on new render target texture].
     /// </summary>
-    public event EventHandler<Texture2DArgs> OnNewRenderTargetTexture;
+    public event EventHandler<Texture2DArgs>? OnNewRenderTargetTexture;
 
     /// <summary>
     ///     Occurs when each render frame finished rendering.
     /// </summary>
-    public event EventHandler Rendered;
+    public event EventHandler? Rendered;
 
-    private readonly Func<IDevice3DResources, IRenderer> createRendererFunction;
+    private readonly Func<IDevice3DResources, IRenderer>? createRendererFunction;
 
-    public event EventHandler<BoolArgs> FrustumEnabledChanged;
+    public event EventHandler<BoolArgs>? FrustumEnabledChanged;
 
-    public event EventHandler SceneGraphUpdated;
+    public event EventHandler? SceneGraphUpdated;
 
-    public event EventHandler<IEffectsManager> EffectsManagerChanged;
+    public event EventHandler<IEffectsManager>? EffectsManagerChanged;
 
-    #endregion
+#endregion
 
-    #region Private variables
+#region Private variables
 
-    protected IRenderer renderer;
+
 
     /// <summary>
     ///     The renderer
     /// </summary>
-    public IRenderer Renderer => renderer;
+    public IRenderer? Renderer {
+        get;
+        private set => Disposer.SetDispose(ref field, value);
+    }
 
     /// <summary>
     ///     The update requested
@@ -1005,14 +1014,14 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
 
     private TimeSpan lastRenderTime = TimeSpan.Zero;
 
-    private uint
-        updateCounter; // Used to render at least twice. D3DImage sometimes not getting refresh if only render once.
+    /// Used to render at least twice. D3DImage sometimes not getting refresh if only render once.
+    private uint updateCounter;
 
     private volatile bool updateSceneGraphRequested = true;
 
     private volatile bool updatePerFrameRenderableRequested = true;
 
-    private readonly object lockObj = new();
+    private readonly Lock lockObj = new();
 
-    #endregion
+#endregion
 }

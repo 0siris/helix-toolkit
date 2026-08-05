@@ -3,20 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>
 /// </summary>
 public abstract class RenderCore2D : DisposeObject {
-    private RectangleF clippingBound;
-
-    private bool isMouseOver;
-
-    private Matrix3x2 localTransform = Matrix3x2.Identity;
-
-    private RectangleF rect;
-
-    private Matrix3x2 transform = Matrix3x2.Identity;
-
     /// <summary>
     ///     Gets a value indicating whether this instance is empty.
     /// </summary>
@@ -33,15 +25,16 @@ public abstract class RenderCore2D : DisposeObject {
     /// </value>
     public bool IsRendering { get; set; } = true;
 
-    public IRenderHost RenderHost { get; private set; }
+    public IRenderHost? RenderHost { get; private set; }
 
     /// <summary>
     ///     Absolute layout rectangle cooridnate for renderable
     /// </summary>
     public RectangleF LayoutBound {
-        get => rect;
+        get;
         set {
-            if (SetAffectsRender(ref rect, value)) OnLayoutBoundChanged(value);
+            if (SetAffectsRender(ref field, value))
+                OnLayoutBoundChanged(value);
         }
     }
 
@@ -52,8 +45,8 @@ public abstract class RenderCore2D : DisposeObject {
     ///     The layout clipping bound.
     /// </value>
     public RectangleF LayoutClippingBound {
-        get => clippingBound;
-        set => SetAffectsRender(ref clippingBound, value);
+        get;
+        set => SetAffectsRender(ref field, value);
     }
 
     /// <summary>
@@ -63,9 +56,9 @@ public abstract class RenderCore2D : DisposeObject {
     ///     The transform.
     /// </value>
     public Matrix3x2 Transform {
-        get => transform;
-        set => SetAffectsRender(ref transform, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets the local transform. This only transform local position. Same as RenderTransform
@@ -74,9 +67,9 @@ public abstract class RenderCore2D : DisposeObject {
     ///     The local transform.
     /// </value>
     public Matrix3x2 LocalTransform {
-        get => localTransform;
-        set => SetAffectsRender(ref localTransform, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = Matrix3x2.Identity;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is mouse over.
@@ -85,8 +78,8 @@ public abstract class RenderCore2D : DisposeObject {
     ///     <c>true</c> if this instance is mouse over; otherwise, <c>false</c>.
     /// </value>
     public bool IsMouseOver {
-        get => isMouseOver;
-        set => SetAffectsRender(ref isMouseOver, value);
+        get;
+        set => SetAffectsRender(ref field, value);
     }
 
     /// <summary>
@@ -100,16 +93,20 @@ public abstract class RenderCore2D : DisposeObject {
     /// <summary>
     ///     Occurs when [on invalidate renderer].
     /// </summary>
-    public event EventHandler<EventArgs> InvalidateRender;
+    public event EventHandler<EventArgs>? InvalidateRender;
 
     /// <summary>
     ///     Attaches the specified host.
     /// </summary>
     /// <param name="host">The host.</param>
+    [MemberNotNull(nameof(RenderHost))]
     public void Attach(IRenderHost host) {
-        if (IsAttached) return;
-        if (host == null) return;
-        RenderHost = host;
+        if (IsAttached) {
+            RenderHost.AssertNotNull("Host must be already present");
+            return;
+        }
+        
+        RenderHost = host.AssertNotNull();
         IsAttached = OnAttach(host);
     }
 
@@ -118,15 +115,15 @@ public abstract class RenderCore2D : DisposeObject {
     /// </summary>
     /// <param name="host">The target.</param>
     /// <returns></returns>
-    protected virtual bool OnAttach(IRenderHost host) {
-        return true;
-    }
+    protected virtual bool OnAttach(IRenderHost host) => true;
 
     /// <summary>
     ///     Detaches this instance.
     /// </summary>
     public void Detach() {
-        if (!IsAttached) return;
+        if (!IsAttached) 
+            return;
+        
         OnDetach();
         IsAttached = false;
     }
@@ -150,24 +147,54 @@ public abstract class RenderCore2D : DisposeObject {
     /// <summary>
     ///     Invalidates the renderer.
     /// </summary>
-    protected void InvalidateRenderer() {
-        InvalidateRender?.Invoke(this, EventArgs.Empty);
-    }
+    protected void InvalidateRenderer() => InvalidateRender?.Invoke(this, EventArgs.Empty);
 
+    
     /// <summary>
+    ///     Sets the backing field value and invalidates the renderer if the value has changed.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="backingField"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The type of the backing field.</typeparam>
+    /// <param name="backingField">The backing field to update.</param>
+    /// <param name="value">The new value to set.</param>
+    /// <returns>
+    ///     <c>true</c> if the value was changed and renderer was invalidated; otherwise, <c>false</c>.
+    /// </returns>
     protected bool SetAffectsRender<T>(ref T backingField, T value) {
-        if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
+        if (EqualityComparer<T>.Default.Equals(backingField, value)) 
+            return false;
 
         backingField = value;
         InvalidateRenderer();
         return true;
     }
 
+    /// <summary>
+    /// Updates the specified backing field with a new value and invalidates the renderer if the value changes.
+    /// </summary>
+    /// <typeparam name="T">The type of the field.</typeparam>
+    /// <param name="backingField">The reference to the backing field to update.</param>
+    /// <param name="newValue">The new value to assign to the backing field.</param>
+    /// <returns>
+    /// The previous value of the backing field, or null if the new value is equal to the current value.
+    /// </returns>
+    protected T? SetAffectsRender2<T>(ref T? backingField, T? newValue) where T : class {
+        if (EqualityComparer<T>.Default.Equals(backingField, newValue))
+            return null;
+
+        var copy = backingField;
+        
+        backingField = newValue;
+        InvalidateRenderer();
+        return copy;
+    }
+
+    protected void SetDispose<T>(ref T? backingField, T? newValue) where T : IDisposable {
+        if(EqualityComparer<T>.Default.Equals(backingField, newValue))
+            backingField?.Dispose();
+
+        backingField = newValue;
+    }
+    
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
         base.OnDispose(disposeManagedResources);

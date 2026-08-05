@@ -34,7 +34,7 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The immediate device context.
     /// </value>
-    DeviceContextProxy ImmediateDeviceContext { get; }
+    DeviceContextProxy? ImmediateDeviceContext { get; }
 
     /// <summary>
     ///     Gets the device2d.
@@ -66,7 +66,7 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The viewport.
     /// </value>
-    IViewport3DX Viewport { get; set; }
+    IViewport3DX? Viewport { get; set; }
 
     /// <summary>
     ///     Gets the render context.
@@ -74,12 +74,12 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The render context.
     /// </value>
-    RenderContext RenderContext { get; }
+    RenderContext? RenderContext { get; }
 
     /// <summary>
     ///     Renderer
     /// </summary>
-    IRenderer Renderer { get; }
+    IRenderer? Renderer { get; }
 
     /// <summary>
     ///     Gets or sets the effects manager.
@@ -87,14 +87,14 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The effects manager.
     /// </value>
-    IEffectsManager EffectsManager { get; set; }
+    IEffectsManager? EffectsManager { get; set; }
 
     /// <summary>
     ///     This technique is used for the entire render pass
     ///     by all Element3D if not specified otherwise in
     ///     the elements itself
     /// </summary>
-    IRenderTechnique RenderTechnique { get; set; }
+    IRenderTechnique? RenderTechnique { get; set; }
 
     /// <summary>
     ///     Gets the feature level.
@@ -294,7 +294,7 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The render buffer.
     /// </value>
-    DX11RenderBufferProxyBase RenderBuffer { get; }
+    DX11RenderBufferProxyBase? RenderBuffer { get; }
 
     /// <summary>
     ///     Use separate thread to do non-rendering related tasks during render call.

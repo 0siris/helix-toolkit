@@ -1,4 +1,5 @@
 namespace HelixToolkit.SharpDX.Core.Cameras;
+
 public static class CameraMath {
     /// <summary>
     ///     Rotates the trackball.
@@ -102,7 +103,7 @@ public static class CameraMath {
         var z2 = 1 - x * x - y * y;
         var z = z2 > 0 ? Math.Sqrt(z2) : 0;
 
-        return new Vector3((float)x, (float)y, (float)z);
+        return new Vector3((float) x, (float) y, (float) z);
     }
 
     /// <summary>
@@ -152,8 +153,8 @@ public static class CameraMath {
         d *= sensitivity;
 
         var q1 = SilkMath.QuaternionRotationAxis(rotationAxisX,
-                                                 d * invertFactor * delta.X / 180 * (float)Math.PI);
-        var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float)Math.PI);
+                                                 d * invertFactor * delta.X / 180 * (float) Math.PI);
+        var q2 = SilkMath.QuaternionRotationAxis(rotationAxisY, d * delta.Y / 180 * (float) Math.PI);
         var q = q1 * q2;
 
         var m = SilkMath.RotationQuaternion(q);
@@ -254,8 +255,8 @@ public static class CameraMath {
 
         d *= sensitivity;
 
-        var q1 = SilkMath.QuaternionRotationAxis(up, d * invertFactor * delta.X / 180 * (float)Math.PI);
-        var q2 = SilkMath.QuaternionRotationAxis(right, d * delta.Y / 180 * (float)Math.PI);
+        var q1 = SilkMath.QuaternionRotationAxis(up, d * invertFactor * delta.X / 180 * (float) Math.PI);
+        var q2 = SilkMath.QuaternionRotationAxis(right, d * delta.Y / 180 * (float) Math.PI);
         var q = q1 * q2;
 
         var m = SilkMath.RotationQuaternion(q);

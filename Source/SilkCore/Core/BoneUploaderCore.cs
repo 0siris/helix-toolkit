@@ -52,12 +52,10 @@ public sealed class BoneUploaderCore : RenderCore {
         return true;
     }
 
-    protected override void OnDetach() {
-        BoneSkinSb = null;
-    }
+    protected override void OnDetach() => BoneSkinSb = null;
 
     public void BindBuffer(DeviceContextProxy deviceContext, int slot) {
-        if (BoneSkinSb != null) 
+        if (BoneSkinSb is not null) 
             deviceContext.SetShaderResource(VertexShader.Type, slot, BoneSkinSb);
     }
 

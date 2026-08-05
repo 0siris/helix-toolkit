@@ -8,13 +8,11 @@ using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core.Model;
 public abstract class ObservableObject : INotifyPropertyChanged {
-    private bool disablePropertyChangedEvent;
-
     public bool DisablePropertyChangedEvent {
-        get => disablePropertyChangedEvent;
+        get;
         set {
-            if (disablePropertyChangedEvent == value) return;
-            disablePropertyChangedEvent = value;
+            if (field == value) return;
+            field = value;
             RaisePropertyChanged();
         }
     }

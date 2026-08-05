@@ -236,8 +236,6 @@ public class ViewBoxNode : ScreenSpacedNode {
 
     #region Properties
 
-    private TextureModel viewboxTexture;
-
     /// <summary>
     ///     Gets or sets the view box texture.
     /// </summary>
@@ -245,9 +243,9 @@ public class ViewBoxNode : ScreenSpacedNode {
     ///     The view box texture.
     /// </value>
     public TextureModel ViewBoxTexture {
-        get => viewboxTexture;
+        get;
         set {
-            if (Set(ref viewboxTexture, value)) UpdateTexture(value);
+            if (Set(ref field, value)) UpdateTexture(value);
         }
     }
 
@@ -262,8 +260,6 @@ public class ViewBoxNode : ScreenSpacedNode {
         set => CornerModel.Visible = EdgeModel.Visible = value;
     }
 
-    private Vector3 upDirection = new(0, 1, 0);
-
     /// <summary>
     ///     Gets or sets up direction.
     /// </summary>
@@ -271,13 +267,13 @@ public class ViewBoxNode : ScreenSpacedNode {
     ///     Up direction.
     /// </value>
     public Vector3 UpDirection {
-        get => upDirection;
+        get;
         set {
-            if (Set(ref upDirection, value)) UpdateModel(value);
+            if (Set(ref field, value)) UpdateModel(value);
         }
-    }
+    } = new(0, 1, 0);
 
-    #endregion
+#endregion
 
     #region Fields
 

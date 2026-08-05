@@ -7,23 +7,19 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public abstract class ContentNode2D : PresenterNode2D {
-    private HorizontalAlignment horizontalContentAlignment = HorizontalAlignment.Center;
-
-    private VerticalAlignment verticalContentAlignment = VerticalAlignment.Center;
-
     public HorizontalAlignment HorizontalContentAlignment {
-        get => horizontalContentAlignment;
+        get;
         set {
-            if (Set(ref horizontalContentAlignment, value)) InvalidateMeasure();
+            if (Set(ref field, value)) InvalidateMeasure();
         }
-    }
+    } = HorizontalAlignment.Center;
 
     public VerticalAlignment VerticalContentAlignment {
-        get => verticalContentAlignment;
+        get;
         set {
-            if (Set(ref verticalContentAlignment, value)) InvalidateMeasure();
+            if (Set(ref field, value)) InvalidateMeasure();
         }
-    }
+    } = VerticalAlignment.Center;
 
     public Brush Background {
         get => (RenderCore as BorderRenderCore2D).Background;

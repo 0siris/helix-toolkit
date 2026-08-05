@@ -81,8 +81,6 @@ public abstract class Camera :
     /// </value>
     public abstract bool CreateLeftHandSystem { get; set; }
 
-    private CameraCore core;
-
     /// <summary>
     ///     Gets the camera internal.
     /// </summary>
@@ -91,12 +89,12 @@ public abstract class Camera :
     /// </value>
     public CameraCore CameraInternal {
         get {
-            if (core == null) {
-                core = CreatePortableCameraCore();
-                OnCoreCreated(core);
+            if (field == null) {
+                field = CreatePortableCameraCore();
+                OnCoreCreated(field);
             }
 
-            return core;
+            return field;
         }
     }
 

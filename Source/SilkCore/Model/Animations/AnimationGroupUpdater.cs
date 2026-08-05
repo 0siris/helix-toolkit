@@ -7,8 +7,6 @@ namespace HelixToolkit.SharpDX.Core.Animations;
 public class AnimationGroupUpdater : IAnimationUpdater {
     private readonly List<IAnimationUpdater> children = [];
 
-    private AnimationRepeatMode repeatMode = AnimationRepeatMode.PlayOnce;
-
     public AnimationGroupUpdater(string name = StringHelper.EmptyStr) {
         Name = name;
     }
@@ -27,12 +25,12 @@ public class AnimationGroupUpdater : IAnimationUpdater {
     public string Name { get; set; } = string.Empty;
 
     public AnimationRepeatMode RepeatMode {
-        get => repeatMode;
+        get;
         set {
-            repeatMode = value;
+            field = value;
             foreach (var updater in Children) updater.RepeatMode = value;
         }
-    }
+    } = AnimationRepeatMode.PlayOnce;
 
     public float StartTime { get; }
 

@@ -41,24 +41,23 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     #region Scene Node
 
     private readonly object sceneNodeLock = new();
-    private SceneNode2D sceneNode;
 
     public SceneNode2D SceneNode {
         get {
-            if (sceneNode == null)
+            if (field == null)
                 lock (sceneNodeLock) {
-                    if (sceneNode == null) {
-                        sceneNode = OnCreateSceneNode();
-                        AssignDefaultValuesToSceneNode(sceneNode);
-                        sceneNode.WrapperSource = this;
-                        sceneNode.Attached += SceneNode_OnAttached;
-                        sceneNode.Detached += SceneNode_OnDetached;
-                        sceneNode.UpdateRequested += SceneNode_OnUpdate;
-                        OnSceneNodeCreated?.Invoke(this, new SceneNode2DCreatedEventArgs(sceneNode));
+                    if (field == null) {
+                        field = OnCreateSceneNode();
+                        AssignDefaultValuesToSceneNode(field);
+                        field.WrapperSource = this;
+                        field.Attached += SceneNode_OnAttached;
+                        field.Detached += SceneNode_OnDetached;
+                        field.UpdateRequested += SceneNode_OnUpdate;
+                        OnSceneNodeCreated?.Invoke(this, new SceneNode2DCreatedEventArgs(field));
                     }
                 }
 
-            return sceneNode;
+            return field;
         }
     }
 

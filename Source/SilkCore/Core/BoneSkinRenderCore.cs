@@ -11,9 +11,9 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public class BoneSkinRenderCore : MeshRenderCore {
     private readonly BoneUploaderCore internalBoneBuffer = new();
-    private readonly MorphTargetUploaderCore internalMTBuffer = new();
+    private readonly MorphTargetUploaderCore internalMtBuffer = new();
 
-    private int boneSkinSBSlot;
+    private int boneSkinSbSlot;
     private bool matricsChanged = true;
 
     private bool mtChanged;
@@ -36,9 +36,9 @@ public class BoneSkinRenderCore : MeshRenderCore {
     }
 
     public float[] MorphTargetWeights {
-        get => internalMTBuffer.MorphTargetWeights;
+        get => internalMtBuffer.MorphTargetWeights;
         set {
-            internalMTBuffer.MorphTargetWeights = value;
+            internalMtBuffer.MorphTargetWeights = value;
             mtChanged = true;
         }
     }
@@ -48,8 +48,8 @@ public class BoneSkinRenderCore : MeshRenderCore {
         set {
             var old = sharedBoneBuffer;
             if (Set(ref sharedBoneBuffer, value)) {
-                old?.BoneChanged -= OnBoneChanged;
-                value?.BoneChanged += OnBoneChanged;
+                old.BoneChanged -= OnBoneChanged;
+                value.BoneChanged += OnBoneChanged;
                 matricsChanged = true;
             }
         }
@@ -61,7 +61,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
         
         matricsChanged = true;
         preComputeBoneSkinPass = technique[DefaultPassNames.PreComputeMeshBoneSkinned];
-        boneSkinSBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
+        boneSkinSbSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
                                                .GetMapping(DefaultBufferNames.BoneSkinSB).Slot;
             
         mtWeightsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
@@ -74,7 +74,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
                                                .GetMapping(DefaultBufferNames.MTOffsetsB).Slot;
         
         internalBoneBuffer.Attach(technique);
-        internalMTBuffer.Attach(technique);
+        internalMtBuffer.Attach(technique);
         return true;
 
     }
@@ -84,7 +84,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
         RaiseInvalidateRender();
     }
 
-    protected override void OnGeometryBufferChanged(IAttachableBufferModel buffer) {
+    protected override void OnGeometryBufferChanged(IAttachableBufferModel? buffer) {
         base.OnGeometryBufferChanged(buffer);
         preComputeBoneBuffer = buffer as IBoneSkinPreComputehBufferModel;
     }
@@ -106,10 +106,10 @@ public class BoneSkinRenderCore : MeshRenderCore {
             GeometryBuffer.UpdateBuffers(deviceContext, EffectTechnique.EffectsManager);
             preComputeBoneBuffer.BindSkinnedVertexBufferToOutput(deviceContext);
             boneBuffer.Update(context, deviceContext);
-            internalMTBuffer.Update(context, deviceContext);
+            internalMtBuffer.Update(context, deviceContext);
             preComputeBoneSkinPass.BindShader(deviceContext);
-            boneBuffer.BindBuffer(deviceContext, boneSkinSBSlot);
-            internalMTBuffer.BindBuffers(deviceContext, mtWeightsBSlot, mtDeltasBSlot, mtOffsetsBSlot);
+            boneBuffer.BindBuffer(deviceContext, boneSkinSbSlot);
+            internalMtBuffer.BindBuffers(deviceContext, mtWeightsBSlot, mtDeltasBSlot, mtOffsetsBSlot);
             deviceContext.Draw(GeometryBuffer.VertexBuffer[0].ElementCount, 0);
             preComputeBoneBuffer.UnBindSkinnedVertexBufferToOutput(deviceContext);
         }
@@ -120,7 +120,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
     protected override void OnDetach() {
         preComputeBoneBuffer = null;
         internalBoneBuffer.Detach();
-        internalMTBuffer.Detach();
+        internalMtBuffer.Detach();
         base.OnDetach();
     }
 
@@ -128,11 +128,11 @@ public class BoneSkinRenderCore : MeshRenderCore {
         => preComputeBoneBuffer.CopySkinnedToArray(context, array);
 
     public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch) 
-        => internalMTBuffer.InitializeMorphTargets(targets, pitch);
+        => internalMtBuffer.InitializeMorphTargets(targets, pitch);
 
     public void SetWeight(int i, float w) {
         mtChanged = true;
-        internalMTBuffer.SetWeight(i, w);
+        internalMtBuffer.SetWeight(i, w);
     }
 
     public void InvalidateBoneMatrices() 
@@ -140,6 +140,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
 
     public void InvalidateMorphTargetWeights() {
         mtChanged = true;
-        internalMTBuffer.InvalidateWeight();
+        internalMtBuffer.InvalidateWeight();
     }
 }

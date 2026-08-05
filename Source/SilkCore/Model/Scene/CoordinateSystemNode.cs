@@ -14,19 +14,6 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     private readonly MeshNode arrowMeshModel = new() { EnableViewFrustumCheck = false };
 
     private readonly BillboardNode axisBillboard = new() { Material = new BillboardMaterialCore() };
-    private Color4 axisXColor = Color.Red;
-
-    private Color4 axisYColor = Color.Green;
-
-    private Color4 axisZColor = Color.Blue;
-
-    private Color4 labelColor = Color.Gray;
-
-    private string labelX = "X";
-
-    private string labelY = "Y";
-
-    private string labelZ = "Z";
 
     /// <summary>
     /// </summary>
@@ -53,11 +40,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The color of the axis x.
     /// </value>
     public Color4 AxisXColor {
-        get => axisXColor;
+        get;
         set {
-            if (Set(ref axisXColor, value)) UpdateAxisColor(0, value);
+            if (Set(ref field, value)) UpdateAxisColor(0, value);
         }
-    }
+    } = Color.Red;
 
     /// <summary>
     ///     Gets or sets the color of the axis y.
@@ -66,11 +53,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The color of the axis y.
     /// </value>
     public Color4 AxisYColor {
-        get => axisYColor;
+        get;
         set {
-            if (Set(ref axisYColor, value)) UpdateAxisColor(1, value);
+            if (Set(ref field, value)) UpdateAxisColor(1, value);
         }
-    }
+    } = Color.Green;
 
     /// <summary>
     ///     Gets or sets the color of the axis z.
@@ -79,11 +66,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The color of the axis z.
     /// </value>
     public Color4 AxisZColor {
-        get => axisZColor;
+        get;
         set {
-            if (Set(ref axisZColor, value)) UpdateAxisColor(2, value);
+            if (Set(ref field, value)) UpdateAxisColor(2, value);
         }
-    }
+    } = Color.Blue;
 
     /// <summary>
     ///     Gets or sets the color of the label.
@@ -92,11 +79,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The color of the label.
     /// </value>
     public Color4 LabelColor {
-        get => labelColor;
+        get;
         set {
-            if (Set(ref labelColor, value)) UpdateLabelColor(value);
+            if (Set(ref field, value)) UpdateLabelColor(value);
         }
-    }
+    } = Color.Gray;
 
     /// <summary>
     ///     Gets or sets the label x.
@@ -105,11 +92,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The label x.
     /// </value>
     public string LabelX {
-        get => labelX;
+        get;
         set {
-            if (Set(ref labelX, value)) UpdateAxisLabel(0, value);
+            if (Set(ref field, value)) UpdateAxisLabel(0, value);
         }
-    }
+    } = "X";
 
     /// <summary>
     ///     Gets or sets the label y.
@@ -118,11 +105,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The label y.
     /// </value>
     public string LabelY {
-        get => labelY;
+        get;
         set {
-            if (Set(ref labelY, value)) UpdateAxisLabel(1, value);
+            if (Set(ref field, value)) UpdateAxisLabel(1, value);
         }
-    }
+    } = "Y";
 
     /// <summary>
     ///     Gets or sets the label z.
@@ -131,11 +118,11 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     ///     The label z.
     /// </value>
     public string LabelZ {
-        get => labelZ;
+        get;
         set {
-            if (Set(ref labelZ, value)) UpdateAxisLabel(2, value);
+            if (Set(ref field, value)) UpdateAxisLabel(2, value);
         }
-    }
+    } = "Z";
 
     private void UpdateModel() {
         var builder = new MeshBuilder(true, false);

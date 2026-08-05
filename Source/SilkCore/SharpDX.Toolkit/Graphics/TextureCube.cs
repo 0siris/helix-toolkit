@@ -273,7 +273,7 @@ public class TextureCube : Texture2DBase {
         if (!(texture is TextureCube))
             throw new ArgumentException(string.Format("Texture is not type of [TextureCube] but [{0}]",
                                                       texture.GetType().Name));
-        return (TextureCube)texture;
+        return (TextureCube) texture;
     }
 
     /// <summary>

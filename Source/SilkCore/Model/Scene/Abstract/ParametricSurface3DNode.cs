@@ -10,30 +10,25 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public abstract class ParametricSurface3DNode : MeshNode {
     private CancellationTokenSource cancelToken = new();
 
-    private bool isTessellating;
-
-    private int meshSizeU = 120;
-
-    private int meshSizeV = 120;
     private Task tesselationTask;
 
     public int MeshSizeU {
-        get => meshSizeU;
+        get;
         set {
-            if (Set(ref meshSizeU, value)) TessellateAsync();
+            if (Set(ref field, value)) TessellateAsync();
         }
-    }
+    } = 120;
 
     public int MeshSizeV {
-        get => meshSizeV;
+        get;
         set {
-            if (Set(ref meshSizeV, value)) TessellateAsync();
+            if (Set(ref field, value)) TessellateAsync();
         }
-    }
+    } = 120;
 
     public bool IsTessellating {
-        get => isTessellating;
-        private set => Set(ref isTessellating, value);
+        get;
+        private set => Set(ref field, value);
     }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {

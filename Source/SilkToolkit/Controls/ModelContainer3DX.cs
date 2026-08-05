@@ -478,9 +478,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="context">The context.</param>
     /// <param name="clearBackBuffer">if set to <c>true</c> [clear back buffer].</param>
     /// <param name="clearDepthStencilBuffer">if set to <c>true</c> [clear depth stencil buffer].</param>
-    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer) {
-        CurrentRenderHost?.ClearRenderTarget(context, clearBackBuffer, clearDepthStencilBuffer);
-    }
+    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer) 
+        => CurrentRenderHost?.ClearRenderTarget(context, clearBackBuffer, clearDepthStencilBuffer);
 
     /// <summary>
     ///     Handles the change of the effects manager.
@@ -490,9 +489,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         EffectsManagerChanged?.Invoke(this, EffectsManager);
     }
 
-    private void RenderableInvalidated(object sender, InvalidateTypes e) {
-        Invalidate(e);
-    }
+    private void RenderableInvalidated(object? sender, InvalidateTypes e) 
+        => Invalidate(e);
 
     private void Detach() {
         foreach (var renderable in Renderables) {

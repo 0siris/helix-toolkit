@@ -19,15 +19,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.0"/>
-    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
+    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4"/>
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0"/>
     <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Direct3D12" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.DXGI" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -44,11 +44,11 @@
                       ReferenceOutputAssembly="false"
                       PrivateAssets="all"/>
 
-    <InternalsVisibleTo Include="SilkCore.Tests" />
+    <InternalsVisibleTo Include="SilkCore.Tests"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
-    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj" />
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
+    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

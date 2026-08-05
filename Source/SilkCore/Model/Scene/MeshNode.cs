@@ -65,8 +65,6 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
 
     #region Properties
 
-    private bool frontCCW = true;
-
     /// <summary>
     ///     Gets or sets a value indicating whether [front CCW].
     /// </summary>
@@ -74,13 +72,11 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     <c>true</c> if [front CCW]; otherwise, <c>false</c>.
     /// </value>
     public bool FrontCCW {
-        get => frontCCW;
+        get;
         set {
-            if (Set(ref frontCCW, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
-
-    private CullMode cullMode = CullMode.None;
+    } = true;
 
     /// <summary>
     ///     Gets or sets the cull mode.
@@ -89,11 +85,11 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     The cull mode.
     /// </value>
     public CullMode CullMode {
-        get => cullMode;
+        get;
         set {
-            if (Set(ref cullMode, value)) OnRasterStateChanged();
+            if (Set(ref field, value)) OnRasterStateChanged();
         }
-    }
+    } = CullMode.None;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [invert normal].

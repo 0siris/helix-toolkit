@@ -164,8 +164,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// </value>
     public int MipMapLevels { get; private set; }
 
-    private SamplerStateDescription samplerDescription = DefaultSamplers.EnvironmentSampler;
-
     /// <summary>
     ///     Gets or sets the sampler description.
     /// </summary>
@@ -173,15 +171,15 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     ///     The sampler description.
     /// </value>
     public SamplerStateDescription SamplerDescription {
-        get => samplerDescription;
+        get;
         set {
-            if (SetAffectsRender(ref samplerDescription, value) && IsAttached) {
+            if (SetAffectsRender(ref field, value) && IsAttached) {
                 var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
                 RemoveAndDispose(ref textureSampler);
                 textureSampler = newSampler;
             }
         }
-    }
+    } = DefaultSamplers.EnvironmentSampler;
 
     /// <summary>
     ///     Gets or sets the name of the shader cube texture.

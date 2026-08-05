@@ -9,15 +9,13 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class LineNode : MaterialGeometryNode {
-    private double hitTestThickness = 1;
-
     /// <summary>
     ///     Used only for point/line hit test
     /// </summary>
     public double HitTestThickness {
-        get => hitTestThickness;
-        set => Set(ref hitTestThickness, value);
-    }
+        get;
+        set => Set(ref field, value);
+    } = 1;
 
     /// <summary>
     ///     Called when [create buffer model].

@@ -21,7 +21,7 @@
     <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\External\Assertions\Assertions.csproj" />
+    <ProjectReference Include="..\..\..\..\External\Assertions\Assertions.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

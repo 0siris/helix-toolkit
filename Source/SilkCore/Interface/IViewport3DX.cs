@@ -43,7 +43,7 @@ public interface IViewport3DX : IDisposable {
     /// <value>
     ///     The camera core.
     /// </value>
-    CameraCore CameraCore { get; }
+    CameraCore? CameraCore { get; }
 
     /// <summary>
     ///     Gets the renderables.

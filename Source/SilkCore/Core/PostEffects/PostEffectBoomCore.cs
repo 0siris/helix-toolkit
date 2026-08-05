@@ -162,8 +162,6 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
 #region Properties
 
-    private string effectName = DefaultRenderTechniqueNames.PostEffectBloom;
-
     /// <summary>
     ///     Gets or sets the name of the effect.
     /// </summary>
@@ -171,9 +169,9 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => effectName;
-        set => SetAffectsCanRenderFlag(ref effectName, value);
-    }
+        get;
+        set => SetAffectsCanRenderFlag(ref field, value);
+    } = DefaultRenderTechniqueNames.PostEffectBloom;
 
     /// <summary>
     ///     Gets or sets the color of the border.

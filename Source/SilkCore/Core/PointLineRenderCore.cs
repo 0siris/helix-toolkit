@@ -76,7 +76,7 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
     protected sealed override void OnRenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     ) {
         var pass = customPass ?? materialVariables.GetDepthPass(RenderType, context);
         if (pass.IsNULL) return;

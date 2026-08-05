@@ -259,8 +259,6 @@ public partial class ViewportCore {
         }
     } = 1;
 
-    private Vector3 modelUpDirection = Vector3.UnitY;
-
     /// <summary>
     ///     Gets or sets the model up direction.
     /// </summary>
@@ -268,11 +266,11 @@ public partial class ViewportCore {
     ///     The model up direction.
     /// </value>
     internal Vector3 ModelUpDirection {
-        get => modelUpDirection;
+        get;
         set {
-            if (Set(ref modelUpDirection, value)) ViewCube.UpDirection = value;
+            if (Set(ref field, value)) ViewCube.UpDirection = value;
         }
-    }
+    } = Vector3.UnitY;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [show coordinate system].

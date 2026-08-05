@@ -19,8 +19,6 @@ public sealed class ShaderDescription {
 
     private readonly IShaderByteCodeReader byteCodeReader;
 
-    private byte[] byteCode;
-
     /// <summary>
     ///     Create a empty description
     /// </summary>
@@ -140,11 +138,11 @@ public sealed class ShaderDescription {
     [DataMember]
     public byte[] ByteCode {
         get {
-            if (byteCode == null && !string.IsNullOrEmpty(ByteCodeName))
-                byteCode = UWPShaderBytePool.Read(ByteCodeName, byteCodeReader);
-            return byteCode;
+            if (field == null && !string.IsNullOrEmpty(ByteCodeName))
+                field = UWPShaderBytePool.Read(ByteCodeName, byteCodeReader);
+            return field;
         }
-        set => byteCode = value;
+        set;
     }
 
     /// <summary>

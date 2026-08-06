@@ -30,8 +30,6 @@
              Link="Cubemap_Grandcanyon.dds"
              CopyToOutputDirectory="PreserveNewest"/>
 
-    <Content Include="cimgui.dll"
-             CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
   <ItemGroup>

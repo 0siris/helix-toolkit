@@ -607,19 +607,87 @@ public class CoreTestApp {
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e) {
-        var io = ImGui.GetIO();
-        io.KeysDown[e.KeyValue] = true;
-        io.KeyShift = e.Shift;
-        io.KeyCtrl = e.Control;
-        io.KeyAlt = e.Alt;
+        UpdateImGuiKey(e, true);
     }
 
     private void Window_KeyUp(object sender, KeyEventArgs e) {
+        UpdateImGuiKey(e, false);
+    }
+
+    /// <summary>
+    /// Forwards a Windows Forms keyboard event to Dear ImGui's named-key input queue.
+    /// </summary>
+    /// <param name="e">The Windows Forms keyboard event.</param>
+    /// <param name="isDown">Whether the key was pressed.</param>
+    private static void UpdateImGuiKey(KeyEventArgs e, bool isDown) {
         var io = ImGui.GetIO();
-        io.KeysDown[e.KeyValue] = false;
-        io.KeyShift = e.Shift;
-        io.KeyCtrl = e.Control;
-        io.KeyAlt = e.Alt;
+        io.AddKeyEvent(ImGuiKey.ModCtrl, e.Control);
+        io.AddKeyEvent(ImGuiKey.ModShift, e.Shift);
+        io.AddKeyEvent(ImGuiKey.ModAlt, e.Alt);
+
+        int keyValue = e.KeyValue;
+        ImGuiKey key = keyValue switch {
+            >= (int)Keys.D0 and <= (int)Keys.D9 => (ImGuiKey)((int)ImGuiKey._0 + keyValue - (int)Keys.D0),
+            >= (int)Keys.A and <= (int)Keys.Z => (ImGuiKey)((int)ImGuiKey.A + keyValue - (int)Keys.A),
+            >= (int)Keys.F1 and <= (int)Keys.F24 => (ImGuiKey)((int)ImGuiKey.F1 + keyValue - (int)Keys.F1),
+            >= (int)Keys.NumPad0 and <= (int)Keys.NumPad9 =>
+                (ImGuiKey)((int)ImGuiKey.Keypad0 + keyValue - (int)Keys.NumPad0),
+            (int)Keys.Tab => ImGuiKey.Tab,
+            (int)Keys.Left => ImGuiKey.LeftArrow,
+            (int)Keys.Right => ImGuiKey.RightArrow,
+            (int)Keys.Up => ImGuiKey.UpArrow,
+            (int)Keys.Down => ImGuiKey.DownArrow,
+            (int)Keys.PageUp => ImGuiKey.PageUp,
+            (int)Keys.PageDown => ImGuiKey.PageDown,
+            (int)Keys.Home => ImGuiKey.Home,
+            (int)Keys.End => ImGuiKey.End,
+            (int)Keys.Insert => ImGuiKey.Insert,
+            (int)Keys.Delete => ImGuiKey.Delete,
+            (int)Keys.Back => ImGuiKey.Backspace,
+            (int)Keys.Space => ImGuiKey.Space,
+            (int)Keys.Enter => ImGuiKey.Enter,
+            (int)Keys.Escape => ImGuiKey.Escape,
+            (int)Keys.ShiftKey or (int)Keys.LShiftKey => ImGuiKey.LeftShift,
+            (int)Keys.RShiftKey => ImGuiKey.RightShift,
+            (int)Keys.ControlKey or (int)Keys.LControlKey => ImGuiKey.LeftCtrl,
+            (int)Keys.RControlKey => ImGuiKey.RightCtrl,
+            (int)Keys.Menu or (int)Keys.LMenu => ImGuiKey.LeftAlt,
+            (int)Keys.RMenu => ImGuiKey.RightAlt,
+            (int)Keys.LWin => ImGuiKey.LeftSuper,
+            (int)Keys.RWin => ImGuiKey.RightSuper,
+            (int)Keys.Apps => ImGuiKey.Menu,
+            (int)Keys.Oem7 => ImGuiKey.Apostrophe,
+            (int)Keys.Oemcomma => ImGuiKey.Comma,
+            (int)Keys.OemMinus => ImGuiKey.Minus,
+            (int)Keys.OemPeriod => ImGuiKey.Period,
+            (int)Keys.OemQuestion => ImGuiKey.Slash,
+            (int)Keys.Oem1 => ImGuiKey.Semicolon,
+            (int)Keys.Oemplus => ImGuiKey.Equal,
+            (int)Keys.OemOpenBrackets => ImGuiKey.LeftBracket,
+            (int)Keys.Oem5 => ImGuiKey.Backslash,
+            (int)Keys.Oem6 => ImGuiKey.RightBracket,
+            (int)Keys.Oemtilde => ImGuiKey.GraveAccent,
+            (int)Keys.CapsLock => ImGuiKey.CapsLock,
+            (int)Keys.Scroll => ImGuiKey.ScrollLock,
+            (int)Keys.NumLock => ImGuiKey.NumLock,
+            (int)Keys.PrintScreen => ImGuiKey.PrintScreen,
+            (int)Keys.Pause => ImGuiKey.Pause,
+            (int)Keys.Decimal => ImGuiKey.KeypadDecimal,
+            (int)Keys.Divide => ImGuiKey.KeypadDivide,
+            (int)Keys.Multiply => ImGuiKey.KeypadMultiply,
+            (int)Keys.Subtract => ImGuiKey.KeypadSubtract,
+            (int)Keys.Add => ImGuiKey.KeypadAdd,
+            (int)Keys.BrowserBack => ImGuiKey.AppBack,
+            (int)Keys.BrowserForward => ImGuiKey.AppForward,
+            _ => ImGuiKey.None
+        };
+
+        if (key == ImGuiKey.None) {
+            return;
+        }
+
+        io.AddKeyEvent(key, isDown);
+        io.SetKeyEventNativeData(key, keyValue, -1);
     }
 
 

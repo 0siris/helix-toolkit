@@ -856,7 +856,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The per frame renderable.
     /// </value>
-    public abstract FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene { get; }
+    public abstract FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene { get; }
 
     /// <summary>
     ///     Gets the per frame lights.

@@ -49,7 +49,7 @@ public static class Constants {
     public const int VertexIdx = 0, HullIdx = 1, DomainIdx = 2, GeometryIdx = 3, PixelIdx = 4, ComputeIdx = 5;
 
     public static readonly char[] Separators = [';', ' ', ','];
-    public static readonly FastList<KeyValuePair<int, SceneNode>> EmptyRenderablePair = [];
+    public static readonly FastList<(int Key, SceneNode Value)> EmptyRenderablePair = [];
     public static readonly FastList<SceneNode> EmptyRenderable = [];
     public static readonly List<RenderCore> EmptyCore = [];
     internal static readonly ObservableFastList<SceneNode> EmptyRenderableArray = [];

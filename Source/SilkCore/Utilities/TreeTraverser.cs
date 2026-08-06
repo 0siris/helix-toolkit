@@ -11,7 +11,7 @@ public static class TreeTraverser {
     /// </summary>
     /// <param name="node">The node.</param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> TraverseUp(this SceneNode node) {
+    public static IEnumerable<SceneNode> TraverseUp(this SceneNode? node) {
         while (node != null) {
             yield return node;
             node = node.Parent;
@@ -24,7 +24,8 @@ public static class TreeTraverser {
     /// <param name="root">The root.</param>
     public static void ForceUpdateTransformsAndBounds(this SceneNode root) {
         var nodes = Enumerable.Repeat(root, 1);
-        foreach (var n in nodes.Traverse()) n.ComputeTransformMatrix();
+        foreach (var n in nodes.Traverse()) 
+            n.ComputeTransformMatrix();
     }
 
     /// <summary>
@@ -32,7 +33,8 @@ public static class TreeTraverser {
     /// </summary>
     /// <param name="nodes">The nodes.</param>
     public static void ForceUpdateTransformsAndBounds(this IEnumerable<SceneNode> nodes) {
-        foreach (var n in nodes.Traverse()) n.ComputeTransformMatrix();
+        foreach (var n in nodes.Traverse()) 
+            n.ComputeTransformMatrix();
     }
 
     /// <summary>
@@ -65,9 +67,8 @@ public static class TreeTraverser {
         this IEnumerable<SceneNode> nodes,
         bool onlyRendering = false,
         Stack<IEnumerator<SceneNode>>? stackCache = null
-    ) {
-        return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
-    }
+    ) =>
+        nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
 
     /// <summary>
     ///     Pre-ordered depth first traverse
@@ -87,16 +88,22 @@ public static class TreeTraverser {
         while (true) {
             while (e.MoveNext()) {
                 var item = e.Current;
-                if (!condition(item)) continue;
+                if (!condition(item)) 
+                    continue;
+                
                 yield return item;
+                
                 var elements = item.ItemsInternal;
-                if (elements.Count == 0) continue;
+                if (elements.Count == 0) 
+                    continue;
+                
                 stack.Push(e);
                 e = elements.GetEnumerator();
             }
 
             if (stack.Count == 0)
                 break;
+            
             e.Dispose();
             e = stack.Pop();
         }
@@ -117,10 +124,10 @@ public static class TreeTraverser {
         this IList<SceneNode> nodes,
         RenderContext context,
         Func<SceneNode, RenderContext, bool> condition,
-        IList<KeyValuePair<int, SceneNode>> results,
-        Stack<KeyValuePair<int, IList<SceneNode>>>? stackCache = null
+        IList<(int Key, SceneNode Value )> results,
+        Stack<(int Key, IList<SceneNode> Value)>? stackCache = null
     ) {
-        var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode>>>(20);
+        var stack = stackCache ?? new (20);
         var i = -1;
         var level = 0;
         var currNodes = nodes;
@@ -128,18 +135,24 @@ public static class TreeTraverser {
             var length = currNodes.Count;
             while (++i < length) {
                 var item = currNodes[i];
-                if (!condition(item, context)) continue;
-                results.Add(new KeyValuePair<int, SceneNode>(level, item));
+                if (!condition(item, context)) 
+                    continue;
+                
+                results.Add((level, item));
                 var elements = item.ItemsInternal;
-                if (elements.Count == 0) continue;
-                stack.Push(new KeyValuePair<int, IList<SceneNode>>(i, currNodes));
+                if (elements.Count == 0) 
+                    continue;
+                
+                stack.Push((i, currNodes));
                 i = -1;
                 ++level;
                 currNodes = elements;
                 length = currNodes.Count;
             }
 
-            if (stack.Count == 0) break;
+            if (stack.Count == 0) 
+                break;
+            
             var prev = stack.Pop();
             i = prev.Key;
             --level;
@@ -165,10 +178,14 @@ public static class TreeTraverser {
         while (true) {
             while (e.MoveNext()) {
                 var item = e.Current;
-                if (!condition(item)) continue;
+                if (!condition(item)) 
+                    continue;
+                
                 yield return item.RenderCore;
                 var elements = item.ItemsInternal;
-                if (elements.Count == 0) continue;
+                if (elements.Count == 0) 
+                    continue;
+                
                 stack.Push(e);
                 e = elements.GetEnumerator();
             }
@@ -192,9 +209,9 @@ public static class TreeTraverser {
     public static void PreorderDFTRun(
         this IList<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
-        Stack<KeyValuePair<int, IList<SceneNode2D>>>? stackCache = null
+        Stack<(int Key, IList<SceneNode2D> Value)>? stackCache = null
     ) {
-        var stack = stackCache ?? new Stack<KeyValuePair<int, IList<SceneNode2D>>>(20);
+        var stack = stackCache ?? new (20);
         var i = -1;
         while (true) {
             while (++i < nodes.Count) {
@@ -202,7 +219,7 @@ public static class TreeTraverser {
                 if (!condition(item)) continue;
                 var elements = item.ItemsInternal;
                 if (elements.Count == 0) continue;
-                stack.Push(new KeyValuePair<int, IList<SceneNode2D>>(i, nodes));
+                stack.Push((i, nodes));
                 i = -1;
                 nodes = elements;
             }

@@ -60,7 +60,8 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     
-    public void GetDepthStencilView(out DepthStencilView depthStencilViewRef) => NativeContext.GetDepthStencilView(out depthStencilViewRef);
+    public void GetDepthStencilView(out DepthStencilView depthStencilViewRef) 
+        => NativeContext.GetDepthStencilView(out depthStencilViewRef);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RenderTargetView[] GetRenderTargets(int numViews) 

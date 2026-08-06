@@ -17,7 +17,7 @@ public partial class DefaultRenderHost {
     /// <summary>
     ///     The pending renderables
     /// </summary>
-    protected readonly FastList<KeyValuePair<int, SceneNode>> perFrameFlattenedScene = [];
+    protected readonly FastList<(int Key, SceneNode Value)> perFrameFlattenedScene = [];
 
     /// <summary>
     ///     The light renderables
@@ -90,7 +90,7 @@ public partial class DefaultRenderHost {
     /// <value>
     ///     Gets the current frame flattened scene graph
     /// </value>
-    public sealed override FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
+    public sealed override FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene =>
         perFrameFlattenedScene;
 
     /// <summary>
@@ -100,7 +100,7 @@ public partial class DefaultRenderHost {
     ///     The per frame lights.
     /// </value>
     public sealed override IEnumerable<LightNode> PerFrameLights {
-        get { return lightNodes.Select(x => x as LightNode); }
+        get => lightNodes.Select(x => x as LightNode);
     }
 
     /// <summary>

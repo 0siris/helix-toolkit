@@ -109,7 +109,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The per frame renderable.
     /// </value>
-    public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
+    public FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene =>
         CurrentRenderHost != null
             ? CurrentRenderHost.PerFrameFlattenedScene
             : Constants.EmptyRenderablePair;

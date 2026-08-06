@@ -15,8 +15,8 @@ namespace HelixToolkit.SharpDX.Core.Render;
 public class ImmediateContextRenderer : DisposeObject, IRenderer {
     private static readonly Func<SceneNode, RenderContext, bool> updateFunc = (x, context) => true;
 
-    private readonly Stack<KeyValuePair<int, IList<SceneNode2D>>> stack2DCache1 = new(20);
-    private readonly Stack<KeyValuePair<int, IList<SceneNode>>> stackCache1 = new(20);
+    private readonly Stack<(int Key, IList<SceneNode2D> Value)> stack2DCache1 = new(20);
+    private readonly Stack<(int Key, IList<SceneNode> Value)> stackCache1 = new(20);
     private DeviceContextProxy immediateContext;
     private OITDepthPeeling oitDepthPeelingCore;
     private OrderIndependentTransparentRenderCore oitWeightedCore;
@@ -54,10 +54,10 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     public virtual void UpdateSceneGraph(
         RenderContext context,
         FastList<SceneNode> renderables,
-        FastList<KeyValuePair<int, SceneNode>> results
-    ) {
+        FastList<(int Key, SceneNode Value)> results
+    ) =>
         renderables.PreorderDFT(context, updateFunc, results, stackCache1);
-    }
+
 
     /// <summary>
     ///     Updates the scene graph.
@@ -67,9 +67,9 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <returns></returns>
     public void UpdateSceneGraph2D(RenderContext2D context, FastList<SceneNode2D> renderables) {
         renderables.PreorderDFTRun(x => {
-            x.Update(context);
-            return x.IsRenderable;
-        },
+                                       x.Update(context);
+                                       return x.IsRenderable;
+                                   },
                                    stack2DCache1);
     }
 
@@ -193,6 +193,9 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
                                              parameter.ScissorRegion.Top,
                                              parameter.ScissorRegion.Right,
                                              parameter.ScissorRegion.Bottom);
+    }
+
+    public void UpdateNotRenderParallel(RenderContext context, FastList<(int Key, SceneNode Value)> renderables) {
     }
 
     /// <summary>

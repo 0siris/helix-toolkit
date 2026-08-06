@@ -203,7 +203,7 @@ public interface IRenderHost : IGUID, IDisposable {
     /// <value>
     ///     The per frame renderable.
     /// </value>
-    FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene { get; }
+    FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene { get; }
 
     /// <summary>
     ///     Gets the current frame lights

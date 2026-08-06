@@ -82,7 +82,7 @@ public interface IRenderer : IDisposable {
     void UpdateSceneGraph(
         RenderContext context,
         FastList<SceneNode> renderables,
-        FastList<KeyValuePair<int, SceneNode>> results
+        FastList<(int Key, SceneNode Value)> results
     );
 
     /// <summary>
@@ -191,7 +191,7 @@ public interface IRenderer : IDisposable {
     /// <param name="renderables"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    void UpdateNotRenderParallel(RenderContext context, FastList<KeyValuePair<int, SceneNode>> renderables);
+    void UpdateNotRenderParallel(RenderContext context, FastList<(int Key, SceneNode Value)> renderables);
 
     /// <summary>
     /// </summary>

@@ -108,11 +108,10 @@ public static class VolumeDataHelper {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsInBounds(int width, int height, int depth, int x, int y, int z) {
-        return x >= 0 && x < width &&
-               y >= 0 && y < height &&
-               z >= 0 && z < depth;
-    }
+    private static bool IsInBounds(int width, int height, int depth, int x, int y, int z) =>
+        x >= 0 && x < width &&
+        y >= 0 && y < height &&
+        z >= 0 && z < depth;
 
     /// <summary>
     ///     Samples the gradient volume

@@ -9,24 +9,22 @@ using System.Globalization;
 namespace HelixToolkit.SharpDX.Core;
 
 public sealed class StreamToTextureModelConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(Stream);
-    }
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+        => sourceType == typeof(Stream);
 
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(TextureModel);
-    }
+    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) 
+        => destinationType == typeof(TextureModel);
 
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-        if (value is Stream st) return new TextureModel(st);
-
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+        if (value is Stream st) 
+            return new TextureModel(st);
         return null;
     }
 
-    public override object ConvertTo(
-        ITypeDescriptorContext context,
-        CultureInfo culture,
-        object value,
+    public override object? ConvertTo(
+        ITypeDescriptorContext? context,
+        CultureInfo? culture,
+        object? value,
         Type destinationType
     ) {
         return null;

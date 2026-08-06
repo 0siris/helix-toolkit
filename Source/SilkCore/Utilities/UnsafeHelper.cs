@@ -10,14 +10,10 @@ public static class UnsafeHelper {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int SizeOf<T>(T[] array) where T : unmanaged {
-        return SizeOf<T>() * array.Length;
-    }
+    public static int SizeOf<T>(T[] array) where T : unmanaged => SizeOf<T>() * array.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int SizeOf<T>(ref T _) where T : unmanaged {
-        return SizeOf<T>();
-    }
+    public static int SizeOf<T>(ref T _) where T : unmanaged => SizeOf<T>();
 
     /// <summary>
     ///     Unsafe memory copy
@@ -132,9 +128,8 @@ public static class UnsafeHelper {
     /// <param name="destination">Memory location to write to.</param>
     /// <param name="data">The data to write.</param>
     /// <returns>destination pointer + sizeof(T).</returns>
-    public static nint Write<T>(nint destination, T data) where T : unmanaged {
-        return Write(destination, ref data);
-    }
+    public static nint Write<T>(nint destination, T data) where T : unmanaged 
+        => Write(destination, ref data);
 
     /// <summary>
     ///     Writes the specified T data to a memory location.

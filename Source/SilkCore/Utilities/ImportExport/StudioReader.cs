@@ -13,118 +13,118 @@ using PhongMaterial = PhongMaterialCore;
 public class StudioReader : IModelReader {
     private readonly Dictionary<string, MaterialCore> materials = [];
 
-    private enum ChunkID {
+    private enum ChunkId {
         //// Primary chunk
 
-        MAIN3DS = 0x4D4D,
+        Main3Ds = 0x4D4D,
 
         // Main Chunks
-        EDIT3DS = 0x3D3D, // this is the start of the editor config
-        KEYF3DS = 0xB000, // this is the start of the keyframer config
-        VERSION = 0x0002,
-        MESHVERSION = 0x3D3E,
+        Edit3Ds = 0x3D3D, // this is the start of the editor config
+        Keyf3Ds = 0xB000, // this is the start of the keyframer config
+        Version = 0x0002,
+        Meshversion = 0x3D3E,
 
         // sub defines of EDIT3DS
-        EDIT_MATERIAL = 0xAFFF,
-        EDIT_CONFIG1 = 0x0100,
-        EDIT_CONFIG2 = 0x3E3D,
-        EDIT_VIEW_P1 = 0x7012,
-        EDIT_VIEW_P2 = 0x7011,
-        EDIT_VIEW_P3 = 0x7020,
-        EDIT_VIEW1 = 0x7001,
-        EDIT_BACKGR = 0x1200,
-        EDIT_AMBIENT = 0x2100,
-        EDIT_OBJECT = 0x4000,
-        EDIT_UNKNW01 = 0x1100,
-        EDIT_UNKNW02 = 0x1201,
-        EDIT_UNKNW03 = 0x1300,
-        EDIT_UNKNW04 = 0x1400,
-        EDIT_UNKNW05 = 0x1420,
-        EDIT_UNKNW06 = 0x1450,
-        EDIT_UNKNW07 = 0x1500,
-        EDIT_UNKNW08 = 0x2200,
-        EDIT_UNKNW09 = 0x2201,
-        EDIT_UNKNW10 = 0x2210,
-        EDIT_UNKNW11 = 0x2300,
-        EDIT_UNKNW12 = 0x2302,
-        EDIT_UNKNW13 = 0x3000,
-        EDIT_UNKNW14 = 0xAFFF,
+        EditMaterial = 0xAFFF,
+        EditConfig1 = 0x0100,
+        EditConfig2 = 0x3E3D,
+        EditViewP1 = 0x7012,
+        EditViewP2 = 0x7011,
+        EditViewP3 = 0x7020,
+        EditView1 = 0x7001,
+        EditBackgr = 0x1200,
+        EditAmbient = 0x2100,
+        EditObject = 0x4000,
+        EditUnknw01 = 0x1100,
+        EditUnknw02 = 0x1201,
+        EditUnknw03 = 0x1300,
+        EditUnknw04 = 0x1400,
+        EditUnknw05 = 0x1420,
+        EditUnknw06 = 0x1450,
+        EditUnknw07 = 0x1500,
+        EditUnknw08 = 0x2200,
+        EditUnknw09 = 0x2201,
+        EditUnknw10 = 0x2210,
+        EditUnknw11 = 0x2300,
+        EditUnknw12 = 0x2302,
+        EditUnknw13 = 0x3000,
+        EditUnknw14 = 0xAFFF,
 
         // sub defines of EDIT_MATERIAL
-        MAT_NAME01 = 0xA000,
-        MAT_LUMINANCE = 0xA010,
-        MAT_DIFFUSE = 0xA020,
-        MAT_SPECULAR = 0xA030,
-        MAT_SHININESS = 0xA040,
-        MAT_MAP = 0xA200,
-        MAT_MAPFILE = 0xA300,
+        MatName01 = 0xA000,
+        MatLuminance = 0xA010,
+        MatDiffuse = 0xA020,
+        MatSpecular = 0xA030,
+        MatShininess = 0xA040,
+        MatMap = 0xA200,
+        MatMapfile = 0xA300,
 
         //  MAT_AMBIENT=
-        MAT_TRANSPARENCY = 0xA050,
+        MatTransparency = 0xA050,
 
         // sub defines of EDIT_OBJECT
-        OBJ_TRIMESH = 0x4100,
-        OBJ_LIGHT = 0x4600,
-        OBJ_CAMERA = 0x4700,
-        OBJ_UNKNWN01 = 0x4010,
-        OBJ_UNKNWN02 = 0x4012, // Could be shadow
+        ObjTrimesh = 0x4100,
+        ObjLight = 0x4600,
+        ObjCamera = 0x4700,
+        ObjUnknwn01 = 0x4010,
+        ObjUnknwn02 = 0x4012, // Could be shadow
 
         // sub defines of OBJ_CAMERA
-        CAM_UNKNWN01 = 0x4710,
-        CAM_UNKNWN02 = 0x4720,
+        CamUnknwn01 = 0x4710,
+        CamUnknwn02 = 0x4720,
 
         // sub defines of OBJ_LIGHT
-        LIT_OFF = 0x4620,
-        LIT_SPOT = 0x4610,
-        LIT_UNKNWN01 = 0x465A,
+        LitOff = 0x4620,
+        LitSpot = 0x4610,
+        LitUnknwn01 = 0x465A,
 
         // sub defines of OBJ_TRIMESH
-        TRI_VERTEXL = 0x4110,
-        TRI_FACEL2 = 0x4111,
-        TRI_FACEL1 = 0x4120,
-        TRI_FACEMAT = 0x4130,
-        TRI_TEXCOORD = 0x4140,
-        TRI_SMOOTH = 0x4150,
-        TRI_LOCAL = 0x4160,
-        TRI_VISIBLE = 0x4165,
+        TriVertexl = 0x4110,
+        TriFacel2 = 0x4111,
+        TriFacel1 = 0x4120,
+        TriFacemat = 0x4130,
+        TriTexcoord = 0x4140,
+        TriSmooth = 0x4150,
+        TriLocal = 0x4160,
+        TriVisible = 0x4165,
 
         // sub defs of KEYF3DS
-        KEYF_UNKNWN01 = 0xB009,
-        KEYF_UNKNWN02 = 0xB00A,
-        KEYF_FRAMES = 0xB008,
-        KEYF_OBJDES = 0xB002,
-        KEYF_HIERARCHY = 0xB030,
-        KFNAME = 0xB010,
+        KeyfUnknwn01 = 0xB009,
+        KeyfUnknwn02 = 0xB00A,
+        KeyfFrames = 0xB008,
+        KeyfObjdes = 0xB002,
+        KeyfHierarchy = 0xB030,
+        Kfname = 0xB010,
 
         // these define the different color chunk types
-        COL_RGB = 0x0010,
-        COL_TRU = 0x0011, // RGB24
-        COL_UNK = 0x0013,
+        ColRgb = 0x0010,
+        ColTru = 0x0011, // RGB24
+        ColUnk = 0x0013,
 
         // defines for viewport chunks
-        TOP = 0x0001,
-        BOTTOM = 0x0002,
-        LEFT = 0x0003,
-        RIGHT = 0x0004,
-        FRONT = 0x0005,
-        BACK = 0x0006,
-        USER = 0x0007,
-        CAMERA = 0x0008, // = 0xFFFF is the actual code read from file
-        LIGHT = 0x0009,
-        DISABLED = 0x0010,
-        BOGUS = 0x0011,
+        Top = 0x0001,
+        Bottom = 0x0002,
+        Left = 0x0003,
+        Right = 0x0004,
+        Front = 0x0005,
+        Back = 0x0006,
+        User = 0x0007,
+        Camera = 0x0008, // = 0xFFFF is the actual code read from file
+        Light = 0x0009,
+        Disabled = 0x0010,
+        Bogus = 0x0011,
         // ReSharper restore UnusedMember.Local
         // ReSharper restore InconsistentNaming
-        PERCENTW = 0x0030,
-        PERCENTF = 0x0031,
-        PERCENTD = 0x0032
+        Percentw = 0x0030,
+        Percentf = 0x0031,
+        Percentd = 0x0032
     }
 
 
         /// <summary>
         ///     Helper class to create objects
         /// </summary>
-    public Object3DGroup obGroup = [];
+    public Object3DGroup ObGroup = [];
 
         /// <summary>
         ///     Gets or sets the directory
@@ -154,7 +154,7 @@ public class StudioReader : IModelReader {
         using (var reader = new BinaryReader(s)) {
             var length = reader.BaseStream.Length;
             var headerId = ReadChunkId(reader);
-            if (headerId != ChunkID.MAIN3DS) throw new FileFormatException("Unknown file");
+            if (headerId != ChunkId.Main3Ds) throw new FileFormatException("Unknown file");
             var headerSize = ReadChunkSize(reader);
             //if (headerSize != length)
             //{
@@ -164,16 +164,16 @@ public class StudioReader : IModelReader {
                 var id = ReadChunkId(reader);
                 var size = ReadChunkSize(reader);
                 switch (id) {
-                    case ChunkID.EDIT_MATERIAL:
+                    case ChunkId.EditMaterial:
                         ReadMaterial(reader, size);
                         break;
-                    case ChunkID.EDIT_OBJECT:
+                    case ChunkId.EditObject:
                         ReadObject(reader, size);
                         break;
-                    case ChunkID.EDIT3DS:
-                    case ChunkID.OBJ_CAMERA:
-                    case ChunkID.OBJ_LIGHT:
-                    case ChunkID.OBJ_TRIMESH:
+                    case ChunkId.Edit3Ds:
+                    case ChunkId.ObjCamera:
+                    case ChunkId.ObjLight:
+                    case ChunkId.ObjTrimesh:
 
                         // don't read the whole chunk, read the sub-defines...
                         break;
@@ -187,7 +187,7 @@ public class StudioReader : IModelReader {
             }
         }
 
-        return obGroup;
+        return ObGroup;
     }
 
         /// <summary>
@@ -199,8 +199,8 @@ public class StudioReader : IModelReader {
         /// <returns>
         ///     The chunk ID.
         /// </returns>
-    private ChunkID ReadChunkId(BinaryReader reader) {
-        return (ChunkID)reader.ReadUInt16();
+    private ChunkId ReadChunkId(BinaryReader reader) {
+        return (ChunkId)reader.ReadUInt16();
     }
 
         /// <summary>
@@ -238,33 +238,33 @@ public class StudioReader : IModelReader {
             total += size;
 
             switch (id) {
-                case ChunkID.MAT_NAME01:
+                case ChunkId.MatName01:
                     name = ReadString(reader);
                     break;
-                case ChunkID.MAT_TRANSPARENCY:
+                case ChunkId.MatTransparency:
                     // skip the first 6 bytes
                     ReadData(reader, 6);
                     // read the percent value as 16Bit Uint
                     var data = ReadData(reader, 2);
                     opacity = (100 - BitConverter.ToUInt16(data, 0)) / 100.0;
                     break;
-                case ChunkID.MAT_LUMINANCE:
+                case ChunkId.MatLuminance:
                     luminance = ReadColor(reader);
                     break;
-                case ChunkID.MAT_DIFFUSE:
+                case ChunkId.MatDiffuse:
                     diffuse = ReadColor(reader);
                     break;
-                case ChunkID.MAT_SPECULAR:
+                case ChunkId.MatSpecular:
                     specular = ReadColor(reader);
                     break;
-                case ChunkID.MAT_SHININESS:
+                case ChunkId.MatShininess:
                     //byte[] bytes = this.ReadData(reader, size - 6);
                     specularPower = ReadPercent(reader, size - 6);
                     break;
-                case ChunkID.MAT_MAP:
+                case ChunkId.MatMap:
                     texture = ReadMatMap(reader, size - 6);
                     break;
-                case ChunkID.MAT_MAPFILE:
+                case ChunkId.MatMapfile:
                     ReadData(reader, size - 6);
                     break;
 
@@ -305,7 +305,7 @@ public class StudioReader : IModelReader {
             var size = ReadChunkSize(reader);
             total += size;
             switch (id) {
-                case ChunkID.OBJ_TRIMESH:
+                case ChunkId.ObjTrimesh:
                     ReadTriangularMesh(reader, size);
                     break;
                 default: {
@@ -343,18 +343,18 @@ public class StudioReader : IModelReader {
             var size = ReadChunkSize(reader);
             bytesRead += size;
             switch (id) {
-                case ChunkID.TRI_VERTEXL:
+                case ChunkId.TriVertexl:
                     positions = ReadVertexList(reader);
                     break;
-                case ChunkID.TRI_FACEL1:
+                case ChunkId.TriFacel1:
                     faces = ReadFaceList(reader);
                     size -= faces.Count / 3 * 8 + 2;
                     facesets = ReadFaceSets(reader, size - 6);
                     break;
-                case ChunkID.TRI_TEXCOORD:
+                case ChunkId.TriTexcoord:
                     textureCoordinates = ReadTexCoords(reader);
                     break;
-                case ChunkID.TRI_LOCAL:
+                case ChunkId.TriLocal:
                     transforms.Add(ReadTransformation(reader));
                     break;
                 default:
@@ -444,13 +444,13 @@ public class StudioReader : IModelReader {
             Tangents = tangents,
             BiTangents = bitangents
         };
-        var ob3d = new Object3D {
+        var ob3D = new Object3D {
             Geometry = mesh,
             Material = material,
             Transform = transforms,
             Name = "Default"
         };
-        obGroup.Add(ob3d);
+        ObGroup.Add(ob3D);
     }
 
         /// <summary>
@@ -539,7 +539,7 @@ public class StudioReader : IModelReader {
             var size = ReadChunkSize(reader);
             total += size;
             switch (id) {
-                case ChunkID.TRI_FACEMAT: {
+                case ChunkId.TriFacemat: {
                         var name = ReadString(reader);
                         int n = reader.ReadUInt16();
                         var c = new List<int>();
@@ -550,7 +550,7 @@ public class StudioReader : IModelReader {
                         break;
                     }
 
-                case ChunkID.TRI_SMOOTH: {
+                case ChunkId.TriSmooth: {
                         ReadData(reader, size - 6);
                         break;
                     }
@@ -709,7 +709,7 @@ public class StudioReader : IModelReader {
         var type = ReadChunkId(reader);
         var csize = ReadChunkSize(reader);
         switch (type) {
-            case ChunkID.COL_RGB: {
+            case ChunkId.ColRgb: {
                     var r = reader.ReadSingle();
                     var g = reader.ReadSingle();
                     var b = reader.ReadSingle();
@@ -717,7 +717,7 @@ public class StudioReader : IModelReader {
                     return new Color(r, g, b); // .FromScRgb(1, r, g, b);
                 }
 
-            case ChunkID.COL_TRU: {
+            case ChunkId.ColTru: {
                     var r = reader.ReadByte();
                     var g = reader.ReadByte();
                     var b = reader.ReadByte();
@@ -738,13 +738,13 @@ public class StudioReader : IModelReader {
         size -= 6;
         float percent = 1;
         switch (type) {
-            case ChunkID.PERCENTW:
+            case ChunkId.Percentw:
                 percent = reader.ReadUInt16();
                 break;
-            case ChunkID.PERCENTF:
+            case ChunkId.Percentf:
                 percent = reader.ReadSingle();
                 break;
-            case ChunkID.PERCENTD:
+            case ChunkId.Percentd:
                 reader.ReadBytes(size);
                 break;
         }

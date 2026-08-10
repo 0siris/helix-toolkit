@@ -18,7 +18,7 @@ public abstract class MouseGestureHandler {
     /// <value>
     ///     The inv.
     /// </value>
-    protected int inv = 1;
+    protected int Inv = 1;
 
     /// <summary>
     ///     Gets or sets the last point (in 2D screen coordinates).
@@ -136,7 +136,7 @@ public abstract class MouseGestureHandler {
         LastPoint = MouseDownPoint;
         LastPoint3D = MouseDownPoint3D;
         startTick = Stopwatch.GetTimestamp();
-        inv = Camera.CreateLeftHandSystem ? -1 : 1;
+        Inv = Camera.CreateLeftHandSystem ? -1 : 1;
         Controller.StopAnimations();
         Controller.Viewport.InvalidateRender();
     }

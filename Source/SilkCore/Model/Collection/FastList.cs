@@ -16,11 +16,11 @@ namespace HelixToolkit.SharpDX.Core;
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IEnumerable {
     // Fields
-    private const int _defaultCapacity = 4;
-    private static readonly T[] empty = [];
+    private const int DefaultCapacity = 4;
+    private static readonly T[] Empty = [];
 
     public FastList() {
-        Items = empty;
+        Items = Empty;
     }
 
     public FastList(IEnumerable<T> collection) {
@@ -31,7 +31,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
             Count = count;
         } else {
             Count = 0;
-            Items = new T[_defaultCapacity];
+            Items = new T[DefaultCapacity];
             using var enumerator = collection.GetEnumerator();
             while (enumerator.MoveNext()) Add(enumerator.Current);
         }
@@ -56,7 +56,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
                     if (Count > 0) Array.Copy(Items, 0, destinationArray, 0, Count);
                     Items = destinationArray;
                 } else {
-                    Items = empty;
+                    Items = Empty;
                 }
             }
         }
@@ -111,7 +111,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
 
     public void EnsureCapacity(int min) {
         if (Items.Length < min) {
-            var num = Items.Length == 0 ? _defaultCapacity : Items.Length * 2;
+            var num = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
             if (num < min) num = min;
             Capacity = num;
         }
@@ -307,7 +307,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
     public void TrimExcess() {
         if (Count == Capacity) return;
         var curr = Items;
-        Items = Count == 0 ? empty : new T[Count];
+        Items = Count == 0 ? Empty : new T[Count];
         if (Count > 0) Array.Copy(curr, 0, Items, 0, Count);
         Capacity = Count;
     }

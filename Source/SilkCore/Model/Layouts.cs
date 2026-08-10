@@ -273,7 +273,7 @@ public struct SimpleMeshStruct {
 }
 
 /// <summary>
-///     Used combine with <see cref="PhongPBRMaterialStruct" />
+///     Used combine with <see cref="PhongPbrMaterialStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct ModelStruct {
@@ -306,7 +306,7 @@ public struct ModelStruct {
 ///     Used combine with <see cref="ModelStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PhongPBRMaterialStruct {
+public struct PhongPbrMaterialStruct {
     public const int SizeInBytes = 4 * (4 + 4 * 5 + 4 + 4 + 4 + 4 * 3 + 4) + ModelStruct.SizeInBytes;
 
     public const string MinTessDistanceStr = "minTessDistance"; //float
@@ -333,21 +333,21 @@ public struct PhongPBRMaterialStruct {
     public const string ClearCoatStr = "ClearCoat";
     public const string ClearCoatRoughnessStr = "ClearCoatRoughness";
 
-    public const string HasRMMapStr = "bHasRMMap";                 //bool
-    public const string HasAOMapStr = "bHasAOMap";                 //bool
+    public const string HasRmMapStr = "bHasRMMap";                 //bool
+    public const string HasAoMapStr = "bHasAOMap";                 //bool
     public const string HasEmissiveMapStr = "bHasEmissiveMap";     //bool
     public const string HasIrradianceMapStr = "bHasIrradianceMap"; //bool
     public const string EnableAutoTangent = "bAutoTengent";        //bool
 
     public const string HasDisplacementMapStr = "bHasDisplacementMap"; //bool
-    public const string RenderPBR = "bRenderPBR";                      //bool
+    public const string RenderPbr = "bRenderPBR";                      //bool
     public const string RenderFlat = "bRenderFlat";                    //bool
     public const string ShininessStr = "sMaterialShininess";           //float
 
     public const string DisplacementMapScaleMaskStr = "displacementMapScaleMask"; //float4
 
-    public const string UVTransformR1Str = "uvTransformR1"; //float4
-    public const string UVTransformR2Str = "uvTransformR2"; //float4
+    public const string UvTransformR1Str = "uvTransformR1"; //float4
+    public const string UvTransformR2Str = "uvTransformR2"; //float4
 
     public const string VertColorBlending = "vertColorBlending"; //float
 }
@@ -483,7 +483,7 @@ public struct CubeFaceCamerasStruct {
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-internal struct SSAOParamStruct {
+internal struct SsaoParamStruct {
     //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     //public Vector4[] Kernels;
     public Vector2 NoiseScale;
@@ -548,7 +548,7 @@ public struct MorphTargetVertex {
 /// <summary>
 ///     2D UV Transform
 /// </summary>
-public struct UVTransform {
+public struct UvTransform {
     /// <summary>
     ///     The rotation by radian
     /// </summary>
@@ -570,50 +570,50 @@ public struct UVTransform {
     /// <value>
     ///     <c>true</c> if this instance has uv transform; otherwise, <c>false</c>.
     /// </value>
-    public bool HasUVTransform =>
+    public bool HasUvTransform =>
         Rotation != 0 || Scaling.X != 1 || Scaling.Y != 1 || Translation.X != 0 || Translation.Y != 0;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
+    ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="rotation">The rotation.</param>
-    public UVTransform(float rotation) {
+    public UvTransform(float rotation) {
         Rotation = rotation;
         Scaling = Vector2.One;
         Translation = Vector2.Zero;
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
+    ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="translation">The translation.</param>
-    public UVTransform(Vector2 translation) {
+    public UvTransform(Vector2 translation) {
         Rotation = 0;
         Scaling = Vector2.One;
         Translation = translation;
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
+    ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="rotation">The rotation.</param>
     /// <param name="scaling">The scaling.</param>
     /// <param name="translation">The translation.</param>
-    public UVTransform(float rotation, Vector2 scaling, Vector2 translation) {
+    public UvTransform(float rotation, Vector2 scaling, Vector2 translation) {
         Rotation = rotation;
         Scaling = scaling;
         Translation = translation;
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UVTransform" /> struct.
+    ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="rotation">The rotation.</param>
     /// <param name="scalingX">The scaling x.</param>
     /// <param name="scalingY">The scaling y.</param>
     /// <param name="translationX">The translation x.</param>
     /// <param name="translationY">The translation y.</param>
-    public UVTransform(
+    public UvTransform(
         float rotation,
         float scalingX = 1,
         float scalingY = 1,
@@ -626,13 +626,13 @@ public struct UVTransform {
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="UVTransform" /> to <see cref="Matrix" />.
+    ///     Performs an implicit conversion from <see cref="UvTransform" /> to <see cref="Matrix" />.
     /// </summary>
     /// <param name="uvTransform">The uv transform.</param>
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Matrix(UVTransform uvTransform) {
+    public static implicit operator Matrix(UvTransform uvTransform) {
         var cos = (float)Math.Cos(uvTransform.Rotation);
         var sine = (float)Math.Sin(uvTransform.Rotation);
         return new Matrix(cos * uvTransform.Scaling.X,
@@ -654,18 +654,18 @@ public struct UVTransform {
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="Matrix" /> to <see cref="UVTransform" />.
+    ///     Performs an implicit conversion from <see cref="Matrix" /> to <see cref="UvTransform" />.
     /// </summary>
     /// <param name="matrix">The matrix.</param>
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator UVTransform(Matrix matrix) {
+    public static implicit operator UvTransform(Matrix matrix) {
         matrix.Decompose(out var s, out var r, out var t);
-        return new UVTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
+        return new UvTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
     }
 
-    public static readonly UVTransform Identity = new(0, Vector2.One, Vector2.Zero);
+    public static readonly UvTransform Identity = new(0, Vector2.One, Vector2.Zero);
 
     public float[] ToArray() {
         return [Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y];

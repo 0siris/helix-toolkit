@@ -12,7 +12,7 @@ public struct OrderKey : IComparable<OrderKey> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OrderKey Create(ushort order, ushort materialID) {
+    public static OrderKey Create(ushort order, ushort materialId) {
         //return new OrderKey(((uint)order << 16) | materialID);
         return new OrderKey(order);
     }

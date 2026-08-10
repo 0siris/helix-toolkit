@@ -78,63 +78,63 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
 
-        this.Title = "Line Shading Demo (HelixToolkitDX)";
-        this.SubTitle = null;
+        Title = "Line Shading Demo (HelixToolkitDX)";
+        SubTitle = null;
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, 5, 5), LookDirection = new Vector3D(-0, -5, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // setup lighting            
-        this.AmbientLightColor = Colors.DimGray;
-        this.DirectionalLightColor = Colors.White;
-        this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
+        AmbientLightColor = Colors.DimGray;
+        DirectionalLightColor = Colors.White;
+        DirectionalLightDirection = new Vector3D(-2, -5, -2);
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid();
-        this.GridColor = Media.Colors.Black;
-        this.GridTransform = new TranslateTransform3D(-5, -1, -5);
+        Grid = LineBuilder.GenerateGrid();
+        GridColor = Colors.Black;
+        GridTransform = new TranslateTransform3D(-5, -1, -5);
 
         // scene model3d
         var b1 = new MeshBuilder();
         b1.AddSphere(new Vector3(0, 0, 0), 0.5);
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2, BoxFaces.All);
-        this.Model = b1.ToMeshGeometry3D();
+        Model = b1.ToMeshGeometry3D();
 
         // lines model3d
         var e1 = new LineBuilder();
         e1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2);
         //this.Lines = e1.ToLineGeometry3D().ToUnshared();
-        this.Lines = e1.ToLineGeometry3D(true);
-        this.Lines.Colors = [];
-        var linesCount = this.Lines.Indices.Count;
+        Lines = e1.ToLineGeometry3D(true);
+        Lines.Colors = [];
+        var linesCount = Lines.Indices.Count;
         var rnd = new Random();
         while (linesCount-- > 0) {
-            this.Lines.Colors.Add(new Color4((float)rnd.NextDouble(),
+            Lines.Colors.Add(new Color4((float)rnd.NextDouble(),
                                              (float)rnd.NextDouble(),
                                              (float)rnd.NextDouble(),
                                              1f));
         }
 
         // lines params
-        this.LineThickness = 2;
-        this.LineSmoothness = 2.0;
-        this.LinesEnabled = true;
-        this.GridEnabled = true;
+        LineThickness = 2;
+        LineSmoothness = 2.0;
+        LinesEnabled = true;
+        GridEnabled = true;
 
         // model trafos
-        this.Model1Transform = new TranslateTransform3D(0, 0, 0);
-        this.Model2Transform = new TranslateTransform3D(-2, 0, 0);
-        this.Model3Transform = new TranslateTransform3D(+2, 0, 0);
-        this.Model4Transform = new TranslateTransform3D(0, 2, 0);
+        Model1Transform = new TranslateTransform3D(0, 0, 0);
+        Model2Transform = new TranslateTransform3D(-2, 0, 0);
+        Model3Transform = new TranslateTransform3D(+2, 0, 0);
+        Model4Transform = new TranslateTransform3D(0, 2, 0);
         // model materials
-        this.Material1 = PhongMaterials.PolishedGold;
-        this.Material2 = PhongMaterials.Copper;
-        this.Material3 = PhongMaterials.Glass;
-        this.LineMaterial = new LineArrowHeadMaterial() { ArrowSize = 0.04, Color = Colors.White, TextureScale = 0.4 };
-        this.GridMaterial = new LineMaterial() { Color = Colors.Red, TextureScale = 0.4 };
+        Material1 = PhongMaterials.PolishedGold;
+        Material2 = PhongMaterials.Copper;
+        Material3 = PhongMaterials.Glass;
+        LineMaterial = new LineArrowHeadMaterial() { ArrowSize = 0.04, Color = Colors.White, TextureScale = 0.4 };
+        GridMaterial = new LineMaterial() { Color = Colors.Red, TextureScale = 0.4 };
         var dash = TextureModel.Create("Dash.png");
         var dotLine = TextureModel.Create("DotLine.png");
         GridMaterial.Texture = dotLine;

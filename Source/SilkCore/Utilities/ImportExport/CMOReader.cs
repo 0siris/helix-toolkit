@@ -154,15 +154,15 @@ using HelixToolkit.SharpDX.Core.Model;
 namespace HelixToolkit.SharpDX.Core;
 using PhongMaterial = PhongMaterialCore;
 
-public class AnimationHierarchy : IGUID {
+public class AnimationHierarchy : IGuid {
     public Dictionary<string, Animation> Animations = [];
     public List<Bone> Bones = [];
     public List<Object3D> Meshes = [];
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 }
 
 
-public class CMOReader : IModelReader {
+public class CmoReader : IModelReader {
     public const int MaxBoneInfluences = 4; // 4 bone influences are supported
     public const int MaxTextures = 8;       // 8 unique textures are supported.
 
@@ -222,7 +222,7 @@ public class CMOReader : IModelReader {
             var uvTransform = reader.ReadStructure<Matrix>();
             if (uvTransform == default) uvTransform = Matrix.Identity;
             uvTransform.Decompose(out var s, out var r, out var tra);
-            material.UVTransform = new UVTransform(SilkMath.QuaternionAngle(r),
+            material.UvTransform = new UvTransform(SilkMath.QuaternionAngle(r),
                                                    new Vector2(s.X, s.Y),
                                                    new Vector2(tra.X, tra.Y));
             var pixelShaderName = reader.ReadCMO_wchar(); //Not used
@@ -319,7 +319,7 @@ public class CMOReader : IModelReader {
                 animation.Name = animationName;
                 var keyframeCount = (int)reader.ReadUInt32();
                 for (var j = 0; j < keyframeCount; j++) {
-                    var keyframe = reader.ReadStructure<KeyframeCMO>();
+                    var keyframe = reader.ReadStructure<KeyframeCmo>();
                     keyframe.Transform.Decompose(out var s, out var q, out var t);
                     animation.Keyframes.Add(new Keyframe { Translation = t, Rotation = q, Scale = s, Time = keyframe.Time });
                 }
@@ -327,7 +327,7 @@ public class CMOReader : IModelReader {
                 animationHierarchy.Animations.Add(animation.Name, animation);
                 if (!UniqueAnimations.ContainsKey(animation.Name))
                     UniqueAnimations.Add(animation.Name, []);
-                UniqueAnimations[animation.Name].Add(animation.GUID);
+                UniqueAnimations[animation.Name].Add(animation.Guid);
             }
         }
 
@@ -419,7 +419,7 @@ public class CMOReader : IModelReader {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct KeyframeCMO {
+    private struct KeyframeCmo {
         public int BoneIndex; // Used only for array based bones
         public float Time;
         public Matrix Transform;

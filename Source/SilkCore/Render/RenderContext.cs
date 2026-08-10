@@ -19,7 +19,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public enum OITRenderType {
+public enum OitRenderType {
     None,
 
     /// <summary>
@@ -33,7 +33,7 @@ public enum OITRenderType {
     DepthPeeling
 }
 
-public enum OITRenderStage {
+public enum OitRenderStage {
     None,
     SinglePassWeighted,
     DepthPeelingInitMinMaxZ,
@@ -113,7 +113,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>None</c> It is not using oit pass <c>false</c>.
     /// </value>
-    public OITRenderStage OITRenderStage = OITRenderStage.None;
+    public OitRenderStage OitRenderStage = OitRenderStage.None;
 
     private ContextSharedResource sharedResource;
 
@@ -132,13 +132,13 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     public RenderContext(IRenderHost renderHost) {
         RenderHost = renderHost;
         IsDeferredPass = false;
-        cbuffer = renderHost.EffectsManager.ConstantBufferPool.Register(DefaultBufferNames.GlobalTransformCB,
+        cbuffer = renderHost.EffectsManager.ConstantBufferPool.Register(DefaultBufferNames.GlobalTransformCb,
                                                                         GlobalTransformStruct.SizeInBytes);
         lightScene = new Light3DSceneShared(renderHost.EffectsManager.ConstantBufferPool);
         sharedResource = new ContextSharedResource();
-        OITWeightPower = 3;
-        OITWeightDepthSlope = 1;
-        OITWeightMode = OITWeightMode.Linear2;
+        OitWeightPower = 3;
+        OitWeightDepthSlope = 1;
+        OitWeightMode = OitWeightMode.Linear2;
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The oit weight power.
     /// </value>
-    public float OITWeightPower {
+    public float OitWeightPower {
         get => globalTransform.OITWeightPower;
         set => globalTransform.OITWeightPower = value;
     }
@@ -213,7 +213,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The oit weight depth slope.
     /// </value>
-    public float OITWeightDepthSlope {
+    public float OitWeightDepthSlope {
         get => globalTransform.OITWeightDepthSlope;
         set => globalTransform.OITWeightDepthSlope = value;
     }
@@ -226,8 +226,8 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The oit weight mode.
     /// </value>
-    public OITWeightMode OITWeightMode {
-        get => (OITWeightMode)globalTransform.OITWeightMode;
+    public OitWeightMode OitWeightMode {
+        get => (OitWeightMode)globalTransform.OITWeightMode;
         set => globalTransform.OITWeightMode = (int)value;
     }
 
@@ -235,7 +235,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ///     Depth peeling iteration. Default is 4.
     ///     Iteration depends on estimating number of overlapping semi-transparent layers to be accurately rendered.
     /// </summary>
-    public int OITDepthPeelingIteration { get; set; } = 4;
+    public int OitDepthPeelingIteration { get; set; } = 4;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [ssao enabled].
@@ -243,7 +243,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>true</c> if [ssao enabled]; otherwise, <c>false</c>.
     /// </value>
-    public bool SSAOEnabled {
+    public bool SsaoEnabled {
         get => globalTransform.SSAOEnabled == 1u;
         set => globalTransform.SSAOEnabled = value ? 1u : 0;
     }
@@ -254,7 +254,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The ssao bias.
     /// </value>
-    public float SSAOBias {
+    public float SsaoBias {
         get => globalTransform.SSAOBias;
         set => globalTransform.SSAOBias = value;
     }
@@ -265,7 +265,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The ssao intensity.
     /// </value>
-    public float SSAOIntensity {
+    public float SsaoIntensity {
         get => globalTransform.SSAOIntensity;
         set => globalTransform.SSAOIntensity = value;
     }
@@ -276,7 +276,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>true</c> if [update scene graph requested]; otherwise, <c>false</c>.
     /// </value>
-    public bool updateSceneGraphRequested { get; internal set; }
+    public bool UpdateSceneGraphRequested { get; internal set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether [update per frame renderable requested] in this frame.
@@ -284,7 +284,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>true</c> if [update per frame renderable requested]; otherwise, <c>false</c>.
     /// </value>
-    public bool updatePerFrameRenderableRequested { get; internal set; }
+    public bool UpdatePerFrameRenderableRequested { get; internal set; }
 
     /// <summary>
     ///     Gets a value indicating whether this instance is shadow map enabled.
@@ -406,7 +406,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         BoundingFrustum = new BoundingFrustum(globalTransform.ViewProjection);
         // frustum: FOV,AR,N,F
         globalTransform.Frustum =
-            new Vector4(CameraParams.FOV, CameraParams.AspectRatio, CameraParams.ZNear, CameraParams.ZFar);
+            new Vector4(CameraParams.Fov, CameraParams.AspectRatio, CameraParams.ZNear, CameraParams.ZFar);
         globalTransform.EyePos = CameraParams.Position;
         globalTransform.IsPerspective = !BoundingFrustum.IsOrthographic;
         globalTransform.TimeStamp = (float)Stopwatch.GetTimestamp() / Stopwatch.Frequency;
@@ -467,8 +467,8 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     }
 
     /// <summary>
-    ///     Gets the off screen texture. Same as <see cref="GetOffScreenRT(OffScreenTextureSize, Format)" /> or
-    ///     <see cref="GetOffScreenDS(OffScreenTextureSize, Format)" />
+    ///     Gets the off screen texture. Same as <see cref="GetOffScreenRt" /> or
+    ///     <see cref="GetOffScreenDs" />
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="size">The size.</param>
@@ -482,9 +482,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ) {
         switch (type) {
             case OffScreenTextureType.RenderTarget:
-                return GetOffScreenRT(size, format);
+                return GetOffScreenRt(size, format);
             case OffScreenTextureType.DepthStencil:
-                return GetOffScreenDS(size, format);
+                return GetOffScreenDs(size, format);
             default:
                 return ShaderResourceViewProxy.Empty;
         }
@@ -497,7 +497,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <param name="format">The format.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenRT(OffScreenTextureSize size, Format format) {
+    public ShaderResourceViewProxy GetOffScreenRt(OffScreenTextureSize size, Format format) {
         switch (size) {
             case OffScreenTextureSize.Full:
                 return RenderHost.RenderBuffer.FullResRenderTargetPool.Get(format);
@@ -519,7 +519,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <param name="height">The height.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenRT(
+    public ShaderResourceViewProxy GetOffScreenRt(
         OffScreenTextureSize size,
         Format format,
         out int width,
@@ -551,7 +551,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <param name="format">The format.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenDS(OffScreenTextureSize size, Format format) {
+    public ShaderResourceViewProxy GetOffScreenDs(OffScreenTextureSize size, Format format) {
         switch (size) {
             case OffScreenTextureSize.Full:
                 return RenderHost.RenderBuffer.FullResDepthStencilPool.Get(format);
@@ -573,7 +573,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <param name="height">The height.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenDS(
+    public ShaderResourceViewProxy GetOffScreenDs(
         OffScreenTextureSize size,
         Format format,
         out int width,
@@ -599,13 +599,13 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetPingPongBufferNextRTV() {
-        return RenderHost.RenderBuffer.FullResPPBuffer.NextRTV;
+    public ShaderResourceViewProxy GetPingPongBufferNextRtv() {
+        return RenderHost.RenderBuffer.FullResPpBuffer.NextRtv;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetPingPongBufferCurrentRTV() {
-        return RenderHost.RenderBuffer.FullResPPBuffer.CurrentRTV;
+    public ShaderResourceViewProxy GetPingPongBufferCurrentRtv() {
+        return RenderHost.RenderBuffer.FullResPpBuffer.CurrentRtv;
     }
 
     protected override void OnDispose(bool disposeManagedResources) {

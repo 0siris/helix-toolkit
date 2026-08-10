@@ -89,8 +89,8 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
             Controller.StopPanning();
         }
 
-        p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
-        p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
+        p0 = SilkMath.Multiply(p0, Controller.AllowRotateXy);
+        p1 = SilkMath.Multiply(p1, Controller.AllowRotateXy);
         var newPos = Camera.Position;
         var newLook = Camera.LookDirection;
         var newUp = SilkMath.Normalize(Camera.UpDirection);
@@ -104,7 +104,7 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
-                                           inv,
+                                           Inv,
                                            out newPos,
                                            out newLook,
                                            out newUp);
@@ -118,7 +118,7 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
                                            Controller.Width,
                                            Controller.Height,
                                            Camera,
-                                           inv,
+                                           Inv,
                                            invertUpDir ? -ModelUpDirection : ModelUpDirection,
                                            out newPos,
                                            out newLook,
@@ -133,7 +133,7 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
                                           Controller.Width,
                                           Controller.Height,
                                           Camera,
-                                          inv,
+                                          Inv,
                                           out newPos,
                                           out newLook,
                                           out newUp);

@@ -15,7 +15,7 @@ using DemoCore;
 using ExifLib;
 using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using Color = HelixToolkit.SharpDX.Core.Color;
+using Color = Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -25,47 +25,47 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Plane {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.Plane)); }
+        set { SetValue(ref field, value, nameof(Plane)); }
     }
 
     public LineGeometry3D Grid {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.Grid)); }
+        set { SetValue(ref field, value, nameof(Grid)); }
     }
 
     public PhongMaterial PlaneMaterial {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.PlaneMaterial)); }
+        set { SetValue(ref field, value, nameof(PlaneMaterial)); }
     }
 
     public Color GridColor {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.GridColor)); }
+        set { SetValue(ref field, value, nameof(GridColor)); }
     }
 
     public Media3D.Transform3D PlaneTransform {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.PlaneTransform)); }
+        set { SetValue(ref field, value, nameof(PlaneTransform)); }
     }
 
     public Media3D.Transform3D GridTransform {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.GridTransform)); }
+        set { SetValue(ref field, value, nameof(GridTransform)); }
     }
 
     public Vector3D DirectionalLightDirection {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.DirectionalLightDirection)); }
+        set { SetValue(ref field, value, nameof(DirectionalLightDirection)); }
     }
 
     public Color4 DirectionalLightColor {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.DirectionalLightColor)); }
+        set { SetValue(ref field, value, nameof(DirectionalLightColor)); }
     }
 
     public Color4 AmbientLightColor {
         get { return field; }
-        set { this.SetValue(ref field, value, nameof(this.AmbientLightColor)); }
+        set { SetValue(ref field, value, nameof(AmbientLightColor)); }
     }
 
     public ICommand OpenCommand { get; private set; }
@@ -73,49 +73,49 @@ public class MainViewModel : BaseViewModel {
     public ExifReader ExifReader { get; private set; }
 
     public MainViewModel() {
-        this.Title = "ImageViewDemo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "ImageViewDemo";
+        SubTitle = "WPF & SharpDX";
 
         EffectsManager = new DefaultEffectsManager();
 
-        this.OpenCommand = new RelayCommand((x) => this.OnOpenClick());
+        OpenCommand = new RelayCommand((x) => OnOpenClick());
 
         // camera setup
-        this.defaultPerspectiveCamera = new PerspectiveCamera {
+        defaultPerspectiveCamera = new PerspectiveCamera {
             Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
             UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0.5, FarPlaneDistance = 150
         };
-        this.defaultOrthographicCamera = new OrthographicCamera {
+        defaultOrthographicCamera = new OrthographicCamera {
             Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
             UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0, FarPlaneDistance = 100
         };
-        this.Camera = this.defaultPerspectiveCamera;
+        Camera = defaultPerspectiveCamera;
 
         // setup lighting
-        this.AmbientLightColor = new Color4(0f, 0f, 0f, 0f);
-        this.DirectionalLightColor = Color.White;
-        this.DirectionalLightDirection = new Vector3D(-0, -0, -10);
+        AmbientLightColor = new Color4(0f, 0f, 0f, 0f);
+        DirectionalLightColor = Color.White;
+        DirectionalLightDirection = new Vector3D(-0, -0, -10);
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid(Vector3.UnitZ, -5, 5, -5, 5);
-        this.GridColor = Color.Black;
-        this.GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        Grid = LineBuilder.GenerateGrid(Vector3.UnitZ, -5, 5, -5, 5);
+        GridColor = Color.Black;
+        GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
 
         // plane
         var b2 = new MeshBuilder();
         b2.AddBox(new Vector3(0, 0, 0), 10, 10, 0, BoxFaces.PositiveZ);
-        this.Plane = b2.ToMeshGeometry3D();
-        this.PlaneMaterial = PhongMaterials.Blue;
-        this.PlaneTransform = new Media3D.TranslateTransform3D(-0, -0, -0);
+        Plane = b2.ToMeshGeometry3D();
+        PlaneMaterial = PhongMaterials.Blue;
+        PlaneTransform = new Media3D.TranslateTransform3D(-0, -0, -0);
         //this.PlaneMaterial.ReflectiveColor = Color.Black;
-        this.PlaneTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        PlaneTransform = new Media3D.TranslateTransform3D(0, 0, 0);
     }
 
     private void SetImages(BitmapSource img) {
         var ratio = img.PixelWidth / (double)img.PixelHeight;
         var transform = Media3D.Transform3D.Identity;
         ushort orientation = 1;
-        if (this.ExifReader != null && this.ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {
+        if (ExifReader != null && ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {
             switch (orientation) {
                 default:
                 case 1: //
@@ -150,17 +150,17 @@ public class MainViewModel : BaseViewModel {
                     break;
             }
 
-            this.PlaneTransform = transform;
-            this.GridTransform = transform;
+            PlaneTransform = transform;
+            GridTransform = transform;
         } else {
             if (ratio > 1) {
                 transform = transform.AppendTransform(new Media3D.ScaleTransform3D(ratio, 1.0, 1.0));
-                this.PlaneTransform = transform;
-                this.GridTransform = this.PlaneTransform;
+                PlaneTransform = transform;
+                GridTransform = PlaneTransform;
             } else {
                 transform = transform.AppendTransform(new Media3D.ScaleTransform3D(1.0, 1.0 / ratio, 1.0));
-                this.PlaneTransform = transform;
-                this.GridTransform = this.PlaneTransform;
+                PlaneTransform = transform;
+                GridTransform = PlaneTransform;
             }
         }
 
@@ -173,16 +173,16 @@ public class MainViewModel : BaseViewModel {
             DiffuseMap = new MemoryStream(img.ToByteArray()),
         };
 
-        this.PlaneMaterial = white;
+        PlaneMaterial = white;
     }
 
     private void TryGetExif(string filename) {
         try {
-            this.ExifReader = new ExifReader(filename);
+            ExifReader = new ExifReader(filename);
             DateTime dateTime;
-            this.ExifReader.GetTagValue(ExifTags.DateTime, out dateTime);
+            ExifReader.GetTagValue(ExifTags.DateTime, out dateTime);
         } catch (Exception ex) {
-            this.ExifReader = null;
+            ExifReader = null;
         }
     }
 
@@ -194,9 +194,9 @@ public class MainViewModel : BaseViewModel {
             if (d.ShowDialog().Value) {
                 if (File.Exists(d.FileName)) {
                     var img = new BitmapImage(new Uri(d.FileName, UriKind.RelativeOrAbsolute));
-                    this.TryGetExif(d.FileName);
-                    this.SetImages(img);
-                    this.Title = d.FileName;
+                    TryGetExif(d.FileName);
+                    SetImages(img);
+                    Title = d.FileName;
                 }
             }
         } catch (Exception ex) {

@@ -13,7 +13,7 @@ public class TokenizerHelper {
     private int currentTokenIndex;
     private int currentTokenLength;
     private char quoteChar;
-    private string str;
+    private string? str;
     private int strLen;
 
     /// <summary>
@@ -37,9 +37,8 @@ public class TokenizerHelper {
     /// <param name="str"> The string to tokenize. </param>
     /// <param name="quoteChar"> The quote char. </param>
     /// <param name="separator"> The list separator. </param>
-    public TokenizerHelper(string str, char quoteChar, char separator) {
-        Initialize(str, quoteChar, separator);
-    }
+    public TokenizerHelper(string str, char quoteChar, char separator) 
+        => Initialize(str, quoteChar, separator);
 
     public bool FoundSeparator { get; private set; }
 
@@ -52,7 +51,7 @@ public class TokenizerHelper {
     /// <param name="separator"> The list separator. </param>
     private void Initialize(string str, char quoteChar, char separator) {
         this.str = str;
-        strLen = str == null ? 0 : str.Length;
+        strLen = str?.Length ?? 0;
         currentTokenIndex = -1;
         this.quoteChar = quoteChar;
         argSeparator = separator;
@@ -61,63 +60,58 @@ public class TokenizerHelper {
         // NextToken() logic always starts on the first
         // character of the next token.
         while (charIndex < strLen) {
-            if (!char.IsWhiteSpace(this.str, charIndex)) break;
+            if (!char.IsWhiteSpace(this.str, charIndex)) 
+                break;
 
             ++charIndex;
         }
     }
 
-    public string GetCurrentToken() {
+    public string? GetCurrentToken() {
         // if no current token, return null
-        if (currentTokenIndex < 0) return null;
+        if (currentTokenIndex < 0) 
+            return null;
 
-        return str.Substring(currentTokenIndex, currentTokenLength);
+        return str?.Substring(currentTokenIndex, currentTokenLength);
     }
 
     /// <summary>
     ///     Throws an exception if there is any non-whitespace left un-parsed.
     /// </summary>
     public void LastTokenRequired() {
-        if (charIndex != strLen) throw new InvalidOperationException("TokenizerHelperExtraDataEncountered");
+        if (charIndex != strLen) 
+            throw new InvalidOperationException("TokenizerHelperExtraDataEncountered");
     }
 
     /// <summary>
     ///     Advances to the NextToken
     /// </summary>
     /// <returns>true if next token was found, false if at end of string</returns>
-    public bool NextToken() {
-        return NextToken(false);
-    }
+    public bool NextToken() => NextToken(false);
 
     /// <summary>
     ///     Advances to the NextToken, throwing an exception if not present
     /// </summary>
     /// <returns>The next token found</returns>
-    public string NextTokenRequired() {
-        if (!NextToken(false)) throw new InvalidOperationException("TokenizerHelperPrematureStringTermination");
-
-        return GetCurrentToken();
-    }
+    public string? NextTokenRequired() => !NextToken(false) 
+                                              ? throw new InvalidOperationException("TokenizerHelperPrematureStringTermination") 
+                                              : GetCurrentToken();
 
     /// <summary>
     ///     Advances to the NextToken, throwing an exception if not present
     /// </summary>
     /// <returns>The next token found</returns>
-    public string NextTokenRequired(bool allowQuotedToken) {
-        if (!NextToken(allowQuotedToken))
-            throw new InvalidOperationException("TokenizerHelperPrematureStringTermination");
-
-        return GetCurrentToken();
-    }
+    public string? NextTokenRequired(bool allowQuotedToken) 
+        => !NextToken(allowQuotedToken) 
+               ? throw new InvalidOperationException("TokenizerHelperPrematureStringTermination") : GetCurrentToken();
 
     /// <summary>
     ///     Advances to the NextToken
     /// </summary>
     /// <returns>true if next token was found, false if at end of string</returns>
-    public bool NextToken(bool allowQuotedToken) {
+    public bool NextToken(bool allowQuotedToken) =>
         // use the currently-set separator character.
-        return NextToken(allowQuotedToken, argSeparator);
-    }
+        NextToken(allowQuotedToken, argSeparator);
 
     /// <summary>
     ///     Advances to the NextToken.  A separator character can be specified
@@ -129,7 +123,8 @@ public class TokenizerHelper {
         FoundSeparator = false; // reset
 
         // If we're at end of the string, just return false.
-        if (charIndex >= strLen) return false;
+        if (charIndex >= strLen) 
+            return false;
 
         var currentChar = str[charIndex];
 
@@ -187,7 +182,8 @@ public class TokenizerHelper {
         currentTokenIndex = newTokenIndex;
         currentTokenLength = newTokenLength;
 
-        if (currentTokenLength < 1) throw new InvalidOperationException("TokenizerHelperEmptyToken");
+        if (currentTokenLength < 1) 
+            throw new InvalidOperationException("TokenizerHelperEmptyToken");
 
         return true;
     }

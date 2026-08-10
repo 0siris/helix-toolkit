@@ -12,12 +12,12 @@ public interface IShaderByteCodeReader {
 /// </summary>
 public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
     public byte[] Read(string name) {
-        var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
+        var assembly = typeof(UwpShaderBytePool).GetTypeInfo().Assembly;
         return ReadResource(assembly, $"SilkCore.Resources.{name}.cso", $"{name}.cso");
     }
 
     public byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
-        var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
+        var assembly = typeof(UwpShaderBytePool).GetTypeInfo().Assembly;
         return ReadResource(assembly,
                             $"SilkCore.Resources.DX12.{stage}.{name}.{entryPoint}.dxil",
                             $"{stage}\\{name}.{entryPoint}.dxil");
@@ -36,7 +36,7 @@ public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
 /// <summary>
 ///     Used to read shader bytecode
 /// </summary>
-public static class UWPShaderBytePool {
+public static class UwpShaderBytePool {
     public static Dictionary<string, byte[]> Dict = [];
     internal static readonly HelixToolkitByteCodeReader InternalByteCodeReader = new();
 

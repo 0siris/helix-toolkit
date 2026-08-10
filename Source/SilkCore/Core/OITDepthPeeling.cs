@@ -11,8 +11,8 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class OITDepthPeeling : RenderCore {
-    private readonly ShaderResourceView[] finalSRVs = new ShaderResourceView[3];
+public sealed class OitDepthPeeling : RenderCore {
+    private readonly ShaderResourceView[] finalSrVs = new ShaderResourceView[3];
     private readonly ShaderResourceViewProxy[] minMaxZTargets = new ShaderResourceViewProxy[2];
     private readonly RenderTargetView[] targets = new RenderTargetView[3];
     private int currWidth, currHeight;
@@ -20,7 +20,7 @@ public sealed class OITDepthPeeling : RenderCore {
     private ShaderResourceViewProxy frontBlendingTarget, backBlendingTarget;
 
 
-    public OITDepthPeeling() : base(RenderType.Transparent) { }
+    public OitDepthPeeling() : base(RenderType.Transparent) { }
 
     public RenderParameter ExternRenderParameter { get; set; }
 
@@ -76,7 +76,7 @@ public sealed class OITDepthPeeling : RenderCore {
         var color = new Color4(0, 0, 0, 1);
         deviceContext.ClearRenderTargetView(frontBlendingTarget, color);
         if (ExternRenderParameter.RenderTargetView is {Length: > 0} && backBlendingTarget.Resource != null) {
-            if (ExternRenderParameter.IsMSAATexture)
+            if (ExternRenderParameter.IsMsaaTexture)
                 deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource,
                                                  0,
                                                  backBlendingTarget.Resource,
@@ -118,22 +118,22 @@ public sealed class OITDepthPeeling : RenderCore {
         }
 
         var buffer = context.RenderHost.RenderBuffer;
-        var hasMSAA = buffer.ColorBufferSampleDesc.Count > 1;
-        var nonMSAADepthBuffer = hasMSAA 
-                                     ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMSAA 
+        var hasMsaa = buffer.ColorBufferSampleDesc.Count > 1;
+        var nonMsaaDepthBuffer = hasMsaa 
+                                     ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMsaa 
                                      : null;
         
-        var depthStencilView = hasMSAA 
-                                   ? nonMSAADepthBuffer 
+        var depthStencilView = hasMsaa 
+                                   ? nonMsaaDepthBuffer 
                                    : ExternRenderParameter.DepthStencilView;
 
         RenderCount = 0;
         InitializeMinMaxRenderTarget(deviceContext);
-        context.OITRenderStage = OITRenderStage.DepthPeelingInitMinMaxZ;
+        context.OitRenderStage = OitRenderStage.DepthPeelingInitMinMaxZ;
         deviceContext.SetRenderTarget(depthStencilView, minMaxZTargets[0]);
         DrawMesh(context, deviceContext);
 
-        context.OITRenderStage = OITRenderStage.DepthPeeling;
+        context.OitRenderStage = OitRenderStage.DepthPeeling;
         var currId = 0;
         for (var layer = 1; layer < PeelingIteration; ++layer) {
             currId = layer % 2;
@@ -151,23 +151,23 @@ public sealed class OITDepthPeeling : RenderCore {
             deviceContext.SetShaderResource(new PixelShaderType(), 100, null);
         }
 
-        context.OITRenderStage = OITRenderStage.None;
+        context.OitRenderStage = OitRenderStage.None;
         
-        finalSRVs[0] = minMaxZTargets[currId];
-        finalSRVs[1] = frontBlendingTarget;
-        finalSRVs[2] = backBlendingTarget;
+        finalSrVs[0] = minMaxZTargets[currId];
+        finalSrVs[1] = frontBlendingTarget;
+        finalSrVs[2] = backBlendingTarget;
         
         finalPass.BindShader(deviceContext);
         finalPass.BindStates(deviceContext, StateType.All);
         
         deviceContext.SetRenderTargets(null, ExternRenderParameter.RenderTargetView);
-        deviceContext.SetShaderResources(new PixelShaderType(), 100, finalSRVs);
+        deviceContext.SetShaderResources(new PixelShaderType(), 100, finalSrVs);
         deviceContext.Draw(4, 0);
     }
 
     protected override bool OnAttach(IRenderTechnique technique) {
-        finalPass = technique[DefaultPassNames.OITDepthPeelingFinal];
-        return !finalPass.IsNULL;
+        finalPass = technique[DefaultPassNames.OitDepthPeelingFinal];
+        return !finalPass.IsNull;
     }
 
     protected override void OnDetach() {

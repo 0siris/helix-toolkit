@@ -27,9 +27,9 @@ public partial class MainWindow {
     /// Initializes a new instance of the <see cref="MainWindow"/> class.
     /// </summary>
     public MainWindow() {
-        this.InitializeComponent();
-        this.DataContext = this;
-        this.Examples = [.. this.GetExamples(this.GetType().Assembly)];
+        InitializeComponent();
+        DataContext = this;
+        Examples = [.. GetExamples(GetType().Assembly)];
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets the description.

@@ -59,7 +59,7 @@ public sealed class ConstantBufferPool :
     /// <param name="device">The device.</param>
     public ConstantBufferPool(object device)
         : base(false) {
-        this.Device = device;
+        Device = device;
     }
 
     public object Device { get; }

@@ -388,7 +388,7 @@ public sealed class CameraController {
     /// <value>
     ///     The allow rotate xy.
     /// </value>
-    public Vector2 AllowRotateXY { get; set; } = Vector2.One;
+    public Vector2 AllowRotateXy { get; set; } = Vector2.One;
 
     /// <summary>
     ///     Gets or sets Viewport.

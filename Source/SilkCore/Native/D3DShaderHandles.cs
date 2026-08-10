@@ -15,14 +15,14 @@ using SilkD3D11VertexShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11
 namespace HelixToolkit.SharpDX.Core;
 
 public enum FeatureLevel {
-    Level_DEFAULT = 0,
-    Level_9_1 = 0x9100,
-    Level_9_2 = 0x9200,
-    Level_9_3 = 0x9300,
-    Level_10_0 = 0xa000,
-    Level_10_1 = 0xa100,
-    Level_11_0 = 0xb000,
-    Level_11_1 = 0xb100
+    LevelDefault = 0,
+    Level91 = 0x9100,
+    Level92 = 0x9200,
+    Level93 = 0x9300,
+    Level100 = 0xa000,
+    Level101 = 0xa100,
+    Level110 = 0xb000,
+    Level111 = 0xb100
 }
 
 public enum InputClassification {

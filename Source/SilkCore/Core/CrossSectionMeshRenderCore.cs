@@ -15,7 +15,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public CrossSectionMeshRenderCore() {
         clipParamCb = AddComponent(new ConstantBufferComponent(
                                        new ConstantBufferDescription(
-                                           DefaultBufferNames.ClipParamsCB,
+                                           DefaultBufferNames.ClipParamsCb,
                                            ClipPlaneStruct.SizeInBytes)));
     }
 

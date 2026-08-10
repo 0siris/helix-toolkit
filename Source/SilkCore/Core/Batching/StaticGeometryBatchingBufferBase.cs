@@ -44,7 +44,7 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
         }
     }
 
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets the vertex buffer.

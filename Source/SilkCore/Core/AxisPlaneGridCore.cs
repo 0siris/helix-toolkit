@@ -38,7 +38,7 @@ public class AxisPlaneGridCore : RenderCore {
     /// </summary>
     public AxisPlaneGridCore() : base(RenderType.Particle) {
         modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.PlaneGridModelCB,
+                                                               DefaultBufferNames.PlaneGridModelCb,
                                                                PlaneGridModelStruct.SizeInBytes)));
         modelStruct = new PlaneGridModelStruct {
             World = Matrix.Identity,
@@ -206,7 +206,7 @@ public class AxisPlaneGridCore : RenderCore {
     protected override bool OnAttach(IRenderTechnique technique) {
         defaultShaderPass = technique[DefaultPassNames.Default];
         samplerSlot = defaultShaderPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.ShadowMapSampler);
-        shadowMapSlot = defaultShaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ShadowMapTB);
+        shadowMapSlot = defaultShaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ShadowMapTb);
         ShadowSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.ShadowSampler);
         return true;
     }

@@ -718,9 +718,9 @@ public partial class Viewport3DX {
                              (d, e) => {
                                  if ((d as Viewport3DX).renderHostInternal != null) {
                                      if ((bool)e.NewValue)
-                                         (d as Viewport3DX).renderHostInternal.ShowRenderDetail |= RenderDetail.FPS;
+                                         (d as Viewport3DX).renderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
                                      else
-                                         (d as Viewport3DX).renderHostInternal.ShowRenderDetail &= ~RenderDetail.FPS;
+                                         (d as Viewport3DX).renderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
                                  }
                              }));
 
@@ -1065,12 +1065,12 @@ public partial class Viewport3DX {
     ///     Set MSAA Level
     /// </summary>
     public static readonly DependencyProperty MSAAProperty = DependencyProperty.Register("MSAA",
-        typeof(MSAALevel),
+        typeof(MsaaLevel),
         typeof(Viewport3DX),
-        new PropertyMetadata(MSAALevel.Disable,
+        new PropertyMetadata(MsaaLevel.Disable,
                              (s, e) => {
                                  var viewport = s as Viewport3DX;
-                                 viewport.renderHostInternal?.MSAA = (MSAALevel)e.NewValue;
+                                 viewport.renderHostInternal?.Msaa = (MsaaLevel)e.NewValue;
                              }));
 
     /// <summary>
@@ -1259,14 +1259,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty OITRenderModeProperty =
         DependencyProperty.Register("OITRenderMode",
-                                    typeof(OITRenderType),
+                                    typeof(OitRenderType),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OITRenderType.DepthPeeling,
+                                    new PropertyMetadata(OitRenderType.DepthPeeling,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITRenderType = (OITRenderType)e.NewValue;
+                                                                         .OitRenderType = (OitRenderType)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1283,7 +1283,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITWeightPower = (float)(double)e.NewValue;
+                                                                         .OitWeightPower = (float)(double)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1301,7 +1301,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITWeightDepthSlope =
+                                                                         .OitWeightDepthSlope =
                                                                      (float)(double)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
@@ -1314,14 +1314,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty OITWeightModeProperty =
         DependencyProperty.Register("OITWeightMode",
-                                    typeof(OITWeightMode),
+                                    typeof(OitWeightMode),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OITWeightMode.Linear1,
+                                    new PropertyMetadata(OitWeightMode.Linear1,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITWeightMode = (OITWeightMode)e.NewValue;
+                                                                         .OitWeightMode = (OitWeightMode)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1335,7 +1335,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .OITDepthPeelingIteration = (int)e.NewValue;
+                                                                         .OitDepthPeelingIteration = (int)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1345,14 +1345,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty FXAALevelProperty =
         DependencyProperty.Register("FXAALevel",
-                                    typeof(FXAALevel),
+                                    typeof(FxaaLevel),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(FXAALevel.None,
+                                    new PropertyMetadata(FxaaLevel.None,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .FXAALevel = (FXAALevel)e.NewValue;
+                                                                         .FxaaLevel = (FxaaLevel)e.NewValue;
                                                                  viewport.InvalidateRender();
                                                              }
                                                          }));
@@ -1398,7 +1398,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .EnableSSAO = (bool)e.NewValue;
+                                                                         .EnableSsao = (bool)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1416,7 +1416,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAORadius = (float)(double)e.NewValue;
+                                                                         .SsaoRadius = (float)(double)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1430,7 +1430,7 @@ public partial class Viewport3DX {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAOIntensity = (float)(double)e.NewValue;
+                                                                         .SsaoIntensity = (float)(double)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -1440,14 +1440,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty SSAOQualityProperty =
         DependencyProperty.Register("SSAOQuality",
-                                    typeof(SSAOQuality),
+                                    typeof(SsaoQuality),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(SSAOQuality.Low,
+                                    new PropertyMetadata(SsaoQuality.Low,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
                                                              if (viewport.renderHostInternal != null) {
                                                                  viewport.renderHostInternal.RenderConfiguration
-                                                                         .SSAOQuality = (SSAOQuality)e.NewValue;
+                                                                         .SsaoQuality = (SsaoQuality)e.NewValue;
                                                                  viewport.renderHostInternal.InvalidateRender();
                                                              }
                                                          }));
@@ -2521,8 +2521,8 @@ public partial class Viewport3DX {
     /// <summary>
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
-    public MSAALevel MSAA {
-        get => (MSAALevel)GetValue(MSAAProperty);
+    public MsaaLevel MSAA {
+        get => (MsaaLevel)GetValue(MSAAProperty);
         set => SetValue(MSAAProperty, value);
     }
     /// <summary>
@@ -2678,8 +2678,8 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating the render mode for Transparent objects.
     ///     <see cref="MaterialGeometryModel3D.IsTransparent" />, <see cref="BillboardTextModel3D.IsTransparent" />
     /// </summary>
-    public OITRenderType OITRenderMode {
-        get => (OITRenderType)GetValue(OITRenderModeProperty);
+    public OitRenderType OITRenderMode {
+        get => (OitRenderType)GetValue(OITRenderModeProperty);
         set => SetValue(OITRenderModeProperty, value);
     }
 
@@ -2719,8 +2719,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The oit weight mode.
     /// </value>
-    public OITWeightMode OITWeightMode {
-        get => (OITWeightMode)GetValue(OITWeightModeProperty);
+    public OitWeightMode OITWeightMode {
+        get => (OitWeightMode)GetValue(OITWeightModeProperty);
         set => SetValue(OITWeightModeProperty, value);
     }
 
@@ -2735,8 +2735,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The enable fxaa.
     /// </value>
-    public FXAALevel FXAALevel {
-        get => (FXAALevel)GetValue(FXAALevelProperty);
+    public FxaaLevel FXAALevel {
+        get => (FxaaLevel)GetValue(FXAALevelProperty);
         set => SetValue(FXAALevelProperty, value);
     }
 
@@ -2805,8 +2805,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The ssao quality.
     /// </value>
-    public SSAOQuality SSAOQuality {
-        get => (SSAOQuality)GetValue(SSAOQualityProperty);
+    public SsaoQuality SSAOQuality {
+        get => (SsaoQuality)GetValue(SSAOQualityProperty);
         set => SetValue(SSAOQualityProperty, value);
     }
 

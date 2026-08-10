@@ -11,7 +11,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class Sprite2DRenderCore : RenderCore {
-    private readonly ConstantBufferComponent globalTransformCB;
+    private readonly ConstantBufferComponent globalTransformCb;
 
     private SamplerStateProxy sampler;
 
@@ -25,8 +25,8 @@ public sealed class Sprite2DRenderCore : RenderCore {
 
     public Sprite2DRenderCore()
         : base(RenderType.ScreenSpaced) {
-        globalTransformCB = AddComponent(new ConstantBufferComponent(
-                                             new ConstantBufferDescription(DefaultBufferNames.GlobalTransformCB,
+        globalTransformCb = AddComponent(new ConstantBufferComponent(
+                                             new ConstantBufferDescription(DefaultBufferNames.GlobalTransformCb,
                                                                            GlobalTransformStruct.SizeInBytes)));
     }
 
@@ -41,12 +41,12 @@ public sealed class Sprite2DRenderCore : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (Buffer == null || textureView == null || spritePass.IsNULL) return;
+        if (Buffer == null || textureView == null || spritePass.IsNull) return;
         var slot = 0;
         if (!Buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager)) return;
         var globalTrans = context.GlobalTransform;
         globalTrans.Projection = ProjectionMatrix;
-        globalTransformCB.Upload(deviceContext, ref globalTrans);
+        globalTransformCb.Upload(deviceContext, ref globalTrans);
         spritePass.BindShader(deviceContext);
         spritePass.BindStates(deviceContext, StateType.All);
         spritePass.PixelShader.BindTexture(deviceContext, texSlot, textureView);
@@ -59,7 +59,7 @@ public sealed class Sprite2DRenderCore : RenderCore {
 
     protected override bool OnAttach(IRenderTechnique technique) {
         spritePass = technique[DefaultPassNames.Default];
-        texSlot = spritePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SpriteTB);
+        texSlot = spritePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SpriteTb);
         samplerSlot =
             spritePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SpriteSampler);
         sampler = EffectTechnique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);

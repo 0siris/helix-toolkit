@@ -14,7 +14,8 @@ public static class AtomicHelper {
         int next;
         do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
-            if (next <= comparand) return false;
+            if (next <= comparand) 
+                return false;
         } while (Interlocked.CompareExchange(ref value, next + 1, next) != next);
 
         return true;
@@ -32,7 +33,8 @@ public static class AtomicHelper {
         int next;
         do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
-            if (next <= comparand) return false;
+            if (next <= comparand) 
+                return false;
         } while (Interlocked.CompareExchange(ref value, target, next) != next);
 
         return true;
@@ -49,7 +51,8 @@ public static class AtomicHelper {
         int next;
         do {
             next = Interlocked.CompareExchange(ref value, 0, 0);
-            if (next <= comparand) return false;
+            if (next <= comparand)
+                return false;
         } while (Interlocked.CompareExchange(ref value, next - 1, next) != next);
 
         return true;
@@ -61,7 +64,5 @@ public static class AtomicHelper {
     /// <param name="value"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Read(ref int value) {
-        return Interlocked.CompareExchange(ref value, 0, 0);
-    }
+    public static int Read(ref int value) => Interlocked.CompareExchange(ref value, 0, 0);
 }

@@ -109,7 +109,7 @@ public class StaticLineGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
             if (octant.Count == 0) return false;
             var result = new LineHitTestResult { IsValid = false, Distance = double.MaxValue };
             result.Distance = double.MaxValue;
-            var rayWS = context.RayWS;
+            var rayWs = context.RayWs;
             for (var i = octant.Start; i < octant.End; ++i) {
                 var idx = Objects[i].Key * 2;
                 var idx1 = Indices[idx];
@@ -119,7 +119,7 @@ public class StaticLineGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
 
                 var t0 = SilkMath.TransformCoordinate(v0, modelMatrix);
                 var t1 = SilkMath.TransformCoordinate(v1, modelMatrix);
-                var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWS,
+                var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWs,
                     t0,
                     t1,
                     out var sp,
@@ -136,7 +136,7 @@ public class StaticLineGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
                     lastDist = dist;
                     result.PointHit = sp;
                     result.NormalAtHit = sp - tp; // not normalized to get length
-                    result.Distance = (rayWS.Position - sp).Length;
+                    result.Distance = (rayWs.Position - sp).Length;
                     result.RayToLineDistance = rayToLineDistance;
                     result.ModelHit = model;
                     result.IsValid = true;

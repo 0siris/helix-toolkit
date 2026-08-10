@@ -268,7 +268,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         private readonly D3D9ImageSourceInterop interop;
 
         public D3DImageExt(int adapterIndex = 0) {
-            this.AdapterIndex = adapterIndex;
+            AdapterIndex = adapterIndex;
             interop = new D3D9ImageSourceInterop(adapterIndex);
             interop.CreateRenderTarget(1, 1);
             Lock();

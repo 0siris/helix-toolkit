@@ -42,7 +42,7 @@ public sealed class InputLayoutDescription {
     ) {
         ShaderByteCodeName = byteCodeName;
         InputElements = elements;
-        this.byteCodeReader = byteCodeReader ?? UWPShaderBytePool.InternalByteCodeReader;
+        this.byteCodeReader = byteCodeReader ?? UwpShaderBytePool.InternalByteCodeReader;
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class InputLayoutDescription {
     public byte[] ShaderByteCode {
         get {
             if (field == null && !string.IsNullOrEmpty(ShaderByteCodeName))
-                field = UWPShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
+                field = UwpShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
             return field;
         }
         set;

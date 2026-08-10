@@ -164,18 +164,18 @@ public class MainViewModel : BaseViewModel {
 
     public MainViewModel() {
         // titles
-        this.Title = "DynamicTexture Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "DynamicTexture Demo";
+        SubTitle = "WPF & SharpDX";
         EffectsManager = new DefaultEffectsManager();
-        this.Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(30, 30, 30),
             LookDirection = new Vector3D(-30, -30, -30),
             UpDirection = new Vector3D(0, 1, 0)
         };
-        this.Light1Color = Colors.White;
-        this.Light1Direction = new Vector3D(-10, -10, -10);
-        this.AmbientLightColor = Colors.DimGray;
-        SetupCameraBindings(this.Camera);
+        Light1Color = Colors.White;
+        Light1Direction = new Vector3D(-10, -10, -10);
+        AmbientLightColor = Colors.DimGray;
+        SetupCameraBindings(Camera);
         LineColor = Colors.Blue;
         Items = [];
         var sw = Stopwatch.StartNew();
@@ -271,7 +271,7 @@ public class MainViewModel : BaseViewModel {
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
-    public void OnMouseLeftButtonDownHandler(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+    public void OnMouseLeftButtonDownHandler(object sender, MouseButtonEventArgs e) {
         foreach (var item in HighlightItems) {
             item.Highlight = false;
         }

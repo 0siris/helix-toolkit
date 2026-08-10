@@ -88,7 +88,7 @@ public class MainViewModel : BaseViewModel {
     /// Collection of Materials to chose from
     /// </summary>
     public PhongMaterialCollection Materials {
-        get { return HelixToolkit.Wpf.SharpDX.PhongMaterials.Materials; }
+        get { return PhongMaterials.Materials; }
     }
 
     /// <summary>
@@ -127,13 +127,13 @@ public class MainViewModel : BaseViewModel {
     /// Text representing the current PointCount
     /// </summary>
     public string PointCountText {
-        get { return "Number of Points: " + this.mPointCount; }
+        get { return "Number of Points: " + mPointCount; }
     }
 
     /// <summary>
     /// The Geometry for the Triangle Lines
     /// </summary>
-    public HelixToolkit.SharpDX.Core.LineGeometry3D LineGeometry;
+    public LineGeometry3D LineGeometry;
 
     /// <summary>
     /// Constructor of the MainViewModel
@@ -143,39 +143,39 @@ public class MainViewModel : BaseViewModel {
         // Render Setup
         EffectsManager = new DefaultEffectsManager();
         // Window Setup
-        this.Title = "Polygon Triangulation Demo";
-        this.SubTitle = null;
+        Title = "Polygon Triangulation Demo";
+        SubTitle = null;
 
         // Camera Setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, 5, 9), LookDirection = new Vector3D(0, -5, -4),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // Lines Setup
-        this.LineThickness = 1;
-        this.TriangulationThickness = .5;
-        this.ShowTriangleLines = true;
+        LineThickness = 1;
+        TriangulationThickness = .5;
+        ShowTriangleLines = true;
 
         // Count Setup
-        this.PointCount = 1000;
+        PointCount = 1000;
 
         // Lighting Setup
-        this.AmbientLightColor = new Color4(.1f, .1f, .1f, 1.0f);
-        this.DirectionalLightColor = new Color4(1, 1, 1, 1);
-        this.DirectionalLightDirection = new Vector3(0, -1, 0);
+        AmbientLightColor = new Color4(.1f, .1f, .1f, 1.0f);
+        DirectionalLightColor = new Color4(1, 1, 1, 1);
+        DirectionalLightDirection = new Vector3(0, -1, 0);
 
         // Model Transformations
-        this.ModelTransform = new TranslateTransform3D(0, 0, 0);
-        this.ModelLineTransform = new TranslateTransform3D(0, 0.001, 0);
+        ModelTransform = new TranslateTransform3D(0, 0, 0);
+        ModelLineTransform = new TranslateTransform3D(0, 0.001, 0);
 
         // Model Materials and Colors
-        this.Material = PhongMaterials.PolishedBronze;
-        this.TriangulationColor = Media.Colors.Black;
+        Material = PhongMaterials.PolishedBronze;
+        TriangulationColor = Media.Colors.Black;
 
         // Grid Setup
-        this.Grid = LineBuilder.GenerateGrid(Vector3.UnitY, -5, 5, 0, 10);
-        this.GridColor = Media.Colors.DarkGray;
-        this.GridTransform = new TranslateTransform3D(0, -0.01, 0);
+        Grid = LineBuilder.GenerateGrid(Vector3.UnitY, -5, 5, 0, 10);
+        GridColor = Media.Colors.DarkGray;
+        GridTransform = new TranslateTransform3D(0, -0.01, 0);
     }
 }

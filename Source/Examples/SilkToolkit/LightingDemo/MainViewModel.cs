@@ -100,7 +100,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 ModelMaterial.DiffuseMap =
-                    TextureModel.Create(new System.Uri(value, System.UriKind.RelativeOrAbsolute).ToString());
+                    TextureModel.Create(new Uri(value, UriKind.RelativeOrAbsolute).ToString());
                 FloorMaterial.DiffuseMap = ModelMaterial.DiffuseMap;
             }
         }
@@ -111,36 +111,36 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 ModelMaterial.NormalMap =
-                    TextureModel.Create(new System.Uri(value, System.UriKind.RelativeOrAbsolute).ToString());
+                    TextureModel.Create(new Uri(value, UriKind.RelativeOrAbsolute).ToString());
                 FloorMaterial.NormalMap = ModelMaterial.NormalMap;
             }
         }
         get { return field; }
     } = @"TextureCheckerboard2_dot3.jpg";
 
-    public System.Windows.Media.Color DiffuseColor {
+    public Color DiffuseColor {
         set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }
         get { return ModelMaterial.DiffuseColor.ToColor(); }
     }
 
 
-    public System.Windows.Media.Color ReflectiveColor {
+    public Color ReflectiveColor {
         set { FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4(); }
         get { return ModelMaterial.ReflectiveColor.ToColor(); }
     }
 
-    public System.Windows.Media.Color EmissiveColor {
+    public Color EmissiveColor {
         set { FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4(); }
         get { return ModelMaterial.EmissiveColor.ToColor(); }
     }
 
-    public MSAALevel MSAA { set; get; } = MSAALevel.Disable;
+    public MsaaLevel MSAA { set; get; } = MsaaLevel.Disable;
 
-    public MSAALevel[] MSAAs { get; } = [MSAALevel.Disable, MSAALevel.Two, MSAALevel.Four, MSAALevel.Eight, MSAALevel.Maximum];
+    public MsaaLevel[] MSAAs { get; } = [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
 
-    public FXAALevel FXAA { set; get; } = FXAALevel.None;
+    public FxaaLevel FXAA { set; get; } = FxaaLevel.None;
 
-    public FXAALevel[] FXAAs { get; } = [FXAALevel.None, FXAALevel.Low, FXAALevel.Medium, FXAALevel.High, FXAALevel.Ultra];
+    public FxaaLevel[] FXAAs { get; } = [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
         Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
@@ -159,44 +159,44 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // ----------------------------------------------
         // titles
-        this.Title = "Lighting Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Lighting Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // ----------------------------------------------
         // setup scene
-        this.AmbientLightColor = Colors.DarkGray;
+        AmbientLightColor = Colors.DarkGray;
 
-        this.RenderLight1 = true;
-        this.RenderLight2 = true;
-        this.RenderLight3 = true;
-        this.RenderLight4 = true;
+        RenderLight1 = true;
+        RenderLight2 = true;
+        RenderLight3 = true;
+        RenderLight4 = true;
 
-        this.Light1Color = Colors.White;
-        this.Light2Color = Colors.Red;
-        this.Light3Color = Colors.LightYellow;
-        this.Light4Color = Colors.LightBlue;
+        Light1Color = Colors.White;
+        Light2Color = Colors.Red;
+        Light3Color = Colors.LightYellow;
+        Light4Color = Colors.LightBlue;
 
-        this.Light2Attenuation = new Vector3D(1.0f, 0.5f, 0.10f);
-        this.Light3Attenuation = new Vector3D(1.0f, 0.1f, 0.05f);
-        this.Light4Attenuation = new Vector3D(0.1f, 0.1f, 0.0f);
+        Light2Attenuation = new Vector3D(1.0f, 0.5f, 0.10f);
+        Light3Attenuation = new Vector3D(1.0f, 0.1f, 0.05f);
+        Light4Attenuation = new Vector3D(0.1f, 0.1f, 0.0f);
 
-        this.Light1Direction = new Vector3D(0, -10, 0);
-        this.Light1Transform = CreateAnimatedTransform1(-Light1Direction, new Vector3D(1, 0, 0), 24);
-        this.Light1DirectionTransform = CreateAnimatedTransform2(-Light1Direction, new Vector3D(0, 1, -1), 24);
+        Light1Direction = new Vector3D(0, -10, 0);
+        Light1Transform = CreateAnimatedTransform1(-Light1Direction, new Vector3D(1, 0, 0), 24);
+        Light1DirectionTransform = CreateAnimatedTransform2(-Light1Direction, new Vector3D(0, 1, -1), 24);
 
-        this.Light2Transform = CreateAnimatedTransform1(new Vector3D(-4, 0, 0), new Vector3D(0, 0, 1), 3);
-        this.Light3Transform = CreateAnimatedTransform1(new Vector3D(0, 0, 4), new Vector3D(0, 1, 0), 5);
+        Light2Transform = CreateAnimatedTransform1(new Vector3D(-4, 0, 0), new Vector3D(0, 0, 1), 3);
+        Light3Transform = CreateAnimatedTransform1(new Vector3D(0, 0, 4), new Vector3D(0, 1, 0), 5);
 
-        this.Light4Direction = new Vector3D(0, -5, -1);
-        this.Light4Transform = CreateAnimatedTransform2(-Light4Direction * 2, new Vector3D(0, 1, 0), 24);
-        this.Light4DirectionTransform = CreateAnimatedTransform2(-Light4Direction, new Vector3D(1, 0, 0), 12);
+        Light4Direction = new Vector3D(0, -5, -1);
+        Light4Transform = CreateAnimatedTransform2(-Light4Direction * 2, new Vector3D(0, 1, 0), 24);
+        Light4DirectionTransform = CreateAnimatedTransform2(-Light4Direction, new Vector3D(1, 0, 0), 12);
 
         var transformGroup = new Media3D.Transform3DGroup();
         transformGroup.Children.Add(new Media3D.ScaleTransform3D(10, 10, 10));
@@ -207,7 +207,7 @@ public class MainViewModel : BaseViewModel {
         var sphere = new MeshBuilder();
         sphere.AddSphere(new Vector3(0, 0, 0), 0.2);
         Sphere = sphere.ToMeshGeometry3D();
-        this.LightModelMaterial = new PhongMaterial {
+        LightModelMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = Colors.Gray.ToColor4(),
             EmissiveColor = Colors.Yellow.ToColor4(),
@@ -224,12 +224,12 @@ public class MainViewModel : BaseViewModel {
         b1.AddCylinder(new Vector3(0f, -3f, -5f), new Vector3(0f, 3f, -5f), 1.2, 24);
         b1.AddSphere(new Vector3(-5.0f, -5.0f, 5.0f), 4, 24, 64);
         b1.AddCone(new Vector3(6f, -9f, -6f), new Vector3(6f, -1f, -6f), 4f, true, 64);
-        this.Model = b1.ToMeshGeometry3D();
-        this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);
-        this.ModelMaterial = PhongMaterials.Chrome;
+        Model = b1.ToMeshGeometry3D();
+        ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        ModelMaterial = PhongMaterials.Chrome;
 
-        this.ModelMaterial.NormalMap =
-            TextureModel.Create(new System.Uri(SelectedNormalTexture, System.UriKind.RelativeOrAbsolute).ToString());
+        ModelMaterial.NormalMap =
+            TextureModel.Create(new Uri(SelectedNormalTexture, UriKind.RelativeOrAbsolute).ToString());
 
         // ----------------------------------------------
         // floor model3d
@@ -238,16 +238,16 @@ public class MainViewModel : BaseViewModel {
         b2.AddBox(new Vector3(0.0f, -5.0f, 0.0f), 15, 1, 15, BoxFaces.All);
         //b2.AddSphere(new Vector3(-5.0f, -5.0f, 5.0f), 4, 24, 64);
         //b2.AddCone(new Vector3(6f, -9f, -6f), new Vector3(6f, -1f, -6f), 4f, true, 64);
-        this.Floor = b2.ToMeshGeometry3D();
-        this.FloorTransform = new Media3D.TranslateTransform3D(0, 0, 0);
-        this.FloorMaterial = new PhongMaterial {
+        Floor = b2.ToMeshGeometry3D();
+        FloorTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        FloorMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
             SpecularColor = Colors.White.ToColor4(),
             SpecularShininess = 100f,
             DiffuseMap =
                 TextureModel.Create(
-                    new System.Uri(SelectedDiffuseTexture, System.UriKind.RelativeOrAbsolute).ToString()),
+                    new Uri(SelectedDiffuseTexture, UriKind.RelativeOrAbsolute).ToString()),
             NormalMap = ModelMaterial.NormalMap,
             RenderShadowMap = true
         };
@@ -299,7 +299,7 @@ public class MainViewModel : BaseViewModel {
             random.NextDouble(2, 10));
     }
 
-    private Media3D.Transform3D CreateAnimatedTransform1(Vector3D translate, Vector3D axis, double speed = 4) {
+    private Transform3D CreateAnimatedTransform1(Vector3D translate, Vector3D axis, double speed = 4) {
         var lightTrafo = new Media3D.Transform3DGroup();
         lightTrafo.Children.Add(new Media3D.TranslateTransform3D(translate));
 
@@ -317,7 +317,7 @@ public class MainViewModel : BaseViewModel {
         return lightTrafo;
     }
 
-    private Media3D.Transform3D CreateAnimatedTransform2(Vector3D translate, Vector3D axis, double speed = 4) {
+    private Transform3D CreateAnimatedTransform2(Vector3D translate, Vector3D axis, double speed = 4) {
         var lightTrafo = new Media3D.Transform3DGroup();
         lightTrafo.Children.Add(new Media3D.TranslateTransform3D(translate));
 

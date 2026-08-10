@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 public sealed class ConstantBufferProxy : BufferProxyBase {
     private readonly object lockObj = new();
 
-    internal BufferDescription bufferDesc;
+    internal BufferDescription BufferDesc;
 
     /// <summary>
     /// </summary>
@@ -38,7 +38,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
         if (structSize % 16 != 0)
             throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
         Name = name;
-        bufferDesc = new BufferDescription {
+        BufferDesc = new BufferDescription {
             SizeInBytes = structSize,
             BindFlags = bindFlags,
             CpuAccessFlags = cpuAccessFlags,
@@ -56,7 +56,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
         if (description.StructSize % 16 != 0)
             throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
         Name = description.Name;
-        bufferDesc = new BufferDescription {
+        BufferDesc = new BufferDescription {
             SizeInBytes = description.StructSize,
             BindFlags = description.BindFlags,
             CpuAccessFlags = description.CpuAccessFlags,
@@ -104,7 +104,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     }
 
     private void EnsureBuffer(DeviceContextProxy context) {
-        buffer ??= new Buffer(context, bufferDesc);
+        buffer ??= new Buffer(context, BufferDesc);
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     public void UploadDataToBuffer<T>(DeviceContextProxy context, ref T data) where T : unmanaged {
         lock (lockObj) {
             EnsureBuffer(context);
-            if (bufferDesc.Usage == ResourceUsage.Dynamic) {
+            if (BufferDesc.Usage == ResourceUsage.Dynamic) {
                 Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());
                 var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer, ref data);
@@ -153,7 +153,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
         where T : unmanaged {
         lock (lockObj) {
             EnsureBuffer(context);
-            if (bufferDesc.Usage == ResourceUsage.Dynamic) {
+            if (BufferDesc.Usage == ResourceUsage.Dynamic) {
                 Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= buffer.Description.SizeInBytes);
                 var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer, data, offset, count);
@@ -173,7 +173,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     public void UploadDataToBuffer(DeviceContextProxy context, Action<DataBox> writeFuc) {
         lock (lockObj) {
             EnsureBuffer(context);
-            if (bufferDesc.Usage == ResourceUsage.Dynamic) {
+            if (BufferDesc.Usage == ResourceUsage.Dynamic) {
                 var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 writeFuc?.Invoke(dataBox);
                 context.UnmapSubresource(buffer, 0);
@@ -216,7 +216,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
             throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
         lock (lockObj) {
             RemoveAndDispose(ref buffer);
-            bufferDesc.SizeInBytes = structSize;
+            BufferDesc.SizeInBytes = structSize;
         }
     }
 

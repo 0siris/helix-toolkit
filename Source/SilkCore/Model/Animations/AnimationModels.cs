@@ -67,7 +67,7 @@ public class Animation {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; set; } = Guid.NewGuid();
+    public Guid Guid { get; set; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets the type of the animation.

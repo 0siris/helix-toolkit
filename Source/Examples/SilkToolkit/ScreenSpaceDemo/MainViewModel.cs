@@ -50,11 +50,11 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         // ----------------------------------------------
         // titles
-        this.Title = "Screen Space Ambient Occlusion Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Screen Space Ambient Occlusion Demo";
+        SubTitle = "WPF & SharpDX";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(1.5, 2.5, 2.5), LookDirection = new Vector3D(-1.5, -2.5, -2.5),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -64,22 +64,22 @@ public class MainViewModel : BaseViewModel {
         RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
 
         // background
-        this.BackgroundColor = new Color4(1, 1, 1, 1);
+        BackgroundColor = new Color4(1, 1, 1, 1);
 
         // setup lighting
-        this.AmbientLightColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f);
-        this.DirectionalLightColor = new Color4(1, 1, 1, 1);
-        this.DirectionalLightDirection1 = new Vector3(-2, -5, -2);
-        this.DirectionalLightDirection2 = new Vector3(+2, +5, +5);
+        AmbientLightColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f);
+        DirectionalLightColor = new Color4(1, 1, 1, 1);
+        DirectionalLightDirection1 = new Vector3(-2, -5, -2);
+        DirectionalLightDirection2 = new Vector3(+2, +5, +5);
 
         // model materials
-        this.DefaultMaterial = PhongMaterials.DefaultVRML;
+        DefaultMaterial = PhongMaterials.DefaultVRML;
 
         //load model
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/CornellBox-Glossy.obj");
 
-        this.ModelGeometry =
+        ModelGeometry =
         [
             .. objModel.Select(x => new MeshGeometryModel3D() {
                 Geometry = x.Geometry as MeshGeometry3D,
@@ -88,7 +88,7 @@ public class MainViewModel : BaseViewModel {
         ];
 
         // model trafos
-        this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        ModelTransform = new TranslateTransform3D(0, 0, 0);
     }
 
     private static Material GetMaterialFromMaterialCore(PhongMaterialCore material) {

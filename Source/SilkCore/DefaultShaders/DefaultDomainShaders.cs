@@ -10,12 +10,12 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public static class DefaultDomainShaders {
     /// <summary>
     /// </summary>
-    public static string DSMeshTessellation { get; } = "dsMeshTriTessellation";
+    public static string DsMeshTessellation { get; } = "dsMeshTriTessellation";
 }
 
 public static class DefaultDomainShaderDescriptions {
-    public static readonly ShaderDescription DSMeshTessellation = new(nameof(DSMeshTessellation),
+    public static readonly ShaderDescription DsMeshTessellation = new(nameof(DsMeshTessellation),
                                                                       ShaderStage.Domain,
                                                                       new ShaderReflector(),
-                                                                      DefaultDomainShaders.DSMeshTessellation);
+                                                                      DefaultDomainShaders.DsMeshTessellation);
 }

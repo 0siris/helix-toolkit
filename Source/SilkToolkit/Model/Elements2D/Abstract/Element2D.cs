@@ -246,7 +246,7 @@ public abstract class Element2D : Element2DCore, ITransformable2D, IHitable2D {
                                                          (d, e) => {
                                                              (d as Element2DCore).SceneNode.ModelMatrix =
                                                                  e.NewValue == null
-                                                                     ? Matrix3x2.Identity
+                                                                     ? Matrix3X2.Identity
                                                                      : ((Media.Transform)e.NewValue).Value
                                                                      .ToMatrix3x2();
                                                          }));

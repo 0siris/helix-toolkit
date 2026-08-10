@@ -6,8 +6,8 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 ///     Enable dedicated graphics card for rendering.
 ///     https://stackoverflow.com/questions/17270429/forcing-hardware-accelerated-rendering
 /// </summary>
-public sealed class NVOptimusEnabler {
-    static NVOptimusEnabler() {
+public sealed class NvOptimusEnabler {
+    static NvOptimusEnabler() {
         try {
             if (Environment.Is64BitProcess)
                 NativeMethods.LoadNvApi64();

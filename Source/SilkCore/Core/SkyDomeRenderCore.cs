@@ -16,7 +16,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     ///     Initializes a new instance of the <see cref="SkyBoxRenderCore" /> class.
     /// </summary>
     public SkyDomeRenderCore() {
-        RasterDescription = DefaultRasterDescriptions.RSSkyDome;
+        RasterDescription = DefaultRasterDescriptions.RsSkyDome;
     }
 
     /// <summary>
@@ -26,8 +26,8 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// <returns></returns>
     protected override bool OnAttach(IRenderTechnique technique) {
         if (base.OnAttach(technique)) {
-            DefaultShaderPass = technique[DefaultPassNames.Default];
-            OnDefaultPassChanged(DefaultShaderPass);
+            defaultShaderPass = technique[DefaultPassNames.Default];
+            OnDefaultPassChanged(defaultShaderPass);
             skyBuffer = new SkyDomeBufferModel {
                 Geometry = SphereMesh
             };
@@ -79,10 +79,10 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         context.SharedResource.EnvironementMap = cubeTextureRes;
         context.SharedResource.EnvironmentMapMipLevels = MipMapLevels;
         if (SkipRendering) return;
-        DefaultShaderPass.BindShader(deviceContext);
-        DefaultShaderPass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-        DefaultShaderPass.PixelShader.BindTexture(deviceContext, cubeTextureSlot, cubeTextureRes);
-        DefaultShaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
+        defaultShaderPass.BindShader(deviceContext);
+        defaultShaderPass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
+        defaultShaderPass.PixelShader.BindTexture(deviceContext, cubeTextureSlot, cubeTextureRes);
+        defaultShaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
         deviceContext.DrawIndexed(GeometryBuffer.IndexBuffer.ElementCount, 0, 0);
     }
 
@@ -134,7 +134,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     private int cubeTextureSlot;
     private SamplerStateProxy textureSampler;
     private int textureSamplerSlot;
-    private ShaderPass DefaultShaderPass;
+    private ShaderPass defaultShaderPass;
     private SkyDomeBufferModel skyBuffer;
 
 #endregion
@@ -187,7 +187,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// <value>
     ///     The name of the shader cube texture.
     /// </value>
-    public string ShaderCubeTextureName { get; set; } = DefaultBufferNames.CubeMapTB;
+    public string ShaderCubeTextureName { get; set; } = DefaultBufferNames.CubeMapTb;
 
     /// <summary>
     ///     Gets or sets the name of the shader cube texture sampler.

@@ -172,8 +172,8 @@ public static class Extensions {
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <returns></returns>
-    public static UVTransform ToHelixUVTransform(this global::Assimp.UVTransform transform) {
-        return new UVTransform(transform.Rotation,
+    public static UvTransform ToHelixUVTransform(this UVTransform transform) {
+        return new UvTransform(transform.Rotation,
                                transform.Scaling.ToSharpDXVector2(),
                                transform.Translation.ToSharpDXVector2());
     }

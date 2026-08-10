@@ -71,7 +71,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is rendering.
@@ -291,10 +291,10 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The msaa.
     /// </value>
-    public MSAALevel MSAA { get; set; }
+    public MsaaLevel Msaa { get; set; }
 
     public FeatureLevel FeatureLevel =>
-        currentRenderHost != null ? currentRenderHost.FeatureLevel : FeatureLevel.Level_11_0;
+        currentRenderHost != null ? currentRenderHost.FeatureLevel : FeatureLevel.Level110;
 
     /// <summary>
     ///     Gets or sets the viewport.

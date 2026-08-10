@@ -29,7 +29,7 @@ public sealed class BlendStatePool : ReferenceCountedDictionaryPool<BlendStateDe
         ref BlendStateDescription key,
         ref BlendStateDescription description
     ) {
-        if (device.FeatureLevel < SilkFeatureLevel.Level_11_0 && description.IndependentBlendEnable)
+        if (device.FeatureLevel < SilkFeatureLevel.Level110 && description.IndependentBlendEnable)
             description.IndependentBlendEnable = false;
         return new BlendStateProxy(device.CreateBlendState(description));
     }

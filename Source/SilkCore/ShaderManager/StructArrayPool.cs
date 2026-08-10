@@ -23,7 +23,7 @@ public sealed unsafe class ArrayStorage : DisposeObject {
     private readonly ReaderWriterLockSlim rwLock = new();
 
     public ArrayStorage(int structSize) {
-        this.StructSize = structSize;
+        StructSize = structSize;
     }
 
     public int StructSize { get; }

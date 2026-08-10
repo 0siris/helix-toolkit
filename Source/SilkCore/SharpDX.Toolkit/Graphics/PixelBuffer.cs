@@ -29,12 +29,12 @@ public sealed class PixelBuffer {
         if (dataPointer == nint.Zero)
             throw new ArgumentException("Pointer cannot be equal to IntPtr.Zero", "dataPointer");
 
-        this.Width = width;
-        this.Height = height;
+        Width = width;
+        Height = height;
         this.format = format;
-        this.RowStride = rowStride;
-        this.BufferStride = bufferStride;
-        this.DataPointer = dataPointer;
+        RowStride = rowStride;
+        BufferStride = bufferStride;
+        DataPointer = dataPointer;
         PixelSize = FormatHelper.SizeOfInBytes(this.format);
         isStrictRowStride = PixelSize * width == rowStride;
     }

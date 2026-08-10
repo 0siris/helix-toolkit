@@ -146,21 +146,21 @@ public class BillboardSingleImage3D : BillboardBase {
     protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
         GetQuadOffset(Width, Height, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
-        var uv_tl = new Vector2(0, 0);
-        var uv_br = new Vector2(1, 1);
-        var transform = Angle != 0 ? Matrix3x2.Rotation(Angle) : Matrix3x2.Identity;
+        var uvTl = new Vector2(0, 0);
+        var uvBr = new Vector2(1, 1);
+        var transform = Angle != 0 ? Matrix3X2.Rotation(Angle) : Matrix3X2.Identity;
         var tr = new Vector2(br.X, tl.Y);
         var bl = new Vector2(tl.X, br.Y);
         BillboardVertices.Add(new BillboardVertex {
             Position = Center.ToVector4(),
             Foreground = Color.White,
             Background = MaskColor,
-            TexTL = uv_tl,
-            TexBR = uv_br,
-            OffTL = Matrix3x2.TransformPoint(transform, tl) + Offset,
-            OffBR = Matrix3x2.TransformPoint(transform, br) + Offset,
-            OffBL = Matrix3x2.TransformPoint(transform, bl) + Offset,
-            OffTR = Matrix3x2.TransformPoint(transform, tr) + Offset
+            TexTL = uvTl,
+            TexBR = uvBr,
+            OffTL = Matrix3X2.TransformPoint(transform, tl) + Offset,
+            OffBR = Matrix3X2.TransformPoint(transform, br) + Offset,
+            OffBL = Matrix3X2.TransformPoint(transform, bl) + Offset,
+            OffTR = Matrix3X2.TransformPoint(transform, tr) + Offset
         });
     }
 
@@ -171,9 +171,9 @@ public class BillboardSingleImage3D : BillboardBase {
         object originalSource,
         bool fixedSize
     ) {
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
-            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
+            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 
         return fixedSize

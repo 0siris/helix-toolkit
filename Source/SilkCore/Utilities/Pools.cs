@@ -21,21 +21,21 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <typeparam name="TArgument"></typeparam>
 public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : DisposeObject
     where TValue : DisposeObject {
-    private readonly bool autoDispose_;
-    private readonly Dictionary<TKey, TValue> pool_ = [];
+    private readonly bool autoDispose;
+    private readonly Dictionary<TKey, TValue> pool = [];
 
     /// <summary>
     /// </summary>
     /// <param name="autoDispose">Dispose object if no more exteranl references.</param>
     protected ReferenceCountedDictionaryPool(bool autoDispose) {
-        autoDispose_ = autoDispose;
+        this.autoDispose = autoDispose;
     }
 
-    public int DictionaryCount => pool_.Count;
+    public int DictionaryCount => pool.Count;
 
-    public int Count => pool_.Count;
+    public int Count => pool.Count;
 
-    protected IEnumerable<TValue> Items => pool_.Values;
+    protected IEnumerable<TValue> Items => pool.Values;
 
     /// <summary>
     ///     Try to create or get object from the pool. Reference is incremented before returning.
@@ -56,17 +56,17 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
         }
 
         do {
-            lock (pool_) {
-                if (!pool_.TryGetValue(key, out objOut)) {
+            lock (pool) {
+                if (!pool.TryGetValue(key, out objOut)) {
                     objOut = OnCreate(ref key, ref argument);
-                    pool_.Add(key, objOut);
+                    pool.Add(key, objOut);
                     if (objOut == null) {
-                        pool_.Remove(key);
+                        pool.Remove(key);
                         return false;
                     }
 
                     objOut.AddBackToPool = Item_AddBackToPool;
-                    objOut.Disposed += (s, e) => { pool_.Remove(key); };
+                    objOut.Disposed += (s, e) => { pool.Remove(key); };
                 }
 
                 if (objOut.IncRef() <= 1 || objOut.IsDisposed) {
@@ -97,8 +97,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
 #endif
         }
 
-        lock (pool_) {
-            if (!pool_.TryGetValue(key, out objOut)) return false;
+        lock (pool) {
+            if (!pool.TryGetValue(key, out objOut)) return false;
             return objOut.IncRef() > 1 && !objOut.IsDisposed;
         }
     }
@@ -120,8 +120,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
 #endif
         }
 
-        lock (pool_) {
-            if (!pool_.Remove(key)) return false;
+        lock (pool) {
+            if (!pool.Remove(key)) return false;
             objOut.AddBackToPool = null;
         }
 
@@ -129,8 +129,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     }
 
     private void Item_AddBackToPool(DisposeObject e) {
-        if (autoDispose_)
-            lock (pool_) {
+        if (autoDispose)
+            lock (pool) {
                 if (e.RefCount > 1 || e.IsDisposed) return;
                 Debug.Assert(e.RefCount == 1);
                 e.AddBackToPool = null;
@@ -145,9 +145,9 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     protected void Clear() {
         if (IsDisposed) throw new InvalidOperationException("Pool has been disposed.");
         TValue[] items;
-        lock (pool_) {
-            items = [.. pool_.Values];
-            pool_.Clear();
+        lock (pool) {
+            items = [.. pool.Values];
+            pool.Clear();
         }
 
         foreach (var item in items) {

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
+using HelixToolkit.SharpDX.Core;
 using Media = System.Windows.Media;
 using Point = System.Windows.Point;
 
@@ -11,8 +12,8 @@ public static class Media3DExtension {
         return new Vector3D(vector.X, vector.Y, vector.Z);
     }
 
-    public static Matrix3x3 ToMatrix3x3(this Media.Matrix m) {
-        return new Matrix3x3((float)m.M11,
+    public static Matrix3X3 ToMatrix3x3(this Media.Matrix m) {
+        return new Matrix3X3((float)m.M11,
                              (float)m.M12,
                              0,
                              (float)m.M21,
@@ -23,8 +24,8 @@ public static class Media3DExtension {
                              1f);
     }
 
-    public static Matrix3x2 ToMatrix3x2(this Media.Matrix m) {
-        return new Matrix3x2((float)m.M11,
+    public static Matrix3X2 ToMatrix3x2(this Media.Matrix m) {
+        return new Matrix3X2((float)m.M11,
                              (float)m.M12,
                              (float)m.M21,
                              (float)m.M22,

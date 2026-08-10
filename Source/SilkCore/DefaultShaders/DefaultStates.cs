@@ -7,23 +7,23 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
 public static class DefaultBlendStateDescriptions {
-    public static readonly BlendStateDescription BSAlphaBlend;
-    public static readonly BlendStateDescription BSSourceAlways;
+    public static readonly BlendStateDescription BsAlphaBlend;
+    public static readonly BlendStateDescription BsSourceAlways;
     public static readonly BlendStateDescription NoBlend;
-    public static readonly BlendStateDescription BSOverlayBlending;
+    public static readonly BlendStateDescription BsOverlayBlending;
     public static readonly BlendStateDescription AdditiveBlend;
-    public static readonly BlendStateDescription BSScreenDupCursorBlend;
-    public static readonly BlendStateDescription BSOITBlend = new() { IndependentBlendEnable = true };
-    public static readonly BlendStateDescription BSOTISortingBlend;
-    public static readonly BlendStateDescription BSMeshOITBlendQuad;
+    public static readonly BlendStateDescription BsScreenDupCursorBlend;
+    public static readonly BlendStateDescription BsoitBlend = new() { IndependentBlendEnable = true };
+    public static readonly BlendStateDescription BsotiSortingBlend;
+    public static readonly BlendStateDescription BsMeshOitBlendQuad;
     public static readonly BlendStateDescription VolumeBlending;
-    public static readonly BlendStateDescription BSGlowBlending;
-    public static readonly BlendStateDescription BSOITDP;
-    public static readonly BlendStateDescription BSOITDPMaxBlending;
-    public static readonly BlendStateDescription BSOITDPFinal;
+    public static readonly BlendStateDescription BsGlowBlending;
+    public static readonly BlendStateDescription Bsoitdp;
+    public static readonly BlendStateDescription BsoitdpMaxBlending;
+    public static readonly BlendStateDescription BsoitdpFinal;
 
     static DefaultBlendStateDescriptions() {
-        BSAlphaBlend.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsAlphaBlend.RenderTarget[0] = new RenderTargetBlendDescription {
             AlphaBlendOperation = BlendOperation.Add,
             BlendOperation = BlendOperation.Add,
             SourceBlend = BlendOption.SourceAlpha,
@@ -35,7 +35,7 @@ public static class DefaultBlendStateDescriptions {
             RenderTargetWriteMask = ColorWriteMaskFlags.All
         };
 
-        BSSourceAlways.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsSourceAlways.RenderTarget[0] = new RenderTargetBlendDescription {
             AlphaBlendOperation = BlendOperation.Add,
             BlendOperation = BlendOperation.Add,
             DestinationBlend = BlendOption.Zero,
@@ -47,7 +47,7 @@ public static class DefaultBlendStateDescriptions {
         };
 
         NoBlend.RenderTarget[0] = new RenderTargetBlendDescription { IsBlendEnabled = false };
-        BSOverlayBlending.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsOverlayBlending.RenderTarget[0] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             SourceBlend = BlendOption.One,
             DestinationBlend = BlendOption.One,
@@ -69,7 +69,7 @@ public static class DefaultBlendStateDescriptions {
             RenderTargetWriteMask = ColorWriteMaskFlags.All
         };
 
-        BSScreenDupCursorBlend.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsScreenDupCursorBlend.RenderTarget[0] = new RenderTargetBlendDescription {
             SourceBlend = BlendOption.SourceAlpha,
             DestinationBlend = BlendOption.InverseSourceAlpha,
             BlendOperation = BlendOperation.Add,
@@ -80,7 +80,7 @@ public static class DefaultBlendStateDescriptions {
             IsBlendEnabled = true
         };
 
-        BSOITBlend.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsoitBlend.RenderTarget[0] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             SourceBlend = BlendOption.One,
             DestinationBlend = BlendOption.One,
@@ -90,7 +90,7 @@ public static class DefaultBlendStateDescriptions {
             AlphaBlendOperation = BlendOperation.Add,
             RenderTargetWriteMask = ColorWriteMaskFlags.All
         };
-        BSOITBlend.RenderTarget[1] = new RenderTargetBlendDescription {
+        BsoitBlend.RenderTarget[1] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             SourceBlend = BlendOption.Zero,
             DestinationBlend = BlendOption.InverseSourceAlpha,
@@ -101,7 +101,7 @@ public static class DefaultBlendStateDescriptions {
             RenderTargetWriteMask = ColorWriteMaskFlags.Alpha
         };
 
-        BSMeshOITBlendQuad.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsMeshOitBlendQuad.RenderTarget[0] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             SourceBlend = BlendOption.InverseSourceAlpha,
             DestinationBlend = BlendOption.SourceAlpha,
@@ -125,7 +125,7 @@ public static class DefaultBlendStateDescriptions {
             RenderTargetWriteMask = ColorWriteMaskFlags.All
         };
 
-        BSGlowBlending.RenderTarget[0] = new RenderTargetBlendDescription {
+        BsGlowBlending.RenderTarget[0] = new RenderTargetBlendDescription {
             BlendOperation = BlendOperation.Add,
             SourceBlend = BlendOption.One,
             DestinationBlend = BlendOption.InverseSourceAlpha,
@@ -137,10 +137,10 @@ public static class DefaultBlendStateDescriptions {
             RenderTargetWriteMask = ColorWriteMaskFlags.All
         };
 
-        BSOITDP.IndependentBlendEnable = true;
-        BSOITDP.AlphaToCoverageEnable = false;
+        Bsoitdp.IndependentBlendEnable = true;
+        Bsoitdp.AlphaToCoverageEnable = false;
         // Max blending
-        BSOITDP.RenderTarget[0] = new RenderTargetBlendDescription {
+        Bsoitdp.RenderTarget[0] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             RenderTargetWriteMask = ColorWriteMaskFlags.All,
             SourceBlend = BlendOption.One,
@@ -151,7 +151,7 @@ public static class DefaultBlendStateDescriptions {
             AlphaBlendOperation = BlendOperation.Maximum
         };
         // Front to back blending
-        BSOITDP.RenderTarget[1] = new RenderTargetBlendDescription {
+        Bsoitdp.RenderTarget[1] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             RenderTargetWriteMask = ColorWriteMaskFlags.All,
             SourceBlend = BlendOption.DestinationAlpha,
@@ -162,7 +162,7 @@ public static class DefaultBlendStateDescriptions {
             AlphaBlendOperation = BlendOperation.Add
         };
         // Back to front blending
-        BSOITDP.RenderTarget[2] = new RenderTargetBlendDescription {
+        Bsoitdp.RenderTarget[2] = new RenderTargetBlendDescription {
             IsBlendEnabled = true,
             RenderTargetWriteMask = ColorWriteMaskFlags.All,
             SourceBlend = BlendOption.SourceAlpha,
@@ -172,11 +172,11 @@ public static class DefaultBlendStateDescriptions {
             DestinationAlphaBlend = BlendOption.One,
             AlphaBlendOperation = BlendOperation.Add
         };
-        BSOITDPMaxBlending.AlphaToCoverageEnable = false;
-        BSOITDPMaxBlending.IndependentBlendEnable = true;
+        BsoitdpMaxBlending.AlphaToCoverageEnable = false;
+        BsoitdpMaxBlending.IndependentBlendEnable = true;
         // Max blending
         for (var i = 0; i < 3; ++i)
-            BSOITDPMaxBlending.RenderTarget[i] = new RenderTargetBlendDescription {
+            BsoitdpMaxBlending.RenderTarget[i] = new RenderTargetBlendDescription {
                 IsBlendEnabled = true,
                 RenderTargetWriteMask = ColorWriteMaskFlags.All,
                 SourceBlend = BlendOption.One,
@@ -187,8 +187,8 @@ public static class DefaultBlendStateDescriptions {
                 AlphaBlendOperation = BlendOperation.Maximum
             };
 
-        BSOITDPFinal = BSSourceAlways;
-        BSOITDPFinal.AlphaToCoverageEnable = false;
+        BsoitdpFinal = BsSourceAlways;
+        BsoitdpFinal.AlphaToCoverageEnable = false;
     }
 }
 
@@ -198,7 +198,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS depth less
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSDepthLess = new() {
+    public static readonly DepthStencilStateDescription DssDepthLess = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.All,
         DepthComparison = Comparison.Less,
@@ -208,7 +208,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS depth less equal
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSDepthLessEqual = new() {
+    public static readonly DepthStencilStateDescription DssDepthLessEqual = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.All,
         DepthComparison = Comparison.LessEqual,
@@ -218,7 +218,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS less no write
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSLessNoWrite = new() {
+    public static readonly DepthStencilStateDescription DssLessNoWrite = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
         DepthComparison = Comparison.Less,
@@ -228,7 +228,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS less equal no write
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSLessEqualNoWrite = new() {
+    public static readonly DepthStencilStateDescription DssLessEqualNoWrite = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
         DepthComparison = Comparison.LessEqual,
@@ -238,7 +238,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS greater no write
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSGreaterNoWrite = new() {
+    public static readonly DepthStencilStateDescription DssGreaterNoWrite = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
         DepthComparison = Comparison.Greater
@@ -247,7 +247,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS equal no write
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSEqualNoWrite = new() {
+    public static readonly DepthStencilStateDescription DssEqualNoWrite = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
         DepthComparison = Comparison.Equal
@@ -256,7 +256,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS clip plane backface
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSClipPlaneBackface = new() {
+    public static readonly DepthStencilStateDescription DssClipPlaneBackface = new() {
         IsDepthEnabled = true,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -280,7 +280,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS mesh outline pass1
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSMeshOutlineP1 = new() {
+    public static readonly DepthStencilStateDescription DssMeshOutlineP1 = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -304,7 +304,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS mesh outline pass1
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSEffectMeshXRayP1 = new() {
+    public static readonly DepthStencilStateDescription DssEffectMeshXRayP1 = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -325,7 +325,7 @@ public static class DefaultDepthStencilDescriptions {
         }
     };
 
-    public static readonly DepthStencilStateDescription DSSEffectMeshXRayGridP1 = new() {
+    public static readonly DepthStencilStateDescription DssEffectMeshXRayGridP1 = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -346,7 +346,7 @@ public static class DefaultDepthStencilDescriptions {
         }
     };
 
-    public static readonly DepthStencilStateDescription DSSEffectMeshXRayGridP2 = new() {
+    public static readonly DepthStencilStateDescription DssEffectMeshXRayGridP2 = new() {
         IsDepthEnabled = true,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -367,7 +367,7 @@ public static class DefaultDepthStencilDescriptions {
         }
     };
 
-    public static readonly DepthStencilStateDescription DSSEffectMeshXRayGridP3 = new() {
+    public static readonly DepthStencilStateDescription DssEffectMeshXRayGridP3 = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -391,7 +391,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS mesh outline pass1
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSEffectMeshXRayP2 = new() {
+    public static readonly DepthStencilStateDescription DssEffectMeshXRayP2 = new() {
         IsDepthEnabled = true,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -415,7 +415,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS clip plane fill quad
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSOutlineFillQuad = new() {
+    public static readonly DepthStencilStateDescription DssOutlineFillQuad = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -439,7 +439,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS clip plane fill quad
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSClipPlaneFillQuad = new() {
+    public static readonly DepthStencilStateDescription DssClipPlaneFillQuad = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = true,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -463,7 +463,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS depth always no stencil
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSDepthAlwaysNoStencil = new() {
+    public static readonly DepthStencilStateDescription DssDepthAlwaysNoStencil = new() {
         IsDepthEnabled = true,
         DepthComparison = Comparison.Always,
         IsStencilEnabled = false
@@ -472,7 +472,7 @@ public static class DefaultDepthStencilDescriptions {
     /// <summary>
     ///     The DSS no depth no stencil
     /// </summary>
-    public static readonly DepthStencilStateDescription DSSNoDepthNoStencil = new() {
+    public static readonly DepthStencilStateDescription DssNoDepthNoStencil = new() {
         IsDepthEnabled = false,
         IsStencilEnabled = false,
         DepthWriteMask = DepthWriteMask.Zero,
@@ -493,7 +493,7 @@ public static class DefaultDepthStencilDescriptions {
         StencilWriteMask = 0
     };
 
-    public static readonly DepthStencilStateDescription DSSVolumeBackFace = new() {
+    public static readonly DepthStencilStateDescription DssVolumeBackFace = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.All,
         DepthComparison = Comparison.Less,
@@ -514,7 +514,7 @@ public static class DefaultDepthStencilDescriptions {
         StencilWriteMask = 0xFF
     };
 
-    public static readonly DepthStencilStateDescription DSSVolumeFrontFace = new() {
+    public static readonly DepthStencilStateDescription DssVolumeFrontFace = new() {
         IsDepthEnabled = true,
         DepthWriteMask = DepthWriteMask.All,
         DepthComparison = Comparison.Less,
@@ -542,7 +542,7 @@ public static class DefaultRasterDescriptions {
     /// <summary>
     ///     The solid no msaa RasterizerState
     /// </summary>
-    public static readonly RasterizerStateDescription RSSolidNoMSAA = new() {
+    public static readonly RasterizerStateDescription RsSolidNoMsaa = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.Back,
         DepthBias = -5,
@@ -556,7 +556,7 @@ public static class DefaultRasterDescriptions {
     /// <summary>
     ///     The skybox RasterizerState
     /// </summary>
-    public static readonly RasterizerStateDescription RSSkybox = new() {
+    public static readonly RasterizerStateDescription RsSkybox = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,
@@ -568,7 +568,7 @@ public static class DefaultRasterDescriptions {
         IsDepthClipEnabled = false
     };
 
-    public static readonly RasterizerStateDescription RSSkyDome = new() {
+    public static readonly RasterizerStateDescription RsSkyDome = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,
@@ -580,7 +580,7 @@ public static class DefaultRasterDescriptions {
         IsDepthClipEnabled = false
     };
 
-    public static readonly RasterizerStateDescription RSOutline = new() {
+    public static readonly RasterizerStateDescription RsOutline = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,
@@ -591,7 +591,7 @@ public static class DefaultRasterDescriptions {
         IsAntialiasedLineEnabled = false
     };
 
-    public static readonly RasterizerStateDescription RSPlaneGrid = new() {
+    public static readonly RasterizerStateDescription RsPlaneGrid = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 10,
@@ -604,7 +604,7 @@ public static class DefaultRasterDescriptions {
         IsScissorEnabled = true
     };
 
-    public static readonly RasterizerStateDescription RSSpriteCW = new() {
+    public static readonly RasterizerStateDescription RsSpriteCw = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,
@@ -617,7 +617,7 @@ public static class DefaultRasterDescriptions {
         IsScissorEnabled = true
     };
 
-    public static readonly RasterizerStateDescription RSVolume = new() {
+    public static readonly RasterizerStateDescription RsVolume = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,
@@ -628,7 +628,7 @@ public static class DefaultRasterDescriptions {
         IsAntialiasedLineEnabled = false
     };
 
-    public static readonly RasterizerStateDescription RSVolumeCubeFront = new() {
+    public static readonly RasterizerStateDescription RsVolumeCubeFront = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.Back,
         DepthBias = 0,
@@ -639,7 +639,7 @@ public static class DefaultRasterDescriptions {
         IsAntialiasedLineEnabled = false
     };
 
-    public static readonly RasterizerStateDescription RSVolumeCubeBack = new() {
+    public static readonly RasterizerStateDescription RsVolumeCubeBack = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.Front,
         DepthBias = 0,
@@ -653,7 +653,7 @@ public static class DefaultRasterDescriptions {
     /// <summary>
     ///     The screen duplication RasterizerState
     /// </summary>
-    public static readonly RasterizerStateDescription RSScreenDuplication = new() {
+    public static readonly RasterizerStateDescription RsScreenDuplication = new() {
         FillMode = FillMode.Solid,
         CullMode = CullMode.None,
         DepthBias = 0,

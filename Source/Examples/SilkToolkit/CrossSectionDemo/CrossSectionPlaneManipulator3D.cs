@@ -206,34 +206,34 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
     public CrossSectionPlaneManipulator3D() {
         // corner manipulation is used to move the plane along its normal
-        this.cornerHandle = new MeshGeometryModel3D() {
+        cornerHandle = new MeshGeometryModel3D() {
             Geometry = NodeGeometry,
             CullMode = CullMode.Back,
         };
-        this.cornerHandle.MouseMove3D += OnNodeMouse3DMove;
-        this.cornerHandle.MouseUp3D += OnNodeMouse3DUp;
-        this.cornerHandle.MouseDown3D += OnNodeMouse3DDown;
+        cornerHandle.MouseMove3D += OnNodeMouse3DMove;
+        cornerHandle.MouseUp3D += OnNodeMouse3DUp;
+        cornerHandle.MouseDown3D += OnNodeMouse3DDown;
 
         // edge manipulation is used to rotate the plane
-        this.edgeHandle = new MeshGeometryModel3D() {
+        edgeHandle = new MeshGeometryModel3D() {
             Geometry = EdgeHGeometry,
             CullMode = CullMode.Back,
         };
 
-        this.edgeHandle.MouseMove3D += OnEdgeMouse3DMove;
-        this.edgeHandle.MouseUp3D += OnEdgeMouse3DUp;
-        this.edgeHandle.MouseDown3D += OnEdgeMouse3DDown;
+        edgeHandle.MouseMove3D += OnEdgeMouse3DMove;
+        edgeHandle.MouseUp3D += OnEdgeMouse3DUp;
+        edgeHandle.MouseDown3D += OnEdgeMouse3DDown;
 
 
         // completing setup
-        this.Children.Add(cornerHandle);
-        this.Children.Add(edgeHandle);
+        Children.Add(cornerHandle);
+        Children.Add(edgeHandle);
 
         CornerMaterial = DiffuseMaterials.Orange;
         EdgeMaterial = DiffuseMaterials.Blue;
 
         UpdateScaling((float)CornerScale, (float)EdgeThicknessScale, (float)SizeScale);
-        this.SceneNode.VisibleChanged += SceneNode_OnVisibleChanged;
+        SceneNode.VisibleChanged += SceneNode_OnVisibleChanged;
     }
 
     private void UpdateScaling(float cornerScale, float edgeThicknessScale, float sizeScale) {
@@ -379,7 +379,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
             var angle = (r2.Length - r1.Length) / diag * 4;
             // Create the transform
             currentRotation *= RotationAxis(ConstrainAxis.Value.Normalized(),
-                                            (float)(angle * this.RotationSensitivity * 5));
+                                            (float)(angle * RotationSensitivity * 5));
             UpdateTransform();
         } else {
             v1 = ProjectToTrackball(p1, viewport.ActualWidth, viewport.ActualHeight);
@@ -410,7 +410,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
             var angle = u1.AngleBetween(u2);
             // Create the transform
-            currentRotation *= RotationAxis(axis.Normalized(), (float)(angle * this.RotationSensitivity * 5));
+            currentRotation *= RotationAxis(axis.Normalized(), (float)(angle * RotationSensitivity * 5));
             UpdateTransform();
         }
     }
@@ -422,7 +422,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
     private void UpdateTransform(bool updateCutPlane = true) {
         totalTransform = currentRotation * currentTranslation;
-        this.Transform = new MatrixTransform3D(totalTransform.ToMatrix3D());
+        Transform = new MatrixTransform3D(totalTransform.ToMatrix3D());
         if (updateCutPlane) {
             internalUpdate = true;
             UpdateCutPlane();
@@ -524,8 +524,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         private readonly object cornerHandle;
 
         public AlwaysHitGroupNode(CrossSectionPlaneManipulator3D manipulator) {
-            this.edgeHandle = manipulator.edgeHandle;
-            this.cornerHandle = manipulator.cornerHandle;
+            edgeHandle = manipulator.edgeHandle;
+            cornerHandle = manipulator.cornerHandle;
         }
 
         protected override bool OnHitTest(

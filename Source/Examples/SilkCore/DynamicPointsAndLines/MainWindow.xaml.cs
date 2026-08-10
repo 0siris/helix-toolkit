@@ -21,8 +21,8 @@ public partial class MainWindow : Window {
 
     public MainWindow() {
         InitializeComponent();
-        this.DataContext = viewModel;
-        CompositionTarget.Rendering += this.OnCompositionTargetRendering;
+        DataContext = viewModel;
+        CompositionTarget.Rendering += OnCompositionTargetRendering;
     }
 
     private void OnCompositionTargetRendering(object sender, EventArgs e) {

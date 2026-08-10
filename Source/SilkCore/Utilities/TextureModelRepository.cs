@@ -16,8 +16,10 @@ public sealed class TextureModelRepository : ITextureModelRepository {
     private readonly ConditionalWeakTable<Stream, WeakReference<TextureModel>> streamDict = [];
 
     public TextureModel Create(Stream stream) {
-        if (stream == null) return null;
+        if (stream == null) 
+            return null;
         lock (streamDict) {
+            
             if (streamDict.TryGetValue(stream, out var tex)) {
                 if (tex.TryGetTarget(out var target)) {
                     if (Logger.IsEnabled(LogLevel.Debug))

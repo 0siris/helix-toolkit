@@ -50,7 +50,7 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
     public PostEffectMeshXRayCore() : base(RenderType.PostEffect) {
         modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCB,
+                                       DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
         Color = new Color4(0, 0, 1, 1);
     }
@@ -67,8 +67,8 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
     /// <param name="deviceContext">The device context.</param>
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         var buffer = context.RenderHost.RenderBuffer;
-        var depthStencilBuffer = buffer.DepthStencilBufferNoMSAA;
-        deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPPBuffer.CurrentRTV);
+        var depthStencilBuffer = buffer.DepthStencilBufferNoMsaa;
+        deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPpBuffer.CurrentRtv);
         
         var viewport = context.Viewport;
         deviceContext.SetViewport(ref viewport);
@@ -117,7 +117,7 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
         void RenderXRayP1(SceneNode mesh) {
             context.CustomPassName = DefaultPassNames.EffectMeshXRayP1;
             var pass = mesh.EffectTechnique?[DefaultPassNames.EffectMeshXRayP1];
-            if (pass is null || pass.IsNULL)  
+            if (pass is null || pass.IsNull)  
                 return;
                     
             pass.BindShader(deviceContext);
@@ -139,7 +139,7 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
 
             context.CustomPassName = DefaultPassNames.EffectMeshXRayP2;
             var pass = mesh.EffectTechnique?[DefaultPassNames.EffectMeshXRayP2];
-            if (pass is null ||pass.IsNULL)
+            if (pass is null ||pass.IsNull)
                 return;
                 
             pass.BindShader(deviceContext);

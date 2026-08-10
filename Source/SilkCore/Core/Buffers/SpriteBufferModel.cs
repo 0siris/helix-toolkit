@@ -3,7 +3,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class Sprite2DBufferModel : DisposeObject, IGUID, IAttachableBufferModel {
+public sealed class Sprite2DBufferModel : DisposeObject, IGuid, IAttachableBufferModel {
     private IElementsBufferProxy indexBuffer = new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer);
     public int SpriteCount;
 
@@ -51,7 +51,7 @@ public sealed class Sprite2DBufferModel : DisposeObject, IGUID, IAttachableBuffe
         return true;
     }
 
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref vertextBuffer);

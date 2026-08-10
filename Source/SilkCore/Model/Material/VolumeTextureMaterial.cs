@@ -193,7 +193,7 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
 ///     Default Volume Texture Material. Supports 3D DDS memory stream as
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
-public sealed class VolumeTextureDDS3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
+public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
     protected override ShaderResourceViewProxy OnCreateTexture(IEffectsManager manager) {
         return manager.MaterialTextureManager.Register(VolumeTexture, true);
     }
@@ -222,7 +222,7 @@ public sealed class VolumeTextureRawDataMaterialCore : VolumeTextureMaterialCore
         return null;
     }
 
-    public static VolumeTextureParams LoadRAWFile(string filename, int width, int height, int depth) {
+    public static VolumeTextureParams LoadRawFile(string filename, int width, int height, int depth) {
         using var file = new FileStream(filename, FileMode.Open);
         var length = file.Length;
         var bytePerPixel = length / (width * height * depth);

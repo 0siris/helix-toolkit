@@ -62,8 +62,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate X; otherwise, <c>false</c> . </value>
     public bool CanTranslateX {
-        get { return (bool)this.GetValue(CanTranslateXProperty); }
-        set { this.SetValue(CanTranslateXProperty, value); }
+        get { return (bool)GetValue(CanTranslateXProperty); }
+        set { SetValue(CanTranslateXProperty, value); }
     }
 
     /// <summary>
@@ -71,8 +71,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Y; otherwise, <c>false</c> . </value>
     public bool CanTranslateY {
-        get { return (bool)this.GetValue(CanTranslateYProperty); }
-        set { this.SetValue(CanTranslateYProperty, value); }
+        get { return (bool)GetValue(CanTranslateYProperty); }
+        set { SetValue(CanTranslateYProperty, value); }
     }
 
     /// <summary>
@@ -80,8 +80,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Z; otherwise, <c>false</c> . </value>
     public bool CanTranslateZ {
-        get { return (bool)this.GetValue(CanTranslateZProperty); }
-        set { this.SetValue(CanTranslateZProperty, value); }
+        get { return (bool)GetValue(CanTranslateZProperty); }
+        set { SetValue(CanTranslateZProperty, value); }
     }
 
 
@@ -92,20 +92,20 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
         var red = PhongMaterials.Red;
         red.ReflectiveColor = Colors.Black.ToColor4();
         //red.SpecularShininess = 0f;
-        this.translateXR = new UITranslateManipulator3D { Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red, };
-        this.translateYR = new UITranslateManipulator3D { Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
-        this.translateZR = new UITranslateManipulator3D { Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
-        this.translateXL = new UITranslateManipulator3D { Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red };
-        this.translateYL = new UITranslateManipulator3D { Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
-        this.translateZL = new UITranslateManipulator3D { Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
+        translateXR = new UITranslateManipulator3D { Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red, };
+        translateYR = new UITranslateManipulator3D { Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        translateZR = new UITranslateManipulator3D { Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
+        translateXL = new UITranslateManipulator3D { Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red };
+        translateYL = new UITranslateManipulator3D { Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        translateZL = new UITranslateManipulator3D { Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
         //this.rotateZ = new UIRotateManipulator3D { Axis = Vector3.UnitZ, InnerDiameter = 2, OuterDiameter = 2.15, Length = 0.05 };
 
-        this.CanTranslateX = true;
-        this.CanTranslateY = false;
-        this.CanTranslateZ = false;
-        this.IsRendering = false;
+        CanTranslateX = true;
+        CanTranslateY = false;
+        CanTranslateZ = false;
+        IsRendering = false;
 
-        this.OnChildrenChanged();
+        OnChildrenChanged();
         // this.OnContentChanged();                       
     }
 
@@ -137,28 +137,28 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// The on children changed.
     /// </summary>
     protected virtual void OnChildrenChanged() {
-        this.translateXL.Length = 0.5;
-        this.translateYL.Length = 0.5;
-        this.translateZL.Length = 0.5;
-        this.translateXR.Length = 0.5;
-        this.translateYR.Length = 0.5;
-        this.translateZR.Length = 0.5;
+        translateXL.Length = 0.5;
+        translateYL.Length = 0.5;
+        translateZL.Length = 0.5;
+        translateXR.Length = 0.5;
+        translateYR.Length = 0.5;
+        translateZR.Length = 0.5;
 
-        this.Children.Clear();
+        Children.Clear();
 
-        if (this.CanTranslateX) {
-            this.Children.Add(this.translateXL);
-            this.Children.Add(this.translateXR);
+        if (CanTranslateX) {
+            Children.Add(translateXL);
+            Children.Add(translateXR);
         }
 
-        if (this.CanTranslateY) {
-            this.Children.Add(this.translateYL);
-            this.Children.Add(this.translateYR);
+        if (CanTranslateY) {
+            Children.Add(translateYL);
+            Children.Add(translateYR);
         }
 
-        if (this.CanTranslateZ) {
-            this.Children.Add(this.translateZL);
-            this.Children.Add(this.translateZR);
+        if (CanTranslateZ) {
+            Children.Add(translateZL);
+            Children.Add(translateZR);
         }
 
 
@@ -168,14 +168,14 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
             g.AddLine(new Vector3(1, 0, 0), new Vector3(1, 1, 0));
             g.AddLine(new Vector3(1, 1, 0), new Vector3(0, 1, 0));
             g.AddLine(new Vector3(0, 1, 0), new Vector3(0, 0, 0));
-            this.selectionBounds = new LineGeometryModel3D() {
+            selectionBounds = new LineGeometryModel3D() {
                 Thickness = 3,
                 Smoothness = 2,
-                Color = System.Windows.Media.Colors.Red,
+                Color = Colors.Red,
                 IsThrowingShadow = false,
                 Geometry = g.ToLineGeometry3D(),
             };
-            this.Children.Add(this.selectionBounds);
+            Children.Add(selectionBounds);
         }
     }
 }

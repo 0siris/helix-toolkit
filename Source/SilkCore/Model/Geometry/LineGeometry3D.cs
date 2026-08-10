@@ -15,13 +15,10 @@ public class LineGeometry3D : Geometry3D {
         }
     }
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
-        return new StaticLineGeometryOctree(Positions, Indices, parameter);
-    }
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) 
+        => new StaticLineGeometryOctree(Positions, Indices, parameter);
 
-    protected override bool CanCreateOctree() {
-        return Positions != null && Positions.Count > 0 && Indices != null && Indices.Count > 0;
-    }
+    protected override bool CanCreateOctree() => Positions is {Count: > 0} && Indices is {Count: > 0};
 
     public virtual bool HitTest(
         HitTestContext context,
@@ -43,7 +40,7 @@ public class LineGeometry3D : Geometry3D {
         foreach (var line in Lines) {
             var t0 = SilkMath.TransformCoordinate(line.P0, modelMatrix);
             var t1 = SilkMath.TransformCoordinate(line.P1, modelMatrix);
-            var rayToLineDistance = LineBuilder.GetRayToLineDistance(context.RayWS,
+            var rayToLineDistance = LineBuilder.GetRayToLineDistance(context.RayWs,
                                                                      t0,
                                                                      t1,
                                                                      out var sp,
@@ -59,7 +56,7 @@ public class LineGeometry3D : Geometry3D {
                 lastDist = dist;
                 result.PointHit = sp;
                 result.NormalAtHit = sp - tp; // not normalized to get length
-                result.Distance = (context.RayWS.Position - sp).Length;
+                result.Distance = (context.RayWs.Position - sp).Length;
                 result.RayToLineDistance = rayToLineDistance;
                 result.ModelHit = originalSource;
                 result.IsValid = true;

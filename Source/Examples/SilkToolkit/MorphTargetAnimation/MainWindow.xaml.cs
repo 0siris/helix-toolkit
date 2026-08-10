@@ -21,7 +21,7 @@ public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
         mvm = new MainViewModel();
-        this.DataContext = mvm;
+        DataContext = mvm;
         Closed += (s, e) => {
             if (DataContext is IDisposable) {
                 (DataContext as IDisposable).Dispose();

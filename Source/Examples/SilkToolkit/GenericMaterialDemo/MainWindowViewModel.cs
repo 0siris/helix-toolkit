@@ -34,10 +34,10 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         PhongMaterial =
             new GenericMeshMaterialCore(EffectsManager[DefaultRenderTechniqueNames.Mesh][DefaultPassNames.Default],
                                         "cbMesh");
-        PhongMaterial.SetProperty(PhongPBRMaterialStruct.DiffuseStr, Color.Red.ToColor4());
-        PhongMaterial.SetProperty(PhongPBRMaterialStruct.ReflectStr, Color.Black.ToColor4());
-        PhongMaterial.SetProperty(PhongPBRMaterialStruct.UVTransformR1Str, new Vector4(1, 0, 0, 0));
-        PhongMaterial.SetProperty(PhongPBRMaterialStruct.UVTransformR2Str, new Vector4(0, 1, 0, 0));
+        PhongMaterial.SetProperty(PhongPbrMaterialStruct.DiffuseStr, Color.Red.ToColor4());
+        PhongMaterial.SetProperty(PhongPbrMaterialStruct.ReflectStr, Color.Black.ToColor4());
+        PhongMaterial.SetProperty(PhongPbrMaterialStruct.UvTransformR1Str, new Vector4(1, 0, 0, 0));
+        PhongMaterial.SetProperty(PhongPbrMaterialStruct.UvTransformR2Str, new Vector4(0, 1, 0, 0));
     }
 
     private void InitializeScene() {

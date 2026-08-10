@@ -18,6 +18,6 @@ using ExampleBrowser;
 [Example("Issue 10043", "Viewport3DX inside a TabControl.")]
 public partial class MainWindow : Window {
     public MainWindow() {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

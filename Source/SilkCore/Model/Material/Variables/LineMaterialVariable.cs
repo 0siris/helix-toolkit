@@ -53,7 +53,7 @@ public class LineMaterialVariable : MaterialVariable {
     /// <summary>
     ///     Set texture variable name insider shader for binding
     /// </summary>
-    public string ShaderTextureName { get; } = DefaultBufferNames.DiffuseMapTB;
+    public string ShaderTextureName { get; } = DefaultBufferNames.DiffuseMapTb;
 
     /// <summary>
     ///     Set texture sampler variable name inside shader for binding

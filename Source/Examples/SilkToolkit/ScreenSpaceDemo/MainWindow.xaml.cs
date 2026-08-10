@@ -18,8 +18,8 @@ namespace ScreenSpaceDemo;
 /// </summary>
 public partial class MainWindow : Window {
     public MainWindow() {
-        this.InitializeComponent();
-        this.DataContext = new MainViewModel();
+        InitializeComponent();
+        DataContext = new MainViewModel();
         Closed += (s, e) => {
             if (DataContext is IDisposable) {
                 (DataContext as IDisposable).Dispose();

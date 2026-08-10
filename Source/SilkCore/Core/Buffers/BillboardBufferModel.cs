@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 /// <typeparam name="VertexStruct">The type of the ertex structure.</typeparam>
 public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, IBillboardBufferModel
     where VertexStruct : unmanaged {
-    private static readonly VertexStruct[] emptyVerts = [];
+    private static readonly VertexStruct[] EmptyVerts = [];
 
     private TextureModel texture;
 
@@ -99,7 +99,7 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
             } else {
                 RemoveAndDispose(ref textureView);
                 texture = null;
-                buffer.UploadDataToBuffer(context, emptyVerts, 0);
+                buffer.UploadDataToBuffer(context, EmptyVerts, 0);
             }
         }
     }

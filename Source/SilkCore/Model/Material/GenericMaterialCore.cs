@@ -9,7 +9,7 @@ using HelixToolkit.SharpDX.Core.Shaders;
 namespace HelixToolkit.SharpDX.Core.Model;
 [DataContract]
 public abstract class GenericMaterialCore : MaterialCore {
-    protected readonly ConstantBufferDescription cbDescription;
+    protected readonly ConstantBufferDescription CbDescription;
 
     public GenericMaterialCore(
         string materialShaderPassName,
@@ -20,11 +20,11 @@ public abstract class GenericMaterialCore : MaterialCore {
         MaterialPassName = materialShaderPassName;
         ShadowPassName = shadowShaderPassName;
         WireframePassName = wireframePassName;
-        cbDescription = constantBufferDesc;
+        CbDescription = constantBufferDesc;
     }
 
     public GenericMaterialCore(ConstantBufferDescription constantBufferDesc) {
-        cbDescription = constantBufferDesc;
+        CbDescription = constantBufferDesc;
     }
 
     /// <summary>
@@ -33,13 +33,13 @@ public abstract class GenericMaterialCore : MaterialCore {
     /// <param name="shaderPass">The shader pass. Currently only supports pixel shader parameter properties</param>
     /// <param name="modelMaterialConstantBufferName">Name of the model material constant buffer in pixel shader.</param>
     public GenericMaterialCore(ShaderPass shaderPass, string modelMaterialConstantBufferName) {
-        if (shaderPass.IsNULL || shaderPass.PixelShader.IsNULL) return;
+        if (shaderPass.IsNull || shaderPass.PixelShader.IsNull) return;
         var properties = new List<string>();
         var cb = shaderPass.PixelShader.ConstantBufferMapping.Mappings
                            .Where(x => x.Value.Name == modelMaterialConstantBufferName).FirstOrDefault();
 
         if (cb.Value != null) {
-            cbDescription = new ConstantBufferDescription(cb.Value.Name, cb.Value.bufferDesc.SizeInBytes);
+            CbDescription = new ConstantBufferDescription(cb.Value.Name, cb.Value.BufferDesc.SizeInBytes);
             properties.AddRange(cb.Value.VariableDictionary.Keys);
         }
 
@@ -206,7 +206,7 @@ public sealed class GenericMeshMaterialCore : GenericMaterialCore {
         return new GenericMeshMaterialVariable(manager,
                                                technique,
                                                this,
-                                               cbDescription,
+                                               CbDescription,
                                                MaterialPassName,
                                                ShadowPassName,
                                                WireframePassName);
@@ -233,7 +233,7 @@ public sealed class GenericLineMaterialCore : GenericMaterialCore {
         return new GenericMeshMaterialVariable(manager,
                                                technique,
                                                this,
-                                               cbDescription,
+                                               CbDescription,
                                                MaterialPassName,
                                                ShadowPassName,
                                                string.Empty);
@@ -260,7 +260,7 @@ public sealed class GenericPointMaterialCore : GenericMaterialCore {
         return new GenericPointMaterialVariable(manager,
                                                 technique,
                                                 this,
-                                                cbDescription,
+                                                CbDescription,
                                                 MaterialPassName,
                                                 ShadowPassName);
     }

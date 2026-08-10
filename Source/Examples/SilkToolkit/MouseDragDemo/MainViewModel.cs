@@ -51,24 +51,24 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
 
         // titles
-        this.Title = "Mouse Drag Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Mouse Drag Demo";
+        SubTitle = "WPF & SharpDX";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, 0, 9), LookDirection = new Vector3D(-0, -0, -9),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // setup lighting
-        this.AmbientLightColor = Colors.DimGray;
-        this.DirectionalLightColor = Colors.White;
-        this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
+        AmbientLightColor = Colors.DimGray;
+        DirectionalLightColor = Colors.White;
+        DirectionalLightDirection = new Vector3D(-2, -5, -2);
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid(Vector3.UnitZ, -5, 5);
-        this.GridColor = Colors.Black;
-        this.GridTransform = new Media3D.TranslateTransform3D(-0, -0, -0);
+        Grid = LineBuilder.GenerateGrid(Vector3.UnitZ, -5, 5);
+        GridColor = Colors.Black;
+        GridTransform = new Media3D.TranslateTransform3D(-0, -0, -0);
 
         // scene model3d
         var b1 = new MeshBuilder();
@@ -76,69 +76,69 @@ public class MainViewModel : BaseViewModel {
         b1.AddBox(new Vector3(0, 0, 0), 1, 1, 1);
         var meshGeometry = b1.ToMeshGeometry3D();
         meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
-        this.MeshGeometry = meshGeometry;
-        this.Model1Instances = [];
+        MeshGeometry = meshGeometry;
+        Model1Instances = [];
         for (int i = 0; i < 5; i++) {
-            this.Model1Instances.Add(Translation(0, i, 0));
+            Model1Instances.Add(Translation(0, i, 0));
         }
 
         // lines model3d
         var e1 = new LineBuilder();
         e1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2);
-        this.Lines = e1.ToLineGeometry3D();
+        Lines = e1.ToLineGeometry3D();
 
         // model trafos
-        this.Model1Transform = new Media3D.TranslateTransform3D(0, 0, 0.0);
-        this.Model2Transform = new Media3D.TranslateTransform3D(-2, 0, 0);
-        this.Model3Transform = new Media3D.TranslateTransform3D(+2, 0, 0);
+        Model1Transform = new Media3D.TranslateTransform3D(0, 0, 0.0);
+        Model2Transform = new Media3D.TranslateTransform3D(-2, 0, 0);
+        Model3Transform = new Media3D.TranslateTransform3D(+2, 0, 0);
 
         // model materials
-        this.RedMaterial = PhongMaterials.Red;
-        this.GreenMaterial = PhongMaterials.Green;
-        this.BlueMaterial = PhongMaterials.Blue;
+        RedMaterial = PhongMaterials.Red;
+        GreenMaterial = PhongMaterials.Green;
+        BlueMaterial = PhongMaterials.Blue;
 
         // ---
-        this.Shape3DCollection = new ObservableCollection<Shape3D> {
+        Shape3DCollection = new ObservableCollection<Shape3D> {
             new Shape3D() {
-                Geometry = this.MeshGeometry,
-                Material = this.BlueMaterial,
-                Transform = this.Model3Transform,
+                Geometry = MeshGeometry,
+                Material = BlueMaterial,
+                Transform = Model3Transform,
                 Instances = [Matrix.Identity],
                 DragZ = false,
             },
             new Shape3D() {
-                Geometry = this.MeshGeometry,
-                Material = this.RedMaterial,
-                Transform = this.Model1Transform,
+                Geometry = MeshGeometry,
+                Material = RedMaterial,
+                Transform = Model1Transform,
                 Instances = [Matrix.Identity],
                 DragZ = true,
             },
         };
 
-        this.Element3DCollection = new ObservableCollection<Element3D>() {
+        Element3DCollection = new ObservableCollection<Element3D>() {
             new DraggableGeometryModel3D() {
-                Geometry = this.MeshGeometry,
-                Material = this.BlueMaterial,
-                Transform = this.Model3Transform,
+                Geometry = MeshGeometry,
+                Material = BlueMaterial,
+                Transform = Model3Transform,
             },
 
             new DraggableGeometryModel3D() {
-                Geometry = this.MeshGeometry,
-                Material = this.RedMaterial,
-                Transform = this.Model1Transform,
+                Geometry = MeshGeometry,
+                Material = RedMaterial,
+                Transform = Model1Transform,
             },
         };
 
-        this.AddCmd = new RelayCommand((o) => AddShape());
-        this.DelCmd = new RelayCommand((o) => DelShape());
+        AddCmd = new RelayCommand((o) => AddShape());
+        DelCmd = new RelayCommand((o) => DelShape());
     }
 
 
     public void AddShape() {
-        this.Element3DCollection.Add(new DraggableGeometryModel3D() {
-            Geometry = this.MeshGeometry,
-            Material = this.GreenMaterial,
-            Transform = this.Model2Transform,
+        Element3DCollection.Add(new DraggableGeometryModel3D() {
+            Geometry = MeshGeometry,
+            Material = GreenMaterial,
+            Transform = Model2Transform,
             Instances = [
                 Translation(-1, 0, 0), Translation(+1, 0, 0),
                 Translation(0, -1, 0), Translation(0, +1, 0),
@@ -147,27 +147,27 @@ public class MainViewModel : BaseViewModel {
         });
 
         var shape = new Shape3D() {
-            Geometry = this.MeshGeometry,
-            Material = this.GreenMaterial,
-            Transform = this.Model2Transform,
+            Geometry = MeshGeometry,
+            Material = GreenMaterial,
+            Transform = Model2Transform,
         };
-        this.Shape3DCollection.Add(shape);
+        Shape3DCollection.Add(shape);
     }
 
     public void DelShape() {
         //this.Element3DCollection = null;
         //this.Element3DCollection = new ObservableCollection<Element3D>();
-        this.Element3DCollection.Remove((Element3D)SelectedItem);
+        Element3DCollection.Remove((Element3D)SelectedItem);
 
         //this.Shape3DCollection = null;
         //this.Shape3DCollection = new ObservableCollection<Shape3D>();
-        this.Shape3DCollection.Remove((Shape3D)SelectedItem);
+        Shape3DCollection.Remove((Shape3D)SelectedItem);
     }
 
 
     public class Shape3D : BaseViewModel {
         public Geometry3D Geometry { get; set; }
-        public System.Windows.Media.Media3D.Transform3D Transform { get; set; }
+        public Transform3D Transform { get; set; }
         public Material Material { get; set; }
         public IList<Matrix> Instances { get; set; }
         public bool IsSelected { get; set; }

@@ -173,12 +173,12 @@ public class AxisPlaneGridNode : SceneNode {
         }
 
         var plane = new Plane(normal, -Offset);
-        var ray = context.RayWS;
+        var ray = context.RayWs;
         if (Collision.RayIntersectsPlane(ref ray, ref plane, out Vector3 point)) {
             var hitTestResult = new HitTestResult {
                 IsValid = true,
                 NormalAtHit = normal,
-                Distance = (context.RayWS.Position - point).Length,
+                Distance = (context.RayWs.Position - point).Length,
                 PointHit = point,
                 ModelHit = WrapperSource
             };

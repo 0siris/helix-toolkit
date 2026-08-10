@@ -164,7 +164,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
     private D2DFactory factory2D;
 
-    private WICImagingFactory wicImgFactory;
+    private WicImagingFactory wicImgFactory;
 
     /// <summary>
     ///     Gets the wic img factory.
@@ -172,7 +172,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The wic img factory.
     /// </value>
-    public WICImagingFactory WICImgFactory => wicImgFactory;
+    public WicImagingFactory WicImgFactory => wicImgFactory;
 
     private DirectWriteFactory directWriteFactory;
 
@@ -279,7 +279,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
         Logger.Info("Initializing Direct2D resource handles");
         factory2D = new D2DFactory();
-        wicImgFactory = new WICImagingFactory();
+        wicImgFactory = new WicImagingFactory();
         directWriteFactory = new DirectWriteFactory();
         device2D = new D2DDevice(nativeDeviceResources.Device);
         deviceContext2D = new D2DDeviceContext(device2D);

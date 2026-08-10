@@ -22,7 +22,7 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <param name="height"></param>
     /// <returns></returns>
     protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
-        var colordescNMS = new Texture2DDescription {
+        var colordescNms = new Texture2DDescription {
             BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
             Format = Format,
             Width = width,
@@ -35,7 +35,7 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
             ArraySize = 1
         };
 
-        var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNMS);
+        var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNms);
         d2dTarget = new D2DTargetProxy();
         d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
         return backBuffer;

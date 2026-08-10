@@ -61,11 +61,11 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
     /// </summary>
     public PostEffectMeshOutlineBlurCore(bool useBlurCore = true) : base(RenderType.PostEffect) {
-        this.UseBlurCore = useBlurCore;
+        UseBlurCore = useBlurCore;
         Color = new Color4(1, 0, 0, 1);
-        modelCB = AddComponent(new ConstantBufferComponent(
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCB,
+                                       DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
     }
 
@@ -76,7 +76,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         smoothPass = technique.GetPass(DefaultPassNames.EffectOutlineSmooth);
         screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
         
-        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
         
         samplerSlot = screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         Sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
@@ -96,12 +96,12 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         => IsAttached && !string.IsNullOrEmpty(EffectName);
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        using var depthStencilBuffer = context.GetOffScreenDS(TextureSize,
+        using var depthStencilBuffer = context.GetOffScreenDs(TextureSize,
                                                               Format.FormatD32FloatS8X24Uint,
                                                               out var width,
                                                               out var height);
         
-        using var renderTargetBuffer = context.GetOffScreenRT(TextureSize, Format.FormatR8G8B8A8Unorm);
+        using var renderTargetBuffer = context.GetOffScreenRt(TextureSize, Format.FormatR8G8B8A8Unorm);
         OnUpdatePerModelStruct(context);
         var viewport = context.Viewport;
         
@@ -127,12 +127,12 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                     
                     if (modelStruct.Color != modeColor) {
                         modelStruct.Color = modeColor;
-                        modelCB.Upload(deviceContext, ref modelStruct);
+                        modelCb.Upload(deviceContext, ref modelStruct);
                     }
 
                     context.CustomPassName = DefaultPassNames.EffectOutlineP1;
                     var pass = mesh.EffectTechnique?[DefaultPassNames.EffectOutlineP1];
-                    if (pass  == null || pass.IsNULL) 
+                    if (pass  == null || pass.IsNull) 
                         continue;
                     
                     pass.BindShader(deviceContext);
@@ -167,12 +167,12 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                 
                 if (modelStruct.Color != modelColor) {
                     modelStruct.Color = modelColor;
-                    modelCB.Upload(deviceContext, ref modelStruct);
+                    modelCb.Upload(deviceContext, ref modelStruct);
                 }
 
                 context.CustomPassName = DefaultPassNames.EffectOutlineP1;
                 var pass = mesh.EffectTechnique[DefaultPassNames.EffectOutlineP1];
-                if (pass.IsNULL) continue;
+                if (pass.IsNull) continue;
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
                 mesh.RenderCustom(context, deviceContext);
@@ -193,7 +193,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         ShaderResourceViewProxy source
     ) {
         var buffer = context.RenderHost.RenderBuffer;
-        var sourceViewport = new ViewportF(0, 0, buffer.FullResPPBuffer.Width, buffer.FullResPPBuffer.Height);
+        var sourceViewport = new ViewportF(0, 0, buffer.FullResPpBuffer.Width, buffer.FullResPpBuffer.Height);
         deviceContext.SetViewport(ref sourceViewport);
         deviceContext.SetScissorRectangle(ref sourceViewport);
 
@@ -211,7 +211,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         } else {
             blurPassHorizontal.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler);
             for (var i = 0; i < numberOfBlurPass; ++i) {
-                deviceContext.SetRenderTarget(context.RenderHost.RenderBuffer.FullResPPBuffer.NextRTV);
+                deviceContext.SetRenderTarget(context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv);
                 blurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, source);
                 blurPassHorizontal.BindShader(deviceContext);
                 blurPassHorizontal.BindStates(deviceContext, StateType.All);
@@ -220,8 +220,8 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                 deviceContext.SetRenderTarget(source);
                 blurPassVertical.PixelShader.BindTexture(deviceContext,
                                                          textureSlot,
-                                                         context.RenderHost.RenderBuffer.FullResPPBuffer
-                                                                .NextRTV);
+                                                         context.RenderHost.RenderBuffer.FullResPpBuffer
+                                                                .NextRtv);
                 blurPassVertical.BindShader(deviceContext);
                 blurPassVertical.BindStates(deviceContext, StateType.All);
                 deviceContext.Draw(4, 0);
@@ -231,7 +231,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     #region Draw back with stencil test
 
         deviceContext.SetRenderTarget(depthStencilBuffer,
-                                      context.RenderHost.RenderBuffer.FullResPPBuffer.NextRTV,
+                                      context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv,
                                       true,
                                       new Color4(0, 0, 0, 0),
                                       false);
@@ -245,10 +245,10 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
 
     #region Draw outline onto original target
 
-        deviceContext.SetRenderTarget(buffer.FullResPPBuffer.CurrentRTV);
+        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.CurrentRtv);
         screenOutlinePass.PixelShader.BindTexture(deviceContext,
                                                   textureSlot,
-                                                  context.RenderHost.RenderBuffer.FullResPPBuffer.NextRTV);
+                                                  context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv);
         screenOutlinePass.BindShader(deviceContext);
         screenOutlinePass.BindStates(deviceContext, StateType.All);
         deviceContext.Draw(4, 0);
@@ -305,7 +305,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
 
     private int samplerSlot;
 
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
     private static readonly OffScreenTextureSize TextureSize = OffScreenTextureSize.Full;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);

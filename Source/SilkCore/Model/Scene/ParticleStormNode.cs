@@ -28,7 +28,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set;
     } = true;
 
-    private ParticleRenderCore particleCore => RenderCore as ParticleRenderCore;
+    private ParticleRenderCore ParticleCore => RenderCore as ParticleRenderCore;
 
     /// <summary>
     ///     Gets the instance buffer.
@@ -58,7 +58,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         base.OnAttach(effectsManager);
         InstanceBuffer.Initialize();
         InstanceBuffer.Elements = Instances;
-        particleCore.InstanceBuffer = InstanceBuffer;
+        ParticleCore.InstanceBuffer = InstanceBuffer;
         return true;
     }
 
@@ -80,13 +80,13 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
                 DestinationAlphaBlend = DestAlphaBlend,
                 RenderTargetWriteMask = ColorWriteMaskFlags.All
             };
-            particleCore.BlendDescription = desc;
+            ParticleCore.BlendDescription = desc;
             blendChanged = false;
         }
 
-        if (boundChanged) {
+        if (BoundChanged) {
             UpdateBounds();
-            boundChanged = false;
+            BoundChanged = false;
         }
     }
 
@@ -121,10 +121,10 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         var oldT = boundsWithTransform;
         if (Set(ref boundsWithTransform, bounds.Transform(ModelMatrix)))
             RaiseOnTransformBoundChanged(new BoundChangeArgs<BoundingBox>(ref boundsWithTransform, ref oldT));
-        var oldTS = boundsSphereWithTransform;
+        var oldTs = boundsSphereWithTransform;
         if (Set(ref boundsSphereWithTransform, boundsSphere.TransformBoundingSphere(ModelMatrix)))
             RaiseOnTransformBoundSphereChanged(
-                new BoundChangeArgs<BoundingSphere>(ref boundsSphereWithTransform, ref oldTS));
+                new BoundChangeArgs<BoundingSphere>(ref boundsSphereWithTransform, ref oldTs));
     }
 
     /// <summary>
@@ -166,8 +166,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The particle count.
     /// </value>
     public int ParticleCount {
-        get => particleCore.ParticleCount;
-        set => particleCore.ParticleCount = value;
+        get => ParticleCore.ParticleCount;
+        set => ParticleCore.ParticleCount = value;
     }
 
     /// <summary>
@@ -177,8 +177,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The emitter location.
     /// </value>
     public Vector3 EmitterLocation {
-        get => particleCore.EmitterLocation;
-        set => particleCore.EmitterLocation = value;
+        get => ParticleCore.EmitterLocation;
+        set => ParticleCore.EmitterLocation = value;
     }
 
     /// <summary>
@@ -188,8 +188,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The emitter radius.
     /// </value>
     public float EmitterRadius {
-        get => particleCore.EmitterRadius;
-        set => particleCore.EmitterRadius = value;
+        get => ParticleCore.EmitterRadius;
+        set => ParticleCore.EmitterRadius = value;
     }
 
     /// <summary>
@@ -199,8 +199,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The consumer location.
     /// </value>
     public Vector3 ConsumerLocation {
-        get => particleCore.ConsumerLocation;
-        set => particleCore.ConsumerLocation = value;
+        get => ParticleCore.ConsumerLocation;
+        set => ParticleCore.ConsumerLocation = value;
     }
 
     /// <summary>
@@ -210,8 +210,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The consumer radius.
     /// </value>
     public float ConsumerRadius {
-        get => particleCore.ConsumerRadius;
-        set => particleCore.ConsumerRadius = value;
+        get => ParticleCore.ConsumerRadius;
+        set => ParticleCore.ConsumerRadius = value;
     }
 
     /// <summary>
@@ -221,8 +221,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The consumer gravity.
     /// </value>
     public float ConsumerGravity {
-        get => particleCore.ConsumerGravity;
-        set => particleCore.ConsumerGravity = value;
+        get => ParticleCore.ConsumerGravity;
+        set => ParticleCore.ConsumerGravity = value;
     }
 
     /// <summary>
@@ -232,10 +232,10 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The initial energy.
     /// </value>
     public float InitialEnergy {
-        get => particleCore.InitialEnergy;
+        get => ParticleCore.InitialEnergy;
         set {
-            particleCore.InitialEnergy = value;
-            particleCore.UpdateInsertThrottle();
+            ParticleCore.InitialEnergy = value;
+            ParticleCore.UpdateInsertThrottle();
         }
     }
 
@@ -246,8 +246,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The energy dissipation rate.
     /// </value>
     public float EnergyDissipationRate {
-        get => particleCore.EnergyDissipationRate;
-        set => particleCore.EnergyDissipationRate = value;
+        get => ParticleCore.EnergyDissipationRate;
+        set => ParticleCore.EnergyDissipationRate = value;
     }
 
     /// <summary>
@@ -257,8 +257,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The random vector generator.
     /// </value>
     public IRandomVector RandomVectorGenerator {
-        get => particleCore.VectorGenerator;
-        set => particleCore.VectorGenerator = value;
+        get => ParticleCore.VectorGenerator;
+        set => ParticleCore.VectorGenerator = value;
     }
 
     /// <summary>
@@ -268,8 +268,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The particle texture.
     /// </value>
     public TextureModel ParticleTexture {
-        get => particleCore.ParticleTexture;
-        set => particleCore.ParticleTexture = value;
+        get => ParticleCore.ParticleTexture;
+        set => ParticleCore.ParticleTexture = value;
     }
 
     /// <summary>
@@ -279,8 +279,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The number texture column.
     /// </value>
     public uint NumTextureColumn {
-        get => particleCore.NumTextureColumn;
-        set => particleCore.NumTextureColumn = value;
+        get => ParticleCore.NumTextureColumn;
+        set => ParticleCore.NumTextureColumn = value;
     }
 
     /// <summary>
@@ -290,8 +290,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The number texture row.
     /// </value>
     public uint NumTextureRow {
-        get => particleCore.NumTextureRow;
-        set => particleCore.NumTextureRow = value;
+        get => ParticleCore.NumTextureRow;
+        set => ParticleCore.NumTextureRow = value;
     }
 
     /// <summary>
@@ -301,8 +301,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The size of the particle.
     /// </value>
     public Vector2 ParticleSize {
-        get => particleCore.ParticleSize;
-        set => particleCore.ParticleSize = value;
+        get => ParticleCore.ParticleSize;
+        set => ParticleCore.ParticleSize = value;
     }
 
     /// <summary>
@@ -312,8 +312,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The initial velocity.
     /// </value>
     public float InitialVelocity {
-        get => particleCore.InitialVelocity;
-        set => particleCore.InitialVelocity = value;
+        get => ParticleCore.InitialVelocity;
+        set => ParticleCore.InitialVelocity = value;
     }
 
     /// <summary>
@@ -323,8 +323,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The initialize acceleration.
     /// </value>
     public Vector3 InitAcceleration {
-        get => particleCore.InitialAcceleration;
-        set => particleCore.InitialAcceleration = value;
+        get => ParticleCore.InitialAcceleration;
+        set => ParticleCore.InitialAcceleration = value;
     }
 
     /// <summary>
@@ -337,8 +337,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         get;
         set {
             if (Set(ref field, value)) {
-                particleCore.DomainBoundMax = value;
-                boundChanged = true;
+                ParticleCore.DomainBoundMax = value;
+                BoundChanged = true;
             }
         }
     } = ParticleRenderCore.DefaultBoundMaximum;
@@ -353,8 +353,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         get;
         set {
             if (Set(ref field, value)) {
-                particleCore.DomainBoundMin = value;
-                boundChanged = true;
+                ParticleCore.DomainBoundMin = value;
+                BoundChanged = true;
             }
         }
     } = ParticleRenderCore.DefaultBoundMinimum;
@@ -366,8 +366,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     <c>true</c> if [cumulate at bound]; otherwise, <c>false</c>.
     /// </value>
     public bool CumulateAtBound {
-        get => particleCore.CumulateAtBound;
-        set => particleCore.CumulateAtBound = value;
+        get => ParticleCore.CumulateAtBound;
+        set => ParticleCore.CumulateAtBound = value;
     }
 
     /// <summary>
@@ -377,8 +377,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The color of the blend.
     /// </value>
     public Color4 BlendColor {
-        get => particleCore.ParticleBlendColor;
-        set => particleCore.ParticleBlendColor = value;
+        get => ParticleCore.ParticleBlendColor;
+        set => ParticleCore.ParticleBlendColor = value;
     }
 
     /// <summary>
@@ -388,8 +388,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     <c>true</c> if [animate sprite by energy]; otherwise, <c>false</c>.
     /// </value>
     public bool AnimateSpriteByEnergy {
-        get => particleCore.AnimateSpriteByEnergy;
-        set => particleCore.AnimateSpriteByEnergy = value;
+        get => ParticleCore.AnimateSpriteByEnergy;
+        set => ParticleCore.AnimateSpriteByEnergy = value;
     }
 
     /// <summary>
@@ -399,8 +399,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The turbulance.
     /// </value>
     public float Turbulance {
-        get => particleCore.Turbulance;
-        set => particleCore.Turbulance = value;
+        get => ParticleCore.Turbulance;
+        set => ParticleCore.Turbulance = value;
     }
 
     /// <summary>
@@ -488,8 +488,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The blend factor.
     /// </value>
     public Color4 BlendFactor {
-        get => particleCore.BlendFactor;
-        set => particleCore.BlendFactor = value;
+        get => ParticleCore.BlendFactor;
+        set => ParticleCore.BlendFactor = value;
     }
 
     /// <summary>
@@ -499,8 +499,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     The sample mask.
     /// </value>
     public int SampleMask {
-        get => particleCore.SampleMask;
-        set => particleCore.SampleMask = value;
+        get => ParticleCore.SampleMask;
+        set => ParticleCore.SampleMask = value;
     }
 
     /// <summary>
@@ -514,7 +514,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set {
             if (Set(ref field, value)) {
                 InstanceBuffer.Elements = value;
-                boundChanged = true;
+                BoundChanged = true;
             }
         }
     }
@@ -549,7 +549,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     private BoundingSphere boundsSphereWithTransform;
     public override BoundingSphere BoundsSphereWithTransform => boundsSphereWithTransform;
 
-    protected volatile bool boundChanged = true;
+    protected volatile bool BoundChanged = true;
 
     #endregion
 }

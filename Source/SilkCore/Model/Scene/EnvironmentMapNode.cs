@@ -9,7 +9,7 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class EnvironmentMapNode : SceneNode {
-    private readonly bool UseSkyDome;
+    private readonly bool useSkyDome;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="EnvironmentMapNode" /> class. Default is using SkyBox. To use SkyDome,
@@ -25,7 +25,7 @@ public class EnvironmentMapNode : SceneNode {
     /// </summary>
     /// <param name="useSkyDome">if set to <c>true</c> [use sky dome].</param>
     public EnvironmentMapNode(bool useSkyDome) {
-        UseSkyDome = useSkyDome;
+        this.useSkyDome = useSkyDome;
         RenderOrder = 1000;
     }
 
@@ -53,7 +53,7 @@ public class EnvironmentMapNode : SceneNode {
     /// </summary>
     /// <returns></returns>
     protected override RenderCore OnCreateRenderCore() {
-        if (UseSkyDome) return new SkyDomeRenderCore();
+        if (useSkyDome) return new SkyDomeRenderCore();
 
         return new SkyBoxRenderCore();
     }

@@ -12,7 +12,7 @@ public class InstancingBillboardNode : BillboardNode {
     /// <summary>
     ///     The instance parameter buffer
     /// </summary>
-    protected IElementsBufferModel<BillboardInstanceParameter> instanceParamBuffer =
+    protected IElementsBufferModel<BillboardInstanceParameter> InstanceParamBuffer =
         new InstanceParamsBufferModel<BillboardInstanceParameter>(BillboardInstanceParameter.SizeInBytes);
 
     /// <summary>
@@ -22,8 +22,8 @@ public class InstancingBillboardNode : BillboardNode {
     ///     The instance parameter array.
     /// </value>
     public IList<BillboardInstanceParameter> InstanceParamArray {
-        get => instanceParamBuffer.Elements;
-        set => instanceParamBuffer.Elements = value;
+        get => InstanceParamBuffer.Elements;
+        set => InstanceParamBuffer.Elements = value;
     }
 
     #region Overridable Methods
@@ -33,7 +33,7 @@ public class InstancingBillboardNode : BillboardNode {
     /// </summary>
     /// <returns></returns>
     protected override RenderCore OnCreateRenderCore() {
-        return new InstancingBillboardRenderCore { ParameterBuffer = instanceParamBuffer };
+        return new InstancingBillboardRenderCore { ParameterBuffer = InstanceParamBuffer };
     }
 
     protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
@@ -43,7 +43,7 @@ public class InstancingBillboardNode : BillboardNode {
     protected override bool OnAttach(IEffectsManager effectsManager) {
         // --- attach
         if (!base.OnAttach(effectsManager)) return false;
-        instanceParamBuffer.Initialize();
+        InstanceParamBuffer.Initialize();
         return true;
     }
 
@@ -51,7 +51,7 @@ public class InstancingBillboardNode : BillboardNode {
     ///     Used to override Detach
     /// </summary>
     protected override void OnDetach() {
-        instanceParamBuffer.DisposeAndClear();
+        InstanceParamBuffer.DisposeAndClear();
         base.OnDetach();
     }
 

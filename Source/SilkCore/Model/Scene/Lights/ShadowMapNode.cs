@@ -271,7 +271,7 @@ public class ShadowMapNode : SceneNode {
                     var dlight = light.RenderCore as DirectionalLightCore;
                     var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
                     if (AutoCoverCompleteScene) {
-                        if (sceneChanged || e.Context.updateSceneGraphRequested || IsSceneDynamic) {
+                        if (sceneChanged || e.Context.UpdateSceneGraphRequested || IsSceneDynamic) {
                             sceneChanged = false;
                             var boundingBox = FindSceneBound(e.Context.RenderHost.PerFrameOpaqueNodes);
                             if (!CreateCameraFromBound(ref boundingBox, ref dir))

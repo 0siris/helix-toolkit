@@ -8,26 +8,26 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public static class DefaultComputeShaders {
     /// <summary>
     /// </summary>
-    public static string CSParticleInsert { get; } = "csParticleInsert";
+    public static string CsParticleInsert { get; } = "csParticleInsert";
 
     /// <summary>
     /// </summary>
-    public static string CSParticleUpdate { get; } = "csParticleUpdate";
+    public static string CsParticleUpdate { get; } = "csParticleUpdate";
 }
 
 
 public static class DefaultComputeShaderDescriptions {
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription CSParticleInsert = new(nameof(CSParticleInsert),
+    public static readonly ShaderDescription CsParticleInsert = new(nameof(CsParticleInsert),
                                                                     ShaderStage.Compute,
                                                                     new ShaderReflector(),
-                                                                    DefaultComputeShaders.CSParticleInsert);
+                                                                    DefaultComputeShaders.CsParticleInsert);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription CSParticleUpdate = new(nameof(CSParticleUpdate),
+    public static readonly ShaderDescription CsParticleUpdate = new(nameof(CsParticleUpdate),
                                                                     ShaderStage.Compute,
                                                                     new ShaderReflector(),
-                                                                    DefaultComputeShaders.CSParticleUpdate);
+                                                                    DefaultComputeShaders.CsParticleUpdate);
 }

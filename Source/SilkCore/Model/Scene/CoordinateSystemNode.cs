@@ -8,9 +8,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class CoordinateSystemNode : ScreenSpacedNode {
-    private static readonly float arrowSize = 5.5f;
-    private static readonly float arrowWidth = 0.6f;
-    private static readonly float arrowHead = 1.7f;
+    private static readonly float ArrowSize = 5.5f;
+    private static readonly float ArrowWidth = 0.6f;
+    private static readonly float ArrowHead = 1.7f;
     private readonly MeshNode arrowMeshModel = new() { EnableViewFrustumCheck = false };
 
     private readonly BillboardNode axisBillboard = new() { Material = new BillboardMaterialCore() };
@@ -127,9 +127,9 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     private void UpdateModel() {
         var builder = new MeshBuilder(true, false);
 
-        builder.AddArrow(Vector3.Zero, new Vector3(arrowSize, 0, 0), arrowWidth, arrowHead, 8);
-        builder.AddArrow(Vector3.Zero, new Vector3(0, arrowSize, 0), arrowWidth, arrowHead, 8);
-        builder.AddArrow(Vector3.Zero, new Vector3(0, 0, arrowSize), arrowWidth, arrowHead, 8);
+        builder.AddArrow(Vector3.Zero, new Vector3(ArrowSize, 0, 0), ArrowWidth, ArrowHead, 8);
+        builder.AddArrow(Vector3.Zero, new Vector3(0, ArrowSize, 0), ArrowWidth, ArrowHead, 8);
+        builder.AddArrow(Vector3.Zero, new Vector3(0, 0, ArrowSize), ArrowWidth, ArrowHead, 8);
 
         var mesh = builder.ToMesh();
         arrowMeshModel.Geometry = mesh;
@@ -193,15 +193,15 @@ public class CoordinateSystemNode : ScreenSpacedNode {
         var labelText = axisBillboard.Geometry as BillboardText3D;
         switch (which) {
             case 0:
-                labelText.TextInfo[which] = new TextInfo(label, new Vector3(arrowSize + 1.5f, 0, 0)) { Foreground = labelColor, Scale = 0.5f };
+                labelText.TextInfo[which] = new TextInfo(label, new Vector3(ArrowSize + 1.5f, 0, 0)) { Foreground = labelColor, Scale = 0.5f };
                 break;
 
             case 1:
-                labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, arrowSize + 1.5f, 0)) { Foreground = labelColor, Scale = 0.5f };
+                labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, ArrowSize + 1.5f, 0)) { Foreground = labelColor, Scale = 0.5f };
                 break;
 
             case 2:
-                labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, 0, arrowSize + 1.5f)) { Foreground = labelColor, Scale = 0.5f };
+                labelText.TextInfo[which] = new TextInfo(label, new Vector3(0, 0, ArrowSize + 1.5f)) { Foreground = labelColor, Scale = 0.5f };
                 break;
         }
 

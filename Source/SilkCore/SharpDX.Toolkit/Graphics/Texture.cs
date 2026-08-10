@@ -285,7 +285,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <returns>A texture</returns>
-    public static Texture Load(
+    public static Texture? Load(
         NativeD3DDevice device,
         Stream stream,
         TextureFlags flags = TextureFlags.ShaderResource,
@@ -325,7 +325,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
     /// <returns>A texture</returns>
-    public static Texture Load(
+    public static Texture? Load(
         NativeD3DDevice device,
         string filePath,
         TextureFlags flags = TextureFlags.ShaderResource,

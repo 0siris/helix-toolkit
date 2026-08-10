@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
-using CustomShaderDemo.Materials;
+using Materials;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;

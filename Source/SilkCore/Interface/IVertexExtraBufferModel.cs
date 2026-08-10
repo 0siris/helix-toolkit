@@ -10,7 +10,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IVertexExtraBufferModel : IGUID, IDisposable {
+public interface IVertexExtraBufferModel : IGuid, IDisposable {
     /// <summary>
     ///     Gets a value indicating whether this <see cref="IVertexExtraBufferModel" /> is initialized.
     /// </summary>

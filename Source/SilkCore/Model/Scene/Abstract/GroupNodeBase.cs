@@ -17,7 +17,7 @@ public abstract class GroupNodeBase : SceneNode {
         Clear
     }
 
-    protected readonly Dictionary<Guid, SceneNode> itemHashSet = [];
+    protected readonly Dictionary<Guid, SceneNode> ItemHashSet = [];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GroupNodeBase" /> class.
@@ -64,8 +64,8 @@ public abstract class GroupNodeBase : SceneNode {
     /// <returns></returns>
     /// <exception cref="System.ArgumentException">SceneNode already attach to a different node</exception>
     public bool AddChildNode(SceneNode node) {
-        if (node != null && !itemHashSet.ContainsKey(node.GUID)) {
-            itemHashSet.Add(node.GUID, node);
+        if (node != null && !ItemHashSet.ContainsKey(node.Guid)) {
+            ItemHashSet.Add(node.Guid, node);
             ItemsInternal.Add(node);
             if (node.Parent != null && node.Parent != this)
                 throw new ArgumentException("SceneNode already attach to a different node");
@@ -100,8 +100,8 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public bool InsertChildNode(int index, SceneNode node) {
-        if (node == null || node.IsAttached || itemHashSet.ContainsKey(node.GUID)) return false;
-        itemHashSet.Add(node.GUID, node);
+        if (node == null || node.IsAttached || ItemHashSet.ContainsKey(node.Guid)) return false;
+        ItemHashSet.Add(node.Guid, node);
         ItemsInternal.Insert(index, node);
         node.Parent = this;
         if (IsAttached) {
@@ -120,7 +120,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public bool TransferChildNode(SceneNode node, GroupNodeBase targetGroup) {
-        if (targetGroup == this || !itemHashSet.Remove(node.GUID)) return false;
+        if (targetGroup == this || !ItemHashSet.Remove(node.Guid)) return false;
         ItemsInternal.Remove(node);
         node.Parent = null;
         InvalidateSceneGraph();
@@ -140,7 +140,7 @@ public abstract class GroupNodeBase : SceneNode {
         }
 
         ItemsInternal.Clear();
-        itemHashSet.Clear();
+        ItemHashSet.Clear();
         Cleared?.Invoke(this, new OnChildNodeChangedArgs(null, Operation.Clear));
     }
 
@@ -151,7 +151,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="detachChild">Whether to detach the child node automatically after removing. Default = true.</param>
     /// <returns></returns>
     public bool RemoveChildNode(SceneNode node, bool detachChild = true) {
-        if (node != null && itemHashSet.Remove(node.GUID)) {
+        if (node != null && ItemHashSet.Remove(node.Guid)) {
             if (detachChild) node.Detach();
             ItemsInternal.Remove(node);
             node.Parent = null;
@@ -170,7 +170,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public bool TryGetNode(Guid guid, out SceneNode node) {
-        return itemHashSet.TryGetValue(guid, out node);
+        return ItemHashSet.TryGetValue(guid, out node);
     }
 
     /// <summary>

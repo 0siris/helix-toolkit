@@ -302,7 +302,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void LoadTexture(int index) {
-        using (var file = new FileStream(new System.Uri(Textures[index], System.UriKind.RelativeOrAbsolute).ToString(),
+        using (var file = new FileStream(new Uri(Textures[index], UriKind.RelativeOrAbsolute).ToString(),
                                          FileMode.Open)) {
             var mem = new MemoryStream();
             file.CopyTo(mem);

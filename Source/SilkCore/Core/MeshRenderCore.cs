@@ -48,7 +48,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
 
     protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
         var pass = MaterialVariables.GetPass(RenderType, context);
-        if (pass.IsNULL)
+        if (pass.IsNull)
             return;
         
         OnUpdatePerModelStruct(context);
@@ -67,7 +67,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
 
         if (RenderWireframe) {
             pass = MaterialVariables.GetWireframePass(RenderType, context);
-            if (pass.IsNULL) 
+            if (pass.IsNull) 
                 return;
             
             pass.BindShader(deviceContext, false);
@@ -86,7 +86,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
 
     protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
         var pass = MaterialVariables.GetShadowPass(RenderType, context);
-        if (pass.IsNULL) 
+        if (pass.IsNull) 
             return;
         
         var v = new SimpleMeshStruct {
@@ -107,7 +107,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
         ShaderPass? customPass
     ) {
         var pass = customPass ?? MaterialVariables.GetDepthPass(RenderType, context);
-        if (pass.IsNULL)
+        if (pass.IsNull)
             return;
         
         var v = new SimpleMeshStruct {

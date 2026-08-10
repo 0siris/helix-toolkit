@@ -7,14 +7,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
-public static class DefaultGSShaderByteCodes {
+public static class DefaultGsShaderByteCodes {
     /// <summary>
     /// </summary>
-    public static string GSPoint { get; } = "gsPoint";
+    public static string GsPoint { get; } = "gsPoint";
 
     /// <summary>
     /// </summary>
-    public static string GSLine { get; } = "gsLine";
+    public static string GsLine { get; } = "gsLine";
 
     /// <summary>
     ///     Gets the gs line arrow head.
@@ -22,7 +22,7 @@ public static class DefaultGSShaderByteCodes {
     /// <value>
     ///     The gs line arrow head.
     /// </value>
-    public static string GSLineArrowHead { get; } = "gsLineArrowHead";
+    public static string GsLineArrowHead { get; } = "gsLineArrowHead";
 
     /// <summary>
     ///     Gets the gs line arrow tail.
@@ -30,15 +30,15 @@ public static class DefaultGSShaderByteCodes {
     /// <value>
     ///     The gs line arrow tail.
     /// </value>
-    public static string GSLineArrowHeadTail { get; } = "gsLineArrowHeadTail";
+    public static string GsLineArrowHeadTail { get; } = "gsLineArrowHeadTail";
 
     /// <summary>
     /// </summary>
-    public static string GSBillboard { get; } = "gsBillboard";
+    public static string GsBillboard { get; } = "gsBillboard";
 
     /// <summary>
     /// </summary>
-    public static string GSParticle { get; } = "gsParticle";
+    public static string GsParticle { get; } = "gsParticle";
 
     /// <summary>
     ///     Gets the gs mesh normal vector.
@@ -46,83 +46,83 @@ public static class DefaultGSShaderByteCodes {
     /// <value>
     ///     The gs mesh normal vector.
     /// </value>
-    public static string GSMeshNormalVector { get; } = "gsMeshNormalVector";
+    public static string GsMeshNormalVector { get; } = "gsMeshNormalVector";
 
-    public static string GSMeshBoneSkinnedOut { get; } = "gsMeshSkinnedOut";
+    public static string GsMeshBoneSkinnedOut { get; } = "gsMeshSkinnedOut";
 }
 
 
 /// <summary>
 ///     Default Geometry Shaders
 /// </summary>
-public static class DefaultGSShaderDescriptions {
+public static class DefaultGsShaderDescriptions {
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSPoint = new(nameof(GSPoint),
+    public static readonly ShaderDescription GsPoint = new(nameof(GsPoint),
                                                            ShaderStage.Geometry,
                                                            new ShaderReflector(),
-                                                           DefaultGSShaderByteCodes.GSPoint);
+                                                           DefaultGsShaderByteCodes.GsPoint);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSLine = new(nameof(GSLine),
+    public static readonly ShaderDescription GsLine = new(nameof(GsLine),
                                                           ShaderStage.Geometry,
                                                           new ShaderReflector(),
-                                                          DefaultGSShaderByteCodes.GSLine);
+                                                          DefaultGsShaderByteCodes.GsLine);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSLineArrowHead = new(nameof(GSLineArrowHead),
+    public static readonly ShaderDescription GsLineArrowHead = new(nameof(GsLineArrowHead),
                                                                    ShaderStage.Geometry,
                                                                    new ShaderReflector(),
-                                                                   DefaultGSShaderByteCodes.GSLineArrowHead);
+                                                                   DefaultGsShaderByteCodes.GsLineArrowHead);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSLineArrowHeadTail = new(nameof(GSLineArrowHeadTail),
+    public static readonly ShaderDescription GsLineArrowHeadTail = new(nameof(GsLineArrowHeadTail),
                                                                        ShaderStage.Geometry,
                                                                        new ShaderReflector(),
-                                                                       DefaultGSShaderByteCodes
-                                                                           .GSLineArrowHeadTail);
+                                                                       DefaultGsShaderByteCodes
+                                                                           .GsLineArrowHeadTail);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSBillboard = new(nameof(GSBillboard),
+    public static readonly ShaderDescription GsBillboard = new(nameof(GsBillboard),
                                                                ShaderStage.Geometry,
                                                                new ShaderReflector(),
-                                                               DefaultGSShaderByteCodes.GSBillboard);
+                                                               DefaultGsShaderByteCodes.GsBillboard);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription GSParticle = new(nameof(GSParticle),
+    public static readonly ShaderDescription GsParticle = new(nameof(GsParticle),
                                                               ShaderStage.Geometry,
                                                               new ShaderReflector(),
-                                                              DefaultGSShaderByteCodes.GSParticle);
+                                                              DefaultGsShaderByteCodes.GsParticle);
 
     /// <summary>
     ///     The gs mesh normal vector
     /// </summary>
-    public static readonly ShaderDescription GSMeshNormalVector = new(nameof(GSMeshNormalVector),
+    public static readonly ShaderDescription GsMeshNormalVector = new(nameof(GsMeshNormalVector),
                                                                       ShaderStage.Geometry,
                                                                       new ShaderReflector(),
-                                                                      DefaultGSShaderByteCodes
-                                                                          .GSMeshNormalVector);
+                                                                      DefaultGsShaderByteCodes
+                                                                          .GsMeshNormalVector);
 
     /// <summary>
     ///     The gs mesh bone skinned out
     /// </summary>
-    public static readonly ShaderDescription GSMeshBoneSkinnedOut = new(nameof(GSMeshBoneSkinnedOut),
+    public static readonly ShaderDescription GsMeshBoneSkinnedOut = new(nameof(GsMeshBoneSkinnedOut),
         ShaderStage.Geometry,
         new ShaderReflector(),
-        DefaultGSShaderByteCodes.GSMeshBoneSkinnedOut) {
-        IsGSStreamOut = true,
-        GSSOElement = [
+        DefaultGsShaderByteCodes.GsMeshBoneSkinnedOut) {
+        IsGsStreamOut = true,
+        GssoElement = [
             new StreamOutputElement(0, "POSITION", 0, 0, 4, 0),
             new StreamOutputElement(0, "NORMAL", 0, 0, 3, 0),
             new StreamOutputElement(0, "TANGENT", 0, 0, 3, 0),
             new StreamOutputElement(0, "BINORMAL", 0, 0, 3, 0)
         ],
-        GSSOStrides = [
+        GssoStrides = [
             DefaultVertex.SizeInBytes
         ]
     };

@@ -9,7 +9,7 @@ namespace HelixToolkit.SharpDX.Core;
 public static class IViewportExtensions {
     public static readonly HitTestResult[] EmptyHits = [];
 
-    [ThreadStatic] private static readonly Stack<IEnumerator<SceneNode>> stackCache = new();
+    [ThreadStatic] private static readonly Stack<IEnumerator<SceneNode>> StackCache = new();
 
     /// <summary>
     ///     Forces to update transform and bounds.
@@ -129,12 +129,12 @@ public static class IViewportExtensions {
     ///     Un-project 2D screen point onto 3D space by camera.
     /// </summary>
     /// <param name="viewport">The viewport.</param>
-    /// <param name="point2d">The point2d.</param>
+    /// <param name="point2D">The point2d.</param>
     /// <param name="ray">The ray.</param>
     /// <returns></returns>
-    public static bool UnProject(this IViewport3DX viewport, Vector2 point2d, out Ray ray) {
+    public static bool UnProject(this IViewport3DX viewport, Vector2 point2D, out Ray ray) {
         var renderContext = viewport.RenderHost?.RenderContext;
-        if (renderContext != null) return viewport.RenderHost.RenderContext.UnProject(point2d, out ray);
+        if (renderContext != null) return viewport.RenderHost.RenderContext.UnProject(point2D, out ray);
 
         ray = new Ray();
         return false;
@@ -268,11 +268,11 @@ public static class IViewportExtensions {
     ///     The action.
     /// </param>
     public static void Traverse(this IViewport3DX viewport, Action<SceneNode> action) {
-        viewport.Renderables.PreorderDFT(node => {
+        viewport.Renderables.PreorderDft(node => {
             action(node);
             return true;
         },
-                                         stackCache);
+                                         StackCache);
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ public static class IViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
     public static void Traverse(this IViewport3DX viewport, Func<SceneNode, bool> function) {
-        viewport.Renderables.PreorderDFT(node => { return function(node); }, stackCache);
+        viewport.Renderables.PreorderDft(node => { return function(node); }, StackCache);
     }
 
     /// <summary>
@@ -296,7 +296,7 @@ public static class IViewportExtensions {
 
     public static BoundingBox FindBoundsInternal(this IViewport3DX viewport) {
         var maxVector = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        var firstModel = viewport.Renderables.PreorderDFT(r => {
+        var firstModel = viewport.Renderables.PreorderDft(r => {
             if (r.Visible && !(r is ScreenSpacedNode)) return true;
             return false;
         }).Where(x => {
@@ -310,7 +310,7 @@ public static class IViewportExtensions {
         if (firstModel == null) return new BoundingBox();
         var bounds = firstModel.BoundsWithTransform;
 
-        foreach (var renderable in viewport.Renderables.PreorderDFT(r => {
+        foreach (var renderable in viewport.Renderables.PreorderDft(r => {
             if (r.Visible && !(r is ScreenSpacedNode)) return true;
             return false;
         }))
@@ -331,7 +331,7 @@ public static class IViewportExtensions {
             view.RenderHost.UpdateAndRender();
             if (view.RenderHost != null && view.RenderHost.IsRendering) {
                 var memoryStream = new MemoryStream();
-                ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
+                ScreenCapture.SaveWicTextureToBitmapStream(view.RenderHost.EffectsManager,
                                                            view.RenderHost.RenderBuffer.BackBuffer
                                                                .Resource as Texture2D,
                                                            memoryStream);

@@ -7,14 +7,14 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IGUID {
+public interface IGuid {
     /// <summary>
     ///     Gets the unique identifier.
     /// </summary>
     /// <value>
     ///     The unique identifier.
     /// </value>
-    Guid GUID { get; }
+    Guid Guid { get; }
 }
 
 /// <summary>

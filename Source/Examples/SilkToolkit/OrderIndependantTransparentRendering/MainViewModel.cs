@@ -68,18 +68,18 @@ public class MainViewModel : BaseViewModel {
         get { return oitDepthPeelModeEnabled; }
     }
 
-    public OITRenderType OITRenderType {
+    public OitRenderType OITRenderType {
         set {
             if (SetValue(ref field, value)) {
                 switch (value) {
-                    case OITRenderType.None:
+                    case OitRenderType.None:
                         OITDepthPeelModeEnabled = OITWeightedModeEnabled = false;
                         break;
-                    case OITRenderType.DepthPeeling:
+                    case OitRenderType.DepthPeeling:
                         OITDepthPeelModeEnabled = true;
                         OITWeightedModeEnabled = false;
                         break;
-                    case OITRenderType.SinglePassWeighted:
+                    case OitRenderType.SinglePassWeighted:
                         oitDepthPeelModeEnabled = false;
                         OITWeightedModeEnabled = true;
                         break;
@@ -87,7 +87,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get;
-    } = OITRenderType.DepthPeeling;
+    } = OitRenderType.DepthPeeling;
 
     private MaterialType materialType = MaterialType.BlinnPhong;
 
@@ -100,9 +100,9 @@ public class MainViewModel : BaseViewModel {
         get => materialType;
     }
 
-    public OITWeightMode[] OITWeights { get; } = [OITWeightMode.Linear0, OITWeightMode.Linear1, OITWeightMode.Linear2, OITWeightMode.NonLinear];
+    public OitWeightMode[] OITWeights { get; } = [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
 
-    public OITRenderType[] OITRenderTypes { get; } = [OITRenderType.None, OITRenderType.DepthPeeling, OITRenderType.SinglePassWeighted];
+    public OitRenderType[] OITRenderTypes { get; } = [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
 
     public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.PBR, MaterialType.Diffuse];
 
@@ -144,11 +144,11 @@ public class MainViewModel : BaseViewModel {
     private readonly Random rnd = new Random();
 
     public MainViewModel() {
-        this.ModelGeometry = [];
+        ModelGeometry = [];
         EffectsManager = new DefaultEffectsManager();
         Camera = new OrthographicCamera() {
-            LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -50, -50),
-            Position = new System.Windows.Media.Media3D.Point3D(0, 50, 50),
+            LookDirection = new Media3D.Vector3D(0, -50, -50),
+            Position = new Media3D.Point3D(0, 50, 50),
             FarPlaneDistance = 500,
             NearPlaneDistance = 0.1,
             Width = 100
@@ -259,7 +259,7 @@ public class MainViewModel : BaseViewModel {
                     DepthBias = -100
                 };
                 UpdateMaterial(s);
-                this.ModelGeometry.Add(s);
+                ModelGeometry.Add(s);
             },
                          null);
         }

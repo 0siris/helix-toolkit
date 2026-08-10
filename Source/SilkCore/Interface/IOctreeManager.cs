@@ -17,7 +17,7 @@ public interface IOctreeManager {
     /// <value>
     ///     The octree.
     /// </value>
-    IOctreeBasic Octree { get; }
+    IOctreeBasic? Octree { get; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this <see cref="IOctreeManager" /> is enabled.
@@ -52,7 +52,7 @@ public interface IOctreeManager {
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    bool AddPendingItem(SceneNode item);
+    bool AddPendingItem(SceneNode? item);
 
     /// <summary>
     ///     Processes the pending items.
@@ -68,13 +68,13 @@ public interface IOctreeManager {
     ///     Rebuilds the tree.
     /// </summary>
     /// <param name="items">The items.</param>
-    void RebuildTree(IEnumerable<SceneNode> items);
+    void RebuildTree(IEnumerable<SceneNode>? items);
 
     /// <summary>
     ///     Removes the item.
     /// </summary>
     /// <param name="item">The item.</param>
-    void RemoveItem(SceneNode item);
+    void RemoveItem(SceneNode? item);
 
     /// <summary>
     ///     Requests the rebuild.

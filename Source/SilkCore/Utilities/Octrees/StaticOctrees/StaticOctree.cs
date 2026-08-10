@@ -20,7 +20,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public const int OctantSize = 8;
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    private static readonly ObjectPool<Stack<KeyValuePair<int, int>>> hitStackPool
+    private static readonly ObjectPool<Stack<KeyValuePair<int, int>>> HitStackPool
         = new(() => new Stack<KeyValuePair<int, int>>(), 10);
 
     private readonly List<BoundingBox> hitPathBoundingBoxes = [];
@@ -42,7 +42,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     /// <summary>
     ///     The minumum size for enclosing region is a 1x1x1 cube.
     /// </summary>
-    public float MIN_SIZE => Parameter.MinimumOctantSize;
+    public float MinSize => Parameter.MinimumOctantSize;
 
     /// <summary>
     /// </summary>
@@ -99,7 +99,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public bool HitTest(
         HitTestContext context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref List<HitTestResult> hits
     ) {
@@ -139,7 +139,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public virtual bool HitTest(
         HitTestContext context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref List<HitTestResult> hits,
         float hitThickness
@@ -160,23 +160,23 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public virtual bool HitTest(
         HitTestContext context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         bool returnMultiple,
-        ref List<HitTestResult> hits,
+        ref List<HitTestResult>? hits,
         float hitThickness
     ) {
         hits ??= [];
         hitPathBoundingBoxes.Clear();
-        var hitStack = hitStackPool.GetObject();
+        var hitStack = HitStackPool.GetObject();
         hitStack.Clear();
         var isHit = false;
         var modelHits = new List<HitTestResult>();
         var modelInv = modelMatrix.Inverted();
         if (modelInv == default) return false; //Cannot be inverted
-        var rayWS = context.RayWS;
-        var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInv),
-                               SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInv)));
+        var rayWs = context.RayWs;
+        var rayModel = new Ray(SilkMath.TransformCoordinate(rayWs.Position, modelInv),
+                               SilkMath.Normalize(SilkMath.TransformNormal(rayWs.Direction, modelInv)));
 
         var parent = -1;
         var curr = -1;
@@ -186,7 +186,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         while (true) {
             while (++curr < OctantSize)
                 if (parentOctant.HasChildAtIndex(curr)) {
-                    ref var octant = ref octants.array[parentOctant[curr]];
+                    ref var octant = ref octants.Array[parentOctant[curr]];
                     var isIntersect = false;
                     var nodeHit = HitTestCurrentNodeExcludeChild(ref octant,
                                                                  context,
@@ -226,7 +226,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
             parentOctant = octants[parent];
         }
 
-        hitStackPool.PutObject(hitStack);
+        HitStackPool.PutObject(hitStack);
         if (!isHit) {
             hitPathBoundingBoxes.Clear();
         } else {
@@ -246,10 +246,10 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public virtual bool FindNearestPointBySphere(
         HitTestContext context,
         ref BoundingSphere sphere,
-        ref List<HitTestResult> points
+        ref List<HitTestResult>? points
     ) {
         points ??= [];
-        var hitStack = hitStackPool.GetObject();
+        var hitStack = HitStackPool.GetObject();
         hitStack.Clear();
         var isHit = false;
 
@@ -261,7 +261,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         while (true) {
             while (++curr < OctantSize)
                 if (parentOctant.HasChildAtIndex(curr)) {
-                    ref var octant = ref octants.array[parentOctant[curr]];
+                    ref var octant = ref octants.Array[parentOctant[curr]];
                     var isIntersect = false;
                     var nodeHit = FindNearestPointBySphereExcludeChild(ref octant,
                                                                        context,
@@ -285,7 +285,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
             parentOctant = octants[parent];
         }
 
-        hitStackPool.PutObject(hitStack);
+        HitStackPool.PutObject(hitStack);
         return isHit;
     }
 
@@ -299,11 +299,11 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public virtual bool FindNearestPointFromPoint(
         HitTestContext context,
         ref Vector3 point,
-        ref List<HitTestResult> results,
+        ref List<HitTestResult>? results,
         float heuristicSearchFactor = 1f
     ) {
         results ??= [];
-        var hitStack = hitStackPool.GetObject();
+        var hitStack = HitStackPool.GetObject();
         hitStack.Clear();
         var sphere = new BoundingSphere(point, float.MaxValue);
         var isHit = false;
@@ -317,7 +317,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         while (true) {
             while (++curr < OctantSize)
                 if (parentOctant.HasChildAtIndex(curr)) {
-                    ref var octant = ref octants.array[parentOctant[curr]];
+                    ref var octant = ref octants.Array[parentOctant[curr]];
                     var isIntersect = false;
                     var nodeHit = FindNearestPointBySphereExcludeChild(ref octant,
                                                                        context,
@@ -345,7 +345,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
             parentOctant = octants[parent];
         }
 
-        hitStackPool.PutObject(hitStack);
+        HitStackPool.PutObject(hitStack);
         return isHit;
     }
 
@@ -360,7 +360,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         HitTestContext context,
         ref Vector3 point,
         float radius,
-        ref List<HitTestResult> result
+        ref List<HitTestResult>? result
     ) {
         var sphere = new BoundingSphere(point, radius);
         return FindNearestPointBySphere(context, ref sphere, ref result);
@@ -372,7 +372,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     public LineGeometry3D CreateOctreeLineModel() {
         var builder = new LineBuilder();
         for (var i = 0; i < octants.Count; ++i) {
-            var box = octants.array[i].Bound;
+            var box = octants.Array[i].Bound;
             var verts = new Vector3[8];
             verts[0] = box.Minimum;
             verts[1] = new Vector3(box.Minimum.X, box.Minimum.Y, box.Maximum.Z); //Z
@@ -419,7 +419,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         if (dimensions == Vector3.Zero) return false;
         dimensions = bound.Maximum - bound.Minimum;
         //Check to see if the dimensions of the box are greater than the minimum dimensions
-        if (dimensions.X < MIN_SIZE && dimensions.Y < MIN_SIZE && dimensions.Z < MIN_SIZE) return false;
+        if (dimensions.X < MinSize && dimensions.Y < MinSize && dimensions.Z < MinSize) return false;
 
         return true;
     }
@@ -495,7 +495,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected BoundingBox FindEnclosingBox(int index) {
-        ref var octant = ref octants.array[index];
+        ref var octant = ref octants.Array[index];
         if (octant.Count == 0) return new BoundingBox();
         var b = GetBoundingBoxFromItem(ref Objects[octant.Start]);
         for (var i = octant.Start + 1; i < octant.End; ++i) {
@@ -572,7 +572,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
                 if (parentOctant.HasChildAtIndex(curr)) {
                     var childIdx = parentOctant[curr];
                     process(childIdx);
-                    ref var octant = ref octants.array[childIdx];
+                    ref var octant = ref octants.Array[childIdx];
                     if (octant.HasChildren && (canVisitChildren == null || canVisitChildren(octant.Index))) {
                         stack.Push(new KeyValuePair<int, int>(parent, curr));
                         parent = octant.Index;
@@ -780,7 +780,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     ///     Octant array, used to manage a internal octant array, which is the storage for the entire octree
     /// </summary>
     protected sealed class OctantArray {
-        internal Octant[] array = new Octant[128];
+        internal Octant[] Array = new Octant[128];
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="OctantArray" /> class.
@@ -792,7 +792,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
                 Start = 0,
                 End = length
             };
-            array[0] = octant;
+            Array[0] = octant;
             ++Count;
             //var size = System.Runtime.InteropServices.Marshal.SizeOf(octant);
         }
@@ -804,8 +804,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         /// <param name="index"></param>
         /// <returns></returns>
         public Octant this[int index] {
-            get => array[index];
-            set => array[index] = value;
+            get => Array[index];
+            set => Array[index] = value;
         }
 
         /// <summary>
@@ -818,18 +818,18 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Add(int parentIndex, int childIndex, BoundingBox bound, ref Octant newParent) {
-            if (array.Length < Count + OctantSize) {
-                var newSize = array.Length * 2;
+            if (Array.Length < Count + OctantSize) {
+                var newSize = Array.Length * 2;
                 if (newSize > int.MaxValue / 4) //Size is too big
                     return false;
-                var newArray = new Octant[array.Length * 2];
-                Array.Copy(array, newArray, Count);
-                array = newArray;
+                var newArray = new Octant[Array.Length * 2];
+                System.Array.Copy(Array, newArray, Count);
+                Array = newArray;
             }
 
-            ref var parent = ref array[parentIndex];
+            ref var parent = ref Array[parentIndex];
 
-            array[Count] = new Octant(parent.Index, Count, ref bound);
+            Array[Count] = new Octant(parent.Index, Count, ref bound);
             parent[childIndex] = Count;
             ++Count;
             newParent = parent;
@@ -840,10 +840,10 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         ///     Compacts the octree array, remove all unused storage space at the end of the array.
         /// </summary>
         public void Compact() {
-            if (array.Length > Count) {
+            if (Array.Length > Count) {
                 var newArray = new Octant[Count];
-                Array.Copy(array, newArray, Count);
-                array = newArray;
+                System.Array.Copy(Array, newArray, Count);
+                Array = newArray;
             }
         }
 
@@ -853,7 +853,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref Octant Get(int i) {
-            return ref array[i];
+            return ref Array[i];
         }
     }
 

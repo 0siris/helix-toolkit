@@ -8,7 +8,7 @@ using HelixToolkit.SharpDX.Core.Native;
 namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
-public class BitmapProxy : DisposeObject, IGUID {
+public class BitmapProxy : DisposeObject, IGuid {
     private D2DBitmap bitmap;
 
     /// <summary>
@@ -79,7 +79,7 @@ public class BitmapProxy : DisposeObject, IGUID {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Creates the description.

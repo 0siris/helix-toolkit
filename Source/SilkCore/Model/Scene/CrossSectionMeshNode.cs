@@ -249,7 +249,7 @@ public class CrossSectionMeshNode : MeshNode {
     }
 
     private static Plane VectorToPlane(Vector4 v) {
-        return new Plane(v.ToXYZ(), v.W);
+        return new Plane(v.ToXyz(), v.W);
     }
 
     protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
@@ -270,15 +270,15 @@ public class CrossSectionMeshNode : MeshNode {
         ref List<HitTestResult> hits
     ) {
         var hitsBeforeCheck = hits?.Count ?? 0;
-        var meshGeometry3d = Geometry as MeshGeometry3D;
-        if (meshGeometry3d == null)
+        var meshGeometry3D = Geometry as MeshGeometry3D;
+        if (meshGeometry3D == null)
             return false;
-        if (meshGeometry3d.ReturnMultipleHitsOnHitTest)
+        if (meshGeometry3D.ReturnMultipleHitsOnHitTest)
             throw new InvalidOperationException(
-                $"All hit tests should be called on the same thread, {nameof(Geometry)}.{nameof(meshGeometry3d.ReturnMultipleHitsOnHitTest)} would not be true if that was the case");
-        meshGeometry3d.ReturnMultipleHitsOnHitTest = true;
-        var result = meshGeometry3d.HitTest(context, totalModelMatrix, ref hits, WrapperSource);
-        meshGeometry3d.ReturnMultipleHitsOnHitTest = false;
+                $"All hit tests should be called on the same thread, {nameof(Geometry)}.{nameof(meshGeometry3D.ReturnMultipleHitsOnHitTest)} would not be true if that was the case");
+        meshGeometry3D.ReturnMultipleHitsOnHitTest = true;
+        var result = meshGeometry3D.HitTest(context, totalModelMatrix, ref hits, WrapperSource);
+        meshGeometry3D.ReturnMultipleHitsOnHitTest = false;
         var operation = CuttingOperation;
         if (result) {
             switch (operation) {

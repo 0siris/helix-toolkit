@@ -19,7 +19,7 @@ public abstract class ShaderBase : DisposeObject {
         ShaderType = type;
         ShaderStageIndex = type.ToIndex();
         Name = name;
-        IsNULL = isNull;
+        IsNull = isNull;
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public abstract class ShaderBase : DisposeObject {
 
     /// <summary>
     /// </summary>
-    public MappingProxy<UAVMapping> UnorderedAccessViewMapping { get; } = new();
+    public MappingProxy<UavMapping> UnorderedAccessViewMapping { get; } = new();
 
     /// <summary>
     /// </summary>
@@ -59,7 +59,7 @@ public abstract class ShaderBase : DisposeObject {
     /// <summary>
     ///     If is null shader
     /// </summary>
-    public bool IsNULL { get; protected set; }
+    public bool IsNull { get; protected set; }
 
     /// <summary>
     ///     Shader Name

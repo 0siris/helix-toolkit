@@ -16,7 +16,7 @@ namespace HelixToolkit.Wpf.SharpDX.Model;
 public abstract class Element3DCore : FrameworkContentElement, IDisposable {
     /// <summary>
     /// </summary>
-    public Guid GUID => SceneNode.GUID;
+    public Guid GUID => SceneNode.Guid;
 
     /// <summary>
     /// </summary>

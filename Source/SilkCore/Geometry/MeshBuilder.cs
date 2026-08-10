@@ -901,12 +901,12 @@ public class MeshBuilder {
     /// </summary>
     /// <param name="faces">The Faces to create (default all Faces)</param>
     public void AddCube(BoxFaces faces = BoxFaces.All) {
-        if ((faces & BoxFaces.PositiveX) == BoxFaces.PositiveX) AddFacePX();
-        if ((faces & BoxFaces.NegativeX) == BoxFaces.NegativeX) AddFaceNX();
-        if ((faces & BoxFaces.NegativeY) == BoxFaces.NegativeY) AddFaceNY();
-        if ((faces & BoxFaces.PositiveY) == BoxFaces.PositiveY) AddFacePY();
-        if ((faces & BoxFaces.PositiveZ) == BoxFaces.PositiveZ) AddFacePZ();
-        if ((faces & BoxFaces.NegativeZ) == BoxFaces.NegativeZ) AddFaceNZ();
+        if ((faces & BoxFaces.PositiveX) == BoxFaces.PositiveX) AddFacePx();
+        if ((faces & BoxFaces.NegativeX) == BoxFaces.NegativeX) AddFaceNx();
+        if ((faces & BoxFaces.NegativeY) == BoxFaces.NegativeY) AddFaceNy();
+        if ((faces & BoxFaces.PositiveY) == BoxFaces.PositiveY) AddFacePy();
+        if ((faces & BoxFaces.PositiveZ) == BoxFaces.PositiveZ) AddFacePz();
+        if ((faces & BoxFaces.NegativeZ) == BoxFaces.NegativeZ) AddFaceNz();
     }
 
     /// <summary>
@@ -1062,12 +1062,12 @@ public class MeshBuilder {
             for (var i = positionsCount; i < positions.Count; i++) {
                 var centerToPoint = positions[i] - center;
                 centerToPoint.Normalize();
-                var cTPUpValue = SharedFunctions.DotProduct(ref centerToPoint, ref up);
-                var planeCTP = centerToPoint - up * cTPUpValue;
-                planeCTP.Normalize();
-                var u = (DoubleOrSingle)Math.Atan2(SharedFunctions.DotProduct(ref planeCTP, ref forward),
-                                                    SharedFunctions.DotProduct(ref planeCTP, ref right));
-                var v = cTPUpValue * 0.5f + 0.5f;
+                var cTpUpValue = SharedFunctions.DotProduct(ref centerToPoint, ref up);
+                var planeCtp = centerToPoint - up * cTpUpValue;
+                planeCtp.Normalize();
+                var u = (DoubleOrSingle)Math.Atan2(SharedFunctions.DotProduct(ref planeCtp, ref forward),
+                                                    SharedFunctions.DotProduct(ref planeCtp, ref right));
+                var v = cTpUpValue * 0.5f + 0.5f;
                 textureCoordinates.Add(new Point(u, v));
             }
 
@@ -1245,7 +1245,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in positive Z-Direction.
     /// </summary>
-    public void AddFacePZ() {
+    public void AddFacePz() {
         var positions = new[] {
             new Point3D(0, 0, 1),
             new Point3D(0, 1, 1),
@@ -1279,7 +1279,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in negative Z-Direction.
     /// </summary>
-    public void AddFaceNZ() {
+    public void AddFaceNz() {
         var positions = new[] {
             new Point3D(0, 1, 0), //p1
             new Point3D(0, 0, 0), //p0                
@@ -1314,7 +1314,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in positive X-Direction.
     /// </summary>
-    public void AddFacePX() {
+    public void AddFacePx() {
         var positions = new[] {
             new Point3D(1, 0, 0), //p0
             new Point3D(1, 0, 1), //p1
@@ -1349,7 +1349,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in negative X-Direction.
     /// </summary>
-    public void AddFaceNX() {
+    public void AddFaceNx() {
         var positions = new[] {
             new Point3D(0, 0, 1), //p1
             new Point3D(0, 0, 0), //p0                
@@ -1384,7 +1384,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in positive Y-Direction.
     /// </summary>
-    public void AddFacePY() {
+    public void AddFacePy() {
         var positions = new[] {
             new Point3D(1, 1, 0), //p3  
             new Point3D(1, 1, 1), //p2  
@@ -1419,7 +1419,7 @@ public class MeshBuilder {
     /// <summary>
     ///     Add a Face in negative Y-Direction.
     /// </summary>
-    public void AddFaceNY() {
+    public void AddFaceNy() {
         var positions = new[] {
             new Point3D(0, 0, 0), //p0
             new Point3D(0, 0, 1), //p1
@@ -2701,8 +2701,8 @@ public class MeshBuilder {
                 // For all Points, calculate a simple uv Coordinate
                 for (var i = 0; i < thetaDiv; i++) {
                     // Determine the Number of Vertices of this Cross-Section present in the positions Collection
-                    var numCS = selfIntersecting && i > 0 ? phiDiv - 2 : phiDiv;
-                    for (var j = 0; j < numCS; j++) {
+                    var numCs = selfIntersecting && i > 0 ? phiDiv - 2 : phiDiv;
+                    for (var j = 0; j < numCs; j++) {
                         // Calculate u- and v- Coordinates for the Points
                         var u = (DoubleOrSingle)i / thetaDiv;
                         DoubleOrSingle v = 0;

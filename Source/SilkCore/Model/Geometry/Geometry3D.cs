@@ -11,44 +11,44 @@ namespace HelixToolkit.SharpDX.Core;
 
 
 [DataContract]
-public abstract class Geometry3D : ObservableObject, IGUID {
+public abstract class Geometry3D : ObservableObject, IGuid {
     public const string VertexBuffer = "VertexBuffer";
     public const string TriangleBuffer = "TriangleBuffer";
-    private static readonly PropertyChangedEventArgs vertexBufferPropChanged = new(VertexBuffer);
-    private static readonly PropertyChangedEventArgs triangleBufferPropChanged = new(TriangleBuffer);
-    private static readonly PropertyChangedEventArgs colorsPropChanged = new(nameof(Colors));
-    private static readonly PropertyChangedEventArgs positionPropChanged = new(nameof(Positions));
-    private static readonly PropertyChangedEventArgs indicesPropChanged = new(nameof(Indices));
+    private static readonly PropertyChangedEventArgs VertexBufferPropChanged = new(VertexBuffer);
+    private static readonly PropertyChangedEventArgs TriangleBufferPropChanged = new(TriangleBuffer);
+    private static readonly PropertyChangedEventArgs ColorsPropChanged = new(nameof(Colors));
+    private static readonly PropertyChangedEventArgs PositionPropChanged = new(nameof(Positions));
+    private static readonly PropertyChangedEventArgs IndicesPropChanged = new(nameof(Indices));
 
     [DataMember]
-    public Guid GUID { get; set; } = Guid.NewGuid();
+    public Guid Guid { get; set; } = Guid.NewGuid();
 
     /// <summary>
     ///     Indices, can be triangle list, line list, etc.
     /// </summary>
     [DataMember]
-    public IntCollection Indices {
+    public IntCollection? Indices {
         get;
         set {
             if (Set(ref field, value, false)) {
                 ClearOctree();
-                RaisePropertyChanged(indicesPropChanged);
+                RaisePropertyChanged(IndicesPropChanged);
             }
         }
     }
 
-    private Vector3Collection position;
+    private Vector3Collection? position;
 
     /// <summary>
     ///     Vertex Positions
     /// </summary>
     [DataMember]
-    public Vector3Collection Positions {
+    public Vector3Collection? Positions {
         get => position;
         set {
             if (Set(ref position, value, false)) {
                 ClearOctree();
-                RaisePropertyChanged(positionPropChanged);
+                RaisePropertyChanged(PositionPropChanged);
                 UpdateBounds();
             }
         }
@@ -80,14 +80,14 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         get;
         set {
             if (Set(ref field, value, false)) 
-                RaisePropertyChanged(colorsPropChanged);
+                RaisePropertyChanged(ColorsPropChanged);
         }
     }
 
     /// <summary>
     ///     TO use Octree during hit test to improve hit performance, please call UpdateOctree after model created.
     /// </summary>
-    public IOctreeBasic Octree { get; private set; }
+    public IOctreeBasic? Octree { get; private set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether [octree dirty], needs update.
@@ -202,7 +202,7 @@ public abstract class Geometry3D : ObservableObject, IGUID {
     ///     </para>
     /// </summary>
     public void UpdateVertices() {
-        RaisePropertyChanged(vertexBufferPropChanged);
+        RaisePropertyChanged(VertexBufferPropChanged);
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ public abstract class Geometry3D : ObservableObject, IGUID {
     ///     </para>
     /// </summary>
     public void UpdateTriangles() {
-        RaisePropertyChanged(triangleBufferPropChanged);
+        RaisePropertyChanged(TriangleBufferPropChanged);
     }
 
     /// <summary>
@@ -225,7 +225,7 @@ public abstract class Geometry3D : ObservableObject, IGUID {
     ///     <para>Make sure the <see cref="Colors" /> count equal to the <see cref="Positions" /> count</para>
     /// </summary>
     public void UpdateColors() {
-        RaisePropertyChanged(colorsPropChanged);
+        RaisePropertyChanged(ColorsPropChanged);
     }
 
     /// <summary>

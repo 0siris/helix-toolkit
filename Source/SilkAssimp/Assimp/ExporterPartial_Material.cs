@@ -17,8 +17,8 @@ public partial class Exporter {
     /// <param name="node">The node.</param>
     /// <param name="material">The material.</param>
     /// <returns></returns>
-    protected virtual bool GetMaterialFromNode(Model.Scene.SceneNode node, out MaterialCore material) {
-        if (node is Model.Scene.MaterialGeometryNode geo) {
+    protected virtual bool GetMaterialFromNode(SceneNode node, out MaterialCore material) {
+        if (node is MaterialGeometryNode geo) {
             material = geo.Material;
             return material != null;
         }
@@ -90,9 +90,9 @@ public partial class Exporter {
                                                             phong.DiffuseAlphaMapFilePath,
                                                             TextureType.Opacity,
                                                             0));
-        if (phong.UVTransform.HasUVTransform)
+        if (phong.UvTransform.HasUvTransform)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.UVTRANSFORM_BASE,
-                                                            phong.UVTransform.ToArray()));
+                                                            phong.UvTransform.ToArray()));
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public partial class Exporter {
     /// </summary>
     /// <param name="pbr">The PBR.</param>
     /// <param name="assimpMaterial">The assimp material.</param>
-    protected virtual void AddProperties(PBRMaterialCore pbr, Material assimpMaterial) {
+    protected virtual void AddProperties(PbrMaterialCore pbr, Material assimpMaterial) {
         assimpMaterial.ShadingMode = ShadingMode.Fresnel;
         assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_DIFFUSE_BASE,
                                                         pbr.AlbedoColor.ToAssimpColor4D()));
@@ -167,9 +167,9 @@ public partial class Exporter {
                                                             pbr.IrradianceMapFilePath,
                                                             TextureType.Lightmap,
                                                             0));
-        if (pbr.UVTransform.HasUVTransform)
+        if (pbr.UvTransform.HasUvTransform)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.UVTRANSFORM_BASE,
-                                                            pbr.UVTransform.ToArray()));
+                                                            pbr.UvTransform.ToArray()));
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public partial class Exporter {
         };
         if (material is PhongMaterialCore phong)
             AddProperties(phong, assimpMaterial);
-        else if (material is PBRMaterialCore pbr)
+        else if (material is PbrMaterialCore pbr)
             AddProperties(pbr, assimpMaterial);
         else if (material is DiffuseMaterialCore diffuse)
             AddProperties(diffuse, assimpMaterial);

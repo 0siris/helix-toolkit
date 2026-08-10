@@ -24,9 +24,9 @@ public class BillboardMaterialVariable : MaterialVariable {
     )
         : base(manager, technique, DefaultPointLineConstantBufferDesc, materialCore) {
         BillboardPass = technique[defaultPassName];
-        OITPass = technique[DefaultPassNames.OITPass];
-        OITDepthPeelingInit = technique[DefaultPassNames.OITDepthPeelingInit];
-        OITDepthPeeling = technique[DefaultPassNames.OITDepthPeeling];
+        OitPass = technique[DefaultPassNames.OitPass];
+        OitDepthPeelingInit = technique[DefaultPassNames.OitDepthPeelingInit];
+        OitDepthPeeling = technique[DefaultPassNames.OitDepthPeeling];
         this.materialCore = materialCore;
         shaderTextureSlot =
             BillboardPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureName);
@@ -37,7 +37,7 @@ public class BillboardMaterialVariable : MaterialVariable {
     /// <summary>
     ///     Set texture variable name insider shader for binding
     /// </summary>
-    public string ShaderTextureName { get; } = DefaultBufferNames.BillboardTB;
+    public string ShaderTextureName { get; } = DefaultBufferNames.BillboardTb;
 
     /// <summary>
     ///     Set texture sampler variable name inside shader for binding
@@ -46,11 +46,11 @@ public class BillboardMaterialVariable : MaterialVariable {
 
     public ShaderPass BillboardPass { get; }
 
-    public ShaderPass OITPass { get; }
+    public ShaderPass OitPass { get; }
 
-    public ShaderPass OITDepthPeelingInit { get; }
+    public ShaderPass OitDepthPeelingInit { get; }
 
-    public ShaderPass OITDepthPeeling { get; }
+    public ShaderPass OitDepthPeeling { get; }
 
     protected override void OnInitialPropertyBindings() {
         base.OnInitialPropertyBindings();
@@ -81,13 +81,13 @@ public class BillboardMaterialVariable : MaterialVariable {
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
         if (renderType == RenderType.Transparent)
-            switch (context.OITRenderStage) {
-                case OITRenderStage.SinglePassWeighted:
-                    return OITPass;
-                case OITRenderStage.DepthPeelingInitMinMaxZ:
-                    return OITDepthPeelingInit;
-                case OITRenderStage.DepthPeeling:
-                    return OITDepthPeeling;
+            switch (context.OitRenderStage) {
+                case OitRenderStage.SinglePassWeighted:
+                    return OitPass;
+                case OitRenderStage.DepthPeelingInitMinMaxZ:
+                    return OitDepthPeelingInit;
+                case OitRenderStage.DepthPeeling:
+                    return OitDepthPeeling;
             }
 
         return BillboardPass;

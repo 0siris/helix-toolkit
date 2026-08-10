@@ -47,7 +47,7 @@ public static class SweepLinePolygonTriangulator {
         // Sort the Input and create the Datastructures
         // Make the Polygon CounterClockWise
         var didReverse = false;
-        if (!IsCCW(polygon)) {
+        if (!IsCcw(polygon)) {
             points.Reverse();
             didReverse = true;
         }
@@ -196,13 +196,13 @@ public static class SweepLinePolygonTriangulator {
 
                 while (pointStack.Count != 0)
                     // If the Triangle is possible, add it to the result (Point Order depends on the Side)
-                    if (right == newPoint && IsCCW([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
+                    if (right == newPoint && IsCcw([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
                         top = pointStack.Pop();
                         result.Add(newPoint.Index);
                         result.Add(p2.Index);
                         result.Add(top.Index);
                         p2 = top;
-                    } else if (left == newPoint && !IsCCW([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
+                    } else if (left == newPoint && !IsCcw([newPoint.Point, p2.Point, pointStack.Peek().Point])) {
                         top = pointStack.Pop();
                         result.Add(newPoint.Index);
                         result.Add(top.Index);
@@ -409,7 +409,7 @@ public static class SweepLinePolygonTriangulator {
     /// </summary>
     /// <param name="polygon">The Polygon.</param>
     /// <returns>True if the Polygon is present in a CCW manner.</returns>
-    internal static bool IsCCW(IList<Point> polygon) {
+    internal static bool IsCcw(IList<Point> polygon) {
         var n = polygon.Count;
         var area = 0.0;
         for (int p = n - 1, q = 0; q < n; p = q++) area += polygon[p].X * polygon[q].Y - polygon[q].X * polygon[p].Y;
@@ -686,10 +686,10 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
         // If we use the normal Order (top-to-bottom)
         if (!reverse) {
             // Both neighboring PolygonPoints are below this Point and the Point is concave
-            if (Last < this && Next < this && isConvexPoint())
+            if (Last < this && Next < this && IsConvexPoint())
                 return PolygonPointClass.Start;
             // Both neighboring PolygonPoints are above this Point and the Point is concave
-            if (Last > this && Next > this && isConvexPoint())
+            if (Last > this && Next > this && IsConvexPoint())
                 return PolygonPointClass.Stop;
             // Both neighboring PolygonPoints are below this Point and the Point is convex
             if (Last < this && Next < this)
@@ -702,10 +702,10 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
         }
 
         // Both neighboring PolygonPoints are below this Point and the Point is concave
-        if (Last < this && Next < this && isConvexPoint())
+        if (Last < this && Next < this && IsConvexPoint())
             return PolygonPointClass.Stop;
         // Both neighboring PolygonPoints are above this Point and the Point is concave
-        if (Last > this && Next > this && isConvexPoint())
+        if (Last > this && Next > this && IsConvexPoint())
             return PolygonPointClass.Start;
         // Both neighboring PolygonPoints are below this Point and the Point is convex
         if (Last < this && Next < this)
@@ -722,7 +722,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     ///     (the assumption is, that we are dealing with a CCW Polygon orientation!)
     /// </summary>
     /// <returns>Returns true, if convex, false if concave (or "reflex" Vertex)</returns>
-    private bool isConvexPoint() {
+    private bool IsConvexPoint() {
         // If the Point has no Next- and Last-PolygonPoint, there's an Error
         if (Next == null || Last == null)
             throw new Exception("No closed Polygon");
@@ -903,7 +903,7 @@ internal class PolygonData {
     /// <param name="points">The Points that define the Hole in the Polygon</param>
     internal void AddHole(List<Point> points) {
         // Make Hole Clockwise
-        if (SweepLinePolygonTriangulator.IsCCW(points)) points.Reverse();
+        if (SweepLinePolygonTriangulator.IsCcw(points)) points.Reverse();
         // The Hole Points
         var polyPoints = points.Select(p => new PolygonPoint(p)).ToList();
         // If Endpoint equals Startpoint

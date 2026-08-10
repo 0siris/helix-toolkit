@@ -71,13 +71,13 @@ internal static unsafe class SilkD3D11DeviceFactory {
 
     private static SilkFeatureLevel FromSilkFeatureLevel(D3DFeatureLevel featureLevel) {
         return featureLevel switch {
-            D3DFeatureLevel.Level111 => SilkFeatureLevel.Level_11_1,
-            D3DFeatureLevel.Level110 => SilkFeatureLevel.Level_11_0,
-            D3DFeatureLevel.Level101 => SilkFeatureLevel.Level_10_1,
-            D3DFeatureLevel.Level100 => SilkFeatureLevel.Level_10_0,
-            D3DFeatureLevel.Level93 => SilkFeatureLevel.Level_9_3,
-            D3DFeatureLevel.Level92 => SilkFeatureLevel.Level_9_2,
-            D3DFeatureLevel.Level91 => SilkFeatureLevel.Level_9_1,
+            D3DFeatureLevel.Level111 => SilkFeatureLevel.Level111,
+            D3DFeatureLevel.Level110 => SilkFeatureLevel.Level110,
+            D3DFeatureLevel.Level101 => SilkFeatureLevel.Level101,
+            D3DFeatureLevel.Level100 => SilkFeatureLevel.Level100,
+            D3DFeatureLevel.Level93 => SilkFeatureLevel.Level93,
+            D3DFeatureLevel.Level92 => SilkFeatureLevel.Level92,
+            D3DFeatureLevel.Level91 => SilkFeatureLevel.Level91,
             _ => SilkFeatureLevel.Unknown
         };
     }

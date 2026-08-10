@@ -12,7 +12,7 @@ using System.CodeDom.Compiler;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public static class DynamicCodeSurfaceTemplate {
-    public const string template =
+    public const string Template =
         @"
     using System;
 
@@ -41,10 +41,10 @@ public static class DynamicCodeSurfaceTemplate {
 /// <summary>
 /// </summary>
 public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
-    private object _codeInstance;
+    private object codeInstance;
 
     // Type and instance of the dynamic code
-    private Type _codeType;
+    private Type codeType;
 
     private string sourceCode;
 
@@ -79,8 +79,8 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
 
     private void UpdateSource() {
         sourceCode = Source;
-        _codeType = null;
-        _codeInstance = null;
+        codeType = null;
+        codeInstance = null;
         if (string.IsNullOrEmpty(sourceCode))
             return;
 
@@ -94,8 +94,8 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         if (!compilerResults.Errors.HasErrors) {
             Errors = null;
             var assembly = compilerResults.CompiledAssembly;
-            _codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
-            _codeType = _codeInstance.GetType();
+            codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
+            codeType = codeInstance.GetType();
             TessellateAsync();
         } else {
             // correct line numbers
@@ -106,11 +106,11 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
     }
 
     protected virtual string GetTemplate() {
-        return DynamicCodeSurfaceTemplate.template;
+        return DynamicCodeSurfaceTemplate.Template;
     }
 
     protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
-        if (_codeType == null) {
+        if (codeType == null) {
             texCoord = new Vector2();
             return Vector3.Zero;
         }
@@ -119,10 +119,10 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         parameters[0] = u;
         parameters[1] = v;
         parameters[2] = ParameterW;
-        var result = _codeType.InvokeMember("Evaluate",
+        var result = codeType.InvokeMember("Evaluate",
                                             BindingFlags.InvokeMethod,
                                             null,
-                                            _codeInstance,
+                                            codeInstance,
                                             parameters);
         var p = (Tuple<double, double, double, double>)result;
 

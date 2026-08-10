@@ -34,9 +34,9 @@ public class MeshSimplification {
                                                  .Select(x => new Triangle())];
         var i = 0;
         foreach (var tri in triangles) {
-            tri.v[0] = model.TriangleIndices[i++];
-            tri.v[1] = model.TriangleIndices[i++];
-            tri.v[2] = model.TriangleIndices[i++];
+            tri.V[0] = model.TriangleIndices[i++];
+            tri.V[1] = model.TriangleIndices[i++];
+            tri.V[2] = model.TriangleIndices[i++];
         }
 
         vertices = [.. model.Positions.Select(x => new Vertex(x))];
@@ -68,7 +68,7 @@ public class MeshSimplification {
         bool verbose = false,
         bool lossless = false
     ) {
-        foreach (var tri in triangles) tri.deleted = false;
+        foreach (var tri in triangles) tri.Deleted = false;
         var deletedTris = 0;
         var deleted0 = new List<bool>();
         var deleted1 = new List<bool>();
@@ -79,7 +79,7 @@ public class MeshSimplification {
             if (!lossless && triCount - deletedTris <= targetCount) break;
             if (lossless || iteration % 5 == 0) UpdateMesh(iteration);
 
-            foreach (var tri in triangles) tri.dirty = false;
+            foreach (var tri in triangles) tri.Dirty = false;
             //
             // All triangles with edges below the threshold will be removed
             //
@@ -94,45 +94,45 @@ public class MeshSimplification {
                     $"Iteration: {iteration}; Triangles: {triCount - deletedTris}; Threshold: {threshold};");
 
             foreach (var tri in triangles) {
-                if (tri.err[3] > threshold || tri.deleted || tri.dirty) continue;
+                if (tri.Err[3] > threshold || tri.Deleted || tri.Dirty) continue;
 
                 for (var j = 0; j < 3; ++j)
-                    if (tri.err[j] < threshold) {
-                        var i0 = tri.v[j];
+                    if (tri.Err[j] < threshold) {
+                        var i0 = tri.V[j];
                         var v0 = vertices[i0];
-                        var i1 = tri.v[(j + 1) % 3];
+                        var i1 = tri.V[(j + 1) % 3];
                         var v1 = vertices[i1];
                         //border check
-                        if (v0.border != v1.border) continue;
+                        if (v0.Border != v1.Border) continue;
 
                         //Compute vertex to collapse to
                         Vector3D p;
                         CalculateError(i0, i1, out p);
                         deleted0.Clear();
                         deleted1.Clear();
-                        deleted0.AddRange(Enumerable.Repeat(false, v0.tCount));
-                        deleted1.AddRange(Enumerable.Repeat(false, v1.tCount));
+                        deleted0.AddRange(Enumerable.Repeat(false, v0.TCount));
+                        deleted1.AddRange(Enumerable.Repeat(false, v1.TCount));
 
                         if (Flipped(ref p, i0, i1, ref v0, ref v1, deleted0)
                             || Flipped(ref p, i1, i0, ref v1, ref v0, deleted1))
                             continue;
-                        v0.p = p;
-                        v0.q = v1.q + v0.q;
+                        v0.P = p;
+                        v0.Q = v1.Q + v0.Q;
 
                         var tStart = refs.Count;
                         UpdateTriangles(i0, ref v0, deleted0, ref deletedTris);
                         UpdateTriangles(i0, ref v1, deleted1, ref deletedTris);
 
                         var tcount = refs.Count - tStart;
-                        if (tcount <= v0.tCount) {
+                        if (tcount <= v0.TCount) {
                             if (tcount > 0)
                                 for (var k = 0; k < tcount; ++k)
-                                    refs[v0.tStart + k] = refs[tStart + k];
+                                    refs[v0.TStart + k] = refs[tStart + k];
                         } else {
-                            v0.tStart = tStart;
+                            v0.TStart = tStart;
                         }
 
-                        v0.tCount = tcount;
+                        v0.TCount = tcount;
                         break;
                     }
 
@@ -153,38 +153,38 @@ public class MeshSimplification {
     /// </summary>
     /// <returns></returns>
     public MeshGeometry3D GetMesh() {
-        var pos = new Point3DCollection(vertices.Select(x => new Point3D(x.p.X, x.p.Y, x.p.Z)));
+        var pos = new Point3DCollection(vertices.Select(x => new Point3D(x.P.X, x.P.Y, x.P.Z)));
         var tris = new Int32Collection(triangles.Count * 3);
         foreach (var tri in triangles) {
-            tris.Add(tri.v[0]);
-            tris.Add(tri.v[1]);
-            tris.Add(tri.v[2]);
+            tris.Add(tri.V[0]);
+            tris.Add(tri.V[1]);
+            tris.Add(tri.V[2]);
         }
 
         return new MeshGeometry3D { Positions = pos, TriangleIndices = tris };
     }
 
     private bool Flipped(ref Vector3D p, int i0, int i1, ref Vertex v0, ref Vertex v1, IList<bool> deleted) {
-        for (var i = 0; i < v0.tCount; ++i) {
-            var t = triangles[refs[v0.tStart + i].tid];
-            if (t.deleted) continue;
-            var s = refs[v0.tStart + i].tvertex;
-            var id1 = t.v[(s + 1) % 3];
-            var id2 = t.v[(s + 2) % 3];
+        for (var i = 0; i < v0.TCount; ++i) {
+            var t = triangles[refs[v0.TStart + i].Tid];
+            if (t.Deleted) continue;
+            var s = refs[v0.TStart + i].Tvertex;
+            var id1 = t.V[(s + 1) % 3];
+            var id2 = t.V[(s + 2) % 3];
             if (id1 == i1 || id2 == i1) {
                 deleted[i] = true;
                 continue;
             }
 
-            var d1 = vertices[id1].p - p;
+            var d1 = vertices[id1].P - p;
             d1.Normalize();
-            var d2 = vertices[id2].p - p;
+            var d2 = vertices[id2].P - p;
             d2.Normalize();
             if (SharedFunctions.DotProduct(ref d1, ref d2) > 0.999) return true;
             var n = SharedFunctions.CrossProduct(ref d1, ref d2);
             n.Normalize();
             deleted[i] = false;
-            if (SharedFunctions.DotProduct(ref n, ref t.normal) < 0.2) return true;
+            if (SharedFunctions.DotProduct(ref n, ref t.Normal) < 0.2) return true;
         }
 
         return false;
@@ -192,56 +192,56 @@ public class MeshSimplification {
 
     private void UpdateTriangles(int i0, ref Vertex v, IList<bool> deleted, ref int deletedTriangles) {
         Vector3D p;
-        for (var i = 0; i < v.tCount; ++i) {
-            var r = refs[v.tStart + i];
-            var t = triangles[r.tid];
-            if (t.deleted) continue;
+        for (var i = 0; i < v.TCount; ++i) {
+            var r = refs[v.TStart + i];
+            var t = triangles[r.Tid];
+            if (t.Deleted) continue;
             if (deleted[i]) {
-                t.deleted = true;
+                t.Deleted = true;
                 deletedTriangles++;
                 continue;
             }
 
-            t.v[r.tvertex] = i0;
-            t.dirty = true;
-            t.err[0] = CalculateError(t.v[0], t.v[1], out p);
-            t.err[1] = CalculateError(t.v[1], t.v[2], out p);
-            t.err[2] = CalculateError(t.v[2], t.v[0], out p);
-            t.err[3] = Math.Min(t.err[0], Math.Min(t.err[1], t.err[2]));
+            t.V[r.Tvertex] = i0;
+            t.Dirty = true;
+            t.Err[0] = CalculateError(t.V[0], t.V[1], out p);
+            t.Err[1] = CalculateError(t.V[1], t.V[2], out p);
+            t.Err[2] = CalculateError(t.V[2], t.V[0], out p);
+            t.Err[3] = Math.Min(t.Err[0], Math.Min(t.Err[1], t.Err[2]));
             refs.Add(r);
         }
     }
 
-    private double CalculateError(int id_v1, int id_v2, out Vector3D p_result) {
-        p_result = new Vector3D();
+    private double CalculateError(int idV1, int idV2, out Vector3D pResult) {
+        pResult = new Vector3D();
         // compute interpolated vertex
-        var q = vertices[id_v1].q + vertices[id_v2].q;
-        var border = vertices[id_v1].border & vertices[id_v2].border;
+        var q = vertices[idV1].Q + vertices[idV2].Q;
+        var border = vertices[idV1].Border & vertices[idV2].Border;
         double error = 0;
 
-        var det = q.det(0, 1, 2, 1, 4, 5, 2, 5, 7);
+        var det = q.Det(0, 1, 2, 1, 4, 5, 2, 5, 7);
         if (det != 0 && !border) {
             // q_delta is invertible
-            p_result.X = (float)(-1 / det * q.det(1, 2, 3, 4, 5, 6, 5, 7, 8)); // vx = A41/det(q_delta)
-            p_result.Y = (float)(1 / det * q.det(0, 2, 3, 1, 5, 6, 2, 7, 8));  // vy = A42/det(q_delta)
-            p_result.Z = (float)(-1 / det * q.det(0, 1, 3, 1, 4, 6, 2, 5, 8)); // vz = A43/det(q_delta)
+            pResult.X = (float)(-1 / det * q.Det(1, 2, 3, 4, 5, 6, 5, 7, 8)); // vx = A41/det(q_delta)
+            pResult.Y = (float)(1 / det * q.Det(0, 2, 3, 1, 5, 6, 2, 7, 8));  // vy = A42/det(q_delta)
+            pResult.Z = (float)(-1 / det * q.Det(0, 1, 3, 1, 4, 6, 2, 5, 8)); // vz = A43/det(q_delta)
 
-            error = VertexError(ref q, p_result.X, p_result.Y, p_result.Z);
+            error = VertexError(ref q, pResult.X, pResult.Y, pResult.Z);
         } else {
             // det = 0 -> try to find best result
-            var p1 = vertices[id_v1].p;
-            var p2 = vertices[id_v2].p;
+            var p1 = vertices[idV1].P;
+            var p2 = vertices[idV2].P;
             var p3 = (p1 + p2) / 2;
             var error1 = VertexError(ref q, p1.X, p1.Y, p1.Z);
             var error2 = VertexError(ref q, p2.X, p2.Y, p2.Z);
             var error3 = VertexError(ref q, p3.X, p3.Y, p3.Z);
             error = Math.Min(error1, Math.Min(error2, error3));
             if (error1 == error)
-                p_result = p1;
+                pResult = p1;
             if (error2 == error)
-                p_result = p2;
+                pResult = p2;
             if (error3 == error)
-                p_result = p3;
+                pResult = p3;
         }
 
         return error;
@@ -257,50 +257,50 @@ public class MeshSimplification {
         {
             var dst = 0;
             for (var i = 0; i < triangles.Count; ++i)
-                if (!triangles[i].deleted)
+                if (!triangles[i].Deleted)
                     triangles[dst++] = triangles[i];
 
             triangles.RemoveRange(dst, triangles.Count - dst);
         }
 
         if (iteration == 0) {
-            foreach (var vert in vertices) vert.q.SetAll(0);
+            foreach (var vert in vertices) vert.Q.SetAll(0);
 
             foreach (var tri in triangles) {
-                var p0 = vertices[tri.v[0]].p;
-                var p1 = vertices[tri.v[1]].p;
-                var p2 = vertices[tri.v[2]].p;
+                var p0 = vertices[tri.V[0]].P;
+                var p1 = vertices[tri.V[1]].P;
+                var p2 = vertices[tri.V[2]].P;
                 var n = SharedFunctions.CrossProduct(p1 - p0, p2 - p0);
                 n.Normalize();
-                tri.normal = n;
+                tri.Normal = n;
                 for (var j = 0; j < 3; ++j)
-                    vertices[tri.v[j]].q +=
+                    vertices[tri.V[j]].Q +=
                         new SymmetricMatrix(n.X, n.Y, n.Z, -SharedFunctions.DotProduct(ref n, ref p0));
             }
 
             Vector3D p;
             foreach (var tri in triangles) {
-                for (var i = 0; i < 3; ++i) tri.err[i] = CalculateError(tri.v[i], tri.v[(i + 1) % 3], out p);
-                tri.err[3] = Math.Min(tri.err[0], Math.Min(tri.err[1], tri.err[2]));
+                for (var i = 0; i < 3; ++i) tri.Err[i] = CalculateError(tri.V[i], tri.V[(i + 1) % 3], out p);
+                tri.Err[3] = Math.Min(tri.Err[0], Math.Min(tri.Err[1], tri.Err[2]));
             }
         }
 
         foreach (var vert in vertices) {
-            vert.tStart = 0;
-            vert.tCount = 0;
+            vert.TStart = 0;
+            vert.TCount = 0;
         }
 
         foreach (var tri in triangles) {
-            vertices[tri.v[0]].tCount++;
-            vertices[tri.v[1]].tCount++;
-            vertices[tri.v[2]].tCount++;
+            vertices[tri.V[0]].TCount++;
+            vertices[tri.V[1]].TCount++;
+            vertices[tri.V[2]].TCount++;
         }
 
         var tstart = 0;
         foreach (var vert in vertices) {
-            vert.tStart = tstart;
-            tstart += vert.tCount;
-            vert.tCount = 0;
+            vert.TStart = tstart;
+            tstart += vert.TCount;
+            vert.TCount = 0;
         }
 
         var totalTris = triangles.Count * 3;
@@ -315,12 +315,12 @@ public class MeshSimplification {
         var count = 0;
         foreach (var tri in triangles) {
             for (var j = 0; j < 3; ++j) {
-                var v = vertices[tri.v[j]];
-                var r = refs[v.tStart + v.tCount];
-                r.tid = count;
-                r.tvertex = j;
-                refs[v.tStart + v.tCount] = r;
-                v.tCount++;
+                var v = vertices[tri.V[j]];
+                var r = refs[v.TStart + v.TCount];
+                r.Tid = count;
+                r.Tvertex = j;
+                refs[v.TStart + v.TCount] = r;
+                v.TCount++;
             }
 
             ++count;
@@ -329,16 +329,16 @@ public class MeshSimplification {
         if (iteration == 0) {
             var vCount = new List<int>();
             var vids = new List<int>();
-            foreach (var vert in vertices) vert.border = false;
+            foreach (var vert in vertices) vert.Border = false;
 
             foreach (var vert in vertices) {
                 vCount.Clear();
                 vids.Clear();
-                for (var j = 0; j < vert.tCount; ++j) {
-                    var t = triangles[refs[vert.tStart + j].tid];
+                for (var j = 0; j < vert.TCount; ++j) {
+                    var t = triangles[refs[vert.TStart + j].Tid];
                     for (var k = 0; k < 3; ++k) {
                         var ofs = 0;
-                        var id = t.v[k];
+                        var id = t.V[k];
                         while (ofs < vCount.Count) {
                             if (vids[ofs] == id) break;
                             ++ofs;
@@ -355,35 +355,35 @@ public class MeshSimplification {
 
                 for (var j = 0; j < vCount.Count; ++j)
                     if (vCount[j] == 1)
-                        vertices[vids[j]].border = true;
+                        vertices[vids[j]].Border = true;
             }
         }
     }
 
     private void CompactMesh() {
         var dst = 0;
-        foreach (var vert in vertices) vert.tCount = 0;
+        foreach (var vert in vertices) vert.TCount = 0;
 
         for (var i = 0; i < triangles.Count; ++i)
-            if (!triangles[i].deleted) {
+            if (!triangles[i].Deleted) {
                 triangles[dst++] = triangles[i];
-                vertices[triangles[i].v[0]].tCount = 1;
-                vertices[triangles[i].v[1]].tCount = 1;
-                vertices[triangles[i].v[2]].tCount = 1;
+                vertices[triangles[i].V[0]].TCount = 1;
+                vertices[triangles[i].V[1]].TCount = 1;
+                vertices[triangles[i].V[2]].TCount = 1;
             }
 
         triangles.RemoveRange(dst, triangles.Count - dst);
         dst = 0;
         foreach (var vert in vertices)
-            if (vert.tCount > 0) {
-                vert.tStart = dst;
-                vertices[dst++].p = vert.p;
+            if (vert.TCount > 0) {
+                vert.TStart = dst;
+                vertices[dst++].P = vert.P;
             }
 
         foreach (var tri in triangles) {
-            tri.v[0] = vertices[tri.v[0]].tStart;
-            tri.v[1] = vertices[tri.v[1]].tStart;
-            tri.v[2] = vertices[tri.v[2]].tStart;
+            tri.V[0] = vertices[tri.V[0]].TStart;
+            tri.V[1] = vertices[tri.V[1]].TStart;
+            tri.V[2] = vertices[tri.V[2]].TStart;
         }
 
         vertices.RemoveRange(dst, vertices.Count - dst);
@@ -463,7 +463,7 @@ public class MeshSimplification {
             }
         }
 
-        public double det(int a11, int a12, int a13, int a21, int a22, int a23, int a31, int a32, int a33) {
+        public double Det(int a11, int a12, int a13, int a21, int a22, int a23, int a31, int a32, int a33) {
             var det = this[a11] * this[a22] * this[a33] + this[a13] * this[a21] * this[a32] +
                       this[a12] * this[a23] * this[a31]
                       - this[a13] * this[a22] * this[a31] - this[a11] * this[a23] * this[a32] -
@@ -490,56 +490,56 @@ public class MeshSimplification {
     }
 
     private sealed class Triangle {
-        public readonly double[] err = new double[4];
-        public readonly int[] v = new int[3];
-        public bool deleted;
-        public bool dirty;
-        public Vector3D normal;
+        public readonly double[] Err = new double[4];
+        public readonly int[] V = new int[3];
+        public bool Deleted;
+        public bool Dirty;
+        public Vector3D Normal;
 
         public Triangle Clone() {
-            var t = new Triangle { deleted = deleted, dirty = dirty, normal = normal };
-            t.v[0] = v[0];
-            t.v[1] = v[1];
-            t.v[2] = v[2];
-            t.err[0] = err[0];
-            t.err[1] = err[1];
-            t.err[2] = err[2];
-            t.err[3] = err[3];
+            var t = new Triangle { Deleted = Deleted, Dirty = Dirty, Normal = Normal };
+            t.V[0] = V[0];
+            t.V[1] = V[1];
+            t.V[2] = V[2];
+            t.Err[0] = Err[0];
+            t.Err[1] = Err[1];
+            t.Err[2] = Err[2];
+            t.Err[3] = Err[3];
             return t;
         }
     }
 
     private sealed class Vertex {
-        public bool border;
-        public Vector3D p;
-        public SymmetricMatrix q;
-        public int tCount;
-        public int tStart;
+        public bool Border;
+        public Vector3D P;
+        public SymmetricMatrix Q;
+        public int TCount;
+        public int TStart;
 
         public Vertex() {
-            p = new Vector3D();
+            P = new Vector3D();
         }
 
         public Vertex(Point3D v) {
-            p = new Vector3D(v.X, v.Y, v.Z);
+            P = new Vector3D(v.X, v.Y, v.Z);
         }
 
         public Vertex(ref Vector3D v) {
-            p = v;
+            P = v;
         }
 
         public Vertex Clone() {
-            return new Vertex { p = p, border = border, q = q, tCount = tCount, tStart = tStart };
+            return new Vertex { P = P, Border = Border, Q = Q, TCount = TCount, TStart = TStart };
         }
     }
 
     private struct Ref {
-        public int tid;
-        public int tvertex;
+        public int Tid;
+        public int Tvertex;
 
         public Ref(int id = 0, int tvert = 0) {
-            tid = id;
-            tvertex = tvert;
+            Tid = id;
+            Tvertex = tvert;
         }
 
         //public Ref Clone()
@@ -548,8 +548,8 @@ public class MeshSimplification {
         //}
 
         public void Reset() {
-            tid = 0;
-            tvertex = 0;
+            Tid = 0;
+            Tvertex = 0;
         }
     }
 }

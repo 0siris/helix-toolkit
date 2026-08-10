@@ -46,7 +46,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
         typeof(bool),
         typeof(MeshGeometryModel3D),
         new PropertyMetadata(true,
-                             (d, e) => { ((d as Element3DCore).SceneNode as MeshNode).FrontCCW = (bool)e.NewValue; }));
+                             (d, e) => { ((d as Element3DCore).SceneNode as MeshNode).FrontCcw = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The cull mode property

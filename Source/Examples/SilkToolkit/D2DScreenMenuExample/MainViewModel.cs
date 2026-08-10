@@ -24,14 +24,14 @@ public class MainViewModel : BaseViewModel {
 
         // ----------------------------------------------
         // titles
-        this.Title = "D2DScreenMenu Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "D2DScreenMenu Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
-            Position = new Media3D.Point3D(8, 9, 7), LookDirection = new Media3D.Vector3D(-5, -12, -5),
-            UpDirection = new Media3D.Vector3D(0, 1, 0)
+        Camera = new PerspectiveCamera {
+            Position = new Media3D.Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5),
+            UpDirection = new Vector3D(0, 1, 0)
         };
     }
 }
@@ -61,9 +61,9 @@ public class ViewModel3D : DemoCore.ObservableObject {
         builder.AddBox(new Vector3(0, 2.5f, 0), 5, 5, 5);
         builder.AddBox(new Vector3(0, 0, 0), 10, 0.1, 10);
         Model = builder.ToMeshGeometry3D();
-        var diffuseMap = TextureModel.Create(new System.Uri(Texture, System.UriKind.RelativeOrAbsolute).ToString());
+        var diffuseMap = TextureModel.Create(new Uri(Texture, UriKind.RelativeOrAbsolute).ToString());
         var normalMap =
-            TextureModel.Create(new System.Uri(NormalTexture, System.UriKind.RelativeOrAbsolute).ToString());
+            TextureModel.Create(new Uri(NormalTexture, UriKind.RelativeOrAbsolute).ToString());
         ModelMaterial.DiffuseMap = diffuseMap;
         ModelMaterial.NormalMap = normalMap;
     }

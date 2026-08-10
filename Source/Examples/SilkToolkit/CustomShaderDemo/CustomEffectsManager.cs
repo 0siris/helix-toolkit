@@ -71,7 +71,7 @@ public class CustomEffectsManager : DefaultEffectsManager {
         var dataSampling = new TechniqueDescription(CustomShaderNames.DataSampling) {
             InputLayoutDescription =
                 new InputLayoutDescription(CustomVSShaderDescription.VSMeshDataSamplerByteCode,
-                                           DefaultInputLayout.VSInput),
+                                           DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
@@ -79,30 +79,30 @@ public class CustomEffectsManager : DefaultEffectsManager {
                         //DefaultVSShaderDescriptions.VSMeshDefault,
                         CustomPSShaderDescription.PSDataSampling
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
                         CustomVSShaderDescription.VSDataSampling,
-                        DefaultPSShaderDescriptions.PSMeshWireframe
+                        DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 }
             ]
         };
         var noiseMesh = new TechniqueDescription(CustomShaderNames.NoiseMesh) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSMeshDefault, DefaultInputLayout.VSInput),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
+                        DefaultVsShaderDescriptions.VsMeshDefault,
                         CustomPSShaderDescription.PSNoiseMesh
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 }
             ]
         };
@@ -113,12 +113,12 @@ public class CustomEffectsManager : DefaultEffectsManager {
         var points = GetTechnique(DefaultRenderTechniqueNames.Points);
         points.AddPass(new ShaderPassDescription("CustomPointPass") {
             ShaderList = [
-                DefaultVSShaderDescriptions.VSPoint,
-                DefaultGSShaderDescriptions.GSPoint,
+                DefaultVsShaderDescriptions.VsPoint,
+                DefaultGsShaderDescriptions.GsPoint,
                 CustomPSShaderDescription.PSCustomPoint
             ],
-            BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-            DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+            BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+            DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
         });
     }
 }

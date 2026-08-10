@@ -275,7 +275,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
 
         protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
             Logger.Info("DX11SwapChainRenderBufferProxy");
-            return new DX11SwapChainRenderBufferProxy(surface, EffectsManager, false);
+            return new DX11SwapChainRenderBufferProxy(Surface, EffectsManager, false);
         }
     }
 }

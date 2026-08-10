@@ -18,7 +18,7 @@ public class GraphicsSmokeTests {
             var technique = effects[techniqueName];
             Assert.False(technique.IsNull);
             Assert.NotEmpty(technique.ShaderPassNames);
-            Assert.All(technique.ShaderPassNames, passName => Assert.False(technique[passName].IsNULL));
+            Assert.All(technique.ShaderPassNames, passName => Assert.False(technique[passName].IsNull));
         }
     }
 

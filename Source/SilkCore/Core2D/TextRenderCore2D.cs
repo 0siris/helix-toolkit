@@ -17,13 +17,13 @@ public class TextRenderCore2D : RenderCore2DBase {
 
     private TextLayout textLayout;
 
-    protected bool textLayoutDirty = true;
+    protected bool TextLayoutDirty = true;
 
     public string Text {
         get;
         set {
             if (SetAffectsRender(ref field, value)) 
-                textLayoutDirty = true;
+                TextLayoutDirty = true;
         }
     } = string.Empty;
 
@@ -94,20 +94,20 @@ public class TextRenderCore2D : RenderCore2DBase {
     public float MaxWidth {
         get;
         set {
-            if (Set(ref field, value)) textLayoutDirty = true;
+            if (Set(ref field, value)) TextLayoutDirty = true;
         }
     }
 
     public float MaxHeight {
         get;
         set {
-            if (Set(ref field, value)) textLayoutDirty = true;
+            if (Set(ref field, value)) TextLayoutDirty = true;
         }
     }
 
     protected override bool OnAttach(IRenderHost host) {
         if (base.OnAttach(host)) {
-            textLayoutDirty = true;
+            TextLayoutDirty = true;
             textFactory = new DirectWriteFactory();
             textFormat = new TextFormat(textFactory,
                                         FontFamily,
@@ -136,14 +136,14 @@ public class TextRenderCore2D : RenderCore2DBase {
                                     FontWeight,
                                     FontStyle,
                                     FontSize * RenderHost.DpiScale);
-        textLayoutDirty = true;
+        TextLayoutDirty = true;
     }
 
     private void UpdateTextLayout() {
-        if (textLayoutDirty) {
+        if (TextLayoutDirty) {
             RemoveAndDispose(ref textLayout);
             textLayout = new TextLayout(textFactory, Text, textFormat, MaxWidth, MaxHeight);
-            textLayoutDirty = false;
+            TextLayoutDirty = false;
         }
 
         textLayout.TextAlignment = TextAlignment;

@@ -11,14 +11,14 @@ namespace HelixToolkit.SharpDX.Core.Render;
 /// </summary>
 public class SwapChainRenderHost : DefaultRenderHost {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-    protected readonly nint surface;
+    protected readonly nint Surface;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SwapChainRenderHost" /> class.
     /// </summary>
     /// <param name="surface">The window PTR.</param>
     public SwapChainRenderHost(nint surface) {
-        this.surface = surface;
+        Surface = surface;
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class SwapChainRenderHost : DefaultRenderHost {
     /// <param name="createRenderer">The create renderer.</param>
     public SwapChainRenderHost(nint surface, Func<IDevice3DResources, IRenderer> createRenderer) : base(
         createRenderer) {
-        this.surface = surface;
+        Surface = surface;
     }
 
     /// <summary>
@@ -37,6 +37,6 @@ public class SwapChainRenderHost : DefaultRenderHost {
     /// <returns></returns>
     protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
         Logger.Info("Creating DX11SwapChainRenderBufferProxy");
-        return new DX11SwapChainRenderBufferProxy(surface, EffectsManager);
+        return new DX11SwapChainRenderBufferProxy(Surface, EffectsManager);
     }
 }

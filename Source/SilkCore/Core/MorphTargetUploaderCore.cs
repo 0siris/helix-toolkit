@@ -48,7 +48,7 @@ internal class MorphTargetUploaderCore : RenderCore {
         NeedUpdate = false;
 
         //Setup cbuffer
-        var cbd = new ConstantBufferDescription(DefaultBufferNames.MorphTargetCB, 16); //maybe no slot issue
+        var cbd = new ConstantBufferDescription(DefaultBufferNames.MorphTargetCb, 16); //maybe no slot issue
         cbMorphTarget = AddComponent(new ConstantBufferComponent(cbd));
     }
 

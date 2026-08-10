@@ -100,21 +100,21 @@ public class ShaderResourceViewProxy : DisposeObject {
 
     public Format TextureFormat { get; private set; }
 
-    public void CreateView(TextureModel texture, bool createSRV = true, bool enableAutoGenMipMap = true) {
+    public void CreateView(TextureModel texture, bool createSrv = true, bool enableAutoGenMipMap = true) {
         if (texture == null) return;
 
         var info = texture.Load();
         var succeeded = false;
         try {
             if (info.DataType == TextureDataType.Stream && info.IsCompressed) {
-                CreateView(info.Texture, createSRV, enableAutoGenMipMap);
+                CreateView(info.Texture, createSrv, enableAutoGenMipMap);
                 succeeded = resource != null;
             } else if (info.DataType == TextureDataType.ByteArray && info.Dimension == 2) {
                 CreateView(info.TextureRaw,
                            info.Width,
                            info.Height,
                            info.PixelFormat,
-                           createSRV,
+                           createSrv,
                            enableAutoGenMipMap);
                 succeeded = resource != null;
             }
@@ -123,7 +123,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         }
     }
 
-    public void CreateView(Stream texture, bool createSRV = true, bool enableAutoGenMipMap = true) {
+    public void CreateView(Stream texture, bool createSrv = true, bool enableAutoGenMipMap = true) {
         if (nativeDevice == null || texture == null) return;
 
         var originalPosition = texture.CanSeek ? texture.Position : 0;
@@ -143,14 +143,14 @@ public class ShaderResourceViewProxy : DisposeObject {
                 ArraySize = image.Description.ArraySize,
                 Format = image.Description.Format,
                 SampleDescription = new SampleDescription(1, 0),
-                BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+                BindFlags = createSrv ? BindFlags.ShaderResource : BindFlags.None,
                 CpuAccessFlags = CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None,
                 Usage = ResourceUsage.Immutable
             };
             resource = nativeDevice.CreateTexture2D(description, image.ToDataBox());
             TextureFormat = description.Format;
-            if (createSRV) CreateTextureView();
+            if (createSrv) CreateTextureView();
         } finally {
             if (texture.CanSeek) texture.Position = originalPosition;
         }
@@ -227,18 +227,18 @@ public class ShaderResourceViewProxy : DisposeObject {
         depthStencilView = nativeDevice.CreateDepthStencilView(resource, desc);
     }
 
-    public void CreateView<T>(T[] array, Format format, bool createSRV = true, bool generateMipMaps = true)
+    public void CreateView<T>(T[] array, Format format, bool createSrv = true, bool generateMipMaps = true)
         where T : unmanaged {
         TextureFormat = format;
         if (array == null) return;
-        CreateView(array, array.Length, format, createSRV, generateMipMaps);
+        CreateView(array, array.Length, format, createSrv, generateMipMaps);
     }
 
     public void CreateView<T>(
         T[] array,
         int length,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     )
         where T : unmanaged {
@@ -246,7 +246,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         if (array == null || length <= 0) return;
         unsafe {
             fixed (T* arrayPtr = array) {
-                CreateView((nint)arrayPtr, length, format, sizeof(T), createSRV, generateMipMaps);
+                CreateView((nint)arrayPtr, length, format, sizeof(T), createSrv, generateMipMaps);
             }
         }
     }
@@ -255,10 +255,10 @@ public class ShaderResourceViewProxy : DisposeObject {
         nint dataPtr,
         int width,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
-        CreateView(dataPtr, width, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
+        CreateView(dataPtr, width, format, GetFormatSizeInBytes(format), createSrv, generateMipMaps);
     }
 
     public void CreateView<T>(
@@ -266,7 +266,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int width,
         int height,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     )
         where T : unmanaged {
@@ -279,7 +279,7 @@ public class ShaderResourceViewProxy : DisposeObject {
                            height,
                            format,
                            GetFormatSizeInBytes(format),
-                           createSRV,
+                           createSrv,
                            generateMipMaps);
             }
         }
@@ -290,10 +290,10 @@ public class ShaderResourceViewProxy : DisposeObject {
         int width,
         int height,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
-        CreateView(dataPtr, width, height, format, GetFormatSizeInBytes(format), createSRV, generateMipMaps);
+        CreateView(dataPtr, width, height, format, GetFormatSizeInBytes(format), createSrv, generateMipMaps);
     }
 
     public void CreateView<T>(
@@ -302,7 +302,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         int depth,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     )
         where T : unmanaged {
@@ -314,7 +314,7 @@ public class ShaderResourceViewProxy : DisposeObject {
                            depth,
                            format,
                            sizeof(T),
-                           createSRV,
+                           createSrv,
                            generateMipMaps);
             }
         }
@@ -326,7 +326,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         int depth,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         CreateView(dataPtr,
@@ -335,7 +335,7 @@ public class ShaderResourceViewProxy : DisposeObject {
                    depth,
                    format,
                    GetFormatSizeInBytes(format),
-                   createSRV,
+                   createSrv,
                    generateMipMaps);
     }
 
@@ -344,7 +344,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int width,
         Format format,
         int bytesPerPixel,
-        bool createSRV,
+        bool createSrv,
         bool generateMipMaps
     ) {
         TextureFormat = format;
@@ -358,14 +358,14 @@ public class ShaderResourceViewProxy : DisposeObject {
             ArraySize = 1,
             MipLevels = 1,
             Format = format,
-            BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+            BindFlags = createSrv ? BindFlags.ShaderResource : BindFlags.None,
             CpuAccessFlags = CpuAccessFlags.None,
             OptionFlags = ResourceOptionFlags.None,
             Usage = ResourceUsage.Immutable
         };
         resource = nativeDevice.CreateTexture1D(desc, [new DataBox(dataPtr, width * bytesPerPixel, 0)]);
 
-        if (createSRV) {
+        if (createSrv) {
             var srvDesc = new ShaderResourceViewDescription {
                 Format = format,
                 Dimension = ShaderResourceViewDimension.Texture1D,
@@ -384,7 +384,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         Format format,
         int bytesPerPixel,
-        bool createSRV,
+        bool createSrv,
         bool generateMipMaps
     ) {
         TextureFormat = format;
@@ -401,7 +401,7 @@ public class ShaderResourceViewProxy : DisposeObject {
             ArraySize = 1,
             Format = format,
             SampleDescription = new SampleDescription(1, 0),
-            BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+            BindFlags = createSrv ? BindFlags.ShaderResource : BindFlags.None,
             CpuAccessFlags = CpuAccessFlags.None,
             OptionFlags = ResourceOptionFlags.None,
             Usage = ResourceUsage.Immutable
@@ -413,7 +413,7 @@ public class ShaderResourceViewProxy : DisposeObject {
                                                                 width * height * bytesPerPixel)
                                                 ]);
 
-        if (createSRV) {
+        if (createSrv) {
             var srvDesc = new ShaderResourceViewDescription {
                 Format = format,
                 Dimension = ShaderResourceViewDimension.Texture2D,
@@ -433,7 +433,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         int depth,
         Format format,
         int bytesPerPixel,
-        bool createSRV,
+        bool createSrv,
         bool generateMipMaps
     ) {
         TextureFormat = format;
@@ -449,7 +449,7 @@ public class ShaderResourceViewProxy : DisposeObject {
             Depth = depth,
             MipLevels = 1,
             Format = format,
-            BindFlags = createSRV ? BindFlags.ShaderResource : BindFlags.None,
+            BindFlags = createSrv ? BindFlags.ShaderResource : BindFlags.None,
             CpuAccessFlags = CpuAccessFlags.None,
             OptionFlags = ResourceOptionFlags.None,
             Usage = ResourceUsage.Immutable
@@ -459,7 +459,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         };
         resource = nativeDevice.CreateTexture3D(desc, data);
 
-        if (createSRV) {
+        if (createSrv) {
             var srvDesc = new ShaderResourceViewDescription {
                 Format = format,
                 Dimension = ShaderResourceViewDimension.Texture3D,
@@ -493,33 +493,33 @@ public class ShaderResourceViewProxy : DisposeObject {
         Color4[] array,
         int width,
         int height,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
-        CreateView(array, width, height, Format.FormatR32G32B32A32Float, createSRV, generateMipMaps);
+        CreateView(array, width, height, Format.FormatR32G32B32A32Float, createSrv, generateMipMaps);
     }
 
     public static ShaderResourceViewProxy CreateView<T>(
         object device,
         T[] array,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     )
         where T : unmanaged {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(array, format, createSRV, generateMipMaps);
+        proxy.CreateView(array, format, createSrv, generateMipMaps);
         return proxy;
     }
 
     public static ShaderResourceViewProxy CreateView(
         object device,
         Stream texture,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(texture, createSRV, generateMipMaps);
+        proxy.CreateView(texture, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -529,12 +529,12 @@ public class ShaderResourceViewProxy : DisposeObject {
         int width,
         int height,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     )
         where T : unmanaged {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(array, width, height, format, createSRV, generateMipMaps);
+        proxy.CreateView(array, width, height, format, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -544,11 +544,11 @@ public class ShaderResourceViewProxy : DisposeObject {
         int width,
         int height,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(dataPtr, width, height, format, createSRV, generateMipMaps);
+        proxy.CreateView(dataPtr, width, height, format, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -563,11 +563,11 @@ public class ShaderResourceViewProxy : DisposeObject {
         Color4[] array,
         int width,
         int height,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateViewFromColorArray(array, width, height, createSRV, generateMipMaps);
+        proxy.CreateViewFromColorArray(array, width, height, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -578,11 +578,11 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         int depth,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
+        proxy.CreateView(pixels, width, height, depth, format, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -593,11 +593,11 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         int depth,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
+        proxy.CreateView(pixels, width, height, depth, format, createSrv, generateMipMaps);
         return proxy;
     }
 
@@ -608,11 +608,11 @@ public class ShaderResourceViewProxy : DisposeObject {
         int height,
         int depth,
         Format format,
-        bool createSRV = true,
+        bool createSrv = true,
         bool generateMipMaps = true
     ) {
         var proxy = new ShaderResourceViewProxy(device);
-        proxy.CreateView(pixels, width, height, depth, format, createSRV, generateMipMaps);
+        proxy.CreateView(pixels, width, height, depth, format, createSrv, generateMipMaps);
         return proxy;
     }
 

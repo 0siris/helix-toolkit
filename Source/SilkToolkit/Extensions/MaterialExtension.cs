@@ -32,7 +32,7 @@ public static class MaterialExtension {
                        NormalMap = core.NormalMap,
                        DisplacementMapScaleMask = core.DisplacementMapScaleMask,
                        Name = core.Name,
-                       UVTransform = core.UVTransform,
+                       UVTransform = core.UvTransform,
                        EnableTessellation = core.EnableTessellation,
                        MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
                        MaxTessellationDistance = core.MaxTessellationDistance,
@@ -41,7 +41,7 @@ public static class MaterialExtension {
                    };
     }
 
-    public static PBRMaterial ConvertToPBRMaterial(this PBRMaterialCore core) {
+    public static PBRMaterial ConvertToPBRMaterial(this PbrMaterialCore core) {
         return core == null
                    ? null
                    : new PBRMaterial {
@@ -56,7 +56,7 @@ public static class MaterialExtension {
                        IrradianceMap = core.IrradianceMap,
                        DisplacementMap = core.DisplacementMap,
                        SurfaceMapSampler = core.SurfaceMapSampler,
-                       IBLSampler = core.IBLSampler,
+                       IBLSampler = core.IblSampler,
                        DisplacementMapSampler = core.DisplacementMapSampler,
                        AmbientOcclusionFactor = core.AmbientOcclusionFactor,
                        ClearCoatRoughness = core.ClearCoatRoughness,
@@ -76,7 +76,7 @@ public static class MaterialExtension {
                        RenderShadowMap = core.RenderShadowMap,
 
                        DisplacementMapScaleMask = core.DisplacementMapScaleMask,
-                       UVTransform = core.UVTransform,
+                       UVTransform = core.UvTransform,
 
                        EnableTessellation = core.EnableTessellation,
                        MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
@@ -89,7 +89,7 @@ public static class MaterialExtension {
     public static Material ConvertToMaterial(this MaterialCore core) {
         if (core is PhongMaterialCore p) return p.ConvertToPhongMaterial();
 
-        if (core is PBRMaterialCore pbr) return pbr.ConvertToPBRMaterial();
+        if (core is PbrMaterialCore pbr) return pbr.ConvertToPBRMaterial();
 
         throw new NotSupportedException("Current material core to material conversion has not been supported yet.");
     }

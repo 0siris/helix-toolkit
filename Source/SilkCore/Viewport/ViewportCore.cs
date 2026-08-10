@@ -52,8 +52,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
             ViewCube.Invalidated += Items_Invalidated;
             ViewCube.RenderHost = host;
         }
-
-
+        
         CoordinateSystem.Attach(host.EffectsManager);
         CoordinateSystem.Invalidated += Items_Invalidated;
 
@@ -132,8 +131,9 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     public void MouseDown(Vector2 position) {
         currentNode = null;
         hits.Clear();
-        if (!this.UnProject(position, out var ray)) { } else if (ViewCubeHitTest(ref ray, ref position)) { } else if
-            (this.FindHits(position, ref hits) && hits.Count > 0 && hits[0].ModelHit is SceneNode node) {
+        if (!this.UnProject(position, out var ray)) { } 
+        else if (ViewCubeHitTest(ref ray, ref position)) { } 
+        else if (this.FindHits(position, ref hits) && hits.Count > 0 && hits[0].ModelHit is SceneNode node) {
             currentNode = node;
             currentNode.RaiseMouseDownEvent(this, position, hits[0]);
             NodeHitOnMouseDown?.Invoke(this, new SceneNodeMouseDownArgs(this, position, currentNode, hits[0]));
@@ -178,7 +178,8 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
-        if (disposeManagedResources) Items.Dispose();
+        if (disposeManagedResources) 
+            Items.Dispose();
         base.OnDispose(disposeManagedResources);
     }
 

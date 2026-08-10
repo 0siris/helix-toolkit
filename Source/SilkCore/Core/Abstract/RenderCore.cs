@@ -13,15 +13,15 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 /// <summary>
 /// </summary>
-public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
+public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     private readonly List<CoreComponent> components = [];
 
      public event EventHandler<EventArgs>? InvalidateRender;
 
     /// <summary>
-    ///     <see cref="IGUID.GUID" />
+    ///     <see cref="IGuid.Guid" />
     /// </summary>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets the type of the render.

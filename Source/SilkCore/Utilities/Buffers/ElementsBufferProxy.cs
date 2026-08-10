@@ -155,7 +155,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
             StructureByteStride = StructureSize,
             Usage = Usage
         };
-        buffer = Buffer.Create(context, data.GetArrayByType(), buffdesc);
+        buffer = SharpDX.Core.Buffer.Create(context, data.GetArrayByType(), buffdesc);
     }
 
     /// <summary>
@@ -467,7 +467,7 @@ public sealed class StructuredBufferProxy : DynamicBufferProxy {
     public StructuredBufferProxy(int structureSize, bool lazyResize = true)
         : base(structureSize, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured, lazyResize) { }
 
-    public ShaderResourceViewProxy SRV => srv;
+    public ShaderResourceViewProxy Srv => srv;
 
     protected override void OnBufferChanged(Buffer newBuffer) {
         RemoveAndDispose(ref srv);

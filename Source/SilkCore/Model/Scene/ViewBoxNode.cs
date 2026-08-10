@@ -16,68 +16,68 @@ public class ViewBoxNode : ScreenSpacedNode {
 
     static ViewBoxNode() {
         var builder = new MeshBuilder(true, false);
-        var cornerSize = size / 5;
+        var cornerSize = Size / 5;
         builder.AddBox(Vector3.Zero, cornerSize, cornerSize, cornerSize);
-        cornerGeometry = builder.ToMesh();
+        CornerGeometry = builder.ToMesh();
 
         builder = new MeshBuilder(true, false);
-        var halfSize = size / 2;
+        var halfSize = Size / 2;
         var edgeSize = halfSize * 1.5f;
         builder.AddBox(Vector3.Zero, cornerSize, edgeSize, cornerSize);
-        edgeGeometry = builder.ToMesh();
+        EdgeGeometry = builder.ToMesh();
 
-        cornerInstances = new Matrix[cornerPoints.Length];
-        for (var i = 0; i < cornerPoints.Length; ++i)
-            cornerInstances[i] = SilkMath.Translation(cornerPoints[i] * size / 2 * 0.95f);
-        var count = xAligned.Length;
-        edgeInstances = new Matrix[count * 3];
+        CornerInstances = new Matrix[CornerPoints.Length];
+        for (var i = 0; i < CornerPoints.Length; ++i)
+            CornerInstances[i] = SilkMath.Translation(CornerPoints[i] * Size / 2 * 0.95f);
+        var count = XAligned.Length;
+        EdgeInstances = new Matrix[count * 3];
 
         for (var i = 0; i < count; ++i)
-            edgeInstances[i] = SilkMath.RotationZ((float)Math.PI / 2) *
-                               SilkMath.Translation(xAligned[i] * halfSize * 0.95f);
+            EdgeInstances[i] = SilkMath.RotationZ((float)Math.PI / 2) *
+                               SilkMath.Translation(XAligned[i] * halfSize * 0.95f);
         for (var i = count; i < count * 2; ++i)
-            edgeInstances[i] = SilkMath.Translation(yAligned[i % count] * halfSize * 0.95f);
+            EdgeInstances[i] = SilkMath.Translation(YAligned[i % count] * halfSize * 0.95f);
         for (var i = count * 2; i < count * 3; ++i)
-            edgeInstances[i] = SilkMath.RotationX((float)Math.PI / 2) *
-                               SilkMath.Translation(zAligned[i % count] * halfSize * 0.95f);
+            EdgeInstances[i] = SilkMath.RotationX((float)Math.PI / 2) *
+                               SilkMath.Translation(ZAligned[i % count] * halfSize * 0.95f);
     }
 
     public ViewBoxNode() {
         CameraType = ScreenSpacedCameraType.Perspective;
         RelativeScreenLocationX = 0.8f;
-        ViewBoxMeshModel = new MeshNode { EnableViewFrustumCheck = false, CullMode = CullMode.Back };
+        viewBoxMeshModel = new MeshNode { EnableViewFrustumCheck = false, CullMode = CullMode.Back };
         var sampler = DefaultSamplers.LinearSamplerWrapAni1;
         sampler.BorderColor = Color.Gray;
         sampler.AddressU = sampler.AddressV = sampler.AddressW = TextureAddressMode.Border;
-        AddChildNode(ViewBoxMeshModel);
-        ViewBoxMeshModel.Material = new ViewCubeMaterialCore {
+        AddChildNode(viewBoxMeshModel);
+        viewBoxMeshModel.Material = new ViewCubeMaterialCore {
             DiffuseColor = Color.White,
             DiffuseMapSampler = sampler
         };
 
-        CornerModel = new InstancingMeshNode {
+        cornerModel = new InstancingMeshNode {
             EnableViewFrustumCheck = false,
             Material = new DiffuseMaterialCore { DiffuseColor = Color.Yellow },
-            Geometry = cornerGeometry,
-            Instances = cornerInstances,
+            Geometry = CornerGeometry,
+            Instances = CornerInstances,
             Visible = false
         };
-        AddChildNode(CornerModel);
+        AddChildNode(cornerModel);
 
-        EdgeModel = new InstancingMeshNode {
+        edgeModel = new InstancingMeshNode {
             EnableViewFrustumCheck = false,
             Material = new DiffuseMaterialCore { DiffuseColor = Color.Silver },
-            Geometry = edgeGeometry,
-            Instances = edgeInstances,
+            Geometry = EdgeGeometry,
+            Instances = EdgeInstances,
             Visible = false
         };
-        AddChildNode(EdgeModel);
+        AddChildNode(edgeModel);
         UpdateModel(UpDirection);
     }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            var material = ViewBoxMeshModel.Material as ViewCubeMaterialCore;
+            var material = viewBoxMeshModel.Material as ViewCubeMaterialCore;
             material.DiffuseMap ??= ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
                                               effectsManager,
                                               "F",
@@ -112,7 +112,7 @@ public class ViewBoxNode : ScreenSpacedNode {
     }
 
     private void UpdateTexture(TextureModel texture) {
-        if (ViewBoxMeshModel.Material is ViewCubeMaterialCore material)
+        if (viewBoxMeshModel.Material is ViewCubeMaterialCore material)
             material.DiffuseMap = texture;
     }
 
@@ -125,26 +125,26 @@ public class ViewBoxNode : ScreenSpacedNode {
         }
 
         var builder = new MeshBuilder(true);
-        builder.AddCubeFace(new Vector3(0, 0, 0), front, up, size, size, size);
-        builder.AddCubeFace(new Vector3(0, 0, 0), -front, up, size, size, size);
-        builder.AddCubeFace(new Vector3(0, 0, 0), left, up, size, size, size);
-        builder.AddCubeFace(new Vector3(0, 0, 0), -left, up, size, size, size);
-        builder.AddCubeFace(new Vector3(0, 0, 0), up, left, size, size, size);
-        builder.AddCubeFace(new Vector3(0, 0, 0), -up, -left, size, size, size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), front, up, Size, Size, Size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), -front, up, Size, Size, Size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), left, up, Size, Size, Size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), -left, up, Size, Size, Size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), up, left, Size, Size, Size);
+        builder.AddCubeFace(new Vector3(0, 0, 0), -up, -left, Size, Size, Size);
 
         var mesh = builder.ToMesh();
         CreateTextureCoordinates(mesh);
 
         var pts = new List<Vector3>();
 
-        var center = up * -size / 2 * 1.1f;
+        var center = up * -Size / 2 * 1.1f;
         var phi = 24;
         for (var i = 0; i < phi; i++) {
             double angle = 0 + 360 * i / (phi - 1);
             var angleRad = angle / 180 * Math.PI;
             var dir = left * (float)Math.Cos(angleRad) + front * (float)Math.Sin(angleRad);
-            pts.Add(center + dir * (size - 0.75f));
-            pts.Add(center + dir * (size + 1.1f));
+            pts.Add(center + dir * (Size - 0.75f));
+            pts.Add(center + dir * (Size + 1.1f));
         }
 
         builder = new MeshBuilder(false, false);
@@ -176,7 +176,7 @@ public class ViewBoxNode : ScreenSpacedNode {
         newMesh.TextureCoordinates.AddRange(mesh.TextureCoordinates);
         newMesh.Colors.AddRange(Enumerable.Repeat(new Color4(1, 1, 1, 1), mesh.Positions.Count));
         newMesh.Normals = newMesh.CalculateNormals();
-        ViewBoxMeshModel.Geometry = newMesh;
+        viewBoxMeshModel.Geometry = newMesh;
     }
 
     private static void CreateTextureCoordinates(MeshGeometry3D mesh) {
@@ -204,16 +204,16 @@ public class ViewBoxNode : ScreenSpacedNode {
             if (hit == null) return false;
             var normal = Vector3.Zero;
             var inv = isRightHanded ? 1 : -1;
-            if (hit.ModelHit == ViewBoxMeshModel) {
+            if (hit.ModelHit == viewBoxMeshModel) {
                 normal = -hit.NormalAtHit * inv;
                 //Fix the normal if returned normal is reversed
                 if (SilkMath.Dot(normal, context.RenderMatrices.CameraParams.LookAtDir) < 0) normal *= -1;
             } else if (hit.Tag is int index) {
-                if (hit.ModelHit == EdgeModel && index < edgeInstances.Length) {
-                    var transform = edgeInstances[index];
+                if (hit.ModelHit == edgeModel && index < EdgeInstances.Length) {
+                    var transform = EdgeInstances[index];
                     normal = -new Vector3(transform.M41, transform.M42, transform.M43);
-                } else if (hit.ModelHit == CornerModel && index < cornerInstances.Length) {
-                    var transform = cornerInstances[index];
+                } else if (hit.ModelHit == cornerModel && index < CornerInstances.Length) {
+                    var transform = CornerInstances[index];
                     normal = -new Vector3(transform.M41, transform.M42, transform.M43);
                 } else {
                     return false;
@@ -256,8 +256,8 @@ public class ViewBoxNode : ScreenSpacedNode {
     ///     <c>true</c> if [enable edge click]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableEdgeClick {
-        get => CornerModel.Visible;
-        set => CornerModel.Visible = EdgeModel.Visible = value;
+        get => cornerModel.Visible;
+        set => cornerModel.Visible = edgeModel.Visible = value;
     }
 
     /// <summary>
@@ -277,30 +277,30 @@ public class ViewBoxNode : ScreenSpacedNode {
 
     #region Fields
 
-    private const float size = 5;
+    private const float Size = 5;
 
-    private static readonly Vector3[] xAligned =
+    private static readonly Vector3[] XAligned =
         [new(0, -1, -1), new(0, 1, -1), new(0, -1, 1), new(0, 1, 1)]; //x
 
-    private static readonly Vector3[] yAligned =
+    private static readonly Vector3[] YAligned =
         [new(-1, 0, -1), new(1, 0, -1), new(-1, 0, 1), new(1, 0, 1)]; //y
 
-    private static readonly Vector3[] zAligned =
+    private static readonly Vector3[] ZAligned =
         [new(-1, -1, 0), new(-1, 1, 0), new(1, -1, 0), new(1, 1, 0)]; //z
 
-    private static readonly Vector3[] cornerPoints = [
+    private static readonly Vector3[] CornerPoints = [
         new(-1, -1, -1), new(1, -1, -1), new(1, 1, -1), new(-1, 1, -1),
         new(-1, -1, 1), new(1, -1, 1), new(1, 1, 1), new(-1, 1, 1)
     ];
 
-    private static readonly Matrix[] cornerInstances;
-    private static readonly Matrix[] edgeInstances;
-    private static readonly Geometry3D cornerGeometry;
-    private static readonly Geometry3D edgeGeometry;
+    private static readonly Matrix[] CornerInstances;
+    private static readonly Matrix[] EdgeInstances;
+    private static readonly Geometry3D CornerGeometry;
+    private static readonly Geometry3D EdgeGeometry;
 
-    private readonly MeshNode ViewBoxMeshModel;
-    private readonly InstancingMeshNode EdgeModel;
-    private readonly InstancingMeshNode CornerModel;
+    private readonly MeshNode viewBoxMeshModel;
+    private readonly InstancingMeshNode edgeModel;
+    private readonly InstancingMeshNode cornerModel;
 
     private bool isRightHanded = true;
     private List<HitTestResult> hitsInternal = [];

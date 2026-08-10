@@ -25,7 +25,7 @@ public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IA
             n.DepthBias = DepthBias;
             n.IsDepthClipEnabled = IsDepthClipEnabled;
             n.SlopeScaledDepthBias = (float)SlopeScaledDepthBias;
-            n.IsMSAAEnabled = IsMultisampleEnabled;
+            n.IsMsaaEnabled = IsMultisampleEnabled;
             n.FillMode = FillMode;
             n.IsScissorEnabled = IsScissorEnabled;
             n.EnableViewFrustumCheck = EnableViewFrustumCheck;
@@ -103,7 +103,7 @@ public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IA
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as GeometryNode)
-                                                                 .IsMSAAEnabled = (bool)e.NewValue;
+                                                                 .IsMsaaEnabled = (bool)e.NewValue;
                                                          }));
 
     /// <summary>

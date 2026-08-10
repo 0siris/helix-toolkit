@@ -21,7 +21,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     public DynamicCubeMapCore() : base(RenderType.PreProc) {
         modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.GlobalTransformCB,
+                                                               DefaultBufferNames.GlobalTransformCb,
                                                                GlobalTransformStruct.SizeInBytes)));
         UpdateTargets();
     }
@@ -103,7 +103,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             return; // Skip this frame if texture resized to reduce latency.
         }
 
-        if (!(IsDynamicScene || context.updateSceneGraphRequested || context.updatePerFrameRenderableRequested)) 
+        if (!(IsDynamicScene || context.UpdateSceneGraphRequested || context.UpdatePerFrameRenderableRequested)) 
             return;
         
         context.IsInvertCullMode = true;
@@ -154,13 +154,13 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             var frustum = new BoundingFrustum(transforms.ViewProjection);
             //Render opaque
             foreach (var node in context.RenderHost.PerFrameOpaqueNodes) {
-                if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) && node.TestViewFrustum(ref frustum)) 
+                if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum)) 
                     node.Render(context, ctx);
             }
 
             //Render particle
             foreach (var node in context.RenderHost.PerFrameParticleNodes) {
-                if (node.GUID != GUID && !IgnoredGuid.Contains(node.GUID) && node.TestViewFrustum(ref frustum))
+                if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
                     node.Render(context, ctx);
             }
 
@@ -173,15 +173,15 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             targets[i] = center + lookVector[i];
             cubeFaceCameras.Cameras[i].View =
                 (IsLeftHanded
-                     ? SilkMath.LookAtLH(center, targets[i], upVectors[i])
-                     : SilkMath.LookAtRH(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
+                     ? SilkMath.LookAtLh(center, targets[i], upVectors[i])
+                     : SilkMath.LookAtRh(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
             cubeFaceCameras.Cameras[i].Projection = IsLeftHanded
-                                                        ? SilkMath.PerspectiveFovLH(
+                                                        ? SilkMath.PerspectiveFovLh(
                                                             (float)Math.PI * 0.5f,
                                                             1,
                                                             NearField,
                                                             FarField)
-                                                        : SilkMath.PerspectiveFovRH(
+                                                        : SilkMath.PerspectiveFovRh(
                                                             (float)Math.PI * 0.5f,
                                                             1,
                                                             NearField,
@@ -328,7 +328,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
                 TextureSampler = newSampler;
             }
         }
-    } = DefaultSamplers.IBLSampler;
+    } = DefaultSamplers.IblSampler;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this coordinate system is left handed.
@@ -394,7 +394,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// <value>
     ///     The name of the shader cube texture.
     /// </value>
-    public string ShaderCubeTextureName { get; set; } = DefaultBufferNames.CubeMapTB;
+    public string ShaderCubeTextureName { get; set; } = DefaultBufferNames.CubeMapTb;
 
     /// <summary>
     ///     Gets or sets the name of the shader cube texture sampler.

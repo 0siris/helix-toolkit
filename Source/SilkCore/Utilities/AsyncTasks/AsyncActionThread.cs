@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 namespace HelixToolkit.SharpDX.Core;
 
 internal sealed class AsyncActionWaitable : DisposeObject {
-    private static readonly ConcurrentBag<AsyncActionWaitable> pool = [];
+    private static readonly ConcurrentBag<AsyncActionWaitable> Pool = [];
     private readonly object waitable = new();
     private Action action;
 
@@ -30,7 +30,7 @@ internal sealed class AsyncActionWaitable : DisposeObject {
     }
 
     public static AsyncActionWaitable Get() {
-        if (!pool.TryTake(out var obj))
+        if (!Pool.TryTake(out var obj))
             obj = new AsyncActionWaitable {
                 AddBackToPool = Put
             };
@@ -41,7 +41,7 @@ internal sealed class AsyncActionWaitable : DisposeObject {
     private static void Put(DisposeObject obj) {
         if (obj is AsyncActionWaitable t) {
             t.action = null;
-            pool.Add(t);
+            Pool.Add(t);
         }
     }
 }

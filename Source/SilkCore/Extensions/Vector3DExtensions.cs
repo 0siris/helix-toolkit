@@ -19,7 +19,7 @@ public static class VectorExtensions {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 ToXYZ(this Vector4 vector) {
+    public static Vector3 ToXyz(this Vector4 vector) {
         return new Vector3(vector.X, vector.Y, vector.Z);
     }
 

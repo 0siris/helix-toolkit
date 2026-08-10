@@ -64,9 +64,9 @@ public class MainViewModel : BaseViewModel {
         };
 
         // setup lighting
-        this.AmbientLightColor = Colors.DarkGray;
-        this.DirectionalLightColor = Colors.White;
-        this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
+        AmbientLightColor = Colors.DarkGray;
+        DirectionalLightColor = Colors.White;
+        DirectionalLightDirection = new Vector3D(-2, -5, -2);
 
         // scene model3d
         var b1 = new MeshBuilder(true, true, true);
@@ -83,16 +83,16 @@ public class MainViewModel : BaseViewModel {
         Lines.Colors = [.. Enumerable.Repeat(Colors.White.ToColor4(), Lines.Positions.Count)];
         // model trafo
         ModelTransform =
-            Media3D.Transform3D
+            Transform3D
                    .Identity; // new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 0, 1), 45));
 
         // model material
         ModelMaterial = PhongMaterials.White;
         ModelMaterial.DiffuseMap =
             TextureModel.Create(
-                new System.Uri(@"TextureCheckerboard2.jpg", System.UriKind.RelativeOrAbsolute).ToString());
+                new Uri(@"TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute).ToString());
         ModelMaterial.NormalMap =
-            TextureModel.Create(new System.Uri(@"TextureCheckerboard2_dot3.jpg", System.UriKind.RelativeOrAbsolute)
+            TextureModel.Create(new Uri(@"TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
                                     .ToString());
 
         BillboardModel = new BillboardSingleImage3D(ModelMaterial.DiffuseMap, 20, 20);

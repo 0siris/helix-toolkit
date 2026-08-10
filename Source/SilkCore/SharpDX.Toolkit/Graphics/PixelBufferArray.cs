@@ -19,13 +19,13 @@ public sealed class PixelBufferArray {
     ///     Gets the pixel buffer.
     /// </summary>
     /// <returns>A <see cref="PixelBuffer" />.</returns>
-    public PixelBuffer this[int bufferIndex] => image.pixelBuffers[bufferIndex];
+    public PixelBuffer this[int bufferIndex] => image.PixelBuffers[bufferIndex];
 
     /// <summary>
     ///     Gets the total number of pixel buffers.
     /// </summary>
     /// <returns>The total number of pixel buffers.</returns>
-    public int Count => image.pixelBuffers.Length;
+    public int Count => image.PixelBuffers.Length;
 
     /// <summary>
     ///     Gets the pixel buffer for the specified array/z slice and mipmap level.

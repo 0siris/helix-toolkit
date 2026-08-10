@@ -91,7 +91,7 @@ public class PointNode : MaterialGeometryNode {
         var center = BoundsSphereWithTransform.Center;
         var centerSp = context.RenderMatrices.Project(center);
         if (centerSp.X >= 0 && centerSp.Y >= 0
-                            && (centerSp - context.HitPointSP).Length <= hitTestThickness)
+                            && (centerSp - context.HitPointSp).Length <= hitTestThickness)
             return true;
         return base.PreHitTestOnBounds(context);
     }

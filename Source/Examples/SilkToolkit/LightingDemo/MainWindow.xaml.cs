@@ -29,7 +29,7 @@ namespace LightingDemo;
 public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
-        this.DataContext = new MainViewModel();
+        DataContext = new MainViewModel();
         Closed += (s, e) => {
             if (DataContext is IDisposable) {
                 (DataContext as IDisposable).Dispose();
@@ -38,7 +38,7 @@ public partial class MainWindow : Window {
     }
 
     private void Button_Click(object sender, RoutedEventArgs e) {
-        MultiViewport viewportWin = new MultiViewport() { DataContext = this.DataContext };
+        MultiViewport viewportWin = new MultiViewport() { DataContext = DataContext };
         viewportWin.Show();
     }
 }

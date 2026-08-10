@@ -92,7 +92,7 @@ public static class BitmapExtensions {
         return new TextLayout(deviceResources.DirectWriteFactory, text, format, maxWidth, maxHeight);
     }
 
-    public static Guid ToWICImageFormat(this Direct2DImageFormat format) {
+    public static Guid ToWicImageFormat(this Direct2DImageFormat format) {
         switch (format) {
             case Direct2DImageFormat.Bmp:
                 return ImageContainerFormats.Bmp;
@@ -156,7 +156,7 @@ public static class BitmapExtensions {
             var previousTarget = context.Target;
             try {
                 context.Target = target;
-                context.Transform = Matrix3x2.Identity;
+                context.Transform = Matrix3X2.Identity;
                 context.BeginDraw();
                 drawingAction?.Invoke(context);
                 context.EndDraw();
@@ -184,7 +184,7 @@ public static class BitmapExtensions {
 
         if (bitmap.Texture != null && deviceResources is IDeviceResources resources) {
             var stream = new MemoryStream();
-            if (ScreenCapture.SaveWICTextureToStream(resources, bitmap.Texture, stream, imageType)) return stream;
+            if (ScreenCapture.SaveWicTextureToStream(resources, bitmap.Texture, stream, imageType)) return stream;
             stream.Dispose();
         }
 
@@ -538,8 +538,8 @@ public static class BitmapExtensions {
                         Width = rect.Width,
                         Height = rect.Height,
                         Position = x.Origin,
-                        UV_TopLeft = new Vector2(rect.Left / imageWidth, rect.Top / imageHeight),
-                        UV_BottomRight = new Vector2(rect.Right / imageWidth, rect.Bottom / imageHeight),
+                        UvTopLeft = new Vector2(rect.Left / imageWidth, rect.Top / imageHeight),
+                        UvBottomRight = new Vector2(rect.Right / imageWidth, rect.Bottom / imageHeight),
                         HorizontalAlignment = x.HorizontalAlignment,
                         VerticalAlignment = x.VerticalAlignment,
                         Scale = x.Scale

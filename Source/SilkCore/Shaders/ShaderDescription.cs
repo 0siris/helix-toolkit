@@ -99,7 +99,7 @@ public sealed class ShaderDescription {
         ShaderType = type;
         ByteCodeName = byteCodeName;
         ShaderReflector = reflector;
-        this.byteCodeReader = byteCodeReader ?? UWPShaderBytePool.InternalByteCodeReader;
+        this.byteCodeReader = byteCodeReader ?? UwpShaderBytePool.InternalByteCodeReader;
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public sealed class ShaderDescription {
     public byte[] ByteCode {
         get {
             if (field == null && !string.IsNullOrEmpty(ByteCodeName))
-                field = UWPShaderBytePool.Read(ByteCodeName, byteCodeReader);
+                field = UwpShaderBytePool.Read(ByteCodeName, byteCodeReader);
             return field;
         }
         set;
@@ -179,7 +179,7 @@ public sealed class ShaderDescription {
     ///     The uav mappings.
     /// </value>
     [IgnoreDataMember]
-    public UAVMapping[] UAVMappings { get; private set; }
+    public UavMapping[] UavMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the sampler mappings.
@@ -223,7 +223,7 @@ public sealed class ShaderDescription {
 
         ConstantBufferMappings = [.. ShaderReflector.ConstantBufferMappings.Values];
         TextureMappings = [.. ShaderReflector.TextureMappings.Values];
-        UAVMappings = [.. ShaderReflector.UAVMappings.Values];
+        UavMappings = [.. ShaderReflector.UavMappings.Values];
         SamplerMappings = [.. ShaderReflector.SamplerMappings.Values];
 
         ShaderBase shader = null;
@@ -244,13 +244,13 @@ public sealed class ShaderDescription {
                 shader = new HullShader(device, Name, ByteCode);
                 break;
             case ShaderStage.Geometry:
-                if (IsGSStreamOut)
+                if (IsGsStreamOut)
                     shader = new GeometryShader(device,
                                                 Name,
                                                 ByteCode,
-                                                GSSOElement,
-                                                GSSOStrides,
-                                                GSSORasterized);
+                                                GssoElement,
+                                                GssoStrides,
+                                                GssoRasterized);
                 else
                     shader = new GeometryShader(device, Name, ByteCode);
                 break;
@@ -266,8 +266,8 @@ public sealed class ShaderDescription {
             foreach (var mapping in TextureMappings)
                 shader.ShaderResourceViewMapping.AddMapping(mapping.Description.Name, mapping.Slot, mapping);
 
-        if (UAVMappings != null)
-            foreach (var mapping in UAVMappings)
+        if (UavMappings != null)
+            foreach (var mapping in UavMappings)
                 shader.UnorderedAccessViewMapping.AddMapping(mapping.Description.Name, mapping.Slot, mapping);
 
         if (SamplerMappings != null)
@@ -299,7 +299,7 @@ public sealed class ShaderDescription {
     ///     <c>true</c> if this instance is gs stream out; otherwise, <c>false</c>.
     /// </value>
     [DataMember]
-    public bool IsGSStreamOut { get; set; }
+    public bool IsGsStreamOut { get; set; }
 
     /// <summary>
     ///     Gets or sets the gs stream output element.
@@ -308,7 +308,7 @@ public sealed class ShaderDescription {
     ///     The gsso element.
     /// </value>
     [DataMember]
-    public StreamOutputElement[] GSSOElement { get; set; }
+    public StreamOutputElement[] GssoElement { get; set; }
 
     /// <summary>
     ///     Gets or sets the gs stream output strides.
@@ -317,7 +317,7 @@ public sealed class ShaderDescription {
     ///     The gsso strides.
     /// </value>
     [DataMember]
-    public int[] GSSOStrides { get; set; }
+    public int[] GssoStrides { get; set; }
 
     /// <summary>
     ///     Gets or sets the gs stream output rasterized stream index.
@@ -326,7 +326,7 @@ public sealed class ShaderDescription {
     ///     The gsso rasterized stream index.
     /// </value>
     [DataMember]
-    public int GSSORasterized { get; set; } = -1;
+    public int GssoRasterized { get; set; } = -1;
 
     #endregion
 }

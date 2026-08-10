@@ -30,7 +30,7 @@ public sealed class Image : Component {
     /// <param name="makeACopy"></param>
     /// <param name="handle"></param>
     /// <returns></returns>
-    public delegate Image ImageLoadDelegate(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle);
+    public delegate Image? ImageLoadDelegate(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle);
 
     public delegate void ImageSaveDelegate(
         PixelBuffer[] pixelBuffers,
@@ -39,7 +39,7 @@ public sealed class Image : Component {
         Stream imageStream
     );
 
-    private static readonly List<LoadSaveDelegate> loadSaveDelegates = [];
+    private static readonly List<LoadSaveDelegate> LoadSaveDelegates = [];
 
     /// <summary>
     ///     Pointer to the buffer.
@@ -78,7 +78,7 @@ public sealed class Image : Component {
     /// <summary>
     ///     Pixel buffers.
     /// </summary>
-    internal PixelBuffer[] pixelBuffers;
+    internal PixelBuffer[] PixelBuffers;
 
     /// <summary>
     ///     Gets the total number of bytes occupied by this image in memory.
@@ -88,13 +88,13 @@ public sealed class Image : Component {
     private int zBufferCountPerArraySlice;
 
     static Image() {
-        Register(ImageFileType.Dds, DDSHelper.LoadFromDDSMemory, DDSHelper.SaveToDDSStream);
-        Register(ImageFileType.Gif, WICHelper.LoadFromWICMemory, WICHelper.SaveGifToWICMemory);
-        Register(ImageFileType.Tiff, null, WICHelper.SaveTiffToWICMemory);
-        Register(ImageFileType.Bmp, null, WICHelper.SaveBmpToWICMemory);
-        Register(ImageFileType.Jpg, null, WICHelper.SaveJpgToWICMemory);
-        Register(ImageFileType.Png, null, WICHelper.SavePngToWICMemory);
-        Register(ImageFileType.Wmp, null, WICHelper.SaveWmpToWICMemory);
+        Register(ImageFileType.Dds, DdsHelper.LoadFromDdsMemory, DdsHelper.SaveToDdsStream);
+        Register(ImageFileType.Gif, WicHelper.LoadFromWicMemory, WicHelper.SaveGifToWicMemory);
+        Register(ImageFileType.Tiff, null, WicHelper.SaveTiffToWicMemory);
+        Register(ImageFileType.Bmp, null, WicHelper.SaveBmpToWicMemory);
+        Register(ImageFileType.Jpg, null, WicHelper.SaveJpgToWicMemory);
+        Register(ImageFileType.Png, null, WicHelper.SavePngToWicMemory);
+        Register(ImageFileType.Wmp, null, WicHelper.SaveWmpToWicMemory);
     }
 
     private Image() { }
@@ -233,15 +233,15 @@ public sealed class Image : Component {
             throw new ArgumentNullException("loader/saver", "Can set both loader and saver to null");
 
         var newDelegate = new LoadSaveDelegate(type, loader, saver);
-        for (var i = 0; i < loadSaveDelegates.Count; i++) {
-            var loadSaveDelegate = loadSaveDelegates[i];
+        for (var i = 0; i < LoadSaveDelegates.Count; i++) {
+            var loadSaveDelegate = LoadSaveDelegates[i];
             if (loadSaveDelegate.FileType == type) {
-                loadSaveDelegates[i] = newDelegate;
+                LoadSaveDelegates[i] = newDelegate;
                 return;
             }
         }
 
-        loadSaveDelegates.Add(newDelegate);
+        LoadSaveDelegates.Add(newDelegate);
     }
 
     /// <summary>
@@ -458,7 +458,7 @@ public sealed class Image : Component {
     ///     pointer and will release it on Dispose.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image Load(nint dataPointer, int dataSize, bool makeACopy = false) {
+    public static Image? Load(nint dataPointer, int dataSize, bool makeACopy = false) {
         return Load(dataPointer, dataSize, makeACopy, null);
     }
 
@@ -471,9 +471,8 @@ public sealed class Image : Component {
     ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static unsafe Image Load(byte[] buffer) {
-        if (buffer == null)
-            ArgumentNullException.ThrowIfNull(buffer);
+    public static unsafe Image? Load(byte[] buffer) {
+        buffer.AssertArgumentNotNull();
 
         var size = buffer.Length;
 
@@ -491,9 +490,8 @@ public sealed class Image : Component {
     ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image Load(Stream imageStream) {
-        return Load(Utilities.ReadStream(imageStream));
-    }
+    public static Image? Load(Stream imageStream) 
+        => Load(Utilities.ReadStream(imageStream));
 
     /// <summary>
     ///     Loads the specified image from a file.
@@ -518,11 +516,12 @@ public sealed class Image : Component {
     /// <param name="handle">The handle.</param>
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException"></exception>
-    private static Image Load(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle) {
-        foreach (var loadSaveDelegate in loadSaveDelegates)
+    private static Image? Load(nint dataPointer, int dataSize, bool makeACopy, GCHandle? handle) {
+        foreach (var loadSaveDelegate in LoadSaveDelegates)
             if (loadSaveDelegate.Load != null) {
                 var image = loadSaveDelegate.Load(dataPointer, dataSize, makeACopy, handle);
-                if (image != null) return image;
+                if (image != null) 
+                    return image;
             }
 
         return null;
@@ -586,7 +585,7 @@ public sealed class Image : Component {
         zBufferCountPerArraySlice = mipMapToZIndex[mipMapToZIndex.Count - 1];
 
         // Allocate all pixel buffers
-        pixelBuffers = new PixelBuffer[pixelBufferCount];
+        PixelBuffers = new PixelBuffer[pixelBufferCount];
         pixelBufferArray = new PixelBufferArray(this);
 
         // Setup all pointers
@@ -600,7 +599,7 @@ public sealed class Image : Component {
             this.bufferIsDisposable = true;
         }
 
-        SetupImageArray((nint)((byte*)buffer + offset), totalSizeInBytes, description, pitchFlags, pixelBuffers);
+        SetupImageArray((nint)((byte*)buffer + offset), totalSizeInBytes, description, pitchFlags, PixelBuffers);
 
         Description = description;
 
@@ -611,7 +610,7 @@ public sealed class Image : Component {
     private PixelBuffer GetPixelBufferUnsafe(int arrayIndex, int zIndex, int mipmap) {
         var depthIndex = mipMapToZIndex[mipmap];
         var pixelBufferIndex = arrayIndex * zBufferCountPerArraySlice + depthIndex + zIndex;
-        return pixelBuffers[pixelBufferIndex];
+        return PixelBuffers[pixelBufferIndex];
     }
 
     private static ImageDescription CreateDescription(
@@ -928,7 +927,7 @@ public sealed class Image : Component {
     /// <param name="fileType">Specify the output format.</param>
     /// <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
     public void Save(Stream imageStream, ImageFileType fileType) {
-        Save(pixelBuffers, pixelBuffers.Length, Description, imageStream, fileType);
+        Save(PixelBuffers, PixelBuffers.Length, Description, imageStream, fileType);
     }
 
     /// <summary>
@@ -947,7 +946,7 @@ public sealed class Image : Component {
         Stream imageStream,
         ImageFileType fileType
     ) {
-        foreach (var loadSaveDelegate in loadSaveDelegates)
+        foreach (var loadSaveDelegate in LoadSaveDelegates)
             if (loadSaveDelegate.FileType == fileType) {
                 loadSaveDelegate.Save(pixelBuffers, count, description, imageStream);
                 return;
@@ -968,9 +967,9 @@ public sealed class Image : Component {
     private class LoadSaveDelegate {
         public readonly ImageFileType FileType;
 
-        public readonly ImageLoadDelegate Load;
+        public readonly ImageLoadDelegate? Load;
 
-        public readonly ImageSaveDelegate Save;
+        public readonly ImageSaveDelegate? Save;
 
         public LoadSaveDelegate(ImageFileType fileType, ImageLoadDelegate load, ImageSaveDelegate save) {
             FileType = fileType;

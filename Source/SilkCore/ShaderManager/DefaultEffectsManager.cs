@@ -50,884 +50,884 @@ public class DefaultEffectsManager : EffectsManager {
     private IEnumerable<TechniqueDescription> LoadTechniqueDescriptions() {
         var renderMesh = new TechniqueDescription(DefaultRenderTechniqueNames.Mesh) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSMeshDefault, DefaultInputLayout.VSInput),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.PBR) {
+                new ShaderPassDescription(DefaultPassNames.Pbr) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshPBR
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshPbr
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Colors) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshVertColor
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshVertColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Normals) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshVertNormal
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshVertNormal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Positions) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshVertPosition
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshVertPosition
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Diffuse) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMap
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMap
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshColorStripe
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshColorStripe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.ViewCube) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshViewCube
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshViewCube
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.NormalVector) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultGSShaderDescriptions.GSMeshNormalVector,
-                        DefaultPSShaderDescriptions.PSLineColor
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultGsShaderDescriptions.GsMeshNormalVector,
+                        DefaultPsShaderDescriptions.PsLineColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
                     Topology = PrimitiveTopology.PointList
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshPBROIT
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshPbroit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshPBROITDP
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshPbroitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOIT) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOIT
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOITDP) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOITDP
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.PreComputeMeshBoneSkinned) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBoneSkinnedBasic,
-                        DefaultGSShaderDescriptions.GSMeshBoneSkinnedOut
+                        DefaultVsShaderDescriptions.VsMeshBoneSkinnedBasic,
+                        DefaultGsShaderDescriptions.GsMeshBoneSkinnedOut
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
                     Topology = PrimitiveTopology.PointList,
                     InputLayoutDescription = new InputLayoutDescription(
-                        DefaultVSShaderByteCodes.VSMeshBoneSkinningBasic,
-                        DefaultInputLayout.VSInputBoneSkinnedBasic)
+                        DefaultVsShaderByteCodes.VsMeshBoneSkinningBasic,
+                        DefaultInputLayout.VsInputBoneSkinnedBasic)
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDepth,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshDepth,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshSSAOPass) {
+                new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshSSAO,
-                        DefaultPSShaderDescriptions.PSSSAOP1
+                        DefaultVsShaderDescriptions.VsMeshSsao,
+                        DefaultPsShaderDescriptions.Psssaop1
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshTriTessellation) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOIT) {
+                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOITDP) {
+                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshPBRTriTessellation) {
+                new ShaderPassDescription(DefaultPassNames.MeshPbrTriTessellation) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshPBR
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshPbr
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshPBRTriTessellationOIT) {
+                new ShaderPassDescription(DefaultPassNames.MeshPbrTriTessellationOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshPBROIT
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshPbroit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshPBRTriTessellationOITDP) {
+                new ShaderPassDescription(DefaultPassNames.MeshPbrTriTessellationOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshPBROITDP
+                        DefaultVsShaderDescriptions.VsMeshTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshPbroitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshOutline) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSMeshXRay
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsMeshXRay
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshShadow,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsMeshShadow,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframe
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOIT
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOITDP
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSEffectMeshXRay
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsEffectMeshXRay
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshDiffuseXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDefault,
-                        DefaultPSShaderDescriptions.PSEffectDiffuseXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultPsShaderDescriptions.PsEffectDiffuseXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 }
             ]
         };
 
         var renderMeshBatched = new TechniqueDescription(DefaultRenderTechniqueNames.MeshBatched) {
-            InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSMeshBatched,
-                                                                DefaultInputLayout.VSMeshBatchedInput),
+            InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshBatched,
+                                                                DefaultInputLayout.VsMeshBatchedInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.PBR) {
+                new ShaderPassDescription(DefaultPassNames.Pbr) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshPBR
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshPbr
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Colors) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshVertColor
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshVertColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Normals) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshVertNormal
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshVertNormal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Positions) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshVertPosition
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshVertPosition
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Diffuse) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMap
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMap
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshColorStripe
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshColorStripe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.NormalVector) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultGSShaderDescriptions.GSMeshNormalVector,
-                        DefaultPSShaderDescriptions.PSLineColor
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultGsShaderDescriptions.GsMeshNormalVector,
+                        DefaultPsShaderDescriptions.PsLineColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
                     Topology = PrimitiveTopology.PointList
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshPBROIT
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshPbroit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshPBROITDP
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshPbroitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.PreComputeMeshBoneSkinned) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBoneSkinnedBasic,
-                        DefaultGSShaderDescriptions.GSMeshBoneSkinnedOut
+                        DefaultVsShaderDescriptions.VsMeshBoneSkinnedBasic,
+                        DefaultGsShaderDescriptions.GsMeshBoneSkinnedOut
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
                     Topology = PrimitiveTopology.PointList,
                     InputLayoutDescription = new InputLayoutDescription(
-                        DefaultVSShaderByteCodes.VSMeshBoneSkinningBasic,
-                        DefaultInputLayout.VSInputBoneSkinnedBasic)
+                        DefaultVsShaderByteCodes.VsMeshBoneSkinningBasic,
+                        DefaultInputLayout.VsInputBoneSkinnedBasic)
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOIT) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOIT
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOITDP) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOITDP
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDepth,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshDepth,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshSSAOPass) {
+                new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedSSAO,
-                        DefaultPSShaderDescriptions.PSSSAOP1
+                        DefaultVsShaderDescriptions.VsMeshBatchedSsao,
+                        DefaultPsShaderDescriptions.Psssaop1
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshOutline) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSMeshXRay
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsMeshXRay
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedShadow,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsMeshBatchedShadow,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframe
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOIT
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOITDP
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSEffectMeshXRay
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsEffectMeshXRay
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatchedWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshBatchedWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshDiffuseXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBatched,
-                        DefaultPSShaderDescriptions.PSEffectDiffuseXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshBatched,
+                        DefaultPsShaderDescriptions.PsEffectDiffuseXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 }
             ]
         };
 
         var renderMeshInstancing = new TechniqueDescription(DefaultRenderTechniqueNames.InstancingMesh) {
-            InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSMeshInstancing,
-                                                                DefaultInputLayout.VSInputInstancing),
+            InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshInstancing,
+                                                                DefaultInputLayout.VsInputInstancing),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.PBR) {
+                new ShaderPassDescription(DefaultPassNames.Pbr) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshPBR
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshPbr
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Colors) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshVertColor
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshVertColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Normals) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshVertNormal
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshVertNormal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Positions) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshVertPosition
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshVertPosition
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Diffuse) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMap
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMap
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshColorStripe
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshColorStripe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.NormalVector) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultGSShaderDescriptions.GSMeshNormalVector,
-                        DefaultPSShaderDescriptions.PSLineColor
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultGsShaderDescriptions.GsMeshNormalVector,
+                        DefaultPsShaderDescriptions.PsLineColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
                     Topology = PrimitiveTopology.PointList
                 },
                 new ShaderPassDescription(DefaultPassNames.PreComputeMeshBoneSkinned) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshBoneSkinnedBasic,
-                        DefaultGSShaderDescriptions.GSMeshBoneSkinnedOut
+                        DefaultVsShaderDescriptions.VsMeshBoneSkinnedBasic,
+                        DefaultGsShaderDescriptions.GsMeshBoneSkinnedOut
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
                     Topology = PrimitiveTopology.PointList,
                     InputLayoutDescription = new InputLayoutDescription(
-                        DefaultVSShaderByteCodes.VSMeshBoneSkinningBasic,
-                        DefaultInputLayout.VSInputBoneSkinnedBasic)
+                        DefaultVsShaderByteCodes.VsMeshBoneSkinningBasic,
+                        DefaultInputLayout.VsInputBoneSkinnedBasic)
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshPBROIT
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshPbroit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOIT) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOIT
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshPBROITDP
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshPbroitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOITDP) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOITDP
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDepth,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshDepth,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshSSAOPass) {
+                new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshSSAO,
-                        DefaultPSShaderDescriptions.PSSSAOP1
+                        DefaultVsShaderDescriptions.VsMeshSsao,
+                        DefaultPsShaderDescriptions.Psssaop1
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshTriTessellation) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancingTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshInstancingTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOIT) {
+                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancingTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshInstancingTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
-                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOITDP) {
+                new ShaderPassDescription(DefaultPassNames.MeshTriTessellationOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancingTessellation,
-                        DefaultHullShaderDescriptions.HSMeshTessellation,
-                        DefaultDomainShaderDescriptions.DSMeshTessellation,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshInstancingTessellation,
+                        DefaultHullShaderDescriptions.HsMeshTessellation,
+                        DefaultDomainShaderDescriptions.DsMeshTessellation,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
                     Topology = PrimitiveTopology.PatchListWith3ControlPoints
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshShadow,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsMeshShadow,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframe
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOIT
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOITDP
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSEffectMeshXRay
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsEffectMeshXRay
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshWireframe,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshWireframe,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshDiffuseXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshInstancing,
-                        DefaultPSShaderDescriptions.PSEffectDiffuseXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshInstancing,
+                        DefaultPsShaderDescriptions.PsEffectDiffuseXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 }
             ]
@@ -935,43 +935,43 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderPoint = new TechniqueDescription(DefaultRenderTechniqueNames.Points) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSPoint, DefaultInputLayout.VSInputPoint),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsPoint, DefaultInputLayout.VsInputPoint),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSPoint,
-                        DefaultPSShaderDescriptions.PSPoint
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsPoint,
+                        DefaultPsShaderDescriptions.PsPoint
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSPoint,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsPoint,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPointShadow,
-                        DefaultGSShaderDescriptions.GSPoint,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPointShadow,
+                        DefaultGsShaderDescriptions.GsPoint,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSPoint,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsPoint,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 }
             ]
@@ -979,92 +979,92 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderLine = new TechniqueDescription(DefaultRenderTechniqueNames.Lines) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSPoint, DefaultInputLayout.VSInputPoint),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsPoint, DefaultInputLayout.VsInputPoint),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPointShadow,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPointShadow,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLine,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLine,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 }
             ]
@@ -1072,92 +1072,92 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderLineArrowHead = new TechniqueDescription(DefaultRenderTechniqueNames.LinesArrowHead) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSPoint, DefaultInputLayout.VSInputPoint),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsPoint, DefaultInputLayout.VsInputPoint),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPointShadow,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPointShadow,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHead,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHead,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 }
             ]
@@ -1165,402 +1165,402 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderLineArrowHeadTail = new TechniqueDescription(DefaultRenderTechniqueNames.LinesArrowHeadTail) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSPoint, DefaultInputLayout.VSInputPoint),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsPoint, DefaultInputLayout.VsInputPoint),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.ShadowPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPointShadow,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSShadow
+                        DefaultVsShaderDescriptions.VsPointShadow,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsShadow
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPoint,
-                        DefaultGSShaderDescriptions.GSLineArrowHeadTail,
-                        DefaultPSShaderDescriptions.PSLine
+                        DefaultVsShaderDescriptions.VsPoint,
+                        DefaultGsShaderDescriptions.GsLineArrowHeadTail,
+                        DefaultPsShaderDescriptions.PsLine
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOverlayBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP2,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsOverlayBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP2,
                     StencilRef = 1
                 }
             ]
         };
 
         var renderBillboardText = new TechniqueDescription(DefaultRenderTechniqueNames.BillboardText) {
-            InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSBillboard,
-                                                                DefaultInputLayout.VSInputBillboard),
+            InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsBillboard,
+                                                                DefaultInputLayout.VsInputBillboard),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardText,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardText
+                        DefaultVsShaderDescriptions.VsBillboardText,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardText
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardText,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardTextOIT
+                        DefaultVsShaderDescriptions.VsBillboardText,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardTextOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardText,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsBillboardText,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardText,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardTextOITDP
+                        DefaultVsShaderDescriptions.VsBillboardText,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardTextOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 }
             ]
         };
 
         var renderBillboardInstancing = new TechniqueDescription(DefaultRenderTechniqueNames.BillboardInstancing) {
-            InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSBillboardInstancing,
-                                                                DefaultInputLayout.VSInputBillboardInstancing),
+            InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsBillboardInstancing,
+                                                                DefaultInputLayout.VsInputBillboardInstancing),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardInstancing,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardText
+                        DefaultVsShaderDescriptions.VsBillboardInstancing,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardText
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardInstancing,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardTextOIT
+                        DefaultVsShaderDescriptions.VsBillboardInstancing,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardTextOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardInstancing,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsBillboardInstancing,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSBillboardInstancing,
-                        DefaultGSShaderDescriptions.GSBillboard,
-                        DefaultPSShaderDescriptions.PSBillboardTextOITDP
+                        DefaultVsShaderDescriptions.VsBillboardInstancing,
+                        DefaultGsShaderDescriptions.GsBillboard,
+                        DefaultPsShaderDescriptions.PsBillboardTextOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 }
             ]
         };
 
         var renderMeshBlinnClipPlane = new TechniqueDescription(DefaultRenderTechniqueNames.CrossSection) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSMeshDefault, DefaultInputLayout.VSInput),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhong
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhong
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
-                new ShaderPassDescription(DefaultPassNames.PBR) {
+                new ShaderPassDescription(DefaultPassNames.Pbr) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshPBR
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshPbr
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Colors) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshVertColor
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshVertColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Normals) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshVertNormal
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshVertNormal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.Positions) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshVertPosition
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshVertPosition
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Diffuse) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMap
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMap
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshColorStripe
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshColorStripe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual
                 },
                 new ShaderPassDescription(DefaultPassNames.NormalVector) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultGSShaderDescriptions.GSMeshNormalVector,
-                        DefaultPSShaderDescriptions.PSLineColor
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultGsShaderDescriptions.GsMeshNormalVector,
+                        DefaultPsShaderDescriptions.PsLineColor
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
                     Topology = PrimitiveTopology.PointList
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOIT
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshPBROIT
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshPbroit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOIT) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOIT
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITDP
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.PBROITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.PbroitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshPBROITDP
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshPbroitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.DiffuseOITDP) {
+                new ShaderPassDescription(DefaultPassNames.DiffuseOitdp) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshDiffuseMapOITDP
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshDiffuseMapOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.DepthPrepass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshDepth,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshDepth,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Backface) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshClipBackface
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshClipBackface
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSClipPlaneBackface,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssClipPlaneBackface,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSFullScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshClipScreenQuad
+                        DefaultVsShaderDescriptions.VsFullScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshClipScreenQuad
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSClipPlaneFillQuad,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssClipPlaneFillQuad,
                     StencilRef = 1,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshWireframe
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOIT
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.WireframeOITDPPass) {
+                new ShaderPassDescription(DefaultPassNames.WireframeOitdpPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshWireframeOITDP
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshWireframeOitdp
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectOutlineP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadStencil
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadStencil
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSMeshOutlineP1,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssMeshOutlineP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayP1
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayP1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP1) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP1,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP1,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP2) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSDepthStencilOnly
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP2,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP2,
                     StencilRef = 1
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectMeshXRayGridP3) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshClipPlane,
-                        DefaultPSShaderDescriptions.PSEffectXRayGrid
+                        DefaultVsShaderDescriptions.VsMeshClipPlane,
+                        DefaultPsShaderDescriptions.PsEffectXRayGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSEffectMeshXRayGridP3,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssEffectMeshXRayGridP3,
                     StencilRef = 1
                 }
             ]
@@ -1568,103 +1568,103 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderParticle = new TechniqueDescription(DefaultRenderTechniqueNames.ParticleStorm) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSParticle, DefaultInputLayout.VSInputParticle),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsParticle, DefaultInputLayout.VsInputParticle),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultParticlePassNames.Insert) {
                     ShaderList = [
-                        DefaultComputeShaderDescriptions.CSParticleInsert
+                        DefaultComputeShaderDescriptions.CsParticleInsert
                     ]
                 },
                 new ShaderPassDescription(DefaultParticlePassNames.Update) {
                     ShaderList = [
-                        DefaultComputeShaderDescriptions.CSParticleUpdate
+                        DefaultComputeShaderDescriptions.CsParticleUpdate
                     ]
                 },
                 new ShaderPassDescription(DefaultParticlePassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSParticle,
-                        DefaultGSShaderDescriptions.GSParticle,
-                        DefaultPSShaderDescriptions.PSParticle
+                        DefaultVsShaderDescriptions.VsParticle,
+                        DefaultGsShaderDescriptions.GsParticle,
+                        DefaultPsShaderDescriptions.PsParticle
                     ],
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSolidNoMSAA,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSolidNoMsaa,
                     Topology = PrimitiveTopology.PointList
                 },
-                new ShaderPassDescription(DefaultPassNames.OITPass) {
+                new ShaderPassDescription(DefaultPassNames.OitPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSParticle,
-                        DefaultGSShaderDescriptions.GSParticle,
-                        DefaultPSShaderDescriptions.PSParticleOIT
+                        DefaultVsShaderDescriptions.VsParticle,
+                        DefaultGsShaderDescriptions.GsParticle,
+                        DefaultPsShaderDescriptions.PsParticleOit
                     ],
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITBlend,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSolidNoMSAA
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitBlend,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSolidNoMsaa
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingInit) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingInit) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSParticle,
-                        DefaultGSShaderDescriptions.GSParticle,
-                        DefaultPSShaderDescriptions.PSMeshOITDPInit
+                        DefaultVsShaderDescriptions.VsParticle,
+                        DefaultGsShaderDescriptions.GsParticle,
+                        DefaultPsShaderDescriptions.PsMeshOitdpInit
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPMaxBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpMaxBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite
                 },
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeeling) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeeling) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSParticle,
-                        DefaultGSShaderDescriptions.GSParticle,
-                        DefaultPSShaderDescriptions.PSParticleOITDP
+                        DefaultVsShaderDescriptions.VsParticle,
+                        DefaultGsShaderDescriptions.GsParticle,
+                        DefaultPsShaderDescriptions.PsParticleOitdp
                     ],
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDP,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSolidNoMSAA
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.Bsoitdp,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSolidNoMsaa
                 }
             ]
         };
 
         var renderSkybox = new TechniqueDescription(DefaultRenderTechniqueNames.Skybox) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSSkybox, DefaultInputLayout.VSInputSkybox),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsSkybox, DefaultInputLayout.VsInputSkybox),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSSkybox,
-                        DefaultPSShaderDescriptions.PSSkybox
+                        DefaultVsShaderDescriptions.VsSkybox,
+                        DefaultPsShaderDescriptions.PsSkybox
                     ],
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessEqualNoWrite,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSkybox
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSkybox
                 }
             ]
         };
 
-        var meshOITQuad = new TechniqueDescription(DefaultRenderTechniqueNames.MeshOITQuad) {
+        var meshOitQuad = new TechniqueDescription(DefaultRenderTechniqueNames.MeshOitQuad) {
             InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshBlinnPhongOITQuad
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshBlinnPhongOitQuad
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSMeshOITBlendQuad,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsMeshOitBlendQuad,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
         };
 
-        var meshOITDepthPeeling = new TechniqueDescription(DefaultRenderTechniqueNames.MeshOITDepthPeeling) {
+        var meshOitDepthPeeling = new TechniqueDescription(DefaultRenderTechniqueNames.MeshOitDepthPeeling) {
             InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
             PassDescriptions = [
-                new ShaderPassDescription(DefaultPassNames.OITDepthPeelingFinal) {
+                new ShaderPassDescription(DefaultPassNames.OitDepthPeelingFinal) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshOITDPFinal
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshOitdpFinal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSOITDPFinal,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSkybox,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsoitdpFinal,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSkybox,
                     StencilRef = 0,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
@@ -1678,42 +1678,42 @@ public class DefaultEffectsManager : EffectsManager {
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshOutlineScreenQuad
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshOutlineScreenQuad
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSOutlineFillQuad,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssOutlineFillQuad,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectBlurVertical) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectFullScreenBlurVertical
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectFullScreenBlurVertical
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectFullScreenBlurHorizontal
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectFullScreenBlurHorizontal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshOutline) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadFinal
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadFinal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSGlowBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsGlowBlending,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
@@ -1725,42 +1725,42 @@ public class DefaultEffectsManager : EffectsManager {
                 PassDescriptions = [
                     new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
                         ShaderList = [
-                            DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                            DefaultPSShaderDescriptions.PSMeshOutlineScreenQuad
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsMeshOutlineScreenQuad
                         ],
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSOutlineFillQuad,
-                        RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssOutlineFillQuad,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                         Topology = PrimitiveTopology.TriangleStrip
                     },
                     new ShaderPassDescription(DefaultPassNames.EffectBlurVertical) {
                         ShaderList = [
-                            DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                            DefaultPSShaderDescriptions.PSEffectMeshBorderHighlight
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsEffectMeshBorderHighlight
                         ],
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                        RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                         Topology = PrimitiveTopology.TriangleStrip
                     },
                     new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
                         ShaderList = [
-                            DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                            DefaultPSShaderDescriptions.PSEffectMeshBorderHighlight
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsEffectMeshBorderHighlight
                         ],
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                        RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                         Topology = PrimitiveTopology.TriangleStrip
                     },
                     new ShaderPassDescription(DefaultPassNames.MeshOutline) {
                         ShaderList = [
-                            DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                            DefaultPSShaderDescriptions.PSMeshOutlineQuadFinal
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsMeshOutlineQuadFinal
                         ],
-                        BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                        RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                         Topology = PrimitiveTopology.TriangleStrip
                     }
                 ]
@@ -1771,78 +1771,78 @@ public class DefaultEffectsManager : EffectsManager {
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectBloomExtract
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectBloomExtract
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.ScreenQuadCopy) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSMeshOutlineQuadFinal
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsMeshOutlineQuadFinal
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectBlurVertical) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectBloomVerticalBlur
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectBloomVerticalBlur
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectBloomHorizontalBlur
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectBloomHorizontalBlur
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshOutline) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectBloomCombine
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectBloomCombine
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.AdditiveBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
         };
 
-        var fxaaPostEffect = new TechniqueDescription(DefaultRenderTechniqueNames.PostEffectFXAA) {
+        var fxaaPostEffect = new TechniqueDescription(DefaultRenderTechniqueNames.PostEffectFxaa) {
             InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.LumaPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectLUMA
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectLuma
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
-                new ShaderPassDescription(DefaultPassNames.FXAAPass) {
+                new ShaderPassDescription(DefaultPassNames.FxaaPass) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSEffectFXAA
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsEffectFxaa
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
@@ -1855,12 +1855,12 @@ public class DefaultEffectsManager : EffectsManager {
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSPlaneGrid,
-                        DefaultPSShaderDescriptions.PSPlaneGrid
+                        DefaultVsShaderDescriptions.VsPlaneGrid,
+                        DefaultPsShaderDescriptions.PsPlaneGrid
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSLessNoWrite,
-                    RasterStateDescription = DefaultRasterDescriptions.RSPlaneGrid,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessNoWrite,
+                    RasterStateDescription = DefaultRasterDescriptions.RsPlaneGrid,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
@@ -1871,103 +1871,103 @@ public class DefaultEffectsManager : EffectsManager {
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSScreenQuad,
-                        DefaultPSShaderDescriptions.PSScreenDup
+                        DefaultVsShaderDescriptions.VsScreenQuad,
+                        DefaultPsShaderDescriptions.PsScreenDup
                     ],
                     Topology = PrimitiveTopology.TriangleStrip,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSDepthLessEqual,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSkybox
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSkybox
                 }
             ]
         };
 
         var sprite2D = new TechniqueDescription(DefaultRenderTechniqueNames.Sprite2D) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSSprite2D, DefaultInputLayout.VSInputSprite2D),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsSprite2D, DefaultInputLayout.VsInputSprite2D),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSSprite2D,
-                        DefaultPSShaderDescriptions.PSSprite2D
+                        DefaultVsShaderDescriptions.VsSprite2D,
+                        DefaultPsShaderDescriptions.PsSprite2D
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSpriteCW
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSpriteCw
                 }
             ]
         };
 
         var volume3D = new TechniqueDescription(DefaultRenderTechniqueNames.Volume3D) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVSShaderByteCodes.VSVolume3D, DefaultInputLayout.VSInputVolume3D),
+                new InputLayoutDescription(DefaultVsShaderByteCodes.VsVolume3D, DefaultInputLayout.VsInputVolume3D),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSVolume3D,
-                        DefaultPSShaderDescriptions.PSVolume3D
+                        DefaultVsShaderDescriptions.VsVolume3D,
+                        DefaultPsShaderDescriptions.PsVolume3D
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSVolumeCubeBack
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsVolumeCubeBack
                 },
                 new ShaderPassDescription(DefaultPassNames.Diffuse) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSVolume3D,
-                        DefaultPSShaderDescriptions.PSVolumeDiffuse3D
+                        DefaultVsShaderDescriptions.VsVolume3D,
+                        DefaultPsShaderDescriptions.PsVolumeDiffuse3D
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSVolumeCubeBack
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsVolumeCubeBack
                 },
                 new ShaderPassDescription(DefaultPassNames.Positions) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSVolume3D,
-                        DefaultPSShaderDescriptions.PSVolumeCube
+                        DefaultVsShaderDescriptions.VsVolume3D,
+                        DefaultPsShaderDescriptions.PsVolumeCube
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSVolumeFrontFace,
-                    RasterStateDescription = DefaultRasterDescriptions.RSVolumeCubeFront
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssVolumeFrontFace,
+                    RasterStateDescription = DefaultRasterDescriptions.RsVolumeCubeFront
                 },
                 new ShaderPassDescription(DefaultPassNames.Backface) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSVolume3D,
-                        DefaultPSShaderDescriptions.PSVolumeCube
+                        DefaultVsShaderDescriptions.VsVolume3D,
+                        DefaultPsShaderDescriptions.PsVolumeCube
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSVolumeBackFace,
-                    RasterStateDescription = DefaultRasterDescriptions.RSVolumeCubeBack,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssVolumeBackFace,
+                    RasterStateDescription = DefaultRasterDescriptions.RsVolumeCubeBack,
                     StencilRef = 1
                 }
             ]
         };
 
-        var ssao = new TechniqueDescription(DefaultRenderTechniqueNames.SSAO) {
+        var ssao = new TechniqueDescription(DefaultRenderTechniqueNames.Ssao) {
             InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSSSAO,
-                        DefaultPSShaderDescriptions.PSSSAO
+                        DefaultVsShaderDescriptions.Vsssao,
+                        DefaultPsShaderDescriptions.Psssao
                     ],
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 },
                 new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSMeshOutlineScreenQuad,
-                        DefaultPSShaderDescriptions.PSSSAOBlur
+                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                        DefaultPsShaderDescriptions.PsssaoBlur
                     ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSOutline,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
                     Topology = PrimitiveTopology.TriangleStrip
                 }
             ]
@@ -1989,12 +1989,12 @@ public class DefaultEffectsManager : EffectsManager {
         yield return meshBorderHighlightPostEffect;
         yield return bloomPostEffect;
         yield return fxaaPostEffect;
-        yield return meshOITQuad;
+        yield return meshOitQuad;
         yield return planeGrid;
         yield return screenQuad;
         yield return sprite2D;
         yield return volume3D;
         yield return ssao;
-        yield return meshOITDepthPeeling;
+        yield return meshOitDepthPeeling;
     }
 }

@@ -6,7 +6,7 @@ public interface IShaderReflector {
 
     Dictionary<string, TextureMapping> TextureMappings { get; }
 
-    Dictionary<string, UAVMapping> UAVMappings { get; }
+    Dictionary<string, UavMapping> UavMappings { get; }
 
     Dictionary<string, SamplerMapping> SamplerMappings { get; }
 

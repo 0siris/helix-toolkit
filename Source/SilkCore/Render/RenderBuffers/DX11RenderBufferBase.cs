@@ -24,7 +24,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The D2D controls
     /// </summary>
-    protected D2DTargetProxy d2dTarget;
+    protected D2DTargetProxy D2DTarget;
 
     /// <summary>
     ///     The depth stencil buffer
@@ -34,7 +34,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    private ShaderResourceViewProxy depthStencilBufferNoMSAA;
+    private ShaderResourceViewProxy depthStencilBufferNoMsaa;
 
     private IDeviceContextPool deviceContextPool;
 
@@ -66,7 +66,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    public ShaderResourceViewProxy DepthStencilBufferNoMSAA => depthStencilBufferNoMSAA;
+    public ShaderResourceViewProxy DepthStencilBufferNoMsaa => depthStencilBufferNoMsaa;
 
     /// <summary>
     ///     Gets the d2 d controls.
@@ -118,7 +118,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
-    public MSAALevel MSAA { get; private set; } = MSAALevel.Disable;
+    public MsaaLevel Msaa { get; private set; } = MsaaLevel.Disable;
     /// <summary>
     ///     The currently used Direct3D Device
     /// </summary>
@@ -167,7 +167,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     Whether render target/depth stencil buffer are MSAA buffers.
     /// </summary>
-    public bool HasMSAA => ColorBufferSampleDesc.Count > 1;
+    public bool HasMsaa => ColorBufferSampleDesc.Count > 1;
 
     /// <summary>
     ///     Occurs when [on new buffer created].
@@ -179,8 +179,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// </summary>
     public event EventHandler<EventArgs> DeviceLost;
 
-    private void CreateNonMSAADepthStencilBuffer(int width, int height) {
-        if (HasMSAA) {
+    private void CreateNonMsaaDepthStencilBuffer(int width, int height) {
+        if (HasMsaa) {
             var depthFormat = Format.FormatD32FloatS8X24Uint;
             var depthdesc = new Texture2DDescription {
                 BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource,
@@ -194,33 +194,33 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
                 CpuAccessFlags = CpuAccessFlags.None,
                 ArraySize = 1
             };
-            depthStencilBufferNoMSAA = new ShaderResourceViewProxy(DeviceResources, depthdesc);
-            depthStencilBufferNoMSAA.CreateDepthStencilView(new DepthStencilViewDescription {
-                Format = depthFormat.ComputeDSVFormat(),
+            depthStencilBufferNoMsaa = new ShaderResourceViewProxy(DeviceResources, depthdesc);
+            depthStencilBufferNoMsaa.CreateDepthStencilView(new DepthStencilViewDescription {
+                Format = depthFormat.ComputeDsvFormat(),
                 Dimension = DepthStencilViewDimension.Texture2D
             });
-            depthStencilBufferNoMSAA.CreateTextureView(new ShaderResourceViewDescription {
-                Format = depthFormat.ComputeSRVFormat(),
+            depthStencilBufferNoMsaa.CreateTextureView(new ShaderResourceViewDescription {
+                Format = depthFormat.ComputeSrvFormat(),
                 Dimension = ShaderResourceViewDimension.Texture2D,
                 Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = 1 }
             });
         } else {
-            depthStencilBufferNoMSAA = depthStencilBuffer;
+            depthStencilBufferNoMsaa = depthStencilBuffer;
         }
     }
 
-    private ShaderResourceViewProxy CreateRenderTarget(int width, int height, MSAALevel msaa) {
-        MSAA = msaa;
+    private ShaderResourceViewProxy CreateRenderTarget(int width, int height, MsaaLevel msaa) {
+        Msaa = msaa;
         TargetWidth = width;
         TargetHeight = height;
         DisposeBuffers();
-        ColorBufferSampleDesc = GetMSAASampleDescription();
+        ColorBufferSampleDesc = GetMsaaSampleDescription();
         OnCreateRenderTargetAndDepthBuffers(width,
                                             height,
                                             UseDepthStencilBuffer,
                                             out colorBuffer,
                                             out depthStencilBuffer);
-        CreateNonMSAADepthStencilBuffer(width, height);
+        CreateNonMsaaDepthStencilBuffer(width, height);
         backBuffer = OnCreateBackBuffer(width, height);
         backBuffer.CreateRenderTargetView();
 
@@ -236,7 +236,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     }
 
     private void InitializeTexturePools(int width, int height) {
-        fullResPPBuffer = new PingPongColorBuffers(Format, width, height, DeviceResources);
+        fullResPpBuffer = new PingPongColorBuffers(Format, width, height, DeviceResources);
         fullResDepthStencilPool = new TexturePool(DeviceResources,
                                                   new Texture2DDescription {
                                                       Width = width,
@@ -320,7 +320,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     }
 
     private void DisposeTexturePools() {
-        RemoveAndDispose(ref fullResPPBuffer);
+        RemoveAndDispose(ref fullResPpBuffer);
         RemoveAndDispose(ref fullResDepthStencilPool);
         RemoveAndDispose(ref fullResRenderTargetPool);
         RemoveAndDispose(ref halfResDepthStencilPool);
@@ -338,16 +338,16 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         RemoveAndDispose(ref d2dTarget);
         RemoveAndDispose(ref colorBuffer);
         RemoveAndDispose(ref depthStencilBuffer);
-        RemoveAndDispose(ref depthStencilBufferNoMSAA);
+        RemoveAndDispose(ref depthStencilBufferNoMsaa);
         RemoveAndDispose(ref backBuffer);
     }
 
     protected abstract ShaderResourceViewProxy OnCreateBackBuffer(int width, int height);
 
-    protected virtual SampleDescription GetMSAASampleDescription() {
+    protected virtual SampleDescription GetMsaaSampleDescription() {
         var sampleCount = 1;
         var sampleQuality = 0;
-        if (MSAA != MSAALevel.Disable)
+        if (Msaa != MsaaLevel.Disable)
             do {
                 var newSampleCount = sampleCount * 2;
                 var newSampleQuality =
@@ -358,7 +358,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
 
                 sampleCount = newSampleCount;
                 sampleQuality = newSampleQuality;
-                if (sampleCount == (int)MSAA) break;
+                if (sampleCount == (int)Msaa) break;
             } while (sampleCount < 32);
         return new SampleDescription(sampleCount, sampleQuality);
     }
@@ -410,18 +410,18 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
                 CpuAccessFlags = CpuAccessFlags.None,
                 ArraySize = 1
             };
-            canUseAsShaderResource &= !HasMSAA;
+            canUseAsShaderResource &= !HasMsaa;
             if (canUseAsShaderResource) depthdesc.BindFlags |= BindFlags.ShaderResource;
             depthStencilBuffer = new ShaderResourceViewProxy(DeviceResources, depthdesc);
             depthStencilBuffer.CreateDepthStencilView(new DepthStencilViewDescription {
-                Format = depthdesc.Format.ComputeDSVFormat(),
-                Dimension = HasMSAA
+                Format = depthdesc.Format.ComputeDsvFormat(),
+                Dimension = HasMsaa
                                 ? DepthStencilViewDimension.Texture2DMultisampled
                                 : DepthStencilViewDimension.Texture2D
             });
             if (canUseAsShaderResource)
                 depthStencilBuffer.CreateTextureView(new ShaderResourceViewDescription {
-                    Format = depthdesc.Format.ComputeSRVFormat(),
+                    Format = depthdesc.Format.ComputeSrvFormat(),
                     Dimension = ShaderResourceViewDimension.Texture2D,
                     Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = depthdesc.MipLevels }
                 });
@@ -485,7 +485,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="height">The height.</param>
     /// <param name="msaa">The msaa.</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Initialize(int width, int height, MSAALevel msaa) {
+    public ShaderResourceViewProxy Initialize(int width, int height, MsaaLevel msaa) {
         return CreateRenderTarget(width, height, msaa);
     }
 
@@ -496,7 +496,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="height"></param>
     /// <returns></returns>
     public virtual ShaderResourceViewProxy Resize(int width, int height) {
-        return CreateRenderTarget(width, height, MSAA);
+        return CreateRenderTarget(width, height, Msaa);
     }
 
     /// <summary>
@@ -553,8 +553,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
 
     #region Offscreen Texture Pools
 
-    private PingPongColorBuffers fullResPPBuffer;
-    public PingPongColorBuffers FullResPPBuffer => fullResPPBuffer;
+    private PingPongColorBuffers fullResPpBuffer;
+    public PingPongColorBuffers FullResPpBuffer => fullResPpBuffer;
 
     private TexturePool fullResDepthStencilPool;
     public TexturePool FullResDepthStencilPool => fullResDepthStencilPool;

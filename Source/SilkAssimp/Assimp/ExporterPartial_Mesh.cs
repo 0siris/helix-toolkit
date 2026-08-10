@@ -17,8 +17,8 @@ public partial class Exporter {
     /// <param name="node">The node.</param>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected virtual bool GetGeometryFromNode(Model.Scene.SceneNode node, out Geometry3D geometry) {
-        if (node is Model.Scene.GeometryNode geo) {
+    protected virtual bool GetGeometryFromNode(SceneNode node, out Geometry3D geometry) {
+        if (node is GeometryNode geo) {
             geometry = geo.Geometry;
             return true;
         }
@@ -33,24 +33,24 @@ public partial class Exporter {
     /// </summary>
     /// <param name="geoNode">The geo node.</param>
     /// <returns></returns>
-    private MeshInfo OnCreateMeshInfo(Model.Scene.GeometryNode geoNode) {
+    private MeshInfo OnCreateMeshInfo(GeometryNode geoNode) {
         MeshInfo info = null;
-        if (geoNode is Model.Scene.MaterialGeometryNode materialNode && materialNode.Material != null) {
+        if (geoNode is MaterialGeometryNode materialNode && materialNode.Material != null) {
             var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
             if (!meshInfos.TryGetValue(key, out var existing))
                 info = new MeshInfo(key, geoNode.Geometry, geoNode.Name, geoIndex, materialIndex);
             else
                 info = existing;
-            if (info != null && info.Bones == null && materialNode is Model.Scene.BoneSkinMeshNode boneNode)
+            if (info != null && info.Bones == null && materialNode is BoneSkinMeshNode boneNode)
                 info.Bones = boneNode.Bones;
         }
 
         return info;
     }
 
-    private ulong GetMaterialGeoKey(Model.Scene.GeometryNode node, out int materialIndex, out int geoIndex) {
+    private ulong GetMaterialGeoKey(GeometryNode node, out int materialIndex, out int geoIndex) {
         if (geometryCollection.TryGetValue(node.Geometry, out geoIndex)) {
-            if (node is Model.Scene.MaterialGeometryNode materialNode && materialNode.Material != null
+            if (node is MaterialGeometryNode materialNode && materialNode.Material != null
                                                                       && materialCollection.TryGetValue(
                                                                           materialNode.Material,
                                                                           out materialIndex))

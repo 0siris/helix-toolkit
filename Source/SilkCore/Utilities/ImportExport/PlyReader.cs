@@ -41,7 +41,7 @@ public class PlyReader : ModelReader {
     /// <returns>The model.</returns>
     public Mesh3DGroup Read(string path) {
         InitializeProperties();
-        plymodelURI = path;
+        plymodelUri = path;
         Load(path);
         using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         return Read(s);
@@ -142,12 +142,12 @@ public class PlyReader : ModelReader {
                 var initarr = lineTxt.Split(' ');
                 if (initarr[0] == "format") {
                     if (initarr[1] == "ascii")
-                        modelFormat = PlyFormatTypes.ascii;
+                        modelFormat = PlyFormatTypes.Ascii;
 
                     else if (initarr[1] == "binary_big_endian")
-                        modelFormat = PlyFormatTypes.binary_big_endian;
+                        modelFormat = PlyFormatTypes.BinaryBigEndian;
 
-                    else if (initarr[1] == "binary_little_endian") modelFormat = PlyFormatTypes.binary_little_endian;
+                    else if (initarr[1] == "binary_little_endian") modelFormat = PlyFormatTypes.BinaryLittleEndian;
                 } else {
                     continue;
                 }
@@ -159,9 +159,9 @@ public class PlyReader : ModelReader {
         #region MyRegion
 
         switch (modelFormat) {
-            case PlyFormatTypes.ascii: {
-                    if (plymodelURI.Length > 6)
-                        using (var fs = new FileStream(plymodelURI, FileMode.Open, FileAccess.Read)) {
+            case PlyFormatTypes.Ascii: {
+                    if (plymodelUri.Length > 6)
+                        using (var fs = new FileStream(plymodelUri, FileMode.Open, FileAccess.Read)) {
                             Load_ascii(fs);
                         }
 
@@ -169,16 +169,16 @@ public class PlyReader : ModelReader {
                     break;
                 }
 
-            case PlyFormatTypes.binary_big_endian: {
-                    if (plymodelURI.Length > 6)
-                        using (var fs = new FileStream(plymodelURI, FileMode.Open, FileAccess.Read)) {
+            case PlyFormatTypes.BinaryBigEndian: {
+                    if (plymodelUri.Length > 6)
+                        using (var fs = new FileStream(plymodelUri, FileMode.Open, FileAccess.Read)) {
                             Load_binaryBE(fs);
                         }
 
                     break;
                 }
 
-            case PlyFormatTypes.binary_little_endian: {
+            case PlyFormatTypes.BinaryLittleEndian: {
                     break;
                 }
         }
@@ -188,7 +188,7 @@ public class PlyReader : ModelReader {
 
     public void Load(string filepath) {
         InitializeProperties();
-        plymodelURI = filepath;
+        plymodelUri = filepath;
         using var fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         Load(fs);
     }
@@ -237,7 +237,7 @@ public class PlyReader : ModelReader {
     /// <summary>
     ///     Stores the type of ply format in the <see cref="Stream" />.
     /// </summary>
-    private PlyFormatTypes modelFormat = PlyFormatTypes.ascii;
+    private PlyFormatTypes modelFormat = PlyFormatTypes.Ascii;
 
     /// <summary>
     ///     Tells us what the current element in the header is,
@@ -246,12 +246,12 @@ public class PlyReader : ModelReader {
     /// <remarks>
     ///     Only useful in reading the ply header.
     /// </remarks>
-    private PlyElements currentElement = PlyElements.none;
+    private PlyElements currentElement = PlyElements.None;
 
     /// <summary>
     ///     The line containing data about an element(It starts just after the "end_header" statement).
     /// </summary>
-    private int elementLine_Current;
+    private int elementLineCurrent;
 
     /* A cummulative sum of each element count in the current ply model.
      * This helps to provide a range of the element position as we move through the ascii Ply file.
@@ -260,10 +260,10 @@ public class PlyReader : ModelReader {
     /// <summary>
     ///     Gets the number of lines that contains element data.
     /// </summary>
-    private int elementLines_Count;
+    private int elementLinesCount;
 
-    private string plymodelURI = "";
-    private Dictionary<string, PLYElement> elements_range = [];
+    private string plymodelUri = "";
+    private Dictionary<string, PlyElement> elementsRange = [];
 
     #endregion
 
@@ -276,23 +276,23 @@ public class PlyReader : ModelReader {
         /// <summary>
         ///     ASCII ply format.
         /// </summary>
-        ascii,
+        Ascii,
 
         /// <summary>
         ///     Binary big endian ply format.
         /// </summary>
-        binary_big_endian,
+        BinaryBigEndian,
 
         /// <summary>
         ///     Binary little endian ply format.
         /// </summary>
-        binary_little_endian,
+        BinaryLittleEndian,
 
 
         /// <summary>
         ///     An unrecognized format.
         /// </summary>
-        none
+        None
     }
 
     /// <summary>
@@ -302,27 +302,27 @@ public class PlyReader : ModelReader {
         /// <summary>
         ///     The vertex ply element.
         /// </summary>
-        vertex,
+        Vertex,
 
         /// <summary>
         ///     The face ply element.
         /// </summary>
-        face,
+        Face,
 
         /// <summary>
         ///     An unrecognized element.
         /// </summary>
-        none
+        None
     }
 
     /// <summary>
     ///     A class that attempts to define ply elements.
     /// </summary>
-    private class PLYElement {
+    private class PlyElement {
         /// <summary>
         ///     Stores the property string with its index.
         /// </summary>
-        public readonly Dictionary<string, int> Property_with_Index = [];
+        public readonly Dictionary<string, int> PropertyWithIndex = [];
 
         public int PropertyIndex;
 
@@ -333,18 +333,18 @@ public class PlyReader : ModelReader {
         /// <param name="_y2">The upper or end range.</param>
         /// <param name="hasNormals"></param>
         /// <param name="hasTextures"></param>
-        public PLYElement(int _y1 = 0, int _y2 = 1, bool hasNormals = false, bool hasTextures = false) {
+        public PlyElement(int y1 = 0, int y2 = 1, bool hasNormals = false, bool hasTextures = false) {
             PropertyIndex = 0;
-            Property_with_Index = [];
-            StartRange = _y1;
-            EndRange = _y2;
+            PropertyWithIndex = [];
+            StartRange = y1;
+            EndRange = y2;
             ContainsNormals = hasNormals;
             ContainsTextureCoordinates = hasTextures;
             ElementCount = EndRange - StartRange;
         }
 
         /// <summary>
-        ///     Returns a value specifying whether the index: <paramref name="num" /> is in this <see cref="PLYElement" /> range.
+        ///     Returns a value specifying whether the index: <paramref name="num" /> is in this <see cref="PlyElement" /> range.
         /// </summary>
         /// <param name="num">The index.</param>
         /// <returns></returns>
@@ -414,11 +414,11 @@ public class PlyReader : ModelReader {
 
         #region private:
 
-        modelFormat = PlyFormatTypes.none;
-        currentElement = PlyElements.none;
-        elementLine_Current = 0;
-        elementLines_Count = 0;
-        elements_range = [];
+        modelFormat = PlyFormatTypes.None;
+        currentElement = PlyElements.None;
+        elementLineCurrent = 0;
+        elementLinesCount = 0;
+        elementsRange = [];
 
         #endregion
     }
@@ -456,25 +456,25 @@ public class PlyReader : ModelReader {
                 if (strarr[1] == "vertex") {
                     VerticesNumber = int.Parse(strarr[2]);
                     //Add the vertex element to the dictionary, including its contextual range
-                    elements_range.Add("vertex",
-                                       new PLYElement(elementLines_Count + 1, elementLines_Count + VerticesNumber));
-                    elementLines_Count += int.Parse(strarr[2]);
+                    elementsRange.Add("vertex",
+                                       new PlyElement(elementLinesCount + 1, elementLinesCount + VerticesNumber));
+                    elementLinesCount += int.Parse(strarr[2]);
                     //set the current element as a "vertex"element
-                    currentElement = PlyElements.vertex;
+                    currentElement = PlyElements.Vertex;
                 } else if (strarr[1] == "face") {
                     FacesNumber = int.Parse(strarr[2]);
 
-                    elements_range.Add("face",
-                                       new PLYElement(elementLines_Count + 1, elementLines_Count + FacesNumber));
-                    elementLines_Count += int.Parse(strarr[2]);
-                    currentElement = PlyElements.face;
+                    elementsRange.Add("face",
+                                       new PlyElement(elementLinesCount + 1, elementLinesCount + FacesNumber));
+                    elementLinesCount += int.Parse(strarr[2]);
+                    currentElement = PlyElements.Face;
                 } else {
                     var miscElementNumber = int.Parse(strarr[2]);
 
-                    elements_range.Add(strarr[1],
-                                       new PLYElement(elementLines_Count, elementLines_Count + miscElementNumber));
-                    elementLines_Count += int.Parse(strarr[2]);
-                    currentElement = PlyElements.none;
+                    elementsRange.Add(strarr[1],
+                                       new PlyElement(elementLinesCount, elementLinesCount + miscElementNumber));
+                    elementLinesCount += int.Parse(strarr[2]);
+                    currentElement = PlyElements.None;
                 }
             }
 
@@ -483,20 +483,20 @@ public class PlyReader : ModelReader {
                 //Ignore the numerical data type for now
 
                 switch (currentElement) {
-                    case PlyElements.vertex: {
-                            var propInd = elements_range["vertex"].PropertyIndex;
-                            elements_range["vertex"].Property_with_Index.Add(strarr[2], propInd);
+                    case PlyElements.Vertex: {
+                            var propInd = elementsRange["vertex"].PropertyIndex;
+                            elementsRange["vertex"].PropertyWithIndex.Add(strarr[2], propInd);
                             //Increase the property index if there's an element which has/hasn't been supported.
-                            elements_range["vertex"].PropertyIndex += 1;
+                            elementsRange["vertex"].PropertyIndex += 1;
                             if (strarr[2] == "nx" || strarr[2] == "ny" || strarr[2] == "nz")
-                                elements_range["vertex"].ContainsNormals = true;
+                                elementsRange["vertex"].ContainsNormals = true;
                             else if (strarr[2] == "s" || strarr[2] == "t")
-                                elements_range["vertex"].ContainsTextureCoordinates = true;
+                                elementsRange["vertex"].ContainsTextureCoordinates = true;
 
                             break;
                         }
 
-                    case PlyElements.face: {
+                    case PlyElements.Face: {
                             //nothing to do yet
 
                             break;
@@ -504,7 +504,7 @@ public class PlyReader : ModelReader {
                 }
             } else if (strarr[0] == "end_header") {
                 //end info, begin number collection.
-                elementLine_Current = 0;
+                elementLineCurrent = 0;
             }
 
             #endregion
@@ -514,47 +514,47 @@ public class PlyReader : ModelReader {
              * The picking occurs if the first character in the string indicates a number follows.
              */
             else if (IsDigitChar(strarr[0][0])) {
-                elementLine_Current++;
-                if (elements_range.ContainsKey("vertex"))
-                    if (elements_range["vertex"].ContainsNumber(elementLine_Current)) {
+                elementLineCurrent++;
+                if (elementsRange.ContainsKey("vertex"))
+                    if (elementsRange["vertex"].ContainsNumber(elementLineCurrent)) {
                         //Get vertices
-                        var x_Indx = elements_range["vertex"].Property_with_Index["x"];
-                        var y_Indx = elements_range["vertex"].Property_with_Index["y"];
-                        var z_Indx = elements_range["vertex"].Property_with_Index["z"];
+                        var xIndx = elementsRange["vertex"].PropertyWithIndex["x"];
+                        var yIndx = elementsRange["vertex"].PropertyWithIndex["y"];
+                        var zIndx = elementsRange["vertex"].PropertyWithIndex["z"];
                         var pt = new Vector3 {
-                            X = float.Parse(strarr[x_Indx]),
-                            Y = float.Parse(strarr[y_Indx]),
-                            Z = float.Parse(strarr[z_Indx])
+                            X = float.Parse(strarr[xIndx]),
+                            Y = float.Parse(strarr[yIndx]),
+                            Z = float.Parse(strarr[zIndx])
                         };
                         Vertices.Add(pt);
 
-                        if (elements_range["vertex"].ContainsNormals) {
-                            var nx_Indx = elements_range["vertex"].Property_with_Index["nx"];
-                            var ny_Indx = elements_range["vertex"].Property_with_Index["ny"];
-                            var nz_Indx = elements_range["vertex"].Property_with_Index["nz"];
+                        if (elementsRange["vertex"].ContainsNormals) {
+                            var nxIndx = elementsRange["vertex"].PropertyWithIndex["nx"];
+                            var nyIndx = elementsRange["vertex"].PropertyWithIndex["ny"];
+                            var nzIndx = elementsRange["vertex"].PropertyWithIndex["nz"];
 
-                            var vect3d = new Vector3 {
-                                X = float.Parse(strarr[nx_Indx]),
-                                Y = float.Parse(strarr[ny_Indx]),
-                                Z = float.Parse(strarr[nz_Indx])
+                            var vect3D = new Vector3 {
+                                X = float.Parse(strarr[nxIndx]),
+                                Y = float.Parse(strarr[nyIndx]),
+                                Z = float.Parse(strarr[nzIndx])
                             };
-                            Normals.Add(vect3d);
+                            Normals.Add(vect3D);
                         }
 
-                        if (elements_range["vertex"].ContainsTextureCoordinates) {
-                            var s_Indx = elements_range["vertex"].Property_with_Index["s"];
-                            var t_Indx = elements_range["vertex"].Property_with_Index["t"];
+                        if (elementsRange["vertex"].ContainsTextureCoordinates) {
+                            var sIndx = elementsRange["vertex"].PropertyWithIndex["s"];
+                            var tIndx = elementsRange["vertex"].PropertyWithIndex["t"];
 
                             var texpt = new Vector2 {
-                                X = float.Parse(strarr[s_Indx]),
-                                Y = float.Parse(strarr[t_Indx])
+                                X = float.Parse(strarr[sIndx]),
+                                Y = float.Parse(strarr[tIndx])
                             };
                             TextureCoordinates.Add(texpt);
                         }
                     }
 
-                if (elements_range.ContainsKey("face"))
-                    if (elements_range["face"].ContainsNumber(elementLine_Current)) {
+                if (elementsRange.ContainsKey("face"))
+                    if (elementsRange["face"].ContainsNumber(elementLineCurrent)) {
                         var facepos = new List<int>();
                         for (var i = 1; i <= int.Parse(strarr[0]); i++) facepos.Add(int.Parse(strarr[i]));
                         Faces.Add([.. facepos]);
@@ -592,23 +592,23 @@ public class PlyReader : ModelReader {
                         VerticesNumber = int.Parse(strarr[2]);
 
                         //Add the vertex element to the dictionary, including its contextual range
-                        elements_range.Add("vertex",
-                                           new PLYElement(elementLines_Count, elementLines_Count + VerticesNumber));
-                        elementLines_Count += int.Parse(strarr[2]);
-                        currentElement = PlyElements.vertex;
+                        elementsRange.Add("vertex",
+                                           new PlyElement(elementLinesCount, elementLinesCount + VerticesNumber));
+                        elementLinesCount += int.Parse(strarr[2]);
+                        currentElement = PlyElements.Vertex;
                     } else if (strarr[1] == "face") {
                         FacesNumber = int.Parse(strarr[2]);
 
-                        elements_range.Add("face",
-                                           new PLYElement(elementLines_Count, elementLines_Count + FacesNumber));
-                        elementLines_Count += int.Parse(strarr[2]);
-                        currentElement = PlyElements.face;
+                        elementsRange.Add("face",
+                                           new PlyElement(elementLinesCount, elementLinesCount + FacesNumber));
+                        elementLinesCount += int.Parse(strarr[2]);
+                        currentElement = PlyElements.Face;
                     } else {
                         var miscElementNumber = int.Parse(strarr[2]);
 
-                        elements_range.Add(strarr[1],
-                                           new PLYElement(elementLines_Count, elementLines_Count + miscElementNumber));
-                        elementLines_Count += int.Parse(strarr[2]);
+                        elementsRange.Add(strarr[1],
+                                           new PlyElement(elementLinesCount, elementLinesCount + miscElementNumber));
+                        elementLinesCount += int.Parse(strarr[2]);
                     }
                 }
 
@@ -616,18 +616,18 @@ public class PlyReader : ModelReader {
                 if (strarr[0] == "property")
                     //Ignore the numerical data type for now
                     switch (currentElement) {
-                        case PlyElements.vertex: {
+                        case PlyElements.Vertex: {
                                 if (strarr[2] == "nx" || strarr[2] == "ny" || strarr[2] == "nz")
-                                    elements_range["vertex"].ContainsNormals = true;
+                                    elementsRange["vertex"].ContainsNormals = true;
 
-                                var propInd = elements_range["vertex"].PropertyIndex;
-                                elements_range["vertex"].Property_with_Index.Add(strarr[2], propInd);
+                                var propInd = elementsRange["vertex"].PropertyIndex;
+                                elementsRange["vertex"].PropertyWithIndex.Add(strarr[2], propInd);
                                 //Increase the property index if there's an element which has/hasn't been supported.
-                                elements_range["vertex"].PropertyIndex += 1;
+                                elementsRange["vertex"].PropertyIndex += 1;
                                 break;
                             }
 
-                        case PlyElements.face: {
+                        case PlyElements.Face: {
                                 //nothing to do yet
                                 break;
                             }
@@ -635,46 +635,46 @@ public class PlyReader : ModelReader {
 
                 if (strarr[0] == "end_header")
                     //end info, begin number collection.
-                    elementLine_Current = 0;
+                    elementLineCurrent = 0;
 
                 /* We pick the elements and its properties by checking whether the current
                  * element line is contained in the element range.
                  */
-                if (elements_range["vertex"].ContainsNumber(elementLine_Current)) {
+                if (elementsRange["vertex"].ContainsNumber(elementLineCurrent)) {
                     //Get vertices
-                    var x_Indx = elements_range["vertex"].Property_with_Index["x"];
-                    var y_Indx = elements_range["vertex"].Property_with_Index["y"];
-                    var z_Indx = elements_range["vertex"].Property_with_Index["z"];
+                    var xIndx = elementsRange["vertex"].PropertyWithIndex["x"];
+                    var yIndx = elementsRange["vertex"].PropertyWithIndex["y"];
+                    var zIndx = elementsRange["vertex"].PropertyWithIndex["z"];
                     var pt = new Vector3 {
-                        X = float.Parse(strarr[x_Indx]),
-                        Y = float.Parse(strarr[y_Indx]),
-                        Z = float.Parse(strarr[z_Indx])
+                        X = float.Parse(strarr[xIndx]),
+                        Y = float.Parse(strarr[yIndx]),
+                        Z = float.Parse(strarr[zIndx])
                     };
                     Vertices.Add(pt);
 
-                    if (elements_range["vertex"].ContainsNormals) {
-                        var nx_Indx = elements_range["vertex"].Property_with_Index["nx"];
-                        var ny_Indx = elements_range["vertex"].Property_with_Index["ny"];
-                        var nz_Indx = elements_range["vertex"].Property_with_Index["nz"];
+                    if (elementsRange["vertex"].ContainsNormals) {
+                        var nxIndx = elementsRange["vertex"].PropertyWithIndex["nx"];
+                        var nyIndx = elementsRange["vertex"].PropertyWithIndex["ny"];
+                        var nzIndx = elementsRange["vertex"].PropertyWithIndex["nz"];
 
                         var vect3 = new Vector3 {
-                            X = float.Parse(strarr[nx_Indx]),
-                            Y = float.Parse(strarr[ny_Indx]),
-                            Z = float.Parse(strarr[nz_Indx])
+                            X = float.Parse(strarr[nxIndx]),
+                            Y = float.Parse(strarr[nyIndx]),
+                            Z = float.Parse(strarr[nzIndx])
                         };
                     }
 
-                    if (elements_range["vertex"].ContainsTextureCoordinates) { }
+                    if (elementsRange["vertex"].ContainsTextureCoordinates) { }
                 }
 
-                if (elements_range["face"].ContainsNumber(elementLine_Current)) {
+                if (elementsRange["face"].ContainsNumber(elementLineCurrent)) {
                     var facepos = new List<int>();
                     for (var i = 1; i <= int.Parse(strarr[0]); i++) facepos.Add(int.Parse(strarr[i]));
                     Faces.Add([.. facepos]);
                 }
 
 
-                elementLine_Current++;
+                elementLineCurrent++;
             }
         }
 

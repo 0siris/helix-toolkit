@@ -8,7 +8,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
-public interface IAttachableBufferModel : IGUID, IDisposable {
+public interface IAttachableBufferModel : IGuid, IDisposable {
     /// <summary>
     ///     Gets or sets the topology.
     /// </summary>

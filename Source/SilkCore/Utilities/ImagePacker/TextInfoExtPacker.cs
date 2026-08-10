@@ -68,7 +68,7 @@ public sealed class TextInfoExtPacker : SpritePackerBase<TextInfoExt, TextLayout
     protected override KeyValuePair<int, TextLayoutInfo>[] GetArray(IEnumerable<TextInfoExt> items) {
         return [.. items.Select((x, i) => {
             var textLayout = x.Text
-                              .GetTextLayoutMetrices(deviceRes2D,
+                              .GetTextLayoutMetrices(DeviceRes2D,
                                                      x.Size,
                                                      x.FontFamily,
                                                      x.FontWeight,

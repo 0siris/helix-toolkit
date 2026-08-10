@@ -103,7 +103,7 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
         renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
         renderBound.Height = metrices.Height;
         context.DeviceContext.Transform =
-            Matrix3x2.Translation((float)context.ActualWidth - renderBound.Width, 0);
+            Matrix3X2.Translation((float)context.ActualWidth - renderBound.Width, 0);
         context.DeviceContext.FillRectangle(renderBound, Background);
         context.DeviceContext.DrawTextLayout(Vector2.Zero, TextLayout, Foreground);
     }

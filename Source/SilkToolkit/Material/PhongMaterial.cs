@@ -402,12 +402,12 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UVTransformProperty =
         DependencyProperty.Register("UVTransform",
-                                    typeof(UVTransform),
+                                    typeof(UvTransform),
                                     typeof(PhongMaterial),
-                                    new PropertyMetadata(UVTransform.Identity,
+                                    new PropertyMetadata(UvTransform.Identity,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).UVTransform =
-                                                                 (UVTransform)e.NewValue;
+                                                             ((d as Material).Core as PhongMaterialCore).UvTransform =
+                                                                 (UvTransform)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
@@ -461,7 +461,7 @@ public class PhongMaterial : Material {
         RenderSpecularColorMap = core.RenderSpecularColorMap;
         RenderEmissiveMap = core.RenderEmissiveMap;
         EnableAutoTangent = core.EnableAutoTangent;
-        UVTransform = core.UVTransform;
+        UVTransform = core.UvTransform;
         EnableFlatShading = core.EnableFlatShading;
         VertexColorBlendingFactor = core.VertexColorBlendingFactor;
     }
@@ -734,8 +734,8 @@ public class PhongMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
-        get => (UVTransform)GetValue(UVTransformProperty);
+    public UvTransform UVTransform {
+        get => (UvTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -825,7 +825,7 @@ public class PhongMaterial : Material {
             RenderSpecularColorMap = RenderSpecularColorMap,
             RenderEmissiveMap = RenderEmissiveMap,
             EnableAutoTangent = EnableAutoTangent,
-            UVTransform = UVTransform,
+            UvTransform = UVTransform,
             EnableFlatShading = EnableFlatShading,
             VertexColorBlendingFactor = (float)VertexColorBlendingFactor
         };

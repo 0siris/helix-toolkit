@@ -179,8 +179,8 @@ public abstract class ProjectionCameraCore : CameraCore {
 
     public override Matrix CreateViewMatrix() {
         return CreateLeftHandSystem
-                   ? SilkMath.LookAtLH(Position, Position + LookDirection, UpDirection)
-                   : SilkMath.LookAtRH(Position, Position + LookDirection, UpDirection);
+                   ? SilkMath.LookAtLh(Position, Position + LookDirection, UpDirection)
+                   : SilkMath.LookAtRh(Position, Position + LookDirection, UpDirection);
     }
 
     public override string ToString() {
@@ -203,7 +203,7 @@ public class OrthographicCameraCore : ProjectionCameraCore {
     public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
         return new FrustumCameraParams {
             AspectRatio = aspectRatio,
-            FOV = (float)Math.PI / 2,
+            Fov = (float)Math.PI / 2,
             LookAtDir = LookDirection,
             UpDir = UpDirection,
             Position = Position,
@@ -218,8 +218,8 @@ public class OrthographicCameraCore : ProjectionCameraCore {
 
     public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane) {
         return CreateLeftHandSystem
-                   ? SilkMath.OrthoLH(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane))
-                   : SilkMath.OrthoRH(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane));
+                   ? SilkMath.OrthoLh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane))
+                   : SilkMath.OrthoRh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane));
     }
 
 
@@ -287,9 +287,9 @@ public class PerspectiveCameraCore : ProjectionCameraCore {
         var fov = FieldOfView * Math.PI / 180;
         Matrix projM;
         if (CreateLeftHandSystem)
-            projM = SilkMath.PerspectiveFovLH((float)fov, aspectRatio, nearPlane, farPlane);
+            projM = SilkMath.PerspectiveFovLh((float)fov, aspectRatio, nearPlane, farPlane);
         else
-            projM = SilkMath.PerspectiveFovRH((float)fov, aspectRatio, nearPlane, farPlane);
+            projM = SilkMath.PerspectiveFovRh((float)fov, aspectRatio, nearPlane, farPlane);
         if (float.IsNaN(projM.M33) || float.IsNaN(projM.M43)) projM.M33 = projM.M43 = -1;
         return projM;
     }
@@ -301,7 +301,7 @@ public class PerspectiveCameraCore : ProjectionCameraCore {
     public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
         return new FrustumCameraParams {
             AspectRatio = aspectRatio,
-            FOV = FieldOfView / 180f * (float)Math.PI,
+            Fov = FieldOfView / 180f * (float)Math.PI,
             LookAtDir = LookDirection,
             UpDir = UpDirection,
             Position = Position,

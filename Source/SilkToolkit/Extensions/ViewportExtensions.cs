@@ -36,7 +36,7 @@ public static class ViewportExtensions {
     /// <returns>The total number of triangles</returns>
     public static int GetTotalNumberOfTriangles(this Viewport3DX viewport) {
         var count = 0;
-        var totalModel = viewport.Renderables.PreorderDFT(x => {
+        var totalModel = viewport.Renderables.PreorderDft(x => {
             if (x is GeometryNode g)
                 if (g.Visible && g.Geometry != null && g.Geometry.Indices != null)
                     count += g.Geometry.Indices.Count / 3;
@@ -116,7 +116,7 @@ public static class ViewportExtensions {
     ///     The action.
     /// </param>
     public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D {
-        viewport.Renderables.PreorderDFT(node => {
+        viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T element) action(element, element.Transform);
             return true;
         });
@@ -129,7 +129,7 @@ public static class ViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
     public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Element3D {
-        viewport.Renderables.PreorderDFT(node => {
+        viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T element) return function(element);
             return true;
         });
@@ -340,7 +340,7 @@ public static class ViewportExtensions {
             if (view.RenderHost != null && view.RenderHost.IsRendering) {
                 if (view.EnableSwapChainRendering) view.RenderHost.UpdateAndRender();
                 // be sure to render the Scene before capture, otherwise the image is just black
-                ScreenCapture.SaveWICTextureToBitmapStream(view.RenderHost.EffectsManager,
+                ScreenCapture.SaveWicTextureToBitmapStream(view.RenderHost.EffectsManager,
                                                            view.RenderHost.RenderBuffer.BackBuffer
                                                                .Resource as Texture2D,
                                                            memoryStream);
@@ -437,7 +437,7 @@ public static class ViewportExtensions {
 
         if (view.RenderHost != null && view.RenderHost.IsRendering) {
             view.RenderHost.UpdateAndRender();
-            ScreenCapture.SaveWICTextureToFile(view.RenderHost.EffectsManager,
+            ScreenCapture.SaveWicTextureToFile(view.RenderHost.EffectsManager,
                                                view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D,
                                                fileName,
                                                format);

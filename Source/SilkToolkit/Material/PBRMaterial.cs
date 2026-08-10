@@ -22,7 +22,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata((Color4)Color.White,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).AlbedoColor =
+                                                             ((d as Material).Core as PbrMaterialCore).AlbedoColor =
                                                                  (Color4)e.NewValue;
                                                          }));
 
@@ -35,7 +35,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata((Color4)Color.Black,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).EmissiveColor =
+                                                             ((d as Material).Core as PbrMaterialCore).EmissiveColor =
                                                                  (Color4)e.NewValue;
                                                          }));
 
@@ -47,7 +47,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).MetallicFactor =
+                                                             ((d as Material).Core as PbrMaterialCore).MetallicFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -59,7 +59,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).RoughnessFactor =
+                                                             ((d as Material).Core as PbrMaterialCore).RoughnessFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -71,7 +71,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .AmbientOcclusionFactor = (float)(double)e.NewValue;
                                                          }));
 
@@ -83,7 +83,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .ReflectanceFactor = (float)(double)e.NewValue;
                                                          }));
 
@@ -95,7 +95,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .ClearCoatStrength = (float)(double)e.NewValue;
                                                          }));
 
@@ -107,7 +107,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .ClearCoatRoughness = (float)(double)e.NewValue;
                                                          }));
 
@@ -119,7 +119,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).AlbedoMap =
+                                                             ((d as Material).Core as PbrMaterialCore).AlbedoMap =
                                                                  e.NewValue as TextureModel;
                                                          }));
 
@@ -131,7 +131,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).EmissiveMap =
+                                                             ((d as Material).Core as PbrMaterialCore).EmissiveMap =
                                                                  e.NewValue as TextureModel;
                                                          }));
 
@@ -146,7 +146,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RoughnessMetallicMap = e.NewValue as TextureModel;
                                                          }));
 
@@ -161,7 +161,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .AmbientOcculsionMap = e.NewValue as TextureModel;
                                                          }));
 
@@ -173,7 +173,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).NormalMap =
+                                                             ((d as Material).Core as PbrMaterialCore).NormalMap =
                                                                  e.NewValue as TextureModel;
                                                          }));
 
@@ -185,7 +185,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).DisplacementMap =
+                                                             ((d as Material).Core as PbrMaterialCore).DisplacementMap =
                                                                  e.NewValue as TextureModel;
                                                          }));
 
@@ -197,7 +197,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).IrradianceMap =
+                                                             ((d as Material).Core as PbrMaterialCore).IrradianceMap =
                                                                  e.NewValue as TextureModel;
                                                          }));
 
@@ -209,7 +209,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(new Vector4(0, 0, 0, 1),
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .DisplacementMapScaleMask = (Vector4)e.NewValue;
                                                          }));
 
@@ -221,7 +221,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .SurfaceMapSampler =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
@@ -234,7 +234,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).IBLSampler =
+                                                             ((d as Material).Core as PbrMaterialCore).IblSampler =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
 
@@ -246,7 +246,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni1,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .DisplacementMapSampler =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
@@ -259,7 +259,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).RenderAlbedoMap =
+                                                             ((d as Material).Core as PbrMaterialCore).RenderAlbedoMap =
                                                                  (bool)e.NewValue;
                                                          }));
 
@@ -271,7 +271,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderEmissiveMap = (bool)e.NewValue;
                                                          }));
 
@@ -283,7 +283,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderRoughnessMetallicMap = (bool)e.NewValue;
                                                          }));
 
@@ -295,7 +295,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderAmbientOcclusionMap = (bool)e.NewValue;
                                                          }));
 
@@ -307,7 +307,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderIrradianceMap = (bool)e.NewValue;
                                                          }));
 
@@ -319,7 +319,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).RenderNormalMap =
+                                                             ((d as Material).Core as PbrMaterialCore).RenderNormalMap =
                                                                  (bool)e.NewValue;
                                                          }));
 
@@ -331,7 +331,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderDisplacementMap = (bool)e.NewValue;
                                                          }));
 
@@ -344,7 +344,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .RenderEnvironmentMap = (bool)e.NewValue;
                                                          }));
 
@@ -357,7 +357,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).RenderShadowMap =
+                                                             ((d as Material).Core as PbrMaterialCore).RenderShadowMap =
                                                                  (bool)e.NewValue;
                                                          }));
 
@@ -370,7 +370,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .EnableAutoTangent = (bool)e.NewValue;
                                                          }));
 
@@ -383,7 +383,7 @@ public class PBRMaterial : Material {
         typeof(PBRMaterial),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Material).Core as PBRMaterialCore).EnableTessellation = (bool)e.NewValue;
+                                 ((d as Material).Core as PbrMaterialCore).EnableTessellation = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -395,7 +395,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .MaxDistanceTessellationFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
@@ -409,7 +409,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(2.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .MinDistanceTessellationFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
@@ -423,7 +423,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(50.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .MaxTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
@@ -436,7 +436,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .MinTessellationDistance = (float)(double)e.NewValue;
                                                          }));
 
@@ -446,12 +446,12 @@ public class PBRMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UVTransformProperty =
         DependencyProperty.Register("UVTransform",
-                                    typeof(UVTransform),
+                                    typeof(UvTransform),
                                     typeof(PBRMaterial),
-                                    new PropertyMetadata(UVTransform.Identity,
+                                    new PropertyMetadata(UvTransform.Identity,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore).UVTransform =
-                                                                 (UVTransform)e.NewValue;
+                                                             ((d as Material).Core as PbrMaterialCore).UvTransform =
+                                                                 (UvTransform)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -463,7 +463,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .EnableFlatShading = (bool)e.NewValue;
                                                          }));
 
@@ -473,7 +473,7 @@ public class PBRMaterial : Material {
                                     typeof(PBRMaterial),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Material).Core as PBRMaterialCore)
+                                                             ((d as Material).Core as PbrMaterialCore)
                                                                  .VertexColorBlendingFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
@@ -487,7 +487,7 @@ public class PBRMaterial : Material {
     ///     Initializes a new instance of the <see cref="PBRMaterial" /> class.
     /// </summary>
     /// <param name="core">The core.</param>
-    public PBRMaterial(PBRMaterialCore core) : base(core) {
+    public PBRMaterial(PbrMaterialCore core) : base(core) {
         AlbedoColor = core.AlbedoColor;
         MetallicFactor = core.MetallicFactor;
         RoughnessFactor = core.RoughnessFactor;
@@ -504,7 +504,7 @@ public class PBRMaterial : Material {
         IrradianceMap = core.IrradianceMap;
         DisplacementMap = core.DisplacementMap;
         SurfaceMapSampler = core.SurfaceMapSampler;
-        IBLSampler = core.IBLSampler;
+        IBLSampler = core.IblSampler;
         DisplacementMapSampler = core.DisplacementMapSampler;
 
         RenderAlbedoMap = core.RenderAlbedoMap;
@@ -518,7 +518,7 @@ public class PBRMaterial : Material {
         RenderShadowMap = core.RenderShadowMap;
         EnableAutoTangent = core.EnableAutoTangent;
         DisplacementMapScaleMask = core.DisplacementMapScaleMask;
-        UVTransform = core.UVTransform;
+        UVTransform = core.UvTransform;
 
         EnableTessellation = core.EnableTessellation;
         MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor;
@@ -824,8 +824,8 @@ public class PBRMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
-        get => (UVTransform)GetValue(UVTransformProperty);
+    public UvTransform UVTransform {
+        get => (UvTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -853,7 +853,7 @@ public class PBRMaterial : Material {
     }
 
     protected override MaterialCore OnCreateCore() {
-        return new PBRMaterialCore {
+        return new PbrMaterialCore {
             AlbedoColor = AlbedoColor,
             MetallicFactor = (float)MetallicFactor,
             RoughnessFactor = (float)RoughnessFactor,
@@ -870,7 +870,7 @@ public class PBRMaterial : Material {
             IrradianceMap = IrradianceMap,
             DisplacementMap = DisplacementMap,
             SurfaceMapSampler = SurfaceMapSampler,
-            IBLSampler = IBLSampler,
+            IblSampler = IBLSampler,
             DisplacementMapSampler = DisplacementMapSampler,
 
             RenderAlbedoMap = RenderAlbedoMap,
@@ -884,7 +884,7 @@ public class PBRMaterial : Material {
             RenderShadowMap = RenderShadowMap,
             EnableAutoTangent = EnableAutoTangent,
             DisplacementMapScaleMask = DisplacementMapScaleMask,
-            UVTransform = UVTransform,
+            UvTransform = UVTransform,
 
             EnableTessellation = EnableTessellation,
             MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,

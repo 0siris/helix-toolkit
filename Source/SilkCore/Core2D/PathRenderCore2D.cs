@@ -13,12 +13,12 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// <summary>
     ///     The geometry
     /// </summary>
-    protected PathGeometry geometry;
+    protected PathGeometry Geometry;
 
     /// <summary>
     ///     The is geometry changed
     /// </summary>
-    protected bool isGeometryChanged = true;
+    protected bool IsGeometryChanged = true;
 
     /// <summary>
     ///     Gets or sets the figures.
@@ -29,7 +29,7 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     public List<Figure> Figures {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) isGeometryChanged = true;
+            if (SetAffectsRender(ref field, value)) IsGeometryChanged = true;
         }
     } = [];
 
@@ -42,7 +42,7 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     public D2DFillMode FillMode {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) isGeometryChanged = true;
+            if (SetAffectsRender(ref field, value)) IsGeometryChanged = true;
         }
     } = D2DFillMode.Alternate;
 
@@ -52,7 +52,7 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// <param name="host">The host.</param>
     /// <returns></returns>
     protected override bool OnAttach(IRenderHost host) {
-        isGeometryChanged = true;
+        IsGeometryChanged = true;
         return base.OnAttach(host);
     }
 
@@ -64,26 +64,26 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
                      "CA2202: Do not dispose objects multiple times",
                      Justification = "False positive.")]
     protected override void OnRender(RenderContext2D context) {
-        if (isGeometryChanged) {
-            RemoveAndDispose(ref geometry);
+        if (IsGeometryChanged) {
+            RemoveAndDispose(ref Geometry);
             if (Figures == null || Figures.Count == 0) return;
-            geometry = new PathGeometry(context.DeviceResources.Factory2D);
-            using (var sink = geometry.Open()) {
+            Geometry = new PathGeometry(context.DeviceResources.Factory2D);
+            using (var sink = Geometry.Open()) {
                 sink.SetFillMode(FillMode);
                 foreach (var figure in Figures) figure.Create(sink);
                 sink.Close();
             }
 
-            isGeometryChanged = false;
+            IsGeometryChanged = false;
         }
 
         if (StrokeBrush != null && StrokeWidth > 0 && StrokeStyle != null)
-            context.DeviceContext.DrawGeometry(geometry, StrokeBrush, StrokeWidth, StrokeStyle);
-        if (FillBrush != null) context.DeviceContext.FillGeometry(geometry, FillBrush);
+            context.DeviceContext.DrawGeometry(Geometry, StrokeBrush, StrokeWidth, StrokeStyle);
+        if (FillBrush != null) context.DeviceContext.FillGeometry(Geometry, FillBrush);
     }
 
     protected override void OnDetach() {
-        RemoveAndDispose(ref geometry);
+        RemoveAndDispose(ref Geometry);
         base.OnDetach();
     }
 }

@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace SharpDX.Toolkit.Graphics;
 
 [Flags]
-internal enum WICFlags {
+internal enum WicFlags {
     None = 0x0,
 
     ForceRgb = 0x1,

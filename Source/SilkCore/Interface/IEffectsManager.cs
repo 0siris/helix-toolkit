@@ -43,7 +43,7 @@ public interface IDevice2DResources {
     /// <value>
     ///     The wic img factory.
     /// </value>
-    WICImagingFactory WICImgFactory { get; }
+    WicImagingFactory WicImgFactory { get; }
 
     /// <summary>
     ///     Gets the direct write factory.

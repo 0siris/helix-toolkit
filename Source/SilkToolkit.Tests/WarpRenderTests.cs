@@ -18,7 +18,7 @@ public sealed class WarpRenderTests {
         return StaThread.RunAsync(() => {
             using var effectsManager = CreateWarpEffectsManager();
             using var buffer = new DX11Texture2DRenderBufferProxy(effectsManager);
-            var backBuffer = buffer.Initialize(64, 32, MSAALevel.Disable);
+            var backBuffer = buffer.Initialize(64, 32, MsaaLevel.Disable);
             var context = effectsManager.DeviceContext2D;
             context.Target = buffer.D2DTarget.D2DTarget;
 
@@ -28,7 +28,7 @@ public sealed class WarpRenderTests {
             effectsManager.NativeDeviceResources.ImmediateContext.Flush();
 
             using var stream = new MemoryStream();
-            Assert.True(ScreenCapture.SaveWICTextureToBitmapStream(effectsManager,
+            Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
                                                                    (Texture2D)backBuffer.Resource,
                                                                    stream));
 
@@ -57,7 +57,7 @@ public sealed class WarpRenderTests {
             using var effectsManager = CreateWarpEffectsManager();
             using var buffer = new DX11SwapChainRenderBufferProxy(window.Handle, effectsManager);
 
-            var backBuffer = buffer.Initialize(32, 24, MSAALevel.Disable);
+            var backBuffer = buffer.Initialize(32, 24, MsaaLevel.Disable);
             Assert.NotEqual(IntPtr.Zero, backBuffer.Resource.NativePointer);
             Assert.True(buffer.Present());
 
@@ -67,7 +67,7 @@ public sealed class WarpRenderTests {
             Assert.True(buffer.Present());
 
             using var stream = new MemoryStream();
-            Assert.True(ScreenCapture.SaveWICTextureToBitmapStream(effectsManager,
+            Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
                                                                    (Texture2D)backBuffer.Resource,
                                                                    stream));
             var frame = new BmpBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];

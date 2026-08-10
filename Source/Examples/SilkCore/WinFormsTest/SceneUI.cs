@@ -160,7 +160,7 @@ public static class SceneUI {
 
     private static void LoadModel(GroupNode node, bool renderEnvironmentMap) {
         OpenFileDialog dialog = new OpenFileDialog {
-            Filter = HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString
+            Filter = Importer.SupportedFormatsString
         };
         if (dialog.ShowDialog() == DialogResult.OK) {
             var path = dialog.FileName;
@@ -177,7 +177,7 @@ public static class SceneUI {
                     node.Clear();
                     foreach (var model in x.Result.Root.Traverse()) {
                         if (model is MeshNode mesh) {
-                            if (mesh.Material is PBRMaterialCore pbr) {
+                            if (mesh.Material is PbrMaterialCore pbr) {
                                 pbr.RenderEnvironmentMap = renderEnvironmentMap;
                             } else if (mesh.Material is PhongMaterialCore phong) {
                                 phong.RenderEnvironmentMap = renderEnvironmentMap;

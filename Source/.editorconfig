@@ -145,6 +145,8 @@ resharper_use_continuous_indent_inside_parens = false
 resharper_wrap_after_dot_in_method_calls = false
 resharper_wrap_chained_method_calls = wrap_if_long
 resharper_wrap_enum_declaration = chop_if_long
+resharper_xmldoc_indent_child_elements = one_indent
+resharper_xmldoc_indent_text = one_indent
 resharper_csharp_use_indent_from_vs = true
 
 

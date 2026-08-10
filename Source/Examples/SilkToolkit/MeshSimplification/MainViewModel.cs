@@ -95,27 +95,27 @@ public class MainViewModel : BaseViewModel {
 
         // ----------------------------------------------
         // titles
-        this.Title = "Mesh Simplification Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Mesh Simplification Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
         // ----------------------------------------------
         // setup scene
-        this.AmbientLightColor = Colors.DimGray;
-        this.Light1Color = Colors.Gray;
+        AmbientLightColor = Colors.DimGray;
+        Light1Color = Colors.Gray;
 
 
-        this.Light1Direction = new Vector3D(-100, -100, -100);
+        Light1Direction = new Vector3D(-100, -100, -100);
         SetupCameraBindings(Camera);
         // ----------------------------------------------
         // ----------------------------------------------
         // scene model3d
-        this.ModelMaterial = PhongMaterials.Silver;
+        ModelMaterial = PhongMaterials.Silver;
 
         var models = Load3ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         //var scale = new Vector3(1f);

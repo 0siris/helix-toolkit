@@ -25,7 +25,7 @@ public enum RenderType {
 
 /// <summary>
 /// </summary>
-public enum MSAALevel {
+public enum MsaaLevel {
     Disable = 0,
     Maximum = 1,
     Two = 2,
@@ -35,7 +35,7 @@ public enum MSAALevel {
 
 /// <summary>
 /// </summary>
-public enum FXAALevel {
+public enum FxaaLevel {
     None = 0,
     Low = 1,
     Medium = 2,
@@ -65,8 +65,8 @@ public enum PointFigure {
 /// <summary>
 /// </summary>
 public enum MeshTopologyEnum {
-    PNTriangles,
-    PNQuads
+    PnTriangles,
+    PnQuads
 }
 
 /// <summary>
@@ -97,7 +97,7 @@ public enum StateType {
 [Flags]
 public enum RenderDetail {
     None = 0,
-    FPS = 1,
+    Fps = 1,
     Statistics = 2,
     TriangleInfo = 4,
     Camera = 8
@@ -111,7 +111,7 @@ public enum RenderDetail {
 /// <value>
 ///     The oit weight mode.
 /// </value>
-public enum OITWeightMode {
+public enum OitWeightMode {
     Linear0 = 0,
     Linear1 = 1,
     Linear2 = 2,
@@ -185,7 +185,7 @@ public enum OffScreenTextureType {
     DepthStencil
 }
 
-public enum SSAOQuality {
+public enum SsaoQuality {
     High,
     Low
 }

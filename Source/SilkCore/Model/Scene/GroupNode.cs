@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 [DebuggerDisplay("Name={" + nameof(Name) + "}; Child Count={" + nameof(ItemsCount) + "};")]
 public class GroupNode : GroupNodeBase, IHitable {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-    private IOctreeManager octreeManager;
+    private IOctreeManager? octreeManager;
 
     public GroupNode() {
         ChildNodeAdded += NodeGroup_OnAddChildNode;
@@ -21,7 +21,7 @@ public class GroupNode : GroupNodeBase, IHitable {
         Cleared += NodeGroup_OnClear;
     }
 
-    public IOctreeManager OctreeManager {
+    public IOctreeManager? OctreeManager {
         get => octreeManager;
         set {
             var old = octreeManager;
@@ -40,20 +40,18 @@ public class GroupNode : GroupNodeBase, IHitable {
     /// <value>
     ///     The octree.
     /// </value>
-    public IOctreeBasic Octree => OctreeManager?.Octree;
+    public IOctreeBasic? Octree => OctreeManager?.Octree;
 
-    private void NodeGroup_OnClear(object sender, OnChildNodeChangedArgs e) {
+    private void NodeGroup_OnClear(object? sender, OnChildNodeChangedArgs e) {
         OctreeManager?.Clear();
         OctreeManager?.RequestRebuild();
     }
 
-    private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
-        OctreeManager?.RemoveItem(e);
-    }
+    private void NodeGroup_OnRemoveChildNode(object? sender, OnChildNodeChangedArgs e) 
+        => OctreeManager?.RemoveItem(e);
 
-    private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e) {
-        OctreeManager?.AddPendingItem(e);
-    }
+    private void NodeGroup_OnAddChildNode(object? sender, OnChildNodeChangedArgs e) 
+        => OctreeManager?.AddPendingItem(e);
 
     /// <summary>
     ///     Updates the not render.
@@ -79,7 +77,7 @@ public class GroupNode : GroupNodeBase, IHitable {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        var isHit = false;
+        bool isHit;
         if (octreeManager != null) {
             isHit = octreeManager.HitTest(context, WrapperSource, totalModelMatrix, ref hits);
             if (isHit && Logger.IsEnabled(LogLevel.Trace))

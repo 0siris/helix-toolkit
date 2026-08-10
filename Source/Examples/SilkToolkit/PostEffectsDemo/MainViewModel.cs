@@ -35,12 +35,12 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
         // titles
-        this.Title = "Post Processing Effects Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Post Processing Effects Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, -30, 0),
             LookDirection = new Vector3D(0, 30, 0),
             UpDirection = new Vector3D(0, 0, 1)

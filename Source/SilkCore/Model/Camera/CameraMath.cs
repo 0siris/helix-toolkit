@@ -34,10 +34,10 @@ public static class CameraMath {
         // http://www.codeplex.com/3DTools/Thread/View.aspx?ThreadId=22310
         var v1 = ProjectToTrackball(p1, viewportWidth, viewportHeight);
         var v2 = ProjectToTrackball(p2, viewportWidth, viewportHeight);
-        var cUP = SilkMath.Normalize(camera.UpDirection);
+        var cUp = SilkMath.Normalize(camera.UpDirection);
         // transform the trackball coordinates to view space
         var viewZ = SilkMath.Normalize(camera.LookDirection * invertFactor);
-        var viewX = SilkMath.Normalize(SilkMath.Cross(cUP, viewZ)) * invertFactor;
+        var viewX = SilkMath.Normalize(SilkMath.Cross(cUp, viewZ)) * invertFactor;
         var viewY = SilkMath.Cross(viewX, viewZ);
         var u1 = viewZ * v1.Z + viewX * v1.X + viewY * v1.Y;
         var u2 = viewZ * v2.Z + viewX * v2.X + viewY * v2.Y;
@@ -70,7 +70,7 @@ public static class CameraMath {
         // Rotate the relative vectors
         var newRelativeTarget = SilkMath.TransformCoordinate(relativeTarget, rotate);
         var newRelativePosition = SilkMath.TransformCoordinate(relativePosition, rotate);
-        newUpDirection = SilkMath.TransformNormal(cUP, rotate);
+        newUpDirection = SilkMath.TransformNormal(cUp, rotate);
 
         // Find new camera position
         var newTarget = rotateAround - newRelativeTarget;

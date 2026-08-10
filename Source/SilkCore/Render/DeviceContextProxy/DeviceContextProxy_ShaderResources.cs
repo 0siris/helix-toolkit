@@ -12,8 +12,8 @@ public partial class DeviceContextProxy {
     public const int StageCount = Constants.NumShaderStages;
     public const int UnorderedAcccesViewCount = 8;
 
-    private readonly object[] ConstantBufferCheck = new object[ConstantBufferCount * StageCount];
-    private readonly object[] SamplerStateCheck = new object[SamplerStateCount * StageCount];
+    private readonly object[] constantBufferCheck = new object[ConstantBufferCount * StageCount];
+    private readonly object[] samplerStateCheck = new object[SamplerStateCount * StageCount];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetShader(VertexShader shader, bool bindConstantBuffer = true) =>
@@ -205,7 +205,7 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetShaderPass(ShaderPass pass, bool bindConstantBuffer = true) {
-        if (pass == null || CurrShaderPass == pass || pass.IsNULL) return;
+        if (pass == null || CurrShaderPass == pass || pass.IsNull) return;
 
         SetShader(pass.VertexShader, bindConstantBuffer);
         SetShader(pass.PixelShader, bindConstantBuffer);
@@ -223,8 +223,8 @@ public partial class DeviceContextProxy {
         NativeContext.SetShaderResources(shaderStage, slot, textures);
 
     private void SetShader(int shaderStage, ShaderBase shader, bool bindConstantBuffer) {
-        NativeContext.SetShader(shaderStage, shader == null || shader.IsNULL ? null : shader.NativeShader);
-        if (!bindConstantBuffer || shader == null || shader.IsNULL) return;
+        NativeContext.SetShader(shaderStage, shader == null || shader.IsNull ? null : shader.NativeShader);
+        if (!bindConstantBuffer || shader == null || shader.IsNull) return;
 
         foreach (var mapping in shader.ConstantBufferMapping.Mappings)
             TrackConstantBuffer(shaderStage, mapping.Key, mapping.Value);
@@ -234,37 +234,37 @@ public partial class DeviceContextProxy {
         if (slot < 0) return;
 
         var index = shaderStage * ConstantBufferCount + slot;
-        if (index >= ConstantBufferCheck.Length) return;
+        if (index >= constantBufferCheck.Length) return;
 
-        if (AutoSkipRedundantStateSetting && ConstantBufferCheck[index] == buffer) return;
+        if (AutoSkipRedundantStateSetting && constantBufferCheck[index] == buffer) return;
 
         NativeContext.SetConstantBuffer(shaderStage, slot, buffer);
-        ConstantBufferCheck[index] = buffer;
+        constantBufferCheck[index] = buffer;
     }
 
     private void TrackSampler(int shaderStage, int slot, SamplerStateProxy sampler) {
         if (slot < 0) return;
 
         var index = shaderStage * SamplerStateCount + slot;
-        if (index >= SamplerStateCheck.Length) return;
+        if (index >= samplerStateCheck.Length) return;
 
-        if (AutoSkipRedundantStateSetting && SamplerStateCheck[index] == sampler) return;
+        if (AutoSkipRedundantStateSetting && samplerStateCheck[index] == sampler) return;
 
         NativeContext.SetSampler(shaderStage, slot, sampler?.State);
-        SamplerStateCheck[index] = sampler;
+        samplerStateCheck[index] = sampler;
     }
 
     private void TrackSamplers(int shaderStage, int slot, SamplerStateProxy[] samplers) {
         if (slot < 0 || samplers == null) return;
 
         var start = shaderStage * SamplerStateCount + slot;
-        var count = Math.Min(samplers.Length, SamplerStateCheck.Length - start);
+        var count = Math.Min(samplers.Length, samplerStateCheck.Length - start);
         if (count <= 0) return;
 
         if (AutoSkipRedundantStateSetting) {
             var allSame = true;
             for (var i = 0; i < count; i++)
-                if (SamplerStateCheck[start + i] != samplers[i]) {
+                if (samplerStateCheck[start + i] != samplers[i]) {
                     allSame = false;
                     break;
                 }
@@ -275,7 +275,7 @@ public partial class DeviceContextProxy {
         var nativeSamplers = new SamplerState[count];
         for (var i = 0; i < count; i++) {
             nativeSamplers[i] = samplers[i]?.State;
-            SamplerStateCheck[start + i] = samplers[i];
+            samplerStateCheck[start + i] = samplers[i];
         }
 
         NativeContext.SetSamplers(shaderStage, slot, nativeSamplers);

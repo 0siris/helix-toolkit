@@ -37,7 +37,7 @@ public enum ImagePackReturnCode {
 }
 
 public abstract class SpritePackerBase<T, E> : IDisposable {
-    protected readonly IDevice2DResources deviceRes2D;
+    protected readonly IDevice2DResources DeviceRes2D;
 
     private int padding;
 
@@ -45,7 +45,7 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
     private bool requirePow2, requireSquare;
 
     public SpritePackerBase(IDevice2DResources deviceResources) {
-        deviceRes2D = deviceResources;
+        DeviceRes2D = deviceResources;
     }
 
     protected int OutputWidth { get; private set; }
@@ -88,7 +88,7 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
     ) {
         imageWidth = 0;
         imageHeight = 0;
-        if (deviceRes2D.Device2D == null || deviceRes2D.Device2D.IsDisposed) {
+        if (DeviceRes2D.Device2D == null || DeviceRes2D.Device2D.IsDisposed) {
             outputImage = null;
             outputMap = null;
             return ImagePackReturnCode.DeviceFailed;
@@ -207,7 +207,7 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
 
     private Bitmap CreateOutputImage(Action<D2DDeviceContext> action) {
         try {
-            return BitmapExtensions.CreateBitmapStream(deviceRes2D,
+            return BitmapExtensions.CreateBitmapStream(DeviceRes2D,
                                                        OutputWidth,
                                                        OutputHeight,
                                                        Direct2DImageFormat.Bmp,

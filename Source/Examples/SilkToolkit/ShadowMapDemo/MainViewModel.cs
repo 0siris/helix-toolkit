@@ -54,8 +54,8 @@ public class MainViewModel : BaseViewModel {
     public Size ShadowMapResolution { get; private set; }
 
     public double XValue {
-        get { return this.xvalue; }
-        set { this.SetXValue(value); }
+        get { return xvalue; }
+        set { SetXValue(value); }
     }
 
     public ProjectionCamera Camera1 { private set; get; }
@@ -67,14 +67,14 @@ public class MainViewModel : BaseViewModel {
         SubTitle = "WPF & SharpDX";
 
         // setup lighting            
-        this.AmbientLightColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f);
-        this.DirectionalLightColor = Media.Colors.White;
+        AmbientLightColor = new Color4(0.1f, 0.1f, 0.1f, 1.0f);
+        DirectionalLightColor = Media.Colors.White;
         //this.DirectionalLightDirection = new Vector3(-1, -1, -1);
         // this.LightDirectionTransform = CreateAnimatedTransform(-DirectionalLightDirection.ToVector3D(), new Vector3D(0, 1, -1), 24);
-        this.ShadowMapResolution = new Size(2048, 2048);
+        ShadowMapResolution = new Size(2048, 2048);
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, 1, 1),
             LookDirection = new Vector3D(0, -1, -1),
             UpDirection = new Vector3D(0, 1, 0)
@@ -143,9 +143,9 @@ public class MainViewModel : BaseViewModel {
 
     private void SetXValue(double x) {
         Console.WriteLine("x: {0}", x);
-        this.xvalue = x;
+        xvalue = x;
         //this.DirectionalLightDirection = new Vector3D(x, -10, -10);
-        this.LightDirectionTransform = new Media3D.TranslateTransform3D(x, -10, 10);
+        LightDirectionTransform = new Media3D.TranslateTransform3D(x, -10, 10);
     }
 
     private double xvalue;

@@ -67,21 +67,21 @@ public class BillboardImage3D : BillboardBase {
                       out var tl,
                       out var br);
 
-        var transform = info.Angle != 0 ? Matrix3x2.Rotation(info.Angle) : Matrix3x2.Identity;
-        var offTL = tl * info.Scale;
-        var offBR = br * info.Scale;
-        var offTR = new Vector2(offBR.X, offTL.Y);
-        var offBL = new Vector2(offTL.X, offBR.Y);
+        var transform = info.Angle != 0 ? Matrix3X2.Rotation(info.Angle) : Matrix3X2.Identity;
+        var offTl = tl * info.Scale;
+        var offBr = br * info.Scale;
+        var offTr = new Vector2(offBr.X, offTl.Y);
+        var offBl = new Vector2(offTl.X, offBr.Y);
         BillboardVertices.Add(new BillboardVertex {
             Position = info.Position.ToVector4(),
             Foreground = Color.White,
             Background = maskColor,
-            TexTL = info.UV_TopLeft,
-            TexBR = info.UV_BottomRight,
-            OffTL = Matrix3x2.TransformPoint(transform, offTL) + info.Offset,
-            OffBL = Matrix3x2.TransformPoint(transform, offBL) + info.Offset,
-            OffBR = Matrix3x2.TransformPoint(transform, offBR) + info.Offset,
-            OffTR = Matrix3x2.TransformPoint(transform, offTR) + info.Offset
+            TexTL = info.UvTopLeft,
+            TexBR = info.UvBottomRight,
+            OffTL = Matrix3X2.TransformPoint(transform, offTl) + info.Offset,
+            OffBL = Matrix3X2.TransformPoint(transform, offBl) + info.Offset,
+            OffBR = Matrix3X2.TransformPoint(transform, offBr) + info.Offset,
+            OffTR = Matrix3X2.TransformPoint(transform, offTr) + info.Offset
         });
     }
 
@@ -92,9 +92,9 @@ public class BillboardImage3D : BillboardBase {
         object originalSource,
         bool fixedSize
     ) {
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         if (!IsInitialized || context == null ||
-            (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS))) return false;
+            (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs))) return false;
 
         return fixedSize
                    ? HitTestFixedSize(context, ref modelMatrix, ref hits, originalSource, imageInfos.Count)
@@ -128,9 +128,9 @@ public class BillboardImage3D : BillboardBase {
 }
 
 public class ImageInfo {
-    public Vector2 UV_TopLeft { get; set; }
+    public Vector2 UvTopLeft { get; set; }
 
-    public Vector2 UV_BottomRight { get; set; }
+    public Vector2 UvBottomRight { get; set; }
 
     public Vector3 Position { get; set; }
 

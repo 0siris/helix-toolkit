@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Shaders;
 
 namespace HelixToolkit.SharpDX.Core.Model;
-public class PBRMaterialCore : MaterialCore {
+public class PbrMaterialCore : MaterialCore {
     /// <summary>
     ///     Gets or sets the color of the albedo.
     /// </summary>
@@ -328,10 +328,10 @@ public class PBRMaterialCore : MaterialCore {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
+    public UvTransform UvTransform {
         get;
         set => Set(ref field, value);
-    } = UVTransform.Identity;
+    } = UvTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the surface map sampler.
@@ -361,10 +361,10 @@ public class PBRMaterialCore : MaterialCore {
     /// <value>
     ///     The IBL sampler.
     /// </value>
-    public SamplerStateDescription IBLSampler {
+    public SamplerStateDescription IblSampler {
         get;
         set => Set(ref field, value);
-    } = DefaultSamplers.IBLSampler;
+    } = DefaultSamplers.IblSampler;
 
     public float MinTessellationDistance {
         get;
@@ -401,7 +401,7 @@ public class PBRMaterialCore : MaterialCore {
     public MeshTopologyEnum MeshType {
         get;
         set => Set(ref field, value);
-    } = MeshTopologyEnum.PNTriangles;
+    } = MeshTopologyEnum.PnTriangles;
 
     public bool EnableTessellation {
         get;
@@ -436,6 +436,6 @@ public class PBRMaterialCore : MaterialCore {
         IEffectsManager manager,
         IRenderTechnique technique
     ) {
-        return new PBRMaterialVariable(manager, technique, this);
+        return new PbrMaterialVariable(manager, technique, this);
     }
 }

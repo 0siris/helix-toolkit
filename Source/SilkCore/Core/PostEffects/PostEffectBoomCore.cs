@@ -36,9 +36,9 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
     /// </summary>
     public PostEffectBloomCore() : base(RenderType.GlobalEffect) {
-        modelCB = AddComponent(new ConstantBufferComponent(
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCB,
+                                       DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
         
         ThresholdColor = new Color4(0.8f, 0.8f, 0.8f, 0f);
@@ -54,7 +54,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         blurPassVertical = technique.GetPass(DefaultPassNames.EffectBlurVertical);
         blurPassHorizontal = technique.GetPass(DefaultPassNames.EffectBlurHorizontal);
         screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
-        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
+        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
        
         samplerSlot = screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         
@@ -76,11 +76,11 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     #region Do Bloom Pass
 
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         //Extract bloom samples
-        deviceContext.SetRenderTarget(buffer.FullResPPBuffer.NextRTV);
+        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.NextRtv);
 
-        screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.CurrentSRV);
+        screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.CurrentSrv);
         screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
         screenQuadPass.BindShader(deviceContext);
         screenQuadPass.BindStates(deviceContext, StateType.All);
@@ -90,7 +90,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         for (var i = 0; i < numberOfBlurPass; ++i)
             blurCore.Run(context,
                          deviceContext,
-                         buffer.FullResPPBuffer.NextRTV,
+                         buffer.FullResPpBuffer.NextRtv,
                          ref viewport,
                          PostEffectBlurCore.BlurDepth.Two,
                          ref modelStruct);
@@ -100,12 +100,12 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     #region Draw outline onto original target
 
         BindTarget(null,
-                   buffer.FullResPPBuffer.CurrentRTV,
+                   buffer.FullResPpBuffer.CurrentRtv,
                    deviceContext,
                    buffer.TargetWidth,
                    buffer.TargetHeight,
                    false);
-        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.NextSRV);
+        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.NextSrv);
         screenOutlinePass.BindShader(deviceContext);
         screenOutlinePass.BindStates(deviceContext, StateType.All);
         deviceContext.Draw(4, 0);
@@ -152,7 +152,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     private int samplerSlot;
 
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
 
     private BorderEffectStruct modelStruct;
 

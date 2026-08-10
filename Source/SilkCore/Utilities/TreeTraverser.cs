@@ -50,7 +50,7 @@ public static class TreeTraverser {
         Stack<IEnumerator<SceneNode>>? stackCache = null
     ) {
         var nodes = Enumerable.Repeat(root, 1);
-        return nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
+        return nodes.PreorderDft(n => !onlyRendering || n.IsRenderable, stackCache);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class TreeTraverser {
         bool onlyRendering = false,
         Stack<IEnumerator<SceneNode>>? stackCache = null
     ) =>
-        nodes.PreorderDFT(n => !onlyRendering || n.IsRenderable, stackCache);
+        nodes.PreorderDft(n => !onlyRendering || n.IsRenderable, stackCache);
 
     /// <summary>
     ///     Pre-ordered depth first traverse
@@ -77,7 +77,7 @@ public static class TreeTraverser {
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<SceneNode> PreorderDFT(
+    public static IEnumerable<SceneNode> PreorderDft(
         this IEnumerable<SceneNode> nodes,
         Func<SceneNode, bool> condition,
         Stack<IEnumerator<SceneNode>>? stackCache = null
@@ -120,7 +120,7 @@ public static class TreeTraverser {
     /// <param name="condition">The condition.</param>
     /// <param name="results">The results.</param>
     /// <param name="stackCache">The stack cache.</param>
-    public static void PreorderDFT(
+    public static void PreorderDft(
         this IList<SceneNode> nodes,
         RenderContext context,
         Func<SceneNode, RenderContext, bool> condition,
@@ -167,7 +167,7 @@ public static class TreeTraverser {
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<RenderCore> PreorderDFTGetCores(
+    public static IEnumerable<RenderCore> PreorderDftGetCores(
         this IEnumerable<SceneNode> nodes,
         Func<SceneNode, bool> condition,
         Stack<IEnumerator<SceneNode>>? stackCache = null
@@ -206,7 +206,7 @@ public static class TreeTraverser {
     /// <param name="nodes">The nodes.</param>
     /// <param name="condition">The condition.</param>
     /// <param name="stackCache">The stack cache.</param>
-    public static void PreorderDFTRun(
+    public static void PreorderDftRun(
         this IList<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
         Stack<(int Key, IList<SceneNode2D> Value)>? stackCache = null
@@ -238,7 +238,7 @@ public static class TreeTraverser {
     /// <param name="condition"></param>
     /// <param name="stackCache"></param>
     /// <returns></returns>
-    public static IEnumerable<RenderCore2D> PreorderDFTGetCores(
+    public static IEnumerable<RenderCore2D> PreorderDftGetCores(
         this IEnumerable<SceneNode2D> nodes,
         Func<SceneNode2D, bool> condition,
         Stack<IEnumerator<SceneNode2D>>? stackCache = null

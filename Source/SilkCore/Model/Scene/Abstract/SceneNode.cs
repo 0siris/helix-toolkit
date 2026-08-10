@@ -315,7 +315,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     /// <summary>
     /// </summary>
-    public Guid GUID => RenderCore.GUID;
+    public Guid Guid => RenderCore.Guid;
 
     /// <summary>
     ///     Gets or sets the name.

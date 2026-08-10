@@ -67,13 +67,13 @@ public static class ScreenCapture {
     /// <param name="file">The file.</param>
     /// <param name="format">The format.</param>
     /// <returns></returns>
-    public static bool SaveWICTextureToFile(
+    public static bool SaveWicTextureToFile(
         IDeviceResources deviceResource,
         Texture2D source,
         string file,
         Direct2DImageFormat format
     ) {
-        return SaveWICTextureToFile(deviceResource, source, file, format.ToWICImageFormat());
+        return SaveWicTextureToFile(deviceResource, source, file, format.ToWicImageFormat());
     }
 
 
@@ -86,7 +86,7 @@ public static class ScreenCapture {
     /// <param name="containerFormat">The container format.</param>
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException"></exception>
-    public static bool SaveWICTextureToFile(
+    public static bool SaveWicTextureToFile(
         IDeviceResources deviceResource,
         Texture2D source,
         string fileName,
@@ -94,7 +94,7 @@ public static class ScreenCapture {
     ) {
         if (string.IsNullOrWhiteSpace(fileName)) return false;
         using var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-        return SaveWICTexture(deviceResource, source, stream, ToImageFileType(containerFormat));
+        return SaveWicTexture(deviceResource, source, stream, ToImageFileType(containerFormat));
     }
 
     /// <summary>
@@ -105,24 +105,24 @@ public static class ScreenCapture {
     /// <param name="bitmapStream">The bitmap stream.</param>
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException"></exception>
-    public static bool SaveWICTextureToBitmapStream(
+    public static bool SaveWicTextureToBitmapStream(
         IDeviceResources deviceResource,
         Texture2D source,
         MemoryStream bitmapStream
     ) {
-        return SaveWICTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
+        return SaveWicTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
     }
 
-    internal static bool SaveWICTextureToStream(
+    internal static bool SaveWicTextureToStream(
         IDeviceResources deviceResource,
         Texture2D source,
         Stream stream,
         Direct2DImageFormat format
     ) {
-        return SaveWICTexture(deviceResource, source, stream, ToImageFileType(format.ToWICImageFormat()));
+        return SaveWicTexture(deviceResource, source, stream, ToImageFileType(format.ToWicImageFormat()));
     }
 
-    private static bool SaveWICTexture(
+    private static bool SaveWicTexture(
         IDeviceResources deviceResource,
         Texture2D source,
         Stream stream,
@@ -146,7 +146,7 @@ public static class ScreenCapture {
                     return false;
                 }
 
-                WICHelper.SaveBgra32(data.DataPointer,
+                WicHelper.SaveBgra32(data.DataPointer,
                                      stagingTexture.Description.Width,
                                      stagingTexture.Description.Height,
                                      data.RowPitch,
@@ -163,11 +163,11 @@ public static class ScreenCapture {
     }
 
     private static ImageFileType ToImageFileType(Guid containerFormat) {
-        if (containerFormat == Direct2DImageFormat.Png.ToWICImageFormat()) return ImageFileType.Png;
-        if (containerFormat == Direct2DImageFormat.Jpeg.ToWICImageFormat()) return ImageFileType.Jpg;
-        if (containerFormat == Direct2DImageFormat.Gif.ToWICImageFormat()) return ImageFileType.Gif;
-        if (containerFormat == Direct2DImageFormat.Tiff.ToWICImageFormat()) return ImageFileType.Tiff;
-        if (containerFormat == Direct2DImageFormat.Wmp.ToWICImageFormat()) return ImageFileType.Wmp;
+        if (containerFormat == Direct2DImageFormat.Png.ToWicImageFormat()) return ImageFileType.Png;
+        if (containerFormat == Direct2DImageFormat.Jpeg.ToWicImageFormat()) return ImageFileType.Jpg;
+        if (containerFormat == Direct2DImageFormat.Gif.ToWicImageFormat()) return ImageFileType.Gif;
+        if (containerFormat == Direct2DImageFormat.Tiff.ToWicImageFormat()) return ImageFileType.Tiff;
+        if (containerFormat == Direct2DImageFormat.Wmp.ToWicImageFormat()) return ImageFileType.Wmp;
         return ImageFileType.Bmp;
     }
 }

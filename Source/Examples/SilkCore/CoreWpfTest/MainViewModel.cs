@@ -26,7 +26,7 @@ using Microsoft.Win32;
 using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 public class MainViewModel : ObservableObject {
-    private string OpenFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Importer.SupportedFormatsString}";
+    private string OpenFileFilter = $"{Importer.SupportedFormatsString}";
     private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
 
     public bool ShowWireframe {
@@ -51,7 +51,7 @@ public class MainViewModel : ObservableObject {
         set {
             if (Set(ref field, value) && scene != null && scene.Root != null) {
                 foreach (var node in scene.Root.Traverse()) {
-                    if (node is MaterialGeometryNode m && m.Material is PBRMaterialCore material) {
+                    if (node is MaterialGeometryNode m && m.Material is PbrMaterialCore material) {
                         material.RenderEnvironmentMap = value;
                     }
                 }
@@ -112,7 +112,7 @@ public class MainViewModel : ObservableObject {
     } = null;
 
     public TextureModel EnvironmentMap { get; }
-    public HelixToolkit.SharpDX.Core.EffectsManager EffectsManager { get; }
+    public EffectsManager EffectsManager { get; }
     public Camera Camera { get; }
 
     private SynchronizationContext context = SynchronizationContext.Current;
@@ -124,8 +124,8 @@ public class MainViewModel : ObservableObject {
 
 
     public MainViewModel() {
-        this.OpenFileCommand = new DelegateCommand(this.OpenFile);
-        EffectsManager = new HelixToolkit.SharpDX.Core.DefaultEffectsManager();
+        OpenFileCommand = new DelegateCommand(OpenFile);
+        EffectsManager = new DefaultEffectsManager();
         Camera = new OrthographicCamera() {
             LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -10, -10),
             Position = new System.Windows.Media.Media3D.Point3D(0, 10, 10),
@@ -168,7 +168,7 @@ public class MainViewModel : ObservableObject {
                     if (scene.Root != null) {
                         foreach (var node in scene.Root.Traverse()) {
                             if (node is MaterialGeometryNode m) {
-                                if (m.Material is PBRMaterialCore pbr) {
+                                if (m.Material is PbrMaterialCore pbr) {
                                     pbr.RenderEnvironmentMap = RenderEnvironmentMap;
                                 } else if (m.Material is PhongMaterialCore phong) {
                                     phong.RenderEnvironmentMap = RenderEnvironmentMap;
@@ -245,7 +245,7 @@ public class MainViewModel : ObservableObject {
     }
 
     private void ShowWireframeFunct(bool show) {
-        foreach (var node in GroupModel.GroupNode.Items.PreorderDFT((node) => { return node.IsRenderable; })) {
+        foreach (var node in GroupModel.GroupNode.Items.PreorderDft((node) => { return node.IsRenderable; })) {
             if (node is MeshNode m) {
                 m.RenderWireframe = show;
             }
@@ -253,11 +253,11 @@ public class MainViewModel : ObservableObject {
     }
 
     private void RenderFlatFunct(bool show) {
-        foreach (var node in GroupModel.GroupNode.Items.PreorderDFT((node) => { return node.IsRenderable; })) {
+        foreach (var node in GroupModel.GroupNode.Items.PreorderDft((node) => { return node.IsRenderable; })) {
             if (node is MeshNode m) {
                 if (m.Material is PhongMaterialCore phong) {
                     phong.EnableFlatShading = show;
-                } else if (m.Material is PBRMaterialCore pbr) {
+                } else if (m.Material is PbrMaterialCore pbr) {
                     pbr.EnableFlatShading = show;
                 }
             }

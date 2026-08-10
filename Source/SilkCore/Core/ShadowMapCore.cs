@@ -17,9 +17,9 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
     /// <summary>
     /// </summary>
     public ShadowMapCore() : base(RenderType.PreProc) {
-        modelCB = AddComponent(new ConstantBufferComponent(
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.ShadowParamCB,
+                                       DefaultBufferNames.ShadowParamCb,
                                        ShadowMapParamStruct.SizeInBytes)));
         Bias = 0.0015f;
         Intensity = 0.5f;
@@ -31,7 +31,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (!NeedRender) {
             modelStruct.HasShadowMap = 0;
-            modelCB.Upload(deviceContext, ref modelStruct);
+            modelCb.Upload(deviceContext, ref modelStruct);
             return;
         }
 
@@ -56,7 +56,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
         deviceContext.SetDepthStencil(viewResource.DepthStencilView);
         modelStruct.HasShadowMap = context.RenderHost.IsShadowMapEnabled ? 1 : 0;
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodes.Count; ++i) {
             //Only support opaque object for throwing shadows.
             var core = context.RenderHost.PerFrameOpaqueNodes[i];
@@ -133,7 +133,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
             }
         };
 
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
 
 #endregion
 

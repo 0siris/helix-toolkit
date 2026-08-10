@@ -19,7 +19,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IRenderHost : IGUID, IDisposable {
+public interface IRenderHost : IGuid, IDisposable {
     /// <summary>
     ///     Gets the device.
     /// </summary>
@@ -59,7 +59,7 @@ public interface IRenderHost : IGUID, IDisposable {
     ///     <c>true</c> if this instance is shadow map enabled; otherwise, <c>false</c>.
     /// </value>
     bool IsShadowMapEnabled { get; set; }
-    MSAALevel MSAA { get; set; }
+    MsaaLevel Msaa { get; set; }
     /// <summary>
     ///     Gets or sets the viewport.
     /// </summary>

@@ -16,7 +16,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class VolumeRenderCore : RenderCore {
     private static readonly MeshGeometry3D BoxMesh;
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
     private int backTexSlot;
 
     private VolumeCubeBufferModel buffer;
@@ -58,8 +58,8 @@ public sealed class VolumeRenderCore : RenderCore {
 
     public VolumeRenderCore()
         : base(RenderType.Particle) {
-        modelCB = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.VolumeModelCB,
+        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
+                                                               DefaultBufferNames.VolumeModelCb,
                                                                VolumeParamsStruct.SizeInBytes)));
     }
 
@@ -82,7 +82,7 @@ public sealed class VolumeRenderCore : RenderCore {
         };
         cubeBackPass = technique[DefaultPassNames.Backface];
         meshFrontPass = technique[DefaultPassNames.Positions];
-        modelCB.Attach(technique);
+        modelCb.Attach(technique);
         return true;
     }
 
@@ -91,10 +91,10 @@ public sealed class VolumeRenderCore : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        using var back = context.GetOffScreenRT(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float);
+        using var back = context.GetOffScreenRt(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float);
         var slot = 0;
         using (var depth =
-               context.GetOffScreenDS(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
+               context.GetOffScreenDs(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
             deviceContext.ClearDepthStencilView(depth,
                                                 DepthStencilClearFlags.Depth |
                                                 DepthStencilClearFlags.Stencil,
@@ -120,7 +120,7 @@ public sealed class VolumeRenderCore : RenderCore {
                 for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
                     var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
                     var meshPass = mesh.EffectTechnique[DefaultPassNames.Positions];
-                    if (meshPass.IsNULL) continue;
+                    if (meshPass.IsNull) continue;
                     meshPass.BindShader(deviceContext);
                     meshPass.BindStates(deviceContext, StateType.BlendState);
                     // Set special depth stencil state to only render into region with stencil region is 0

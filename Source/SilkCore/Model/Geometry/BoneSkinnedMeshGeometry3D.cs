@@ -114,7 +114,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         return mesh;
     }
 
-    private IEnumerable<Triangle> skinnedTriangles(Vector3[] skinnedVertices) {
+    private IEnumerable<Triangle> SkinnedTriangles(Vector3[] skinnedVertices) {
         for (var i = 0; i < Indices.Count; i += 3)
             yield return new Triangle {
                 P0 = skinnedVertices[Indices[i]], P1 = skinnedVertices[Indices[i + 1]],
@@ -139,14 +139,14 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         var modelInvert = modelMatrix.Inverted();
         if (modelInvert == default) //Check if model matrix can be inverted.
             return false;
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         //transform ray into model coordinates
-        var rayModel = new Ray(SilkMath.TransformCoordinate(rayWS.Position, modelInvert),
-                               SilkMath.Normalize(SilkMath.TransformNormal(rayWS.Direction, modelInvert)));
+        var rayModel = new Ray(SilkMath.TransformCoordinate(rayWs.Position, modelInvert),
+                               SilkMath.Normalize(SilkMath.TransformNormal(rayWs.Direction, modelInvert)));
 
         var index = 0;
         var minDistance = float.MaxValue;
-        foreach (var t in skinnedTriangles(skinnedVertices)) {
+        foreach (var t in SkinnedTriangles(skinnedVertices)) {
             // Used when geometry size is really small, causes hit test failure due to SharpDX.MathUtils.ZeroTolerance.
             var scaling = 1f;
             var rayScaled = rayModel;
@@ -171,7 +171,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
                     var pointWorld =
                         SilkMath.TransformCoordinate(rayModel.Position + rayModel.Direction * d, modelMatrix);
                     result.PointHit = pointWorld;
-                    result.Distance = (rayWS.Position - pointWorld).Length;
+                    result.Distance = (rayWs.Position - pointWorld).Length;
                     var p0 = SilkMath.TransformCoordinate(v0, modelMatrix);
                     var p1 = SilkMath.TransformCoordinate(v1, modelMatrix);
                     var p2 = SilkMath.TransformCoordinate(v2, modelMatrix);

@@ -31,7 +31,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The current SRV.
     /// </value>
-    public ShaderResourceViewProxy CurrentSRV => textures[0];
+    public ShaderResourceViewProxy CurrentSrv => textures[0];
 
     /// <summary>
     ///     Gets the next SRV.
@@ -39,7 +39,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The next SRV.
     /// </value>
-    public ShaderResourceViewProxy NextSRV => textures[1];
+    public ShaderResourceViewProxy NextSrv => textures[1];
 
     public int Width => texture2DDesc.Width;
 
@@ -51,7 +51,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The current RTV.
     /// </value>
-    public ShaderResourceViewProxy CurrentRTV => textures[0];
+    public ShaderResourceViewProxy CurrentRtv => textures[0];
 
     /// <summary>
     ///     Gets the next RTV.
@@ -59,7 +59,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The next RTV.
     /// </value>
-    public ShaderResourceViewProxy NextRTV => textures[1];
+    public ShaderResourceViewProxy NextRtv => textures[1];
 
     public Resource CurrentTexture => textures[0].Resource;
     public bool Initialized { get; private set; }
@@ -160,12 +160,12 @@ public sealed class TexturePool : DisposeObject {
             if (canUseAsShaderResource) desc.BindFlags |= BindFlags.ShaderResource;
             texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);
             texture.CreateView(new DepthStencilViewDescription {
-                Format = format.ComputeDSVFormat(),
+                Format = format.ComputeDsvFormat(),
                 Dimension = DepthStencilViewDimension.Texture2D
             });
             if (canUseAsShaderResource)
                 texture.CreateView(new ShaderResourceViewDescription {
-                    Format = format.ComputeSRVFormat(),
+                    Format = format.ComputeSrvFormat(),
                     Dimension = ShaderResourceViewDimension.Texture2D,
                     Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = desc.MipLevels }
                 });

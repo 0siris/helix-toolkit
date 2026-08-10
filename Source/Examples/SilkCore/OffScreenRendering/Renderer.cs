@@ -29,7 +29,7 @@ internal class Renderer {
             NearPlaneDistance = 0.1f,
             FarPlaneDistance = 500
         };
-        viewport.FXAALevel = FXAALevel.Medium;
+        viewport.FxaaLevel = FxaaLevel.Medium;
         viewport.ShowViewCube = false;
         viewport.Items.AddChildNode(lightNode);
         viewport.StartD3D(100, 100);

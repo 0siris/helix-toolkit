@@ -7,15 +7,15 @@ using System.Runtime.InteropServices;
 
 namespace SharpDX.Toolkit.Graphics;
 
-internal static class DDSHelper {
-    public static unsafe Image LoadFromDDSMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
-        var headerSize = sizeof(uint) + Utilities.SizeOf<DDS.Header>();
-        if (pSource == nint.Zero || size < headerSize || *(uint*)pSource != DDS.MagicHeader) return null;
+internal static class DdsHelper {
+    public static unsafe Image LoadFromDdsMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
+        var headerSize = sizeof(uint) + Utilities.SizeOf<Dds.Header>();
+        if (pSource == nint.Zero || size < headerSize || *(uint*)pSource != Dds.MagicHeader) return null;
 
         try {
-            var header = *(DDS.Header*)((byte*)pSource + sizeof(uint));
-            if (header.Size != Utilities.SizeOf<DDS.Header>()
-                || header.PixelFormat.Size != Utilities.SizeOf<DDS.PixelFormat>())
+            var header = *(Dds.Header*)((byte*)pSource + sizeof(uint));
+            if (header.Size != Utilities.SizeOf<Dds.Header>()
+                || header.PixelFormat.Size != Utilities.SizeOf<Dds.PixelFormat>())
                 return null;
 
             var dataOffset = headerSize;
@@ -24,36 +24,36 @@ internal static class DDSHelper {
             var dimension = TextureDimension.Texture2D;
             var depth = 1;
 
-            if (header.PixelFormat.FourCC == FourCC('D', 'X', '1', '0')) {
-                if (size < dataOffset + Utilities.SizeOf<DDS.HeaderDXT10>()) return null;
+            if (header.PixelFormat.FourCC == FourCc('D', 'X', '1', '0')) {
+                if (size < dataOffset + Utilities.SizeOf<Dds.HeaderDxt10>()) return null;
 
-                var extended = *(DDS.HeaderDXT10*)((byte*)pSource + dataOffset);
-                dataOffset += Utilities.SizeOf<DDS.HeaderDXT10>();
+                var extended = *(Dds.HeaderDxt10*)((byte*)pSource + dataOffset);
+                dataOffset += Utilities.SizeOf<Dds.HeaderDxt10>();
                 format = extended.DXGIFormat;
                 arraySize = extended.ArraySize;
                 switch (extended.ResourceDimension) {
-                    case DDS.ResourceDimension.Texture1D:
+                    case Dds.ResourceDimension.Texture1D:
                         dimension = TextureDimension.Texture1D;
                         break;
-                    case DDS.ResourceDimension.Texture2D:
+                    case Dds.ResourceDimension.Texture2D:
                         dimension = (extended.MiscFlags & ResourceOptionFlags.TextureCube) != 0
                                         ? TextureDimension.TextureCube
                                         : TextureDimension.Texture2D;
                         if (dimension == TextureDimension.TextureCube) arraySize *= 6;
                         break;
-                    case DDS.ResourceDimension.Texture3D:
+                    case Dds.ResourceDimension.Texture3D:
                         dimension = TextureDimension.Texture3D;
                         depth = Math.Max(1, header.Depth);
                         break;
                     default:
                         throw new NotSupportedException("Unsupported DDS resource dimension.");
                 }
-            } else if ((header.CubemapFlags & DDS.CubemapFlags.CubeMap) != 0) {
-                if ((header.CubemapFlags & DDS.CubemapFlags.AllFaces) != DDS.CubemapFlags.AllFaces)
+            } else if ((header.CubemapFlags & Dds.CubemapFlags.CubeMap) != 0) {
+                if ((header.CubemapFlags & Dds.CubemapFlags.AllFaces) != Dds.CubemapFlags.AllFaces)
                     throw new NotSupportedException("Partial DDS cubemaps are not supported.");
                 dimension = TextureDimension.TextureCube;
                 arraySize = 6;
-            } else if ((header.CubemapFlags & DDS.CubemapFlags.Volume) != 0) {
+            } else if ((header.CubemapFlags & Dds.CubemapFlags.Volume) != 0) {
                 dimension = TextureDimension.Texture3D;
                 depth = Math.Max(1, header.Depth);
             }
@@ -92,21 +92,21 @@ internal static class DDSHelper {
         }
     }
 
-    private static Format GetFormat(DDS.PixelFormat pixelFormat, out bool expand24Bit) {
+    private static Format GetFormat(Dds.PixelFormat pixelFormat, out bool expand24Bit) {
         // ponytail: cover formats shipped by this repository; use DirectXTex if broader legacy DDS support is required.
         expand24Bit = false;
-        if ((pixelFormat.Flags & DDS.PixelFormatFlags.FourCC) != 0) {
-            if (pixelFormat.FourCC == FourCC('D', 'X', 'T', '1')) return Format.BC1_UNorm;
-            if (pixelFormat.FourCC == FourCC('D', 'X', 'T', '2')
-                || pixelFormat.FourCC == FourCC('D', 'X', 'T', '3')) return Format.BC2_UNorm;
-            if (pixelFormat.FourCC == FourCC('D', 'X', 'T', '4')
-                || pixelFormat.FourCC == FourCC('D', 'X', 'T', '5')) return Format.BC3_UNorm;
-            if (pixelFormat.FourCC == FourCC('B', 'C', '4', 'U')
-                || pixelFormat.FourCC == FourCC('A', 'T', 'I', '1')) return Format.BC4_UNorm;
-            if (pixelFormat.FourCC == FourCC('B', 'C', '4', 'S')) return Format.BC4_SNorm;
-            if (pixelFormat.FourCC == FourCC('B', 'C', '5', 'U')
-                || pixelFormat.FourCC == FourCC('A', 'T', 'I', '2')) return Format.BC5_UNorm;
-            if (pixelFormat.FourCC == FourCC('B', 'C', '5', 'S')) return Format.BC5_SNorm;
+        if ((pixelFormat.Flags & Dds.PixelFormatFlags.FourCc) != 0) {
+            if (pixelFormat.FourCC == FourCc('D', 'X', 'T', '1')) return Format.BC1_UNorm;
+            if (pixelFormat.FourCC == FourCc('D', 'X', 'T', '2')
+                || pixelFormat.FourCC == FourCc('D', 'X', 'T', '3')) return Format.BC2_UNorm;
+            if (pixelFormat.FourCC == FourCc('D', 'X', 'T', '4')
+                || pixelFormat.FourCC == FourCc('D', 'X', 'T', '5')) return Format.BC3_UNorm;
+            if (pixelFormat.FourCC == FourCc('B', 'C', '4', 'U')
+                || pixelFormat.FourCC == FourCc('A', 'T', 'I', '1')) return Format.BC4_UNorm;
+            if (pixelFormat.FourCC == FourCc('B', 'C', '4', 'S')) return Format.BC4_SNorm;
+            if (pixelFormat.FourCC == FourCc('B', 'C', '5', 'U')
+                || pixelFormat.FourCC == FourCc('A', 'T', 'I', '2')) return Format.BC5_UNorm;
+            if (pixelFormat.FourCC == FourCc('B', 'C', '5', 'S')) return Format.BC5_SNorm;
             return Format.Unknown;
         }
 
@@ -129,14 +129,14 @@ internal static class DDSHelper {
         }
 
         if (pixelFormat.RGBBitCount == 8
-            && (pixelFormat.Flags & DDS.PixelFormatFlags.Luminance) != 0)
+            && (pixelFormat.Flags & Dds.PixelFormatFlags.Luminance) != 0)
             return Format.R8_UNorm;
         return Format.Unknown;
     }
 
     private static unsafe void Expand24Bit(byte* source, int sourceSize, Image image) {
         var offset = 0;
-        foreach (var buffer in image.pixelBuffers) {
+        foreach (var buffer in image.PixelBuffers) {
             var pixelCount = buffer.Width * buffer.Height;
             var required = checked(pixelCount * 3);
             if (sourceSize - offset < required) throw new InvalidOperationException("Unexpected end of DDS data.");
@@ -153,11 +153,11 @@ internal static class DDSHelper {
         }
     }
 
-    private static int FourCC(char c0, char c1, char c2, char c3) {
+    private static int FourCc(char c0, char c1, char c2, char c3) {
         return c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
     }
 
-    public static void SaveToDDSStream(
+    public static void SaveToDdsStream(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,

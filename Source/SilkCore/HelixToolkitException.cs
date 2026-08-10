@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Globalization;
+
 namespace HelixToolkit.SharpDX.Core;
 #pragma warning disable 0436
     /// <summary>
@@ -23,6 +25,6 @@ public class HelixToolkitException : Exception {
         ///     The args.
         /// </param>
     public HelixToolkitException(string formatString, params object[] args)
-        : base(string.Format(formatString, args)) { }
+        : base(string.Format(CultureInfo.InvariantCulture, formatString, args)) { }
 }
 #pragma warning restore 0436

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace SharpDX.Toolkit.Graphics;
 
-internal class DDS {
+internal class Dds {
     /// <summary>
     ///     DDS Cubemap flags.
     /// </summary>
@@ -44,7 +44,7 @@ internal class DDS {
     /// </summary>
     [Flags]
     public enum PixelFormatFlags {
-        FourCC = 0x00000004,         // DDPF_FOURCC
+        FourCc = 0x00000004,         // DDPF_FOURCC
         Rgb = 0x00000040,            // DDPF_RGB
         Rgba = 0x00000041,           // DDPF_RGB | DDPF_ALPHAPIXELS
         Luminance = 0x00020000,      // DDPF_LUMINANCE
@@ -76,7 +76,7 @@ internal class DDS {
     /// </summary>
     public const uint MagicHeader = 0x20534444; // "DDS "
 
-    private static int FourCC(char c0, char c1, char c2, char c3) {
+    private static int FourCc(char c0, char c1, char c2, char c3) {
         return c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
     }
 
@@ -89,7 +89,7 @@ internal class DDS {
         ///     Initializes a new instance of the <see cref="PixelFormat" /> struct.
         /// </summary>
         /// <param name="flags">The flags.</param>
-        /// <param name="fourCC">The four CC.</param>
+        /// <param name="fourCc">The four CC.</param>
         /// <param name="rgbBitCount">The RGB bit count.</param>
         /// <param name="rBitMask">The r bit mask.</param>
         /// <param name="gBitMask">The g bit mask.</param>
@@ -97,7 +97,7 @@ internal class DDS {
         /// <param name="aBitMask">A bit mask.</param>
         public PixelFormat(
             PixelFormatFlags flags,
-            int fourCC,
+            int fourCc,
             int rgbBitCount,
             uint rBitMask,
             uint gBitMask,
@@ -106,7 +106,7 @@ internal class DDS {
         ) {
             Size = Utilities.SizeOf<PixelFormat>();
             Flags = flags;
-            FourCC = fourCC;
+            FourCC = fourCc;
             RGBBitCount = rgbBitCount;
             RBitMask = rBitMask;
             GBitMask = gBitMask;
@@ -123,88 +123,88 @@ internal class DDS {
         public uint BBitMask;
         public uint ABitMask;
 
-        public static readonly PixelFormat DXT1 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', 'T', '1'),
+        public static readonly PixelFormat DXT1 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', 'T', '1'),
                                                       0,
                                                       0,
                                                       0,
                                                       0,
                                                       0);
 
-        public static readonly PixelFormat DXT2 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', 'T', '2'),
+        public static readonly PixelFormat DXT2 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', 'T', '2'),
                                                       0,
                                                       0,
                                                       0,
                                                       0,
                                                       0);
 
-        public static readonly PixelFormat DXT3 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', 'T', '3'),
+        public static readonly PixelFormat DXT3 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', 'T', '3'),
                                                       0,
                                                       0,
                                                       0,
                                                       0,
                                                       0);
 
-        public static readonly PixelFormat DXT4 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', 'T', '4'),
+        public static readonly PixelFormat DXT4 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', 'T', '4'),
                                                       0,
                                                       0,
                                                       0,
                                                       0,
                                                       0);
 
-        public static readonly PixelFormat DXT5 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', 'T', '5'),
+        public static readonly PixelFormat DXT5 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', 'T', '5'),
                                                       0,
                                                       0,
                                                       0,
                                                       0,
                                                       0);
 
-        public static readonly PixelFormat BC4_UNorm = new(PixelFormatFlags.FourCC,
-                                                           FourCC('B', 'C', '4', 'U'),
+        public static readonly PixelFormat BC4_UNorm = new(PixelFormatFlags.FourCc,
+                                                           FourCc('B', 'C', '4', 'U'),
                                                            0,
                                                            0,
                                                            0,
                                                            0,
                                                            0);
 
-        public static readonly PixelFormat BC4_SNorm = new(PixelFormatFlags.FourCC,
-                                                           FourCC('B', 'C', '4', 'S'),
+        public static readonly PixelFormat BC4_SNorm = new(PixelFormatFlags.FourCc,
+                                                           FourCc('B', 'C', '4', 'S'),
                                                            0,
                                                            0,
                                                            0,
                                                            0,
                                                            0);
 
-        public static readonly PixelFormat BC5_UNorm = new(PixelFormatFlags.FourCC,
-                                                           FourCC('B', 'C', '5', 'U'),
+        public static readonly PixelFormat BC5_UNorm = new(PixelFormatFlags.FourCc,
+                                                           FourCc('B', 'C', '5', 'U'),
                                                            0,
                                                            0,
                                                            0,
                                                            0,
                                                            0);
 
-        public static readonly PixelFormat BC5_SNorm = new(PixelFormatFlags.FourCC,
-                                                           FourCC('B', 'C', '5', 'S'),
+        public static readonly PixelFormat BC5_SNorm = new(PixelFormatFlags.FourCc,
+                                                           FourCc('B', 'C', '5', 'S'),
                                                            0,
                                                            0,
                                                            0,
                                                            0,
                                                            0);
 
-        public static readonly PixelFormat R8G8_B8G8 = new(PixelFormatFlags.FourCC,
-                                                           FourCC('R', 'G', 'B', 'G'),
+        public static readonly PixelFormat R8G8_B8G8 = new(PixelFormatFlags.FourCc,
+                                                           FourCc('R', 'G', 'B', 'G'),
                                                            0,
                                                            0,
                                                            0,
                                                            0,
                                                            0);
 
-        public static readonly PixelFormat G8R8_G8B8 = new(PixelFormatFlags.FourCC,
-                                                           FourCC('G', 'R', 'G', 'B'),
+        public static readonly PixelFormat G8R8_G8B8 = new(PixelFormatFlags.FourCc,
+                                                           FourCc('G', 'R', 'G', 'B'),
                                                            0,
                                                            0,
                                                            0,
@@ -297,8 +297,8 @@ internal class DDS {
 
         public static readonly PixelFormat A8 = new(PixelFormatFlags.Alpha, 0, 8, 0x00, 0x00, 0x00, 0xff);
 
-        public static readonly PixelFormat DX10 = new(PixelFormatFlags.FourCC,
-                                                      FourCC('D', 'X', '1', '0'),
+        public static readonly PixelFormat DX10 = new(PixelFormatFlags.FourCc,
+                                                      FourCc('D', 'X', '1', '0'),
                                                       0,
                                                       0,
                                                       0,
@@ -339,7 +339,7 @@ internal class DDS {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct HeaderDXT10 {
+    public struct HeaderDxt10 {
         public Format DXGIFormat;
         public ResourceDimension ResourceDimension;
         public ResourceOptionFlags MiscFlags; // see DDS_RESOURCE_MISC_FLAG

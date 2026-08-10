@@ -34,7 +34,7 @@ public static class DpiHelper {
 
     public static double GetWindowsScreenScalingFactor(bool percentage = true) {
         //Create Graphics object from the current windows handle
-        var GraphicsObject = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+        var GraphicsObject = Graphics.FromHwnd(IntPtr.Zero);
         //Get Handle to the device context associated with this Graphics object
         IntPtr DeviceContextHandle = GraphicsObject.GetHdc();
         //Call GetDeviceCaps with the Handle to retrieve the Screen Height
@@ -151,11 +151,11 @@ public class CoreTestApp {
     }
 
     private void AssignViewportOption() {
-        viewport.FXAALevel = options.EnableFXAA ? FXAALevel.Low : FXAALevel.None;
+        viewport.FxaaLevel = options.EnableFXAA ? FxaaLevel.Low : FxaaLevel.None;
         viewport.EnableRenderFrustum = options.EnableFrustum;
         viewport.BackgroundColor =
             new Color4(options.BackgroundColor.X, options.BackgroundColor.Y, options.BackgroundColor.Z, 1);
-        viewport.EnableSSAO = options.EnableSSAO;
+        viewport.EnableSsao = options.EnableSSAO;
         viewport.ShowRenderDetail = options.ShowRenderDetail;
         viewport.DpiScale = options.EnableDpiScale ? dpiScale : 1;
         if (options.ShowWireframeChanged) {
@@ -347,17 +347,17 @@ public class CoreTestApp {
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(false, new NormalMaterialCore()));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = ToColor4(DrawingColor.Beige),
                                                         MetallicFactor = 0.8f, RoughnessFactor = 0.6f
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = ToColor4(DrawingColor.Bisque),
                                                         MetallicFactor = 0.4f, RoughnessFactor = 0.9f
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = ToColor4(DrawingColor.Chartreuse),
                                                         MetallicFactor = 0.2f, RoughnessFactor = 0.2f
                                                     }));
@@ -399,17 +399,17 @@ public class CoreTestApp {
                                                         DiffuseMap = diffuse, NormalMap = normal
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = new Color4(1, 1, 0, 0.6f), MetallicFactor = 0.8f,
                                                         RoughnessFactor = 0.6f
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = new Color4(0, 1, 1, 0.4f), MetallicFactor = 0.4f,
                                                         RoughnessFactor = 0.9f
                                                     }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PBRMaterialCore() {
+                                                    new PbrMaterialCore() {
                                                         AlbedoColor = new Color4(1, 0, 1, 0.6f), MetallicFactor = 0.2f,
                                                         RoughnessFactor = 0.2f
                                                     }));
@@ -486,7 +486,7 @@ public class CoreTestApp {
             environmentMap.Visible = visible;
             foreach (var model in groupModel.Traverse()) {
                 if (model is MeshNode mesh) {
-                    if (mesh.Material is PBRMaterialCore pbr) {
+                    if (mesh.Material is PbrMaterialCore pbr) {
                         pbr.RenderEnvironmentMap = visible;
                     } else if (mesh.Material is PhongMaterialCore phong) {
                         phong.RenderEnvironmentMap = visible;

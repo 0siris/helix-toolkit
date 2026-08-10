@@ -228,9 +228,9 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     /// <returns></returns>
     protected Matrix CreateViewMatrix(RenderContext renderContext, out Vector3 eye) {
         eye = -renderContext.Camera.LookDirection.Normalized() * CameraDistance;
-        if (IsRightHand) return SilkMath.LookAtRH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+        if (IsRightHand) return SilkMath.LookAtRh(eye, Vector3.Zero, renderContext.Camera.UpDirection);
 
-        return SilkMath.LookAtLH(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+        return SilkMath.LookAtLh(eye, Vector3.Zero, renderContext.Camera.UpDirection);
     }
 
     /// <summary>
@@ -290,10 +290,10 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     ) {
         if (isPerspective)
             return isRightHand
-                       ? SilkMath.PerspectiveFovRH(fov, w / h, near, far)
-                       : SilkMath.PerspectiveFovLH(fov, w / h, near, far);
+                       ? SilkMath.PerspectiveFovRh(fov, w / h, near, far)
+                       : SilkMath.PerspectiveFovLh(fov, w / h, near, far);
 
-        return isRightHand ? SilkMath.OrthoRH(w, h, near, far) : SilkMath.OrthoLH(w, h, near, far);
+        return isRightHand ? SilkMath.OrthoRh(w, h, near, far) : SilkMath.OrthoLh(w, h, near, far);
     }
 
     protected void UpdateParameters(RenderContext context, float width, float height) {

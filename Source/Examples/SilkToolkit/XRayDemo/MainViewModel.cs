@@ -72,27 +72,27 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // ----------------------------------------------
         // titles
-        this.Title = "Lighting Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Lighting Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
         // ----------------------------------------------
         // setup scene
-        this.AmbientLightColor = Colors.DimGray;
-        this.Light1Color = Colors.LightGray;
+        AmbientLightColor = Colors.DimGray;
+        Light1Color = Colors.LightGray;
 
 
-        this.Light1Direction = new Vector3D(-100, -100, -100);
+        Light1Direction = new Vector3D(-100, -100, -100);
         SetupCameraBindings(Camera);
         // ----------------------------------------------
         // ----------------------------------------------
         // scene model3d
-        this.ModelMaterial = PhongMaterials.Silver;
+        ModelMaterial = PhongMaterials.Silver;
 
         // ----------------------------------------------
         // floor model3d
@@ -100,13 +100,13 @@ public class MainViewModel : BaseViewModel {
         b2.AddBox(new Vector3(0.0f, 0, 0.0f), 150, 1, 150, BoxFaces.All);
         b2.AddBox(new Vector3(0, 25, 70), 150, 50, 20);
         b2.AddBox(new Vector3(0, 25, -70), 150, 50, 20);
-        this.Floor = b2.ToMeshGeometry3D();
-        this.FloorMaterial = PhongMaterials.Bisque;
-        this.FloorMaterial.DiffuseMap =
+        Floor = b2.ToMeshGeometry3D();
+        FloorMaterial = PhongMaterials.Bisque;
+        FloorMaterial.DiffuseMap =
             TextureModel.Create(
-                new System.Uri(@"TextureCheckerboard2.jpg", System.UriKind.RelativeOrAbsolute).ToString());
-        this.FloorMaterial.NormalMap =
-            TextureModel.Create(new System.Uri(@"TextureCheckerboard2_dot3.jpg", System.UriKind.RelativeOrAbsolute)
+                new Uri(@"TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute).ToString());
+        FloorMaterial.NormalMap =
+            TextureModel.Create(new Uri(@"TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
                                     .ToString());
 
         var caritems = Load3ds("leone.3DBuilder.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();

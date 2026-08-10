@@ -34,7 +34,7 @@ public static class Extensions {
         var outlineList = GetTextOutlines(text, font, fontStyle, fontWeight, fontSize);
 
         // Build the polygon to mesh (using Triangle.NET to triangulate)
-        var polygon = new TriangleNet.Geometry.Polygon();
+        var polygon = new Polygon();
         int marker = 0;
 
         foreach (var outlines in outlineList) {
@@ -137,7 +137,7 @@ public static class Extensions {
     ) {
         var formattedText = new FormattedText(text,
                                               CultureInfo.CurrentCulture,
-                                              System.Windows.FlowDirection.LeftToRight,
+                                              FlowDirection.LeftToRight,
                                               new Typeface(new FontFamily(fontName),
                                                            fontStyle,
                                                            fontWeight,
@@ -161,7 +161,7 @@ public static class Extensions {
             return;
         }
 
-        var pathGeometry = geometry as System.Windows.Media.PathGeometry;
+        var pathGeometry = geometry as PathGeometry;
         if (pathGeometry != null) {
             var figures = pathGeometry.Figures.Select(figure => figure.ToPolyLine()).ToList();
             outlines.Add(figures);

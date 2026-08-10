@@ -29,10 +29,10 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
         : base(manager, technique, DefaultVolumeConstantBufferDesc, material) {
         this.material = material;
         volumePass = technique[volumePassName];
-        texSlot = volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.VolumeTB);
+        texSlot = volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.VolumeTb);
         gradientSlot =
             volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
-                .ColorStripe1DXTB);
+                .ColorStripe1Dxtb);
         samplerSlot =
             volumePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.VolumeSampler);
     }

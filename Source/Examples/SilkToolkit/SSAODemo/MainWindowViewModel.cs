@@ -25,7 +25,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
 
     public Matrix[] BunnyInstances { get; }
 
-    public SSAOQuality[] SSAOQualities { get; } = [SSAOQuality.High, SSAOQuality.Low];
+    public SsaoQuality[] SSAOQualities { get; } = [SsaoQuality.High, SsaoQuality.Low];
 
     [Obsolete]
     public MainWindowViewModel() {

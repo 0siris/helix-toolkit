@@ -48,31 +48,31 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
 
-        this.Title = "Manipulator Demo";
-        this.SubTitle = null;
+        Title = "Manipulator Demo";
+        SubTitle = null;
 
         // camera setup
-        this.Camera = new OrthographicCamera {
+        Camera = new OrthographicCamera {
             Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5), UpDirection = new Vector3D(0, 1, 0)
         };
 
         // setup lighting            
-        this.AmbientLightColor = Colors.DimGray;
-        this.DirectionalLightColor = Colors.White;
-        this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
+        AmbientLightColor = Colors.DimGray;
+        DirectionalLightColor = Colors.White;
+        DirectionalLightDirection = new Vector3D(-2, -5, -2);
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid();
-        this.GridColor = Colors.Black;
-        this.GridTransform = new TranslateTransform3D(-5, -1, -5);
+        Grid = LineBuilder.GenerateGrid();
+        GridColor = Colors.Black;
+        GridTransform = new TranslateTransform3D(-5, -1, -5);
 
         // scene model3d
         var b1 = new MeshBuilder();
         b1.AddSphere(new Vector3(0, 0, 0), 0.5);
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 1.5, BoxFaces.All);
-        this.Model = b1.ToMeshGeometry3D();
+        Model = b1.ToMeshGeometry3D();
         var m1 = Load3ds("suzanne.3ds");
-        this.Model2 = m1[0].Geometry as MeshGeometry3D;
+        Model2 = m1[0].Geometry as MeshGeometry3D;
         //Manully set an offset for test
         for (int i = 0; i < Model2.Positions.Count; ++i) {
             Model2.Positions[i] = Model2.Positions[i] + new Vector3(2, 3, 4);
@@ -83,24 +83,24 @@ public class MainViewModel : BaseViewModel {
         // lines model3d
         var e1 = new LineBuilder();
         e1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 1.5);
-        this.Lines = e1.ToLineGeometry3D();
+        Lines = e1.ToLineGeometry3D();
 
         // model trafos
-        this.Model1Transform = new TranslateTransform3D(0, 0, 0);
-        this.Model2Transform = new TranslateTransform3D(-3, 0, 0);
-        this.Model3Transform = new TranslateTransform3D(+3, 0, 0);
+        Model1Transform = new TranslateTransform3D(0, 0, 0);
+        Model2Transform = new TranslateTransform3D(-3, 0, 0);
+        Model3Transform = new TranslateTransform3D(+3, 0, 0);
 
         // model materials
-        this.Material1 = PhongMaterials.Orange;
-        this.Material2 = PhongMaterials.Orange;
-        this.Material3 = PhongMaterials.Red;
+        Material1 = PhongMaterials.Orange;
+        Material2 = PhongMaterials.Orange;
+        Material3 = PhongMaterials.Red;
 
         var dr = Colors.DarkRed;
         Console.WriteLine(dr);
         ResetTransformsCommand = new RelayCommand((o) => {
-            this.Model1Transform = new TranslateTransform3D(0, 0, 0);
-            this.Model2Transform = new TranslateTransform3D(-3, 0, 0);
-            this.Model3Transform = new TranslateTransform3D(+3, 0, 0);
+            Model1Transform = new TranslateTransform3D(0, 0, 0);
+            Model2Transform = new TranslateTransform3D(-3, 0, 0);
+            Model3Transform = new TranslateTransform3D(+3, 0, 0);
         });
     }
 

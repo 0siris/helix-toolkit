@@ -80,23 +80,23 @@ public class ScreenSpacedNode : GroupNode {
     ) {
         screenSpacedContext.RenderHost = context.RenderMatrices.RenderHost;
         var newRay = new Ray();
-        var hitSP = context.HitPointSP;
+        var hitSp = context.HitPointSp;
         var preHit = false;
         screenSpacedContext.NearPlane = NearPlane;
         screenSpacedContext.FarPlane = FarPlane;
         switch (Mode) {
             case ScreenSpacedMode.RelativeScreenSpaced:
-                preHit = CreateRelativeScreenModeRay(context, out newRay, out hitSP);
+                preHit = CreateRelativeScreenModeRay(context, out newRay, out hitSp);
                 break;
             case ScreenSpacedMode.AbsolutePosition3D:
-                preHit = CreateAbsoluteModeRay(context, out newRay, out hitSP);
+                preHit = CreateAbsoluteModeRay(context, out newRay, out hitSp);
                 break;
         }
 
         if (!preHit) return false;
         screenSpacedContext.Update();
         screenSpaceHits.Clear();
-        var spHitContext = new HitTestContext(screenSpacedContext, newRay, hitSP);
+        var spHitContext = new HitTestContext(screenSpacedContext, newRay, hitSp);
         if (base.OnHitTest(spHitContext, totalModelMatrix, ref screenSpaceHits)) {
             hits ??= [];
             hits.Clear();
@@ -107,8 +107,8 @@ public class ScreenSpacedNode : GroupNode {
         return false;
     }
 
-    private bool CreateRelativeScreenModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSP) {
-        var p = context.HitPointSP *
+    private bool CreateRelativeScreenModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSp) {
+        var p = context.HitPointSp *
                 context.RenderMatrices
                        .DpiScale; //SilkMath.TransformCoordinate(context.RayWS.Position, context.RenderMatrices.ScreenViewProjectionMatrix);
         var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
@@ -127,11 +127,11 @@ public class ScreenSpacedNode : GroupNode {
 
         if (px < 0 || py < 0 || px > viewportSize || py > viewportSize) {
             newRay = new Ray();
-            hitSP = Vector2.Zero;
+            hitSp = Vector2.Zero;
             return false;
         }
 
-        hitSP = new Vector2(px, py) / context.RenderMatrices.DpiScale;
+        hitSp = new Vector2(px, py) / context.RenderMatrices.DpiScale;
         var viewMatrix = screenSpaceCore.GlobalTransform.View;
         var projMatrix = screenSpaceCore.GlobalTransform.Projection;
         newRay = new Vector2(px, py).UnProject(ref viewMatrix,
@@ -147,7 +147,7 @@ public class ScreenSpacedNode : GroupNode {
         return true;
     }
 
-    private bool CreateAbsoluteModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSP) {
+    private bool CreateAbsoluteModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSp) {
         var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
         screenSpacedContext.IsPerspective = screenSpaceCore.IsPerspective;
         var viewMatrix = screenSpaceCore.GlobalTransform.View;
@@ -156,8 +156,8 @@ public class ScreenSpacedNode : GroupNode {
         screenSpacedContext.ViewMatrixInv = viewMatrix.PsudoInvert();
         screenSpacedContext.ProjectionMatrix = projMatrix;
         if (context.RenderMatrices.IsPerspective) {
-            hitSP = context.HitPointSP;
-            newRay = (hitSP * context.RenderMatrices.DpiScale).UnProject(ref viewMatrix,
+            hitSp = context.HitPointSp;
+            newRay = (hitSp * context.RenderMatrices.DpiScale).UnProject(ref viewMatrix,
                 ref projMatrix,
                 screenSpaceCore.NearPlane,
                 context.RenderMatrices.ActualWidth,
@@ -168,7 +168,7 @@ public class ScreenSpacedNode : GroupNode {
             return true;
         }
 
-        var p = context.HitPointSP * context.RenderMatrices.DpiScale;
+        var p = context.HitPointSp * context.RenderMatrices.DpiScale;
         var viewportSize = screenSpaceCore.Size * screenSpaceCore.SizeScale * context.RenderMatrices.DpiScale;
 
         var abs = SilkMath.TransformCoordinate(AbsolutePosition3D,
@@ -181,11 +181,11 @@ public class ScreenSpacedNode : GroupNode {
 
         if (px < 0 || py < 0 || px > viewportSize || py > viewportSize) {
             newRay = new Ray();
-            hitSP = Vector2.Zero;
+            hitSp = Vector2.Zero;
             return false;
         }
 
-        hitSP = new Vector2(px, py) / context.RenderMatrices.DpiScale;
+        hitSp = new Vector2(px, py) / context.RenderMatrices.DpiScale;
         newRay = new Vector2(px, py).UnProject(ref viewMatrix,
                                                ref projMatrix,
                                                screenSpaceCore.NearPlane,

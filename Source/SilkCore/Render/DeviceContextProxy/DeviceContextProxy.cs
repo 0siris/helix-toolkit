@@ -50,8 +50,8 @@ public sealed partial class DeviceContextProxy : DisposeObject {
         currInputLayout = null;
         PrimitiveTopology = PrimitiveTopology.Undefined;
         CurrShaderPass = null;
-        for (var i = 0; i < ConstantBufferCheck.Length; ++i) ConstantBufferCheck[i] = null;
-        for (var i = 0; i < SamplerStateCheck.Length; ++i) SamplerStateCheck[i] = null;
+        for (var i = 0; i < constantBufferCheck.Length; ++i) constantBufferCheck[i] = null;
+        for (var i = 0; i < samplerStateCheck.Length; ++i) samplerStateCheck[i] = null;
     }
 
     /// <summary>

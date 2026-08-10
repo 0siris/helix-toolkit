@@ -91,7 +91,7 @@ public static class RayExtensions {
     }
 
     public static Ray UnProject(
-        this Vector2 point2d,
+        this Vector2 point2D,
         ref Matrix view,
         ref Matrix projection,
         float nearPlane,
@@ -99,8 +99,8 @@ public static class RayExtensions {
         float h,
         bool isPerpective
     ) {
-        var px = point2d.X;
-        var py = point2d.Y;
+        var px = point2D.X;
+        var py = point2D.Y;
 
         var matrix = MatrixExtensions.PsudoInvert(ref view);
 

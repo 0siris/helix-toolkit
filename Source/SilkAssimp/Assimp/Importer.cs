@@ -332,7 +332,7 @@ public partial class Importer : IDisposable {
     protected virtual ErrorCode ProcessSceneNodes(Model.Scene.SceneNode root) {
         if (root == null) return ErrorCode.Failed;
         SceneNodes.Add(root);
-        SceneNodes.AddRange(root.Items.PreorderDFT(n => true));
+        SceneNodes.AddRange(root.Items.PreorderDft(n => true));
         return ErrorCode.Succeed;
     }
 

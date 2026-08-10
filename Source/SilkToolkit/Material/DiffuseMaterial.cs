@@ -56,12 +56,12 @@ public class DiffuseMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UVTransformProperty =
         DependencyProperty.Register("UVTransform",
-                                    typeof(UVTransform),
+                                    typeof(UvTransform),
                                     typeof(DiffuseMaterial),
-                                    new PropertyMetadata(UVTransform.Identity,
+                                    new PropertyMetadata(UvTransform.Identity,
                                                          (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore).UVTransform =
-                                                                 (UVTransform)e.NewValue;
+                                                             ((d as Material).Core as DiffuseMaterialCore).UvTransform =
+                                                                 (UvTransform)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -103,7 +103,7 @@ public class DiffuseMaterial : Material {
     public DiffuseMaterial(DiffuseMaterialCore core) : base(core) {
         DiffuseColor = core.DiffuseColor;
         DiffuseMap = core.DiffuseMap;
-        UVTransform = core.UVTransform;
+        UVTransform = core.UvTransform;
         DiffuseMapSampler = core.DiffuseMapSampler;
         EnableUnLit = core.EnableUnLit;
         EnableFlatShading = core.EnableFlatShading;
@@ -145,8 +145,8 @@ public class DiffuseMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
-        get => (UVTransform)GetValue(UVTransformProperty);
+    public UvTransform UVTransform {
+        get => (UvTransform)GetValue(UVTransformProperty);
         set => SetValue(UVTransformProperty, value);
     }
 
@@ -189,7 +189,7 @@ public class DiffuseMaterial : Material {
         return new DiffuseMaterialCore {
             DiffuseColor = DiffuseColor,
             DiffuseMap = DiffuseMap,
-            UVTransform = UVTransform,
+            UvTransform = UVTransform,
             DiffuseMapSampler = DiffuseMapSampler,
             EnableUnLit = EnableUnLit,
             EnableFlatShading = EnableFlatShading,

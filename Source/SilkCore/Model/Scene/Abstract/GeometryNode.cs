@@ -113,7 +113,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     }
 
     private void CreateGeometryBuffer() {
-        var newBuffer = OnCreateBufferModel(GUID, geometry);
+        var newBuffer = OnCreateBufferModel(Guid, geometry);
         RemoveAndDispose(ref bufferModelInternal);
         bufferModelInternal = newBuffer;
         if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = bufferModelInternal;
@@ -168,7 +168,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <param name="context"></param>
     /// <returns></returns>
     protected virtual bool PreHitTestOnBounds(HitTestContext context) {
-        var ray = context.RayWS;
+        var ray = context.RayWs;
         return BoundsSphereWithTransform.Intersects(ref ray) && BoundsWithTransform.Intersects(ref ray);
     }
 
@@ -262,7 +262,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <summary>
     ///     The reuse vertex array buffer
     /// </summary>
-    protected bool reuseVertexArrayBuffer = false;
+    protected bool ReuseVertexArrayBuffer = false;
 
     /// <summary>
     /// </summary>
@@ -387,7 +387,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <value>
     ///     <c>true</c> if this instance is msaa enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsMSAAEnabled {
+    public bool IsMsaaEnabled {
         get { return field = true; }
         set {
             if (Set(ref field, value)) OnRasterStateChanged();

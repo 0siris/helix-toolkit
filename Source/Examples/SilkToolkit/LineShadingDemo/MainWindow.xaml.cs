@@ -32,15 +32,15 @@ public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
         var viewModel = new MainViewModel();
-        this.DataContext = viewModel;
+        DataContext = viewModel;
 
         // mouse events            
-        this.view1.MouseDown += (o, e) => {
-            var hits = this.view1.FindHits(e.GetPosition(this.view1));
+        view1.MouseDown += (o, e) => {
+            var hits = view1.FindHits(e.GetPosition(view1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {
                     (hit.ModelHit as Element3D).RaiseEvent(
-                        new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(this.view1), null, e));
+                        new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(view1), null, e));
                     if (e.Handled) {
                         break;
                     }

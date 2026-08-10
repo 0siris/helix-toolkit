@@ -6,22 +6,22 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
-/// <typeparam name="INDEXTYPE"></typeparam>
-/// <typeparam name="NAMETYPE"></typeparam>
-/// <typeparam name="DATATYPE"></typeparam>
-public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
-    private readonly Dictionary<INDEXTYPE, DATATYPE> indexDataMapping = [];
-    private readonly Dictionary<INDEXTYPE, NAMETYPE> indexNameMapping = [];
-    private readonly Dictionary<NAMETYPE, INDEXTYPE> nameIndexMapping = [];
+/// <typeparam name="Indextype"></typeparam>
+/// <typeparam name="Nametype"></typeparam>
+/// <typeparam name="Datatype"></typeparam>
+public sealed class MappingCollection<Indextype, Nametype, Datatype> {
+    private readonly Dictionary<Indextype, Datatype> indexDataMapping = [];
+    private readonly Dictionary<Indextype, Nametype> indexNameMapping = [];
+    private readonly Dictionary<Nametype, Indextype> nameIndexMapping = [];
 
     /// <summary>
     /// </summary>
-    public KeyValuePair<INDEXTYPE, DATATYPE>[] MappingArray { get; private set; } =
+    public KeyValuePair<Indextype, Datatype>[] MappingArray { get; private set; } =
         [];
 
     /// <summary>
     /// </summary>
-    public IEnumerable<DATATYPE> Datas => indexDataMapping.Values;
+    public IEnumerable<Datatype> Datas => indexDataMapping.Values;
 
     /// <summary>
     /// </summary>
@@ -29,26 +29,26 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
 
     /// <summary>
     /// </summary>
-    public IEnumerable<INDEXTYPE> Keys => indexNameMapping.Keys;
+    public IEnumerable<Indextype> Keys => indexNameMapping.Keys;
 
     /// <summary>
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public DATATYPE this[INDEXTYPE key] => indexDataMapping[key];
+    public Datatype this[Indextype key] => indexDataMapping[key];
 
     /// <summary>
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public INDEXTYPE this[NAMETYPE name] => nameIndexMapping[name];
+    public Indextype this[Nametype name] => nameIndexMapping[name];
 
     /// <summary>
     /// </summary>
     /// <param name="index"></param>
     /// <param name="name"></param>
     /// <param name="item"></param>
-    public void Add(INDEXTYPE index, NAMETYPE name, DATATYPE item) {
+    public void Add(Indextype index, Nametype name, Datatype item) {
         if (nameIndexMapping.ContainsKey(name)) throw new ArgumentException("Cannot add duplicate name.");
         if (indexNameMapping.ContainsKey(index)) throw new ArgumentException("Cannot add duplicate index");
         indexNameMapping.Add(index, name);
@@ -61,7 +61,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
-    public bool Remove(INDEXTYPE index) {
+    public bool Remove(Indextype index) {
         if (indexNameMapping.ContainsKey(index)) {
             nameIndexMapping.Remove(indexNameMapping[index]);
             indexNameMapping.Remove(index);
@@ -77,7 +77,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool Remove(NAMETYPE name) {
+    public bool Remove(Nametype name) {
         if (nameIndexMapping.ContainsKey(name)) {
             indexNameMapping.Remove(nameIndexMapping[name]);
             indexDataMapping.Remove(nameIndexMapping[name]);
@@ -93,7 +93,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public bool HasItem(INDEXTYPE id) {
+    public bool HasItem(Indextype id) {
         return indexNameMapping.ContainsKey(id);
     }
 
@@ -102,7 +102,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// <param name="id"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool TryGetItem(INDEXTYPE id, out DATATYPE data) {
+    public bool TryGetItem(Indextype id, out Datatype data) {
         return indexDataMapping.TryGetValue(id, out data);
     }
 
@@ -111,7 +111,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// <param name="name"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public bool TryGetSlot(NAMETYPE name, out INDEXTYPE index) {
+    public bool TryGetSlot(Nametype name, out Indextype index) {
         return nameIndexMapping.TryGetValue(name, out index);
     }
 
@@ -120,7 +120,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool TryGetName(INDEXTYPE id, out NAMETYPE name) {
+    public bool TryGetName(Indextype id, out Nametype name) {
         return indexNameMapping.TryGetValue(id, out name);
     }
 
@@ -128,7 +128,7 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool HasItem(NAMETYPE name) {
+    public bool HasItem(Nametype name) {
         return nameIndexMapping.ContainsKey(name);
     }
 
@@ -137,8 +137,8 @@ public sealed class MappingCollection<INDEXTYPE, NAMETYPE, DATATYPE> {
     /// <param name="name"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool TryGetItem(NAMETYPE name, out DATATYPE data) {
-        INDEXTYPE idx;
+    public bool TryGetItem(Nametype name, out Datatype data) {
+        Indextype idx;
         if (nameIndexMapping.TryGetValue(name, out idx) && indexDataMapping.TryGetValue(idx, out data))
             return true;
 

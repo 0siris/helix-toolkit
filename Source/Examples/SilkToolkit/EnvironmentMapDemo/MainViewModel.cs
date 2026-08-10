@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using DemoCore;
 using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using Color = HelixToolkit.SharpDX.Core.Color;
+using Color = Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
@@ -36,31 +36,31 @@ public class MainViewModel : BaseViewModel {
     public TextureModel SkyboxTexture { private set; get; }
 
     public MainViewModel() {
-        this.Title = "Environment Mapping Demo";
-        this.SubTitle = "HelixToolkitDX";
+        Title = "Environment Mapping Demo";
+        SubTitle = "HelixToolkitDX";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(10, 0, 0), LookDirection = new Vector3D(-10, 0, 0),
             UpDirection = new Vector3D(0, 1, 0)
         };
         //this.Camera = new OrthographicCamera { Position = new Point3D(3, 3, 5), LookDirection = new Vector3D(-3, -3, -5), UpDirection = new Vector3D(0, 1, 0) };
 
         // lighting setup
-        this.AmbientLightColor = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
-        this.DirectionalLightColor = Color.White;
-        this.DirectionalLightDirection = new Vector3(-2, -1, 1);
+        AmbientLightColor = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
+        DirectionalLightColor = Color.White;
+        DirectionalLightDirection = new Vector3(-2, -1, 1);
 
         // scene model3d
         LoadModel("teapot_quads_tex.obj", MeshFaces.Default);
-        this.ModelTransform = new Media3D.TranslateTransform3D();
-        this.ModelMaterial = PhongMaterials.PolishedSilver;
-        this.ModelMaterial.ReflectiveColor = Color.Silver;
-        this.ModelMaterial.RenderEnvironmentMap = true;
+        ModelTransform = new Media3D.TranslateTransform3D();
+        ModelMaterial = PhongMaterials.PolishedSilver;
+        ModelMaterial.ReflectiveColor = Color.Silver;
+        ModelMaterial.RenderEnvironmentMap = true;
         var b1 = new MeshBuilder(true);
         b1.AddSphere(new Vector3(0, 0, 0), 1.0, 64, 64);
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 3, BoxFaces.All);
-        this.Model1 = b1.ToMeshGeometry3D();
+        Model1 = b1.ToMeshGeometry3D();
 
         EffectsManager = new DefaultEffectsManager();
 
@@ -87,15 +87,15 @@ public class MainViewModel : BaseViewModel {
         //Instances.Add(Matrix.Translation(new Vector3(t, -t, -t)));
         //Instances.Add(Matrix.Translation(new Vector3(-t, t, -t)));
         //Instances.Add(Matrix.Translation(new Vector3(t, t, -t)));
-        this.ModelMaterial1 = PhongMaterials.Red;
-        this.ModelMaterial1.AmbientColor = Color.Red;
-        this.ModelMaterial1.RenderEnvironmentMap = true;
-        this.ModelMaterial2 = PhongMaterials.Green;
-        this.ModelMaterial2.AmbientColor = Color.Green;
-        this.ModelMaterial2.RenderEnvironmentMap = true;
-        this.ModelMaterial3 = PhongMaterials.Blue;
-        this.ModelMaterial3.AmbientColor = Color.Blue;
-        this.ModelMaterial3.RenderEnvironmentMap = true;
+        ModelMaterial1 = PhongMaterials.Red;
+        ModelMaterial1.AmbientColor = Color.Red;
+        ModelMaterial1.RenderEnvironmentMap = true;
+        ModelMaterial2 = PhongMaterials.Green;
+        ModelMaterial2.AmbientColor = Color.Green;
+        ModelMaterial2.RenderEnvironmentMap = true;
+        ModelMaterial3 = PhongMaterials.Blue;
+        ModelMaterial3.AmbientColor = Color.Blue;
+        ModelMaterial3.RenderEnvironmentMap = true;
     }
 
     /// <summary>

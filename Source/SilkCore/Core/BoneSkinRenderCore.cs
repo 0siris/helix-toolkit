@@ -62,16 +62,16 @@ public class BoneSkinRenderCore : MeshRenderCore {
         matricsChanged = true;
         preComputeBoneSkinPass = technique[DefaultPassNames.PreComputeMeshBoneSkinned];
         boneSkinSbSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.BoneSkinSB).Slot;
+                                               .GetMapping(DefaultBufferNames.BoneSkinSb).Slot;
             
         mtWeightsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.MTWeightsB).Slot;
+                                               .GetMapping(DefaultBufferNames.MtWeightsB).Slot;
             
         mtDeltasBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                              .GetMapping(DefaultBufferNames.MTDeltasB).Slot;
+                                              .GetMapping(DefaultBufferNames.MtDeltasB).Slot;
             
         mtOffsetsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.MTOffsetsB).Slot;
+                                               .GetMapping(DefaultBufferNames.MtOffsetsB).Slot;
         
         internalBoneBuffer.Attach(technique);
         internalMtBuffer.Attach(technique);
@@ -91,7 +91,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
 
     protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
         //Skip if not ready
-        if (preComputeBoneSkinPass.IsNULL || preComputeBoneBuffer is not {CanPreCompute: true})
+        if (preComputeBoneSkinPass.IsNull || preComputeBoneBuffer is not {CanPreCompute: true})
             return;
 
         //Skip if not necessary

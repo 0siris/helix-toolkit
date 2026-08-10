@@ -61,9 +61,9 @@ public class ColorStripeMaterialVariables : MaterialVariable {
 
     /// <summary>
     /// </summary>
-    public string ShaderStripeTexXName { get; set; } = DefaultBufferNames.ColorStripe1DXTB;
+    public string ShaderStripeTexXName { get; set; } = DefaultBufferNames.ColorStripe1Dxtb;
 
-    public string ShaderStripeTexYName { get; set; } = DefaultBufferNames.ColorStripe1DYTB;
+    public string ShaderStripeTexYName { get; set; } = DefaultBufferNames.ColorStripe1Dytb;
 
     /// <summary>
     /// </summary>
@@ -71,17 +71,17 @@ public class ColorStripeMaterialVariables : MaterialVariable {
 
     protected override void OnInitialPropertyBindings() {
         AddPropertyBinding(nameof(ColorStripeMaterialCore.DiffuseColor),
-                           () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
+                           () => { WriteValue(PhongPbrMaterialStruct.DiffuseStr, material.DiffuseColor); });
         AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeX),
                            () => {
                                CreateTextureView(material.ColorStripeX, 0);
-                               WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                               WriteValue(PhongPbrMaterialStruct.HasDiffuseMapStr,
                                           material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
                            });
         AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeY),
                            () => {
                                CreateTextureView(material.ColorStripeY, 1);
-                               WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
+                               WriteValue(PhongPbrMaterialStruct.HasDiffuseAlphaMapStr,
                                           material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
                                               ? 1
                                               : 0);
@@ -94,19 +94,19 @@ public class ColorStripeMaterialVariables : MaterialVariable {
                            });
         AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeXEnabled),
                            () => {
-                               WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
+                               WriteValue(PhongPbrMaterialStruct.HasDiffuseMapStr,
                                           material.ColorStripeXEnabled && (textureIndex & 1u) != 0 ? 1 : 0);
                            });
         AddPropertyBinding(nameof(ColorStripeMaterialCore.ColorStripeYEnabled),
                            () => {
-                               WriteValue(PhongPBRMaterialStruct.HasDiffuseAlphaMapStr,
+                               WriteValue(PhongPbrMaterialStruct.HasDiffuseAlphaMapStr,
                                           material.ColorStripeYEnabled && (textureIndex & (1u << 1)) != 0
                                               ? 1
                                               : 0);
                            });
 
-        WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, new Vector4(1, 0, 0, 0));
-        WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, new Vector4(0, 1, 0, 0));
+        WriteValue(PhongPbrMaterialStruct.UvTransformR1Str, new Vector4(1, 0, 0, 0));
+        WriteValue(PhongPbrMaterialStruct.UvTransformR2Str, new Vector4(0, 1, 0, 0));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -154,7 +154,7 @@ public class ColorStripeMaterialVariables : MaterialVariable {
     /// <param name="shader"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
-        if (shader.IsNULL) return;
+        if (shader.IsNull) return;
         shader.BindTexture(context, texStripeXSlot, textures[0]);
         shader.BindTexture(context, texStripeYSlot, textures[1]);
         shader.BindSampler(context, samplerDiffuseSlot, sampler);

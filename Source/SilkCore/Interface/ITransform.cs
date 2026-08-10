@@ -34,7 +34,7 @@ public interface ITransform2D {
     /// <value>
     ///     The model matrix.
     /// </value>
-    Matrix3x2 ModelMatrix { get; set; }
+    Matrix3X2 ModelMatrix { get; set; }
 
     /// <summary>
     ///     Gets or sets the parent matrix.
@@ -42,7 +42,7 @@ public interface ITransform2D {
     /// <value>
     ///     The parent matrix.
     /// </value>
-    Matrix3x2 ParentMatrix { get; set; }
+    Matrix3X2 ParentMatrix { get; set; }
 
     /// <summary>
     ///     Gets the total model matrix.
@@ -50,5 +50,5 @@ public interface ITransform2D {
     /// <value>
     ///     The total model matrix.
     /// </value>
-    Matrix3x2 TotalModelMatrix { get; }
+    Matrix3X2 TotalModelMatrix { get; }
 }

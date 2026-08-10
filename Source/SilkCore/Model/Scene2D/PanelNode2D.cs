@@ -7,7 +7,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class PanelNode2D : SceneNode2D {
-    protected readonly Dictionary<Guid, SceneNode2D> itemHashSet = [];
+    protected readonly Dictionary<Guid, SceneNode2D> ItemHashSet = [];
 
     public PanelNode2D() {
         ItemsInternal = [];
@@ -15,8 +15,8 @@ public class PanelNode2D : SceneNode2D {
     }
 
     public virtual bool AddChildNode(SceneNode2D node) {
-        if (!itemHashSet.ContainsKey(node.GUID)) {
-            itemHashSet.Add(node.GUID, node);
+        if (!ItemHashSet.ContainsKey(node.Guid)) {
+            ItemHashSet.Add(node.Guid, node);
             ItemsInternal.Add(node);
             node.Parent = this;
             if (IsAttached) node.Attach(RenderHost);
@@ -35,7 +35,7 @@ public class PanelNode2D : SceneNode2D {
             ItemsInternal[i].Parent = null;
         }
 
-        itemHashSet.Clear();
+        ItemHashSet.Clear();
         ItemsInternal.Clear();
     }
 
@@ -45,7 +45,7 @@ public class PanelNode2D : SceneNode2D {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public virtual bool RemoveChildNode(SceneNode2D node) {
-        if (itemHashSet.Remove(node.GUID)) {
+        if (ItemHashSet.Remove(node.Guid)) {
             node.Detach();
             ItemsInternal.Remove(node);
             node.Parent = null;
@@ -62,7 +62,7 @@ public class PanelNode2D : SceneNode2D {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public bool TryGetNode(Guid guid, out SceneNode2D node) {
-        return itemHashSet.TryGetValue(guid, out node);
+        return ItemHashSet.TryGetValue(guid, out node);
     }
 
     protected override bool OnAttach(IRenderHost host) {

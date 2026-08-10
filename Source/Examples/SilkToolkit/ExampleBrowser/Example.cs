@@ -19,26 +19,26 @@ public class Example {
     public ImageSource Thumbnail { get; set; }
 
     public string ThumbnailFileName {
-        get { return this.MainWindowType.Namespace + "_small.png"; }
+        get { return MainWindowType.Namespace + "_small.png"; }
     }
 
     public Example(Type mainWindowType, string? title = null, string? description = null) {
-        this.MainWindowType = mainWindowType;
-        this.Title = title ?? mainWindowType.Namespace;
-        this.Description = description;
+        MainWindowType = mainWindowType;
+        Title = title ?? mainWindowType.Namespace;
+        Description = description;
         try {
-            this.Thumbnail =
-                new BitmapImage(new Uri("pack://application:,,,/Images/" + this.ThumbnailFileName));
+            Thumbnail =
+                new BitmapImage(new Uri("pack://application:,,,/Images/" + ThumbnailFileName));
         } catch (Exception e) {
             Debug.WriteLine(e);
         }
     }
 
     public override string ToString() {
-        return this.Title;
+        return Title;
     }
 
     public Window Create() {
-        return Activator.CreateInstance(this.MainWindowType) as Window;
+        return Activator.CreateInstance(MainWindowType) as Window;
     }
 }

@@ -20,7 +20,7 @@ using HelixToolkit.Wpf.SharpDX;
 public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
-        this.DataContext = new MainViewModel();
+        DataContext = new MainViewModel();
         view.AddHandler(Element3D.MouseDown3DEvent,
                         new RoutedEventHandler((s, e) => {
                             var arg = e as MouseDown3DEventArgs;

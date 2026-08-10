@@ -72,7 +72,7 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
         Title = "Material Demo";
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(-30, 30, -30), LookDirection = new Vector3D(30, -30, 30),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -105,7 +105,7 @@ public class MainViewModel : BaseViewModel {
         (FloorMaterial as PhongMaterial).RenderShadowMap = true;
 
         OpenPBRSampleCommand = new RelayCommand((o) => {
-            PBRWindow w = new PBRWindow() { DataContext = new PBRViewModel(this.EffectsManager) { EnvironmentMap = this.EnvironmentMap } };
+            PBRWindow w = new PBRWindow() { DataContext = new PBRViewModel(EffectsManager) { EnvironmentMap = EnvironmentMap } };
             w.Show();
         });
     }
@@ -161,7 +161,7 @@ public class MainViewModel : BaseViewModel {
                 //{
                 //    s.Instances = ob.Transform;
                 //}
-                this.Model1.Add(s);
+                Model1.Add(s);
 
                 Model2.Add(new MeshGeometryModel3D() {
                     Geometry = ob.Geometry,

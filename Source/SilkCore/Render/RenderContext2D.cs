@@ -7,7 +7,7 @@ namespace HelixToolkit.SharpDX.Core;
 /// <summary>
 /// </summary>
 public sealed class RenderContext2D : DisposeObject {
-    private readonly Stack<Matrix3x2> relativeTransformStack = new();
+    private readonly Stack<Matrix3X2> relativeTransformStack = new();
 
     /// <summary>
     ///     The render host
@@ -76,7 +76,7 @@ public sealed class RenderContext2D : DisposeObject {
     /// <value>
     ///     The last bitmap transform.<see cref="RenderContext2D.RelativeTransform" />
     /// </value>
-    public Matrix3x2 RelativeTransform { get; private set; } = Matrix3x2.Identity;
+    public Matrix3X2 RelativeTransform { get; private set; } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance has target.
@@ -90,7 +90,7 @@ public sealed class RenderContext2D : DisposeObject {
     ///     Pushes the last bitmap transform.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public void PushRelativeTransform(Matrix3x2 transform) {
+    public void PushRelativeTransform(Matrix3X2 transform) {
         relativeTransformStack.Push(RelativeTransform);
         RelativeTransform = transform;
     }

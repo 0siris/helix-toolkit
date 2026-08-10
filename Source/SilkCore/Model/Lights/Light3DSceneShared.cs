@@ -21,7 +21,7 @@ public sealed class Light3DSceneShared : DisposeObject {
     /// <summary>
     /// </summary>
     public Light3DSceneShared(IConstantBufferPool pool) {
-        buffer = pool.Register(DefaultBufferNames.LightCB, LightsBufferModel.SizeInBytes);
+        buffer = pool.Register(DefaultBufferNames.LightCb, LightsBufferModel.SizeInBytes);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

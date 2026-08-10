@@ -159,18 +159,19 @@ public abstract class DisposeObject : IDisposable, IDisposeObject {
 
         var currRef = RefCount;
         if (currRef == 0 && !IsDisposed) {
-            if (Interlocked.Increment(ref disposeCount) == 1) {
-                AddBackToPool = null;
-                Disposing?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
-                Disposing = null;
-                OnDispose(disposing);
-                //GC.SuppressFinalize(this);
+            if (Interlocked.Increment(ref disposeCount) != 1)
+                return;
+            
+            AddBackToPool = null;
+            Disposing?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
+            Disposing = null;
+            OnDispose(disposing);
+            //GC.SuppressFinalize(this);
 
-                IsDisposed = true;
+            IsDisposed = true;
 
-                Disposed?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
-                Disposed = null;
-            }
+            Disposed?.Invoke(this, disposing ? BoolEventArgs.TrueArgs : BoolEventArgs.FalseArgs);
+            Disposed = null;
         } else if (currRef == 1) {
             AddBackToPool?.Invoke(this);
         }

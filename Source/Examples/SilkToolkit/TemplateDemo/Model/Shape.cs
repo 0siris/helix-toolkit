@@ -10,7 +10,7 @@ using HelixToolkit.Wpf.SharpDX;
 
 public abstract class Shape {
     public Geometry3D Geometry {
-        get { return this.GetGeometry(); }
+        get { return GetGeometry(); }
     }
 
     protected abstract Geometry3D GetGeometry();

@@ -8,9 +8,7 @@ internal static class SilkMath {
     public const int MatrixSizeInBytes = sizeof(float) * 16;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Multiply(Vector2 left, Vector2 right) {
-        return left * right;
-    }
+    public static Vector2 Multiply(Vector2 left, Vector2 right) => left * right;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Normalize(Vector2 value) {
@@ -31,85 +29,70 @@ internal static class SilkMath {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Vector2 left, Vector2 right) {
-        return left.X * right.X + left.Y * right.Y;
-    }
+    public static float Dot(Vector2 left, Vector2 right) 
+        => left.X * right.X + left.Y * right.Y;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Vector3 left, Vector3 right) {
-        return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
-    }
+    public static float Dot(Vector3 left, Vector3 right) 
+        => left.X * right.X + left.Y * right.Y + left.Z * right.Z;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Vector4 left, Vector4 right) {
-        return left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
-    }
+    public static float Dot(Vector4 left, Vector4 right) 
+        => left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Dot(ref Vector3 left, ref Vector3 right, out float result) {
-        result = Dot(left, right);
-    }
+    public static void Dot(ref Vector3 left, ref Vector3 right, out float result) 
+        => result = Dot(left, right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Cross(Vector3 left, Vector3 right) {
-        return new Vector3(left.Y * right.Z - left.Z * right.Y,
-                           left.Z * right.X - left.X * right.Z,
-                           left.X * right.Y - left.Y * right.X);
-    }
+    public static Vector3 Cross(Vector3 left, Vector3 right) =>
+        new(left.Y * right.Z - left.Z * right.Y,
+            left.Z * right.X - left.X * right.Z,
+            left.X * right.Y - left.Y * right.X);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Min(Vector3 left, Vector3 right) {
-        return new Vector3(Math.Min(left.X, right.X),
-                           Math.Min(left.Y, right.Y),
-                           Math.Min(left.Z, right.Z));
-    }
+    public static Vector3 Min(Vector3 left, Vector3 right) =>
+        new(Math.Min(left.X, right.X),
+            Math.Min(left.Y, right.Y),
+            Math.Min(left.Z, right.Z));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Max(Vector3 left, Vector3 right) {
-        return new Vector3(Math.Max(left.X, right.X),
-                           Math.Max(left.Y, right.Y),
-                           Math.Max(left.Z, right.Z));
-    }
+    public static Vector3 Max(Vector3 left, Vector3 right) =>
+        new(Math.Max(left.X, right.X),
+            Math.Max(left.Y, right.Y),
+            Math.Max(left.Z, right.Z));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Clamp(Vector3 value, Vector3 minimum, Vector3 maximum) {
-        return Min(Max(value, minimum), maximum);
-    }
+    public static Vector3 Clamp(Vector3 value, Vector3 minimum, Vector3 maximum) 
+        => Min(Max(value, minimum), maximum);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 Lerp(Vector3 start, Vector3 end, float amount) {
-        return start + (end - start) * amount;
-    }
+    public static Vector3 Lerp(Vector3 start, Vector3 end, float amount) 
+        => start + (end - start) * amount;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Subtract(ref Vector3 left, ref Vector3 right, out Vector3 result) {
-        result = left - right;
-    }
+    public static void Subtract(ref Vector3 left, ref Vector3 right, out Vector3 result) 
+        => result = left - right;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Min(ref Vector3 left, ref Vector3 right, out Vector3 result) {
-        result = Min(left, right);
-    }
+    public static void Min(ref Vector3 left, ref Vector3 right, out Vector3 result) 
+        => result = Min(left, right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Max(ref Vector3 left, ref Vector3 right, out Vector3 result) {
-        result = Max(left, right);
-    }
+    public static void Max(ref Vector3 left, ref Vector3 right, out Vector3 result) 
+        => result = Max(left, right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Add(ref Vector3 left, ref Vector3 right, out Vector3 result) {
-        result = left + right;
-    }
+    public static void Add(ref Vector3 left, ref Vector3 right, out Vector3 result) 
+        => result = left + right;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float DistanceSquared(Vector3 left, Vector3 right) {
-        return (left - right).LengthSquared;
-    }
+    public static float DistanceSquared(Vector3 left, Vector3 right) 
+        => (left - right).LengthSquared;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void DistanceSquared(ref Vector3 left, ref Vector3 right, out float result) {
-        result = DistanceSquared(left, right);
-    }
+    public static void DistanceSquared(ref Vector3 left, ref Vector3 right, out float result) 
+        => result = DistanceSquared(left, right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 TransformCoordinate(Vector3 value, Matrix matrix) {
@@ -129,24 +112,21 @@ internal static class SilkMath {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 TransformNormal(Vector3 value, Matrix matrix) {
-        return new Vector3(value.X * matrix.M11 + value.Y * matrix.M21 + value.Z * matrix.M31,
-                           value.X * matrix.M12 + value.Y * matrix.M22 + value.Z * matrix.M32,
-                           value.X * matrix.M13 + value.Y * matrix.M23 + value.Z * matrix.M33);
-    }
+    public static Vector3 TransformNormal(Vector3 value, Matrix matrix) =>
+        new(value.X * matrix.M11 + value.Y * matrix.M21 + value.Z * matrix.M31,
+            value.X * matrix.M12 + value.Y * matrix.M22 + value.Z * matrix.M32,
+            value.X * matrix.M13 + value.Y * matrix.M23 + value.Z * matrix.M33);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector4 Transform(Vector3 value, Matrix matrix) {
-        return new Vector4(value.X * matrix.M11 + value.Y * matrix.M21 + value.Z * matrix.M31 + matrix.M41,
-                           value.X * matrix.M12 + value.Y * matrix.M22 + value.Z * matrix.M32 + matrix.M42,
-                           value.X * matrix.M13 + value.Y * matrix.M23 + value.Z * matrix.M33 + matrix.M43,
-                           value.X * matrix.M14 + value.Y * matrix.M24 + value.Z * matrix.M34 + matrix.M44);
-    }
+    public static Vector4 Transform(Vector3 value, Matrix matrix) =>
+        new(value.X * matrix.M11 + value.Y * matrix.M21 + value.Z * matrix.M31 + matrix.M41,
+            value.X * matrix.M12 + value.Y * matrix.M22 + value.Z * matrix.M32 + matrix.M42,
+            value.X * matrix.M13 + value.Y * matrix.M23 + value.Z * matrix.M33 + matrix.M43,
+            value.X * matrix.M14 + value.Y * matrix.M24 + value.Z * matrix.M34 + matrix.M44);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Transform(ref Vector3 value, ref Matrix matrix, out Vector4 result) {
-        result = Transform(value, matrix);
-    }
+    public static void Transform(ref Vector3 value, ref Matrix matrix, out Vector4 result) 
+        => result = Transform(value, matrix);
 
     public static Matrix Translation(Vector3 value) {
         var result = Matrix.Identity;
@@ -156,16 +136,14 @@ internal static class SilkMath {
         return result;
     }
 
-    public static Matrix Scaling(Vector3 value) {
-        return Scaling(value.X, value.Y, value.Z);
-    }
+    public static Matrix Scaling(Vector3 value) 
+        => Scaling(value.X, value.Y, value.Z);
 
-    public static Matrix Scaling(float x, float y, float z) {
-        return new Matrix(x, 0, 0, 0,
-                          0, y, 0, 0,
-                          0, 0, z, 0,
-                          0, 0, 0, 1);
-    }
+    public static Matrix Scaling(float x, float y, float z) =>
+        new(x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
+            0, 0, 0, 1);
 
     public static Matrix RotationQuaternion(Quaternion value) =>
         FromNumerics(Matrix4x4.CreateFromQuaternion(
@@ -189,33 +167,30 @@ internal static class SilkMath {
                                                           angle));
     }
 
-    public static Matrix RotationX(float angle) {
-        return FromNumerics(Matrix4x4.CreateRotationX(angle));
-    }
+    public static Matrix RotationX(float angle) 
+        => FromNumerics(Matrix4x4.CreateRotationX(angle));
 
-    public static Matrix RotationY(float angle) {
-        return FromNumerics(Matrix4x4.CreateRotationY(angle));
-    }
+    public static Matrix RotationY(float angle) 
+        => FromNumerics(Matrix4x4.CreateRotationY(angle));
 
-    public static Matrix RotationZ(float angle) {
-        return FromNumerics(Matrix4x4.CreateRotationZ(angle));
-    }
+    public static Matrix RotationZ(float angle) 
+        => FromNumerics(Matrix4x4.CreateRotationZ(angle));
 
-    public static Matrix LookAtLH(Vector3 eye, Vector3 target, Vector3 up) {
+    public static Matrix LookAtLh(Vector3 eye, Vector3 target, Vector3 up) {
         var zAxis = Normalize(target - eye);
         var xAxis = Normalize(Cross(up, zAxis));
         var yAxis = Cross(zAxis, xAxis);
         return CreateLookAt(eye, xAxis, yAxis, zAxis);
     }
 
-    public static Matrix LookAtRH(Vector3 eye, Vector3 target, Vector3 up) {
+    public static Matrix LookAtRh(Vector3 eye, Vector3 target, Vector3 up) {
         var zAxis = Normalize(eye - target);
         var xAxis = Normalize(Cross(up, zAxis));
         var yAxis = Cross(zAxis, xAxis);
         return CreateLookAt(eye, xAxis, yAxis, zAxis);
     }
 
-    public static Matrix PerspectiveFovLH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
+    public static Matrix PerspectiveFovLh(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
@@ -236,7 +211,7 @@ internal static class SilkMath {
                           0);
     }
 
-    public static Matrix PerspectiveFovRH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
+    public static Matrix PerspectiveFovRh(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
@@ -257,43 +232,41 @@ internal static class SilkMath {
                           0);
     }
 
-    public static Matrix OrthoLH(float width, float height, float nearPlane, float farPlane) {
-        return new Matrix(2f / width,
-                          0,
-                          0,
-                          0,
-                          0,
-                          2f / height,
-                          0,
-                          0,
-                          0,
-                          0,
-                          1f / (farPlane - nearPlane),
-                          0,
-                          0,
-                          0,
-                          -nearPlane / (farPlane - nearPlane),
-                          1);
-    }
+    public static Matrix OrthoLh(float width, float height, float nearPlane, float farPlane) =>
+        new(2f / width,
+            0,
+            0,
+            0,
+            0,
+            2f / height,
+            0,
+            0,
+            0,
+            0,
+            1f / (farPlane - nearPlane),
+            0,
+            0,
+            0,
+            -nearPlane / (farPlane - nearPlane),
+            1);
 
-    public static Matrix OrthoRH(float width, float height, float nearPlane, float farPlane) {
-        return new Matrix(2f / width,
-                          0,
-                          0,
-                          0,
-                          0,
-                          2f / height,
-                          0,
-                          0,
-                          0,
-                          0,
-                          1f / (nearPlane - farPlane),
-                          0,
-                          0,
-                          0,
-                          nearPlane / (nearPlane - farPlane),
-                          1);
-    }
+    public static Matrix OrthoRh(float width, float height, float nearPlane, float farPlane) =>
+        new(2f / width,
+            0,
+            0,
+            0,
+            0,
+            2f / height,
+            0,
+            0,
+            0,
+            0,
+            1f / (nearPlane - farPlane),
+            0,
+            0,
+            0,
+            nearPlane / (nearPlane - farPlane),
+            1);
 
     public static bool Invert(Matrix value, out Matrix result) {
         var source = new Matrix4x4(value.M11,
@@ -337,91 +310,80 @@ internal static class SilkMath {
         return true;
     }
 
-    private static Matrix CreateLookAt(Vector3 eye, Vector3 xAxis, Vector3 yAxis, Vector3 zAxis) {
-        return new Matrix(xAxis.X,
-                          yAxis.X,
-                          zAxis.X,
-                          0,
-                          xAxis.Y,
-                          yAxis.Y,
-                          zAxis.Y,
-                          0,
-                          xAxis.Z,
-                          yAxis.Z,
-                          zAxis.Z,
-                          0,
-                          -Dot(xAxis, eye),
-                          -Dot(yAxis, eye),
-                          -Dot(zAxis, eye),
-                          1);
-    }
+    private static Matrix CreateLookAt(Vector3 eye, Vector3 xAxis, Vector3 yAxis, Vector3 zAxis) =>
+        new(xAxis.X,
+            yAxis.X,
+            zAxis.X,
+            0,
+            xAxis.Y,
+            yAxis.Y,
+            zAxis.Y,
+            0,
+            xAxis.Z,
+            yAxis.Z,
+            zAxis.Z,
+            0,
+            -Dot(xAxis, eye),
+            -Dot(yAxis, eye),
+            -Dot(zAxis, eye),
+            1);
 
-    private static Matrix FromNumerics(Matrix4x4 source) {
-        return new Matrix(source.M11,
-                          source.M12,
-                          source.M13,
-                          source.M14,
-                          source.M21,
-                          source.M22,
-                          source.M23,
-                          source.M24,
-                          source.M31,
-                          source.M32,
-                          source.M33,
-                          source.M34,
-                          source.M41,
-                          source.M42,
-                          source.M43,
-                          source.M44);
-    }
+    private static Matrix FromNumerics(Matrix4x4 source) =>
+        new(source.M11,
+            source.M12,
+            source.M13,
+            source.M14,
+            source.M21,
+            source.M22,
+            source.M23,
+            source.M24,
+            source.M31,
+            source.M32,
+            source.M33,
+            source.M34,
+            source.M41,
+            source.M42,
+            source.M43,
+            source.M44);
 }
 
 internal static class SilkNetMathExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float NextFloat(this Random random, float minimum, float maximum) {
-        return minimum + (float)random.NextDouble() * (maximum - minimum);
-    }
+    public static float NextFloat(this Random random, float minimum, float maximum) 
+        => minimum + (float)random.NextDouble() * (maximum - minimum);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 NextVector3(this Random random, Vector3 minimum, Vector3 maximum) {
-        return new Vector3(random.NextFloat(minimum.X, maximum.X),
-                           random.NextFloat(minimum.Y, maximum.Y),
-                           random.NextFloat(minimum.Z, maximum.Z));
-    }
+    public static Vector3 NextVector3(this Random random, Vector3 minimum, Vector3 maximum) =>
+        new(random.NextFloat(minimum.X, maximum.X),
+            random.NextFloat(minimum.Y, maximum.Y),
+            random.NextFloat(minimum.Z, maximum.Z));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Normalize(this ref Vector2 value) {
-        value = SilkMath.Normalize(value);
-    }
+    public static void Normalize(this ref Vector2 value) 
+        => value = SilkMath.Normalize(value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Normalize(this ref Vector3 value) {
-        value = SilkMath.Normalize(value);
-    }
+    public static void Normalize(this ref Vector3 value) 
+        => value = SilkMath.Normalize(value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Normalize(this ref Vector4 value) {
-        value = SilkMath.Normalize(value);
-    }
+    public static void Normalize(this ref Vector4 value) 
+        => value = SilkMath.Normalize(value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float LengthSquared(this Vector2 value) {
-        return value.LengthSquared;
-    }
+    public static float LengthSquared(this Vector2 value) 
+        => value.LengthSquared;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float LengthSquared(this Vector3 value) {
-        return value.LengthSquared;
-    }
+    public static float LengthSquared(this Vector3 value) 
+        => value.LengthSquared;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float LengthSquared(this Vector4 value) {
-        return value.LengthSquared;
-    }
+    public static float LengthSquared(this Vector4 value) 
+        => value.LengthSquared;
 
-    public static void Invert(this ref Matrix value) {
-        SilkMath.Invert(value, out value);
-    }
+    public static void Invert(this ref Matrix value) 
+        => SilkMath.Invert(value, out value);
 
     public static bool Decompose(
         this Matrix value,

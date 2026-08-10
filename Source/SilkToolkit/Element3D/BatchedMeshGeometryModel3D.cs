@@ -32,7 +32,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
             n.DepthBias = DepthBias;
             n.IsDepthClipEnabled = IsDepthClipEnabled;
             n.SlopeScaledDepthBias = (float)SlopeScaledDepthBias;
-            n.IsMSAAEnabled = IsMultisampleEnabled;
+            n.IsMsaaEnabled = IsMultisampleEnabled;
             n.FillMode = FillMode;
             n.IsScissorEnabled = IsScissorEnabled;
             n.EnableViewFrustumCheck = EnableViewFrustumCheck;
@@ -147,7 +147,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .IsMSAAEnabled = (bool)e.NewValue;
+                                                                 .IsMsaaEnabled = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -248,7 +248,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         typeof(BatchedMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCCW = (bool)e.NewValue;
+                                 ((d as Element3DCore).SceneNode as BatchedMeshNode).FrontCcw = (bool)e.NewValue;
                              }));
 
     /// <summary>

@@ -57,7 +57,7 @@ public class VolumeTextureNode : SceneNode {
 
 
     protected override OrderKey OnUpdateRenderOrderKey() {
-        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
+        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
     }
 
     protected override bool CanRender(RenderContext context) {

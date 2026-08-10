@@ -45,10 +45,10 @@ public class DiffuseMaterialCore : MaterialCore {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
+    public UvTransform UvTransform {
         get;
         set => Set(ref field, value);
-    } = UVTransform.Identity;
+    } = UvTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the DiffuseMapSampler.

@@ -16,7 +16,7 @@ public sealed class GeometryBufferManager : IGeometryBufferManager {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
-    ///     The buffer dictionary. Key1=<see cref="Geometry3D.GUID" />, Key2=Typeof(Buffer)
+    ///     The buffer dictionary. Key1=<see cref="Geometry3D.Guid" />, Key2=Typeof(Buffer)
     /// </summary>
     private readonly Dictionary<(Type, Guid), IDisposeObject> bufferDictionary = []; //TODO review this type, maybe we can remove this
 
@@ -46,19 +46,19 @@ public sealed class GeometryBufferManager : IGeometryBufferManager {
         lock (bufferDictionary) {
             IGeometryBufferModel container;
             
-            if (bufferDictionary.TryGetValue((typeof(T), geometry.GUID), out var obj)) {
+            if (bufferDictionary.TryGetValue((typeof(T), geometry.Guid), out var obj)) {
                 //count refence up if key is contained
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.Verbose("Existing buffer found, GeomoetryGUID = {Value0}", geometry.GUID);
+                    Logger.Verbose("Existing buffer found, GeomoetryGUID = {Value0}", geometry.Guid);
 
                 container = obj.AssertTypeOf<IGeometryBufferModel>();
                 obj.IncRef();
             } else {
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.Verbose("Buffer not found, create new buffer. GeomoetryGUID = {Value0}", geometry.GUID);
+                    Logger.Verbose("Buffer not found, create new buffer. GeomoetryGUID = {Value0}", geometry.Guid);
 
                 container = new T();
-                var id = geometry.GUID;
+                var id = geometry.Guid;
                 obj = container.AssertTypeOf<IDisposeObject>();
                 obj.Disposed += (s, e) => {
                     if (Logger.IsEnabled(LogLevel.Trace))
@@ -69,7 +69,7 @@ public sealed class GeometryBufferManager : IGeometryBufferManager {
                 };
                 container.EffectsManager = manager;
                 container.Geometry = geometry;
-                bufferDictionary.Add((typeof(T), geometry.GUID), obj);
+                bufferDictionary.Add((typeof(T), geometry.Guid), obj);
             }
 
             return container;

@@ -9,7 +9,7 @@ namespace HelixToolkit.SharpDX.Core.Animations;
 /// <summary>
 /// </summary>
 public class KeyFrameUpdater : IAnimationUpdater {
-    private readonly int BoneCount;
+    private readonly int boneCount;
 
     private readonly Matrix[] currentBones;
 
@@ -27,14 +27,14 @@ public class KeyFrameUpdater : IAnimationUpdater {
     public KeyFrameUpdater(Animation animation, IList<Bone> bones) {
         Animation = animation;
         Name = animation.Name;
-        BoneCount = bones.Count;
-        tempKeyframes = new Keyframe?[BoneCount];
-        tempBones = new Matrix[BoneCount];
-        currentBones = new Matrix[BoneCount];
+        boneCount = bones.Count;
+        tempKeyframes = new Keyframe?[boneCount];
+        tempBones = new Matrix[boneCount];
+        currentBones = new Matrix[boneCount];
         Bones = bones;
-        keyframes = new List<Keyframe>[BoneCount];
-        for (var i = 0; i < BoneCount; ++i)
-            keyframes[i] = new List<Keyframe>(animation.Keyframes.Count / BoneCount);
+        keyframes = new List<Keyframe>[boneCount];
+        for (var i = 0; i < boneCount; ++i)
+            keyframes[i] = new List<Keyframe>(animation.Keyframes.Count / boneCount);
         foreach (var frame in animation.Keyframes.OrderBy(x => x.Time)) keyframes[frame.BoneIndex].Add(frame);
     }
 
@@ -98,7 +98,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
         // Apply parent bone transforms
         // We assume here that the first bone has no parent
         // and that each parent bone appears before children
-        for (var i = 1; i < BoneCount; i++) {
+        for (var i = 1; i < boneCount; i++) {
             var bone = Bones[i];
             if (bone.ParentIndex > -1) {
                 var parentTransform = tempBones[bone.ParentIndex];
@@ -107,7 +107,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
         }
 
         // Change the bone transform from rest pose space into bone space (using the inverse of the bind/rest pose)
-        for (var i = 0; i < BoneCount; i++) currentBones[i] = Bones[i].InvBindPose * tempBones[i];
+        for (var i = 0; i < boneCount; i++) currentBones[i] = Bones[i].InvBindPose * tempBones[i];
         OutputBones(boneNode);
     }
 
@@ -115,7 +115,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
 
 
     private void OutputBones(IBoneMatricesNode node) {
-        if (node.BoneMatrices == null || node.BoneMatrices.Length != BoneCount)
+        if (node.BoneMatrices == null || node.BoneMatrices.Length != boneCount)
             node.BoneMatrices = [.. currentBones];
         else
             currentBones.CopyTo(node.BoneMatrices, 0);

@@ -32,9 +32,9 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
     ///     Initializes a new instance of the <see cref="PostEffectMeshXRayGridCore" /> class.
     /// </summary>
     public PostEffectMeshXRayGridCore() : base(RenderType.PostEffect) {
-        modelCB = AddComponent(new ConstantBufferComponent(
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCB,
+                                       DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
         Color = new Color4(0, 0, 1, 1);
     }
@@ -53,8 +53,8 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
     /// <param name="deviceContext">The device context.</param>
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         var buffer = context.RenderHost.RenderBuffer;
-        var depthStencilBuffer = buffer.DepthStencilBufferNoMSAA;
-        deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPPBuffer.CurrentRTV);
+        var depthStencilBuffer = buffer.DepthStencilBufferNoMsaa;
+        deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPpBuffer.CurrentRtv);
         
         var viewport = context.Viewport;
         deviceContext.SetViewport(ref viewport);
@@ -77,7 +77,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
             }
 
         OnUpdatePerModelStruct(context);
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         
         //Thrid pass, draw mesh with grid overlay
         foreach (var (mesh, effect) in currentCores) {
@@ -88,7 +88,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
             
             if (modelStruct.Color != color) {
                 modelStruct.Color = color;
-                modelCB.Upload(deviceContext, ref modelStruct);
+                modelCb.Upload(deviceContext, ref modelStruct);
             }
 
             RenderPass(mesh, XRayDrawingPassName,
@@ -103,7 +103,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
         void RenderPass(SceneNode mesh, string passName, Action<ShaderPass>? bindResources = null) {
             context.CustomPassName = passName;
             var pass = mesh.EffectTechnique?[passName];
-            if (pass is null || pass.IsNULL) 
+            if (pass is null || pass.IsNull) 
                 return;
             
             pass.BindShader(deviceContext);
@@ -122,7 +122,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
 #region Variables
 
     private readonly List<(SceneNode SceneNode, IEffectAttributes Effect)> currentCores = [];
-    private readonly ConstantBufferComponent modelCB;
+    private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
 
 #endregion

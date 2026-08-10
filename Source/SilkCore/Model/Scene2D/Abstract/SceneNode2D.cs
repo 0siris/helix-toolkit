@@ -31,7 +31,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets or sets the parent.
@@ -138,7 +138,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The model matrix.
     /// </value>
-    public Matrix3x2 ModelMatrix {
+    public Matrix3X2 ModelMatrix {
         get;
         set {
             if (Set(ref field, value)) {
@@ -146,7 +146,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
                 InvalidateVisual();
             }
         }
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets the layout translate.
@@ -154,12 +154,12 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The layout translate.
     /// </value>
-    public Matrix3x2 LayoutTranslate {
+    public Matrix3X2 LayoutTranslate {
         get;
         set {
             if (Set(ref field, value)) InvalidateRender();
         }
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets the parent matrix.
@@ -167,12 +167,12 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The parent matrix.
     /// </value>
-    public Matrix3x2 ParentMatrix {
+    public Matrix3X2 ParentMatrix {
         get;
         set {
             if (Set(ref field, value)) IsTransformDirty = true;
         }
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets the total model matrix.
@@ -180,7 +180,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The total model matrix.
     /// </value>
-    public Matrix3x2 TotalModelMatrix {
+    public Matrix3X2 TotalModelMatrix {
         get;
         private set {
             if (Set(ref field, value)) {
@@ -189,7 +189,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
                 OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
             }
         }
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets the transform matrix relative to its parent
@@ -197,7 +197,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The relative matrix.
     /// </value>
-    private Matrix3x2 RelativeMatrix { get; set; }
+    private Matrix3X2 RelativeMatrix { get; set; }
 
     /// <summary>
     ///     Gets or sets the layout bound with transform.
@@ -392,7 +392,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     Transforms the changed.
     /// </summary>
     /// <param name="totalTransform">The total transform.</param>
-    protected virtual void TransformChanged(ref Matrix3x2 totalTransform) { }
+    protected virtual void TransformChanged(ref Matrix3X2 totalTransform) { }
 
     /// <summary>
     ///     Occurs when [on transform changed].
@@ -441,8 +441,8 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     public void Render(RenderContext2D context) {
         if (!IsRenderable) return;
         if (IsTransformDirty) {
-            RelativeMatrix = Matrix3x2.Translation(-RenderSize * RenderTransformOrigin)
-                             * ModelMatrix * Matrix3x2.Translation(RenderSize * RenderTransformOrigin)
+            RelativeMatrix = Matrix3X2.Translation(-RenderSize * RenderTransformOrigin)
+                             * ModelMatrix * Matrix3X2.Translation(RenderSize * RenderTransformOrigin)
                              * LayoutTranslate;
             TotalModelMatrix = RelativeMatrix * ParentMatrix;
             IsTransformDirty = false;
@@ -468,8 +468,8 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
                 }
 #endif
                 context.PushRenderTarget(bitmapCache, true);
-                context.DeviceContext.Transform = Matrix3x2.Identity;
-                context.PushRelativeTransform(Matrix3x2.Identity);
+                context.DeviceContext.Transform = Matrix3X2.Identity;
+                context.PushRelativeTransform(Matrix3X2.Identity);
                 RenderCore.Transform = context.RelativeTransform;
                 OnRender(context);
                 context.PopRelativeTransform();

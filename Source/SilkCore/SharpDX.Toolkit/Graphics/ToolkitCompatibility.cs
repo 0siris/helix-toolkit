@@ -12,7 +12,7 @@ namespace SharpDX.Toolkit.Graphics;
 [StructLayout(LayoutKind.Sequential, Size = 4)]
 public readonly struct Format : IEquatable<Format> {
     private Format(Silk.NET.DXGI.Format value) {
-        this.NativeFormat = value;
+        NativeFormat = value;
     }
 
     internal Silk.NET.DXGI.Format NativeFormat { get; }

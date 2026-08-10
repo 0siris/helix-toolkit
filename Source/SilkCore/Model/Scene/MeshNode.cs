@@ -45,8 +45,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
             DepthBiasClamp = -1000,
             SlopeScaledDepthBias = SlopeScaledDepthBias,
             IsDepthClipEnabled = IsDepthClipEnabled,
-            IsFrontCounterClockwise = FrontCCW,
-            IsMultisampleEnabled = IsMSAAEnabled,
+            IsFrontCounterClockwise = FrontCcw,
+            IsMultisampleEnabled = IsMsaaEnabled,
             IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
         };
     }
@@ -71,7 +71,7 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     /// <value>
     ///     <c>true</c> if [front CCW]; otherwise, <c>false</c>.
     /// </value>
-    public bool FrontCCW {
+    public bool FrontCcw {
         get;
         set {
             if (Set(ref field, value)) OnRasterStateChanged();

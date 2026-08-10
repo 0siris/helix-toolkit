@@ -12,18 +12,18 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class SSAOCore : RenderCore {
+public sealed class SsaoCore : RenderCore {
     private const int KernalSize = 32;
-    private const Format DEPTHFORMAT = Format.FormatD32Float;
-    private const Format RENDERTARGETFORMAT = Format.FormatR16G16B16A16Float;
-    private const Format SSAOTARGETFORMAT = Format.FormatR16Float;
+    private const Format Depthformat = Format.FormatD32Float;
+    private const Format Rendertargetformat = Format.FormatR16G16B16A16Float;
+    private const Format Ssaotargetformat = Format.FormatR16Float;
     private readonly Vector4[] kernels = new Vector4[KernalSize];
-    private readonly ConstantBufferComponent ssaoCB;
+    private readonly ConstantBufferComponent ssaoCb;
 
     private OffScreenTextureSize offScreenTextureSize = OffScreenTextureSize.Half;
 
     private float radius = 0.5f;
-    private SSAOParamStruct ssaoParam;
+    private SsaoParamStruct ssaoParam;
     private ShaderPass ssaoPass, ssaoBlur;
     private int ssaoTexSlot, noiseTexSlot, surfaceSampleSlot, noiseSamplerSlot, depthSlot;
 
@@ -42,10 +42,10 @@ public sealed class SSAOCore : RenderCore {
     private SamplerStateProxy surfaceSampler, noiseSampler, blurSampler;
     private int width, height;
 
-    public SSAOCore() : base(RenderType.PreProc) {
-        ssaoCB = AddComponent(new ConstantBufferComponent(
-                                  new ConstantBufferDescription(DefaultBufferNames.SSAOCB,
-                                                                SSAOParamStruct.SizeInBytes)));
+    public SsaoCore() : base(RenderType.PreProc) {
+        ssaoCb = AddComponent(new ConstantBufferComponent(
+                                  new ConstantBufferDescription(DefaultBufferNames.Ssaocb,
+                                                                SsaoParamStruct.SizeInBytes)));
     }
 
     public float Radius {
@@ -53,23 +53,23 @@ public sealed class SSAOCore : RenderCore {
         set => SetAffectsRender(ref radius, value);
     }
 
-    public SSAOQuality Quality {
+    public SsaoQuality Quality {
         get;
         set {
             if (SetAffectsRender(ref field, value))
-                offScreenTextureSize = value == SSAOQuality.High
+                offScreenTextureSize = value == SsaoQuality.High
                                            ? OffScreenTextureSize.Full
                                            : OffScreenTextureSize.Half;
         }
-    } = SSAOQuality.Low;
+    } = SsaoQuality.Low;
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         EnsureTextureResources((int)context.ActualWidth, (int)context.ActualHeight, deviceContext);
         var texScale = (int)offScreenTextureSize;
         var viewport = context.Viewport;
-        using var ds = context.GetOffScreenDS(offScreenTextureSize, DEPTHFORMAT);
-        using var rt0 = context.GetOffScreenRT(offScreenTextureSize, RENDERTARGETFORMAT);
-        using var rt1 = context.GetOffScreenRT(offScreenTextureSize, SSAOTARGETFORMAT);
+        using var ds = context.GetOffScreenDs(offScreenTextureSize, Depthformat);
+        using var rt0 = context.GetOffScreenRt(offScreenTextureSize, Rendertargetformat);
+        using var rt1 = context.GetOffScreenRt(offScreenTextureSize, Ssaotargetformat);
         var w = (int)(context.ActualWidth /
                       texScale); // Make sure to set correct viewport width/height by quality
         var h = (int)(context.ActualHeight / texScale);
@@ -88,10 +88,10 @@ public sealed class SSAOCore : RenderCore {
             var node = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
             if (currTechnique != node.EffectTechnique) {
                 currTechnique = node.EffectTechnique;
-                ssaoPass1 = currTechnique[DefaultPassNames.MeshSSAOPass];
+                ssaoPass1 = currTechnique[DefaultPassNames.MeshSsaoPass];
             }
 
-            if (ssaoPass1.IsNULL) continue;
+            if (ssaoPass1.IsNull) continue;
             node.RenderDepth(context, deviceContext, ssaoPass1);
         }
 
@@ -100,12 +100,12 @@ public sealed class SSAOCore : RenderCore {
         ssaoParam.NoiseScale = new Vector2(w / 4f, h / 4f);
         ssaoParam.Radius = radius;
         ssaoParam.TextureScale = texScale;
-        ssaoCB.ModelConstBuffer.UploadDataToBuffer(deviceContext,
+        ssaoCb.ModelConstBuffer.UploadDataToBuffer(deviceContext,
                                                    dataBox => {
                                                        Debug.Assert(UnsafeHelper.SizeOf(kernels)
                                                                     + UnsafeHelper
                                                                         .SizeOf(ref ssaoParam) <=
-                                                                    ssaoCB.ModelConstBuffer.bufferDesc
+                                                                    ssaoCb.ModelConstBuffer.BufferDesc
                                                                           .SizeInBytes);
                                                        var nextPtr =
                                                            UnsafeHelper.Write(
@@ -135,7 +135,7 @@ public sealed class SSAOCore : RenderCore {
         ssaoBlur.PixelShader.BindTexture(deviceContext, ssaoTexSlot, rt1);
         ssaoBlur.PixelShader.BindSampler(deviceContext, surfaceSampleSlot, blurSampler);
         deviceContext.Draw(4, 0);
-        context.SharedResource.SSAOMap = ssaoView;
+        context.SharedResource.SsaoMap = ssaoView;
 
         context.RenderHost.SetDefaultRenderTargets(false);
         deviceContext.SetShaderResource(PixelShader.Type, ssaoTexSlot, ssaoView);
@@ -162,19 +162,19 @@ public sealed class SSAOCore : RenderCore {
         width = height = 0;
         ssaoPass = technique[DefaultPassNames.Default];
         ssaoBlur = technique[DefaultPassNames.EffectBlurHorizontal];
-        if (ssaoPass.IsNULL || ssaoBlur.IsNULL) return false;
+        if (ssaoPass.IsNull || ssaoBlur.IsNull) return false;
         ssaoTexSlot =
-            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAOMapTB);
+            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SsaoMapTb);
         noiseTexSlot =
-            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAONoiseTB);
+            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SsaoNoiseTb);
         depthSlot =
-            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SSAODepthTB);
+            ssaoPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SsaoDepthTb);
         surfaceSampleSlot =
             ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         noiseSamplerSlot =
             ssaoPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.NoiseSampler);
-        surfaceSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SSAOSamplerClamp);
-        noiseSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SSAONoise);
+        surfaceSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SsaoSamplerClamp);
+        noiseSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SsaoNoise);
         blurSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
         InitialParameters();
         return true;

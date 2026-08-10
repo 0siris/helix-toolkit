@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core;
 
 [DataContract]
 public class MeshGeometry3D : Geometry3D {
-    private static readonly PropertyChangedEventArgs textureCoordChangedArgs = new(nameof(TextureCoordinates));
+    private static readonly PropertyChangedEventArgs TextureCoordChangedArgs = new(nameof(TextureCoordinates));
 
     /// <summary>
     ///     Used to scale up small triangle during hit test.
@@ -49,7 +49,7 @@ public class MeshGeometry3D : Geometry3D {
         get => textureCoordinates;
         set {
             if (Set(ref textureCoordinates, value, false))
-                RaisePropertyChanged(textureCoordChangedArgs);
+                RaisePropertyChanged(TextureCoordChangedArgs);
         }
     }
 
@@ -167,8 +167,8 @@ public class MeshGeometry3D : Geometry3D {
             if (modelInvert == default) //Check if model matrix can be inverted.
                 return false;
             //transform ray into model coordinates
-            var rayModel = new Ray(SilkMath.TransformCoordinate(context.RayWS.Position, modelInvert),
-                                   SilkMath.Normalize(SilkMath.TransformNormal(context.RayWS.Direction, modelInvert)));
+            var rayModel = new Ray(SilkMath.TransformCoordinate(context.RayWs.Position, modelInvert),
+                                   SilkMath.Normalize(SilkMath.TransformNormal(context.RayWs.Direction, modelInvert)));
 
             var b = Bound;
 
@@ -207,7 +207,7 @@ public class MeshGeometry3D : Geometry3D {
                             var pointWorld = SilkMath.TransformCoordinate(rayModel.Position + rayModel.Direction * d,
                                                                           modelMatrix);
                             result.PointHit = pointWorld;
-                            result.Distance = (context.RayWS.Position - pointWorld).Length;
+                            result.Distance = (context.RayWs.Position - pointWorld).Length;
                             var p0 = SilkMath.TransformCoordinate(t.P0, modelMatrix);
                             var p1 = SilkMath.TransformCoordinate(t.P1, modelMatrix);
                             var p2 = SilkMath.TransformCoordinate(t.P2, modelMatrix);

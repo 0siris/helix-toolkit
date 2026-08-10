@@ -15,18 +15,18 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
 
     public Dictionary<string, TextureMapping> TextureMappings { get; } = [];
 
-    public Dictionary<string, UAVMapping> UAVMappings { get; } = [];
+    public Dictionary<string, UavMapping> UavMappings { get; } = [];
 
     public Dictionary<string, SamplerMapping> SamplerMappings { get; } = [];
 
     public void Parse(byte[] byteCode, ShaderStage stage) {
         ConstantBufferMappings.Clear();
         TextureMappings.Clear();
-        UAVMappings.Clear();
+        UavMappings.Clear();
         SamplerMappings.Clear();
 
         if (byteCode == null || byteCode.Length == 0) {
-            FeatureLevel = FeatureLevel.Level_DEFAULT;
+            FeatureLevel = FeatureLevel.LevelDefault;
             throw new ArgumentException("Shader bytecode cannot be empty.", nameof(byteCode));
         }
 
@@ -40,7 +40,7 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
             if (result < 0)
                 throw new InvalidDataException($"Invalid {stage} shader bytecode.",
                                                Marshal.GetExceptionForHR(result));
-            var reflection = (ID3D11ShaderReflection*)reflectionPtr;
+            var reflection = (Id3D11ShaderReflection*)reflectionPtr;
             try {
                 ShaderDesc shaderDesc = default;
                 Marshal.ThrowExceptionForHR(reflection->LpVtbl->GetDesc(reflection, &shaderDesc));
@@ -80,43 +80,43 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
                                                     .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewAppendStructured:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name,
+                            UavMappings.Add(name,
+                                            new UavDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.AppendStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewConsumeStructured:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name,
+                            UavMappings.Add(name,
+                                            new UavDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.ConsumeStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
-                        case ShaderInputType.UnorderedAccessViewRWByteAddress:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name,
+                        case ShaderInputType.UnorderedAccessViewRwByteAddress:
+                            UavMappings.Add(name,
+                                            new UavDescription(name,
                                                                stage,
-                                                               UnorderedAccessViewType.RWByteAddress)
+                                                               UnorderedAccessViewType.RwByteAddress)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
-                        case ShaderInputType.UnorderedAccessViewRWStructuredWithCounter:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name,
+                        case ShaderInputType.UnorderedAccessViewRwStructuredWithCounter:
+                            UavMappings.Add(name,
+                                            new UavDescription(name,
                                                                stage,
-                                                               UnorderedAccessViewType.RWStructuredWithCounter)
+                                                               UnorderedAccessViewType.RwStructuredWithCounter)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
-                        case ShaderInputType.UnorderedAccessViewRWTyped:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name, stage, UnorderedAccessViewType.RWTyped)
+                        case ShaderInputType.UnorderedAccessViewRwTyped:
+                            UavMappings.Add(name,
+                                            new UavDescription(name, stage, UnorderedAccessViewType.RwTyped)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
-                        case ShaderInputType.UnorderedAccessViewRWStructured:
-                            UAVMappings.Add(name,
-                                            new UAVDescription(name,
+                        case ShaderInputType.UnorderedAccessViewRwStructured:
+                            UavMappings.Add(name,
+                                            new UavDescription(name,
                                                                stage,
-                                                               UnorderedAccessViewType.RWStructured)
+                                                               UnorderedAccessViewType.RwStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.Sampler:
@@ -132,7 +132,7 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
     }
 
     private static ConstantBufferDescription CreateConstantBufferDescription(
-        ID3D11ShaderReflectionConstantBuffer* buffer,
+        Id3D11ShaderReflectionConstantBuffer* buffer,
         ShaderStage stage,
         int slot
     ) {
@@ -164,13 +164,13 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
     private static FeatureLevel GetFeatureLevel(uint shaderVersion) {
         var major = (shaderVersion >> 4) & 0xf;
         var minor = shaderVersion & 0xf;
-        if (major >= 5) return FeatureLevel.Level_11_0;
+        if (major >= 5) return FeatureLevel.Level110;
 
-        if (major == 4 && minor >= 1) return FeatureLevel.Level_10_1;
+        if (major == 4 && minor >= 1) return FeatureLevel.Level101;
 
-        if (major == 4) return FeatureLevel.Level_10_0;
+        if (major == 4) return FeatureLevel.Level100;
 
-        return FeatureLevel.Level_9_1;
+        return FeatureLevel.Level91;
     }
 
     [DllImport("d3dcompiler_47.dll", ExactSpelling = true)]
@@ -186,57 +186,57 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
         TextureBuffer = 1,
         Texture = 2,
         Sampler = 3,
-        UnorderedAccessViewRWTyped = 4,
+        UnorderedAccessViewRwTyped = 4,
         Structured = 5,
-        UnorderedAccessViewRWStructured = 6,
+        UnorderedAccessViewRwStructured = 6,
         ByteAddress = 7,
-        UnorderedAccessViewRWByteAddress = 8,
+        UnorderedAccessViewRwByteAddress = 8,
         UnorderedAccessViewAppendStructured = 9,
         UnorderedAccessViewConsumeStructured = 10,
-        UnorderedAccessViewRWStructuredWithCounter = 11
+        UnorderedAccessViewRwStructuredWithCounter = 11
     }
 
-    private struct ID3D11ShaderReflection {
-        public ID3D11ShaderReflectionVtbl* LpVtbl;
+    private struct Id3D11ShaderReflection {
+        public Id3D11ShaderReflectionVtbl* LpVtbl;
     }
 
-    private struct ID3D11ShaderReflectionVtbl {
+    private struct Id3D11ShaderReflectionVtbl {
         public void* QueryInterface;
         public void* AddRef;
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint> Release;
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, ShaderDesc*, int> GetDesc;
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflection*, uint> Release;
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflection*, ShaderDesc*, int> GetDesc;
 
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint, ID3D11ShaderReflectionConstantBuffer*
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflection*, uint, Id3D11ShaderReflectionConstantBuffer*
             > GetConstantBufferByIndex;
 
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, byte*, ID3D11ShaderReflectionConstantBuffer
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflection*, byte*, Id3D11ShaderReflectionConstantBuffer
             *> GetConstantBufferByName;
 
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflection*, uint, ShaderInputBindDesc*, int>
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflection*, uint, ShaderInputBindDesc*, int>
             GetResourceBindingDesc;
     }
 
-    private struct ID3D11ShaderReflectionConstantBuffer {
-        public ID3D11ShaderReflectionConstantBufferVtbl* LpVtbl;
+    private struct Id3D11ShaderReflectionConstantBuffer {
+        public Id3D11ShaderReflectionConstantBufferVtbl* LpVtbl;
     }
 
-    private struct ID3D11ShaderReflectionConstantBufferVtbl {
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, ShaderBufferDesc*, int>
+    private struct Id3D11ShaderReflectionConstantBufferVtbl {
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflectionConstantBuffer*, ShaderBufferDesc*, int>
             GetDesc;
 
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, uint,
-            ID3D11ShaderReflectionVariable*> GetVariableByIndex;
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflectionConstantBuffer*, uint,
+            Id3D11ShaderReflectionVariable*> GetVariableByIndex;
 
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionConstantBuffer*, byte*,
-            ID3D11ShaderReflectionVariable*> GetVariableByName;
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflectionConstantBuffer*, byte*,
+            Id3D11ShaderReflectionVariable*> GetVariableByName;
     }
 
-    private struct ID3D11ShaderReflectionVariable {
-        public ID3D11ShaderReflectionVariableVtbl* LpVtbl;
+    private struct Id3D11ShaderReflectionVariable {
+        public Id3D11ShaderReflectionVariableVtbl* LpVtbl;
     }
 
-    private struct ID3D11ShaderReflectionVariableVtbl {
-        public delegate* unmanaged[Stdcall]<ID3D11ShaderReflectionVariable*, ShaderVariableDesc*, int> GetDesc;
+    private struct Id3D11ShaderReflectionVariableVtbl {
+        public delegate* unmanaged[Stdcall]<Id3D11ShaderReflectionVariable*, ShaderVariableDesc*, int> GetDesc;
     }
 
     private struct ShaderInputBindDesc {
@@ -297,14 +297,14 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
         public uint ArrayInstructionCount;
         public uint CutInstructionCount;
         public uint EmitInstructionCount;
-        public uint GSOutputTopology;
-        public uint GSMaxOutputVertexCount;
+        public uint GsOutputTopology;
+        public uint GsMaxOutputVertexCount;
         public uint InputPrimitive;
         public uint PatchConstantParameters;
-        public uint GSInstanceCount;
+        public uint GsInstanceCount;
         public uint ControlPoints;
-        public uint HSOutputPrimitive;
-        public uint HSPartitioning;
+        public uint HsOutputPrimitive;
+        public uint HsPartitioning;
         public uint TessellatorDomain;
         public uint BarrierInstructions;
         public uint InterlockedInstructions;

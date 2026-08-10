@@ -8,12 +8,12 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public static class DefaultHullShaders {
     /// <summary>
     /// </summary>
-    public static string HSMeshTessellation { get; } = "hsMeshTriTessellation";
+    public static string HsMeshTessellation { get; } = "hsMeshTriTessellation";
 }
 
 public static class DefaultHullShaderDescriptions {
-    public static readonly ShaderDescription HSMeshTessellation = new(nameof(HSMeshTessellation),
+    public static readonly ShaderDescription HsMeshTessellation = new(nameof(HsMeshTessellation),
                                                                       ShaderStage.Hull,
                                                                       new ShaderReflector(),
-                                                                      DefaultHullShaders.HSMeshTessellation);
+                                                                      DefaultHullShaders.HsMeshTessellation);
 }

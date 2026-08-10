@@ -56,10 +56,11 @@ public class HitTestResult : IComparable<HitTestResult> {
     /// <summary>
     ///     The hitted triangle vertex indices.
     /// </summary>
-    public Tuple<int, int, int> TriangleIndices { get; set; }
+    public Tuple<int, int, int>? TriangleIndices { get; set; }
 
-    public int CompareTo(HitTestResult other) {
-        if (other == null) return 1;
+    public int CompareTo(HitTestResult? other) {
+        if (other == null) 
+            return 1;
 
         return Distance.CompareTo(other.Distance);
     }
@@ -82,10 +83,8 @@ public class HitTestResult : IComparable<HitTestResult> {
     /// <summary>
     ///     Get a descirption of the HitTestResult
     /// </summary>
-    public override string ToString() {
-        return
-            $"{nameof(HitTestResult)} {nameof(ModelHit)}: {ModelHit}, {nameof(Distance)}: {Distance}, {nameof(IsValid)}: {IsValid}, {nameof(PointHit)}: {PointHit}, {nameof(NormalAtHit)}: {NormalAtHit}";
-    }
+    public override string ToString() 
+        => $"{nameof(HitTestResult)} {nameof(ModelHit)}: {ModelHit}, {nameof(Distance)}: {Distance}, {nameof(IsValid)}: {IsValid}, {nameof(PointHit)}: {PointHit}, {nameof(NormalAtHit)}: {NormalAtHit}";
 }
 
 /// <summary>
@@ -115,7 +114,7 @@ public class LineHitTestResult : HitTestResult {
 
 public class BillboardHitResult : HitTestResult {
     public int TextInfoIndex { get; set; } = -1;
-    public TextInfo? TextInfo { get; set; } = null;
+    public TextInfo? TextInfo { get; set; }
 
     public BillboardType Type { get; set; }
 }
@@ -139,9 +138,7 @@ public class HitTest2DResult {
     ///     Initializes a new instance of the <see cref="HitTest2DResult" /> class.
     /// </summary>
     /// <param name="model">The model.</param>
-    public HitTest2DResult(object model) {
-        ModelHit = model;
-    }
+    public HitTest2DResult(object model) => ModelHit = model;
 
     /// <summary>
     ///     Gets or sets the model hit.

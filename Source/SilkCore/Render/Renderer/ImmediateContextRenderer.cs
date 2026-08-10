@@ -13,15 +13,15 @@ namespace HelixToolkit.SharpDX.Core.Render;
 /// <summary>
 /// </summary>
 public class ImmediateContextRenderer : DisposeObject, IRenderer {
-    private static readonly Func<SceneNode, RenderContext, bool> updateFunc = (x, context) => true;
+    private static readonly Func<SceneNode, RenderContext, bool> UpdateFunc = (x, context) => true;
 
     private readonly Stack<(int Key, IList<SceneNode2D> Value)> stack2DCache1 = new(20);
     private readonly Stack<(int Key, IList<SceneNode> Value)> stackCache1 = new(20);
     private DeviceContextProxy immediateContext;
-    private OITDepthPeeling oitDepthPeelingCore;
+    private OitDepthPeeling oitDepthPeelingCore;
     private OrderIndependentTransparentRenderCore oitWeightedCore;
-    private PostEffectFXAA postFXAACore;
-    private SSAOCore preSSAOCore;
+    private PostEffectFxaa postFxaaCore;
+    private SsaoCore preSsaoCore;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ImmediateContextRenderer" /> class.
@@ -31,9 +31,9 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         immediateContext = new DeviceContextProxy(deviceResource.NativeDeviceResources.ImmediateContext,
                                                   deviceResource.NativeDeviceResources.Device);
         oitWeightedCore = new OrderIndependentTransparentRenderCore();
-        oitDepthPeelingCore = new OITDepthPeeling();
-        postFXAACore = new PostEffectFXAA();
-        preSSAOCore = new SSAOCore();
+        oitDepthPeelingCore = new OitDepthPeeling();
+        postFxaaCore = new PostEffectFxaa();
+        preSsaoCore = new SsaoCore();
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         FastList<SceneNode> renderables,
         FastList<(int Key, SceneNode Value)> results
     ) =>
-        renderables.PreorderDFT(context, updateFunc, results, stackCache1);
+        renderables.PreorderDft(context, UpdateFunc, results, stackCache1);
 
 
     /// <summary>
@@ -66,7 +66,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <param name="renderables">The renderables.</param>
     /// <returns></returns>
     public void UpdateSceneGraph2D(RenderContext2D context, FastList<SceneNode2D> renderables) {
-        renderables.PreorderDFTRun(x => {
+        renderables.PreorderDftRun(x => {
                                        x.Update(context);
                                        return x.IsRenderable;
                                    },
@@ -140,17 +140,17 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         ref RenderParameter parameter
     ) {
         if (renderables.Count == 0) return 0;
-        if (context.RenderHost.RenderConfiguration.OITRenderType != OITRenderType.None
-            && context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0)
-            switch (context.RenderHost.RenderConfiguration.OITRenderType) {
-                case OITRenderType.SinglePassWeighted:
+        if (context.RenderHost.RenderConfiguration.OitRenderType != OitRenderType.None
+            && context.RenderHost.FeatureLevel >= FeatureLevel.Level110)
+            switch (context.RenderHost.RenderConfiguration.OitRenderType) {
+                case OitRenderType.SinglePassWeighted:
                     oitWeightedCore.ExternRenderParameter = parameter;
                     oitWeightedCore.Render(context, ImmediateContext);
                     return oitWeightedCore.RenderCount;
-                case OITRenderType.DepthPeeling:
+                case OitRenderType.DepthPeeling:
                     if (oitDepthPeelingCore.IsAttached) {
                         oitDepthPeelingCore.ExternRenderParameter = parameter;
-                        oitDepthPeelingCore.PeelingIteration = context.OITDepthPeelingIteration;
+                        oitDepthPeelingCore.PeelingIteration = context.OitDepthPeelingIteration;
                         oitDepthPeelingCore.Render(context, ImmediateContext);
                         return oitDepthPeelingCore.RenderCount;
                     }
@@ -226,10 +226,10 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     ) {
         var count = renderables.Count;
         for (var i = 0; i < count; ++i) renderables[i].Render(context, ImmediateContext);
-        if (context.SSAOEnabled) {
-            preSSAOCore.Radius = context.RenderHost.RenderConfiguration.SSAORadius;
-            preSSAOCore.Quality = context.RenderHost.RenderConfiguration.SSAOQuality;
-            preSSAOCore.Render(context, ImmediateContext);
+        if (context.SsaoEnabled) {
+            preSsaoCore.Radius = context.RenderHost.RenderConfiguration.SsaoRadius;
+            preSsaoCore.Quality = context.RenderHost.RenderConfiguration.SsaoQuality;
+            preSsaoCore.Render(context, ImmediateContext);
         }
     }
 
@@ -255,16 +255,16 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <param name="parameter">The parameter.</param>
     public virtual void RenderToPingPongBuffer(RenderContext context, ref RenderParameter parameter) {
         var buffer = context.RenderHost.RenderBuffer;
-        buffer.FullResPPBuffer.Initialize();
-        if (parameter.IsMSAATexture)
+        buffer.FullResPpBuffer.Initialize();
+        if (parameter.IsMsaaTexture)
             ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
                                                 0,
-                                                buffer.FullResPPBuffer.CurrentTexture,
+                                                buffer.FullResPpBuffer.CurrentTexture,
                                                 0,
                                                 buffer.Format);
         else
             ImmediateContext.CopyResource(parameter.CurrentTargetTexture,
-                                          buffer.FullResPPBuffer.CurrentTexture);
+                                          buffer.FullResPpBuffer.CurrentTexture);
     }
 
     /// <summary>
@@ -284,9 +284,9 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     ) {
         if (count > 0) {
             var buffer = context.RenderHost.RenderBuffer;
-            var depthStencilBuffer = parameter.IsMSAATexture
+            var depthStencilBuffer = parameter.IsMsaaTexture
                                          ? buffer.DepthStencilBuffer
-                                         : buffer.DepthStencilBufferNoMSAA;
+                                         : buffer.DepthStencilBufferNoMsaa;
             ImmediateContext.SetRenderTargets(depthStencilBuffer, parameter.RenderTargetView);
 
             for (var i = start; i < start + count; ++i) renderables[i].Render(context, ImmediateContext);
@@ -299,15 +299,15 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <param name="context">The context.</param>
     /// <param name="parameter">The parameter.</param>
     public virtual void RenderToBackBuffer(RenderContext context, ref RenderParameter parameter) {
-        if (context.RenderHost.FeatureLevel >= FeatureLevel.Level_11_0
-            && context.RenderHost.RenderConfiguration.FXAALevel != FXAALevel.None) {
-            postFXAACore.FXAALevel = context.RenderHost.RenderConfiguration.FXAALevel;
-            postFXAACore.Render(context, ImmediateContext);
+        if (context.RenderHost.FeatureLevel >= FeatureLevel.Level110
+            && context.RenderHost.RenderConfiguration.FxaaLevel != FxaaLevel.None) {
+            postFxaaCore.FxaaLevel = context.RenderHost.RenderConfiguration.FxaaLevel;
+            postFxaaCore.Render(context, ImmediateContext);
         }
 
         ImmediateContext.Flush();
         var buffer = context.RenderHost.RenderBuffer;
-        if (parameter.IsMSAATexture)
+        if (parameter.IsMsaaTexture)
             ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
                                                 0,
                                                 buffer.BackBuffer.Resource,
@@ -318,12 +318,12 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     }
 
     public void Attach(IRenderHost host) {
-        if (host.FeatureLevel >= FeatureLevel.Level_11_0) {
-            oitWeightedCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITQuad));
+        if (host.FeatureLevel >= FeatureLevel.Level110) {
+            oitWeightedCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitQuad));
             oitDepthPeelingCore.Attach(
-                host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOITDepthPeeling));
-            postFXAACore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.PostEffectFXAA));
-            preSSAOCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.SSAO));
+                host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitDepthPeeling));
+            postFxaaCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.PostEffectFxaa));
+            preSsaoCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.Ssao));
         }
     }
 
@@ -332,8 +332,8 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         stack2DCache1.Clear();
         oitWeightedCore.Detach();
         oitDepthPeelingCore.Detach();
-        postFXAACore.Detach();
-        preSSAOCore.Detach();
+        postFxaaCore.Detach();
+        preSsaoCore.Detach();
     }
 
     /// <summary>
@@ -373,8 +373,8 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         RemoveAndDispose(ref immediateContext);
         RemoveAndDispose(ref oitWeightedCore);
         RemoveAndDispose(ref oitDepthPeelingCore);
-        RemoveAndDispose(ref postFXAACore);
-        RemoveAndDispose(ref preSSAOCore);
+        RemoveAndDispose(ref postFxaaCore);
+        RemoveAndDispose(ref preSsaoCore);
         base.OnDispose(disposeManagedResources);
     }
 }

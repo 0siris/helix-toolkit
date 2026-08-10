@@ -94,12 +94,12 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
         if (!octant.IsBuilt) return false;
         var isHit = false;
         var bound = octant.Bound.Transform(modelMatrix);
-        var rayWS = context.RayWS;
-        if (rayWS.Intersects(ref bound)) {
+        var rayWs = context.RayWs;
+        if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             for (var i = octant.Start; i < octant.End; ++i) {
                 var b = Objects[i].Value.Transform(modelMatrix);
-                if (b.Intersects(ref rayWS)) {
+                if (b.Intersects(ref rayWs)) {
                     var result = new HitTestResult {
                         Tag = Objects[i].Key
                     };
@@ -214,12 +214,12 @@ public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, 
         if (!octant.IsBuilt) return false;
         var isHit = false;
         var bound = octant.Bound.Transform(modelMatrix);
-        var rayWS = context.RayWS;
-        if (rayWS.Intersects(ref bound)) {
+        var rayWs = context.RayWs;
+        if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             for (var i = octant.Start; i < octant.End; ++i) {
                 var b = Objects[i].Value.Transform(modelMatrix);
-                if (b.Intersects(ref rayWS)) {
+                if (b.Intersects(ref rayWs)) {
                     ref var geo = ref Geometries[Objects[i].Key];
                     if (geo.Geometry is MeshGeometry3D mesh) {
                         var currCount = hits.Count;

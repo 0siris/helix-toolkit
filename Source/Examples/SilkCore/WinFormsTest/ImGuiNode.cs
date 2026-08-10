@@ -9,7 +9,7 @@ namespace HelixToolkit.SharpDX.Core.Model;
 
 using Core;
 using Core.Components;
-using Model.Scene;
+using Scene;
 using Render;
 using Shaders;
 using Utilities;
@@ -29,18 +29,18 @@ public class ImGuiNode : SceneNode {
 
     static ImGuiNode() {
         RenderTechnique = new TechniqueDescription(ImGuiRenderTechnique) {
-            InputLayoutDescription = new InputLayoutDescription(DefaultVSShaderByteCodes.VSSprite2D,
+            InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsSprite2D,
                                                                 VSInputImGui2D),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVSShaderDescriptions.VSSprite2D,
-                        DefaultPSShaderDescriptions.PSSprite2D,
+                        DefaultVsShaderDescriptions.VsSprite2D,
+                        DefaultPsShaderDescriptions.PsSprite2D,
                     ],
                     Topology = PrimitiveTopology.TriangleList,
-                    BlendStateDescription = DefaultBlendStateDescriptions.BSAlphaBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DSSNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RSSpriteCW,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    RasterStateDescription = DefaultRasterDescriptions.RsSpriteCw,
                 }
             ]
         };
@@ -151,12 +151,12 @@ public sealed class ImGuiRenderCore : RenderCore {
         : base(RenderType.ScreenSpaced) {
         globalTransformCB = AddComponent(new ConstantBufferComponent(
                                              new ConstantBufferDescription(
-                                                 DefaultBufferNames.GlobalTransformCB,
+                                                 DefaultBufferNames.GlobalTransformCb,
                                                  GlobalTransformStruct.SizeInBytes)));
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (Buffer == null || TextureView == null || spritePass.IsNULL) {
+        if (Buffer == null || TextureView == null || spritePass.IsNull) {
             return;
         }
 
@@ -284,7 +284,7 @@ public sealed class ImGuiRenderCore : RenderCore {
 
     protected override bool OnAttach(IRenderTechnique technique) {
         spritePass = technique[DefaultPassNames.Default];
-        texSlot = spritePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SpriteTB);
+        texSlot = spritePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SpriteTb);
         samplerSlot = spritePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SpriteSampler);
         sampler = EffectTechnique.EffectsManager.StateManager.Register(DefaultSamplers.PointSamplerWrap);
         return true;
@@ -296,7 +296,7 @@ public sealed class ImGuiRenderCore : RenderCore {
     }
 }
 
-public sealed class ImGui2DBufferModel : DisposeObject, IGUID, IAttachableBufferModel {
+public sealed class ImGui2DBufferModel : DisposeObject, IGuid, IAttachableBufferModel {
     public PrimitiveTopology Topology { get; set; } = PrimitiveTopology.TriangleList;
 
     public IElementsBufferProxy[] VertexBuffer { get; } = new DynamicBufferProxy[1];
@@ -307,7 +307,7 @@ public sealed class ImGui2DBufferModel : DisposeObject, IGUID, IAttachableBuffer
 
     public IElementsBufferProxy IndexBuffer { get; }
 
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     public int SpriteCount;
     public int IndexCount;

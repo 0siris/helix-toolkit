@@ -24,7 +24,7 @@ public class InstancingBillboardRenderCore : PointLineRenderCore {
 
     protected override void OnUpdatePerModelStruct() {
         base.OnUpdatePerModelStruct();
-        modelStruct.HasInstanceParams = ParameterBuffer is {HasElements: true} ? 1 : 0;
+        ModelStruct.HasInstanceParams = ParameterBuffer is {HasElements: true} ? 1 : 0;
     }
 
     protected override bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot) {

@@ -13,8 +13,8 @@ namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>
 /// </summary>
 public class DiffuseMaterialVariables : MaterialVariable {
-    private const int NUMTEXTURES = 1;
-    private const int NUMSAMPLERS = 1;
+    private const int Numtextures = 1;
+    private const int Numsamplers = 1;
     private const int DiffuseIdx = 0;
 
     private readonly DiffuseMaterialCore material;
@@ -22,11 +22,11 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     private readonly ITextureResourceManager textureManager;
     private int samplerDiffuseSlot, samplerShadowSlot;
-    private SamplerStateProxy SamplerResource;
+    private SamplerStateProxy samplerResource;
 
     private int texDiffuseSlot;
     private uint textureIndex;
-    private ShaderResourceViewProxy TextureResource;
+    private ShaderResourceViewProxy textureResource;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DiffuseMaterialVariables" /> class.
@@ -48,13 +48,13 @@ public class DiffuseMaterialVariables : MaterialVariable {
         textureManager = manager.MaterialTextureManager;
         statePoolManager = manager.StateManager;
         MaterialPass = technique[defaultPassName];
-        OITPass = technique[DefaultPassNames.DiffuseOIT];
-        OITDepthPeelingInit = technique[DefaultPassNames.OITDepthPeelingInit];
-        OITDepthPeeling = technique[DefaultPassNames.DiffuseOITDP];
+        OitPass = technique[DefaultPassNames.DiffuseOit];
+        OitDepthPeelingInit = technique[DefaultPassNames.OitDepthPeelingInit];
+        OitDepthPeeling = technique[DefaultPassNames.DiffuseOitdp];
         ShadowPass = technique[DefaultPassNames.ShadowPass];
         WireframePass = technique[DefaultPassNames.Wireframe];
-        WireframeOITPass = technique[DefaultPassNames.WireframeOITPass];
-        WireframeOITDPPass = technique[DefaultPassNames.WireframeOITDPPass];
+        WireframeOitPass = technique[DefaultPassNames.WireframeOitPass];
+        WireframeOitdpPass = technique[DefaultPassNames.WireframeOitdpPass];
         DepthPass = technique[DefaultPassNames.DepthPrepass];
         UpdateMappings(MaterialPass);
         CreateTextureViews();
@@ -83,25 +83,25 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     public ShaderPass MaterialPass { get; }
 
-    public ShaderPass OITPass { get; }
+    public ShaderPass OitPass { get; }
 
-    public ShaderPass OITDepthPeelingInit { get; }
+    public ShaderPass OitDepthPeelingInit { get; }
 
-    public ShaderPass OITDepthPeeling { get; }
+    public ShaderPass OitDepthPeeling { get; }
 
     public ShaderPass ShadowPass { get; }
 
     public ShaderPass WireframePass { get; }
 
-    public ShaderPass WireframeOITPass { get; }
+    public ShaderPass WireframeOitPass { get; }
 
-    public ShaderPass WireframeOITDPPass { get; }
+    public ShaderPass WireframeOitdpPass { get; }
 
     public ShaderPass DepthPass { get; }
 
     /// <summary>
     /// </summary>
-    public string ShaderDiffuseTexName { get; } = DefaultBufferNames.DiffuseMapTB;
+    public string ShaderDiffuseTexName { get; } = DefaultBufferNames.DiffuseMapTb;
 
     /// <summary>
     /// </summary>
@@ -114,34 +114,34 @@ public class DiffuseMaterialVariables : MaterialVariable {
     protected override void OnInitialPropertyBindings() {
         base.OnInitialPropertyBindings();
         AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseColor),
-                           () => { WriteValue(PhongPBRMaterialStruct.DiffuseStr, material.DiffuseColor); });
-        AddPropertyBinding(nameof(DiffuseMaterialCore.UVTransform),
+                           () => { WriteValue(PhongPbrMaterialStruct.DiffuseStr, material.DiffuseColor); });
+        AddPropertyBinding(nameof(DiffuseMaterialCore.UvTransform),
                            () => {
-                               Matrix m = material.UVTransform;
-                               WriteValue(PhongPBRMaterialStruct.UVTransformR1Str, m.Column1);
-                               WriteValue(PhongPBRMaterialStruct.UVTransformR2Str, m.Column2);
+                               Matrix m = material.UvTransform;
+                               WriteValue(PhongPbrMaterialStruct.UvTransformR1Str, m.Column1);
+                               WriteValue(PhongPbrMaterialStruct.UvTransformR2Str, m.Column2);
                            });
         AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMap),
                            () => {
                                CreateTextureView(material.DiffuseMap, DiffuseIdx);
-                               WriteValue(PhongPBRMaterialStruct.HasDiffuseMapStr,
-                                          material.RenderDiffuseMap && TextureResource != null ? 1 : 0);
+                               WriteValue(PhongPbrMaterialStruct.HasDiffuseMapStr,
+                                          material.RenderDiffuseMap && textureResource != null ? 1 : 0);
                            });
         AddPropertyBinding(nameof(DiffuseMaterialCore.DiffuseMapSampler),
                            () => {
                                var newSampler = statePoolManager.Register(material.DiffuseMapSampler);
-                               RemoveAndDispose(ref SamplerResource);
-                               SamplerResource = newSampler;
+                               RemoveAndDispose(ref samplerResource);
+                               samplerResource = newSampler;
                            });
         AddPropertyBinding(nameof(DiffuseMaterialCore.EnableUnLit),
-                           () => { WriteValue(PhongPBRMaterialStruct.HasNormalMapStr, material.EnableUnLit); });
+                           () => { WriteValue(PhongPbrMaterialStruct.HasNormalMapStr, material.EnableUnLit); });
         AddPropertyBinding(nameof(DiffuseMaterialCore.EnableFlatShading),
                            () => {
-                               WriteValue(PhongPBRMaterialStruct.RenderFlat, material.EnableFlatShading);
+                               WriteValue(PhongPbrMaterialStruct.RenderFlat, material.EnableFlatShading);
                            });
         AddPropertyBinding(nameof(DiffuseMaterialCore.VertexColorBlendingFactor),
                            () => {
-                               WriteValue(PhongPBRMaterialStruct.VertColorBlending,
+                               WriteValue(PhongPbrMaterialStruct.VertColorBlending,
                                           material.VertexColorBlendingFactor);
                            });
     }
@@ -149,9 +149,9 @@ public class DiffuseMaterialVariables : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CreateTextureView(TextureModel texture, int index) {
         var newTexture = texture == null ? null : textureManager.Register(texture);
-        RemoveAndDispose(ref TextureResource);
-        TextureResource = newTexture;
-        if (TextureResource != null)
+        RemoveAndDispose(ref textureResource);
+        textureResource = newTexture;
+        if (textureResource != null)
             textureIndex |= 1u << index;
         else
             textureIndex &= ~(1u << index);
@@ -161,15 +161,15 @@ public class DiffuseMaterialVariables : MaterialVariable {
         if (material != null) {
             CreateTextureView(material.DiffuseMap, DiffuseIdx);
         } else {
-            RemoveAndDispose(ref TextureResource);
+            RemoveAndDispose(ref textureResource);
             textureIndex = 0;
         }
     }
 
     private void CreateSamplers() {
         var newSampler = material == null ? null : statePoolManager.Register(material.DiffuseMapSampler);
-        RemoveAndDispose(ref SamplerResource);
-        SamplerResource = newSampler;
+        RemoveAndDispose(ref samplerResource);
+        samplerResource = newSampler;
     }
 
     public override bool BindMaterialResources(
@@ -188,10 +188,10 @@ public class DiffuseMaterialVariables : MaterialVariable {
     /// <param name="shader"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
-        if (shader.IsNULL) return;
+        if (shader.IsNull) return;
         var idx = shader.ShaderStageIndex;
-        shader.BindTexture(context, texDiffuseSlot, TextureResource);
-        shader.BindSampler(context, samplerDiffuseSlot, SamplerResource);
+        shader.BindTexture(context, texDiffuseSlot, textureResource);
+        shader.BindSampler(context, samplerDiffuseSlot, samplerResource);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -207,8 +207,8 @@ public class DiffuseMaterialVariables : MaterialVariable {
     /// <param name="disposeManagedResources"></param>
     protected override void OnDispose(bool disposeManagedResources) {
         if (disposeManagedResources) {
-            RemoveAndDispose(ref SamplerResource);
-            RemoveAndDispose(ref TextureResource);
+            RemoveAndDispose(ref samplerResource);
+            RemoveAndDispose(ref textureResource);
         }
 
         base.OnDispose(disposeManagedResources);
@@ -216,13 +216,13 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
         if (renderType == RenderType.Transparent)
-            switch (context.OITRenderStage) {
-                case OITRenderStage.SinglePassWeighted:
-                    return OITPass;
-                case OITRenderStage.DepthPeelingInitMinMaxZ:
-                    return OITDepthPeelingInit;
-                case OITRenderStage.DepthPeeling:
-                    return OITDepthPeeling;
+            switch (context.OitRenderStage) {
+                case OitRenderStage.SinglePassWeighted:
+                    return OitPass;
+                case OitRenderStage.DepthPeelingInitMinMaxZ:
+                    return OitDepthPeelingInit;
+                case OitRenderStage.DepthPeeling:
+                    return OitDepthPeeling;
             }
 
         return MaterialPass;
@@ -238,13 +238,13 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
         if (renderType == RenderType.Transparent)
-            switch (context.OITRenderStage) {
-                case OITRenderStage.SinglePassWeighted:
-                    return WireframeOITPass;
-                case OITRenderStage.DepthPeelingInitMinMaxZ:
-                    return OITDepthPeelingInit;
-                case OITRenderStage.DepthPeeling:
-                    return WireframeOITDPPass;
+            switch (context.OitRenderStage) {
+                case OitRenderStage.SinglePassWeighted:
+                    return WireframeOitPass;
+                case OitRenderStage.DepthPeelingInitMinMaxZ:
+                    return OitDepthPeelingInit;
+                case OitRenderStage.DepthPeeling:
+                    return WireframeOitdpPass;
             }
 
         return WireframePass;

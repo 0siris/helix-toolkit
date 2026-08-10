@@ -127,10 +127,10 @@ public static class Color4Extensions {
                 // If it does, then substitute it.  We can only do this for "Colors"
                 // because system colors morph with user settings.
                 //
-                var targetARGB = ((Color)obj).ToArgb();
+                var targetArgb = ((Color)obj).ToArgb();
 
                 foreach (Color c in Colors.Values)
-                    if (c.ToArgb() == targetARGB) {
+                    if (c.ToArgb() == targetArgb) {
                         obj = c;
                         break;
                     }

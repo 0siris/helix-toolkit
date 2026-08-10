@@ -13,7 +13,7 @@ public class InstancingMeshNode : MeshNode {
     /// <summary>
     ///     The instance parameter buffer
     /// </summary>
-    protected IElementsBufferModel<InstanceParameter> instanceParamBuffer =
+    protected IElementsBufferModel<InstanceParameter> InstanceParamBuffer =
         new InstanceParamsBufferModel<InstanceParameter>(InstanceParameter.SizeInBytes);
 
     private bool isInstanceChanged;
@@ -23,12 +23,12 @@ public class InstancingMeshNode : MeshNode {
     }
 
     protected override RenderCore OnCreateRenderCore() {
-        return new InstancingMeshRenderCore { ParameterBuffer = instanceParamBuffer };
+        return new InstancingMeshRenderCore { ParameterBuffer = InstanceParamBuffer };
     }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            instanceParamBuffer.Initialize();
+            InstanceParamBuffer.Initialize();
 
             return true;
         }
@@ -40,7 +40,7 @@ public class InstancingMeshNode : MeshNode {
     ///     Called when [detach].
     /// </summary>
     protected override void OnDetach() {
-        instanceParamBuffer.DisposeAndClear();
+        InstanceParamBuffer.DisposeAndClear();
         base.OnDetach();
     }
 
@@ -78,7 +78,7 @@ public class InstancingMeshNode : MeshNode {
     public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         var isHit = false;
         if (CanHitTest(context) && PreHitTestOnBounds(context)) {
-            if (octreeManager != null && octreeManager.Octree != null) {
+            if (octreeManager is {Octree: not null}) {
                 var boundHits = new List<HitTestResult>();
                 isHit = octreeManager.Octree.HitTest(context,
                                                      WrapperSource,
@@ -95,7 +95,7 @@ public class InstancingMeshNode : MeshNode {
                         isHit |= h;
                         if (h && hits.Count > 0) {
                             var result = hits.Last();
-                            object tag = null;
+                            object? tag = null;
                             if (InstanceIdentifiers != null &&
                                 InstanceIdentifiers.Count == InstanceBuffer.Elements.Count)
                                 tag = InstanceIdentifiers[instanceIdx];
@@ -134,8 +134,8 @@ public class InstancingMeshNode : MeshNode {
     ///     The instance parameter array.
     /// </value>
     public IList<InstanceParameter> InstanceParamArray {
-        get => instanceParamBuffer.Elements;
-        set => instanceParamBuffer.Elements = value;
+        get => InstanceParamBuffer.Elements;
+        set => InstanceParamBuffer.Elements = value;
     }
 
     private IOctreeManager octreeManager;

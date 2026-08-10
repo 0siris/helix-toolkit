@@ -118,7 +118,7 @@ public sealed unsafe class Bitmap : D2DNativeResource {
 
     internal Bitmap(Size2F size, Texture2D texture, BitmapProxy target) {
         Size = size;
-        this.Texture = texture;
+        Texture = texture;
         this.target = target;
     }
 

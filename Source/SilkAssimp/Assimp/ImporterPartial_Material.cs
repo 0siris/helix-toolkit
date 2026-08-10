@@ -86,7 +86,7 @@ public partial class Importer {
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
             if (values != null && values.Length == 5)
-                phong.UVTransform = new UVTransform(values[0],
+                phong.UvTransform = new UvTransform(values[0],
                                                     new Vector2(values[1], values[2]),
                                                     new Vector2(values[3], values[4]));
         }
@@ -99,8 +99,8 @@ public partial class Importer {
     /// </summary>
     /// <param name="material">The material.</param>
     /// <returns></returns>
-    protected virtual PBRMaterialCore OnCreatePBRMaterial(Material material) {
-        var pbr = new PBRMaterialCore {
+    protected virtual PbrMaterialCore OnCreatePBRMaterial(Material material) {
+        var pbr = new PbrMaterialCore {
             AlbedoColor = material.HasColorDiffuse
                               ? material.ColorDiffuse.ToSharpDXColor4()
                               : new Color4(0, 0, 0, 1),
@@ -196,7 +196,7 @@ public partial class Importer {
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
             if (values != null && values.Length == 5)
-                pbr.UVTransform = new UVTransform(values[0],
+                pbr.UvTransform = new UvTransform(values[0],
                                                   new Vector2(values[1], values[2]),
                                                   new Vector2(values[3], values[4]));
         }

@@ -18,7 +18,7 @@ using HelixToolkit.Wpf.SharpDX.Utilities;
 /// </summary>
 public partial class MainWindow : Window {
     public MainWindow() {
-        this.InitializeComponent();
+        InitializeComponent();
         Closed += (s, e) => {
             if (DataContext is IDisposable) {
                 (DataContext as IDisposable).Dispose();

@@ -208,10 +208,10 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UVTransform UVTransform {
+    public UvTransform UvTransform {
         get;
         set => Set(ref field, value);
-    } = UVTransform.Identity;
+    } = UvTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the DiffuseMapSampler.
@@ -331,7 +331,7 @@ public class PhongMaterialCore : MaterialCore {
     public MeshTopologyEnum MeshType {
         get;
         set => Set(ref field, value);
-    } = MeshTopologyEnum.PNTriangles;
+    } = MeshTopologyEnum.PnTriangles;
 
     public bool EnableTessellation {
         get;

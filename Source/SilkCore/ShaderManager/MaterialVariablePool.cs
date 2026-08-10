@@ -5,7 +5,7 @@ namespace HelixToolkit.SharpDX.Core;
 public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
     private readonly Dictionary<(Guid, Guid), MaterialVariable> dictionary = [];
     private readonly IEffectsManager effectsManager;
-    private ushort IDMAX;
+    private ushort idmax;
 
     public MaterialVariablePool(IEffectsManager manager) {
         effectsManager = manager;
@@ -16,7 +16,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
     public MaterialVariable Register(IMaterial material, IRenderTechnique technique) {
         if (material == null || technique.IsNull) return EmptyMaterialVariable.EmptyVariable;
         var guid = material.Guid;
-        var techGuid = technique.GUID;
+        var techGuid = technique.Guid;
         lock (dictionary) {
             if (dictionary.TryGetValue((guid, techGuid), out var value)) {
                 value.IncRef();
@@ -33,11 +33,11 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
             };
             dictionary.Add((guid, techGuid), v);
             ++Count;
-            if (IDMAX - (ushort)Count > 1000) {
-                IDMAX = 0;
-                foreach (var m in dictionary) m.Value.ID = ++IDMAX;
+            if (idmax - (ushort)Count > 1000) {
+                idmax = 0;
+                foreach (var m in dictionary) m.Value.Id = ++idmax;
             } else {
-                v.ID = ++IDMAX;
+                v.Id = ++idmax;
             }
 
             return v;

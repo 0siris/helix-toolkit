@@ -19,6 +19,6 @@ using ExampleBrowser;
 [Example("Issue 1074-1", "ManipulationBindings: TwoFingerPan-Rotate, Pan-Pan, Pinch-Zoom.")]
 public partial class MainWindow : Window {
     public MainWindow() {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

@@ -21,6 +21,40 @@ This policy defines the C#/.NET conventions used by the repository. The policy i
 - Collection expressions, simple extension methods, immutable semantic value types, and expression-bodied members are used when they preserve readability and behavior.
 - Comments and technical documentation are written in English.
 
+Property XML documentation may omit the `<summary>` element when the entire documentation fits on one line. For example, instead of:
+
+```csharp
+/// <summary>Gets the URL scheme.</summary>
+public string Scheme => Uri.Scheme;
+```
+
+use:
+
+```csharp
+/// Gets the URL scheme
+public string Scheme => Uri.Scheme;
+```
+
+Overrides and interface implementations do not require their own XML documentation when the corresponding base or
+interface member is documented. This applies to methods, properties, events, and indexers. Omit `<inheritdoc />` because
+Rider displays the inherited documentation automatically. For example, instead of:
+
+```csharp
+/// <inheritdoc />
+public string ModuleId => ModuleName;
+```
+
+use:
+
+```csharp
+public string ModuleId => ModuleName;
+```
+
+If the base or interface member is not documented, document the implementing member directly. This rule does not apply
+to constructors, new members, or members that merely hide or share a name with another member. Revisit this convention
+if XML documentation files are generated or distributed because the compiler does not copy inherited documentation
+without `<inheritdoc />`.
+
 # Logging
 
 `LoggerLib` is the logging implementation after Phase 2. Existing `HelixToolkit.Logger.LogManager` public signatures remain stable through an adapter. New and migrated calls use structured templates, PascalCase properties, caller metadata supplied by the compiler, no interpolation, and no trailing periods. Secrets and credentials are never logged.

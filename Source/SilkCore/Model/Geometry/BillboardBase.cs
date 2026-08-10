@@ -107,15 +107,15 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             Distance = double.MaxValue
         };
         var visualToScreen = context.RenderMatrices.ScreenViewProjectionMatrix;
-        var screenPoint = context.HitPointSP * context.RenderMatrices.DpiScale;
+        var screenPoint = context.HitPointSp * context.RenderMatrices.DpiScale;
         if (screenPoint.X < 0 || screenPoint.Y < 0) return false;
 
         for (var i = 0; i < count; ++i) {
             var vert = BillboardVertices[i];
             var pos = vert.Position.ToVector3();
             var c = SilkMath.TransformCoordinate(pos, modelMatrix);
-            var dir = c - context.RayWS.Position;
-            if (SilkMath.Dot(dir, context.RayWS.Direction) < 0) continue;
+            var dir = c - context.RayWs.Position;
+            if (SilkMath.Dot(dir, context.RayWs.Direction) < 0) continue;
             var quad = GetScreenQuad(ref c,
                                      ref vert.OffTL,
                                      ref vert.OffTR,
@@ -124,14 +124,14 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                                      ref visualToScreen,
                                      context.RenderMatrices.DpiScale);
             if (quad.IsPointInQuad2D(ref screenPoint)) {
-                var v = c - context.RayWS.Position;
-                var dist = SilkMath.Dot(context.RayWS.Direction, v);
+                var v = c - context.RayWs.Position;
+                var dist = SilkMath.Dot(context.RayWs.Direction, v);
                 if (dist > result.Distance) continue;
                 h = true;
 
                 result.ModelHit = originalSource;
                 result.IsValid = true;
-                result.PointHit = context.RayWS.Position + context.RayWS.Direction * dist;
+                result.PointHit = context.RayWs.Position + context.RayWs.Direction * dist;
                 result.Distance = dist;
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
@@ -181,13 +181,13 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         };
         var viewMatrix = context.RenderMatrices.ViewMatrix;
         var viewMatrixInv = viewMatrix.PsudoInvert();
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         for (var i = 0; i < count; ++i) {
             var vert = BillboardVertices[i];
             var pos = vert.Position.ToVector3();
             var c = SilkMath.TransformCoordinate(pos, modelMatrix);
-            var dir = c - rayWS.Position;
-            if (SilkMath.Dot(dir, rayWS.Direction) < 0) continue;
+            var dir = c - rayWs.Position;
+            if (SilkMath.Dot(dir, rayWs.Direction) < 0) continue;
             var quad = GetHitTestQuad(ref c,
                                       ref vert.OffTL,
                                       ref vert.OffTR,
@@ -195,9 +195,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                                       ref vert.OffBR,
                                       ref viewMatrix,
                                       ref viewMatrixInv);
-            if (Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.TR, ref quad.BR, out Vector3 hitPoint)
-                || Collision.RayIntersectsTriangle(ref rayWS, ref quad.TL, ref quad.BR, ref quad.BL, out hitPoint)) {
-                var dist = (rayWS.Position - hitPoint).Length;
+            if (Collision.RayIntersectsTriangle(ref rayWs, ref quad.Tl, ref quad.Tr, ref quad.Br, out Vector3 hitPoint)
+                || Collision.RayIntersectsTriangle(ref rayWs, ref quad.Tl, ref quad.Br, ref quad.Bl, out hitPoint)) {
+                var dist = (rayWs.Position - hitPoint).Length;
                 if (dist > result.Distance) continue;
                 h = true;
                 result.ModelHit = originalSource;
@@ -265,44 +265,44 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
     }
 
     private struct Quad {
-        public Vector3 TL;
-        public Vector3 TR;
-        public Vector3 BL;
-        public Vector3 BR;
+        public Vector3 Tl;
+        public Vector3 Tr;
+        public Vector3 Bl;
+        public Vector3 Br;
 
         public Quad(ref Vector3 tl, ref Vector3 tr, ref Vector3 bl, ref Vector3 br) {
-            TL = tl;
-            TR = tr;
-            BL = bl;
-            BR = br;
+            Tl = tl;
+            Tr = tr;
+            Bl = bl;
+            Br = br;
         }
 
         public Quad(Vector3 tl, Vector3 tr, Vector3 bl, Vector3 br) {
-            TL = tl;
-            TR = tr;
-            BL = bl;
-            BR = br;
+            Tl = tl;
+            Tr = tr;
+            Bl = bl;
+            Br = br;
         }
     }
 
     private struct Quad2D {
-        public readonly Vector2 TL;
-        public readonly Vector2 TR;
-        public readonly Vector2 BL;
-        public readonly Vector2 BR;
+        public readonly Vector2 Tl;
+        public readonly Vector2 Tr;
+        public readonly Vector2 Bl;
+        public readonly Vector2 Br;
 
         public Quad2D(ref Vector2 tl, ref Vector2 tr, ref Vector2 bl, ref Vector2 br) {
-            TL = tl;
-            TR = tr;
-            BL = bl;
-            BR = br;
+            Tl = tl;
+            Tr = tr;
+            Bl = bl;
+            Br = br;
         }
 
         public Quad2D(Vector2 tl, Vector2 tr, Vector2 bl, Vector2 br) {
-            TL = tl;
-            TR = tr;
-            BL = bl;
-            BR = br;
+            Tl = tl;
+            Tr = tr;
+            Bl = bl;
+            Br = br;
         }
 
 
@@ -339,18 +339,18 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             //    return false;
             //}
             //return true;
-            return SilkMath.Dot(point - TL, BL - TL) >= 0 && SilkMath.Dot(point - BL, BR - BL) >= 0
-                                                          && SilkMath.Dot(point - BR, TR - BR) >= 0 &&
-                                                          SilkMath.Dot(point - TR, TL - TR) >= 0;
+            return SilkMath.Dot(point - Tl, Bl - Tl) >= 0 && SilkMath.Dot(point - Bl, Br - Bl) >= 0
+                                                          && SilkMath.Dot(point - Br, Tr - Br) >= 0 &&
+                                                          SilkMath.Dot(point - Tr, Tl - Tr) >= 0;
         }
     }
 
     private static Quad GetHitTestQuad(
         ref Vector3 center,
-        ref Vector2 TL,
-        ref Vector2 TR,
-        ref Vector2 BL,
-        ref Vector2 BR,
+        ref Vector2 tl,
+        ref Vector2 tr,
+        ref Vector2 bl,
+        ref Vector2 br,
         ref Matrix viewMatrix,
         ref Matrix viewMatrixInv
     ) {
@@ -372,10 +372,10 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
 
     private static Quad2D GetScreenQuad(
         ref Vector3 center,
-        ref Vector2 TL,
-        ref Vector2 TR,
-        ref Vector2 BL,
-        ref Vector2 BR,
+        ref Vector2 tl,
+        ref Vector2 tr,
+        ref Vector2 bl,
+        ref Vector2 br,
         ref Matrix screenViewProjection,
         float scale
     ) {

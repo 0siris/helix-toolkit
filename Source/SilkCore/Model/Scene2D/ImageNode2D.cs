@@ -10,7 +10,7 @@ public class ImageNode2D : SceneNode2D {
     public Stream ImageStream {
         get;
         set {
-            if (SetAffectsMeasure(ref field, value)) bitmapChanged = true;
+            if (SetAffectsMeasure(ref field, value)) BitmapChanged = true;
         }
     }
 
@@ -19,7 +19,7 @@ public class ImageNode2D : SceneNode2D {
         set => (RenderCore as ImageRenderCore2D).Opacity = value;
     }
 
-    protected bool bitmapChanged { get; private set; } = true;
+    protected bool BitmapChanged { get; private set; } = true;
 
     protected override RenderCore2D CreateRenderCore() {
         return new ImageRenderCore2D();
@@ -27,7 +27,7 @@ public class ImageNode2D : SceneNode2D {
 
     protected override bool OnAttach(IRenderHost host) {
         if (base.OnAttach(host)) {
-            bitmapChanged = true;
+            BitmapChanged = true;
             return true;
         }
 
@@ -44,9 +44,9 @@ public class ImageNode2D : SceneNode2D {
 
     public override void Update(RenderContext2D context) {
         base.Update(context);
-        if (bitmapChanged) {
+        if (BitmapChanged) {
             LoadBitmap(context, ImageStream);
-            bitmapChanged = false;
+            BitmapChanged = false;
         }
     }
 

@@ -13,7 +13,7 @@ public static unsafe class SilkD3D12DeviceFactory {
     internal static readonly D3D12 Api = D3D12.GetApi();
 
     public static SilkD3D12Device CreateDefault(
-        SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level_11_0
+        SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level110
     ) {
         ID3D12Device* nativeDevice = null;
         var deviceGuid = ID3D12Device.Guid;
@@ -28,10 +28,10 @@ public static unsafe class SilkD3D12DeviceFactory {
 
     private static D3DFeatureLevel ToSilkFeatureLevel(SilkFeatureLevel featureLevel) {
         return featureLevel switch {
-            SilkFeatureLevel.Level_11_1 => D3DFeatureLevel.Level111,
-            SilkFeatureLevel.Level_11_0 => D3DFeatureLevel.Level110,
-            SilkFeatureLevel.Level_10_1 => D3DFeatureLevel.Level101,
-            SilkFeatureLevel.Level_10_0 => D3DFeatureLevel.Level100,
+            SilkFeatureLevel.Level111 => D3DFeatureLevel.Level111,
+            SilkFeatureLevel.Level110 => D3DFeatureLevel.Level110,
+            SilkFeatureLevel.Level101 => D3DFeatureLevel.Level101,
+            SilkFeatureLevel.Level100 => D3DFeatureLevel.Level100,
             _ => D3DFeatureLevel.Level110
         };
     }

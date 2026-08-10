@@ -101,23 +101,23 @@ public class MainViewModel : BaseViewModel {
 
     public MainViewModel() {
         // titles
-        this.Title = "DynamicTexture Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "DynamicTexture Demo";
+        SubTitle = "WPF & SharpDX";
         EffectsManager = new DefaultEffectsManager();
-        this.Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(10, 10, 10),
             LookDirection = new Vector3D(-10, -10, -10),
             UpDirection = new Vector3D(0, 1, 0)
         };
-        this.Light1Color = Colors.White;
-        this.Light1Direction = new Vector3D(-10, -10, -10);
-        this.AmbientLightColor = Colors.Black;
+        Light1Color = Colors.White;
+        Light1Direction = new Vector3D(-10, -10, -10);
+        AmbientLightColor = Colors.Black;
 
         var b2 = new MeshBuilder(true, true, true);
         b2.AddSphere(new Vector3(0f, 0f, 0f), 4, 64, 64);
-        this.Model = b2.ToMeshGeometry3D();
+        Model = b2.ToMeshGeometry3D();
         Model.IsDynamic = true;
-        this.InnerModel = new MeshGeometry3D() {
+        InnerModel = new MeshGeometry3D() {
             Indices = Model.Indices,
             Positions = Model.Positions,
             Normals = Model.Normals,
@@ -127,28 +127,28 @@ public class MainViewModel : BaseViewModel {
             IsDynamic = true
         };
 
-        var image = TextureModel.Create(new System.Uri(@"test.png", System.UriKind.RelativeOrAbsolute).ToString());
-        this.ModelMaterial = new PhongMaterial {
+        var image = TextureModel.Create(new Uri(@"test.png", UriKind.RelativeOrAbsolute).ToString());
+        ModelMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = Colors.White.ToColor4(),
             SpecularColor = Colors.White.ToColor4(),
             SpecularShininess = 100f,
             DiffuseAlphaMap = image,
             DiffuseMap =
-                TextureModel.Create(new System.Uri(@"TextureCheckerboard2.dds", System.UriKind.RelativeOrAbsolute)
+                TextureModel.Create(new Uri(@"TextureCheckerboard2.dds", UriKind.RelativeOrAbsolute)
                                         .ToString()),
             NormalMap = TextureModel.Create(
-                new System.Uri(@"TextureCheckerboard2_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString()),
+                new Uri(@"TextureCheckerboard2_dot3.dds", UriKind.RelativeOrAbsolute).ToString()),
         };
 
-        this.InnerModelMaterial = new PhongMaterial {
+        InnerModelMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
             SpecularColor = Colors.White.ToColor4(),
             SpecularShininess = 100f,
             DiffuseAlphaMap = image,
             DiffuseMap =
-                TextureModel.Create(new System.Uri(@"TextureNoise1.jpg", System.UriKind.RelativeOrAbsolute).ToString()),
+                TextureModel.Create(new Uri(@"TextureNoise1.jpg", UriKind.RelativeOrAbsolute).ToString()),
             NormalMap = ModelMaterial.NormalMap
         };
 
@@ -211,7 +211,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public static Stream ToStream(System.Drawing.Image image, ImageFormat format) {
-        var stream = new System.IO.MemoryStream();
+        var stream = new MemoryStream();
         image.Save(stream, format);
         stream.Position = 0;
         return stream;
@@ -243,11 +243,11 @@ public class MainViewModel : BaseViewModel {
                         InnerModel.TextureCoordinates = texture;
                     }
                 } else {
-                    ModelMaterial.UVTransform = new UVTransform(0,
+                    ModelMaterial.UVTransform = new UvTransform(0,
                                                                 Vector2.One,
                                                                 ModelMaterial.UVTransform.Translation +
                                                                 new Vector2(0.005f, -0.01f));
-                    InnerModelMaterial.UVTransform = new UVTransform(0,
+                    InnerModelMaterial.UVTransform = new UvTransform(0,
                         Vector2.One,
                         InnerModelMaterial.UVTransform.Translation +
                         new Vector2(-0.01f, 0.005f));

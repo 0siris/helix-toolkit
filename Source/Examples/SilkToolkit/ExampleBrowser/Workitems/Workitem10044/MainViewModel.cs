@@ -13,8 +13,8 @@ using HelixToolkit.Wpf.SharpDX.Extensions;
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         // titles
-        this.Title = "Simple Demo (Workitem 10044)";
-        this.SubTitle = "Please note that this scene is defined completely in XAML.";
+        Title = "Simple Demo (Workitem 10044)";
+        SubTitle = "Please note that this scene is defined completely in XAML.";
 
         EffectsManager = new DefaultEffectsManager();
     }

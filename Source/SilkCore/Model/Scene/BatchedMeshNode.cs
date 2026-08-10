@@ -56,8 +56,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
             DepthBiasClamp = -1000,
             SlopeScaledDepthBias = SlopeScaledDepthBias,
             IsDepthClipEnabled = IsDepthClipEnabled,
-            IsFrontCounterClockwise = FrontCCW,
-            IsMultisampleEnabled = IsMSAAEnabled,
+            IsFrontCounterClockwise = FrontCcw,
+            IsMultisampleEnabled = IsMsaaEnabled,
             IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
         };
     }
@@ -70,16 +70,16 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
                          : null;
         RemoveAndDispose(ref materialVariable);
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = materialVariable = newVar;
-        if (Materials == null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
+        if (Materials == null && Material is PhongMaterialCore p) BatchingBuffer.Materials = [p];
     }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            batchingBuffer = new DefaultStaticMeshBatchingBuffer {
+            BatchingBuffer = new DefaultStaticMeshBatchingBuffer {
                 Geometries = Geometries,
                 Materials = materials
             };
-            if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = batchingBuffer;
+            if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = BatchingBuffer;
             AttachMaterial();
             return true;
         }
@@ -99,14 +99,14 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ///     Used to override Detach
     /// </summary>
     protected override void OnDetach() {
-        RemoveAndDispose(ref batchingBuffer);
+        RemoveAndDispose(ref BatchingBuffer);
         RemoveAndDispose(ref materialVariable);
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
         base.OnDetach();
     }
 
     protected override OrderKey OnUpdateRenderOrderKey() {
-        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.ID);
+        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
     }
 
     /// <summary>
@@ -155,14 +155,14 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
             boundsWithTransform = MaxBound;
         else
             boundsWithTransform = originalBounds.Transform(TotalModelMatrixInternal);
-        var oldBS = boundsSphereWithTransform;
+        var oldBs = boundsSphereWithTransform;
         if (originalBoundsSphere == MaxBoundSphere)
             boundsSphereWithTransform = MaxBoundSphere;
         else
             boundsSphereWithTransform = originalBoundsSphere.TransformBoundingSphere(TotalModelMatrixInternal);
         RaiseOnTransformBoundChanged(new BoundChangeArgs<BoundingBox>(ref boundsWithTransform, ref old));
         RaiseOnTransformBoundSphereChanged(
-            new BoundChangeArgs<BoundingSphere>(ref boundsSphereWithTransform, ref oldBS));
+            new BoundChangeArgs<BoundingSphere>(ref boundsSphereWithTransform, ref oldBs));
     }
 
     /// <summary>
@@ -208,9 +208,9 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        var rayWS = context.RayWS;
-        if (rayWS.Intersects(boundsWithTransform) && rayWS.Intersects(boundsSphereWithTransform)) {
-            if (BatchedGeometryOctree != null && BatchedGeometryOctree.TreeBuilt)
+        var rayWs = context.RayWs;
+        if (rayWs.Intersects(boundsWithTransform) && rayWs.Intersects(boundsSphereWithTransform)) {
+            if (BatchedGeometryOctree is {TreeBuilt: true})
                 return BatchedGeometryOctree.HitTest(context, WrapperSource, null, totalModelMatrix, ref hits);
 
             var isHit = false;
@@ -247,7 +247,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         get => geometries;
         set {
             if (SetAffectsRender(ref geometries, value)) {
-                if (IsAttached) batchingBuffer.Geometries = value;
+                if (IsAttached) BatchingBuffer.Geometries = value;
                 UpdateBounds();
             }
         }
@@ -259,8 +259,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         get => materials;
         set {
             if (SetAffectsRender(ref materials, value) && IsAttached) {
-                batchingBuffer.Materials = value;
-                if (value == null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
+                BatchingBuffer.Materials = value;
+                if (value == null && Material is PhongMaterialCore p) BatchingBuffer.Materials = [p];
             }
         }
     }
@@ -362,7 +362,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <value>
     ///     <c>true</c> if this instance is msaa enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsMSAAEnabled {
+    public bool IsMsaaEnabled {
         get { return field = true; }
         set {
             if (Set(ref field, value)) OnRasterStateChanged();
@@ -414,7 +414,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <value>
     ///     <c>true</c> if [front CCW]; otherwise, <c>false</c>.
     /// </value>
-    public bool FrontCCW {
+    public bool FrontCcw {
         get;
         set {
             if (Set(ref field, value)) OnRasterStateChanged();
@@ -557,7 +557,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// </summary>
     public CreateRasterStateFunc OnCreateRasterState;
 
-    protected DefaultStaticMeshBatchingBuffer batchingBuffer;
+    protected DefaultStaticMeshBatchingBuffer BatchingBuffer;
 
     protected StaticBatchedGeometryBoundsOctree BatchedGeometryOctree { get; private set; }
 

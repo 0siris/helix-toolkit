@@ -21,15 +21,15 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     private bool CreateTextureResources(RenderContext context, DeviceContextProxy deviceContext) {
         var currSampleDesc = context.RenderHost.RenderBuffer.ColorBufferSampleDesc;
 #if MSAASEPARATE
-        hasMSAA = currSampleDesc.Count > 1 || currSampleDesc.Quality > 0;
+        hasMsaa = currSampleDesc.Count > 1 || currSampleDesc.Quality > 0;
 #endif
         if (width != (int)context.ActualWidth || height != (int)context.ActualHeight
                                               || sampleDesc.Count != currSampleDesc.Count ||
                                               sampleDesc.Quality != currSampleDesc.Quality) {
             RemoveAndDispose(ref colorTarget);
             RemoveAndDispose(ref alphaTarget);
-            RemoveAndDispose(ref colorTargetNoMSAA);
-            RemoveAndDispose(ref alphaTargetNoMSAA);
+            RemoveAndDispose(ref colorTargetNoMsaa);
+            RemoveAndDispose(ref alphaTargetNoMsaa);
             sampleDesc = currSampleDesc;
 
             width = (int)context.ActualWidth;
@@ -38,7 +38,7 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             colorDesc.Height = alphaDesc.Height = height;
             colorDesc.SampleDescription = alphaDesc.SampleDescription = sampleDesc;
 #if MSAASEPARATE
-            if (hasMSAA)
+            if (hasMsaa)
                 colorDesc.BindFlags = alphaDesc.BindFlags = BindFlags.RenderTarget;
             else
 #endif
@@ -51,22 +51,22 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             colorTarget.CreateRenderTargetView();
             alphaTarget.CreateRenderTargetView();
 #if MSAASEPARATE
-            if (!hasMSAA)
+            if (!hasMsaa)
 #endif
             {
                 alphaTarget.CreateTextureView();
                 colorTarget.CreateTextureView();
-                colorTargetNoMSAA = colorTarget;
-                alphaTargetNoMSAA = alphaTarget;
+                colorTargetNoMsaa = colorTarget;
+                alphaTargetNoMsaa = alphaTarget;
             }
 #if MSAASEPARATE
             else {
                 colorDesc.SampleDescription = alphaDesc.SampleDescription = new SampleDescription(1, 0);
                 colorDesc.BindFlags = alphaDesc.BindFlags = BindFlags.ShaderResource;
-                colorTargetNoMSAA = new ShaderResourceViewProxy(Device, colorDesc);
-                alphaTargetNoMSAA = new ShaderResourceViewProxy(Device, alphaDesc);
-                colorTargetNoMSAA.CreateTextureView();
-                alphaTargetNoMSAA.CreateTextureView();
+                colorTargetNoMsaa = new ShaderResourceViewProxy(Device, colorDesc);
+                alphaTargetNoMsaa = new ShaderResourceViewProxy(Device, alphaDesc);
+                colorTargetNoMsaa.CreateTextureView();
+                alphaTargetNoMsaa.CreateTextureView();
             }
 #endif
             RaiseInvalidateRender();
@@ -93,15 +93,15 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             targets[i] = null;
         }
 #if MSAASEPARATE
-        if (hasMSAA) {
+        if (hasMsaa) {
             deviceContext.ResolveSubresource(colorTarget.Resource,
                                              0,
-                                             colorTargetNoMSAA.Resource,
+                                             colorTargetNoMsaa.Resource,
                                              0,
                                              colorDesc.Format);
             deviceContext.ResolveSubresource(alphaTarget.Resource,
                                              0,
-                                             alphaTargetNoMSAA.Resource,
+                                             alphaTargetNoMsaa.Resource,
                                              0,
                                              alphaDesc.Format);
         }
@@ -111,9 +111,9 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     protected override bool OnAttach(IRenderTechnique technique) {
         screenQuadPass = technique[DefaultPassNames.Default];
         colorTexIndex =
-            screenQuadPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.OITColorTB);
+            screenQuadPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.OitColorTb);
         alphaTexIndex =
-            screenQuadPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.OITAlphaTB);
+            screenQuadPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.OitAlphaTb);
         samplerIndex =
             screenQuadPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         targetSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerWrapAni1);
@@ -126,8 +126,8 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
         width = height = 0;
         RemoveAndDispose(ref colorTarget);
         RemoveAndDispose(ref alphaTarget);
-        RemoveAndDispose(ref colorTargetNoMSAA);
-        RemoveAndDispose(ref alphaTargetNoMSAA);
+        RemoveAndDispose(ref colorTargetNoMsaa);
+        RemoveAndDispose(ref alphaTargetNoMsaa);
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
@@ -141,7 +141,7 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
 
         Bind(context, deviceContext);
 
-        context.OITRenderStage = OITRenderStage.SinglePassWeighted;
+        context.OitRenderStage = OitRenderStage.SinglePassWeighted;
         var parameter = ExternRenderParameter;
         if (!parameter.ScissorRegion.IsEmpty) {
             parameter.RenderTargetView = [colorTarget, alphaTarget];
@@ -159,13 +159,13 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             }
         }
 
-        context.OITRenderStage = OITRenderStage.None;
+        context.OitRenderStage = OitRenderStage.None;
         UnBind(context, deviceContext);
         screenQuadPass.BindShader(deviceContext);
         screenQuadPass.BindStates(deviceContext,
                                   StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
-        screenQuadPass.PixelShader.BindTexture(deviceContext, colorTexIndex, colorTargetNoMSAA);
-        screenQuadPass.PixelShader.BindTexture(deviceContext, alphaTexIndex, alphaTargetNoMSAA);
+        screenQuadPass.PixelShader.BindTexture(deviceContext, colorTexIndex, colorTargetNoMsaa);
+        screenQuadPass.PixelShader.BindTexture(deviceContext, alphaTexIndex, alphaTargetNoMsaa);
         screenQuadPass.PixelShader.BindSampler(deviceContext, samplerIndex, targetSampler);
         deviceContext.Draw(4, 0);
     }
@@ -174,8 +174,8 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
 
     private ShaderResourceViewProxy colorTarget;
     private ShaderResourceViewProxy alphaTarget;
-    private ShaderResourceViewProxy colorTargetNoMSAA;
-    private ShaderResourceViewProxy alphaTargetNoMSAA;
+    private ShaderResourceViewProxy colorTargetNoMsaa;
+    private ShaderResourceViewProxy alphaTargetNoMsaa;
     private SamplerStateProxy targetSampler;
 
     private SampleDescription sampleDesc = new(1, 0);
@@ -201,7 +201,7 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     private int width;
     private int height;
 #if MSAASEPARATE
-    private bool hasMSAA;
+    private bool hasMsaa;
 #endif
     private ShaderPass screenQuadPass = ShaderPass.NullPass;
     private int colorTexIndex, alphaTexIndex, samplerIndex;

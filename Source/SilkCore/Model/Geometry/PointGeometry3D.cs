@@ -35,7 +35,7 @@ public class PointGeometry3D : Geometry3D {
         var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
         var smvpm = modelMatrix * svpm;
 
-        var clickPoint = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
+        var clickPoint = context.HitPointSp.ToVector3() * context.RenderMatrices.DpiScale;
 
         var result = new HitTestResult { IsValid = false, Distance = double.MaxValue };
         var maxDist = hitThickness;
@@ -50,7 +50,7 @@ public class PointGeometry3D : Geometry3D {
                 lastDist = dist;
                 var lp0 = point;
                 SilkMath.TransformCoordinate(ref lp0, ref modelMatrix, out var pvv);
-                result.Distance = (context.RayWS.Position - pvv).Length;
+                result.Distance = (context.RayWs.Position - pvv).Length;
                 result.PointHit = pvv;
                 result.ModelHit = originalSource;
                 result.IsValid = true;

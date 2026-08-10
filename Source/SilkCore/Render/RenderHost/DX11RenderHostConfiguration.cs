@@ -29,7 +29,7 @@ public sealed class DX11RenderHostConfiguration {
     /// <value>
     ///     <c>true</c> if [enable SSAO]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableSSAO = false;
+    public bool EnableSsao = false;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable vertical synchronize].
@@ -42,7 +42,7 @@ public sealed class DX11RenderHostConfiguration {
     /// <summary>
     ///     Enable FXAA. If MSAA used, FXAA will be disabled automatically
     /// </summary>
-    public FXAALevel FXAALevel = FXAALevel.None;
+    public FxaaLevel FxaaLevel = FxaaLevel.None;
 
     /// <summary>
     ///     The update count. Used to render at least N frames for each InvalidateRenderer.
@@ -53,12 +53,12 @@ public sealed class DX11RenderHostConfiguration {
 
     /// <summary>
     /// </summary>
-    public int OITDepthPeelingIteration = 4;
+    public int OitDepthPeelingIteration = 4;
 
     /// <summary>
     ///     Gets or sets the oit render mode
     /// </summary>
-    public OITRenderType OITRenderType = OITRenderType.DepthPeeling;
+    public OitRenderType OitRenderType = OitRenderType.DepthPeeling;
 
     /// <summary>
     ///     Gets or sets the oit weight depth slope. Used to increase resolution for particular range of depth values.
@@ -70,7 +70,7 @@ public sealed class DX11RenderHostConfiguration {
     /// <value>
     ///     The oit weight depth slope.
     /// </value>
-    public float OITWeightDepthSlope = 1;
+    public float OitWeightDepthSlope = 1;
 
     /// <summary>
     ///     Gets or sets the oit weight mode.
@@ -80,7 +80,7 @@ public sealed class DX11RenderHostConfiguration {
     /// <value>
     ///     The oit weight mode.
     /// </value>
-    public OITWeightMode OITWeightMode = OITWeightMode.Linear1;
+    public OitWeightMode OitWeightMode = OitWeightMode.Linear1;
 
     /// <summary>
     ///     Gets or sets the OIT weight power used for color weight calculation. Default = 3.
@@ -88,7 +88,7 @@ public sealed class DX11RenderHostConfiguration {
     /// <value>
     ///     The OIT weight power.
     /// </value>
-    public float OITWeightPower = 3;
+    public float OitWeightPower = 3;
 
     /// <summary>
     ///     The render d2d
@@ -106,22 +106,22 @@ public sealed class DX11RenderHostConfiguration {
     /// <summary>
     ///     The ssao bias
     /// </summary>
-    public float SSAOBias = 1e-3f;
+    public float SsaoBias = 1e-3f;
 
     /// <summary>
     ///     The ssao intensity
     /// </summary>
-    public float SSAOIntensity = 1f;
+    public float SsaoIntensity = 1f;
 
     /// <summary>
     ///     The ssao quality
     /// </summary>
-    public SSAOQuality SSAOQuality = SSAOQuality.High;
+    public SsaoQuality SsaoQuality = SsaoQuality.High;
 
     /// <summary>
     ///     The SSAO sampling radius
     /// </summary>
-    public float SSAORadius = 0.5f;
+    public float SsaoRadius = 0.5f;
 
     /// <summary>
     ///     The update global variable

@@ -23,7 +23,7 @@ public static class MathHelper {
         // rebuild the permutation table to get a different noise pattern. 
         // Leave this out if you want to play with changing the number of octaves while 
         // maintaining the same overall pattern.
-        Noise2d.Reseed();
+        Noise2D.Reseed();
 
         var frequency = 0.5f;
         var amplitude = 1f;
@@ -36,7 +36,7 @@ public static class MathHelper {
                          offset => {
                              var i = offset % width;
                              var j = offset / width;
-                             var noise = Noise2d.Noise(i * frequency * 1f / width, j * frequency * 1f / height);
+                             var noise = Noise2D.Noise(i * frequency * 1f / width, j * frequency * 1f / height);
                              noise = data[j * width + i] += noise * amplitude;
 
                              min = Math.Min(min, noise);
@@ -58,15 +58,15 @@ public static class MathHelper {
 ///     Transcribed from http://www.siafoo.net/snippet/144?nolinenos#perlin2003
 ///     From StackOverflow: https://stackoverflow.com/questions/8659351/2d-perlin-noise
 /// </summary>
-public static class Noise2d {
-    private static readonly Random _random = new();
-    private static int[] _permutation;
+public static class Noise2D {
+    private static readonly Random Random = new();
+    private static int[] permutation;
 
-    private static readonly Vector2[] _gradients;
+    private static readonly Vector2[] Gradients;
 
-    static Noise2d() {
-        CalculatePermutation(out _permutation);
-        CalculateGradients(out _gradients);
+    static Noise2D() {
+        CalculatePermutation(out permutation);
+        CalculateGradients(out Gradients);
     }
 
     private static void CalculatePermutation(out int[] p) {
@@ -74,7 +74,7 @@ public static class Noise2d {
 
         // shuffle the array
         for (var i = 0; i < p.Length; i++) {
-            var source = _random.Next(p.Length);
+            var source = Random.Next(p.Length);
 
             var t = p[i];
             p[i] = p[source];
@@ -86,7 +86,7 @@ public static class Noise2d {
     ///     generate a new permutation.
     /// </summary>
     public static void Reseed() {
-        CalculatePermutation(out _permutation);
+        CalculatePermutation(out permutation);
     }
 
     private static void CalculateGradients(out Vector2[] grad) {
@@ -96,7 +96,7 @@ public static class Noise2d {
             Vector2 gradient;
 
             do {
-                gradient = new Vector2((float)(_random.NextDouble() * 2 - 1), (float)(_random.NextDouble() * 2 - 1));
+                gradient = new Vector2((float)(Random.NextDouble() * 2 - 1), (float)(Random.NextDouble() * 2 - 1));
             } while (SharedFunctions.LengthSquared(ref gradient) >= 1);
 
             gradient.Normalize();
@@ -131,10 +131,10 @@ public static class Noise2d {
             var ij = cell + n;
             var uv = new Vector2(x - ij.X, y - ij.Y);
 
-            var index = _permutation[(int)ij.X % _permutation.Length];
-            index = _permutation[(index + (int)ij.Y) % _permutation.Length];
+            var index = permutation[(int)ij.X % permutation.Length];
+            index = permutation[(index + (int)ij.Y) % permutation.Length];
 
-            var grad = _gradients[index % _gradients.Length];
+            var grad = Gradients[index % Gradients.Length];
 
             total += Q(uv.X, uv.Y) * SharedFunctions.DotProduct(ref grad, ref uv);
         }

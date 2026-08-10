@@ -64,7 +64,7 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
         set {
             field = value;
-            this.UpdatePointLightCollection();
+            UpdatePointLightCollection();
         }
     }
 
@@ -72,20 +72,20 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
         set {
             field = value;
-            this.UpdatePointLightCollection();
+            UpdatePointLightCollection();
         }
     }
 
     public int PointLightCount {
-        get { return this.PointLightCollection.Count; }
-        set { this.InitPointLightCollection(value); }
+        get { return PointLightCollection.Count; }
+        set { InitPointLightCollection(value); }
     }
 
     public int PointLightSpread {
         get { return field; }
         set {
             field = value;
-            this.InitPointLightCollection(this.PointLightCount);
+            InitPointLightCollection(PointLightCount);
         }
     }
 
@@ -95,7 +95,7 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
         set {
             field = value;
-            this.UpdateSpotLightCollection();
+            UpdateSpotLightCollection();
         }
     }
 
@@ -103,20 +103,20 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
         set {
             field = value;
-            this.UpdateSpotLightCollection();
+            UpdateSpotLightCollection();
         }
     }
 
     public int SpotLightCount {
-        get { return this.SpotLightCollection.Count; }
-        set { this.InitSpotLightCollection(value); }
+        get { return SpotLightCollection.Count; }
+        set { InitSpotLightCollection(value); }
     }
 
     public double SpotLightSpread {
         get { return field; }
         set {
             field = value;
-            this.InitSpotLightCollection(this.SpotLightCount);
+            InitSpotLightCollection(SpotLightCount);
         }
     }
 
@@ -135,11 +135,11 @@ public class MainViewModel : BaseViewModel {
     [Obsolete]
     public MainViewModel() {
         // titles
-        this.Title = "Deferred Shading Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Deferred Shading Demo";
+        SubTitle = "WPF & SharpDX";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(18, 64, 30), LookDirection = new Vector3D(-18, -64, -30),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -151,7 +151,7 @@ public class MainViewModel : BaseViewModel {
         //load model
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/bunny.obj");
-        this.Model = objModel[0].Geometry as MeshGeometry3D;
+        Model = objModel[0].Geometry as MeshGeometry3D;
         var scale = 2.0;
 
         // model trafos
@@ -162,61 +162,61 @@ public class MainViewModel : BaseViewModel {
                                                    0.0,
                                                    0.0));
         transf1.Children.Add(new TranslateTransform3D(0, -2, 3));
-        this.Model1Transform = transf1;
+        Model1Transform = transf1;
 
         var transf2 = new Transform3DGroup();
         transf2.Children.Add(new ScaleTransform3D(scale, scale, scale));
         transf2.Children.Add(
-            new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 1, 0), 66), 0.0, 0.0, 0.0));
-        transf2.Children.Add(new Media3D.TranslateTransform3D(-3.0, -2, -2.5));
-        this.Model2Transform = transf2;
+            new RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 1, 0), 66), 0.0, 0.0, 0.0));
+        transf2.Children.Add(new TranslateTransform3D(-3.0, -2, -2.5));
+        Model2Transform = transf2;
 
         var transf3 = new Transform3DGroup();
         transf3.Children.Add(new ScaleTransform3D(scale, scale, scale));
         transf3.Children.Add(new TranslateTransform3D(+3.5, -2, -1.0));
-        this.Model3Transform = transf3;
+        Model3Transform = transf3;
 
         // floor plane
         var meshBuilder = new MeshBuilder();
         meshBuilder.AddBox(new Vector3(0, 0, 0), 100, 0.0, 100, BoxFaces.PositiveY);
-        this.Plane = meshBuilder.ToMeshGeometry3D();
-        this.PlaneTransform = new TranslateTransform3D(0, -1.05, 0);
+        Plane = meshBuilder.ToMeshGeometry3D();
+        PlaneTransform = new TranslateTransform3D(0, -1.05, 0);
 
         // model materials
-        this.RedMaterial = PhongMaterials.Red;
-        this.GreenMaterial = PhongMaterials.Green;
-        this.BlueMaterial = PhongMaterials.Blue;
-        this.PlaneMaterial = PhongMaterials.DefaultVRML;
-        this.PlaneMaterial.DiffuseMap =
-            LoadFileToMemory(new System.Uri(@"./Media/TextureCheckerboard2.jpg", System.UriKind.RelativeOrAbsolute)
+        RedMaterial = PhongMaterials.Red;
+        GreenMaterial = PhongMaterials.Green;
+        BlueMaterial = PhongMaterials.Blue;
+        PlaneMaterial = PhongMaterials.DefaultVRML;
+        PlaneMaterial.DiffuseMap =
+            LoadFileToMemory(new Uri(@"./Media/TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute)
                                  .ToString());
-        this.PlaneMaterial.NormalMap =
-            LoadFileToMemory(new System.Uri(@"./Media/TextureCheckerboard2_dot3.jpg", System.UriKind.RelativeOrAbsolute)
+        PlaneMaterial.NormalMap =
+            LoadFileToMemory(new Uri(@"./Media/TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
                                  .ToString());
 
         // setup lighting            
-        this.AmbientLightColor = Colors.DarkGray;
-        this.DirectionalLightColor = Colors.Gray;
-        this.DirectionalLightDirection = new Vector3D(-2, -5, -2);
+        AmbientLightColor = Colors.DarkGray;
+        DirectionalLightColor = Colors.Gray;
+        DirectionalLightDirection = new Vector3D(-2, -5, -2);
 
-        this.PointLightColor = Colors.White;
-        this.PointLightAttenuation = new Vector3D(0.0f, 0.0f, 0.18f); //1/0/0 ; 0.1, 0.2, 0.3
-        this.PointLightTransform1 = new TranslateTransform3D(new Vector3D(0, 1, 0));
-        this.PointLightTransform2 = new TranslateTransform3D(new Vector3D(6, 1, 3));
-        this.PointLightTransform3 = new TranslateTransform3D(new Vector3D(-3, 1, -6));
+        PointLightColor = Colors.White;
+        PointLightAttenuation = new Vector3D(0.0f, 0.0f, 0.18f); //1/0/0 ; 0.1, 0.2, 0.3
+        PointLightTransform1 = new TranslateTransform3D(new Vector3D(0, 1, 0));
+        PointLightTransform2 = new TranslateTransform3D(new Vector3D(6, 1, 3));
+        PointLightTransform3 = new TranslateTransform3D(new Vector3D(-3, 1, -6));
 
-        this.SpotLightColor = Colors.AntiqueWhite;
-        this.SpotLightAttenuation = new Vector3D(1.0, 0.1, 0.01);
+        SpotLightColor = Colors.AntiqueWhite;
+        SpotLightAttenuation = new Vector3D(1.0, 0.1, 0.01);
 
         // light collection
-        this.PointLightCollection = [];
-        this.PointLightCount = 7;
-        this.PointLightSpread = 100;
+        PointLightCollection = [];
+        PointLightCount = 7;
+        PointLightSpread = 100;
 
         // spotlight collection
-        this.SpotLightCollection = [];
-        this.SpotLightCount = 7;
-        this.SpotLightSpread = 100;
+        SpotLightCollection = [];
+        SpotLightCount = 7;
+        SpotLightSpread = 100;
     }
 
     /// <summary>
@@ -234,20 +234,20 @@ public class MainViewModel : BaseViewModel {
         var rndx = new Random();
         var rndy = new Random(rndx.Next());
         var rndz = new Random(rndy.Next());
-        var spread = this.PointLightSpread;
+        var spread = PointLightSpread;
 
         // re-generate the lights
-        this.PointLightCollection.Clear();
+        PointLightCollection.Clear();
         for (int i = 0; i < numberLights; i++) {
             var pointLight = new PointLight3D() {
-                Color = this.PointLightColor,
-                Attenuation = this.PointLightAttenuation,
+                Color = PointLightColor,
+                Attenuation = PointLightAttenuation,
                 Transform = CreateAnimatedTransform(
                     new Vector3D(rndx.NextDouble() * spread - spread / 2.0, 1, rndz.NextDouble() * spread - spread / 2),
                     new Vector3D(0, 1, 0),
                     rndx.Next(10) + 4),
             };
-            this.PointLightCollection.Add(pointLight);
+            PointLightCollection.Add(pointLight);
         }
 
         // attach the renderer
@@ -258,10 +258,10 @@ public class MainViewModel : BaseViewModel {
     /// Update Pointlights
     /// </summary>
     private void UpdatePointLightCollection() {
-        if (this.PointLightCollection != null) {
-            for (int i = 0; i < this.PointLightCollection.Count; i++) {
-                (this.PointLightCollection[i] as PointLight3D).Attenuation = this.PointLightAttenuation;
-                (this.PointLightCollection[i] as PointLight3D).Color = this.PointLightColor;
+        if (PointLightCollection != null) {
+            for (int i = 0; i < PointLightCollection.Count; i++) {
+                (PointLightCollection[i] as PointLight3D).Attenuation = PointLightAttenuation;
+                (PointLightCollection[i] as PointLight3D).Color = PointLightColor;
             }
         }
     }
@@ -281,14 +281,14 @@ public class MainViewModel : BaseViewModel {
         var rndx = new Random();
         var rndy = new Random(rndx.Next());
         var rndz = new Random(rndy.Next());
-        var spread = this.SpotLightSpread;
+        var spread = SpotLightSpread;
 
         // re-generate the lights
-        this.SpotLightCollection.Clear();
+        SpotLightCollection.Clear();
         for (int i = 0; i < numberLights; i++) {
             var spotLight = new SpotLight3D() {
-                Color = this.SpotLightColor,
-                Attenuation = this.SpotLightAttenuation,
+                Color = SpotLightColor,
+                Attenuation = SpotLightAttenuation,
                 //OuterAngle = 90,
                 //InnerAngle = 88,
                 Position = new Point3D(0, 20, 0),
@@ -298,7 +298,7 @@ public class MainViewModel : BaseViewModel {
                                                     (2 * rndz.NextDouble() - 1) * new Vector3D(0, 0, 1),
                                                     rndx.Next(10) + 8),
             };
-            this.SpotLightCollection.Add(spotLight);
+            SpotLightCollection.Add(spotLight);
         }
 
         // attach the renderer
@@ -309,10 +309,10 @@ public class MainViewModel : BaseViewModel {
     /// Update Spotlights
     /// </summary>
     private void UpdateSpotLightCollection() {
-        if (this.SpotLightCollection != null) {
-            for (int i = 0; i < this.SpotLightCollection.Count; i++) {
-                (this.SpotLightCollection[i] as SpotLight3D).Attenuation = this.SpotLightAttenuation;
-                (this.SpotLightCollection[i] as SpotLight3D).Color = this.SpotLightColor;
+        if (SpotLightCollection != null) {
+            for (int i = 0; i < SpotLightCollection.Count; i++) {
+                (SpotLightCollection[i] as SpotLight3D).Attenuation = SpotLightAttenuation;
+                (SpotLightCollection[i] as SpotLight3D).Color = SpotLightColor;
             }
         }
     }

@@ -71,7 +71,7 @@ public class PBRViewModel : BaseViewModel {
 
     public PBRViewModel(IEffectsManager manager) {
         EffectsManager = manager;
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(0, 60, 60), LookDirection = new Vector3D(0, -60, -60),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -79,7 +79,7 @@ public class PBRViewModel : BaseViewModel {
         builder.AddSphere(Vector3.Zero, 2);
         SphereModel = builder.ToMesh();
         var normalMap =
-            TextureModel.Create(new System.Uri("TextureNoise1_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString());
+            TextureModel.Create(new Uri("TextureNoise1_dot3.dds", UriKind.RelativeOrAbsolute).ToString());
         for (int i = -Row; i < Row; ++i) {
             for (int j = -Col; j < Col; ++j) {
                 var m = new PBRMaterial() {

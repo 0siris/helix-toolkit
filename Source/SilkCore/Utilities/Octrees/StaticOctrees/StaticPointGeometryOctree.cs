@@ -70,7 +70,7 @@ public class StaticPointGeometryOctree : StaticOctree<int> {
     public override bool HitTest(
         HitTestContext context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref List<HitTestResult> hits,
         float hitThickness
@@ -120,10 +120,10 @@ public class StaticPointGeometryOctree : StaticOctree<int> {
                 needRecalculate = false;
             }
 
-            var clickPoint = context.HitPointSP.ToVector3() * context.RenderMatrices.DpiScale;
+            var clickPoint = context.HitPointSp.ToVector3() * context.RenderMatrices.DpiScale;
             isIntersect = true;
             var dist = hitThickness;
-            var rayWS = context.RayWS;
+            var rayWs = context.RayWs;
             for (var i = octant.Start; i < octant.End; ++i) {
                 var v0 = Positions[Objects[i]];
                 var p0 = SilkMath.TransformCoordinate(v0, smvpm);
@@ -137,7 +137,7 @@ public class StaticPointGeometryOctree : StaticOctree<int> {
                     result.ModelHit = model;
                     var px = SilkMath.TransformCoordinate(v0, modelMatrix);
                     result.PointHit = px;
-                    result.Distance = (rayWS.Position - px).Length;
+                    result.Distance = (rayWs.Position - px).Length;
                     result.Tag = Objects[i];
                     result.Geometry = geometry;
                     isHit = true;

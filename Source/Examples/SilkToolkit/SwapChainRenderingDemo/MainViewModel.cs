@@ -76,18 +76,18 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
     } = @"TextureCheckerboard2_dot3.jpg";
 
-    public System.Windows.Media.Color DiffuseColor {
+    public Color DiffuseColor {
         set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }
         get { return ModelMaterial.DiffuseColor.ToColor(); }
     }
 
 
-    public System.Windows.Media.Color ReflectiveColor {
+    public Color ReflectiveColor {
         set { FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4(); }
         get { return ModelMaterial.ReflectiveColor.ToColor(); }
     }
 
-    public System.Windows.Media.Color EmissiveColor {
+    public Color EmissiveColor {
         set { FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4(); }
         get { return ModelMaterial.EmissiveColor.ToColor(); }
     }
@@ -104,7 +104,7 @@ public class MainViewModel : BaseViewModel {
         Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
     };
 
-    public HelixToolkit.SharpDX.Core.FillMode FillMode { set; get; } = HelixToolkit.SharpDX.Core.FillMode.Solid;
+    public FillMode FillMode { set; get; } = FillMode.Solid;
 
     public int NumberOfTriangles { set; get; } = 0;
     public int NumberOfVertices { set; get; } = 0;
@@ -113,8 +113,8 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 FillMode = value
-                               ? HelixToolkit.SharpDX.Core.FillMode.Wireframe
-                               : HelixToolkit.SharpDX.Core.FillMode.Solid;
+                               ? FillMode.Wireframe
+                               : FillMode.Solid;
             }
         }
         get { return field; }
@@ -129,46 +129,46 @@ public class MainViewModel : BaseViewModel {
 
         // ----------------------------------------------
         // titles
-        this.Title = "SwapChain Top Surface Rendering Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "SwapChain Top Surface Rendering Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // ----------------------------------------------
         // setup scene
-        this.AmbientLightColor = Colors.Gray;
+        AmbientLightColor = Colors.Gray;
 
-        this.Light1Color = Colors.LightGray;
-        this.Light2Color = Colors.Red;
-        this.Light3Color = Colors.LightYellow;
-        this.Light4Color = Colors.LightBlue;
+        Light1Color = Colors.LightGray;
+        Light2Color = Colors.Red;
+        Light3Color = Colors.LightYellow;
+        Light4Color = Colors.LightBlue;
 
-        this.Light2Attenuation = new Vector3D(0.1f, 0.05f, 0.010f);
-        this.Light3Attenuation = new Vector3D(0.1f, 0.01f, 0.005f);
-        this.Light4Attenuation = new Vector3D(0.1f, 0.02f, 0.0f);
+        Light2Attenuation = new Vector3D(0.1f, 0.05f, 0.010f);
+        Light3Attenuation = new Vector3D(0.1f, 0.01f, 0.005f);
+        Light4Attenuation = new Vector3D(0.1f, 0.02f, 0.0f);
 
-        this.Light1Direction = new Vector3D(0, -10, -10);
-        this.Light1Transform = new TranslateTransform3D(-Light1Direction);
-        this.Light1DirectionTransform = CreateAnimatedTransform2(-Light1Direction, new Vector3D(0, 1, -1), 36);
+        Light1Direction = new Vector3D(0, -10, -10);
+        Light1Transform = new TranslateTransform3D(-Light1Direction);
+        Light1DirectionTransform = CreateAnimatedTransform2(-Light1Direction, new Vector3D(0, 1, -1), 36);
 
-        this.Light2Transform = CreateAnimatedTransform1(new Vector3D(-100, 50, 0), new Vector3D(0, 0, 1), 3);
-        this.Light3Transform = CreateAnimatedTransform1(new Vector3D(0, 50, 100), new Vector3D(0, 1, 0), 5);
+        Light2Transform = CreateAnimatedTransform1(new Vector3D(-100, 50, 0), new Vector3D(0, 0, 1), 3);
+        Light3Transform = CreateAnimatedTransform1(new Vector3D(0, 50, 100), new Vector3D(0, 1, 0), 5);
 
-        this.Light4Direction = new Vector3D(0, -100, 0);
-        this.Light4Transform = new TranslateTransform3D(-Light4Direction);
-        this.Light4DirectionTransform = CreateAnimatedTransform2(-Light4Direction, new Vector3D(1, 0, 0), 48);
+        Light4Direction = new Vector3D(0, -100, 0);
+        Light4Transform = new TranslateTransform3D(-Light4Direction);
+        Light4DirectionTransform = CreateAnimatedTransform2(-Light4Direction, new Vector3D(1, 0, 0), 48);
 
         // ----------------------------------------------
         // light model3d
         var sphere = new MeshBuilder();
         sphere.AddSphere(new Vector3(0, 0, 0), 4);
         Sphere = sphere.ToMeshGeometry3D();
-        this.LightModelMaterial = new PhongMaterial {
+        LightModelMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = Colors.Gray.ToColor4(),
             EmissiveColor = Colors.Yellow.ToColor4(),
@@ -188,7 +188,7 @@ public class MainViewModel : BaseViewModel {
         var rotateTransform = new Media3D.RotateTransform3D();
         transGroup.Children.Add(rotateTransform);
         rotateTransform.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation);
-        transGroup.Children.Add(new Media3D.TranslateTransform3D(0, 60, 0));
+        transGroup.Children.Add(new TranslateTransform3D(0, 60, 0));
         ModelTransform = transGroup;
     }
 
@@ -220,8 +220,8 @@ public class MainViewModel : BaseViewModel {
 
         context.Post((o) => {
             Floor = models[0];
-            this.FloorTransform = new Media3D.TranslateTransform3D(0, 0, 0);
-            this.FloorMaterial = new PhongMaterial {
+            FloorTransform = new TranslateTransform3D(0, 0, 0);
+            FloorMaterial = new PhongMaterial {
                 AmbientColor = Colors.Gray.ToColor4(),
                 DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
                 SpecularColor = Colors.White.ToColor4(),
@@ -252,9 +252,9 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    private Media3D.Transform3D CreateAnimatedTransform1(Vector3D translate, Vector3D axis, double speed = 4) {
+    private Transform3D CreateAnimatedTransform1(Vector3D translate, Vector3D axis, double speed = 4) {
         var lightTrafo = new Media3D.Transform3DGroup();
-        lightTrafo.Children.Add(new Media3D.TranslateTransform3D(translate));
+        lightTrafo.Children.Add(new TranslateTransform3D(translate));
 
         var rotateAnimation = new Rotation3DAnimation {
             RepeatBehavior = RepeatBehavior.Forever,
@@ -270,9 +270,9 @@ public class MainViewModel : BaseViewModel {
         return lightTrafo;
     }
 
-    private Media3D.Transform3D CreateAnimatedTransform2(Vector3D translate, Vector3D axis, double speed = 4) {
+    private Transform3D CreateAnimatedTransform2(Vector3D translate, Vector3D axis, double speed = 4) {
         var lightTrafo = new Media3D.Transform3DGroup();
-        lightTrafo.Children.Add(new Media3D.TranslateTransform3D(translate));
+        lightTrafo.Children.Add(new TranslateTransform3D(translate));
 
         var rotateAnimation = new Rotation3DAnimation {
             RepeatBehavior = RepeatBehavior.Forever,

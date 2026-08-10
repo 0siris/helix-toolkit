@@ -126,6 +126,6 @@ public static class BoundingSphereExtensions {
                                                             (worldEdgeY - worldCenter).LengthSquared()),
                                                    (worldEdgeZ - worldCenter).LengthSquared()));
 
-        return new BoundingSphere(worldCenter.ToXYZ(), maxRadius);
+        return new BoundingSphere(worldCenter.ToXyz(), maxRadius);
     }
 }

@@ -104,13 +104,13 @@ public partial class ViewportCore {
     /// <value>
     ///     <c>true</c> if [show FPS]; otherwise, <c>false</c>.
     /// </value>
-    public bool ShowFPS {
-        get => (RenderHost.ShowRenderDetail & ~RenderDetail.FPS) != 0;
+    public bool ShowFps {
+        get => (RenderHost.ShowRenderDetail & ~RenderDetail.Fps) != 0;
         set {
             if (value)
-                RenderHost.ShowRenderDetail |= RenderDetail.FPS;
+                RenderHost.ShowRenderDetail |= RenderDetail.Fps;
             else
-                RenderHost.ShowRenderDetail &= ~RenderDetail.FPS;
+                RenderHost.ShowRenderDetail &= ~RenderDetail.Fps;
         }
     }
 
@@ -158,9 +158,9 @@ public partial class ViewportCore {
     /// <value>
     ///     The FXAA level.
     /// </value>
-    public FXAALevel FXAALevel {
-        get => RenderHost.RenderConfiguration.FXAALevel;
-        set => RenderHost.RenderConfiguration.FXAALevel = value;
+    public FxaaLevel FxaaLevel {
+        get => RenderHost.RenderConfiguration.FxaaLevel;
+        set => RenderHost.RenderConfiguration.FxaaLevel = value;
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ public partial class ViewportCore {
     /// <value>
     ///     The render context.
     /// </value>
-    public RenderContext RenderContext => RenderHost.RenderContext;
+    public RenderContext? RenderContext => RenderHost.RenderContext;
 
     /// <summary>
     ///     Gets the render stat.
@@ -219,9 +219,9 @@ public partial class ViewportCore {
     /// <value>
     ///     <c>true</c> if [enable ssao]; otherwise, <c>false</c>.
     /// </value>
-    public bool EnableSSAO {
-        get => RenderHost.RenderConfiguration.EnableSSAO;
-        set => RenderHost.RenderConfiguration.EnableSSAO = value;
+    public bool EnableSsao {
+        get => RenderHost.RenderConfiguration.EnableSsao;
+        set => RenderHost.RenderConfiguration.EnableSsao = value;
     }
 
     /// <summary>

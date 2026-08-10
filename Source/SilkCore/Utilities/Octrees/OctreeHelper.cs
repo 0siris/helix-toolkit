@@ -14,9 +14,10 @@ public static class OctreeHelper {
         return builder.ToLineGeometry3D();
     }
 
-    public static void CreateOctreeLineModel(this IDynamicOctree tree, LineBuilder builder) {
+    public static void CreateOctreeLineModel(this IDynamicOctree? tree, LineBuilder builder) {
         if (tree == null)
             return;
+        
         var box = tree.Bound;
         var verts = new Vector3[8];
         verts[0] = box.Minimum;
@@ -28,6 +29,7 @@ public static class OctreeHelper {
         verts[4] = new Vector3(box.Maximum.X, box.Maximum.Y, box.Minimum.Z); //Z
         verts[5] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Maximum.Z); //Y
         verts[6] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Maximum.Z); //X
+        
         builder.AddLine(verts[0], verts[1]);
         builder.AddLine(verts[0], verts[2]);
         builder.AddLine(verts[0], verts[3]);

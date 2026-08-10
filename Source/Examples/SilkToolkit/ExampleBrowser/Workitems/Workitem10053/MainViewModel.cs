@@ -16,11 +16,11 @@ using HelixToolkit.Wpf.SharpDX.Utilities;
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {
         // titles
-        this.Title = "Simple Demo (Workitem 10053)";
-        this.SubTitle = "ManipulationBindings: Pan-Rotate, TwoFingerPan-Pan, Pinch-Zoom";
+        Title = "Simple Demo (Workitem 10053)";
+        SubTitle = "ManipulationBindings: Pan-Rotate, TwoFingerPan-Pan, Pinch-Zoom";
         // old issue: this.SubTitle = "You can pan, rotate and zoom via touch.";
-        this.PropertyChanged += this.OnPropertyChanged;
-        this.EffectsManager = new DefaultEffectsManager();
+        PropertyChanged += OnPropertyChanged;
+        EffectsManager = new DefaultEffectsManager();
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (field != value) {
                 field = value;
-                this.OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
     }
@@ -46,7 +46,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (field != value) {
                 field = value;
-                this.OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
     }
@@ -69,7 +69,7 @@ public class MainViewModel : BaseViewModel {
     /// <param name="e">The event arguments.</param>
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
         if ("RenderException".Equals(e.PropertyName)) {
-            this.ViewportMessage = this.RenderException?.ToString();
+            ViewportMessage = RenderException?.ToString();
         }
     }
 }

@@ -11,7 +11,7 @@ using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
+using MeshGeometry3D = MeshGeometry3D;
 using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -32,12 +32,12 @@ public class MainViewModel : BaseViewModel {
 
     public MainViewModel() {
         // titles
-        this.Title = "Bug? BillboardText3D not visible until origin comes in sight.";
-        this.SubTitle =
+        Title = "Bug? BillboardText3D not visible until origin comes in sight.";
+        SubTitle =
             "Please move or rotate the view and see how the BillboardText suddenly appears when the origin (right front edge of the grid) comes into view.";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(4.4, 2.2, -4.4), LookDirection = new Vector3D(0, -4, 10),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -45,12 +45,12 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
 
         // setup lighting
-        this.AmbientLightColor = Colors.Black;
-        this.DirectionalLightColor = Colors.White;
+        AmbientLightColor = Colors.Black;
+        DirectionalLightColor = Colors.White;
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid();
-        this.GridColor = HelixToolkit.SharpDX.Core.Color.Black;
+        Grid = LineBuilder.GenerateGrid();
+        GridColor = HelixToolkit.SharpDX.Core.Color.Black;
 
         // scene model3d
         var b1 = new MeshBuilder();
@@ -58,7 +58,7 @@ public class MainViewModel : BaseViewModel {
 
         var meshGeometry = b1.ToMeshGeometry3D();
         meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
-        this.Model = meshGeometry;
+        Model = meshGeometry;
 
         // Create Billboard Text
         float offset = 4.5f;

@@ -106,13 +106,13 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             Viewport.Update(t0);
             RenderContext.TimeStamp = t0;
             RenderContext.Camera = Viewport.CameraCore;
-            RenderContext.OITWeightPower = RenderConfiguration.OITWeightPower;
-            RenderContext.OITWeightDepthSlope = RenderConfiguration.OITWeightDepthSlope;
-            RenderContext.OITWeightMode = RenderConfiguration.OITWeightMode;
-            RenderContext.SSAOEnabled = RenderConfiguration.EnableSSAO;
-            RenderContext.SSAOBias = RenderConfiguration.SSAOBias;
-            RenderContext.SSAOIntensity = RenderConfiguration.SSAOIntensity;
-            RenderContext.OITDepthPeelingIteration = RenderConfiguration.OITDepthPeelingIteration;
+            RenderContext.OitWeightPower = RenderConfiguration.OitWeightPower;
+            RenderContext.OitWeightDepthSlope = RenderConfiguration.OitWeightDepthSlope;
+            RenderContext.OitWeightMode = RenderConfiguration.OitWeightMode;
+            RenderContext.SsaoEnabled = RenderConfiguration.EnableSsao;
+            RenderContext.SsaoBias = RenderConfiguration.SsaoBias;
+            RenderContext.SsaoIntensity = RenderConfiguration.SsaoIntensity;
+            RenderContext.OitDepthPeelingIteration = RenderConfiguration.OitDepthPeelingIteration;
         }
 
         RenderBuffer.VSyncInterval = RenderConfiguration.EnableVSync 
@@ -121,8 +121,8 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         
         var updateSceneGraph = updateSceneGraphRequested;
         var updatePerFrameRenderable = updatePerFrameRenderableRequested;
-        RenderContext.updateSceneGraphRequested = updateSceneGraphRequested;
-        RenderContext.updatePerFrameRenderableRequested = updatePerFrameRenderableRequested;
+        RenderContext.UpdateSceneGraphRequested = updateSceneGraphRequested;
+        RenderContext.UpdatePerFrameRenderableRequested = updatePerFrameRenderableRequested;
         updateSceneGraphRequested = false;
         updatePerFrameRenderableRequested = false;
         
@@ -379,7 +379,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="buffer">The buffer.</param>
     /// <param name="renderer">The renderer.</param>
     protected virtual void OnInitializeBuffers(DX11RenderBufferProxyBase buffer, IRenderer renderer) 
-        => buffer.Initialize((int)ActualWidth, (int)ActualHeight, MSAA);
+        => buffer.Initialize((int)ActualWidth, (int)ActualHeight, Msaa);
 
     /// <summary>
     ///     Attaches the renderable.
@@ -531,7 +531,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
 
     /// <summary>
@@ -621,12 +621,12 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The msaa.
     /// </value>
-    public MSAALevel MSAA {
+    public MsaaLevel Msaa {
         get;
         set {
             if (Set(ref field, value)) Restart(true);
         }
-    } = MSAALevel.Disable;
+    } = MsaaLevel.Disable;
 
     /// <summary>
     ///     <see cref="IRenderHost.Viewport" />
@@ -846,7 +846,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public IRenderStatistics RenderStatistics => renderStatistics;
 
-    protected readonly RenderStatistics renderStatistics = new();
+    protected readonly RenderStatistics RenderStatistics = new();
 
 #region Perframe renderables
 
@@ -939,7 +939,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         RenderD2D = true,
         RenderLights = true,
         ClearEachFrame = true,
-        OITRenderType = OITRenderType.DepthPeeling
+        OitRenderType = OitRenderType.DepthPeeling
     };
 
     /// <summary>
@@ -948,7 +948,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The feature level.
     /// </value>
-    public FeatureLevel FeatureLevel { get; private set; } = FeatureLevel.Level_11_0;
+    public FeatureLevel FeatureLevel { get; private set; } = FeatureLevel.Level110;
 
     public bool EnableParallelProcessing { get; set; } = true;
 

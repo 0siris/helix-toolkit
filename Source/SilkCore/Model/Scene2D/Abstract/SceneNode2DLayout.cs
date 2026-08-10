@@ -473,7 +473,7 @@ public partial class SceneNode2D {
                                          0,
                                          RenderSize.X + MarginWidthHeight.X * DpiScale,
                                          RenderSize.Y + MarginWidthHeight.Y * DpiScale);
-        LayoutTranslate = Matrix3x2.Translation((float)Math.Round(LayoutOffsets.X),
+        LayoutTranslate = Matrix3X2.Translation((float)Math.Round(LayoutOffsets.X),
                                                 (float)Math.Round(LayoutOffsets.Y));
     }
 

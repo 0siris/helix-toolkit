@@ -9,39 +9,39 @@ public sealed class HitTestContext {
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
-        /// <param name="rayWS">The ray in world space.</param>
-        /// <param name="hitSP">
+        /// <param name="rayWs">The ray in world space.</param>
+        /// <param name="hitSp">
         ///     The hit point on screen space. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-    public HitTestContext(IRenderMatrices metrices, ref Ray rayWS, ref Vector2 hitSP) {
+    public HitTestContext(IRenderMatrices metrices, ref Ray rayWs, ref Vector2 hitSp) {
         RenderMatrices = metrices;
-        RayWS = rayWS;
-        HitPointSP = hitSP;
+        RayWs = rayWs;
+        HitPointSp = hitSp;
     }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
-        /// <param name="rayWS">The ray in world space.</param>
-        /// <param name="hitSP">
+        /// <param name="rayWs">The ray in world space.</param>
+        /// <param name="hitSp">
         ///     The hit point on screen space. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-    public HitTestContext(IRenderMatrices metrices, Ray rayWS, Vector2 hitSP)
-        : this(metrices, ref rayWS, ref hitSP) { }
+    public HitTestContext(IRenderMatrices metrices, Ray rayWs, Vector2 hitSp)
+        : this(metrices, ref rayWs, ref hitSp) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.
         ///     This calculates screen hit point automatically from metrices and world space ray.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
-        /// <param name="rayWS">The ray in world space.</param>
-    public HitTestContext(IRenderMatrices metrices, ref Ray rayWS) {
+        /// <param name="rayWs">The ray in world space.</param>
+    public HitTestContext(IRenderMatrices metrices, ref Ray rayWs) {
         RenderMatrices = metrices;
-        RayWS = rayWS;
-        if (metrices != null) HitPointSP = metrices.Project(rayWS.Position);
+        RayWs = rayWs;
+        if (metrices != null) HitPointSp = metrices.Project(rayWs.Position);
     }
 
         /// <summary>
@@ -49,16 +49,16 @@ public sealed class HitTestContext {
         ///     This calculates ray in world space automatically from metrices and hit point.
         /// </summary>
         /// <param name="metrices">The render metrices.</param>
-        /// <param name="hitSP">
+        /// <param name="hitSp">
         ///     Screen hit point. Pass in the hit point on viewport region directly.
         ///     <para>Do not scale with DpiScale factor.</para>
         /// </param>
-    public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSP) {
+    public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSp) {
         RenderMatrices = metrices;
-        HitPointSP = hitSP;
+        HitPointSp = hitSp;
         if (metrices != null) {
-            metrices.UnProject(hitSP, out var ray);
-            RayWS = ray;
+            metrices.UnProject(hitSp, out var ray);
+            RayWs = ray;
         }
     }
 
@@ -76,7 +76,7 @@ public sealed class HitTestContext {
         /// <value>
         ///     The ray.
         /// </value>
-    public Ray RayWS { get; set; }
+    public Ray RayWs { get; set; }
 
         /// <summary>
         ///     Gets or sets the hit point on screen space. This is the hit point on viewport region without DpiScaled coordinate.
@@ -84,5 +84,5 @@ public sealed class HitTestContext {
         /// <value>
         ///     The screen hit point.
         /// </value>
-    public Vector2 HitPointSP { get; set; }
+    public Vector2 HitPointSp { get; set; }
 }

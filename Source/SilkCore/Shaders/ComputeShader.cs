@@ -119,7 +119,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="uav">The uav.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindUAV(DeviceContextProxy context, int slot, UAVBufferViewProxy uav) {
+    public void BindUav(DeviceContextProxy context, int slot, UavBufferViewProxy uav) {
         context.SetUnorderedAccessView(Type, slot, uav);
     }
 
@@ -130,7 +130,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="uav">The uav.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindUAV(DeviceContextProxy context, string name, UAVBufferViewProxy uav) {
+    public void BindUav(DeviceContextProxy context, string name, UavBufferViewProxy uav) {
         var slot = UnorderedAccessViewMapping.TryGetBindSlot(name);
         context.SetUnorderedAccessView(Type, slot, uav);
     }
@@ -141,7 +141,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="context">The context.</param>
     /// <param name="uavs">The uavs.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindUAVs(DeviceContextProxy context, IList<KeyValuePair<int, UAVBufferViewProxy>> uavs) {
+    public void BindUaVs(DeviceContextProxy context, IList<KeyValuePair<int, UavBufferViewProxy>> uavs) {
         foreach (var uav in uavs) context.SetUnorderedAccessView(Type, uav.Key, uav.Value);
     }
 

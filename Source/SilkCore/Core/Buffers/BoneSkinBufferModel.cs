@@ -103,7 +103,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
         public IElementsBufferProxy IndexBuffer => meshBuffer.IndexBuffer;
 
-        public Guid GUID { get; } = new();
+        public Guid Guid { get; } = new();
 
         /// <summary>
         ///     Attaches the buffers.

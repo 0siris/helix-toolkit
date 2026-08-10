@@ -11,8 +11,8 @@ public class DelegateCommand : ICommand {
     private Action? execute;
 
     public void Dispose() {
-        this.execute = null;
-        this.canExecute = null;
+        execute = null;
+        canExecute = null;
     }
 
     private Func<bool>? canExecute;

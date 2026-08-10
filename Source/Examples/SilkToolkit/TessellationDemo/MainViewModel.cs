@@ -59,15 +59,15 @@ public class MainViewModel : BaseViewModel {
         get { return field; }
     } = false;
 
-    private MeshTopologyEnum meshTopology = MeshTopologyEnum.PNTriangles;
+    private MeshTopologyEnum meshTopology = MeshTopologyEnum.PnTriangles;
 
     public MeshTopologyEnum MeshTopology {
-        get { return this.meshTopology; }
+        get { return meshTopology; }
         set {
             /// if topology is changes, reload the model with proper type of faces
-            this.meshTopology = value;
-            this.LoadModel(@"./Media/teapot_quads_tex.obj",
-                           this.meshTopology == MeshTopologyEnum.PNTriangles
+            meshTopology = value;
+            LoadModel(@"./Media/teapot_quads_tex.obj",
+                           meshTopology == MeshTopologyEnum.PnTriangles
                                ? MeshFaces.Default
                                : MeshFaces.QuadPatches);
         }
@@ -79,31 +79,31 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // ----------------------------------------------
         // titles
-        this.Title = "Hardware Tessellation Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "Hardware Tessellation Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ---------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(7, 10, 12), LookDirection = new Vector3D(-7, -10, -12),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
         // ---------------------------------------------
         // setup lighting
-        this.AmbientLightColor = Color.FromArgb(1, 12, 12, 12);
-        this.DirectionalLightColor = Colors.White;
-        this.DirectionalLightDirection1 = new Vector3D(-0, -20, -20);
-        this.DirectionalLightDirection2 = new Vector3D(-0, -1, +50);
-        this.DirectionalLightDirection3 = new Vector3D(0, +1, 0);
+        AmbientLightColor = Color.FromArgb(1, 12, 12, 12);
+        DirectionalLightColor = Colors.White;
+        DirectionalLightDirection1 = new Vector3D(-0, -20, -20);
+        DirectionalLightDirection2 = new Vector3D(-0, -1, +50);
+        DirectionalLightDirection3 = new Vector3D(0, +1, 0);
 
         // ---------------------------------------------
         // model trafo
-        this.DefaultTransform = new Media3D.TranslateTransform3D(0, -0, 0);
+        DefaultTransform = new Media3D.TranslateTransform3D(0, -0, 0);
 
         // ---------------------------------------------
         // model material
-        this.DefaultMaterial = new PhongMaterial {
+        DefaultMaterial = new PhongMaterial {
             AmbientColor = Colors.Gray.ToColor4(),
             DiffuseColor = Colors.Red.ToColor4(), // Colors.LightGray,
             SpecularColor = Colors.White.ToColor4(),
@@ -118,13 +118,13 @@ public class MainViewModel : BaseViewModel {
         FloorMaterial.RenderShadowMap = true;
         // ---------------------------------------------
         // init model
-        this.LoadModel(@"./Media/teapot_quads_tex.obj",
-                       this.meshTopology == MeshTopologyEnum.PNTriangles ? MeshFaces.Default : MeshFaces.QuadPatches);
+        LoadModel(@"./Media/teapot_quads_tex.obj",
+                       meshTopology == MeshTopologyEnum.PnTriangles ? MeshFaces.Default : MeshFaces.QuadPatches);
         // ---------------------------------------------
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid(10);
-        this.GridColor = Colors.Black;
-        this.GridTransform = new Media3D.TranslateTransform3D(-5, -4, -5);
+        Grid = LineBuilder.GenerateGrid(10);
+        GridColor = Colors.Black;
+        GridTransform = new Media3D.TranslateTransform3D(-5, -4, -5);
 
         var builder = new MeshBuilder(true, true, true);
         builder.AddBox(new Vector3(0, -5, 0), 60, 0.5, 60, BoxFaces.All);

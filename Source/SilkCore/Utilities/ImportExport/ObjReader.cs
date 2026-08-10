@@ -67,7 +67,7 @@ public class ObjReader : IModelReader {
     /// </summary>
     public ObjReader() {
         IgnoreErrors = false;
-        SwitchYZ = false;
+        SwitchYz = false;
 
         IsSmoothingDefault = true;
         SkipTransparencyValues = true;
@@ -106,7 +106,7 @@ public class ObjReader : IModelReader {
     /// <summary>
     ///     Gets or sets a value indicating whether to switch Y and Z coordinates.
     /// </summary>
-    public bool SwitchYZ { get; set; }
+    public bool SwitchYz { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to skip transparency values ("Tr") in the material files.
@@ -618,7 +618,7 @@ public class ObjReader : IModelReader {
     /// </param>
     private void AddNormal(string values) {
         var fields = Split(values);
-        if (SwitchYZ)
+        if (SwitchYz)
             Normals.Add(new Vector3D((float)fields[0], (float)-fields[2], (float)fields[1]));
         else
             Normals.Add(new Vector3D((float)fields[0], (float)fields[1], (float)fields[2]));
@@ -643,7 +643,7 @@ public class ObjReader : IModelReader {
     /// </param>
     private void AddVertex(string values) {
         var fields = Split(values);
-        if (SwitchYZ)
+        if (SwitchYz)
             Points.Add(new Point3D((float)fields[0], (float)-fields[2], (float)fields[1]));
         else
             Points.Add(new Point3D((float)fields[0], (float)fields[1], (float)fields[2]));
@@ -987,32 +987,32 @@ public class ObjReader : IModelReader {
         /// <param name="texturePath">The texture path.</param>
         /// <returns>A WPF material.</returns>
         private PhongMaterialCore CreateMaterial(string texturePath) {
-            MemoryStream diffuseMapMS = null;
+            MemoryStream diffuseMapMs = null;
             if (DiffuseMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, DiffuseMap), FileMode.Open)) {
-                    diffuseMapMS = new MemoryStream();
-                    fs.CopyTo(diffuseMapMS);
+                    diffuseMapMs = new MemoryStream();
+                    fs.CopyTo(diffuseMapMs);
                 }
 
-            MemoryStream bumpMapMS = null;
+            MemoryStream bumpMapMs = null;
             if (BumpMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, BumpMap), FileMode.Open)) {
-                    bumpMapMS = new MemoryStream();
-                    fs.CopyTo(bumpMapMS);
+                    bumpMapMs = new MemoryStream();
+                    fs.CopyTo(bumpMapMs);
                 }
 
-            MemoryStream alphaMapMS = null;
+            MemoryStream alphaMapMs = null;
             if (AlphaMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, AlphaMap), FileMode.Open)) {
-                    alphaMapMS = new MemoryStream();
-                    fs.CopyTo(alphaMapMS);
+                    alphaMapMs = new MemoryStream();
+                    fs.CopyTo(alphaMapMs);
                 }
 
-            MemoryStream specularMapMS = null;
+            MemoryStream specularMapMs = null;
             if (SpecularMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, SpecularMap), FileMode.Open)) {
-                    specularMapMS = new MemoryStream();
-                    fs.CopyTo(specularMapMS);
+                    specularMapMs = new MemoryStream();
+                    fs.CopyTo(specularMapMs);
                 }
 
             var mat = new PhongMaterialCore {
@@ -1020,14 +1020,14 @@ public class ObjReader : IModelReader {
                 //AmbientMap = this.AmbientMap,
 
                 DiffuseColor = new Color4(Diffuse.GetRed(), Diffuse.GetGreen(), Diffuse.GetBlue(), (float)Dissolved),
-                DiffuseMap = diffuseMapMS,
+                DiffuseMap = diffuseMapMs,
 
                 SpecularColor = Specular,
                 SpecularShininess = (float)SpecularCoefficient,
-                SpecularColorMap = specularMapMS,
+                SpecularColorMap = specularMapMs,
 
-                NormalMap = bumpMapMS,
-                DiffuseAlphaMap = alphaMapMS
+                NormalMap = bumpMapMs,
+                DiffuseAlphaMap = alphaMapMs
                 //Dissolved = this.Dissolved,
                 //Illumination = this.Illumination,
             };

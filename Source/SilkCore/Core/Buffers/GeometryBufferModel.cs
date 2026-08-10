@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 /// <summary>
 ///     General Geometry Buffer Model.
 /// </summary>
-public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBufferModel {
+public abstract class GeometryBufferModel : DisposeObject, IGuid, IGeometryBufferModel {
     private static readonly IElementsBufferProxy[] EmptyBuffers = [];
     private static readonly VertexBufferBinding[] EmptyBinding = [];
 
@@ -171,7 +171,7 @@ public abstract class GeometryBufferModel : DisposeObject, IGUID, IGeometryBuffe
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
 
     private void Geometry_PropertyChanged(object? sender, PropertyChangedEventArgs e) {

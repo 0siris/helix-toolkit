@@ -121,7 +121,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC1 {
+    public static class Bc1 {
         #region Constants and Fields
 
         /// <summary>
@@ -141,7 +141,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC2 {
+    public static class Bc2 {
         #region Constants and Fields
 
         /// <summary>
@@ -161,7 +161,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC3 {
+    public static class Bc3 {
         #region Constants and Fields
 
         /// <summary>
@@ -181,7 +181,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC4 {
+    public static class Bc4 {
         #region Constants and Fields
 
         /// <summary>
@@ -201,7 +201,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC5 {
+    public static class Bc5 {
         #region Constants and Fields
 
         /// <summary>
@@ -221,7 +221,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC6H {
+    public static class Bc6H {
         #region Constants and Fields
 
         /// <summary>
@@ -233,7 +233,7 @@ public struct PixelFormat : IEquatable<PixelFormat> {
 
     /// <summary>
     /// </summary>
-    public static class BC7 {
+    public static class Bc7 {
         #region Constants and Fields
 
         /// <summary>

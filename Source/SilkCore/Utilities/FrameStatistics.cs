@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
@@ -46,7 +47,7 @@ public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
     private uint counter;
     private double movingAverage;
     private double total;
-    public event EventHandler<FrameStatisticsArg> OnValueChanged;
+    public event EventHandler<FrameStatisticsArg>? OnValueChanged;
 
     /// <summary>
     ///     Average latency
@@ -113,7 +114,7 @@ public sealed class FrameStatistics : ObservableObject, IFrameStatistics {
 }
 
 public interface IRenderStatistics {
-    IFrameStatistics FPSStatistics { get; }
+    IFrameStatistics FpsStatistics { get; }
 
     IFrameStatistics LatencyStatistics { get; }
 
@@ -129,7 +130,7 @@ public interface IRenderStatistics {
 
     RenderDetail FrameDetail { get; set; }
 
-    ICamera Camera { get; set; }
+    ICamera? Camera { get; set; }
 
     string GetDetailString();
     void Reset();
@@ -146,7 +147,7 @@ public sealed class RenderStatistics : IRenderStatistics {
     /// <value>
     ///     The FPS statistics.
     /// </value>
-    public IFrameStatistics FPSStatistics { get; } = new FrameStatistics();
+    public IFrameStatistics FpsStatistics { get; } = new FrameStatistics();
 
     /// <summary>
     ///     Gets the render latency statistics.
@@ -202,7 +203,7 @@ public sealed class RenderStatistics : IRenderStatistics {
     /// <value>
     ///     The camera.
     /// </value>
-    public ICamera Camera { get; set; }
+    public ICamera? Camera { get; set; }
 
     /// <summary>
     ///     Gets or sets the frame detail.
@@ -212,53 +213,56 @@ public sealed class RenderStatistics : IRenderStatistics {
     /// </value>
     public RenderDetail FrameDetail { get; set; } = RenderDetail.None;
 
-    public string GetDetailString() {
-        return GetDetailString(FrameDetail);
-    }
+    public string GetDetailString() 
+        => GetDetailString(FrameDetail);
 
     /// <summary>
     ///     Resets this instance.
     /// </summary>
     public void Reset() {
-        FPSStatistics.Reset();
+        FpsStatistics.Reset();
         LatencyStatistics.Reset();
         NumTriangles = NumCore3D = NumModel3D = NumDrawCalls = 0;
         FrustumTestTime = 0;
     }
 
     public string GetDetailString(RenderDetail detail) {
-        if (detail == RenderDetail.None) return string.Empty;
+        if (detail == RenderDetail.None) 
+            return string.Empty;
         var s = string.Empty;
-        if ((detail & RenderDetail.FPS) == RenderDetail.FPS) s += GetFPS();
-        if ((detail & RenderDetail.Statistics) == RenderDetail.Statistics) s += GetStatistics();
-        if ((detail & RenderDetail.TriangleInfo) == RenderDetail.TriangleInfo) s += GetTriangleCount();
-        if ((detail & RenderDetail.Camera) == RenderDetail.Camera) s += GetCamera();
+        
+        if (detail.HasFlag(RenderDetail.Fps)) 
+            s += GetFps();
+        
+        if (detail.HasFlag(RenderDetail.Statistics)) 
+            s += GetStatistics();
+        
+        if (detail.HasFlag(RenderDetail.TriangleInfo)) 
+            s += GetTriangleCount();
+        
+        if (detail.HasFlag(RenderDetail.Camera)) 
+            s += GetCamera();
         return s;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetFPS() {
-        return $"FPS:{Math.Round(FPSStatistics.AverageFrequency, 2)}" + LineBreak;
-    }
+    private string GetFps() => $"FPS:{Math.Round(FpsStatistics.AverageFrequency, 2)}" + LineBreak;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetStatistics() {
-        return $"Render(ms): {Math.Round(LatencyStatistics.AverageValue, 4)}\n" +
-               $"NumModel3D: {NumModel3D}\n" +
-               $"NumCore3D: {NumCore3D}\n" +
-               $"NumDrawCalls: {NumDrawCalls}"
-               + LineBreak;
-    }
+    private string GetStatistics() => $"Render(ms): {Math.Round(LatencyStatistics.AverageValue, 4)}\n" +
+                                      $"NumModel3D: {NumModel3D}\n" +
+                                      $"NumCore3D: {NumCore3D}\n" +
+                                      $"NumDrawCalls: {NumDrawCalls}"
+                                      + LineBreak;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetTriangleCount() {
-        return $"NumTriangle: {NumTriangles}" + LineBreak;
-    }
+    private string GetTriangleCount() => $"NumTriangle: {NumTriangles}" + LineBreak;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetCamera() {
-        return Camera == null ? string.Empty : "Camera:\n" + Camera + LineBreak;
-    }
+    private string GetCamera()
+        => Camera == null
+               ? string.Empty
+               : "Camera:\n" + Camera + LineBreak;
 
     /// <summary>
     ///     Returns a <see cref="System.String" /> that represents this instance.
@@ -266,7 +270,6 @@ public sealed class RenderStatistics : IRenderStatistics {
     /// <returns>
     ///     A <see cref="System.String" /> that represents this instance.
     /// </returns>
-    public override string ToString() {
-        return GetDetailString(RenderDetail.FPS | RenderDetail.Statistics);
-    }
+    public override string ToString() 
+        => GetDetailString(RenderDetail.Fps | RenderDetail.Statistics);
 }

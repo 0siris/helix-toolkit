@@ -389,12 +389,12 @@ public class LineBuilder {
         var c = SilkMath.Dot(v, v); // always >= 0
         var d = SilkMath.Dot(u, w);
         var e = SilkMath.Dot(v, w);
-        var D = a * c - b * b; // always >= 0
-        float sN, sD = D;      // sc = sN / sD, default sD = D >= 0
-        float tN, tD = D;      // tc = tN / tD, default tD = D >= 0
+        var d = a * c - b * b; // always >= 0
+        float sN, sD = d;      // sc = sN / sD, default sD = D >= 0
+        float tN, tD = d;      // tc = tN / tD, default tD = D >= 0
 
         // compute the line parameters of the two closest points
-        if (D < float.Epsilon) {
+        if (d < float.Epsilon) {
             // the lines are almost parallel
             sN = 0.0f; // force using point P0 on segment S1
             sD = 1.0f; // to prevent possible division by 0.0 later

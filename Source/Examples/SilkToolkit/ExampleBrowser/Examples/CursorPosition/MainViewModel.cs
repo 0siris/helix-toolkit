@@ -38,11 +38,11 @@ public class MainViewModel : BaseViewModel {
 
     public MainViewModel() {
         // titles
-        this.Title = "";
-        this.SubTitle = "";
+        Title = "";
+        SubTitle = "";
 
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(3, 3, 5), LookDirection = new Vector3D(-3, -3, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -50,13 +50,13 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
 
         // setup lighting
-        this.AmbientLightColor = Colors.GhostWhite;
-        this.DirectionalLightColor = Colors.White;
+        AmbientLightColor = Colors.GhostWhite;
+        DirectionalLightColor = Colors.White;
 
         // floor plane grid
-        this.Grid = LineBuilder.GenerateGrid();
-        this.GridColor = HelixToolkit.SharpDX.Core.Color.Blue;
-        this.GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
+        Grid = LineBuilder.GenerateGrid();
+        GridColor = HelixToolkit.SharpDX.Core.Color.Blue;
+        GridTransform = new Media3D.TranslateTransform3D(0, 0, 0);
 
         // scene model3d
         var b1 = new MeshBuilder();
@@ -65,21 +65,21 @@ public class MainViewModel : BaseViewModel {
 
         var meshGeometry = b1.ToMeshGeometry3D();
         meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
-        this.Model = meshGeometry;
+        Model = meshGeometry;
 
         // lines model3d
         var e1 = new LineBuilder();
         e1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2);
-        this.Lines = e1.ToLineGeometry3D();
+        Lines = e1.ToLineGeometry3D();
 
         // model trafos
-        this.Model1Transform = new Media3D.TranslateTransform3D(0, 0, 0);
-        this.Model2Transform = new Media3D.TranslateTransform3D(-2, 0, 0);
-        this.Model3Transform = new Media3D.TranslateTransform3D(+2, 0, 0);
+        Model1Transform = new Media3D.TranslateTransform3D(0, 0, 0);
+        Model2Transform = new Media3D.TranslateTransform3D(-2, 0, 0);
+        Model3Transform = new Media3D.TranslateTransform3D(+2, 0, 0);
 
         // model materials
-        this.RedMaterial = PhongMaterials.Red;
-        this.GreenMaterial = PhongMaterials.Green;
-        this.BlueMaterial = PhongMaterials.Blue;
+        RedMaterial = PhongMaterials.Red;
+        GreenMaterial = PhongMaterials.Green;
+        BlueMaterial = PhongMaterials.Blue;
     }
 }

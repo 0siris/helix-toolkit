@@ -259,8 +259,8 @@ public static class MeshTopologies {
     /// </value>
     public static IEnumerable<MeshTopologyEnum> Topologies {
         get {
-            yield return MeshTopologyEnum.PNTriangles;
-            yield return MeshTopologyEnum.PNQuads;
+            yield return MeshTopologyEnum.PnTriangles;
+            yield return MeshTopologyEnum.PnQuads;
         }
     }
 }

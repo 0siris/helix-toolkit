@@ -90,17 +90,17 @@ public class TextInfo {
 }
 
 public class BillboardText3D : BillboardBase {
-    private const float textureScale = 0.66f;
+    private const float TextureScale = 0.66f;
     private const string FontName = "arial";
-    private static readonly BitmapFont bmpFont;
+    private static readonly BitmapFont BmpFont;
 
     private ObservableCollection<TextInfo> textInfo = [];
 
     static BillboardText3D() {
         var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
         var fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt");
-        bmpFont = new BitmapFont();
-        bmpFont.Load(fontInfo);
+        BmpFont = new BitmapFont();
+        BmpFont.Load(fontInfo);
         var font = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.dds");
         TextureStatic = font;
     }
@@ -108,7 +108,7 @@ public class BillboardText3D : BillboardBase {
     public BillboardText3D() {
         textInfo.CollectionChanged += CollectionChanged;
         Texture = TextureStatic;
-        BitmapFont = bmpFont;
+        BitmapFont = BmpFont;
     }
 
     public BillboardText3D(BitmapFont bitmapFont, Stream fontTexture) {
@@ -189,12 +189,12 @@ public class BillboardText3D : BillboardBase {
 
                 previousCharacter = character;
                 if (tempList.Count > 0) {
-                    rect.Width = Math.Max(rect.Width, x * textInfo.Scale * textureScale);
+                    rect.Width = Math.Max(rect.Width, x * textInfo.Scale * TextureScale);
                     rect.Height = Math.Max(rect.Height, Math.Abs(tempList.Last().OffBR.Y));
                 }
             }
 
-            var transform = textInfo.Angle != 0 ? Matrix3x2.Rotation(textInfo.Angle) : Matrix3x2.Identity;
+            var transform = textInfo.Angle != 0 ? Matrix3X2.Rotation(textInfo.Angle) : Matrix3X2.Identity;
             GetQuadOffset(rect.Width,
                           rect.Height,
                           textInfo.HorizontalAlignment,
@@ -209,10 +209,10 @@ public class BillboardText3D : BillboardBase {
                 Background = textInfo.Background,
                 TexTL = Vector2.Zero,
                 TexBR = Vector2.Zero,
-                OffTL = Matrix3x2.TransformPoint(transform, tl) + textInfo.Offset,
-                OffBR = Matrix3x2.TransformPoint(transform, br) + textInfo.Offset,
-                OffTR = Matrix3x2.TransformPoint(transform, tr) + textInfo.Offset,
-                OffBL = Matrix3x2.TransformPoint(transform, bl) + textInfo.Offset
+                OffTL = Matrix3X2.TransformPoint(transform, tl) + textInfo.Offset,
+                OffBR = Matrix3X2.TransformPoint(transform, br) + textInfo.Offset,
+                OffTR = Matrix3X2.TransformPoint(transform, tr) + textInfo.Offset,
+                OffBL = Matrix3X2.TransformPoint(transform, bl) + textInfo.Offset
             });
 
             textInfo.UpdateTextInfo(rect.Width, rect.Height);
@@ -220,10 +220,10 @@ public class BillboardText3D : BillboardBase {
             var halfH = rect.Height / 2;
             for (var k = tempPrevCount; k < tempList.Count; ++k) {
                 var v = tempList[k];
-                v.OffTL = Matrix3x2.TransformPoint(transform, v.OffTL + tl) + textInfo.Offset;
-                v.OffBR = Matrix3x2.TransformPoint(transform, v.OffBR + tl) + textInfo.Offset;
-                v.OffTR = Matrix3x2.TransformPoint(transform, v.OffTR + tl) + textInfo.Offset;
-                v.OffBL = Matrix3x2.TransformPoint(transform, v.OffBL + tl) + textInfo.Offset;
+                v.OffTL = Matrix3X2.TransformPoint(transform, v.OffTL + tl) + textInfo.Offset;
+                v.OffBR = Matrix3X2.TransformPoint(transform, v.OffBR + tl) + textInfo.Offset;
+                v.OffTR = Matrix3X2.TransformPoint(transform, v.OffTR + tl) + textInfo.Offset;
+                v.OffBL = Matrix3X2.TransformPoint(transform, v.OffBL + tl) + textInfo.Offset;
                 tempList[k] = v;
             }
 
@@ -265,23 +265,23 @@ public class BillboardText3D : BillboardBase {
         var cv = character.Y;
         var tl = new Vector2(origin.X + kerning, origin.Y);
         var br = new Vector2(origin.X + cw + kerning, origin.Y - ch);
-        var offTL = tl * info.Scale * textureScale;
-        var offBR = br * info.Scale * textureScale;
-        var offTR = new Vector2(offBR.X, offTL.Y);
-        var offBL = new Vector2(offTL.X, offBR.Y);
-        var uv_tl = new Vector2(cu / w, cv / h);
-        var uv_br = new Vector2((cu + cw) / w, (cv + ch) / h);
+        var offTl = tl * info.Scale * TextureScale;
+        var offBr = br * info.Scale * TextureScale;
+        var offTr = new Vector2(offBr.X, offTl.Y);
+        var offBl = new Vector2(offTl.X, offBr.Y);
+        var uvTl = new Vector2(cu / w, cv / h);
+        var uvBr = new Vector2((cu + cw) / w, (cv + ch) / h);
 
         return new BillboardVertex {
             Position = info.Origin.ToVector4(),
             Foreground = info.Foreground,
             Background = Color.Transparent,
-            TexTL = uv_tl,
-            TexBR = uv_br,
-            OffTL = offTL,
-            OffBL = offBL,
-            OffBR = offBR,
-            OffTR = offTR
+            TexTL = uvTl,
+            TexBR = uvBr,
+            OffTL = offTl,
+            OffBL = offBl,
+            OffBR = offBr,
+            OffTR = offTr
         };
     }
 
@@ -292,9 +292,9 @@ public class BillboardText3D : BillboardBase {
         object originalSource,
         bool fixedSize
     ) {
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
-            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
+            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 
         return fixedSize

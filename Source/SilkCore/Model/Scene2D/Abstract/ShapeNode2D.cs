@@ -7,7 +7,7 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public abstract class ShapeNode2D : SceneNode2D {
-    protected ShapeRenderCore2DBase shapeRenderable;
+    protected ShapeRenderCore2DBase ShapeRenderable;
 
     private bool strokeStyleChanged = true;
 
@@ -83,8 +83,8 @@ public abstract class ShapeNode2D : SceneNode2D {
     }
 
     protected override RenderCore2D CreateRenderCore() {
-        shapeRenderable = CreateShapeRenderCore();
-        return shapeRenderable;
+        ShapeRenderable = CreateShapeRenderCore();
+        return ShapeRenderable;
     }
 
     protected abstract ShapeRenderCore2DBase CreateShapeRenderCore();
@@ -101,7 +101,7 @@ public abstract class ShapeNode2D : SceneNode2D {
     public override void Update(RenderContext2D context) {
         base.Update(context);
         if (strokeStyleChanged) {
-            shapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
+            ShapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
                                                           new StrokeStyleProperties {
                                                               DashCap = StrokeDashCap,
                                                               StartCap = StrokeStartLineCap,

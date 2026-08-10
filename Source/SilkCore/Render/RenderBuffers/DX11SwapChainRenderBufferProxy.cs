@@ -15,7 +15,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <summary>
     ///     The surface pointer
     /// </summary>
-    protected readonly nint surfacePtr;
+    protected readonly nint SurfacePtr;
 
     private ShaderResourceViewProxy backBuffer;
     private SwapChain1 swapChain;
@@ -27,7 +27,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <param name="deviceResource"></param>
     public DX11SwapChainRenderBufferProxy(nint surfacePointer, IDeviceResources deviceResource) : base(
         deviceResource) {
-        surfacePtr = surfacePointer;
+        SurfacePtr = surfacePointer;
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
         bool useDepthStencilBuffer
     )
         : base(deviceResource, useDepthStencilBuffer) {
-        surfacePtr = surfacePointer;
+        SurfacePtr = surfacePointer;
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <returns></returns>
     protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
         if (swapChain == null || swapChain.IsDisposed) {
-            swapChain = CreateSwapChain(surfacePtr);
+            swapChain = CreateSwapChain(SurfacePtr);
         } else {
             RemoveAndDispose(ref d2dTarget);
             RemoveAndDispose(ref backBuffer);

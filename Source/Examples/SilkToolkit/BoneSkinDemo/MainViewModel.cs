@@ -106,11 +106,11 @@ public class MainViewModel : BaseViewModel {
     private CompositionTargetEx compositeHelper = new CompositionTargetEx();
 
     public MainViewModel() {
-        this.Title = "BoneSkin Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "BoneSkin Demo";
+        SubTitle = "WPF & SharpDX";
         EffectsManager = new DefaultEffectsManager();
 
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Media3D.Point3D(50, 50, 50),
             LookDirection = new Media3D.Vector3D(-50, -50, -50),
             UpDirection = new Media3D.Vector3D(0, 1, 0),

@@ -18,6 +18,6 @@ using ExampleBrowser;
 [Example("Issue 1349", "SharpDX: BillboardText3D is not shown until origin is moved into sight.")]
 public partial class MainWindow : Window {
     public MainWindow() {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

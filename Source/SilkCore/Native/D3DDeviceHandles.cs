@@ -42,13 +42,13 @@ public enum SilkDriverType {
 
 public enum SilkFeatureLevel {
     Unknown = 0,
-    Level_9_1,
-    Level_9_2,
-    Level_9_3,
-    Level_10_0,
-    Level_10_1,
-    Level_11_0,
-    Level_11_1
+    Level91,
+    Level92,
+    Level93,
+    Level100,
+    Level101,
+    Level110,
+    Level111
 }
 
 public sealed unsafe class SilkD3DDevice : IDisposable {
@@ -363,7 +363,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         Resource resource,
         ShaderResourceViewDescription? description = null
     ) {
-        if (resource == null) return null;
+        resource.AssertArgumentNotNull();
 
         ID3D11ShaderResourceView* view = null;
         if (description.HasValue) {
@@ -382,7 +382,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         Resource resource,
         UnorderedAccessViewDescription? description = null
     ) {
-        if (resource == null) return null;
+        resource.AssertArgumentNotNull();
 
         ID3D11UnorderedAccessView* view = null;
         if (description.HasValue) {
@@ -402,6 +402,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         DataBox[] initialData,
         ref ID3D11Texture1D* texture
     ) {
+        initialData.AssertLengthBiggerOrEqual(1);
+        
         if (initialData == null || initialData.Length == 0) {
             SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, null, ref texture));
             return;

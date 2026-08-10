@@ -111,7 +111,7 @@ public class MainViewModel : BaseViewModel {
         //var m = new VolumeTextureRawDataMaterial();
         //m.Texture = VolumeTextureRawDataMaterialCore.LoadRAWFile("teapot256x256x178.raw", 256, 256, 178);
         var m = new VolumeTextureDiffuseMaterial();
-        var data = VolumeTextureRawDataMaterialCore.LoadRAWFile("teapot256x256x178.raw", 256, 256, 178);
+        var data = VolumeTextureRawDataMaterialCore.LoadRawFile("teapot256x256x178.raw", 256, 256, 178);
         m.Texture = ProcessData(data.VolumeTextures, data.Width, data.Height, data.Depth, out var transferMap);
         m.Color = new Color4(1, 1, 1, 0.4f);
         m.TransferMap = transferMap;
@@ -125,7 +125,7 @@ public class MainViewModel : BaseViewModel {
 
     private Tuple<Material, Media3D.Transform3D> LoadSkull() {
         var m = new VolumeTextureDiffuseMaterial();
-        var data = VolumeTextureRawDataMaterialCore.LoadRAWFile("male128x256x256.raw", 128, 256, 256);
+        var data = VolumeTextureRawDataMaterialCore.LoadRawFile("male128x256x256.raw", 128, 256, 256);
         m.Texture = ProcessData(data.VolumeTextures, data.Width, data.Height, data.Depth, out var transferMap);
         m.Color = new Color4(0.6f, 0.6f, 0.6f, 1f);
         m.TransferMap = transferMap;

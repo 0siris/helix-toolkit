@@ -5,13 +5,13 @@ public static class IRenderMetricesExtensions {
     ///     Un-project 2D screen point onto 3D space by camera.
     /// </summary>
     /// <param name="renderMatrices">The renderMatrices.</param>
-    /// <param name="point2d">The point2d.</param>
+    /// <param name="point2D">The point2d.</param>
     /// <param name="ray">The ray.</param>
     /// <returns></returns>
     public static bool
         UnProject(
             this IRenderMatrices renderMatrices,
-            Vector2 point2d,
+            Vector2 point2D,
             out Ray ray
         ) //, out Vector3 pointNear, out Vector3 pointFar)
     {
@@ -21,8 +21,8 @@ public static class IRenderMetricesExtensions {
         }
 
         renderMatrices.Update();
-        var px = point2d.X;
-        var py = point2d.Y;
+        var px = point2D.X;
+        var py = point2D.Y;
 
         var viewInv = renderMatrices.ViewMatrixInv;
         var projMatrix = renderMatrices.ProjectionMatrix;

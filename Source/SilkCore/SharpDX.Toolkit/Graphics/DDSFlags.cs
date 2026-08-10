@@ -6,10 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace SharpDX.Toolkit.Graphics;
 
 /// <summary>
-///     Flags used by <see cref="DDSHelper.LoadFromDDSMemory" />.
+///     Flags used by <see cref="DdsHelper.LoadFromDdsMemory" />.
 /// </summary>
 [Flags]
-internal enum DDSFlags {
+internal enum DdsFlags {
     None = 0x0,
     LegacyDword = 0x1, // Assume pitch is DWORD aligned instead of BYTE aligned (used by some legacy DDS files)
 

@@ -355,8 +355,8 @@ public enum TextureDataType {
 ///     Stream texture data.
 /// </summary>
 public sealed class TextureInfo {
-    private static readonly byte[] emptyBytes = [];
-    private static readonly Color4[] emptyColor4 = [];
+    private static readonly byte[] EmptyBytes = [];
+    private static readonly Color4[] EmptyColor4 = [];
 
     private TextureInfo() { }
 
@@ -611,7 +611,7 @@ public sealed class TextureInfo {
     /// <value>
     ///     The texture raw.
     /// </value>
-    public byte[] TextureRaw { get; } = emptyBytes;
+    public byte[] TextureRaw { get; } = EmptyBytes;
 
     /// <summary>
     ///     Gets the color4 array.
@@ -619,7 +619,7 @@ public sealed class TextureInfo {
     /// <value>
     ///     The color4 array.
     /// </value>
-    public Color4[] Color4Array { get; } = emptyColor4;
+    public Color4[] Color4Array { get; } = EmptyColor4;
 
     /// <summary>
     ///     Gets the raw pointer.

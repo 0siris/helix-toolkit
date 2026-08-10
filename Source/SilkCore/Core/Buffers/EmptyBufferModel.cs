@@ -27,7 +27,7 @@ public sealed class EmptyGeometryBufferModel : IGeometryBufferModel {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     /// <summary>
     ///     Gets the index buffer.

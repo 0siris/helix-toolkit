@@ -42,7 +42,7 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
     public int StructSize { get; }
 
     public event EventHandler<EventArgs>? ElementChanged;
-    public Guid GUID { get; } = Guid.NewGuid();
+    public Guid Guid { get; } = Guid.NewGuid();
 
     [MemberNotNullWhen(true, nameof(elementBuffer))]
     public bool Initialized { get; private set; }

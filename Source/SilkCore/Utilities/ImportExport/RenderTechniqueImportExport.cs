@@ -53,8 +53,8 @@ public static class ShaderExporter {
     /// <returns></returns>
     public static int ExportTechniquesAsBinary(this IEffectsManager manager, string filePath) {
         using var memory = new MemoryStream();
-        using var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
-        var count = manager.ExportTechniques(binaryXMLWriter);
+        using var binaryXmlWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
+        var count = manager.ExportTechniques(binaryXmlWriter);
         using (var binaryWriter = File.Open(filePath, FileMode.Create)) {
             binaryWriter.Write(memory.ToArray(), 0, (int)memory.Length);
         }
@@ -70,8 +70,8 @@ public static class ShaderExporter {
     /// <param name="filePath">The file path.</param>
     public static void ExportTechniqueAsBinary(this IEffectsManager manager, string techniqueName, string filePath) {
         using var memory = new MemoryStream();
-        using var binaryXMLWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
-        manager.ExportTechnique(techniqueName, binaryXMLWriter);
+        using var binaryXmlWriter = XmlDictionaryWriter.CreateBinaryWriter(memory);
+        manager.ExportTechnique(techniqueName, binaryXmlWriter);
         using var binaryWriter = File.Open(filePath, FileMode.Create);
         binaryWriter.Write(memory.ToArray(), 0, (int)memory.Length);
     }
@@ -115,8 +115,8 @@ public static class ShaderExporter {
         using var memory = new MemoryStream();
         reader.CopyTo(memory);
         memory.Position = 0;
-        using var binaryXMLReader = XmlDictionaryReader.CreateBinaryReader(memory,
+        using var binaryXmlReader = XmlDictionaryReader.CreateBinaryReader(memory,
                    new XmlDictionaryReaderQuotas { MaxArrayLength = (int)memory.Length });
-        return manager.ImportTechniques(binaryXMLReader, append);
+        return manager.ImportTechniques(binaryXmlReader, append);
     }
 }

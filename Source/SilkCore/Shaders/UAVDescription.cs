@@ -4,20 +4,20 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public enum UnorderedAccessViewType {
     AppendStructured,
     ConsumeStructured,
-    RWByteAddress,
-    RWStructuredWithCounter,
-    RWTyped,
-    RWStructured
+    RwByteAddress,
+    RwStructuredWithCounter,
+    RwTyped,
+    RwStructured
 }
 
-public sealed class UAVDescription {
+public sealed class UavDescription {
     [DataMember] public ShaderStage ShaderType;
 
     [DataMember] public UnorderedAccessViewType Type;
 
-    public UAVDescription() { }
+    public UavDescription() { }
 
-    public UAVDescription(string name, ShaderStage shaderType, UnorderedAccessViewType type) {
+    public UavDescription(string name, ShaderStage shaderType, UnorderedAccessViewType type) {
         Name = name;
         ShaderType = shaderType;
         Type = type;
@@ -26,18 +26,18 @@ public sealed class UAVDescription {
     [DataMember]
     public string Name { get; set; }
 
-    public UAVMapping CreateMapping(int slot) {
-        return new UAVMapping(slot, this);
+    public UavMapping CreateMapping(int slot) {
+        return new UavMapping(slot, this);
     }
 
-    public UAVDescription Clone() {
-        return new UAVDescription(Name, ShaderType, Type);
+    public UavDescription Clone() {
+        return new UavDescription(Name, ShaderType, Type);
     }
 }
 
 [DataContract]
-public sealed class UAVMapping {
-    public UAVMapping(int slot, UAVDescription description) {
+public sealed class UavMapping {
+    public UavMapping(int slot, UavDescription description) {
         Slot = slot;
         Description = description;
     }
@@ -46,9 +46,9 @@ public sealed class UAVMapping {
     public int Slot { get; set; }
 
     [DataMember]
-    public UAVDescription Description { get; set; }
+    public UavDescription Description { get; set; }
 
-    public UAVMapping Clone() {
-        return new UAVMapping(Slot, Description.Clone());
+    public UavMapping Clone() {
+        return new UavMapping(Slot, Description.Clone());
     }
 }

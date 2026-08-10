@@ -15,21 +15,21 @@ using System.Windows.Media;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
-using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
+using HitTestResult = HitTestResult;
 
 public class MyLineGeometryModel3D : LineGeometryModel3D {
     private Color? initialColor = null;
 
     public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         if (initialColor == null) {
-            initialColor = this.Color;
+            initialColor = Color;
         }
 
         var result = base.HitTest(context, ref hits); // this.HitTest2D(rayWS, ref hits);
         var pressedMouseButtons = Viewport3DX.GetPressedMouseButtons();
 
         if (pressedMouseButtons == 0 || pressedMouseButtons.HasFlag(MouseButtons.Left)) {
-            this.Color = result ? Colors.Red : this.initialColor.Value;
+            Color = result ? Colors.Red : initialColor.Value;
         }
 
         return result;

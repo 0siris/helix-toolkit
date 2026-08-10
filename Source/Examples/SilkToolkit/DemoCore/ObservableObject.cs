@@ -17,12 +17,12 @@ public abstract class ObservableObject : INotifyPropertyChanged {
     }
 
     protected bool SetValue<T>(ref T backingField, T value, [CallerMemberName] string propertyName = "") {
-        if (object.Equals(backingField, value)) {
+        if (Equals(backingField, value)) {
             return false;
         }
 
         backingField = value;
-        this.OnPropertyChanged(propertyName);
+        OnPropertyChanged(propertyName);
         return true;
     }
 }

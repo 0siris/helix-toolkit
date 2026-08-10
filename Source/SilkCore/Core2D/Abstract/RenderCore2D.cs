@@ -55,10 +55,10 @@ public abstract class RenderCore2D : DisposeObject {
     /// <value>
     ///     The transform.
     /// </value>
-    public Matrix3x2 Transform {
+    public Matrix3X2 Transform {
         get;
         set => SetAffectsRender(ref field, value);
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets the local transform. This only transform local position. Same as RenderTransform
@@ -66,10 +66,10 @@ public abstract class RenderCore2D : DisposeObject {
     /// <value>
     ///     The local transform.
     /// </value>
-    public Matrix3x2 LocalTransform {
+    public Matrix3X2 LocalTransform {
         get;
         set => SetAffectsRender(ref field, value);
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is mouse over.

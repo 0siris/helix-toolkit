@@ -167,15 +167,10 @@ public static class UnsafeHelper {
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="destination"></param>
-    /// <param name="data"></param>
-    /// <param name="offset">By bytes</param>
-    /// <param name="count">By bytes</param>
-    /// <returns></returns>
+
     public static nint Write(nint destination, nint data, int offset, int count) {
-        if (destination == nint.Zero) return nint.Zero;
+        if (destination == nint.Zero) 
+            return nint.Zero;
 
         MemoryCopy(destination, data + offset, count);
         return destination + count;

@@ -30,3 +30,7 @@
 ## 2026-08-02
 
 * **Update**: Documented Rider MCP-first build and deterministic test execution with `dotnet` fallback rules, plus ReSharper diagnostics, quick-fix, formatting, and semantic navigation guidance.
+
+## 2026-08-07
+
+* **Update**: Allowed compact property XML documentation and omitted redundant inherited-member documentation in Rider.

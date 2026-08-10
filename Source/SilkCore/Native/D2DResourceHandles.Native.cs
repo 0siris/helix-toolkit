@@ -58,10 +58,10 @@ public sealed unsafe class D2DDevice : D2DNativeResource {
     private SilkD2DDevicePtr nativeDevice;
 
     public D2DDevice(object? nativeResource = null) {
-        if (nativeResource is SilkD3DDevice d3dDevice) {
+        if (nativeResource is SilkD3DDevice d3DDevice) {
             IDXGIDevice* dxgiDevice = null;
             var guid = DxgiDeviceGuid;
-            SilkMarshal.ThrowHResult(d3dDevice.Handle->QueryInterface(&guid, (void**)&dxgiDevice));
+            SilkMarshal.ThrowHResult(d3DDevice.Handle->QueryInterface(&guid, (void**)&dxgiDevice));
             try {
                 ID2D1Device* device = null;
                 SilkMarshal.ThrowHResult(D2DApi.D2D1CreateDevice(dxgiDevice, null, &device));
@@ -107,7 +107,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
 
     public int MaximumBitmapSize { get; set; }
 
-    public Matrix3x2 Transform {
+    public Matrix3X2 Transform {
         get;
         set {
             field = value;
@@ -121,7 +121,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
                 nativeContext.Handle->SetTransform(&nativeTransform);
             }
         }
-    } = Matrix3x2.Identity;
+    } = Matrix3X2.Identity;
 
     public D2DFactory Factory { get; set; } = new();
 
@@ -317,8 +317,8 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     }
 }
 
-public sealed class WICImagingFactory : D2DNativeResource {
-    public WICImagingFactory(object? nativeResource = null)
+public sealed class WicImagingFactory : D2DNativeResource {
+    public WicImagingFactory(object? nativeResource = null)
         : base(nativeResource) { }
 }
 

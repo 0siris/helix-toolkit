@@ -34,7 +34,7 @@
             EnableSwapChainRendering="True"
             FXAALevel="{Binding FXAA}"
             IsShadowMappingEnabled="True"
-            MSAA="{Binding MSAA}"
+            MSAA="{Binding Msaa}"
             ShowCoordinateSystem="True"
             ShowFrameDetails="True"
             ShowFrameRate="True"
@@ -202,7 +202,7 @@
                     <ComboBox
                         Margin="3"
                         ItemsSource="{Binding MSAAs}"
-                        SelectedItem="{Binding MSAA}" />
+                        SelectedItem="{Binding Msaa}" />
                     <TextBlock>FXAA</TextBlock>
                     <ComboBox
                         Margin="3"

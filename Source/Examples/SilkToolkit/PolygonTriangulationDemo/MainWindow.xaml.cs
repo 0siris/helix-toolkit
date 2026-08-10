@@ -38,7 +38,7 @@ public partial class MainWindow : Window {
 
         // Setup the ViewModel
         mViewModel = new MainViewModel();
-        this.DataContext = mViewModel;
+        DataContext = mViewModel;
 
         // Setup the Line Drawing Handler
         mViewModel.PropertyChanged += ((s, e) => {

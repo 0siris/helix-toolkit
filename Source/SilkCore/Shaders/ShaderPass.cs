@@ -92,7 +92,7 @@ public sealed class ShaderPass : DisposeObject {
     ///     Initializes a new instance of the <see cref="ShaderPass" /> class.
     /// </summary>
     private ShaderPass() {
-        IsNULL = true;
+        IsNull = true;
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public sealed class ShaderPass : DisposeObject {
 
     /// <summary>
     /// </summary>
-    public bool IsNULL { get; }
+    public bool IsNull { get; }
 
     public VertexShader VertexShader => vertexShader;
     public DomainShader DomainShader => domainShader;
@@ -223,7 +223,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindStates(DeviceContextProxy context, StateType type) {
-        if (type == StateType.None || IsNULL) return;
+        if (type == StateType.None || IsNull) return;
         if (EnumHelper.HasFlag(type, StateType.BlendState))
             context.SetBlendState(BlendState, BlendFactor, SampleMask);
         if (EnumHelper.HasFlag(type, StateType.DepthStencilState))
@@ -236,7 +236,7 @@ public sealed class ShaderPass : DisposeObject {
     /// </summary>
     /// <param name="blendStateDesc">The blend state desc.</param>
     public void SetState(BlendStateDescription? blendStateDesc) {
-        if (IsNULL) return;
+        if (IsNull) return;
         if (BlendState != BlendStateProxy.Empty) RemoveAndDispose(ref blendState);
         blendState = blendStateDesc != null
                          ? effectsManager.StateManager.Register(blendStateDesc.Value)
@@ -248,7 +248,7 @@ public sealed class ShaderPass : DisposeObject {
     /// </summary>
     /// <param name="depthStencilStateDesc">The depth stencil state desc.</param>
     public void SetState(DepthStencilStateDescription? depthStencilStateDesc) {
-        if (IsNULL) return;
+        if (IsNull) return;
         if (DepthStencilState != DepthStencilStateProxy.Empty) RemoveAndDispose(ref depthStencilState);
         depthStencilState = depthStencilStateDesc != null
                                 ? effectsManager.StateManager.Register(depthStencilStateDesc.Value)
@@ -260,7 +260,7 @@ public sealed class ShaderPass : DisposeObject {
     /// </summary>
     /// <param name="rasterizerStateDesc">The rasterizer state desc.</param>
     public void SetState(RasterizerStateDescription? rasterizerStateDesc) {
-        if (IsNULL) return;
+        if (IsNull) return;
         if (RasterState != RasterizerStateProxy.Empty) RemoveAndDispose(ref rasterState);
         rasterState = rasterizerStateDesc != null
                           ? effectsManager.StateManager.Register(rasterizerStateDesc.Value)

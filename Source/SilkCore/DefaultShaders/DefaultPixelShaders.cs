@@ -6,10 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
-public static class DefaultPSShaderByteCodes {
+public static class DefaultPsShaderByteCodes {
     /// <summary>
     /// </summary>
-    public static string PSMeshBinnPhong { get; } = "psMeshBlinnPhong";
+    public static string PsMeshBinnPhong { get; } = "psMeshBlinnPhong";
 
     /// <summary>
     ///     Gets the ps mesh binn phong order independent transparent shader.
@@ -17,7 +17,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh binn phong order independent transparent shader.
     /// </value>
-    public static string PSMeshBinnPhongOIT { get; } = "psMeshBlinnPhongOIT";
+    public static string PsMeshBinnPhongOit { get; } = "psMeshBlinnPhongOIT";
 
     /// <summary>
     ///     Gets the ps mesh binn phong oit quad.
@@ -25,15 +25,15 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh binn phong oit quad.
     /// </value>
-    public static string PSMeshBinnPhongOITQuad { get; } = "psMeshBlinnPhongOITQuad";
+    public static string PsMeshBinnPhongOitQuad { get; } = "psMeshBlinnPhongOITQuad";
 
-    public static string PSMeshOITDPFirst { get; } = "psMeshOITDPFirst";
+    public static string PsMeshOitdpFirst { get; } = "psMeshOITDPFirst";
 
-    public static string PSMeshBlinnPhongOITDP { get; } = "psMeshBlinnPhongOITDP";
+    public static string PsMeshBlinnPhongOitdp { get; } = "psMeshBlinnPhongOITDP";
 
-    public static string PSMeshOITDPBlending { get; } = "psMeshOITDPBlending";
+    public static string PsMeshOitdpBlending { get; } = "psMeshOITDPBlending";
 
-    public static string PSMeshOITDPFinal { get; } = "psMeshOITDPFinal";
+    public static string PsMeshOitdpFinal { get; } = "psMeshOITDPFinal";
 
     /// <summary>
     ///     Gets the ps mesh diffuse map oit.
@@ -41,47 +41,47 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh diffuse map oit.
     /// </value>
-    public static string PSMeshDiffuseMapOIT { get; } = "psMeshDiffuseMapOIT";
+    public static string PsMeshDiffuseMapOit { get; } = "psMeshDiffuseMapOIT";
 
-    public static string PSMeshDiffuseMapOITDP { get; } = "psMeshDiffuseMapOITDP";
-
-    /// <summary>
-    /// </summary>
-    public static string PSMeshVertColor { get; } = "psColor";
+    public static string PsMeshDiffuseMapOitdp { get; } = "psMeshDiffuseMapOITDP";
 
     /// <summary>
     /// </summary>
-    public static string PSMeshVertPosition { get; } = "psPositions";
+    public static string PsMeshVertColor { get; } = "psColor";
 
     /// <summary>
     /// </summary>
-    public static string PSMeshNormal { get; } = "psNormals";
-
-    public static string PSMeshDiffuseMap { get; } = "psDiffuseMap";
-
-    public static string PSMeshColorStripe { get; } = "psMeshColorStripe";
-
-    public static string PSMeshViewCube { get; } = "psViewCube";
+    public static string PsMeshVertPosition { get; } = "psPositions";
 
     /// <summary>
     /// </summary>
-    public static string PSShadow { get; } = "psShadow";
+    public static string PsMeshNormal { get; } = "psNormals";
+
+    public static string PsMeshDiffuseMap { get; } = "psDiffuseMap";
+
+    public static string PsMeshColorStripe { get; } = "psMeshColorStripe";
+
+    public static string PsMeshViewCube { get; } = "psViewCube";
 
     /// <summary>
     /// </summary>
-    public static string PSPoint { get; } = "psPoint";
+    public static string PsShadow { get; } = "psShadow";
 
     /// <summary>
     /// </summary>
-    public static string PSLine { get; } = "psLine";
+    public static string PsPoint { get; } = "psPoint";
 
     /// <summary>
     /// </summary>
-    public static string PSLineColor { get; } = "psLineColor";
+    public static string PsLine { get; } = "psLine";
 
     /// <summary>
     /// </summary>
-    public static string PSBillboardText { get; } = "psBillboardText";
+    public static string PsLineColor { get; } = "psLineColor";
+
+    /// <summary>
+    /// </summary>
+    public static string PsBillboardText { get; } = "psBillboardText";
 
     /// <summary>
     ///     Gets the ps billboard text order independent transparent shader.
@@ -89,40 +89,40 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps billboard text order independent transparent shader.
     /// </value>
-    public static string PSBillboardTextOIT { get; } = "psBillboardTextOIT";
+    public static string PsBillboardTextOit { get; } = "psBillboardTextOIT";
 
-    public static string PSBillboardTextOITDP { get; } = "psBillboardTextOITDP";
-
-    /// <summary>
-    /// </summary>
-    public static string PSMeshXRay { get; } = "psMeshXRay";
+    public static string PsBillboardTextOitdp { get; } = "psBillboardTextOITDP";
 
     /// <summary>
     /// </summary>
-    public static string PSMeshClipPlaneBackface { get; } = "psMeshClipPlaneBackface";
+    public static string PsMeshXRay { get; } = "psMeshXRay";
 
     /// <summary>
     /// </summary>
-    public static string PSMeshClipPlaneQuad { get; } = "psMeshClipPlaneQuad";
+    public static string PsMeshClipPlaneBackface { get; } = "psMeshClipPlaneBackface";
 
     /// <summary>
     /// </summary>
-    public static string PSParticle { get; } = "psParticle";
+    public static string PsMeshClipPlaneQuad { get; } = "psMeshClipPlaneQuad";
+
+    /// <summary>
+    /// </summary>
+    public static string PsParticle { get; } = "psParticle";
 
     /// <summary>
     ///     Gets the ps particle order independent transparent shader.
     /// </summary>
-    public static string PSParticleOIT { get; } = "psParticleOIT";
+    public static string PsParticleOit { get; } = "psParticleOIT";
 
-    public static string PSParticleOITDP { get; } = "psParticleOITDP";
-
-    /// <summary>
-    /// </summary>
-    public static string PSSkybox { get; } = "psSkybox";
+    public static string PsParticleOitdp { get; } = "psParticleOITDP";
 
     /// <summary>
     /// </summary>
-    public static string PSMeshWireframe { get; } = "psWireframe";
+    public static string PsSkybox { get; } = "psSkybox";
+
+    /// <summary>
+    /// </summary>
+    public static string PsMeshWireframe { get; } = "psWireframe";
 
     /// <summary>
     ///     Gets the ps mesh wireframe oit.
@@ -130,13 +130,13 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh wireframe oit.
     /// </value>
-    public static string PSMeshWireframeOIT { get; } = "psWireframeOIT";
+    public static string PsMeshWireframeOit { get; } = "psWireframeOIT";
 
-    public static string PSMeshWireframeOITDP { get; } = "psWireframeOITDP";
+    public static string PsMeshWireframeOitdp { get; } = "psWireframeOITDP";
 
     /// <summary>
     /// </summary>
-    public static string PSDepthStencilTestOnly { get; } = "psDepthStencilOnly";
+    public static string PsDepthStencilTestOnly { get; } = "psDepthStencilOnly";
 
     /// <summary>
     ///     Gets the ps mesh outline screen quad.
@@ -144,7 +144,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh outline screen quad.
     /// </value>
-    public static string PSEffectOutlineScreenQuad { get; } = "psEffectOutlineQuad";
+    public static string PsEffectOutlineScreenQuad { get; } = "psEffectOutlineQuad";
 
     /// <summary>
     ///     Gets the ps effect full screen blur vertical.
@@ -152,7 +152,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect full screen blur vertical.
     /// </value>
-    public static string PSEffectFullScreenBlurVertical { get; } = "psEffectGaussianBlurVertical";
+    public static string PsEffectFullScreenBlurVertical { get; } = "psEffectGaussianBlurVertical";
 
     /// <summary>
     ///     Gets the ps effect full screen blur horizontal.
@@ -160,7 +160,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect full screen blur horizontal.
     /// </value>
-    public static string PSEffectFullScreenBlurHorizontal { get; } = "psEffectGaussianBlurHorizontal";
+    public static string PsEffectFullScreenBlurHorizontal { get; } = "psEffectGaussianBlurHorizontal";
 
     /// <summary>
     ///     Gets the ps mesh border highlight
@@ -168,7 +168,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh mesh border highlight
     /// </value>
-    public static string PSEffectMeshBorderHighlight { get; } = "psEffectMeshBorderHighlight";
+    public static string PsEffectMeshBorderHighlight { get; } = "psEffectMeshBorderHighlight";
 
     /// <summary>
     ///     Gets the ps effect outline smooth.
@@ -176,7 +176,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect outline smooth.
     /// </value>
-    public static string PSEffectOutlineSmooth { get; } = "psEffectOutlineSmooth";
+    public static string PsEffectOutlineSmooth { get; } = "psEffectOutlineSmooth";
 
     /// <summary>
     ///     Gets the ps mesh outline screen quad stencil.
@@ -184,7 +184,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh outline screen quad stencil.
     /// </value>
-    public static string PSEffectOutlineScreenQuadStencil { get; } = "psEffectOutlineQuadStencil";
+    public static string PsEffectOutlineScreenQuadStencil { get; } = "psEffectOutlineQuadStencil";
 
     /// <summary>
     ///     Gets the ps mesh outline quad final.
@@ -192,13 +192,13 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh outline quad final.
     /// </value>
-    public static string PSEffectOutlineQuadFinal { get; } = "psEffectOutlineQualFinal";
+    public static string PsEffectOutlineQuadFinal { get; } = "psEffectOutlineQualFinal";
 
     /// <summary>
     /// </summary>
     /// <value>
     /// </value>
-    public static string PSEffectMeshXRay { get; } = "psEffectMeshXRay";
+    public static string PsEffectMeshXRay { get; } = "psEffectMeshXRay";
 
     /// <summary>
     ///     Gets the ps effect bloom extract.
@@ -206,7 +206,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect bloom extract.
     /// </value>
-    public static string PSEffectBloomExtract { get; } = "psEffectBloomExtract";
+    public static string PsEffectBloomExtract { get; } = "psEffectBloomExtract";
 
     /// <summary>
     ///     Gets the ps effect bloom vertical blur.
@@ -214,7 +214,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect bloom vertical blur.
     /// </value>
-    public static string PSEffectBloomVerticalBlur { get; } = "psEffectBloomBlurVertical";
+    public static string PsEffectBloomVerticalBlur { get; } = "psEffectBloomBlurVertical";
 
     /// <summary>
     ///     Gets the ps effect bloom horizontal blur.
@@ -222,7 +222,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect bloom horizontal blur.
     /// </value>
-    public static string PSEffectBloomHorizontalBlur { get; } = "psEffectBloomBlurHorizontal";
+    public static string PsEffectBloomHorizontalBlur { get; } = "psEffectBloomBlurHorizontal";
 
     /// <summary>
     ///     Gets the ps effect bloom combine.
@@ -230,7 +230,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect bloom combine.
     /// </value>
-    public static string PSEffectBloomCombine { get; } = "psEffectBloomCombine";
+    public static string PsEffectBloomCombine { get; } = "psEffectBloomCombine";
 
     /// <summary>
     ///     Gets the ps effect fxaa.
@@ -238,7 +238,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect fxaa.
     /// </value>
-    public static string PSEffectFXAA { get; } = "psFXAA";
+    public static string PsEffectFxaa { get; } = "psFXAA";
 
     /// <summary>
     ///     Gets the ps effect luma.
@@ -246,7 +246,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect luma.
     /// </value>
-    public static string PSEffectLUMA { get; } = "psLuma";
+    public static string PsEffectLuma { get; } = "psLuma";
 
     /// <summary>
     ///     Gets the ps effect x ray grid. This is based on BlinnPhong
@@ -254,7 +254,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect x ray grid.
     /// </value>
-    public static string PSEffectXRayGrid { get; } = "psEffectMeshXRayGrid";
+    public static string PsEffectXRayGrid { get; } = "psEffectMeshXRayGrid";
 
     /// <summary>
     ///     Gets the ps effect diffuse x ray grid.
@@ -262,7 +262,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps effect diffuse x ray grid.
     /// </value>
-    public static string PSEffectDiffuseXRayGrid { get; } = "psEffectMeshDiffuseXRayGrid";
+    public static string PsEffectDiffuseXRayGrid { get; } = "psEffectMeshDiffuseXRayGrid";
 
     /// <summary>
     ///     Gets the ps plane grid.
@@ -270,7 +270,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps plane grid.
     /// </value>
-    public static string PSPlaneGrid { get; } = "psPlaneGrid";
+    public static string PsPlaneGrid { get; } = "psPlaneGrid";
 
     /// <summary>
     ///     Gets the ps mesh PBR.
@@ -278,7 +278,7 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh PBR.
     /// </value>
-    public static string PSMeshPBR { get; } = "psMeshPBR";
+    public static string PsMeshPbr { get; } = "psMeshPBR";
 
     /// <summary>
     ///     Gets the ps mesh PBR OIT.
@@ -286,9 +286,9 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps mesh PBR.
     /// </value>
-    public static string PSMeshPBROIT { get; } = "psMeshPBROIT";
+    public static string PsMeshPbroit { get; } = "psMeshPBROIT";
 
-    public static string PSMeshPBROITDP { get; } = "psMeshPBROITDP";
+    public static string PsMeshPbroitdp { get; } = "psMeshPBROITDP";
 
     /// <summary>
     ///     Gets the ps sprite.
@@ -296,478 +296,478 @@ public static class DefaultPSShaderByteCodes {
     /// <value>
     ///     The ps sprite.
     /// </value>
-    public static string PSSprite2D { get; } = "psSprite";
+    public static string PsSprite2D { get; } = "psSprite";
 
 
     /// <summary>
     /// </summary>
-    public static string PSScreenDup { get; } = "psScreenDup";
+    public static string PsScreenDup { get; } = "psScreenDup";
 
-    public static string PSVolume3D { get; } = "psVolume";
+    public static string PsVolume3D { get; } = "psVolume";
 
-    public static string PSVolumeCube { get; } = "psVolumeCube";
+    public static string PsVolumeCube { get; } = "psVolumeCube";
 
-    public static string PSVolumeDiffuse { get; } = "psVolumeDiffuse";
+    public static string PsVolumeDiffuse { get; } = "psVolumeDiffuse";
 
-    public static string PSSSAOP1 { get; } = "psSSAOP1";
+    public static string Psssaop1 { get; } = "psSSAOP1";
 
-    public static string PSSSAO { get; } = "psSSAO";
+    public static string Psssao { get; } = "psSSAO";
 
-    public static string PSSSAOBlur { get; } = "psSSAOBlur";
+    public static string PsssaoBlur { get; } = "psSSAOBlur";
 }
 
 
 /// <summary>
 ///     Default Pixel Shaders
 /// </summary>
-public static class DefaultPSShaderDescriptions {
+public static class DefaultPsShaderDescriptions {
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshBlinnPhong = new(nameof(PSMeshBlinnPhong),
+    public static readonly ShaderDescription PsMeshBlinnPhong = new(nameof(PsMeshBlinnPhong),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSMeshBinnPhong);
+                                                                    DefaultPsShaderByteCodes.PsMeshBinnPhong);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshBlinnPhongOIT = new(nameof(PSMeshBlinnPhongOIT),
+    public static readonly ShaderDescription PsMeshBlinnPhongOit = new(nameof(PsMeshBlinnPhongOit),
                                                                        ShaderStage.Pixel,
                                                                        new ShaderReflector(),
-                                                                       DefaultPSShaderByteCodes
-                                                                           .PSMeshBinnPhongOIT);
+                                                                       DefaultPsShaderByteCodes
+                                                                           .PsMeshBinnPhongOit);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshBlinnPhongOITQuad = new(nameof(PSMeshBlinnPhongOITQuad),
+    public static readonly ShaderDescription PsMeshBlinnPhongOitQuad = new(nameof(PsMeshBlinnPhongOitQuad),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSMeshBinnPhongOITQuad);
+        DefaultPsShaderByteCodes.PsMeshBinnPhongOitQuad);
 
-    public static readonly ShaderDescription PSMeshOITDPInit = new(nameof(PSMeshOITDPInit),
+    public static readonly ShaderDescription PsMeshOitdpInit = new(nameof(PsMeshOitdpInit),
                                                                    ShaderStage.Pixel,
                                                                    new ShaderReflector(),
-                                                                   DefaultPSShaderByteCodes.PSMeshOITDPFirst);
+                                                                   DefaultPsShaderByteCodes.PsMeshOitdpFirst);
 
-    public static readonly ShaderDescription PSMeshBlinnPhongOITDP = new(nameof(PSMeshBlinnPhongOITDP),
+    public static readonly ShaderDescription PsMeshBlinnPhongOitdp = new(nameof(PsMeshBlinnPhongOitdp),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSMeshBlinnPhongOITDP);
+        DefaultPsShaderByteCodes.PsMeshBlinnPhongOitdp);
 
-    public static readonly ShaderDescription PSMeshOITDPBlending = new(nameof(PSMeshOITDPBlending),
+    public static readonly ShaderDescription PsMeshOitdpBlending = new(nameof(PsMeshOitdpBlending),
                                                                        ShaderStage.Pixel,
                                                                        new ShaderReflector(),
-                                                                       DefaultPSShaderByteCodes
-                                                                           .PSMeshOITDPBlending);
+                                                                       DefaultPsShaderByteCodes
+                                                                           .PsMeshOitdpBlending);
 
-    public static readonly ShaderDescription PSMeshOITDPFinal = new(nameof(PSMeshOITDPFinal),
+    public static readonly ShaderDescription PsMeshOitdpFinal = new(nameof(PsMeshOitdpFinal),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSMeshOITDPFinal);
+                                                                    DefaultPsShaderByteCodes.PsMeshOitdpFinal);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshVertColor = new(nameof(PSMeshVertColor),
+    public static readonly ShaderDescription PsMeshVertColor = new(nameof(PsMeshVertColor),
                                                                    ShaderStage.Pixel,
                                                                    new ShaderReflector(),
-                                                                   DefaultPSShaderByteCodes.PSMeshVertColor);
+                                                                   DefaultPsShaderByteCodes.PsMeshVertColor);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshVertNormal = new(nameof(PSMeshVertNormal),
+    public static readonly ShaderDescription PsMeshVertNormal = new(nameof(PsMeshVertNormal),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSMeshNormal);
+                                                                    DefaultPsShaderByteCodes.PsMeshNormal);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshVertPosition = new(nameof(PSMeshVertPosition),
+    public static readonly ShaderDescription PsMeshVertPosition = new(nameof(PsMeshVertPosition),
                                                                       ShaderStage.Pixel,
                                                                       new ShaderReflector(),
-                                                                      DefaultPSShaderByteCodes
-                                                                          .PSMeshVertPosition);
+                                                                      DefaultPsShaderByteCodes
+                                                                          .PsMeshVertPosition);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshDiffuseMap = new(nameof(PSMeshDiffuseMap),
+    public static readonly ShaderDescription PsMeshDiffuseMap = new(nameof(PsMeshDiffuseMap),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSMeshDiffuseMap);
+                                                                    DefaultPsShaderByteCodes.PsMeshDiffuseMap);
 
     /// <summary>
     ///     The ps mesh diffuse map oit
     /// </summary>
-    public static readonly ShaderDescription PSMeshDiffuseMapOIT = new(nameof(PSMeshDiffuseMapOIT),
+    public static readonly ShaderDescription PsMeshDiffuseMapOit = new(nameof(PsMeshDiffuseMapOit),
                                                                        ShaderStage.Pixel,
                                                                        new ShaderReflector(),
-                                                                       DefaultPSShaderByteCodes
-                                                                           .PSMeshDiffuseMapOIT);
+                                                                       DefaultPsShaderByteCodes
+                                                                           .PsMeshDiffuseMapOit);
 
-    public static readonly ShaderDescription PSMeshDiffuseMapOITDP = new(nameof(PSMeshDiffuseMapOITDP),
+    public static readonly ShaderDescription PsMeshDiffuseMapOitdp = new(nameof(PsMeshDiffuseMapOitdp),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSMeshDiffuseMapOITDP);
+        DefaultPsShaderByteCodes.PsMeshDiffuseMapOitdp);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshColorStripe = new(nameof(PSMeshColorStripe),
+    public static readonly ShaderDescription PsMeshColorStripe = new(nameof(PsMeshColorStripe),
                                                                      ShaderStage.Pixel,
                                                                      new ShaderReflector(),
-                                                                     DefaultPSShaderByteCodes
-                                                                         .PSMeshColorStripe);
+                                                                     DefaultPsShaderByteCodes
+                                                                         .PsMeshColorStripe);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshViewCube = new(nameof(PSMeshViewCube),
+    public static readonly ShaderDescription PsMeshViewCube = new(nameof(PsMeshViewCube),
                                                                   ShaderStage.Pixel,
                                                                   new ShaderReflector(),
-                                                                  DefaultPSShaderByteCodes.PSMeshViewCube);
+                                                                  DefaultPsShaderByteCodes.PsMeshViewCube);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSPoint = new(nameof(PSPoint),
+    public static readonly ShaderDescription PsPoint = new(nameof(PsPoint),
                                                            ShaderStage.Pixel,
                                                            new ShaderReflector(),
-                                                           DefaultPSShaderByteCodes.PSPoint);
+                                                           DefaultPsShaderByteCodes.PsPoint);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSLine = new(nameof(PSLine),
+    public static readonly ShaderDescription PsLine = new(nameof(PsLine),
                                                           ShaderStage.Pixel,
                                                           new ShaderReflector(),
-                                                          DefaultPSShaderByteCodes.PSLine);
+                                                          DefaultPsShaderByteCodes.PsLine);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSLineColor = new(nameof(PSLineColor),
+    public static readonly ShaderDescription PsLineColor = new(nameof(PsLineColor),
                                                                ShaderStage.Pixel,
                                                                new ShaderReflector(),
-                                                               DefaultPSShaderByteCodes.PSLineColor);
+                                                               DefaultPsShaderByteCodes.PsLineColor);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSBillboardText = new(nameof(PSBillboardText),
+    public static readonly ShaderDescription PsBillboardText = new(nameof(PsBillboardText),
                                                                    ShaderStage.Pixel,
                                                                    new ShaderReflector(),
-                                                                   DefaultPSShaderByteCodes.PSBillboardText);
+                                                                   DefaultPsShaderByteCodes.PsBillboardText);
 
     /// <summary>
     ///     The ps billboard text oit
     /// </summary>
-    public static readonly ShaderDescription PSBillboardTextOIT = new(nameof(PSBillboardTextOIT),
+    public static readonly ShaderDescription PsBillboardTextOit = new(nameof(PsBillboardTextOit),
                                                                       ShaderStage.Pixel,
                                                                       new ShaderReflector(),
-                                                                      DefaultPSShaderByteCodes
-                                                                          .PSBillboardTextOIT);
+                                                                      DefaultPsShaderByteCodes
+                                                                          .PsBillboardTextOit);
 
-    public static readonly ShaderDescription PSBillboardTextOITDP = new(nameof(PSBillboardTextOITDP),
+    public static readonly ShaderDescription PsBillboardTextOitdp = new(nameof(PsBillboardTextOitdp),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSBillboardTextOITDP);
+        DefaultPsShaderByteCodes.PsBillboardTextOitdp);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshXRay = new(nameof(PSMeshXRay),
+    public static readonly ShaderDescription PsMeshXRay = new(nameof(PsMeshXRay),
                                                               ShaderStage.Pixel,
                                                               new ShaderReflector(),
-                                                              DefaultPSShaderByteCodes.PSMeshXRay);
+                                                              DefaultPsShaderByteCodes.PsMeshXRay);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSShadow = new(nameof(PSShadow),
+    public static readonly ShaderDescription PsShadow = new(nameof(PsShadow),
                                                             ShaderStage.Pixel,
                                                             new ShaderReflector(),
-                                                            DefaultPSShaderByteCodes.PSShadow);
+                                                            DefaultPsShaderByteCodes.PsShadow);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSParticle = new(nameof(PSParticle),
+    public static readonly ShaderDescription PsParticle = new(nameof(PsParticle),
                                                               ShaderStage.Pixel,
                                                               new ShaderReflector(),
-                                                              DefaultPSShaderByteCodes.PSParticle);
+                                                              DefaultPsShaderByteCodes.PsParticle);
 
     /// <summary>
     ///     The ps particle oit
     /// </summary>
-    public static readonly ShaderDescription PSParticleOIT = new(nameof(PSParticleOIT),
+    public static readonly ShaderDescription PsParticleOit = new(nameof(PsParticleOit),
                                                                  ShaderStage.Pixel,
                                                                  new ShaderReflector(),
-                                                                 DefaultPSShaderByteCodes.PSParticleOIT);
+                                                                 DefaultPsShaderByteCodes.PsParticleOit);
 
-    public static readonly ShaderDescription PSParticleOITDP = new(nameof(PSParticleOITDP),
+    public static readonly ShaderDescription PsParticleOitdp = new(nameof(PsParticleOitdp),
                                                                    ShaderStage.Pixel,
                                                                    new ShaderReflector(),
-                                                                   DefaultPSShaderByteCodes.PSParticleOITDP);
+                                                                   DefaultPsShaderByteCodes.PsParticleOitdp);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSSkybox = new(nameof(PSSkybox),
+    public static readonly ShaderDescription PsSkybox = new(nameof(PsSkybox),
                                                             ShaderStage.Pixel,
                                                             new ShaderReflector(),
-                                                            DefaultPSShaderByteCodes.PSSkybox);
+                                                            DefaultPsShaderByteCodes.PsSkybox);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshWireframe = new(nameof(PSMeshWireframe),
+    public static readonly ShaderDescription PsMeshWireframe = new(nameof(PsMeshWireframe),
                                                                    ShaderStage.Pixel,
                                                                    new ShaderReflector(),
-                                                                   DefaultPSShaderByteCodes.PSMeshWireframe);
+                                                                   DefaultPsShaderByteCodes.PsMeshWireframe);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshWireframeOIT = new(nameof(PSMeshWireframeOIT),
+    public static readonly ShaderDescription PsMeshWireframeOit = new(nameof(PsMeshWireframeOit),
                                                                       ShaderStage.Pixel,
                                                                       new ShaderReflector(),
-                                                                      DefaultPSShaderByteCodes
-                                                                          .PSMeshWireframeOIT);
+                                                                      DefaultPsShaderByteCodes
+                                                                          .PsMeshWireframeOit);
 
-    public static readonly ShaderDescription PSMeshWireframeOITDP = new(nameof(PSMeshWireframeOITDP),
+    public static readonly ShaderDescription PsMeshWireframeOitdp = new(nameof(PsMeshWireframeOitdp),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSMeshWireframeOITDP);
+        DefaultPsShaderByteCodes.PsMeshWireframeOitdp);
 
     /// <summary>
     ///     The ps depth stencil only
     /// </summary>
-    public static readonly ShaderDescription PSDepthStencilOnly = new(nameof(PSDepthStencilOnly),
+    public static readonly ShaderDescription PsDepthStencilOnly = new(nameof(PsDepthStencilOnly),
                                                                       ShaderStage.Pixel,
                                                                       new ShaderReflector(),
-                                                                      DefaultPSShaderByteCodes
-                                                                          .PSDepthStencilTestOnly);
+                                                                      DefaultPsShaderByteCodes
+                                                                          .PsDepthStencilTestOnly);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshOutlineScreenQuad = new(nameof(PSMeshOutlineScreenQuad),
+    public static readonly ShaderDescription PsMeshOutlineScreenQuad = new(nameof(PsMeshOutlineScreenQuad),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectOutlineScreenQuad);
+        DefaultPsShaderByteCodes.PsEffectOutlineScreenQuad);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSEffectFullScreenBlurVertical = new(
-        nameof(PSEffectFullScreenBlurVertical),
+    public static readonly ShaderDescription PsEffectFullScreenBlurVertical = new(
+        nameof(PsEffectFullScreenBlurVertical),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectFullScreenBlurVertical);
+        DefaultPsShaderByteCodes.PsEffectFullScreenBlurVertical);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSEffectFullScreenBlurHorizontal = new(
-        nameof(PSEffectFullScreenBlurHorizontal),
+    public static readonly ShaderDescription PsEffectFullScreenBlurHorizontal = new(
+        nameof(PsEffectFullScreenBlurHorizontal),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectFullScreenBlurHorizontal);
+        DefaultPsShaderByteCodes.PsEffectFullScreenBlurHorizontal);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSEffectMeshBorderHighlight = new(
-        nameof(PSEffectMeshBorderHighlight),
+    public static readonly ShaderDescription PsEffectMeshBorderHighlight = new(
+        nameof(PsEffectMeshBorderHighlight),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectMeshBorderHighlight);
+        DefaultPsShaderByteCodes.PsEffectMeshBorderHighlight);
 
     /// <summary>
     ///     The ps effect mesh border highlight
     /// </summary>
-    public static readonly ShaderDescription PSEffectOutlineSmooth = new(nameof(PSEffectOutlineSmooth),
+    public static readonly ShaderDescription PsEffectOutlineSmooth = new(nameof(PsEffectOutlineSmooth),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectOutlineSmooth);
+        DefaultPsShaderByteCodes.PsEffectOutlineSmooth);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshOutlineQuadStencil = new(nameof(PSMeshOutlineQuadStencil),
+    public static readonly ShaderDescription PsMeshOutlineQuadStencil = new(nameof(PsMeshOutlineQuadStencil),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectOutlineScreenQuadStencil);
+        DefaultPsShaderByteCodes.PsEffectOutlineScreenQuadStencil);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshOutlineQuadFinal = new(nameof(PSMeshOutlineQuadFinal),
+    public static readonly ShaderDescription PsMeshOutlineQuadFinal = new(nameof(PsMeshOutlineQuadFinal),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectOutlineQuadFinal);
+        DefaultPsShaderByteCodes.PsEffectOutlineQuadFinal);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSEffectMeshXRay = new(nameof(PSEffectMeshXRay),
+    public static readonly ShaderDescription PsEffectMeshXRay = new(nameof(PsEffectMeshXRay),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSEffectMeshXRay);
+                                                                    DefaultPsShaderByteCodes.PsEffectMeshXRay);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSEffectBloomExtract = new(nameof(PSEffectBloomExtract),
+    public static readonly ShaderDescription PsEffectBloomExtract = new(nameof(PsEffectBloomExtract),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectBloomExtract);
+        DefaultPsShaderByteCodes.PsEffectBloomExtract);
 
     /// <summary>
     ///     The ps effect bloom vertical blur
     /// </summary>
-    public static readonly ShaderDescription PSEffectBloomVerticalBlur = new(nameof(PSEffectBloomVerticalBlur),
+    public static readonly ShaderDescription PsEffectBloomVerticalBlur = new(nameof(PsEffectBloomVerticalBlur),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectBloomVerticalBlur);
+        DefaultPsShaderByteCodes.PsEffectBloomVerticalBlur);
 
     /// <summary>
     ///     The ps effect bloom horizontal blur
     /// </summary>
-    public static readonly ShaderDescription PSEffectBloomHorizontalBlur = new(
-        nameof(PSEffectBloomHorizontalBlur),
+    public static readonly ShaderDescription PsEffectBloomHorizontalBlur = new(
+        nameof(PsEffectBloomHorizontalBlur),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectBloomHorizontalBlur);
+        DefaultPsShaderByteCodes.PsEffectBloomHorizontalBlur);
 
     /// <summary>
     ///     The ps effect bloom combine
     /// </summary>
-    public static readonly ShaderDescription PSEffectBloomCombine = new(nameof(PSEffectBloomCombine),
+    public static readonly ShaderDescription PsEffectBloomCombine = new(nameof(PsEffectBloomCombine),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectBloomCombine);
+        DefaultPsShaderByteCodes.PsEffectBloomCombine);
 
     /// <summary>
     ///     The ps effect FXAA
     /// </summary>
-    public static readonly ShaderDescription PSEffectFXAA = new(nameof(PSEffectFXAA),
+    public static readonly ShaderDescription PsEffectFxaa = new(nameof(PsEffectFxaa),
                                                                 ShaderStage.Pixel,
                                                                 new ShaderReflector(),
-                                                                DefaultPSShaderByteCodes.PSEffectFXAA);
+                                                                DefaultPsShaderByteCodes.PsEffectFxaa);
 
     /// <summary>
     ///     The ps effect luma
     /// </summary>
-    public static readonly ShaderDescription PSEffectLUMA = new(nameof(PSEffectLUMA),
+    public static readonly ShaderDescription PsEffectLuma = new(nameof(PsEffectLuma),
                                                                 ShaderStage.Pixel,
                                                                 new ShaderReflector(),
-                                                                DefaultPSShaderByteCodes.PSEffectLUMA);
+                                                                DefaultPsShaderByteCodes.PsEffectLuma);
 
     /// <summary>
     ///     The ps effect x ray grid, this is based on BlinnPhong
     /// </summary>
-    public static readonly ShaderDescription PSEffectXRayGrid = new(nameof(PSEffectXRayGrid),
+    public static readonly ShaderDescription PsEffectXRayGrid = new(nameof(PsEffectXRayGrid),
                                                                     ShaderStage.Pixel,
                                                                     new ShaderReflector(),
-                                                                    DefaultPSShaderByteCodes.PSEffectXRayGrid);
+                                                                    DefaultPsShaderByteCodes.PsEffectXRayGrid);
 
     /// <summary>
     ///     The ps effect x ray grid, this is based on diffuse shading
     /// </summary>
-    public static readonly ShaderDescription PSEffectDiffuseXRayGrid = new(nameof(PSEffectDiffuseXRayGrid),
+    public static readonly ShaderDescription PsEffectDiffuseXRayGrid = new(nameof(PsEffectDiffuseXRayGrid),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSEffectDiffuseXRayGrid);
+        DefaultPsShaderByteCodes.PsEffectDiffuseXRayGrid);
 
     /// <summary>
     ///     The ps plane grid
     /// </summary>
-    public static readonly ShaderDescription PSPlaneGrid = new(nameof(PSPlaneGrid),
+    public static readonly ShaderDescription PsPlaneGrid = new(nameof(PsPlaneGrid),
                                                                ShaderStage.Pixel,
                                                                new ShaderReflector(),
-                                                               DefaultPSShaderByteCodes.PSPlaneGrid);
+                                                               DefaultPsShaderByteCodes.PsPlaneGrid);
 
     /// <summary>
     ///     The ps mesh PBR
     /// </summary>
-    public static readonly ShaderDescription PSMeshPBR = new(nameof(PSMeshPBR),
+    public static readonly ShaderDescription PsMeshPbr = new(nameof(PsMeshPbr),
                                                              ShaderStage.Pixel,
                                                              new ShaderReflector(),
-                                                             DefaultPSShaderByteCodes.PSMeshPBR);
+                                                             DefaultPsShaderByteCodes.PsMeshPbr);
 
     /// <summary>
     ///     The ps mesh PBR
     /// </summary>
-    public static readonly ShaderDescription PSMeshPBROIT = new(nameof(PSMeshPBROIT),
+    public static readonly ShaderDescription PsMeshPbroit = new(nameof(PsMeshPbroit),
                                                                 ShaderStage.Pixel,
                                                                 new ShaderReflector(),
-                                                                DefaultPSShaderByteCodes.PSMeshPBROIT);
+                                                                DefaultPsShaderByteCodes.PsMeshPbroit);
 
-    public static readonly ShaderDescription PSMeshPBROITDP = new(nameof(PSMeshPBROITDP),
+    public static readonly ShaderDescription PsMeshPbroitdp = new(nameof(PsMeshPbroitdp),
                                                                   ShaderStage.Pixel,
                                                                   new ShaderReflector(),
-                                                                  DefaultPSShaderByteCodes.PSMeshPBROITDP);
+                                                                  DefaultPsShaderByteCodes.PsMeshPbroitdp);
 
     /// <summary>
     ///     The ps sprite
     /// </summary>
-    public static readonly ShaderDescription PSSprite2D = new(nameof(PSSprite2D),
+    public static readonly ShaderDescription PsSprite2D = new(nameof(PsSprite2D),
                                                               ShaderStage.Pixel,
                                                               new ShaderReflector(),
-                                                              DefaultPSShaderByteCodes.PSSprite2D);
+                                                              DefaultPsShaderByteCodes.PsSprite2D);
 
     /// <summary>
     ///     The ps screen dup
     /// </summary>
-    public static readonly ShaderDescription PSScreenDup = new(nameof(PSScreenDup),
+    public static readonly ShaderDescription PsScreenDup = new(nameof(PsScreenDup),
                                                                ShaderStage.Pixel,
                                                                new ShaderReflector(),
-                                                               DefaultPSShaderByteCodes.PSScreenDup);
+                                                               DefaultPsShaderByteCodes.PsScreenDup);
 
     /// <summary>
     ///     The ps volume3d
     /// </summary>
-    public static readonly ShaderDescription PSVolume3D = new(nameof(PSVolume3D),
+    public static readonly ShaderDescription PsVolume3D = new(nameof(PsVolume3D),
                                                               ShaderStage.Pixel,
                                                               new ShaderReflector(),
-                                                              DefaultPSShaderByteCodes.PSVolume3D);
+                                                              DefaultPsShaderByteCodes.PsVolume3D);
 
     /// <summary>
     ///     The ps volume cube
     /// </summary>
-    public static readonly ShaderDescription PSVolumeCube = new(nameof(PSVolumeCube),
+    public static readonly ShaderDescription PsVolumeCube = new(nameof(PsVolumeCube),
                                                                 ShaderStage.Pixel,
                                                                 new ShaderReflector(),
-                                                                DefaultPSShaderByteCodes.PSVolumeCube);
+                                                                DefaultPsShaderByteCodes.PsVolumeCube);
 
     /// <summary>
     ///     The ps volume3d
     /// </summary>
-    public static readonly ShaderDescription PSVolumeDiffuse3D = new(nameof(PSVolumeDiffuse3D),
+    public static readonly ShaderDescription PsVolumeDiffuse3D = new(nameof(PsVolumeDiffuse3D),
                                                                      ShaderStage.Pixel,
                                                                      new ShaderReflector(),
-                                                                     DefaultPSShaderByteCodes.PSVolumeDiffuse);
+                                                                     DefaultPsShaderByteCodes.PsVolumeDiffuse);
 
     /// <summary>
     ///     The psssao p1
     /// </summary>
-    public static readonly ShaderDescription PSSSAOP1 = new(nameof(PSSSAOP1),
+    public static readonly ShaderDescription Psssaop1 = new(nameof(Psssaop1),
                                                             ShaderStage.Pixel,
                                                             new ShaderReflector(),
-                                                            DefaultPSShaderByteCodes.PSSSAOP1);
+                                                            DefaultPsShaderByteCodes.Psssaop1);
 
     /// <summary>
     ///     The psssao
     /// </summary>
-    public static readonly ShaderDescription PSSSAO = new(nameof(PSSSAO),
+    public static readonly ShaderDescription Psssao = new(nameof(Psssao),
                                                           ShaderStage.Pixel,
                                                           new ShaderReflector(),
-                                                          DefaultPSShaderByteCodes.PSSSAO);
+                                                          DefaultPsShaderByteCodes.Psssao);
 
     /// <summary>
     ///     The ps ssao blur
     /// </summary>
-    public static readonly ShaderDescription PSSSAOBlur = new(nameof(PSSSAOBlur),
+    public static readonly ShaderDescription PsssaoBlur = new(nameof(PsssaoBlur),
                                                               ShaderStage.Pixel,
                                                               new ShaderReflector(),
-                                                              DefaultPSShaderByteCodes.PSSSAOBlur);
+                                                              DefaultPsShaderByteCodes.PsssaoBlur);
 
     #region Mesh Clipping
 
     /// <summary>
     ///     /
     /// </summary>
-    public static readonly ShaderDescription PSMeshClipBackface = new(nameof(PSMeshClipBackface),
+    public static readonly ShaderDescription PsMeshClipBackface = new(nameof(PsMeshClipBackface),
                                                                       ShaderStage.Pixel,
                                                                       new ShaderReflector(),
-                                                                      DefaultPSShaderByteCodes
-                                                                          .PSMeshClipPlaneBackface);
+                                                                      DefaultPsShaderByteCodes
+                                                                          .PsMeshClipPlaneBackface);
 
     /// <summary>
     /// </summary>
-    public static readonly ShaderDescription PSMeshClipScreenQuad = new(nameof(PSMeshClipScreenQuad),
+    public static readonly ShaderDescription PsMeshClipScreenQuad = new(nameof(PsMeshClipScreenQuad),
         ShaderStage.Pixel,
         new ShaderReflector(),
-        DefaultPSShaderByteCodes.PSMeshClipPlaneQuad);
+        DefaultPsShaderByteCodes.PsMeshClipPlaneQuad);
 
     #endregion
 }

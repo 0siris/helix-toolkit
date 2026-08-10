@@ -39,7 +39,7 @@ public struct FrustumCameraParams {
     public Vector3 Position;
     public Vector3 LookAtDir;
     public Vector3 UpDir;
-    public float FOV;
+    public float Fov;
     public float AspectRatio;
     public float ZNear;
     public float ZFar;
@@ -195,8 +195,8 @@ public struct RectangleF {
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Matrix3x2 {
-    public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32) {
+public struct Matrix3X2 {
+    public Matrix3X2(float m11, float m12, float m21, float m22, float m31, float m32) {
         M11 = m11;
         M12 = m12;
         M21 = m21;
@@ -212,31 +212,31 @@ public struct Matrix3x2 {
     public float M31;
     public float M32;
 
-    public static Matrix3x2 Identity => new(1, 0, 0, 1, 0, 0);
+    public static Matrix3X2 Identity => new(1, 0, 0, 1, 0, 0);
 
     public Vector2 TranslationVector => new(M31, M32);
 
-    public static Matrix3x2 Translation(float x, float y) {
-        return new Matrix3x2(1, 0, 0, 1, x, y);
+    public static Matrix3X2 Translation(float x, float y) {
+        return new Matrix3X2(1, 0, 0, 1, x, y);
     }
 
-    public static Matrix3x2 Translation(Vector2 offset) {
+    public static Matrix3X2 Translation(Vector2 offset) {
         return Translation(offset.X, offset.Y);
     }
 
-    public static Matrix3x2 Rotation(float angle) {
+    public static Matrix3X2 Rotation(float angle) {
         var cosine = (float)Math.Cos(angle);
         var sine = (float)Math.Sin(angle);
-        return new Matrix3x2(cosine, sine, -sine, cosine, 0, 0);
+        return new Matrix3X2(cosine, sine, -sine, cosine, 0, 0);
     }
 
-    public static Vector2 TransformPoint(Matrix3x2 transform, Vector2 point) {
+    public static Vector2 TransformPoint(Matrix3X2 transform, Vector2 point) {
         return new Vector2(point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
                            point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
     }
 
-    public static Matrix3x2 operator *(Matrix3x2 left, Matrix3x2 right) {
-        return new Matrix3x2(left.M11 * right.M11 + left.M12 * right.M21,
+    public static Matrix3X2 operator *(Matrix3X2 left, Matrix3X2 right) {
+        return new Matrix3X2(left.M11 * right.M11 + left.M12 * right.M21,
                              left.M11 * right.M12 + left.M12 * right.M22,
                              left.M21 * right.M11 + left.M22 * right.M21,
                              left.M21 * right.M12 + left.M22 * right.M22,
@@ -246,8 +246,8 @@ public struct Matrix3x2 {
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Matrix3x3 {
-    public Matrix3x3(
+public struct Matrix3X3 {
+    public Matrix3X3(
         float m11,
         float m12,
         float m13,

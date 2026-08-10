@@ -12,7 +12,7 @@ using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
-using Plane = HelixToolkit.SharpDX.Core.Plane;
+using Plane = Plane;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
@@ -85,12 +85,12 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // ----------------------------------------------
         // titles
-        this.Title = "SwapChain Top Surface Rendering Demo";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "SwapChain Top Surface Rendering Demo";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(20, 20, 20),
             LookDirection = new Vector3D(-20, -20, -20),
             UpDirection = new Vector3D(0, 1, 0)
@@ -98,7 +98,7 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // setup scene
 
-        this.Light1Color = Colors.White;
+        Light1Color = Colors.White;
 
 
         var builder = new MeshBuilder(true, false, false);
@@ -125,8 +125,8 @@ public class MainViewModel : BaseViewModel {
         var transGroup = new Media3D.Transform3DGroup();
         transGroup.Children.Add(new Media3D.ScaleTransform3D(0.01, 0.01, 0.01));
         transGroup.Children.Add(
-            new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Media3D.Vector3D(1, 0, 0), -90)));
-        transGroup.Children.Add(new Media3D.TranslateTransform3D(new Media3D.Vector3D(0, 6, 0)));
+            new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90)));
+        transGroup.Children.Add(new TranslateTransform3D(new Vector3D(0, 6, 0)));
 
         ModelTransform = transGroup;
 

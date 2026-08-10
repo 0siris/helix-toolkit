@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 
 namespace SharpDX.Toolkit.Graphics;
 
-internal static class WICHelper {
+internal static class WicHelper {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
     ///     Loads the first frame of an image supported by WIC.
     /// </summary>
     /// <remarks>Animated GIFs and multi-page TIFFs are intentionally loaded as frame 0 only.</remarks>
-    public static Image LoadFromWICMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
+    public static Image LoadFromWicMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
         if (pSource == nint.Zero || size <= 0) return null;
 
         var encoded = new byte[size];
@@ -55,58 +55,58 @@ internal static class WICHelper {
         }
     }
 
-    public static void SaveGifToWICMemory(
+    public static void SaveGifToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Gif);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Gif);
     }
 
-    public static void SaveTiffToWICMemory(
+    public static void SaveTiffToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Tiff);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Tiff);
     }
 
-    public static void SaveBmpToWICMemory(
+    public static void SaveBmpToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Bmp);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Bmp);
     }
 
-    public static void SaveJpgToWICMemory(
+    public static void SaveJpgToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Jpg);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Jpg);
     }
 
-    public static void SavePngToWICMemory(
+    public static void SavePngToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Png);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Png);
     }
 
-    public static void SaveWmpToWICMemory(
+    public static void SaveWmpToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,
         Stream imageStream
     ) {
-        SaveToWICMemory(pixelBuffers, count, description, imageStream, ImageFileType.Wmp);
+        SaveToWicMemory(pixelBuffers, count, description, imageStream, ImageFileType.Wmp);
     }
 
     internal static void SaveBgra32(
@@ -126,7 +126,7 @@ internal static class WICHelper {
         encoder.Save(imageStream);
     }
 
-    private static void SaveToWICMemory(
+    private static void SaveToWicMemory(
         PixelBuffer[] pixelBuffers,
         int count,
         ImageDescription description,

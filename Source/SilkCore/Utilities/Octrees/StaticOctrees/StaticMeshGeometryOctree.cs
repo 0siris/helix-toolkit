@@ -109,7 +109,7 @@ public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
                 Distance = double.MaxValue
             };
             var minDistance = float.MaxValue;
-            var rayWS = context.RayWS;
+            var rayWs = context.RayWs;
             for (var i = octant.Start; i < octant.End; ++i) {
                 var idx = Objects[i].Key * 3;
                 var t1 = Indices[idx];
@@ -145,7 +145,7 @@ public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
                             SilkMath.TransformCoordinate(rayModel.Position + rayModel.Direction * d,
                                                          modelMatrix);
                         result.PointHit = pointWorld;
-                        result.Distance = (rayWS.Position - pointWorld).Length;
+                        result.Distance = (rayWs.Position - pointWorld).Length;
 
                         var p0 = SilkMath.TransformCoordinate(Positions[t1], modelMatrix);
                         var p1 = SilkMath.TransformCoordinate(Positions[t2], modelMatrix);

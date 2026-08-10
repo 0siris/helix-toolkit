@@ -27,7 +27,7 @@ public struct RenderParameter {
 
     /// <summary>
     /// </summary>
-    public bool IsMSAATexture;
+    public bool IsMsaaTexture;
 
     /// <summary>
     ///     The viewport region

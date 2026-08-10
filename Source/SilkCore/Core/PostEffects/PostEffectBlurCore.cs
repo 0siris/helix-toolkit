@@ -36,7 +36,7 @@ public class PostEffectBlurCore : DisposeObject {
         this.textureSlot = textureSlot;
         this.samplerSlot = samplerSlot;
         this.sampler = manager.StateManager.Register(sampler);
-        modelCB = new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCB,
+        modelCb = new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCb,
                                                                             BorderEffectStruct.SizeInBytes));
     }
 
@@ -61,13 +61,13 @@ public class PostEffectBlurCore : DisposeObject {
         if ((depth & BlurDepth.One) == 0)
             return;
 
-        using var target1 = context.GetOffScreenRT(OffScreenTextureSize.Half,
+        using var target1 = context.GetOffScreenRt(OffScreenTextureSize.Half,
                                                    Format.FormatR8G8B8A8Unorm,
                                                    out var width,
                                                    out var height);
         
         modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         
         //Full -> Half Vertical
         deviceContext.SetRenderTarget(target1);
@@ -80,13 +80,13 @@ public class PostEffectBlurCore : DisposeObject {
         deviceContext.Draw(4, 0);
 
         if ((depth & BlurDepth.Two) != 0) {
-            using var target2 = context.GetOffScreenRT(OffScreenTextureSize.Quarter,
+            using var target2 = context.GetOffScreenRt(OffScreenTextureSize.Quarter,
                                                        Format.FormatR8G8B8A8Unorm,
                                                        out var width2,
                                                        out var height2);
             // Half to Quater Vertical
             modelStruct.ViewportScale = (int)OffScreenTextureSize.Quarter;
-            modelCB.Upload(deviceContext, ref modelStruct);
+            modelCb.Upload(deviceContext, ref modelStruct);
             deviceContext.SetRenderTarget(target2);
             deviceContext.SetViewport(0, 0, width2, height2);
             deviceContext.SetScissorRectangle(0, 0, width2, height2);
@@ -96,7 +96,7 @@ public class PostEffectBlurCore : DisposeObject {
 
             // Quater to Half Horizontal
             modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
-            modelCB.Upload(deviceContext, ref modelStruct);
+            modelCb.Upload(deviceContext, ref modelStruct);
             deviceContext.SetRenderTarget(target1);
             deviceContext.SetViewport(0, 0, width, height);
             deviceContext.SetScissorRectangle(0, 0, width, height);
@@ -107,7 +107,7 @@ public class PostEffectBlurCore : DisposeObject {
 
         // Half to Full Horizontal
         modelStruct.ViewportScale = (int)OffScreenTextureSize.Full;
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         deviceContext.SetRenderTarget(source);
         deviceContext.SetViewport(ref sourceViewport);
         deviceContext.SetScissorRectangle(ref sourceViewport);
@@ -118,7 +118,7 @@ public class PostEffectBlurCore : DisposeObject {
 
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref sampler);
-        RemoveAndDispose(ref modelCB);
+        RemoveAndDispose(ref modelCb);
         base.OnDispose(disposeManagedResources);
     }
 
@@ -129,7 +129,7 @@ public class PostEffectBlurCore : DisposeObject {
     private readonly ShaderPass screenBlurPassHorizontal;
     private readonly int textureSlot;
     private readonly int samplerSlot;
-    private ConstantBufferComponent modelCB;
+    private ConstantBufferComponent modelCb;
     private SamplerStateProxy sampler;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);
 

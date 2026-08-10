@@ -10,8 +10,8 @@ using System;
 
 public class ExampleAttribute : Attribute {
     public ExampleAttribute(string title, string description) {
-        this.Title = title;
-        this.Description = description;
+        Title = title;
+        Description = description;
     }
 
     public string Title { get; private set; }

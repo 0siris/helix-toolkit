@@ -49,7 +49,7 @@ public static class CuttingEarsTriangulator {
         var n = contour.Count;
         if (n < 3) return null;
 
-        var V = new int[n];
+        var v = new int[n];
 
         // we want a counter-clockwise polygon in V
         if (Area(contour) > 0)
@@ -122,45 +122,45 @@ public static class CuttingEarsTriangulator {
     /// <summary>
     ///     Decide if point (Px,Py) is inside triangle defined by (Ax,Ay) (Bx,By) (Cx,Cy).
     /// </summary>
-    /// <param name="Ax">
+    /// <param name="ax">
     ///     The ax.
     /// </param>
-    /// <param name="Ay">
+    /// <param name="ay">
     ///     The ay.
     /// </param>
-    /// <param name="Bx">
+    /// <param name="bx">
     ///     The bx.
     /// </param>
-    /// <param name="By">
+    /// <param name="by">
     ///     The by.
     /// </param>
-    /// <param name="Cx">
+    /// <param name="cx">
     ///     The cx.
     /// </param>
-    /// <param name="Cy">
+    /// <param name="cy">
     ///     The cy.
     /// </param>
-    /// <param name="Px">
+    /// <param name="px">
     ///     The px.
     /// </param>
-    /// <param name="Py">
+    /// <param name="py">
     ///     The py.
     /// </param>
     /// <returns>
     ///     The inside triangle.
     /// </returns>
     private static bool InsideTriangle(
-        double Ax,
-        double Ay,
-        double Bx,
-        double By,
-        double Cx,
-        double Cy,
-        double Px,
-        double Py
+        double ax,
+        double ay,
+        double bx,
+        double by,
+        double cx,
+        double cy,
+        double px,
+        double py
     ) {
         double ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
-        double cCROSSap, bCROSScp, aCROSSbp;
+        double cCrosSap, bCrosScp, aCrosSbp;
 
         ax = Cx - Bx;
         ay = Cy - By;
@@ -168,20 +168,20 @@ public static class CuttingEarsTriangulator {
         by = Ay - Cy;
         cx = Bx - Ax;
         cy = By - Ay;
-        apx = Px - Ax;
-        apy = Py - Ay;
-        bpx = Px - Bx;
-        bpy = Py - By;
-        cpx = Px - Cx;
-        cpy = Py - Cy;
+        apx = px - Ax;
+        apy = py - Ay;
+        bpx = px - Bx;
+        bpy = py - By;
+        cpx = px - Cx;
+        cpy = py - Cy;
 
-        aCROSSbp = ax * bpy - ay * bpx;
-        cCROSSap = cx * apy - cy * apx;
-        bCROSScp = bx * cpy - by * cpx;
+        aCrosSbp = ax * bpy - ay * bpx;
+        cCrosSap = cx * apy - cy * apx;
+        bCrosScp = bx * cpy - by * cpx;
 
         // use an absolute tolerance when comparing floating point values
-        const double EPSILON = -1e-10;
-        return aCROSSbp > EPSILON && bCROSScp > EPSILON && cCROSSap > EPSILON;
+        const double epsilon = -1e-10;
+        return aCrosSbp > epsilon && bCrosScp > epsilon && cCrosSap > epsilon;
     }
 
     /// <summary>
@@ -192,29 +192,29 @@ public static class CuttingEarsTriangulator {
     /// <param name="v">The v.</param>
     /// <param name="w">The w.</param>
     /// <param name="n">The n.</param>
-    /// <param name="V">The v.</param>
+    /// <param name="v">The v.</param>
     /// <returns>The snip.</returns>
-    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] V) {
+    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] v) {
         int p;
-        double Ax, Ay, Bx, By, Cx, Cy, Px, Py;
+        double ax, ay, bx, by, cx, cy, px, py;
 
-        Ax = contour[V[u]].X;
-        Ay = contour[V[u]].Y;
+        ax = contour[v[u]].X;
+        ay = contour[v[u]].Y;
 
-        Bx = contour[V[v]].X;
-        By = contour[V[v]].Y;
+        bx = contour[v[v]].X;
+        by = contour[v[v]].Y;
 
-        Cx = contour[V[w]].X;
-        Cy = contour[V[w]].Y;
+        cx = contour[v[w]].X;
+        cy = contour[v[w]].Y;
 
-        if (Epsilon > (Bx - Ax) * (Cy - Ay) - (By - Ay) * (Cx - Ax)) return false;
+        if (Epsilon > (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) return false;
 
         for (p = 0; p < n; p++) {
             if (p == u || p == v || p == w) continue;
 
-            Px = contour[V[p]].X;
-            Py = contour[V[p]].Y;
-            if (InsideTriangle(Ax, Ay, Bx, By, Cx, Cy, Px, Py)) return false;
+            px = contour[v[p]].X;
+            py = contour[v[p]].Y;
+            if (InsideTriangle(ax, ay, bx, by, cx, cy, px, py)) return false;
         }
 
         return true;

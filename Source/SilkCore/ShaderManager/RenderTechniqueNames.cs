@@ -81,18 +81,18 @@ public struct DefaultRenderTechniqueNames {
 
     /// <summary>
     /// </summary>
-    public const string MeshOITQuad = "MeshOITQuad";
+    public const string MeshOitQuad = "MeshOITQuad";
 
     /// <summary>
     /// </summary>
-    public const string MeshOITSortRender = "MeshOITSortRender";
+    public const string MeshOitSortRender = "MeshOITSortRender";
 
-    public const string MeshOITDepthPeeling = "MeshOITDeepPeeling";
+    public const string MeshOitDepthPeeling = "MeshOITDeepPeeling";
 
     /// <summary>
     ///     The post effect fxaa
     /// </summary>
-    public const string PostEffectFXAA = "PostEffectFXAA";
+    public const string PostEffectFxaa = "PostEffectFXAA";
 
     /// <summary>
     ///     The post effect mesh x ray grid
@@ -110,7 +110,7 @@ public struct DefaultRenderTechniqueNames {
 
     public const string Volume3D = "Volume3D";
 
-    public const string SSAO = "SSAO";
+    public const string Ssao = "SSAO";
 
     /// <summary>
     /// </summary>
@@ -127,12 +127,12 @@ public struct DefaultPassNames {
     /// <summary>
     ///     The Physics Based Rendering
     /// </summary>
-    public const string PBR = "PhysicsBasedRendering";
+    public const string Pbr = "PhysicsBasedRendering";
 
     /// <summary>
     ///     The PBR face normal pass
     /// </summary>
-    public const string PBRFaceNormal = "PhysicsBasedRenderingFaceNormal";
+    public const string PbrFaceNormal = "PhysicsBasedRenderingFaceNormal";
 
     /// <summary>
     /// </summary>
@@ -141,9 +141,9 @@ public struct DefaultPassNames {
     /// <summary>
     ///     The diffuse oit
     /// </summary>
-    public const string DiffuseOIT = "RenderDiffuseOIT";
+    public const string DiffuseOit = "RenderDiffuseOIT";
 
-    public const string DiffuseOITDP = "RenderDiffuseOITDepthPeeling";
+    public const string DiffuseOitdp = "RenderDiffuseOITDepthPeeling";
 
     /// <summary>
     /// </summary>
@@ -184,48 +184,48 @@ public struct DefaultPassNames {
     /// <summary>
     ///     The mesh transparent
     /// </summary>
-    public const string OITPass = "MeshOITPass";
+    public const string OitPass = "MeshOITPass";
 
     #region Deep peeling
 
-    public const string OITDepthPeelingInit = "OITDepthPeelingFirst";
+    public const string OitDepthPeelingInit = "OITDepthPeelingFirst";
 
-    public const string OITDepthPeeling = "OITDepthPeeling";
+    public const string OitDepthPeeling = "OITDepthPeeling";
 
-    public const string OITDepthPeelingBlending = "OITDepthPeelingBlending";
+    public const string OitDepthPeelingBlending = "OITDepthPeelingBlending";
 
-    public const string OITDepthPeelingFinal = "OITDepthPeelingFinal";
+    public const string OitDepthPeelingFinal = "OITDepthPeelingFinal";
 
     #endregion
 
     /// <summary>
     ///     The oit pass PBR
     /// </summary>
-    public const string PBROITPass = "MeshPhysicsBasedOITPass";
+    public const string PbroitPass = "MeshPhysicsBasedOITPass";
 
-    public const string PBROITDPPass = "MeshPhysicsBasedOITDepthPeelingPass";
+    public const string PbroitdpPass = "MeshPhysicsBasedOITDepthPeelingPass";
 
     /// <summary>
     /// </summary>
-    public const string WireframeOITPass = "WireframeOIT";
+    public const string WireframeOitPass = "WireframeOIT";
 
-    public const string WireframeOITDPPass = "WireframeOITDP";
+    public const string WireframeOitdpPass = "WireframeOITDP";
 
     /// <summary>
     /// </summary>
     public const string MeshTriTessellation = "MeshTriTessellation";
 
-    public const string MeshTriTessellationOIT = "MeshTriTessellationOIT";
+    public const string MeshTriTessellationOit = "MeshTriTessellationOIT";
 
-    public const string MeshTriTessellationOITDP = "MeshTriTessellationOITDP";
+    public const string MeshTriTessellationOitdp = "MeshTriTessellationOITDP";
 
     /// <summary>
     /// </summary>
-    public const string MeshPBRTriTessellation = "MeshPBRTriTessellation";
+    public const string MeshPbrTriTessellation = "MeshPBRTriTessellation";
 
-    public const string MeshPBRTriTessellationOIT = "MeshPBRTriTessellationOIT";
+    public const string MeshPbrTriTessellationOit = "MeshPBRTriTessellationOIT";
 
-    public const string MeshPBRTriTessellationOITDP = "MeshPBRTriTessellationOITDP";
+    public const string MeshPbrTriTessellationOitdp = "MeshPBRTriTessellationOITDP";
 
     /// <summary>
     /// </summary>
@@ -314,12 +314,12 @@ public struct DefaultPassNames {
 
     /// <summary>
     /// </summary>
-    public const string FXAAPass = "FXAAPass";
+    public const string FxaaPass = "FXAAPass";
 
     /// <summary>
     ///     The ssao pass
     /// </summary>
-    public const string MeshSSAOPass = "MeshSSAOPass";
+    public const string MeshSsaoPass = "MeshSSAOPass";
 }
 
 /// <summary>

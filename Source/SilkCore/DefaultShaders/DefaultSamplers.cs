@@ -111,7 +111,7 @@ public static class DefaultSamplers {
     /// <summary>
     ///     The cube sampler
     /// </summary>
-    public static readonly SamplerStateDescription IBLSampler = new() {
+    public static readonly SamplerStateDescription IblSampler = new() {
         AddressU = TextureAddressMode.Clamp,
         AddressV = TextureAddressMode.Clamp,
         AddressW = TextureAddressMode.Clamp,
@@ -150,7 +150,7 @@ public static class DefaultSamplers {
         BorderColor = new Color4(0, 0, 0, 0)
     };
 
-    public static readonly SamplerStateDescription SSAONoise = new() {
+    public static readonly SamplerStateDescription SsaoNoise = new() {
         AddressU = TextureAddressMode.Wrap,
         AddressV = TextureAddressMode.Wrap,
         AddressW = TextureAddressMode.Wrap,
@@ -158,7 +158,7 @@ public static class DefaultSamplers {
         MaximumLod = 0
     };
 
-    public static readonly SamplerStateDescription SSAOSamplerClamp = new() {
+    public static readonly SamplerStateDescription SsaoSamplerClamp = new() {
         AddressU = TextureAddressMode.Clamp,
         AddressV = TextureAddressMode.Clamp,
         AddressW = TextureAddressMode.Clamp,

@@ -10,11 +10,11 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class PostEffectFXAA : RenderCore, IPostEffect {
-    private readonly ConstantBufferComponent modelCB;
+public sealed class PostEffectFxaa : RenderCore, IPostEffect {
+    private readonly ConstantBufferComponent modelCb;
 
-    private ShaderPass FXAAPass;
-    private ShaderPass LUMAPass;
+    private ShaderPass fxaaPass;
+    private ShaderPass lumaPass;
     private BorderEffectStruct modelStruct;
 
     private SamplerStateProxy? Sampler {
@@ -31,10 +31,10 @@ public sealed class PostEffectFXAA : RenderCore, IPostEffect {
 
     private int textureSlot;
 
-    public PostEffectFXAA() : base(RenderType.GlobalEffect) {
-        modelCB = AddComponent(new ConstantBufferComponent(
+    public PostEffectFxaa() : base(RenderType.GlobalEffect) {
+        modelCb = AddComponent(new ConstantBufferComponent(
                                    new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCB,
+                                       DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
     }
 
@@ -44,21 +44,21 @@ public sealed class PostEffectFXAA : RenderCore, IPostEffect {
     /// <value>
     ///     The fxaa level.
     /// </value>
-    public FXAALevel FXAALevel {
+    public FxaaLevel FxaaLevel {
         get;
         set => SetAffectsCanRenderFlag(ref field, value);
-    } = FXAALevel.None;
+    } = FxaaLevel.None;
 
     public string EffectName {
         get;
         set => SetAffectsCanRenderFlag(ref field, value);
-    } = DefaultRenderTechniqueNames.PostEffectFXAA;
+    } = DefaultRenderTechniqueNames.PostEffectFxaa;
 
     protected override bool OnAttach(IRenderTechnique technique) {
-        FXAAPass = technique[DefaultPassNames.FXAAPass];
-        LUMAPass = technique[DefaultPassNames.LumaPass];
-        textureSlot = FXAAPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTB);
-        samplerSlot = FXAAPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
+        fxaaPass = technique[DefaultPassNames.FxaaPass];
+        lumaPass = technique[DefaultPassNames.LumaPass];
+        textureSlot = fxaaPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
+        samplerSlot = fxaaPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
         
         Sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
         return true;
@@ -67,32 +67,32 @@ public sealed class PostEffectFXAA : RenderCore, IPostEffect {
     protected override void OnDetach() => Sampler = null;
 
     protected override bool OnUpdateCanRenderFlag() 
-        => IsAttached && !string.IsNullOrEmpty(EffectName) && FXAALevel != FXAALevel.None;
+        => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FxaaLevel.None;
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         var buffer = context.RenderHost.RenderBuffer;
-        deviceContext.SetRenderTarget(buffer.FullResPPBuffer.NextRTV);
+        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.NextRtv);
         
         var viewport = context.Viewport;
         deviceContext.SetViewport(ref viewport);
         deviceContext.SetScissorRectangle(ref viewport);
         
         OnUpdatePerModelStruct(context);
-        modelCB.Upload(deviceContext, ref modelStruct);
+        modelCb.Upload(deviceContext, ref modelStruct);
         
-        LUMAPass.BindShader(deviceContext);
-        LUMAPass.BindStates(deviceContext, StateType.All);
+        lumaPass.BindShader(deviceContext);
+        lumaPass.BindStates(deviceContext, StateType.All);
         
-        LUMAPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.CurrentSRV);
-        LUMAPass.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler!); //sampler can't be null in render loop 
+        lumaPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.CurrentSrv);
+        lumaPass.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler!); //sampler can't be null in render loop 
         deviceContext.Draw(4, 0);
 
-        deviceContext.SetRenderTarget(buffer.FullResPPBuffer.CurrentRTV);
-        FXAAPass.BindShader(deviceContext);
-        FXAAPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPPBuffer.NextSRV);
+        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.CurrentRtv);
+        fxaaPass.BindShader(deviceContext);
+        fxaaPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.NextSrv);
         deviceContext.Draw(4, 0);
         
-        FXAAPass.PixelShader.BindTexture(deviceContext, textureSlot, null);
+        fxaaPass.PixelShader.BindTexture(deviceContext, textureSlot, null);
     }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
@@ -100,23 +100,23 @@ public sealed class PostEffectFXAA : RenderCore, IPostEffect {
                                        1 / context.ActualHeight,
                                        modelStruct.Color.GetBlue(),
                                        modelStruct.Color.GetAlpha());
-        switch (FXAALevel) {
-            case FXAALevel.Low:
+        switch (FxaaLevel) {
+            case FxaaLevel.Low:
                 modelStruct.Param.M11 = 0.25f;   //fxaaQualitySubpix
                 modelStruct.Param.M12 = 0.250f;  // FxaaFloat fxaaQualityEdgeThreshold,
                 modelStruct.Param.M13 = 0.0833f; // FxaaFloat fxaaQualityEdgeThresholdMin,
                 break;
-            case FXAALevel.Medium:
+            case FxaaLevel.Medium:
                 modelStruct.Param.M11 = 0.50f;
                 modelStruct.Param.M12 = 0.166f;
                 modelStruct.Param.M13 = 0.0625f;
                 break;
-            case FXAALevel.High:
+            case FxaaLevel.High:
                 modelStruct.Param.M11 = 0.75f;
                 modelStruct.Param.M12 = 0.125f;
                 modelStruct.Param.M13 = 0.0625f;
                 break;
-            case FXAALevel.Ultra:
+            case FxaaLevel.Ultra:
                 modelStruct.Param.M11 = 1.00f;
                 modelStruct.Param.M12 = 0.063f;
                 modelStruct.Param.M13 = 0.0312f;

@@ -167,14 +167,14 @@ internal sealed unsafe class InputLayout : IDisposable {
 internal static unsafe class D3DShaderConversions {
     public static FeatureLevel ToFeatureLevel(this SilkFeatureLevel featureLevel) {
         return featureLevel switch {
-            SilkFeatureLevel.Level_11_1 => FeatureLevel.Level_11_1,
-            SilkFeatureLevel.Level_11_0 => FeatureLevel.Level_11_0,
-            SilkFeatureLevel.Level_10_1 => FeatureLevel.Level_10_1,
-            SilkFeatureLevel.Level_10_0 => FeatureLevel.Level_10_0,
-            SilkFeatureLevel.Level_9_3 => FeatureLevel.Level_9_3,
-            SilkFeatureLevel.Level_9_2 => FeatureLevel.Level_9_2,
-            SilkFeatureLevel.Level_9_1 => FeatureLevel.Level_9_1,
-            _ => FeatureLevel.Level_DEFAULT
+            SilkFeatureLevel.Level111 => FeatureLevel.Level111,
+            SilkFeatureLevel.Level110 => FeatureLevel.Level110,
+            SilkFeatureLevel.Level101 => FeatureLevel.Level101,
+            SilkFeatureLevel.Level100 => FeatureLevel.Level100,
+            SilkFeatureLevel.Level93 => FeatureLevel.Level93,
+            SilkFeatureLevel.Level92 => FeatureLevel.Level92,
+            SilkFeatureLevel.Level91 => FeatureLevel.Level91,
+            _ => FeatureLevel.LevelDefault
         };
     }
 

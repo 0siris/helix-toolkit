@@ -10,7 +10,7 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 ///     Buffer based UAV/SRV view container.
 /// </summary>
-public sealed class UAVBufferViewProxy : IDisposable {
+public sealed class UavBufferViewProxy : IDisposable {
     private bool disposedValue;
     private Resource resource;
 
@@ -18,7 +18,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
 
     private UnorderedAccessView uav;
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         DeviceContextProxy context,
         ref BufferDescription bufferDesc,
         ref UnorderedAccessViewDescription uavDesc,
@@ -29,7 +29,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
         srv.CreateTextureView(ref srvDesc);
     }
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         DeviceContextProxy context,
         ref BufferDescription bufferDesc,
         ref UnorderedAccessViewDescription uavDesc
@@ -38,7 +38,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
         uav = context.NativeDevice.CreateUnorderedAccessView(resource, uavDesc);
     }
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         DeviceContextProxy context,
         ref Texture2DDescription texture2DDesc,
         ref UnorderedAccessViewDescription uavDesc,
@@ -47,7 +47,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
         throw new NotSupportedException("Texture based UAV views are migrated with the texture resource port.");
     }
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         object device,
         ref BufferDescription bufferDesc,
         ref UnorderedAccessViewDescription uavDesc,
@@ -57,7 +57,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
         // that are migrated in a later pass.
     }
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         object device,
         ref BufferDescription bufferDesc,
         ref UnorderedAccessViewDescription uavDesc
@@ -66,7 +66,7 @@ public sealed class UAVBufferViewProxy : IDisposable {
         // that are migrated in a later pass.
     }
 
-    public UAVBufferViewProxy(
+    public UavBufferViewProxy(
         object device,
         ref Texture2DDescription texture2DDesc,
         ref UnorderedAccessViewDescription uavDesc,
@@ -76,22 +76,22 @@ public sealed class UAVBufferViewProxy : IDisposable {
     }
 
     public Resource Resource => resource;
-    public UnorderedAccessView UAV => uav;
-    public ShaderResourceViewProxy SRV => srv;
+    public UnorderedAccessView Uav => uav;
+    public ShaderResourceViewProxy Srv => srv;
 
     public void Dispose() {
         Dispose(true);
     }
 
     public void CopyCount(DeviceContextProxy device, Buffer destBuffer, int offset) {
-        device.CopyStructureCount(destBuffer, offset, UAV);
+        device.CopyStructureCount(destBuffer, offset, Uav);
     }
 
-    public static implicit operator UnorderedAccessView(UAVBufferViewProxy proxy) {
+    public static implicit operator UnorderedAccessView(UavBufferViewProxy proxy) {
         return proxy?.uav;
     }
 
-    public static implicit operator ShaderResourceViewProxy(UAVBufferViewProxy proxy) {
+    public static implicit operator ShaderResourceViewProxy(UavBufferViewProxy proxy) {
         return proxy?.srv;
     }
 

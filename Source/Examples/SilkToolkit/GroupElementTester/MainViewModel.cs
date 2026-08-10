@@ -35,16 +35,16 @@ public class MainViewModel : BaseViewModel {
     public PhongMaterial BlueMaterial { get; } = PhongMaterials.Blue;
     public PhongMaterial GreenMaterial { get; } = PhongMaterials.Green;
 
-    public Transform3D GroupModel3DTransform { private set; get; } = new Media3D.TranslateTransform3D(5, 0, 0);
-    public Transform3D ItemsModel3DTransform { private set; get; } = new Media3D.TranslateTransform3D(0, 0, 5);
+    public Transform3D GroupModel3DTransform { private set; get; } = new TranslateTransform3D(5, 0, 0);
+    public Transform3D ItemsModel3DTransform { private set; get; } = new TranslateTransform3D(0, 0, 5);
 
-    public Transform3D Transform1 { get; } = new Media3D.TranslateTransform3D(0, 0, 0);
+    public Transform3D Transform1 { get; } = new TranslateTransform3D(0, 0, 0);
 
-    public Transform3D Transform2 { get; } = new Media3D.TranslateTransform3D(-2, 0, 0);
+    public Transform3D Transform2 { get; } = new TranslateTransform3D(-2, 0, 0);
 
-    public Transform3D Transform3 { get; } = new Media3D.TranslateTransform3D(-4, 0, 0);
+    public Transform3D Transform3 { get; } = new TranslateTransform3D(-4, 0, 0);
 
-    public Transform3D Transform4 { get; } = new Media3D.TranslateTransform3D(-6, 0, 0);
+    public Transform3D Transform4 { get; } = new TranslateTransform3D(-6, 0, 0);
 
     public ObservableElement3DCollection GroupModelSource { private set; get; } = [];
 
@@ -83,12 +83,12 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // ----------------------------------------------
         // titles
-        this.Title = "GroupElement Test";
-        this.SubTitle = "WPF & SharpDX";
+        Title = "GroupElement Test";
+        SubTitle = "WPF & SharpDX";
 
         // ----------------------------------------------
         // camera setup
-        this.Camera = new PerspectiveCamera {
+        Camera = new PerspectiveCamera {
             Position = new Point3D(10, 2, 10), LookDirection = new Vector3D(-10, -2, -10),
             UpDirection = new Vector3D(0, 1, 0)
         };
@@ -146,7 +146,7 @@ public class MainViewModel : BaseViewModel {
         var model = new MeshGeometryModel3D {
             Geometry = SphereModel,
             Material = BlueMaterial,
-            Transform = new Media3D.TranslateTransform3D(0, (GroupModelSource.Count + 1) * 2, 0)
+            Transform = new TranslateTransform3D(0, (GroupModelSource.Count + 1) * 2, 0)
         };
         GroupModelSource.Add(model);
     }
@@ -161,7 +161,7 @@ public class MainViewModel : BaseViewModel {
         var model = new MeshDataModel {
             Geometry = SphereModel,
             Material = GreenMaterial,
-            Transform = new Media3D.TranslateTransform3D(0, -(ItemsSource.Count) * 2, 0)
+            Transform = new TranslateTransform3D(0, -(ItemsSource.Count) * 2, 0)
         };
         ItemsSource.Add(model);
     }
@@ -184,10 +184,10 @@ public class MainViewModel : BaseViewModel {
         OnPropertyChanged(nameof(ItemsModel3DTransform));
     }
 
-    private static Media3D.Transform3D CreateAnimatedTransform1(
+    private static Transform3D CreateAnimatedTransform1(
         Media3D.Transform3DGroup transformGroup,
-        Media3D.Vector3D center,
-        Media3D.Vector3D axis,
+        Vector3D center,
+        Vector3D axis,
         double speed = 4
     ) {
         var rotateAnimation1 = new Rotation3DAnimation {
@@ -231,7 +231,7 @@ public class MainViewModel : BaseViewModel {
         diffuse.W = (float)rnd.Next(20, 60) / 100f;
         material.DiffuseColor = diffuse;
         model.Material = material;
-        model.Transform = new Media3D.TranslateTransform3D((float)rnd.Next(10, 100) / 10,
+        model.Transform = new TranslateTransform3D((float)rnd.Next(10, 100) / 10,
                                                            (float)rnd.Next(10, 100) / 10,
                                                            (float)rnd.Next(10, 100) / 10);
         model.IsTransparent = true;

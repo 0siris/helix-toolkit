@@ -12,7 +12,7 @@ public sealed class ContextSharedResource : IDisposable {
 
     public ShaderResourceViewProxy? EnvironementMap { get; set; }
 
-    public ShaderResourceViewProxy? SSAOMap { get; set; }
+    public ShaderResourceViewProxy? SsaoMap { get; set; }
 
     public int EnvironmentMapMipLevels { get; set; }
 
@@ -25,7 +25,7 @@ public sealed class ContextSharedResource : IDisposable {
             if (disposing) {
                 ShadowView = null;
                 EnvironementMap = null;
-                SSAOMap = null;
+                SsaoMap = null;
                 // TODO: dispose managed state (managed objects).
             }
 

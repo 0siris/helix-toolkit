@@ -641,7 +641,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             renderHostInternal.ExceptionOccurred += HandleRenderException;
             renderHostInternal.ClearColor = BackgroundColor.ToColor4();
             renderHostInternal.IsShadowMapEnabled = IsShadowMappingEnabled;
-            renderHostInternal.MSAA = MSAA;
+            renderHostInternal.Msaa = MSAA;
             renderHostInternal.EnableRenderFrustum = EnableRenderFrustum;
             renderHostInternal.EnableSharingModelMode = EnableSharedModelMode;
             renderHostInternal.SharedModelContainer = SharedModelContainer;
@@ -650,22 +650,22 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             renderHostInternal.IsRendering = Visibility == Visibility.Visible;
             renderHostInternal.RenderConfiguration.RenderD2D = EnableD2DRendering;
             renderHostInternal.RenderConfiguration.AutoUpdateOctree = EnableAutoOctreeUpdate;
-            renderHostInternal.RenderConfiguration.OITRenderType = OITRenderMode;
-            renderHostInternal.RenderConfiguration.OITWeightPower = (float)OITWeightPower;
-            renderHostInternal.RenderConfiguration.OITWeightDepthSlope = (float)OITWeightDepthSlope;
-            renderHostInternal.RenderConfiguration.OITWeightMode = OITWeightMode;
-            renderHostInternal.RenderConfiguration.OITDepthPeelingIteration = OITDepthPeelingIteration;
-            renderHostInternal.RenderConfiguration.FXAALevel = FXAALevel;
+            renderHostInternal.RenderConfiguration.OitRenderType = OITRenderMode;
+            renderHostInternal.RenderConfiguration.OitWeightPower = (float)OITWeightPower;
+            renderHostInternal.RenderConfiguration.OitWeightDepthSlope = (float)OITWeightDepthSlope;
+            renderHostInternal.RenderConfiguration.OitWeightMode = OITWeightMode;
+            renderHostInternal.RenderConfiguration.OitDepthPeelingIteration = OITDepthPeelingIteration;
+            renderHostInternal.RenderConfiguration.FxaaLevel = FXAALevel;
             renderHostInternal.RenderConfiguration.EnableRenderOrder = EnableRenderOrder;
-            renderHostInternal.RenderConfiguration.EnableSSAO = EnableSSAO;
-            renderHostInternal.RenderConfiguration.SSAORadius = (float)SSAOSamplingRadius;
-            renderHostInternal.RenderConfiguration.SSAOIntensity = (float)SSAOIntensity;
-            renderHostInternal.RenderConfiguration.SSAOQuality = SSAOQuality;
+            renderHostInternal.RenderConfiguration.EnableSsao = EnableSSAO;
+            renderHostInternal.RenderConfiguration.SsaoRadius = (float)SSAOSamplingRadius;
+            renderHostInternal.RenderConfiguration.SsaoIntensity = (float)SSAOIntensity;
+            renderHostInternal.RenderConfiguration.SsaoQuality = SSAOQuality;
             renderHostInternal.RenderConfiguration.MinimumUpdateCount = (uint)Math.Max(0, MinimumUpdateCount);
             if (ShowFrameRate)
-                renderHostInternal.ShowRenderDetail |= RenderDetail.FPS;
+                renderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
             else
-                renderHostInternal.ShowRenderDetail &= ~RenderDetail.FPS;
+                renderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
             if (ShowFrameDetails)
                 renderHostInternal.ShowRenderDetail |= RenderDetail.Statistics;
             else
@@ -1210,7 +1210,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The rendering event handler.
     /// </summary>
     private void OnCompositionTargetRendering() {
-        FrameRate = Math.Round(renderHostInternal.RenderStatistics.FPSStatistics.AverageFrequency, 2);
+        FrameRate = Math.Round(renderHostInternal.RenderStatistics.FpsStatistics.AverageFrequency, 2);
         FrameRateText = FrameRate + " FPS";
     }
 

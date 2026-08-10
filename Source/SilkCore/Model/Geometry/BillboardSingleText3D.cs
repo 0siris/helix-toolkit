@@ -257,23 +257,23 @@ public class BillboardSingleText3D : BillboardBase {
     private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info) {
         GetQuadOffset(w, h, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
-        var uv_tl = new Vector2(0, 0);
-        var uv_br = new Vector2(1, 1);
-        var transform = info.Angle != 0 ? Matrix3x2.Rotation(info.Angle) : Matrix3x2.Identity;
-        var offTL = tl * info.Scale;
-        var offBR = br * info.Scale;
-        var offTR = new Vector2(offBR.X, offTL.Y);
-        var offBL = new Vector2(offTL.X, offBR.Y);
+        var uvTl = new Vector2(0, 0);
+        var uvBr = new Vector2(1, 1);
+        var transform = info.Angle != 0 ? Matrix3X2.Rotation(info.Angle) : Matrix3X2.Identity;
+        var offTl = tl * info.Scale;
+        var offBr = br * info.Scale;
+        var offTr = new Vector2(offBr.X, offTl.Y);
+        var offBl = new Vector2(offTl.X, offBr.Y);
         BillboardVertices.Add(new BillboardVertex {
             Position = info.Origin.ToVector4(),
             Foreground = FontColor,
             Background = BackgroundColor,
-            TexTL = uv_tl,
-            TexBR = uv_br,
-            OffTL = Matrix3x2.TransformPoint(transform, offTL) + Offset,
-            OffBL = Matrix3x2.TransformPoint(transform, offBL) + Offset,
-            OffBR = Matrix3x2.TransformPoint(transform, offBR) + Offset,
-            OffTR = Matrix3x2.TransformPoint(transform, offTR) + Offset
+            TexTL = uvTl,
+            TexBR = uvBr,
+            OffTL = Matrix3X2.TransformPoint(transform, offTl) + Offset,
+            OffBL = Matrix3X2.TransformPoint(transform, offBl) + Offset,
+            OffBR = Matrix3X2.TransformPoint(transform, offBr) + Offset,
+            OffTR = Matrix3X2.TransformPoint(transform, offTr) + Offset
         });
     }
 
@@ -285,9 +285,9 @@ public class BillboardSingleText3D : BillboardBase {
         object originalSource,
         bool fixedSize
     ) {
-        var rayWS = context.RayWS;
+        var rayWs = context.RayWs;
         if (!IsInitialized || context == null || Width == 0 || Height == 0
-            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWS)))
+            || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 
         return fixedSize

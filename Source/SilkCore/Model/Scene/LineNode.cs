@@ -54,7 +54,7 @@ public class LineNode : MaterialGeometryNode {
             IsDepthClipEnabled = IsDepthClipEnabled,
             IsFrontCounterClockwise = true,
 
-            IsMultisampleEnabled = IsMSAAEnabled,
+            IsMultisampleEnabled = IsMsaaEnabled,
             //IsAntialiasedLineEnabled = true, // Intel HD 3000 doesn't like this (#10051) and it's not needed
             IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
         };
@@ -87,7 +87,7 @@ public class LineNode : MaterialGeometryNode {
     }
 
     protected override bool PreHitTestOnBounds(HitTestContext context) {
-        var rayWS = context.RayWS;
-        return BoundsSphereWithTransform.Intersects(ref rayWS);
+        var rayWs = context.RayWs;
+        return BoundsSphereWithTransform.Intersects(ref rayWs);
     }
 }

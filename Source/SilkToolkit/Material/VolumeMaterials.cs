@@ -20,7 +20,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                     new PropertyMetadata(DefaultSamplers.VolumeSampler,
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
-                                                              VolumeTextureDDS3DMaterialCore).Sampler =
+                                                              VolumeTextureDds3DMaterialCore).Sampler =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
 
@@ -210,13 +210,13 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as VolumeTextureDDS3DMaterial).Core as
-                                                              VolumeTextureDDS3DMaterialCore).VolumeTexture =
+                                                              VolumeTextureDds3DMaterialCore).VolumeTexture =
                                                                  (TextureModel)e.NewValue;
                                                          }));
 
     public VolumeTextureDDS3DMaterial() { }
 
-    public VolumeTextureDDS3DMaterial(VolumeTextureDDS3DMaterialCore core) : base(core) {
+    public VolumeTextureDDS3DMaterial(VolumeTextureDds3DMaterialCore core) : base(core) {
         Texture = core.VolumeTexture;
     }
 
@@ -232,7 +232,7 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
     }
 
     protected override MaterialCore OnCreateCore() {
-        return new VolumeTextureDDS3DMaterialCore {
+        return new VolumeTextureDds3DMaterialCore {
             Name = Name,
             VolumeTexture = Texture,
             SampleDistance = SampleDistance,

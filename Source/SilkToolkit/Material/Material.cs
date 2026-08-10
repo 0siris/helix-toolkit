@@ -30,7 +30,7 @@ public abstract class Material : Freezable {
     /// </summary>
     /// <param name="core">The core.</param>
     public Material(MaterialCore core) {
-        this.Core = core;
+        Core = core;
         Name = core.Name;
     }
 

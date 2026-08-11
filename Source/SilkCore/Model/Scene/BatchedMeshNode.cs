@@ -184,10 +184,9 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <returns>
     ///     <c>true</c> if this instance [can hit test] the specified context; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool CanHitTest(HitTestContext context) {
-        return base.CanHitTest(context) && Geometries != null && Geometries.Length > 0 && Materials != null &&
-               Materials.Length > 0;
-    }
+    protected override bool CanHitTest(HitTestContext context) 
+        => base.CanHitTest(context) && Geometries != null && Geometries.Length > 0 && Materials != null &&
+                                                                  Materials.Length > 0;
 
     /// <summary>
     ///     Updates the not render.

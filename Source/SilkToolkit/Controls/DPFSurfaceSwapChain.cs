@@ -14,12 +14,10 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -62,7 +60,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         SetupImage();
     }
 
-    public bool IncreaseFPS { get; set; } = true;
+    public bool IncreaseFps { get; set; } = true;
 
     /// <summary>
     ///     Gets or sets the render host.
@@ -199,7 +197,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
 
 
     private void CompositionTarget_Rendering(object? sender, RenderingEventArgs e) {
-        if (RenderHost.UpdateAndRender() && IncreaseFPS) image3D?.InvalidateD3DImage();
+        if (RenderHost.UpdateAndRender() && IncreaseFps) image3D?.InvalidateD3DImage();
     }
 
     /// <summary>

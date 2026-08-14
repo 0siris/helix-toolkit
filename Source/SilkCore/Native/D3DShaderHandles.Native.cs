@@ -12,8 +12,6 @@ using SilkD3D11InputLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.
 using SilkD3D11PixelShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11PixelShader>;
 using SilkD3D11VertexShaderPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11VertexShader>;
 
-using HelixToolkit.SharpDX.Core;
-
 namespace HelixToolkit.SharpDX.Core.Native;
 internal unsafe interface IShaderHandle {
     int StageIndex { get; }

@@ -54,8 +54,8 @@ public class DiffuseMaterial : Material {
     /// <summary>
     ///     The uv transform property
     /// </summary>
-    public static readonly DependencyProperty UVTransformProperty =
-        DependencyProperty.Register("UVTransform",
+    public static readonly DependencyProperty UvTransformProperty =
+        DependencyProperty.Register("UvTransform",
                                     typeof(UvTransform),
                                     typeof(DiffuseMaterial),
                                     new PropertyMetadata(UvTransform.Identity,
@@ -103,7 +103,7 @@ public class DiffuseMaterial : Material {
     public DiffuseMaterial(DiffuseMaterialCore core) : base(core) {
         DiffuseColor = core.DiffuseColor;
         DiffuseMap = core.DiffuseMap;
-        UVTransform = core.UvTransform;
+        UvTransform = core.UvTransform;
         DiffuseMapSampler = core.DiffuseMapSampler;
         EnableUnLit = core.EnableUnLit;
         EnableFlatShading = core.EnableFlatShading;
@@ -145,9 +145,9 @@ public class DiffuseMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UvTransform UVTransform {
-        get => (UvTransform)GetValue(UVTransformProperty);
-        set => SetValue(UVTransformProperty, value);
+    public UvTransform UvTransform {
+        get => (UvTransform)GetValue(UvTransformProperty);
+        set => SetValue(UvTransformProperty, value);
     }
 
 
@@ -188,7 +188,7 @@ public class DiffuseMaterial : Material {
     protected override MaterialCore OnCreateCore() => new DiffuseMaterialCore {
         DiffuseColor = DiffuseColor,
         DiffuseMap = DiffuseMap,
-        UvTransform = UVTransform,
+        UvTransform = UvTransform,
         DiffuseMapSampler = DiffuseMapSampler,
         EnableUnLit = EnableUnLit,
         EnableFlatShading = EnableFlatShading,
@@ -199,7 +199,7 @@ public class DiffuseMaterial : Material {
         DiffuseColor = DiffuseColor,
         DiffuseMap = DiffuseMap,
         DiffuseMapSampler = DiffuseMapSampler,
-        UVTransform = UVTransform,
+        UvTransform = UvTransform,
         Name = Name,
         EnableUnLit = EnableUnLit,
         EnableFlatShading = EnableFlatShading,
@@ -223,7 +223,7 @@ public class DiffuseMaterialCollection : ObservableCollection<DiffuseMaterial> {
         Add(DiffuseMaterials.Bronze);
         Add(DiffuseMaterials.Chrome);
         Add(DiffuseMaterials.Copper);
-        Add(DiffuseMaterials.DefaultVRML);
+        Add(DiffuseMaterials.DefaultVrml);
         Add(DiffuseMaterials.Emerald);
         Add(DiffuseMaterials.Glass);
         Add(DiffuseMaterials.Gold);
@@ -490,7 +490,7 @@ public static class DiffuseMaterials {
             DiffuseColor = ToColor(0.01, 0.01, 0.01)
         };
 
-    public static DiffuseMaterial DefaultVRML =>
+    public static DiffuseMaterial DefaultVrml =>
         new() {
             Name = "DefaultVRML",
             DiffuseColor = ToColor(0.8, 0.8, 0.8)
@@ -498,7 +498,7 @@ public static class DiffuseMaterials {
 
     public static DiffuseMaterial GetMaterial(string materialName) {
         var mat = Materials.FirstOrDefault(x => x.Name == materialName);
-        return mat ?? DefaultVRML;
+        return mat ?? DefaultVrml;
     }
 
     public static Color4 ToColor(double r, double g, double b, double a = 1.0) => FromScRgb((float)a, (float)r, (float)g, (float)b);

@@ -5,13 +5,6 @@
 
 using System;
 using System.Windows;
-using System.Windows.Data;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Converters;
-using HelixToolkit.Wpf.SharpDX.Elements2D;
-using HelixToolkit.Wpf.SharpDX.Model;
-using Point3D = System.Windows.Media.Media3D.Point3D;
 
 namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 using HelixToolkit.SharpDX.Core;
@@ -102,43 +95,43 @@ public sealed class MoverButton2D : Button2D {
 /// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.ScreenSpacePositionMoverBase" />
 public class ScreenSpacePositionMover : ScreenSpacePositionMoverBase {
     private readonly Button2D[] buttons = new Button2D[4];
-    private readonly Button2D MoveLeftBottom;
-    private readonly Button2D MoveLeftTop;
-    private readonly Button2D MoveRightBottom;
-    private readonly Button2D MoveRightTop;
+    private readonly Button2D moveLeftBottom;
+    private readonly Button2D moveLeftTop;
+    private readonly Button2D moveRightBottom;
+    private readonly Button2D moveRightTop;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ScreenSpacePositionMover" /> class.
     /// </summary>
     public ScreenSpacePositionMover() {
-        MoveLeftTop = new MoverButton2D {
+        moveLeftTop = new MoverButton2D {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
             BorderThickness = new Thickness(2, 0, 0, 2)
         };
 
-        MoveRightTop = new MoverButton2D {
+        moveRightTop = new MoverButton2D {
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
             BorderThickness = new Thickness(2, 2, 0, 0)
         };
 
-        MoveLeftBottom = new MoverButton2D {
+        moveLeftBottom = new MoverButton2D {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Bottom,
             BorderThickness = new Thickness(0, 0, 2, 2)
         };
 
-        MoveRightBottom = new MoverButton2D {
+        moveRightBottom = new MoverButton2D {
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
             BorderThickness = new Thickness(0, 2, 2, 0)
         };
 
-        buttons[0] = MoveLeftTop;
-        buttons[1] = MoveLeftBottom;
-        buttons[2] = MoveRightTop;
-        buttons[3] = MoveRightBottom;
+        buttons[0] = moveLeftTop;
+        buttons[1] = moveLeftBottom;
+        buttons[2] = moveRightTop;
+        buttons[3] = moveRightBottom;
 
         Width = 100;
         Height = 100;
@@ -148,10 +141,10 @@ public class ScreenSpacePositionMover : ScreenSpacePositionMoverBase {
             Children.Add(b);
         }
 
-        MoveLeftTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftTop); };
-        MoveLeftBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftBottom); };
-        MoveRightTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightTop); };
-        MoveRightBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightBottom); };
+        moveLeftTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftTop); };
+        moveLeftBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftBottom); };
+        moveRightTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightTop); };
+        moveRightBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightBottom); };
     }
 
     protected override SceneNode2D OnCreateSceneNode() => new Node2DMover { Buttons = buttons };

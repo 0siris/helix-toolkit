@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using Microsoft.Extensions.Logging;
 using Bone = HelixToolkit.SharpDX.Core.Animations.Bone;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
@@ -37,7 +36,7 @@ public partial class Exporter {
         MeshInfo? info = null;
         if (geoNode is MaterialGeometryNode materialNode && materialNode.Material != null) {
             var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
-            if (!meshInfos.TryGetValue(key, out var existing))
+            if (!MeshInfos.TryGetValue(key, out var existing))
                 info = new MeshInfo(key, geoNode.Geometry, geoNode.Name, geoIndex, materialIndex);
             else
                 info = existing;
@@ -49,9 +48,9 @@ public partial class Exporter {
     }
 
     private ulong GetMaterialGeoKey(GeometryNode node, out int materialIndex, out int geoIndex) {
-        if (geometryCollection.TryGetValue(node.Geometry, out geoIndex)) {
+        if (GeometryCollection.TryGetValue(node.Geometry, out geoIndex)) {
             if (node is MaterialGeometryNode materialNode && materialNode.Material != null
-                                                                      && materialCollection.TryGetValue(
+                                                                      && MaterialCollection.TryGetValue(
                                                                           materialNode.Material,
                                                                           out materialIndex))
                 return GetMaterialGeoKey(materialIndex, geoIndex);
@@ -76,7 +75,7 @@ public partial class Exporter {
     protected virtual Mesh OnCreateAssimpMesh(MeshInfo info) {
         var assimpMesh =
             new Mesh(string.IsNullOrEmpty(info.Name)
-                         ? $"Mesh_{Interlocked.Increment(ref MeshIndexForNoName)}"
+                         ? $"Mesh_{Interlocked.Increment(ref meshIndexForNoName)}"
                          : info.Name) { MaterialIndex = info.MaterialIndex };
         if (info.Mesh.Positions != null && info.Mesh.Positions.Count > 0)
             assimpMesh.Vertices.AddRange(info.Mesh.Positions.Select(x => x.ToAssimpVector3D()));

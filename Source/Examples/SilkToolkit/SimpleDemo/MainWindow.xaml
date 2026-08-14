@@ -46,7 +46,7 @@
             CoordinateSystemLabelForeground="#434343"
             EffectsManager="{Binding EffectsManager}"
             EnableDesignModeRendering="True"
-            FXAALevel="Low" EnableSwapChainRendering="False"
+            FxaaLevel="Low" EnableSwapChainRendering="False"
             ModelUpDirection="{Binding UpDirection}"
             ShowCoordinateSystem="True"
             SubTitle="{Binding SubTitle}"

@@ -31,8 +31,8 @@
             CameraRotationMode="Turnball"
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
-            OITRenderMode="{Binding OITRenderType}"
-            FXAALevel="Medium" EnableSwapChainRendering="True" EnableD2DRendering="False"
+            OitRenderMode="{Binding OitRenderType}"
+            FxaaLevel="Medium" EnableSwapChainRendering="True" EnableD2DRendering="False"
             ShowCoordinateSystem="True">
             <hx:Viewport3DX.InputBindings>
                 <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
@@ -74,35 +74,35 @@
             </Button>
             <CheckBox Foreground="White" IsChecked="{Binding ShowWireframe}">Show Wireframe</CheckBox>
             <ComboBox ItemsSource="{Binding MaterialTypes}" SelectedItem="{Binding MaterialType}" />
-            <ComboBox ItemsSource="{Binding OITRenderTypes}" SelectedItem="{Binding OITRenderType}"></ComboBox>
-            <StackPanel Orientation="Vertical" IsEnabled="{Binding OITDepthPeelModeEnabled}" Margin="2, 4">
+            <ComboBox ItemsSource="{Binding OitRenderTypes}" SelectedItem="{Binding OitRenderType}"></ComboBox>
+            <StackPanel Orientation="Vertical" IsEnabled="{Binding OitDepthPeelModeEnabled}" Margin="2, 4">
                 <Label Foreground="White">Depth Peeling Iteration:</Label>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White" Width="14"
-                               Text="{Binding ElementName=view, Path=OITDepthPeelingIteration}">
+                               Text="{Binding ElementName=view, Path=OitDepthPeelingIteration}">
                     </TextBlock>
-                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=view, Path=OITDepthPeelingIteration}"
+                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=view, Path=OitDepthPeelingIteration}"
                             Width="100" />
                 </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Vertical" IsEnabled="{Binding OITWeightedModeEnabled}">
-                <ComboBox ItemsSource="{Binding OITWeights}"
-                          SelectedItem="{Binding ElementName=view, Path=OITWeightMode}" />
+            <StackPanel Orientation="Vertical" IsEnabled="{Binding OitWeightedModeEnabled}">
+                <ComboBox ItemsSource="{Binding OitWeights}"
+                          SelectedItem="{Binding ElementName=view, Path=OitWeightMode}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Power:</TextBlock>
                     <TextBlock Foreground="#FFF400"
-                               Text="{Binding ElementName=view, Path=OITWeightPower, StringFormat={}{0:#,0.0}}" />
+                               Text="{Binding ElementName=view, Path=OitWeightPower, StringFormat={}{0:#,0.0}}" />
                 </StackPanel>
                 <Slider
                     LargeChange="1"
                     Maximum="5"
                     Minimum="0.5"
                     SmallChange="0.1"
-                    Value="{Binding ElementName=view, Path=OITWeightPower}" />
+                    Value="{Binding ElementName=view, Path=OitWeightPower}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Slope:</TextBlock>
                     <TextBlock Foreground="#FFF400"
-                               Text="{Binding ElementName=view, Path=OITWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
+                               Text="{Binding ElementName=view, Path=OitWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
                 </StackPanel>
             </StackPanel>
 
@@ -111,7 +111,7 @@
                 Maximum="5"
                 Minimum="1"
                 SmallChange="0.5"
-                Value="{Binding ElementName=view, Path=OITWeightDepthSlope}" />
+                Value="{Binding ElementName=view, Path=OitWeightDepthSlope}" />
             <CheckBox Foreground="White" IsChecked="{Binding HighlightSeparated}">HighlightSeparated</CheckBox>
             <Separator />
             <TextBlock>

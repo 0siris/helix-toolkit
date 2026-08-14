@@ -248,7 +248,7 @@ public abstract class Element2D : Element2DCore, ITransformable2D, IHitable2D {
                                                                  e.NewValue == null
                                                                      ? Matrix3X2.Identity
                                                                      : ((Media.Transform)e.NewValue).Value
-                                                                     .ToMatrix3x2();
+                                                                     .ToMatrix3X2();
                                                          }));
 
     /// <summary>

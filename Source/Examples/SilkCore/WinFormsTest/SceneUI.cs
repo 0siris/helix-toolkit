@@ -1,40 +1,30 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using ImGuiNET;
 
 namespace WinFormsTest;
 
-public static class SceneUI {
-    private static bool showImGuiDemo = false;
-    private static string exception = "";
-    private static bool loading = false;
-    private static string modelName = "";
-    private static long currentTime = 0;
+public static class SceneUi {
+    private static bool _showImGuiDemo = false;
+    private static string _exception = "";
+    private static bool _loading = false;
+    private static string _modelName = "";
+    private static long _currentTime = 0;
     public static string SomeTextFromOutside = "";
 
-    public static HelixToolkitScene scene;
-    public static IList<IAnimationUpdater> animationUpdaters;
+    public static HelixToolkitScene Scene;
+    public static IList<IAnimationUpdater> AnimationUpdaters;
 
-    private static bool[] animationSelection = [];
-    private static string[] animationNames = [];
-    private static int currentSelectedAnimation = -1;
-    private const int frameDataLength = 128;
-    private static float[] fps = new float[frameDataLength];
-    private static float[] frustumTest = new float[frameDataLength];
-    private static float[] latency = new float[frameDataLength];
-    private static int currFPSIndex = 0;
+    private static bool[] _animationSelection = [];
+    private static string[] _animationNames = [];
+    private static int _currentSelectedAnimation = -1;
+    private const int FrameDataLength = 128;
+    private static float[] _fps = new float[FrameDataLength];
+    private static float[] _frustumTest = new float[FrameDataLength];
+    private static float[] _latency = new float[FrameDataLength];
+    private static int _currFpsIndex = 0;
 
-    public static void DrawUI(int width, int height, ref ViewportOptions options, GroupNode rootNode) {
+    public static void DrawUi(int width, int height, ref ViewportOptions options, GroupNode rootNode) {
         ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(250, 350));
         bool opened = true;
@@ -42,7 +32,7 @@ public static class SceneUI {
                     ref opened,
                     ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse);
         if (ImGui.BeginMenuBar()) {
-            if (ImGui.BeginMenu("Load Model", !loading)) {
+            if (ImGui.BeginMenu("Load Model", !_loading)) {
                 if (ImGui.MenuItem("Open")) {
                     LoadModel(rootNode, options.ShowEnvironmentMap);
                 }
@@ -66,8 +56,8 @@ public static class SceneUI {
                                   ImGuiSliderFlags.AlwaysClamp);
                 ImGui.Separator();
                 ImGui.Checkbox("Show EnvironmentMap", ref options.ShowEnvironmentMap);
-                ImGui.Checkbox("Enable SSAO", ref options.EnableSSAO);
-                ImGui.Checkbox("Enable FXAA", ref options.EnableFXAA);
+                ImGui.Checkbox("Enable SSAO", ref options.EnableSsao);
+                ImGui.Checkbox("Enable FXAA", ref options.EnableFxaa);
                 ImGui.Checkbox("Enable Frustum", ref options.EnableFrustum);
                 ImGui.Checkbox("Enable DpiScale", ref options.EnableDpiScale);
                 if (ImGui.Checkbox("Show Wireframe", ref options.ShowWireframe)) {
@@ -79,9 +69,9 @@ public static class SceneUI {
                 ImGui.EndMenu();
             }
 
-            if (!showImGuiDemo && ImGui.BeginMenu("ImGui Demo")) {
+            if (!_showImGuiDemo && ImGui.BeginMenu("ImGui Demo")) {
                 if (ImGui.MenuItem("Show")) {
-                    showImGuiDemo = true;
+                    _showImGuiDemo = true;
                 }
 
                 ImGui.EndMenu();
@@ -102,59 +92,59 @@ public static class SceneUI {
         ImGui.Separator();
         ImGui.Text("FPS");
         ImGui.PlotLines("",
-                        ref fps[0],
-                        fps.Length,
+                        ref _fps[0],
+                        _fps.Length,
                         0,
-                        $"{fps[currFPSIndex]}",
+                        $"{_fps[_currFpsIndex]}",
                         30,
                         70,
                         new System.Numerics.Vector2(200, 50));
         ImGui.Text("Rendering Latency Ms");
         ImGui.PlotLines("",
-                        ref latency[0],
-                        latency.Length,
+                        ref _latency[0],
+                        _latency.Length,
                         0,
-                        $"{latency[currFPSIndex]}ms",
+                        $"{_latency[_currFpsIndex]}ms",
                         0,
                         5,
                         new System.Numerics.Vector2(200, 50));
-        fps[currFPSIndex] = 1000f / (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        latency[currFPSIndex] = (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        frustumTest[currFPSIndex] = (float)options.Viewport.RenderHost.RenderStatistics.FrustumTestTime * 1000;
+        _fps[_currFpsIndex] = 1000f / (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
+        _latency[_currFpsIndex] = (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
+        _frustumTest[_currFpsIndex] = (float)options.Viewport.RenderHost.RenderStatistics.FrustumTestTime * 1000;
         ImGui.Text("Frustum Test Ms");
         ImGui.PlotLines("",
-                        ref frustumTest[0],
-                        frustumTest.Length,
+                        ref _frustumTest[0],
+                        _frustumTest.Length,
                         0,
-                        $"{frustumTest[currFPSIndex]}ms",
+                        $"{_frustumTest[_currFpsIndex]}ms",
                         0,
                         5,
                         new System.Numerics.Vector2(200, 50));
-        currFPSIndex = (currFPSIndex + 1) % frameDataLength;
+        _currFpsIndex = (_currFpsIndex + 1) % FrameDataLength;
 
-        if (!loading && ImGui.CollapsingHeader("Scene Graph", ImGuiTreeNodeFlags.DefaultOpen)) {
+        if (!_loading && ImGui.CollapsingHeader("Scene Graph", ImGuiTreeNodeFlags.DefaultOpen)) {
             DrawSceneGraph(rootNode);
         }
 
-        if (!loading && scene != null && scene.Animations != null) {
+        if (!_loading && Scene != null && Scene.Animations != null) {
             DrawAnimations(ref options);
         }
 
-        if (!loading && !string.IsNullOrEmpty(exception)) {
+        if (!_loading && !string.IsNullOrEmpty(_exception)) {
             ImGui.Separator();
-            ImGui.Text(exception);
+            ImGui.Text(_exception);
         }
 
-        if (loading) {
-            ImGui.Text($"Loading: {modelName}");
-            var progress = ((float)(Stopwatch.GetTimestamp() - currentTime) / Stopwatch.Frequency) * 100 % 100;
+        if (_loading) {
+            ImGui.Text($"Loading: {_modelName}");
+            var progress = ((float)(Stopwatch.GetTimestamp() - _currentTime) / Stopwatch.Frequency) * 100 % 100;
             ImGui.ProgressBar(progress / 100, new System.Numerics.Vector2(width, 20), "");
         }
 
         ImGui.End();
-        if (showImGuiDemo) {
+        if (_showImGuiDemo) {
             opened = false;
-            ImGui.ShowDemoWindow(ref showImGuiDemo);
+            ImGui.ShowDemoWindow(ref _showImGuiDemo);
         }
     }
 
@@ -164,15 +154,15 @@ public static class SceneUI {
         };
         if (dialog.ShowDialog() == DialogResult.OK) {
             var path = dialog.FileName;
-            exception = "";
-            currentTime = Stopwatch.GetTimestamp();
-            loading = true;
-            modelName = Path.GetFileName(path);
+            _exception = "";
+            _currentTime = Stopwatch.GetTimestamp();
+            _loading = true;
+            _modelName = Path.GetFileName(path);
             Task.Run(() => {
                 var importer = new Importer();
                 return importer.Load(path);
             }).ContinueWith((x) => {
-                loading = false;
+                _loading = false;
                 if (x.IsCompleted && x.Result != null) {
                     node.Clear();
                     foreach (var model in x.Result.Root.Traverse()) {
@@ -186,15 +176,15 @@ public static class SceneUI {
                     }
 
                     node.AddChildNode(x.Result.Root);
-                    scene = x.Result;
-                    if (scene.Animations != null && scene.Animations.Count > 0) {
-                        animationUpdaters = [.. scene.Animations.CreateAnimationUpdaters().Values];
-                        animationSelection = new bool[animationUpdaters.Count];
-                        animationNames = [.. animationUpdaters.Select((ani) => ani.Name)];
-                        currentSelectedAnimation = -1;
+                    Scene = x.Result;
+                    if (Scene.Animations != null && Scene.Animations.Count > 0) {
+                        AnimationUpdaters = [.. Scene.Animations.CreateAnimationUpdaters().Values];
+                        _animationSelection = new bool[AnimationUpdaters.Count];
+                        _animationNames = [.. AnimationUpdaters.Select((ani) => ani.Name)];
+                        _currentSelectedAnimation = -1;
                     }
                 } else if (x.Exception != null) {
-                    exception = x.Exception.Message;
+                    _exception = x.Exception.Message;
                 }
             },
                             TaskScheduler.FromCurrentSynchronizationContext());
@@ -230,12 +220,12 @@ public static class SceneUI {
     }
 
     private static void DrawAnimations(ref ViewportOptions options) {
-        if (animationNames.Length > 0) {
-            ImGui.Text($"Animations: {animationNames.Length}");
-            if (ImGui.Combo(" ", ref currentSelectedAnimation, animationNames, animationNames.Length)) {
+        if (_animationNames.Length > 0) {
+            ImGui.Text($"Animations: {_animationNames.Length}");
+            if (ImGui.Combo(" ", ref _currentSelectedAnimation, _animationNames, _animationNames.Length)) {
                 options.InitTimeStamp = 0;
-                if (currentSelectedAnimation >= 0 && currentSelectedAnimation < animationNames.Length) {
-                    options.AnimationUpdater = animationUpdaters[currentSelectedAnimation];
+                if (_currentSelectedAnimation >= 0 && _currentSelectedAnimation < _animationNames.Length) {
+                    options.AnimationUpdater = AnimationUpdaters[_currentSelectedAnimation];
                     options.AnimationUpdater.Reset();
                     options.AnimationUpdater.RepeatMode = AnimationRepeatMode.Loop;
                     options.PlayAnimation = true;

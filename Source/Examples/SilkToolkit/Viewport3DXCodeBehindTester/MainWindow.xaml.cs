@@ -1,19 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -116,27 +103,27 @@ public class ViewModel : BaseViewModel {
 }
 
 public class Models {
-    private IList<Geometry3D> models { get; } = [];
+    private IList<Geometry3D> Models { get; } = [];
     private PhongMaterialCollection materials = [];
     private Random rnd = new();
 
     public Models() {
         var builder = new MeshBuilder();
         builder.AddSphere(Vector3.Zero, 1);
-        models.Add(builder.ToMesh());
+        Models.Add(builder.ToMesh());
 
         builder = new MeshBuilder();
         builder.AddBox(Vector3.Zero, 1, 1, 1);
-        models.Add(builder.ToMesh());
+        Models.Add(builder.ToMesh());
 
         builder = new MeshBuilder();
         builder.AddDodecahedron(Vector3.Zero, new Vector3(1, 0, 0), new Vector3(0, 1, 0), 1);
-        models.Add(builder.ToMesh());
+        Models.Add(builder.ToMesh());
     }
 
     public MeshGeometryModel3D GetModelRandom() {
-        var idx = rnd.Next(0, models.Count);
-        MeshGeometryModel3D model = new MeshGeometryModel3D() { Geometry = models[idx], CullMode = CullMode.Back };
+        var idx = rnd.Next(0, Models.Count);
+        MeshGeometryModel3D model = new MeshGeometryModel3D() { Geometry = Models[idx], CullMode = CullMode.Back };
         var scale = new System.Windows.Media.Media3D.ScaleTransform3D(rnd.NextDouble(1, 5),
                                                                       rnd.NextDouble(1, 5),
                                                                       rnd.NextDouble(1, 5));
@@ -158,8 +145,8 @@ public class Models {
     }
 
     public MeshNode GetSceneNodeRandom() {
-        var idx = rnd.Next(0, models.Count);
-        MeshNode model = new MeshNode() { Geometry = models[idx], CullMode = CullMode.Back };
+        var idx = rnd.Next(0, Models.Count);
+        MeshNode model = new MeshNode() { Geometry = Models[idx], CullMode = CullMode.Back };
         var scale = Scaling((float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5));
         var translate = Translation((float)rnd.NextDouble(-20, 20),
                                     (float)rnd.NextDouble(-20, 20),

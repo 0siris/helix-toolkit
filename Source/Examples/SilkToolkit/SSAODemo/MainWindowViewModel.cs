@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HelixToolkit.Wpf.SharpDX;
+﻿using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -25,7 +20,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
 
     public Matrix[] BunnyInstances { get; }
 
-    public SsaoQuality[] SSAOQualities { get; } = [SsaoQuality.High, SsaoQuality.Low];
+    public SsaoQuality[] SsaoQualities { get; } = [SsaoQuality.High, SsaoQuality.Low];
 
     [Obsolete]
     public MainWindowViewModel() {

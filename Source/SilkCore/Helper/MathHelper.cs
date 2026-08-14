@@ -60,12 +60,12 @@ public static class MathHelper {
 /// </summary>
 public static class Noise2D {
     private static readonly Random Random = new();
-    private static int[] permutation;
+    private static int[] _permutation;
 
     private static readonly Vector2[] Gradients;
 
     static Noise2D() {
-        CalculatePermutation(out permutation);
+        CalculatePermutation(out _permutation);
         CalculateGradients(out Gradients);
     }
 
@@ -86,7 +86,7 @@ public static class Noise2D {
     ///     generate a new permutation.
     /// </summary>
     public static void Reseed() {
-        CalculatePermutation(out permutation);
+        CalculatePermutation(out _permutation);
     }
 
     private static void CalculateGradients(out Vector2[] grad) {
@@ -129,8 +129,8 @@ public static class Noise2D {
             var ij = cell + n;
             var uv = new Vector2(x - ij.X, y - ij.Y);
 
-            var index = permutation[(int)ij.X % permutation.Length];
-            index = permutation[(index + (int)ij.Y) % permutation.Length];
+            var index = _permutation[(int)ij.X % _permutation.Length];
+            index = _permutation[(index + (int)ij.Y) % _permutation.Length];
 
             var grad = Gradients[index % Gradients.Length];
 

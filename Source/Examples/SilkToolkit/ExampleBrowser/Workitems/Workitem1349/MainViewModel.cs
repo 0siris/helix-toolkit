@@ -8,7 +8,6 @@ namespace Workitem1349;
 
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using MeshGeometry3D = MeshGeometry3D;

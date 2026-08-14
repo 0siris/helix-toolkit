@@ -17,43 +17,43 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 using Transform3D = Transform3D;
 
-public class UICompositeManipulator3D : CompositeModel3D {
+public class UiCompositeManipulator3D : CompositeModel3D {
     /// <summary>
     ///     The can rotate x property.
     /// </summary>
     public static readonly DependencyProperty CanRotateXProperty = DependencyProperty.Register("CanRotateX",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateX.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => { (d as UiCompositeManipulator3D).rotateX.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can rotate y property.
     /// </summary>
     public static readonly DependencyProperty CanRotateYProperty = DependencyProperty.Register("CanRotateY",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateY.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => { (d as UiCompositeManipulator3D).rotateY.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can rotate z property.
     /// </summary>
     public static readonly DependencyProperty CanRotateZProperty = DependencyProperty.Register("CanRotateZ",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UICompositeManipulator3D).rotateZ.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => { (d as UiCompositeManipulator3D).rotateZ.IsRendering = (bool)e.NewValue; }));
 
     /// <summary>
     ///     The can translate x property.
     /// </summary>
     public static readonly DependencyProperty CanTranslateXProperty = DependencyProperty.Register("CanTranslateX",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateX.IsRendering = (bool)e.NewValue;
+                                 (d as UiCompositeManipulator3D).translateX.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -61,10 +61,10 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     public static readonly DependencyProperty CanTranslateYProperty = DependencyProperty.Register("CanTranslateY",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateY.IsRendering = (bool)e.NewValue;
+                                 (d as UiCompositeManipulator3D).translateY.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -72,10 +72,10 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     public static readonly DependencyProperty CanTranslateZProperty = DependencyProperty.Register("CanTranslateZ",
         typeof(bool),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UICompositeManipulator3D).translateZ.IsRendering = (bool)e.NewValue;
+                                 (d as UiCompositeManipulator3D).translateZ.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -84,7 +84,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register(
         "Diameter",
         typeof(double),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new PropertyMetadata(2.0, ChildrenChanged));
 
     /// <summary>
@@ -92,48 +92,48 @@ public class UICompositeManipulator3D : CompositeModel3D {
     /// </summary>
     public static readonly DependencyProperty TargetTransformProperty = DependencyProperty.Register("TargetTransform",
         typeof(Transform3D),
-        typeof(UICompositeManipulator3D),
+        typeof(UiCompositeManipulator3D),
         new FrameworkPropertyMetadata(Transform3D.Identity,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                                       (d, e) => { (d as Element3DCore).InvalidateRender(); }));
 
-    private readonly UIRotateManipulator3D rotateX;
-    private readonly UIRotateManipulator3D rotateY;
-    private readonly UIRotateManipulator3D rotateZ;
-    private readonly UITranslateManipulator3D translateX;
-    private readonly UITranslateManipulator3D translateY;
-    private readonly UITranslateManipulator3D translateZ;
+    private readonly UiRotateManipulator3D rotateX;
+    private readonly UiRotateManipulator3D rotateY;
+    private readonly UiRotateManipulator3D rotateZ;
+    private readonly UiTranslateManipulator3D translateX;
+    private readonly UiTranslateManipulator3D translateY;
+    private readonly UiTranslateManipulator3D translateZ;
 
     /// <summary>
     /// </summary>
-    public UICompositeManipulator3D() {
+    public UiCompositeManipulator3D() {
         OnSceneNodeCreated += (s, e) => { e.Node.Attached += SceneNode_OnAttached; };
-        translateX = new UITranslateManipulator3D { Direction = new Vector3(1, 0, 0), Material = DiffuseMaterials.Red };
-        translateY = new UITranslateManipulator3D { Direction = new Vector3(0, 1, 0), Material = DiffuseMaterials.Green };
-        translateZ = new UITranslateManipulator3D { Direction = new Vector3(0, 0, 1), Material = DiffuseMaterials.Blue };
-        rotateX = new UIRotateManipulator3D { Axis = new Vector3(1, 0, 0), Length = 0.05, Material = DiffuseMaterials.Red };
-        rotateY = new UIRotateManipulator3D { Axis = new Vector3(0, 1, 0), Length = 0.05, Material = DiffuseMaterials.Green };
-        rotateZ = new UIRotateManipulator3D { Axis = new Vector3(0, 0, 1), Length = 0.05, Material = DiffuseMaterials.Blue };
+        translateX = new UiTranslateManipulator3D { Direction = new Vector3(1, 0, 0), Material = DiffuseMaterials.Red };
+        translateY = new UiTranslateManipulator3D { Direction = new Vector3(0, 1, 0), Material = DiffuseMaterials.Green };
+        translateZ = new UiTranslateManipulator3D { Direction = new Vector3(0, 0, 1), Material = DiffuseMaterials.Blue };
+        rotateX = new UiRotateManipulator3D { Axis = new Vector3(1, 0, 0), Length = 0.05, Material = DiffuseMaterials.Red };
+        rotateY = new UiRotateManipulator3D { Axis = new Vector3(0, 1, 0), Length = 0.05, Material = DiffuseMaterials.Green };
+        rotateZ = new UiRotateManipulator3D { Axis = new Vector3(0, 0, 1), Length = 0.05, Material = DiffuseMaterials.Blue };
 
         // bind UITranslateManipulators3D.TargetTransform to this.Transform            
         BindingOperations.SetBinding(translateX,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(translateY,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(translateZ,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
 
         BindingOperations.SetBinding(rotateX,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(rotateY,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
         BindingOperations.SetBinding(rotateZ,
-                                     UIManipulator3D.TargetTransformProperty,
+                                     UiManipulator3D.TargetTransformProperty,
                                      new Binding("TargetTransform") { Source = this });
 
         //BindingOperations.SetBinding(this.translateX, UIManipulator3D.TransformProperty, new Binding("TargetTransform") { Source = this });
@@ -308,7 +308,7 @@ public class UICompositeManipulator3D : CompositeModel3D {
     ///     The event arguments.
     /// </param>
     private static void ChildrenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var model = d as UICompositeManipulator3D;
+        var model = d as UiCompositeManipulator3D;
         if (model.SceneNode.IsAttached) model.OnChildrenChanged();
     }
 }

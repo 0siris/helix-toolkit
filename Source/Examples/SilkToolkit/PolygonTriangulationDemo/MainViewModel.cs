@@ -67,7 +67,7 @@ public class MainViewModel : BaseViewModel {
     /// Accessor to the Polygon-Material
     /// </summary>
     public PhongMaterial Material {
-        get => field;
+        get;
         set {
             field = value;
             OnPropertyChanged("Material");
@@ -93,7 +93,7 @@ public class MainViewModel : BaseViewModel {
     /// Accessor to the Boolean
     /// </summary>
     public Boolean ShowTriangleLines {
-        get => field;
+        get;
         set {
             field = value;
             OnPropertyChanged("ShowTriangleLines");

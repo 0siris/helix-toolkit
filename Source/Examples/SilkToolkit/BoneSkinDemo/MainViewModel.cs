@@ -3,15 +3,9 @@ Model: Sphere Bot Rusty Version. Author: 3DHaupt. Source : https://sketchfab.com
 Model: Character. Source : https://github.com/spazzarama/Direct3D-Rendering-Cookbook
 */
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -31,7 +25,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool ShowSkeleton {
@@ -54,7 +48,7 @@ public class MainViewModel : BaseViewModel {
                 compositeHelper.Rendering -= CompositeHelper_Rendering;
             }
         }
-        get => field;
+        get;
     } = true;
 
     public string SelectedAnimation {
@@ -67,7 +61,7 @@ public class MainViewModel : BaseViewModel {
                 };
             }
         }
-        get => field;
+        get;
     }
 
     private AnimationRepeatMode selectedRepeatMode = AnimationRepeatMode.Loop;

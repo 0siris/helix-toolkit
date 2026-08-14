@@ -17,10 +17,10 @@ public partial class Exporter {
     /// <param name="node">The node.</param>
     /// <param name="material">The material.</param>
     /// <returns></returns>
-    protected virtual bool GetMaterialFromNode(SceneNode node, out MaterialCore material) {
+    protected virtual bool GetMaterialFromNode(SceneNode node, out MaterialCore? material) {
         if (node is MaterialGeometryNode geo) {
             material = geo.Material;
-            return material != null;
+            return material is not null;
         }
 
         material = null;
@@ -104,22 +104,22 @@ public partial class Exporter {
         assimpMaterial.ShadingMode = ShadingMode.Fresnel;
         assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_DIFFUSE_BASE,
                                                         pbr.AlbedoColor.ToAssimpColor4D()));
-        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR,
+        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor,
                                                         pbr.AlbedoColor.ToAssimpColor4D()));
         assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_EMISSIVE_BASE,
                                                         pbr.EmissiveColor.ToAssimpColor4D()));
-        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR,
+        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor,
                                                         pbr.MetallicFactor));
-        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_ROUGHNESS_FACTOR,
+        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor,
                                                         pbr.RoughnessFactor));
         if (pbr.AmbientOcclusionFactor != 1)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_AMBIENT,
                                                             new Color4D(pbr.AmbientOcclusionFactor)));
         if (pbr.ReflectanceFactor != 0) {
-            assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS,
+            assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness,
                                                             true));
             assimpMaterial.AddProperty(new MaterialProperty(
-                                           GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR,
+                                           GltfMatKeys.AiMatkeyGltfPbrspecularglossinessGlossinessFactor,
                                            pbr.ReflectanceFactor));
         }
 
@@ -143,7 +143,7 @@ public partial class Exporter {
         }
 
         if (pbr.RoughnessMetallicMap != null && !string.IsNullOrEmpty(pbr.RoughnessMetallicMapFilePath))
-            assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE,
+            assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                                             pbr.RoughnessMetallicMapFilePath,
                                                             TextureType.Unknown,
                                                             0));
@@ -191,7 +191,7 @@ public partial class Exporter {
     protected virtual Material OnCreateAssimpMaterial(MaterialCore material) {
         var assimpMaterial = new Material {
             Name = string.IsNullOrEmpty(material.Name)
-                       ? $"MAT_{Interlocked.Increment(ref MaterialIndexForNoName)}"
+                       ? $"MAT_{Interlocked.Increment(ref materialIndexForNoName)}"
                        : material.Name
         };
         if (material is PhongMaterialCore phong)

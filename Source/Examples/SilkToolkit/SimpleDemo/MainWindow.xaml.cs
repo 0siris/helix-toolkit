@@ -11,7 +11,6 @@ namespace SimpleDemo;
 
 using System;
 using System.Windows;
-using HelixToolkit.Wpf.SharpDX.Utilities;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DemoCore;
+﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
@@ -46,10 +39,10 @@ public class MainViewModel : BaseViewModel {
             UpDirection = new Vector3D(0, 0, 1)
         };
 
-        var m1 = Load3ds("suzanne.obj").Select(x => x.Geometry).ToArray();
+        var m1 = Load3Ds("suzanne.obj").Select(x => x.Geometry).ToArray();
         MeshModel1 = m1[0];
 
-        var m2 = Load3ds("skeleton.3ds").Select(x => x.Geometry).ToArray();
+        var m2 = Load3Ds("skeleton.3ds").Select(x => x.Geometry).ToArray();
         MeshModel2 = m2[0];
 
         Model1Transform = new Media3D.TranslateTransform3D(new Vector3D(7, 0, 0));
@@ -75,7 +68,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
             var list = reader.Read(path);

@@ -10,13 +10,12 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 
 public class MainViewModel : BaseViewModel {
     private static readonly Point3D NoHit = new(double.NaN, double.NaN, double.NaN);
 
     public Point3D PointHit {
-        get => field;
+        get;
 
         set {
             if (field != value) {

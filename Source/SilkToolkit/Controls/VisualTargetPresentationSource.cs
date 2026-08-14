@@ -24,39 +24,39 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     a PresentationSource being available.
 /// </remarks>
 public class VisualTargetPresentationSource : PresentationSource, IDisposable {
-    private readonly VisualTarget _visualTarget;
-    private object _dataContext;
-    private string _propertyName;
+    private readonly VisualTarget visualTarget;
+    private object dataContext;
+    private string propertyName;
 
     public VisualTargetPresentationSource(HostVisual hostVisual) {
-        _visualTarget = new VisualTarget(hostVisual);
+        visualTarget = new VisualTarget(hostVisual);
     }
 
     public override Visual RootVisual {
-        get => _visualTarget.RootVisual;
+        get => visualTarget.RootVisual;
 
         set {
-            var oldRoot = _visualTarget.RootVisual;
+            var oldRoot = visualTarget.RootVisual;
 
 
             // Set the root visual of the VisualTarget.  This visual will
             // now be used to visually compose the scene.
-            _visualTarget.RootVisual = value;
+            visualTarget.RootVisual = value;
 
             // Hook the SizeChanged event on framework elements for all
             // future changed to the layout size of our root, and manually
             // trigger a size change.
-            var rootFE = value as FrameworkElement;
-            if (rootFE != null) {
-                rootFE.SizeChanged += root_SizeChanged;
-                rootFE.DataContext = _dataContext;
+            var rootFe = value as FrameworkElement;
+            if (rootFe != null) {
+                rootFe.SizeChanged += root_SizeChanged;
+                rootFe.DataContext = dataContext;
 
                 // HACK!
-                if (_propertyName != null) {
-                    var myBinding = new Binding(_propertyName) {
-                        Source = _dataContext
+                if (propertyName != null) {
+                    var myBinding = new Binding(propertyName) {
+                        Source = dataContext
                     };
-                    rootFE.SetBinding(TextBlock.TextProperty, myBinding);
+                    rootFe.SetBinding(TextBlock.TextProperty, myBinding);
                 }
             }
 
@@ -75,26 +75,26 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     }
 
     public object DataContext {
-        get => _dataContext;
+        get => dataContext;
         set {
-            _dataContext = value;
-            var rootElement = _visualTarget.RootVisual as FrameworkElement;
-            rootElement?.DataContext = _dataContext;
+            dataContext = value;
+            var rootElement = visualTarget.RootVisual as FrameworkElement;
+            rootElement?.DataContext = dataContext;
         }
     }
 
     // HACK!
     public string PropertyName {
-        get => _propertyName;
+        get => propertyName;
         set {
-            _propertyName = value;
+            propertyName = value;
 
-            var rootElement = _visualTarget.RootVisual as TextBlock;
+            var rootElement = visualTarget.RootVisual as TextBlock;
             if (rootElement != null) {
                 if (!rootElement.CheckAccess()) throw new InvalidOperationException("What?");
 
-                var myBinding = new Binding(_propertyName) {
-                    Source = _dataContext
+                var myBinding = new Binding(propertyName) {
+                    Source = dataContext
                 };
                 rootElement.SetBinding(TextBlock.TextProperty, myBinding);
             }
@@ -107,7 +107,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
 
     public event SizeChangedEventHandler SizeChanged;
 
-    protected override CompositionTarget GetCompositionTargetCore() => _visualTarget;
+    protected override CompositionTarget GetCompositionTargetCore() => visualTarget;
 
     private void root_SizeChanged(object sender, SizeChangedEventArgs e) {
         var handler = SizeChanged;
@@ -121,7 +121,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     [SuppressMessage("Microsoft.Usage", "CA2213", Justification = "False positive.")]
     protected virtual void Dispose(bool disposing) {
         if (!disposedValue) {
-            if (disposing) _visualTarget?.Dispose();
+            if (disposing) visualTarget?.Dispose();
             // TODO: dispose managed state (managed objects).
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.

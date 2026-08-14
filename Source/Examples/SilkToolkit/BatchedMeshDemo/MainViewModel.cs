@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using DemoCore;
+﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -18,12 +11,12 @@ namespace BatchedMeshDemo;
 public class MainViewModel : BaseViewModel {
     public IList<BatchedMeshGeometryConfig> BatchedMeshes {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public IList<Material> BatchedMaterials {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public Media3D.Transform3D BatchedTransform { get; } = new Media3D.ScaleTransform3D(0.1, 0.1, 0.1);
@@ -36,12 +29,12 @@ public class MainViewModel : BaseViewModel {
                     BatchedTransform.Value);
             }
         }
-        get => field;
+        get;
     }
 
     public Media3D.Transform3D SelectedTransform {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public Material MainMaterial { get; } = PhongMaterials.White;
@@ -70,7 +63,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void LoadModels() {
-        var models = Load3ds("Car.3DS");
+        var models = Load3Ds("Car.3DS");
         int count = 0;
         Dictionary<MaterialCore, int> materialDict = [];
         //materialDict.Add(new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1) }, count);
@@ -111,7 +104,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
             var list = reader.Read(path);

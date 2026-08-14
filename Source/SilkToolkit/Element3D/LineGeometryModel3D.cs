@@ -15,23 +15,23 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </summary>
 /// <seealso cref="GeometryModel3D" />
 public class LineGeometryModel3D : GeometryModel3D {
-    protected readonly LineMaterialCore material = new();
+    protected readonly LineMaterialCore Material = new();
 
     /// <summary>
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() => new LineNode { Material = material };
+    protected override SceneNode OnCreateSceneNode() => new LineNode { Material = Material };
 
     /// <summary>
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
-        material.LineColor = Color.ToColor4();
-        material.Thickness = (float)Thickness;
-        material.Smoothness = (float)Smoothness;
-        material.FixedSize = FixedSize;
+        Material.LineColor = Color.ToColor4();
+        Material.Thickness = (float)Thickness;
+        Material.Smoothness = (float)Smoothness;
+        Material.FixedSize = FixedSize;
         base.AssignDefaultValuesToSceneNode(core);
     }
 
@@ -51,7 +51,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                                          (d, e) =>
 #endif
                                                          {
-                                                             (d as LineGeometryModel3D).material.LineColor =
+                                                             (d as LineGeometryModel3D).Material.LineColor =
                                                                  ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
@@ -64,7 +64,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     typeof(LineGeometryModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             (d as LineGeometryModel3D).material.Thickness =
+                                                             (d as LineGeometryModel3D).Material.Thickness =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -77,7 +77,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     typeof(LineGeometryModel3D),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             (d as LineGeometryModel3D).material.Smoothness =
+                                                             (d as LineGeometryModel3D).Material.Smoothness =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -106,7 +106,7 @@ public class LineGeometryModel3D : GeometryModel3D {
                                       typeof(LineGeometryModel3D),
                                       new PropertyMetadata(true,
                                                            (d, e) => {
-                                                               (d as LineGeometryModel3D).material.FixedSize =
+                                                               (d as LineGeometryModel3D).Material.FixedSize =
                                                                    (bool)e.NewValue;
                                                            }));
 

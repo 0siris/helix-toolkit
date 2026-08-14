@@ -1,16 +1,10 @@
 //Flag.jpg image is created by Luis_molinero - Freepik.com
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Cyotek.Drawing.BitmapFont;
-using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.Wpf.SharpDX;
 using Color = BillboardDemo.BillboardColors;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -71,7 +65,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     public bool FixedSize {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = true;
 
     public Flag SelectedFlag {
@@ -79,7 +73,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
             SetValue(ref field, value);
             UpdateSelectedFlagBillboard(value);
         }
-        get => field;
+        get;
     }
 
     private Color4 prevLocColor, prevLocColor2;

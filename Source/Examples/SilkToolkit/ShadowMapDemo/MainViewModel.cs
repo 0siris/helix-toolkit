@@ -7,11 +7,9 @@
 namespace ShadowMapDemo;
 
 using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media.Animation;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;

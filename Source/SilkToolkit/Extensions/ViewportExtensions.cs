@@ -222,10 +222,10 @@ public static class ViewportExtensions {
     ///     Un-projects a 2D screen point.
     /// </summary>
     /// <param name="viewport">The viewport.</param>
-    /// <param name="point2d">The input point.</param>
+    /// <param name="point2D">The input point.</param>
     /// <returns>The ray.</returns>
-    public static Ray UnProject(this Viewport3DX viewport, Vector2 point2d) {
-        viewport.UnProject(point2d, out var ray);
+    public static Ray UnProject(this Viewport3DX viewport, Vector2 point2D) {
+        viewport.UnProject(point2D, out var ray);
         return ray;
     }
 
@@ -233,9 +233,9 @@ public static class ViewportExtensions {
     ///     Un-projects a 2D screen point.
     /// </summary>
     /// <param name="viewport">The viewport.</param>
-    /// <param name="point2d">The input point.</param>
+    /// <param name="point2D">The input point.</param>
     /// <returns>The ray.</returns>
-    public static Ray UnProject(this Viewport3DX viewport, Point point2d) => viewport.UnProject(point2d.ToVector2());
+    public static Ray UnProject(this Viewport3DX viewport, Point point2D) => viewport.UnProject(point2D.ToVector2());
 
     /// <summary>
     ///     Un-project a point from the screen (2D) to a point on plane (3D)

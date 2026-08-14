@@ -1,20 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
@@ -45,7 +39,7 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged();
             }
         }
-        get => field;
+        get;
     } = new();
 
     public FillMode FillMode {
@@ -53,7 +47,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get => field;
+        get;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -66,7 +60,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = FillMode.Solid;
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool Visibility {
@@ -74,7 +68,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get => field;
+        get;
     } = true;
 
     public Color Light1Color { get; set; }
@@ -90,7 +84,7 @@ public class MainViewModel : BaseViewModel {
 
     public PhongMaterial Material {
         private set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
-        get => field;
+        get;
     }
 
     public MeshGeometry3D DefaultModel { private set; get; }
@@ -98,7 +92,7 @@ public class MainViewModel : BaseViewModel {
 
     public PointGeometry3D PointsHitModel {
         set => SetValue(ref field, value, nameof(PointsHitModel));
-        get => field;
+        get;
     }
 
     public LineGeometry3D LinesModel { private set; get; }
@@ -113,24 +107,24 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get => field;
+        get;
     } = new(-10, -10, -10);
 
     public bool HitThrough { set; get; }
 
-    private readonly IList<DataModel> HighlightItems = [];
+    private readonly IList<DataModel> highlightItems = [];
 
     public int SphereSize {
         set {
             if (SetValue<int>(ref field, value, nameof(SphereSize))) {
-                if (HighlightItems.Count > 0) {
-                    foreach (SphereModel item in HighlightItems) {
+                if (highlightItems.Count > 0) {
+                    foreach (SphereModel item in highlightItems) {
                         item.Radius = value;
                     }
                 }
             }
         }
-        get => field;
+        get;
     } = 1;
 
     public bool AutoDeleteEmptyNode {
@@ -138,7 +132,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get => field;
+        get;
     } = true;
 
     public bool OctreeFrameVisible {
@@ -146,7 +140,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get => field;
+        get;
     } = false;
 
     public ICommand AddModelCommand { private set; get; }
@@ -239,7 +233,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         var reader = new StudioReader();
         var list = reader.Read(path);
         return list;
@@ -266,11 +260,11 @@ public class MainViewModel : BaseViewModel {
     }
 
     public void OnMouseLeftButtonDownHandler(object sender, MouseButtonEventArgs e) {
-        foreach (var item in HighlightItems) {
+        foreach (var item in highlightItems) {
             item.Highlight = false;
         }
 
-        HighlightItems.Clear();
+        highlightItems.Clear();
         Material = PhongMaterials.White;
         var viewport = sender as Viewport3DX;
         if (viewport == null) {
@@ -285,7 +279,7 @@ public class MainViewModel : BaseViewModel {
                     if ((hit.ModelHit as Element3D).DataContext is DataModel) {
                         var model = (hit.ModelHit as Element3D).DataContext as DataModel;
                         model.Highlight = true;
-                        HighlightItems.Add(model);
+                        highlightItems.Add(model);
                     } else if ((hit.ModelHit as Element3D).DataContext == this) {
                         if (hit.TriangleIndices != null) {
                             Material = PhongMaterials.Yellow;
@@ -307,7 +301,7 @@ public class MainViewModel : BaseViewModel {
                     if (elem.DataContext is DataModel) {
                         var model = elem.DataContext as DataModel;
                         model.Highlight = true;
-                        HighlightItems.Add(model);
+                        highlightItems.Add(model);
                     } else if (elem.DataContext == this) {
                         if (hit.TriangleIndices != null) {
                             Material = PhongMaterials.Yellow;
@@ -348,7 +342,7 @@ public class MainViewModel : BaseViewModel {
 
     private void ClearModel(object o) {
         Items.Clear();
-        HighlightItems.Clear();
+        highlightItems.Clear();
     }
 
     private DispatcherTimer timer;
@@ -360,12 +354,12 @@ public class MainViewModel : BaseViewModel {
                 Enabled = !value;
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool Enabled {
         set => SetValue<bool>(ref field, value, nameof(Enabled));
-        get => field;
+        get;
     } = true;
 
     private Random rnd = new();

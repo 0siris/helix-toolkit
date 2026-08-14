@@ -9,7 +9,6 @@ namespace ManipulatorDemo;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
@@ -71,7 +70,7 @@ public class MainViewModel : BaseViewModel {
         b1.AddSphere(new Vector3(0, 0, 0), 0.5);
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 1.5, BoxFaces.All);
         Model = b1.ToMeshGeometry3D();
-        var m1 = Load3ds("suzanne.3ds");
+        var m1 = Load3Ds("suzanne.3ds");
         Model2 = m1[0].Geometry as MeshGeometry3D;
         //Manully set an offset for test
         for (int i = 0; i < Model2.Positions.Count; ++i) {
@@ -114,7 +113,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
             var list = reader.Read(path);

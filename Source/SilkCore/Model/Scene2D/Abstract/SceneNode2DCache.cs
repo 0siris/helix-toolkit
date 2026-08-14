@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public partial class SceneNode2D {

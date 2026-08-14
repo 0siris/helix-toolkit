@@ -8,7 +8,6 @@ using Assimp;
 using Assimp.Unmanaged;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
-using Microsoft.Extensions.Logging;
 using TextureType = Assimp.TextureType;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
@@ -108,15 +107,15 @@ public partial class Importer {
                                 ? material.ColorEmissive.ToSharpDXColor4()
                                 : new Color4(0, 0, 0, 1)
         };
-        if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR))
-            pbr.AlbedoColor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR)
+        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
+            pbr.AlbedoColor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor)
                                       .GetColor4DValue().ToSharpDXColor4();
-        if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR))
-            pbr.MetallicFactor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
+        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor))
+            pbr.MetallicFactor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
                                          .GetFloatValue();
         if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.R;
-        if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_ROUGHNESS_FACTOR)) {
-            pbr.RoughnessFactor = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
+        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)) {
+            pbr.RoughnessFactor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
                                           .GetFloatValue();
         } else if (material.HasColorSpecular && material.HasShininess) {
             //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
@@ -128,15 +127,15 @@ public partial class Importer {
             pbr.RoughnessFactor = 1 - normalizedShininess;
         }
 
-        if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS)) {
-            var hasGlossiness = material.GetNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS)
+        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)) {
+            var hasGlossiness = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)
                                         .GetBooleanValue();
             if (hasGlossiness) {
-                if (material.HasNonTextureProperty(GLTFMatKeys
-                                                       .AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR))
+                if (material.HasNonTextureProperty(GltfMatKeys
+                                                       .AiMatkeyGltfPbrspecularglossinessGlossinessFactor))
                     pbr.ReflectanceFactor = material
-                                            .GetNonTextureProperty(GLTFMatKeys
-                                                                       .AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR)
+                                            .GetNonTextureProperty(GltfMatKeys
+                                                                       .AiMatkeyGltfPbrspecularglossinessGlossinessFactor)
                                             .GetFloatValue();
                 else if (material.HasShininess) pbr.ReflectanceFactor = material.Shininess / 1000;
             }
@@ -165,10 +164,10 @@ public partial class Importer {
             pbr.NormalMapFilePath = material.TextureHeight.FilePath;
         }
 
-        if (material.HasProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE,
+        if (material.HasProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                  TextureType.Unknown,
                                  0)) {
-            var t = material.GetProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLICROUGHNESSAO_TEXTURE,
+            var t = material.GetProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                          TextureType.Unknown,
                                          0);
             pbr.RoughnessMetallicMap = LoadTexture(t.GetStringValue());
@@ -213,9 +212,9 @@ public partial class Importer {
     protected virtual KeyValuePair<Material, MaterialCore> OnCreateHelixMaterial(Material material) {
         MaterialCore core = null;
         if (!material.HasShadingMode) {
-            if (material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_METALLIC_FACTOR)
-                || material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_ROUGHNESS_FACTOR)
-                || material.HasNonTextureProperty(GLTFMatKeys.AI_MATKEY_GLTF_BASECOLOR_FACTOR))
+            if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
+                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)
+                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
                 material.ShadingMode = ShadingMode.Fresnel;
             else if (material.HasColorSpecular || material.HasColorDiffuse || material.HasTextureDiffuse)
                 material.ShadingMode = ShadingMode.Blinn;
@@ -232,7 +231,7 @@ public partial class Importer {
                 case MaterialType.Diffuse:
                     mode = ShadingMode.Gouraud;
                     break;
-                case MaterialType.PBR:
+                case MaterialType.Pbr:
                     mode = ShadingMode.Fresnel;
                     break;
                 case MaterialType.VertexColor:
@@ -298,7 +297,7 @@ public partial class Importer {
             }
 
         core?.Name = string.IsNullOrEmpty(material.Name)
-                            ? $"Material_{Interlocked.Increment(ref MaterialIndexForNoName)}"
+                            ? $"Material_{Interlocked.Increment(ref materialIndexForNoName)}"
                             : material.Name;
         return new KeyValuePair<Material, MaterialCore>(material, core);
     }

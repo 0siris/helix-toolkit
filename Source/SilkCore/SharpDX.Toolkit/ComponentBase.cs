@@ -45,7 +45,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// <value>The tag.</value>
     [DefaultValue(null)]
     public object? Tag {
-        get => field;
+        get;
         set {
             if (ReferenceEquals(field, value))
                 return;

@@ -31,13 +31,13 @@
                         EffectsManager="{Binding EffectsManager}"
                         EnableSwapChainRendering="True"
                         EnableDesignModeRendering="False">
-            <hx:DirectionalLight3D Direction="{Binding VM3D.Light1Direction}" Color="{Binding VM3D.Light1Color}" />
-            <hx:DirectionalLight3D Direction="{Binding VM3D.Light2Direction}" Color="{Binding VM3D.Light2Color}" />
-            <hx:DirectionalLight3D Direction="{Binding VM3D.Light3Direction}" Color="{Binding VM3D.Light3Color}" />
+            <hx:DirectionalLight3D Direction="{Binding Vm3D.Light1Direction}" Color="{Binding Vm3D.Light1Color}" />
+            <hx:DirectionalLight3D Direction="{Binding Vm3D.Light2Direction}" Color="{Binding Vm3D.Light2Color}" />
+            <hx:DirectionalLight3D Direction="{Binding Vm3D.Light3Direction}" Color="{Binding Vm3D.Light3Color}" />
             <hx:MeshGeometryModel3D
                 CullMode="Back"
-                Geometry="{Binding VM3D.Model}"
-                Material="{Binding VM3D.ModelMaterial}" />
+                Geometry="{Binding Vm3D.Model}"
+                Material="{Binding Vm3D.ModelMaterial}" />
             <hx:Viewport3DX.Content2D>
                 <hx2D:Panel2D>
                     <hx2D:StackPanel2D Orientation="Vertical">
@@ -48,19 +48,19 @@
                             <hx2D:TextModel2D
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Text="{Binding VM2D.Text}" />
+                                Text="{Binding Vm2D.Text}" />
                             <hx2D:TextModel2D
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
-                                Text="{Binding VM2D.Text}" />
+                                Text="{Binding Vm2D.Text}" />
                             <hx2D:TextModel2D
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Text="{Binding VM2D.Text}" />
+                                Text="{Binding Vm2D.Text}" />
                             <hx2D:TextModel2D
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
-                                Text="{Binding VM2D.Text}" />
+                                Text="{Binding Vm2D.Text}" />
                             <hx2D:Button2D Margin="10" VerticalAlignment="Center">Button 1</hx2D:Button2D>
                             <hx2D:Button2D Margin="10" VerticalAlignment="Center">Button 2</hx2D:Button2D>
                         </hx2D:StackPanel2D>
@@ -95,7 +95,7 @@
                         StrokeThickness="2" />
                     <hx2D:ImageModel2D VerticalAlignment="Center" HorizontalAlignment="Center"
                                        Width="100" Height="100"
-                                       ImageStream="{Binding VM2D.ImageStream}" />
+                                       ImageStream="{Binding Vm2D.ImageStream}" />
                 </hx2D:Panel2D>
             </hx:Viewport3DX.Content2D>
         </hx:Viewport3DX>

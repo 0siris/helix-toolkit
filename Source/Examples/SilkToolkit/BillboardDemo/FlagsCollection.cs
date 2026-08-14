@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HelixToolkit.Wpf.SharpDX;
-using Vector2 = Silk.NET.Maths.Vector2D<float>;
+﻿using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
@@ -12,9 +6,9 @@ namespace BillboardDemo;
 
 public static class FlagsCollection {
     public static Flag[] Flags;
-    private const float offSetX = 1 / 8f;
-    private const float offSetY = 1 / 8f;
-    private const float borderThickness = 0.02f;
+    private const float OffSetX = 1 / 8f;
+    private const float OffSetY = 1 / 8f;
+    private const float BorderThickness = 0.02f;
 
     static FlagsCollection() {
         Flags = [
@@ -31,10 +25,10 @@ public static class FlagsCollection {
         ];
     }
 
-    public static Vector4 GetCoordRowColumn(int row, int column) => new(column * offSetX + borderThickness,
-        row * offSetY + borderThickness,
-        (column + 1) * offSetX - borderThickness,
-        (row + 1) * offSetY - borderThickness);
+    public static Vector4 GetCoordRowColumn(int row, int column) => new(column * OffSetX + BorderThickness,
+        row * OffSetY + BorderThickness,
+        (column + 1) * OffSetX - BorderThickness,
+        (row + 1) * OffSetY - BorderThickness);
 }
 
 public class Flag : ImageInfo {

@@ -5,18 +5,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using Media3D = System.Windows.Media.Media3D;
 
 namespace MorphTargetAnimationDemo;
 
@@ -30,7 +25,7 @@ public class MainViewModel : BaseViewModel {
 
     public double EndTime {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = 0;
 
     public double CurrTime {
@@ -41,12 +36,12 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = 0;
 
     public bool IsPlaying {
         private set => SetValue(ref field, value);
-        get => field;
+        get;
     } = false;
 
     public ICommand PlayCommand { get; }

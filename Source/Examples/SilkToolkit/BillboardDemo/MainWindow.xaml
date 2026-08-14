@@ -30,7 +30,7 @@
             CameraRotationMode="Turntable"
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
-            FXAALevel="Low"
+            FxaaLevel="Low"
             IsPanEnabled="False"
             ModelUpDirection="0,0,1"
             ShowCoordinateSystem="False"

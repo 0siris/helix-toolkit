@@ -1,6 +1,3 @@
-using HelixToolkit.Logger;
-using Microsoft.Extensions.Logging;
-
 namespace HelixToolkit.SharpDX.Core;
 
 public class DefaultTexturePathResolver : ITexturePathResolver {

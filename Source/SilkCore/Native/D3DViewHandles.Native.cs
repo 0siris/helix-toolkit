@@ -5,12 +5,6 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
-using SilkD3D11DepthStencilViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilView>;
-using SilkD3D11RenderTargetViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RenderTargetView>;
-using SilkD3D11ShaderResourceViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11ShaderResourceView>;
-using SilkD3D11UnorderedAccessViewPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11UnorderedAccessView>;
-
-using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 internal static class D3DViewConversions {

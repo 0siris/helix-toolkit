@@ -78,7 +78,7 @@
             <CheckBox Margin="4" IsChecked="{Binding DynamicTexture}">Dynamic Texture</CheckBox>
             <CheckBox
                 Margin="15,4,0,4"
-                IsChecked="{Binding AnimateUVOffset}"
+                IsChecked="{Binding AnimateUvOffset}"
                 IsEnabled="{Binding DynamicTexture}">
                 Animate UV
             </CheckBox>

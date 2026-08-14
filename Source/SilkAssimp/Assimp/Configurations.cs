@@ -26,7 +26,7 @@ public enum MaterialType {
     /// <summary>
     ///     The PBR
     /// </summary>
-    PBR,
+    Pbr,
 
     /// <summary>
     ///     The diffuse

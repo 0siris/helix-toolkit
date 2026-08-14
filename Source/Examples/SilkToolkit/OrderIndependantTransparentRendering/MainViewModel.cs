@@ -13,13 +13,12 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public enum MaterialType {
-    BlinnPhong, PBR, Diffuse
+    BlinnPhong, Pbr, Diffuse
 };
 
 public class MainViewModel : BaseViewModel {
@@ -41,7 +40,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = false;
 
     public OutlineMode DrawMode { set; get; } = OutlineMode.Merged;
@@ -53,35 +52,35 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged(nameof(DrawMode));
             }
         }
-        get => field;
+        get;
     } = false;
 
-    public bool OITWeightedModeEnabled {
+    public bool OitWeightedModeEnabled {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = false;
 
     private bool oitDepthPeelModeEnabled = true;
 
-    public bool OITDepthPeelModeEnabled {
+    public bool OitDepthPeelModeEnabled {
         set => SetValue(ref oitDepthPeelModeEnabled, value);
         get => oitDepthPeelModeEnabled;
     }
 
-    public OitRenderType OITRenderType {
+    public OitRenderType OitRenderType {
         set {
             if (SetValue(ref field, value)) {
                 switch (value) {
                     case OitRenderType.None:
-                        OITDepthPeelModeEnabled = OITWeightedModeEnabled = false;
+                        OitDepthPeelModeEnabled = OitWeightedModeEnabled = false;
                         break;
                     case OitRenderType.DepthPeeling:
-                        OITDepthPeelModeEnabled = true;
-                        OITWeightedModeEnabled = false;
+                        OitDepthPeelModeEnabled = true;
+                        OitWeightedModeEnabled = false;
                         break;
                     case OitRenderType.SinglePassWeighted:
                         oitDepthPeelModeEnabled = false;
-                        OITWeightedModeEnabled = true;
+                        OitWeightedModeEnabled = true;
                         break;
                 }
             }
@@ -100,11 +99,11 @@ public class MainViewModel : BaseViewModel {
         get => materialType;
     }
 
-    public OitWeightMode[] OITWeights { get; } = [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
+    public OitWeightMode[] OitWeights { get; } = [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
 
-    public OitRenderType[] OITRenderTypes { get; } = [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
+    public OitRenderType[] OitRenderTypes { get; } = [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
 
-    public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.PBR, MaterialType.Diffuse];
+    public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.Pbr, MaterialType.Diffuse];
 
     public int RedPlaneOpacity {
         set {
@@ -154,7 +153,7 @@ public class MainViewModel : BaseViewModel {
             Width = 100
         };
         ResetCameraCommand = new RelayCommand((o) => { Camera.Reset(); });
-        Task.Run(() => { Load3ds("NITRO_ENGINE.3ds"); });
+        Task.Run(() => { Load3Ds("NITRO_ENGINE.3ds"); });
 
         BuildGrid();
         BuildPlanes();
@@ -226,7 +225,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public void Load3ds(string path) {
+    public void Load3Ds(string path) {
         var reader = new StudioReader();
         var objCol = reader.Read(path);
         AttachModelList(objCol);
@@ -287,8 +286,8 @@ public class MainViewModel : BaseViewModel {
                     DiffuseColor = diffuse
                 };
                 break;
-            case MaterialType.PBR:
-                material = new PBRMaterial() {
+            case MaterialType.Pbr:
+                material = new PbrMaterial() {
                     AlbedoColor = diffuse,
                     MetallicFactor = 0.7f,
                     RoughnessFactor = 0.6f,

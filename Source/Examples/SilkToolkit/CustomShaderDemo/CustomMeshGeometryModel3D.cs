@@ -1,6 +1,4 @@
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 
 namespace CustomShaderDemo;

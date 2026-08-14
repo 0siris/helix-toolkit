@@ -71,7 +71,7 @@
             EnableRenderFrustum="True"
             EnableSwapChainRendering="True"
             IsShadowMappingEnabled="False"
-            MSAA="Two"
+            Msaa="Two"
             ShowCoordinateSystem="False"
             ShowFrameRate="True"
             SubTitle="{Binding SubTitle}"

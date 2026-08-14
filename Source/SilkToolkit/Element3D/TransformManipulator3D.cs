@@ -604,7 +604,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     private Element3D? target;
     private Viewport3DX? currentViewport;
-    private Vector3 lastHitPosWS;
+    private Vector3 lastHitPosWs;
     private Vector3 normal;
 
     private Vector3 direction;
@@ -651,10 +651,10 @@ public class TransformManipulator3D : GroupElement3D {
         material.DiffuseColor = Color.Yellow;
         currentViewport = viewport;
         var cameraNormal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = hitResult.PointHit;
+        lastHitPosWs = hitResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
@@ -662,7 +662,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Translation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured || currentViewport is not { } viewport) return;
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             switch (manipulationType) {
@@ -720,10 +720,10 @@ public class TransformManipulator3D : GroupElement3D {
         material.DiffuseColor = Color.Yellow;
         currentViewport = viewport;
         normal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = hitResult.PointHit;
+        lastHitPosWs = hitResult.PointHit;
         //var up = SilkMath.Cross(cameraNormal, direction);
         //normal = SilkMath.Cross(up, direction);
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
@@ -731,7 +731,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Rotation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured || currentViewport is not { } viewport) return;
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             var position = translationVector + centerOffset;
             var v = SilkMath.Normalize(currentHit - position);
             var u = SilkMath.Normalize(hit - position);
@@ -806,10 +806,10 @@ public class TransformManipulator3D : GroupElement3D {
         material.DiffuseColor = Color.Yellow;
         currentViewport = viewport;
         var cameraNormal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = hitResult.PointHit;
+        lastHitPosWs = hitResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
@@ -817,7 +817,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Scaling_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
         if (!isCaptured || currentViewport is not { } viewport) return;
-        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWs, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             var orgAxis = Vector3.Zero;

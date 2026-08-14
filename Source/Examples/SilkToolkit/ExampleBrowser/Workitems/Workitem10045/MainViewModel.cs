@@ -8,10 +8,7 @@ namespace Workitem10045;
 
 using System.Linq;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;

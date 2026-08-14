@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DemoCore;
+﻿using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -18,19 +12,19 @@ using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace MaterialDemo;
 
-public class PBRViewModel : BaseViewModel {
+public class PbrViewModel : BaseViewModel {
     public Geometry3D SphereModel { get; }
     private const int Row = 5;
     private const int Col = 5;
     private const int Size = 5 * 5;
     public TextureModel EnvironmentMap { set; get; }
     public ObservableElement3DCollection Models { get; } = [];
-    private List<PBRMaterial> materials = [];
+    private List<PbrMaterial> materials = [];
     public Geometry3D Model { get; }
     public Geometry3D FloorModel { get; }
     public Transform3D ModelTransform { get; }
-    public PBRMaterial Material { get; }
-    public PBRMaterial FloorMaterial { get; }
+    public PbrMaterial Material { get; }
+    public PbrMaterial FloorMaterial { get; }
     public Transform3D FloorModelTransform { get; }
     private Color albedoColor = Colors.Gold;
 
@@ -55,7 +49,7 @@ public class PBRViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = true;
 
     public bool RenderNormalMap {
@@ -66,10 +60,10 @@ public class PBRViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = true;
 
-    public PBRViewModel(IEffectsManager manager) {
+    public PbrViewModel(IEffectsManager manager) {
         EffectsManager = manager;
         Camera = new PerspectiveCamera {
             Position = new Point3D(0, 60, 60), LookDirection = new Vector3D(0, -60, -60),
@@ -82,7 +76,7 @@ public class PBRViewModel : BaseViewModel {
             TextureModel.Create(new Uri("TextureNoise1_dot3.dds", UriKind.RelativeOrAbsolute).ToString());
         for (int i = -Row; i < Row; ++i) {
             for (int j = -Col; j < Col; ++j) {
-                var m = new PBRMaterial() {
+                var m = new PbrMaterial() {
                     AlbedoColor = albedoColor.ToColor4(),
                     RoughnessFactor = 1.0 / (2 * Row) * Math.Abs(i + Row),
                     MetallicFactor = 1.0 / (2 * Col) * Math.Abs(j + Col),
@@ -105,7 +99,7 @@ public class PBRViewModel : BaseViewModel {
         builder = new MeshBuilder();
         builder.AddSphere(Vector3.Zero, 8, 12, 12);
         Model = builder.ToMesh();
-        Material = new PBRMaterial() {
+        Material = new PbrMaterial() {
             AlbedoColor = albedoColor.ToColor4(),
             RenderEnvironmentMap = true,
             AlbedoMap = TextureModel.Create("Engraved_Metal_COLOR.jpg"),
@@ -126,7 +120,7 @@ public class PBRViewModel : BaseViewModel {
         }
 
         FloorModel = floorGeo;
-        FloorMaterial = new PBRMaterial() {
+        FloorMaterial = new PbrMaterial() {
             AlbedoMap = TextureModel.Create("Wood_Planks_COLOR.jpg"),
             NormalMap = TextureModel.Create("Wood_Planks_NORM.jpg"),
             DisplacementMap = TextureModel.Create("Wood_Planks_DISP.png"),

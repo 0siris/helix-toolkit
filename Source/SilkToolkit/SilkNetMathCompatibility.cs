@@ -179,21 +179,21 @@ internal static class SilkMath {
 
     public static Matrix RotationZ(float angle) => FromNumerics(Matrix4x4.CreateRotationZ(angle));
 
-    public static Matrix LookAtLH(Vector3 eye, Vector3 target, Vector3 up) {
+    public static Matrix LookAtLh(Vector3 eye, Vector3 target, Vector3 up) {
         var zAxis = Normalize(target - eye);
         var xAxis = Normalize(Cross(up, zAxis));
         var yAxis = Cross(zAxis, xAxis);
         return CreateLookAt(eye, xAxis, yAxis, zAxis);
     }
 
-    public static Matrix LookAtRH(Vector3 eye, Vector3 target, Vector3 up) {
+    public static Matrix LookAtRh(Vector3 eye, Vector3 target, Vector3 up) {
         var zAxis = Normalize(eye - target);
         var xAxis = Normalize(Cross(up, zAxis));
         var yAxis = Cross(zAxis, xAxis);
         return CreateLookAt(eye, xAxis, yAxis, zAxis);
     }
 
-    public static Matrix PerspectiveFovLH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
+    public static Matrix PerspectiveFovLh(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
@@ -214,7 +214,7 @@ internal static class SilkMath {
                           0);
     }
 
-    public static Matrix PerspectiveFovRH(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
+    public static Matrix PerspectiveFovRh(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
@@ -235,7 +235,7 @@ internal static class SilkMath {
                           0);
     }
 
-    public static Matrix OrthoLH(float width, float height, float nearPlane, float farPlane) => new(2f / width,
+    public static Matrix OrthoLh(float width, float height, float nearPlane, float farPlane) => new(2f / width,
         0,
         0,
         0,
@@ -252,7 +252,7 @@ internal static class SilkMath {
         -nearPlane / (farPlane - nearPlane),
         1);
 
-    public static Matrix OrthoRH(float width, float height, float nearPlane, float farPlane) => new(2f / width,
+    public static Matrix OrthoRh(float width, float height, float nearPlane, float farPlane) => new(2f / width,
         0,
         0,
         0,

@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace CoreWpfTest;
@@ -12,15 +6,15 @@ namespace CoreWpfTest;
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : Application {
-    private static NVOptimusEnabler enabler;
+    private static NvOptimusEnabler _enabler;
 
     protected override void OnStartup(StartupEventArgs e) {
-        enabler = new NVOptimusEnabler();
+        _enabler = new NvOptimusEnabler();
         base.OnStartup(e);
     }
 
-    private sealed class NVOptimusEnabler {
-        static NVOptimusEnabler() {
+    private sealed class NvOptimusEnabler {
+        static NvOptimusEnabler() {
             try {
                 if (Environment.Is64BitProcess)
                     NativeMethods.LoadNvApi64();

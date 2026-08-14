@@ -5,22 +5,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Text;
 using Assimp;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Model;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
 public partial class Exporter : IDisposable {
     private const string ToUpperDictString = @"..\";
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-    protected readonly Dictionary<Geometry3D, int> geometryCollection = [];
-    protected readonly Dictionary<MaterialCore, int> materialCollection = [];
-    protected readonly Dictionary<ulong, MeshInfo> meshInfos = [];
+    protected readonly Dictionary<Geometry3D, int> GeometryCollection = [];
+    protected readonly Dictionary<MaterialCore, int> MaterialCollection = [];
+    protected readonly Dictionary<ulong, MeshInfo> MeshInfos = [];
     private IList<Animations.Animation>? animations;
 
-    private int MaterialIndexForNoName;
-    private int MeshIndexForNoName;
+    private int materialIndexForNoName;
+    private int meshIndexForNoName;
 
     static Exporter() {
         using (var temp = new AssimpContext()) {
@@ -33,7 +31,7 @@ public partial class Exporter : IDisposable {
         SupportedFormatsString = builder.ToString(0, builder.Length - 1);
     }
 
-    public event EventHandler<Exception> AssimpExceptionOccurred;
+    public event EventHandler<Exception>? AssimpExceptionOccurred;
 
     /// <summary>
     ///     Exports to file.
@@ -59,7 +57,7 @@ public partial class Exporter : IDisposable {
     /// <returns></returns>
     public ErrorCode ExportToFile(string filePath, Model.Scene.SceneNode root, string formatId) {
         Clear();
-        AssimpContext? exporter = null;
+        AssimpContext? exporter;
         var useExtern = false;
         if (Configuration.ExternalContext != null) {
             exporter = Configuration.ExternalContext;
@@ -141,10 +139,10 @@ public partial class Exporter : IDisposable {
         CollectAllGeometriesAndMaterials(root);
         var scene = new Scene();
         //Adds material and meshes into the assimp scene
-        foreach (var material in materialCollection.OrderBy(x => x.Value))
+        foreach (var material in MaterialCollection.OrderBy(x => x.Value))
             scene.Materials.Add(OnCreateAssimpMaterial(material.Key));
         scene.RootNode = ConstructAssimpNode(root, null);
-        scene.Meshes.AddRange(meshInfos.Select(x => x.Value.AssimpMesh));
+        scene.Meshes.AddRange(MeshInfos.Select(x => x.Value.AssimpMesh));
         AddAnimationsToScene(scene);
         return scene;
     }
@@ -157,7 +155,7 @@ public partial class Exporter : IDisposable {
             foreach (var s in group.Items)
                 if (s is Model.Scene.GeometryNode geo) {
                     var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
-                    if (meshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
+                    if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
                 } else if (s is Model.Scene.GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
                 } else {
@@ -169,7 +167,7 @@ public partial class Exporter : IDisposable {
                     node.Metadata.Add(metadata.Key, metadata.Value);
         } else if (current is Model.Scene.GeometryNode geo) {
             var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
-            if (meshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
+            if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
         } else {
             Logger.Warn("Current node type does not support yet. Type: {Value0}", current.GetType().Name);
         }
@@ -180,10 +178,10 @@ public partial class Exporter : IDisposable {
     private void CollectAllGeometriesAndMaterials(Model.Scene.SceneNode root) {
         // Collect all geometries and materials
         foreach (var node in root.Traverse()) {
-            if (GetMaterialFromNode(node, out var material) && !materialCollection.ContainsKey(material))
-                materialCollection.Add(material, materialCollection.Count);
-            if (GetGeometryFromNode(node, out var geometry) && !geometryCollection.ContainsKey(geometry))
-                geometryCollection.Add(geometry, geometryCollection.Count);
+            if (GetMaterialFromNode(node, out var material) && !MaterialCollection.ContainsKey(material))
+                MaterialCollection.Add(material, MaterialCollection.Count);
+            if (GetGeometryFromNode(node, out var geometry) && !GeometryCollection.ContainsKey(geometry))
+                GeometryCollection.Add(geometry, GeometryCollection.Count);
         }
 
         foreach (var node in root.Traverse())
@@ -194,21 +192,21 @@ public partial class Exporter : IDisposable {
                     continue;
                 }
 
-                if (!meshInfos.ContainsKey(info.MaterialMeshKey)) meshInfos.Add(info.MaterialMeshKey, info);
+                if (!MeshInfos.ContainsKey(info.MaterialMeshKey)) MeshInfos.Add(info.MaterialMeshKey, info);
             }
 
         if (configuration.EnableParallelProcessing)
-            Parallel.ForEach(meshInfos, info => { info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value); });
+            Parallel.ForEach(MeshInfos, info => { info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value); });
         else
-            foreach (var info in meshInfos)
+            foreach (var info in MeshInfos)
                 info.Value.AssimpMesh = OnCreateAssimpMesh(info.Value);
     }
 
     protected virtual void Clear() {
-        geometryCollection.Clear();
-        materialCollection.Clear();
-        meshInfos.Clear();
-        MaterialIndexForNoName = MeshIndexForNoName = 0;
+        GeometryCollection.Clear();
+        MaterialCollection.Clear();
+        MeshInfos.Clear();
+        materialIndexForNoName = meshIndexForNoName = 0;
     }
 
     #region Inner Classes

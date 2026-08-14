@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using Assimp;
 using HelixToolkit.SharpDX.Core.Model;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -88,7 +87,7 @@ public partial class Importer {
                 }
 
                 mnode.Name = string.IsNullOrEmpty(mesh.AssimpMesh.Name)
-                                 ? $"{nameof(Model.Scene.MeshNode)}_{Interlocked.Increment(ref MeshIndexForNoName)}"
+                                 ? $"{nameof(Model.Scene.MeshNode)}_{Interlocked.Increment(ref meshIndexForNoName)}"
                                  : mesh.AssimpMesh.Name;
                 mnode.Geometry = mesh.Mesh;
                 mnode.Material = material.Value;
@@ -99,7 +98,7 @@ public partial class Importer {
             case PrimitiveType.Line:
                 var lnode = new Model.Scene.LineNode {
                     Name = string.IsNullOrEmpty(mesh.AssimpMesh.Name)
-                               ? $"{nameof(Model.Scene.LineNode)}_{Interlocked.Increment(ref MeshIndexForNoName)}"
+                               ? $"{nameof(Model.Scene.LineNode)}_{Interlocked.Increment(ref meshIndexForNoName)}"
                                : mesh.AssimpMesh.Name,
                     Geometry = mesh.Mesh,
                     ModelMatrix = transform
@@ -112,7 +111,7 @@ public partial class Importer {
             case PrimitiveType.Point:
                 var pnode = new Model.Scene.PointNode {
                     Name = string.IsNullOrEmpty(mesh.AssimpMesh.Name)
-                               ? $"{nameof(Model.Scene.PointNode)}_{Interlocked.Increment(ref MeshIndexForNoName)}"
+                               ? $"{nameof(Model.Scene.PointNode)}_{Interlocked.Increment(ref meshIndexForNoName)}"
                                : mesh.AssimpMesh.Name,
                     Geometry = mesh.Mesh,
                     ModelMatrix = transform

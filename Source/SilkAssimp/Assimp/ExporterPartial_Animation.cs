@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using Assimp;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -12,7 +11,9 @@ public partial class Exporter {
     public static double DefaultTicksPerSecond = 30;
 
     private ErrorCode AddAnimationsToScene(Scene scene) {
-        if (animations == null || animations.Count == 0) return ErrorCode.Succeed;
+        if (animations == null || animations.Count == 0) 
+            return ErrorCode.Succeed;
+        
 
         for (var i = 0; i < animations.Count; ++i) {
             var ani = new Animation {

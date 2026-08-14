@@ -24,7 +24,7 @@ public class AssimpImportExportTests {
 
     [Theory]
     [InlineData(MaterialType.BlinnPhong, typeof(PhongMaterialCore))]
-    [InlineData(MaterialType.PBR, typeof(PbrMaterialCore))]
+    [InlineData(MaterialType.Pbr, typeof(PbrMaterialCore))]
     [InlineData(MaterialType.Diffuse, typeof(DiffuseMaterialCore))]
     [Trait("Category", "Unit")]
     public void InMemoryTriangleImportsRequestedMaterial(MaterialType materialType, Type expectedType) {

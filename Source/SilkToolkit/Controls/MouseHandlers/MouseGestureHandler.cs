@@ -20,7 +20,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     An abstract base class for the mouse gesture handlers.
 /// </summary>
 internal abstract class MouseGestureHandler {
-    protected List<HitTestResult> hits = [];
+    protected List<HitTestResult> Hits = [];
 
     private long startTick;
 
@@ -342,12 +342,12 @@ internal abstract class MouseGestureHandler {
     private void SetMouseDownPoint(Point position) {
         MouseDownPoint = position;
 
-        if (!Viewport.FixedRotationPointEnabled && Viewport.FindHitsInFrustum(MouseDownPoint.ToVector2(), ref hits)) {
-            if (hits.Count > 0) {
-                MouseDownNearestPoint3D = hits[0].PointHit;
-                if (hits[0].ModelHit is Element3D ele)
+        if (!Viewport.FixedRotationPointEnabled && Viewport.FindHitsInFrustum(MouseDownPoint.ToVector2(), ref Hits)) {
+            if (Hits.Count > 0) {
+                MouseDownNearestPoint3D = Hits[0].PointHit;
+                if (Hits[0].ModelHit is Element3D ele)
                     MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center();
-                else if (hits[0].ModelHit is SceneNode node)
+                else if (Hits[0].ModelHit is SceneNode node)
                     MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
             }
         } else {

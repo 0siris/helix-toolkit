@@ -19,10 +19,10 @@ public class CameraModel3D : CompositeModel3D {
                                                                   e.NewValue as ProjectionCamera;
                                                           }));
 
-    protected bool isCaptured;
-    protected Vector3 lastHitPos;
-    protected Viewport3DX? viewport;
-    protected CameraCore? viewportCamera;
+    protected bool IsCaptured;
+    protected Vector3 LastHitPos;
+    protected Viewport3DX? Viewport;
+    protected CameraCore? ViewportCamera;
 
     public CameraModel3D() {
         var b1 = new MeshBuilder();
@@ -70,7 +70,7 @@ public class CameraModel3D : CompositeModel3D {
         set => SetValue(CameraProperty, value);
     }
 
-    protected ProjectionCamera? camera {
+    protected ProjectionCamera? Camera {
         get;
         private set {
             if (field == value) return;
@@ -87,34 +87,34 @@ public class CameraModel3D : CompositeModel3D {
         if (args.Viewport == null)
             return;
 
-        isCaptured = true;
-        viewport = args.Viewport;
-        viewportCamera = args.Viewport.Camera;
-        lastHitPos = args.HitTestResult.PointHit;
+        IsCaptured = true;
+        Viewport = args.Viewport;
+        ViewportCamera = args.Viewport.Camera;
+        LastHitPos = args.HitTestResult.PointHit;
     }
 
     protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
         base.OnMouse3DUp(sender, e);
-        if (isCaptured) {
-            isCaptured = false;
-            viewportCamera = null;
-            viewport = null;
+        if (IsCaptured) {
+            IsCaptured = false;
+            ViewportCamera = null;
+            Viewport = null;
         }
     }
 
     protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
-        if (isCaptured) {
+        if (IsCaptured) {
             var args = (Mouse3DEventArgs)e;
 
             // move dragmodel
-            var normal = viewportCamera!.LookDirection;
+            var normal = ViewportCamera!.LookDirection;
 
             // hit position
-            var newHit = viewport!.UnProjectOnPlane(args.Position, lastHitPos.ToPoint3D(), normal.ToVector3D());
+            var newHit = Viewport!.UnProjectOnPlane(args.Position, LastHitPos.ToPoint3D(), normal.ToVector3D());
             if (newHit.HasValue) {
-                var offset = newHit.Value - lastHitPos.ToPoint3D();
-                lastHitPos = newHit.Value.ToVector3();
+                var offset = newHit.Value - LastHitPos.ToPoint3D();
+                LastHitPos = newHit.Value.ToVector3();
                 if (Transform == null)
                     Transform = new TranslateTransform3D(offset);
                 else

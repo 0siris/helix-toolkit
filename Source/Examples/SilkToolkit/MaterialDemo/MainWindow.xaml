@@ -28,7 +28,7 @@
             EffectsManager="{Binding EffectsManager}"
             EnableDesignModeRendering="False"
             EnableSwapChainRendering="False"
-            FXAALevel="Low"
+            FxaaLevel="Low"
             IsShadowMappingEnabled="True"
             ShowCoordinateSystem="False"
             ShowFrameDetails="True"
@@ -109,7 +109,7 @@
             <CheckBox IsChecked="{Binding ColorStripeMaterial.ColorStripeXEnabled}">Enable StripeX</CheckBox>
             <CheckBox IsChecked="{Binding ColorStripeMaterial.ColorStripeYEnabled}">Enable StripeY</CheckBox>
             <Separator />
-            <Button Command="{Binding OpenPBRSampleCommand}">Open PBR Samples</Button>
+            <Button Command="{Binding OpenPbrSampleCommand}">Open PBR Samples</Button>
         </StackPanel>
     </Grid>
 </Window>

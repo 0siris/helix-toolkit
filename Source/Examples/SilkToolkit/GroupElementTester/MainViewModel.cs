@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
-using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;

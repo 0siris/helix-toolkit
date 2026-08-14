@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
@@ -19,7 +14,7 @@ public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { private set; get; }
 
     public Media3D.Transform3D EmitterTransform {
-        get => field;
+        get;
         set {
             SetValue(ref field, value);
             EmitterLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
@@ -34,17 +29,17 @@ public class MainViewModel : BaseViewModel {
                 EmitterTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get => field;
+        get;
     } = 0.5;
 
     public Media3D.Point3D EmitterLocation {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(0, -4, 0);
 
 
     public Media3D.Transform3D ConsumerTransform {
-        get => field;
+        get;
         set {
             SetValue(ref field, value);
             ConsumerLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
@@ -53,7 +48,7 @@ public class MainViewModel : BaseViewModel {
 
     public Media3D.Point3D ConsumerLocation {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(0, 4, 0);
 
     public double ConsumerRadius {
@@ -64,7 +59,7 @@ public class MainViewModel : BaseViewModel {
                 ConsumerTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get => field;
+        get;
     } = 0.5;
 
     public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
@@ -73,12 +68,12 @@ public class MainViewModel : BaseViewModel {
 
     public Stream ParticleTexture {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public Media3D.Vector3D Acceleration {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(0, 1, 0);
 
     public int AccelerationX {
@@ -87,12 +82,12 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get => field;
+        get;
     } = 0;
 
     public Size ParticleSize {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(0.1, 0.1);
 
     public int SizeSlider {
@@ -101,7 +96,7 @@ public class MainViewModel : BaseViewModel {
                 ParticleSize = new Size(((double)value) / 100, ((double)value) / 100);
             }
         }
-        get => field;
+        get;
     } = 10;
 
     public int AccelerationY {
@@ -110,7 +105,7 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get => field;
+        get;
     } = 100;
 
     public int AccelerationZ {
@@ -119,7 +114,7 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get => field;
+        get;
     } = 0;
 
     private const int DefaultBoundScale = 10;
@@ -130,7 +125,7 @@ public class MainViewModel : BaseViewModel {
 
     public Media3D.Rect3D ParticleBounds {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public int BoundScale {
@@ -140,7 +135,7 @@ public class MainViewModel : BaseViewModel {
                 BoundingLineTransform.ScaleX = BoundingLineTransform.ScaleY = BoundingLineTransform.ScaleZ = value;
             }
         }
-        get => field;
+        get;
     } = DefaultBoundScale;
 
     public Media.Color BlendColor {
@@ -149,7 +144,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get => field;
+        get;
     } = Media.Colors.White;
 
     public int RedValue {
@@ -158,7 +153,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public int GreenValue {
@@ -167,7 +162,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public int BlueValue {
@@ -176,22 +171,22 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public Media.SolidColorBrush BlendColorBrush {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(Media.Colors.White);
 
     public int NumTextureRows {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public int NumTextureColumns {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public int SelectedTextureIndex {
@@ -200,7 +195,7 @@ public class MainViewModel : BaseViewModel {
                 LoadTexture(value);
             }
         }
-        get => field;
+        get;
     } = 0;
 
     public Array BlendOperationArray { get; } = Enum.GetValues(typeof(BlendOperation));
@@ -209,22 +204,22 @@ public class MainViewModel : BaseViewModel {
 
     public BlendOption SourceBlendOption {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = BlendOption.One;
 
     public BlendOption SourceAlphaBlendOption {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = BlendOption.One;
 
     public BlendOption DestBlendOption {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = BlendOption.One;
 
     public BlendOption DestAlphaBlendOption {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = BlendOption.Zero;
 
     public Media.Color BlendFactorColor {
@@ -233,7 +228,7 @@ public class MainViewModel : BaseViewModel {
                 BlendFactorColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get => field;
+        get;
     } = Media.Colors.White;
 
     public int RedFactorValue {
@@ -243,7 +238,7 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public int GreenFactorValue {
@@ -253,7 +248,7 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public int BlueFactorValue {
@@ -263,12 +258,12 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get => field;
+        get;
     } = 255;
 
     public Media.SolidColorBrush BlendFactorColorBrush {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = new(Media.Colors.White);
 
     public IList<Matrix> Instances { private set; get; }

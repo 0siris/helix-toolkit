@@ -8,7 +8,6 @@ namespace EnvironmentMapDemo;
 
 using System.Collections.Generic;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Color = Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;

@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;

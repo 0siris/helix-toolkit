@@ -27,7 +27,7 @@
             EffectsManager="{Binding EffectsManager}"
             EnableDesignModeRendering="False"
             EnableSwapChainRendering="False"
-            FXAALevel="Medium"
+            FxaaLevel="Medium"
             IsShadowMappingEnabled="True"
             ShowCoordinateSystem="False"
             ShowFrameRate="True"

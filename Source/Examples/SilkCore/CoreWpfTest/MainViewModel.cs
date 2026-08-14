@@ -21,13 +21,12 @@ using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Microsoft.Win32;
 using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 public class MainViewModel : ObservableObject {
-    private string OpenFileFilter = $"{Importer.SupportedFormatsString}";
-    private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
+    private string openFileFilter = $"{Importer.SupportedFormatsString}";
+    private string exportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
 
     public bool ShowWireframe {
         set {
@@ -35,7 +34,7 @@ public class MainViewModel : ObservableObject {
                 ShowWireframeFunct(value);
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool RenderFlat {
@@ -44,7 +43,7 @@ public class MainViewModel : ObservableObject {
                 RenderFlatFunct(value);
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool RenderEnvironmentMap {
@@ -108,7 +107,7 @@ public class MainViewModel : ObservableObject {
                 }
             }
         }
-        get => field;
+        get;
     } = null;
 
     public TextureModel EnvironmentMap { get; }
@@ -147,7 +146,7 @@ public class MainViewModel : ObservableObject {
             return;
         }
 
-        string path = OpenFileDialog(OpenFileFilter);
+        string path = OpenFileDialog(openFileFilter);
         if (path == null) {
             return;
         }
@@ -208,7 +207,7 @@ public class MainViewModel : ObservableObject {
     }
 
     private void ExportFile() {
-        var index = SaveFileDialog(ExportFileFilter, out var path);
+        var index = SaveFileDialog(exportFileFilter, out var path);
         if (!string.IsNullOrEmpty(path) && index >= 0) {
             var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
             var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();

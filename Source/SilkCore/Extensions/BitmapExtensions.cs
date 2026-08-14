@@ -5,12 +5,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using System.Text;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core;
 

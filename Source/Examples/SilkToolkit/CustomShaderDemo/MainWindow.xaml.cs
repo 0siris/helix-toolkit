@@ -7,8 +7,6 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.Wpf.SharpDX;
-
 namespace CustomShaderDemo;
 
 using System;

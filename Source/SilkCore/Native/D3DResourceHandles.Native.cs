@@ -3,17 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Render;
-using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using Silk.NET.DXGI;
-using SilkD3D11BufferPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Buffer>;
-using SilkD3D11ResourcePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Resource>;
-using SilkD3D11Texture1DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture1D>;
-using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture2D>;
-using SilkD3D11Texture3DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11Texture3D>;
-
-using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 internal static class D3DResourceConversions {

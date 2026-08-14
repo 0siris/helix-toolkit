@@ -7,13 +7,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGMEMORY
 #endif
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core;
 

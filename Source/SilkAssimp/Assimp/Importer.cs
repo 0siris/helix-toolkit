@@ -6,10 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Text;
 using Assimp;
 using Assimp.Configs;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Model;
-using Microsoft.Extensions.Logging;
-using Metadata = HelixToolkit.SharpDX.Core.Model.Metadata;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -26,8 +23,8 @@ public partial class Importer : IDisposable {
     private readonly Dictionary<string, EmbeddedTexture> embeddedTextureDict = [];
     private readonly List<EmbeddedTexture> embeddedTextures = [];
 
-    private int MaterialIndexForNoName;
-    private int MeshIndexForNoName;
+    private int materialIndexForNoName;
+    private int meshIndexForNoName;
     private string path = "";
 
     static Importer() {
@@ -318,8 +315,8 @@ public partial class Importer : IDisposable {
         textureDict.Clear();
         SceneNodes.Clear();
         Animations.Clear();
-        MeshIndexForNoName = 0;
-        MaterialIndexForNoName = 0;
+        meshIndexForNoName = 0;
+        materialIndexForNoName = 0;
     }
 
     /// <summary>

@@ -106,12 +106,12 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.ColorStripeX = value;
             }
         }
-        get => field;
+        get;
     }
 
     public FillMode FillMode {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -120,11 +120,11 @@ public class MainViewModel : BaseViewModel {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get => field;
+        get;
     } = false;
 
-    private int Width = 100;
-    private int Height = 100;
+    private int width = 100;
+    private int height = 100;
 
     public ICommand GenerateNoiseCommand { private set; get; }
 
@@ -145,14 +145,14 @@ public class MainViewModel : BaseViewModel {
 
 
         var builder = new MeshBuilder(true);
-        Vector3[] points = new Vector3[Width * Height];
-        for (int i = 0; i < Width; ++i) {
-            for (int j = 0; j < Height; ++j) {
-                points[i * Width + j] = new Vector3(i / 10f, 0, j / 10f);
+        Vector3[] points = new Vector3[width * height];
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                points[i * width + j] = new Vector3(i / 10f, 0, j / 10f);
             }
         }
 
-        builder.AddRectangularMesh(points, Width);
+        builder.AddRectangularMesh(points, width);
         Model = builder.ToMesh();
         for (int i = 0; i < Model.Normals.Count; ++i) {
             Model.Normals[i] = new Vector3(0, Math.Abs(Model.Normals[i].Y), 0);
@@ -213,11 +213,11 @@ public class MainViewModel : BaseViewModel {
 
     private void CreatePerlinNoise() {
         float[] noise;
-        MathHelper.GenerateNoiseMap(Width, Height, 8, out noise);
-        Vector2Collection collection = new Vector2Collection(Width * Height);
-        for (int i = 0; i < Width; ++i) {
-            for (int j = 0; j < Height; ++j) {
-                collection.Add(new Vector2(Math.Abs(noise[Width * i + j]), 0));
+        MathHelper.GenerateNoiseMap(width, height, 8, out noise);
+        Vector2Collection collection = new Vector2Collection(width * height);
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                collection.Add(new Vector2(Math.Abs(noise[width * i + j]), 0));
             }
         }
 

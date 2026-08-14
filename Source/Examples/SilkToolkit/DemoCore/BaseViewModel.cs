@@ -11,7 +11,6 @@ namespace DemoCore;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 
@@ -26,12 +25,12 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     private string cameraModel = Perspective;
 
     public string Title {
-        get => field;
+        get;
         set => SetValue(ref field, value, "Title");
     } = "Demo (HelixToolkitDX)";
 
     public string SubTitle {
-        get => field;
+        get;
         set => SetValue(ref field, value, "SubTitle");
     } = "Default Base View Model";
 
@@ -47,30 +46,30 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     }
 
     public Camera Camera {
-        get => field;
+        get;
 
         protected set {
             SetValue(ref field, value, "Camera");
             CameraModel = value is PerspectiveCamera
-                              ? Perspective
-                              : value is OrthographicCamera
-                                  ? Orthographic
-                              : throw new InvalidOperationException("Unsupported camera type.");
+                ? Perspective
+                : value is OrthographicCamera
+                    ? Orthographic
+                    : throw new InvalidOperationException("Unsupported camera type.");
         }
     }
 
     public IEffectsManager? EffectsManager {
-        get => field;
+        get;
         protected set => SetValue(ref field, value);
     }
 
-    protected OrthographicCamera defaultOrthographicCamera = new() {
+    protected OrthographicCamera DefaultOrthographicCamera = new() {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
         LookDirection = new System.Windows.Media.Media3D.Vector3D(-0, -0, -5),
         UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0), NearPlaneDistance = 1, FarPlaneDistance = 100
     };
 
-    protected PerspectiveCamera defaultPerspectiveCamera = new() {
+    protected PerspectiveCamera DefaultPerspectiveCamera = new() {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
         LookDirection = new System.Windows.Media.Media3D.Vector3D(-0, -0, -5),
         UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0), NearPlaneDistance = 0.5,
@@ -80,7 +79,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     public event EventHandler? CameraModelChanged;
 
     protected BaseViewModel() {
-        Camera = defaultPerspectiveCamera;
+        Camera = DefaultPerspectiveCamera;
 
         // camera models
         CameraModelCollection = [
@@ -92,10 +91,10 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         CameraModelChanged += (s, e) => {
             if (cameraModel == Orthographic) {
                 if (!(Camera is OrthographicCamera))
-                    Camera = defaultOrthographicCamera;
+                    Camera = DefaultOrthographicCamera;
             } else if (cameraModel == Perspective) {
                 if (!(Camera is PerspectiveCamera))
-                    Camera = defaultPerspectiveCamera;
+                    Camera = DefaultPerspectiveCamera;
             } else {
                 throw new InvalidOperationException("Camera Model Error.");
             }

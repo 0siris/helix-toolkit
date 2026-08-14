@@ -68,38 +68,38 @@ namespace Wpf3DTools;
 ///     Transform property with additional Transforms.
 /// </summary>
 public class Trackball {
-    private readonly RotateTransform3D _rotateTransform;
-    private readonly AxisAngleRotation3D _rotation = new();
+    private readonly RotateTransform3D rotateTransform;
+    private readonly AxisAngleRotation3D rotation = new();
 
-    private readonly double _rotationFactor;
-    private readonly ScaleTransform3D _scale = new();
+    private readonly double rotationFactor;
+    private readonly ScaleTransform3D scale = new();
 
-    private readonly Transform3DGroup _transform;
-    private readonly TranslateTransform3D _translate = new();
-    private readonly double _zoomFactor;
-    private Point _previousPosition2D;
-    private Vector3D _previousPosition3D = new(0, 0, 1);
+    private readonly Transform3DGroup transform;
+    private readonly TranslateTransform3D translate = new();
+    private readonly double zoomFactor;
+    private Point previousPosition2D;
+    private Vector3D previousPosition3D = new(0, 0, 1);
 
     public Trackball(double rotationFactor = 4.0, double zoomFacfor = 1.0) {
-        _rotationFactor = rotationFactor;
-        _zoomFactor = zoomFacfor;
-        _transform = new Transform3DGroup();
-        _transform.Children.Add(_scale);
-        _rotateTransform = new RotateTransform3D(_rotation);
-        _transform.Children.Add(_rotateTransform);
-        _transform.Children.Add(_translate);
+        this.rotationFactor = rotationFactor;
+        zoomFactor = zoomFacfor;
+        transform = new Transform3DGroup();
+        transform.Children.Add(scale);
+        rotateTransform = new RotateTransform3D(rotation);
+        transform.Children.Add(rotateTransform);
+        transform.Children.Add(translate);
     }
 
     /// <summary>
     ///     A transform to move the camera or scene to the trackball's
     ///     current orientation and scale.
     /// </summary>
-    public Transform3D Transform => _transform;
+    public Transform3D Transform => transform;
 
     /// <summary>
     ///     Rotation component of the transform
     /// </summary>
-    public Transform3D RotateTransform => _rotateTransform;
+    public Transform3D RotateTransform => rotateTransform;
 
     /// <summary>
     ///     The FrameworkElement we listen to for mouse events.
@@ -130,10 +130,10 @@ public class Trackball {
     /// </summary>
     private void OnMouseDown(object sender, MouseEventArgs e) {
         Mouse.Capture(EventSource, CaptureMode.SubTree);
-        _previousPosition2D = e.GetPosition(EventSource);
-        _previousPosition3D = ProjectToTrackball(EventSource.ActualWidth,
+        previousPosition2D = e.GetPosition(EventSource);
+        previousPosition3D = ProjectToTrackball(EventSource.ActualWidth,
                                                  EventSource.ActualHeight,
-                                                 _previousPosition2D);
+                                                 previousPosition2D);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public class Trackball {
             Look(currentPosition);
         else if (e.RightButton == MouseButtonState.Pressed) Zoom(currentPosition);
 
-        _previousPosition2D = currentPosition;
+        previousPosition2D = currentPosition;
     }
 
     /// <summary>
@@ -162,26 +162,26 @@ public class Trackball {
     private void Look(Point currentPosition) {
         var currentPosition3D = ProjectToTrackball(EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
 
-        if (_previousPosition3D.Equals(currentPosition3D))
+        if (previousPosition3D.Equals(currentPosition3D))
             return;
 
-        var axis = Vector3D.CrossProduct(_previousPosition3D, currentPosition3D);
+        var axis = Vector3D.CrossProduct(previousPosition3D, currentPosition3D);
 
-        var angle = _rotationFactor * Vector3D.AngleBetween(_previousPosition3D, currentPosition3D);
+        var angle = rotationFactor * Vector3D.AngleBetween(previousPosition3D, currentPosition3D);
         var delta = new System.Windows.Media.Media3D.Quaternion(axis, -angle);
 
         // Get the current orientation from the RotateTransform3D
-        var r = _rotation;
-        var q = new System.Windows.Media.Media3D.Quaternion(_rotation.Axis, _rotation.Angle);
+        var r = rotation;
+        var q = new System.Windows.Media.Media3D.Quaternion(rotation.Axis, rotation.Angle);
 
         // Compose the delta with the previous orientation
         q *= delta;
 
         // Write the new orientation back to the Rotation3D
-        _rotation.Axis = q.Axis;
-        _rotation.Angle = q.Angle;
+        rotation.Axis = q.Axis;
+        rotation.Angle = q.Angle;
 
-        _previousPosition3D = currentPosition3D;
+        previousPosition3D = currentPosition3D;
     }
 
     /// <summary>
@@ -189,15 +189,15 @@ public class Trackball {
     private void Pan(Point currentPosition) {
         var currentPosition3D = ProjectToTrackball(EventSource.ActualWidth, EventSource.ActualHeight, currentPosition);
 
-        var change = Point.Subtract(_previousPosition2D, currentPosition);
+        var change = Point.Subtract(previousPosition2D, currentPosition);
 
         var changeVector = new Vector3D(change.X, change.Y, 0);
 
-        _translate.OffsetX += changeVector.X * .1;
-        _translate.OffsetY -= changeVector.Y * .1;
-        _translate.OffsetZ += changeVector.Z * .1;
+        translate.OffsetX += changeVector.X * .1;
+        translate.OffsetY -= changeVector.Y * .1;
+        translate.OffsetZ += changeVector.Z * .1;
 
-        _previousPosition3D = currentPosition3D;
+        previousPosition3D = currentPosition3D;
     }
 
     /// <summary>
@@ -218,12 +218,12 @@ public class Trackball {
     /// <summary>
     /// </summary>
     private void Zoom(Point currentPosition) {
-        var yDelta = currentPosition.Y - _previousPosition2D.Y;
+        var yDelta = currentPosition.Y - previousPosition2D.Y;
 
-        var scale = _zoomFactor * Math.Exp(-yDelta / 100); // e^(yDelta/100) is fairly arbitrary.
+        var scale = zoomFactor * Math.Exp(-yDelta / 100); // e^(yDelta/100) is fairly arbitrary.
 
-        _scale.ScaleX *= scale;
-        _scale.ScaleY *= scale;
-        _scale.ScaleZ *= scale;
+        this.scale.ScaleX *= scale;
+        this.scale.ScaleY *= scale;
+        this.scale.ScaleZ *= scale;
     }
 }

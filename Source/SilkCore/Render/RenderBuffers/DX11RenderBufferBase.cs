@@ -24,7 +24,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The D2D controls
     /// </summary>
-    protected D2DTargetProxy d2dTarget;
+    protected D2DTargetProxy D2DTarget;
 
     /// <summary>
     ///     The depth stencil buffer

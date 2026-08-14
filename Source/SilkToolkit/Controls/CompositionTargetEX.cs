@@ -6,28 +6,28 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 ///     https://evanl.wordpress.com/2009/12/06/efficient-optimal-per-frame-eventing-in-wpf/
 /// </summary>
 public sealed class CompositionTargetEx : IDisposable {
-    private TimeSpan _last = TimeSpan.Zero;
-    private event EventHandler<RenderingEventArgs> _FrameUpdating;
+    private TimeSpan last = TimeSpan.Zero;
+    private event EventHandler<RenderingEventArgs> FrameUpdating;
 
     public event EventHandler<RenderingEventArgs> Rendering {
         add {
-            if (_FrameUpdating == null)
+            if (FrameUpdating == null)
                 CompositionTarget.Rendering += CompositionTarget_Rendering;
-            _FrameUpdating += value;
+            FrameUpdating += value;
         }
         remove {
-            _FrameUpdating -= value;
-            if (_FrameUpdating == null)
+            FrameUpdating -= value;
+            if (FrameUpdating == null)
                 CompositionTarget.Rendering -= CompositionTarget_Rendering;
         }
     }
 
     private void CompositionTarget_Rendering(object sender, EventArgs e) {
         var args = (RenderingEventArgs)e;
-        if (args.RenderingTime == _last)
+        if (args.RenderingTime == last)
             return;
-        _last = args.RenderingTime;
-        _FrameUpdating?.Invoke(sender, args);
+        last = args.RenderingTime;
+        FrameUpdating?.Invoke(sender, args);
     }
 
     #region IDisposable Support

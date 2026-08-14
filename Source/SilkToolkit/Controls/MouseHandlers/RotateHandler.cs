@@ -131,8 +131,8 @@ internal class RotateHandler : MouseGestureHandler {
             Controller.StopPanning();
         }
 
-        p0 = SilkMath.Multiply(p0, Controller.AllowRotateXY);
-        p1 = SilkMath.Multiply(p1, Controller.AllowRotateXY);
+        p0 = SilkMath.Multiply(p0, Controller.AllowRotateXy);
+        p1 = SilkMath.Multiply(p1, Controller.AllowRotateXy);
         var newPos = Camera.CameraInternal.Position;
         var newLook = Camera.CameraInternal.LookDirection;
         var newUp = SilkMath.Normalize(Camera.CameraInternal.UpDirection);

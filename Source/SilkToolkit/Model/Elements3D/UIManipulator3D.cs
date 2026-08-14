@@ -23,14 +23,14 @@ using Transform3D = Transform3D;
 /// <summary>
 ///     An abstract base class for manipulators.
 /// </summary>
-public abstract class UIManipulator3D : MeshGeometryModel3D {
+public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <summary>
     ///     The target transform property.
     ///     Bind the Tranform of the Target to this Property
     /// </summary>
     public static readonly DependencyProperty TargetTransformProperty = DependencyProperty.Register("TargetTransform",
         typeof(Transform3D),
-        typeof(UIManipulator3D),
+        typeof(UiManipulator3D),
         new FrameworkPropertyMetadata(null,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                                       (d, e) => { (d as Element3DCore).InvalidateRender(); }));
@@ -41,7 +41,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     public static readonly DependencyProperty OffsetProperty = DependencyProperty.Register(
         "Offset",
         typeof(Vector3),
-        typeof(UIManipulator3D),
+        typeof(UiManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 0), ModelChanged));
 
     /// <summary>
@@ -49,14 +49,14 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// </summary>
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value",
         typeof(double),
-        typeof(UIManipulator3D),
+        typeof(UiManipulator3D),
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ValueChanged));
 
-    protected bool isMouseCaptured;
-    protected Vector3 lastHitPosWS, cameraNormal;
-    protected Viewport3DX viewport;
+    protected bool IsMouseCaptured;
+    protected Vector3 LastHitPosWs, CameraNormal;
+    protected Viewport3DX Viewport;
 
-    public UIManipulator3D() {
+    public UiManipulator3D() {
         OnSceneNodeCreated += UIManipulator3D_OnSceneNodeCreated;
     }
 
@@ -119,7 +119,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UIManipulator3D;
+        var m = d as UiManipulator3D;
         m.OnValueChanged(e);
         m.InvalidateRender();
     }
@@ -129,7 +129,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <param name="d"></param>
     /// <param name="e"></param>
     private static void OffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UIManipulator3D;
+        var m = d as UiManipulator3D;
         m.OnOffetChanged(e);
         m.InvalidateRender();
     }
@@ -194,10 +194,10 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
         if (args.Viewport == null)
             return;
 
-        isMouseCaptured = true;
-        viewport = args.Viewport;
-        cameraNormal = args.Viewport.Camera.LookDirection.ToVector3();
-        lastHitPosWS = args.HitTestResult.PointHit;
+        IsMouseCaptured = true;
+        Viewport = args.Viewport;
+        CameraNormal = args.Viewport.Camera.LookDirection.ToVector3();
+        LastHitPosWs = args.HitTestResult.PointHit;
     }
 
     /// <summary>
@@ -206,9 +206,9 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <param name="e"></param>
     protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
         base.OnMouse3DUp(sender, e);
-        if (isMouseCaptured) {
-            isMouseCaptured = false;
-            viewport = null;
+        if (IsMouseCaptured) {
+            IsMouseCaptured = false;
+            Viewport = null;
         }
     }
 
@@ -218,7 +218,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <param name="e"></param>
     protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
-        if (isMouseCaptured) UpdateManipulator(e);
+        if (IsMouseCaptured) UpdateManipulator(e);
     }
 
     /// <summary>
@@ -236,7 +236,7 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UIManipulator3D;
+        var m = d as UiManipulator3D;
         if (m.IsAttached) {
             m.OnModelChanged();
             m.InvalidateRender();

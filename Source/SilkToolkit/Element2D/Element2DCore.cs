@@ -33,7 +33,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     /// <value>
     ///     The unique identifier.
     /// </value>
-    public Guid GUID => SceneNode.Guid;
+    public Guid Guid => SceneNode.Guid;
 
 
     public bool IsAttached => SceneNode.IsAttached;

@@ -11,7 +11,6 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -27,8 +26,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 public class RelayCommand : ICommand {
     #region Fields
 
-    private readonly Action<object?> _execute;
-    private readonly Predicate<object?>? _canExecute;
+    private readonly Action<object?> execute;
+    private readonly Predicate<object?>? canExecute;
 
     #endregion // Fields
 
@@ -49,8 +48,8 @@ public class RelayCommand : ICommand {
     public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute) {
         ArgumentNullException.ThrowIfNull(execute);
 
-        _execute = execute;
-        _canExecute = canExecute;
+        this.execute = execute;
+        this.canExecute = canExecute;
     }
 
     #endregion // Constructors
@@ -58,7 +57,7 @@ public class RelayCommand : ICommand {
     #region ICommand Members
 
     [DebuggerStepThrough]
-    public bool CanExecute(object? parameter) => _canExecute == null || _canExecute(parameter);
+    public bool CanExecute(object? parameter) => canExecute == null || canExecute(parameter);
 
     public event EventHandler? CanExecuteChanged {
         add => CommandManager.RequerySuggested += value;
@@ -66,7 +65,7 @@ public class RelayCommand : ICommand {
     }
 
     public void Execute(object? parameter) {
-        _execute(parameter);
+        execute(parameter);
     }
 
     #endregion // ICommand Members

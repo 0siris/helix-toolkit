@@ -7,14 +7,11 @@
 namespace LineShadingDemo;
 
 using System;
-using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
-using Media = System.Windows.Media;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
@@ -63,16 +60,16 @@ public class MainViewModel : BaseViewModel {
                 var texture = LineMaterial.Texture;
                 var tscale = LineMaterial.TextureScale;
                 LineMaterial = value
-                                   ? new LineArrowHeadTailMaterial() {
-                                       ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
-                                   }
-                                   : new LineArrowHeadMaterial() {
-                                       ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
-                                   };
+                    ? new LineArrowHeadTailMaterial() {
+                        ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
+                    }
+                    : new LineArrowHeadMaterial() {
+                        ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
+                    };
                 OnPropertyChanged(nameof(LineMaterial));
             }
         }
-        get => field;
+        get;
     } = false;
 
     public MainViewModel() {

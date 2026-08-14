@@ -26,7 +26,7 @@ public class BillboardTextModel3D : GeometryModel3D {
         typeof(bool),
         typeof(BillboardTextModel3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as BillboardTextModel3D).material.FixedSize = (bool)e.NewValue; }));
+                             (d, e) => { (d as BillboardTextModel3D).Material.FixedSize = (bool)e.NewValue; }));
 
     /// <summary>
     ///     Fixed sized billboard. Default = true.
@@ -83,7 +83,7 @@ public class BillboardTextModel3D : GeometryModel3D {
                                     typeof(BillboardTextModel3D),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
                                                          (d, e) => {
-                                                             (d as BillboardTextModel3D).material.SamplerDescription =
+                                                             (d as BillboardTextModel3D).Material.SamplerDescription =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
 
@@ -91,13 +91,13 @@ public class BillboardTextModel3D : GeometryModel3D {
 
     #region Overridable Methods
 
-    protected readonly BillboardMaterialCore material = new();
+    protected readonly BillboardMaterialCore Material = new();
 
     /// <summary>
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() => new BillboardNode { Material = material };
+    protected override SceneNode OnCreateSceneNode() => new BillboardNode { Material = Material };
 
     /// <summary>
     ///     Assigns the default values to core.
@@ -105,9 +105,9 @@ public class BillboardTextModel3D : GeometryModel3D {
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         if (core is BillboardNode n) {
-            material.FixedSize = FixedSize;
+            Material.FixedSize = FixedSize;
             n.IsTransparent = IsTransparent;
-            material.SamplerDescription = SamplerDescription;
+            Material.SamplerDescription = SamplerDescription;
         }
 
         base.AssignDefaultValuesToSceneNode(core);

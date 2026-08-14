@@ -34,7 +34,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 
     protected List<HitTestResult> ModelHits = [];
 
-    protected bool treeBuilt; //there is no pre-existing tree yet.
+    protected bool TreeBuilt; //there is no pre-existing tree yet.
     
     
     /// <summary>

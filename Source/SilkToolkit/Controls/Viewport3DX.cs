@@ -120,7 +120,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private List<HitTestResult> hits = [];
     private ContentPresenter? hostPresenter;
 
-    private bool IsAttached;
+    private bool isAttached;
 
     private Window? parentWindow;
 
@@ -169,16 +169,16 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         InitCameraController();
         CommandBindings.Add(new CommandBinding(ViewportCommands.ZoomExtents, ZoomExtentsHandler));
-        CommandBindings.Add(new CommandBinding(ViewportCommands.SetTarget, cameraController.setTargetHandler.Execute));
+        CommandBindings.Add(new CommandBinding(ViewportCommands.SetTarget, cameraController.SetTargetHandler.Execute));
         CommandBindings.Add(new CommandBinding(ViewportCommands.Reset, ResetHandler));
 
-        CommandBindings.Add(new CommandBinding(ViewportCommands.Zoom, cameraController.zoomHandler.Execute));
-        CommandBindings.Add(new CommandBinding(ViewportCommands.Pan, cameraController.panHandler.Execute));
-        CommandBindings.Add(new CommandBinding(ViewportCommands.Rotate, cameraController.rotateHandler.Execute));
+        CommandBindings.Add(new CommandBinding(ViewportCommands.Zoom, cameraController.ZoomHandler.Execute));
+        CommandBindings.Add(new CommandBinding(ViewportCommands.Pan, cameraController.PanHandler.Execute));
+        CommandBindings.Add(new CommandBinding(ViewportCommands.Rotate, cameraController.RotateHandler.Execute));
         CommandBindings.Add(new CommandBinding(ViewportCommands.ChangeFieldOfView,
-                                               cameraController.changeFieldOfViewHandler.Execute));
+                                               cameraController.ChangeFieldOfViewHandler.Execute));
         CommandBindings.Add(new CommandBinding(ViewportCommands.ZoomRectangle,
-                                               cameraController.zoomRectangleHandler.Execute));
+                                               cameraController.ZoomRectangleHandler.Execute));
         CommandBindings.Add(new CommandBinding(ViewportCommands.BottomView, BottomViewHandler));
         CommandBindings.Add(new CommandBinding(ViewportCommands.TopView, TopViewHandler));
         CommandBindings.Add(new CommandBinding(ViewportCommands.FrontView, FrontViewHandler));
@@ -191,7 +191,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         Loaded += ControlLoaded;
         Unloaded += ControlUnloaded;
         IsVisibleChanged += (d, e) => {
-            renderHostInternal?.IsRendering = (bool)e.NewValue;
+            RenderHostInternal?.IsRendering = (bool)e.NewValue;
         };
     }
 
@@ -208,13 +208,13 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <summary>
     ///     Get current render context
     /// </summary>
-    public RenderContext? RenderContext => renderHostInternal?.RenderContext;
+    public RenderContext? RenderContext => RenderHostInternal?.RenderContext;
 
     public ObservableElement3DCollection Items { get; } = [];
 
     private IEnumerable<SceneNode> OwnedRenderables {
         get {
-            if (renderHostInternal != null) {
+            if (RenderHostInternal != null) {
                 foreach (var item in Items) yield return item.SceneNode;
                 if (viewCube is { } cube) yield return cube.SceneNode;
                 if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
@@ -238,10 +238,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     public IEnumerable<SceneNode> Renderables {
         get {
-            if (renderHostInternal != null) {
+            if (RenderHostInternal != null) {
                 foreach (var item in Items) yield return item.SceneNode;
-                if (renderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
-                    foreach (var item in renderHostInternal.SharedModelContainer.Renderables)
+                if (RenderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
+                    foreach (var item in RenderHostInternal.SharedModelContainer.Renderables)
                         yield return item;
 
                 if (viewCube is { } cube) yield return cube.SceneNode;
@@ -259,7 +259,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     public CameraCore? CameraCore => CameraController.ActualCamera;
 
-    public IRenderHost? RenderHost => renderHostInternal;
+    public IRenderHost? RenderHost => RenderHostInternal;
 
     public Rectangle ViewportRectangle => new(0, 0, (int)ActualWidth, (int)ActualHeight);
 
@@ -268,7 +268,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void InvalidateRender() {
-        renderHostInternal?.InvalidateRender();
+        RenderHostInternal?.InvalidateRender();
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void InvalidateSceneGraph() {
-        renderHostInternal?.InvalidateSceneGraph();
+        RenderHostInternal?.InvalidateSceneGraph();
     }
 
     /// <summary>
@@ -284,7 +284,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <param name="host">The host.</param>
     public void Attach(IRenderHost host) {
-        if (!IsAttached) {
+        if (!isAttached) {
             foreach (var e in OwnedRenderables) {
                 e.Attach(EffectsManager);
                 e.RenderHost = host;
@@ -293,7 +293,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
             SharedModelContainerInternal?.Attach(host);
             foreach (var e in D2DRenderables) e.Attach(host);
-            IsAttached = true;
+            isAttached = true;
         }
     }
 
@@ -301,15 +301,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Detaches the elements.
     /// </summary>
     public void Detach() {
-        if (IsAttached) {
-            IsAttached = false;
+        if (isAttached) {
+            isAttached = false;
             foreach (var e in OwnedRenderables) {
                 e.Invalidated -= NodeInvalidated;
                 e.RenderHost = null;
                 e.Detach();
             }
 
-            if (renderHostInternal is { } host) SharedModelContainerInternal?.Detach(host);
+            if (RenderHostInternal is { } host) SharedModelContainerInternal?.Detach(host);
             foreach (var e in D2DRenderables) e.Detach();
         }
     }
@@ -392,8 +392,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (e.NewItems != null)
             foreach (var item in e.NewItems) {
                 partItemsControl?.Items.Add(item);
-                if (IsAttached && item is Element3D element) {
-                    element.SceneNode.RenderHost = renderHostInternal;
+                if (isAttached && item is Element3D element) {
+                    element.SceneNode.RenderHost = RenderHostInternal;
                     element.SceneNode.Invalidated += NodeInvalidated;
                     element.SceneNode.Attach(EffectsManager);
                 }
@@ -610,7 +610,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public override void OnApplyTemplate() {
         base.OnApplyTemplate();
         if (IsInDesignMode && !EnableDesignModeRendering) return;
-        Disposer.RemoveAndDispose(ref renderHostInternal);
+        Disposer.RemoveAndDispose(ref RenderHostInternal);
         var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
                         throw new HelixToolkitException("{0} is missing from the template.", "PART_Canvas");
         hostPresenter = presenter;
@@ -629,50 +629,50 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         renderCanvas = (IRenderCanvas)presenter.Content;
         renderCanvas.EnableDpiScale = EnableDpiScale;
-        renderHostInternal = renderCanvas.RenderHost;
+        RenderHostInternal = renderCanvas.RenderHost;
         renderCanvas.ExceptionOccurred += HandleRenderException;
-        if (renderHostInternal != null) {
-            renderHostInternal.Rendered += RaiseRenderHostRendered;
-            renderHostInternal.ExceptionOccurred += HandleRenderException;
-            renderHostInternal.ClearColor = BackgroundColor.ToColor4();
-            renderHostInternal.IsShadowMapEnabled = IsShadowMappingEnabled;
-            renderHostInternal.Msaa = MSAA;
-            renderHostInternal.EnableRenderFrustum = EnableRenderFrustum;
-            renderHostInternal.EnableSharingModelMode = EnableSharedModelMode;
-            renderHostInternal.SharedModelContainer = SharedModelContainer;
-            renderHostInternal.Viewport = this;
-            renderHostInternal.EffectsManager = EffectsManager;
-            renderHostInternal.IsRendering = Visibility == Visibility.Visible;
-            renderHostInternal.RenderConfiguration.RenderD2D = EnableD2DRendering;
-            renderHostInternal.RenderConfiguration.AutoUpdateOctree = EnableAutoOctreeUpdate;
-            renderHostInternal.RenderConfiguration.OitRenderType = OITRenderMode;
-            renderHostInternal.RenderConfiguration.OitWeightPower = (float)OITWeightPower;
-            renderHostInternal.RenderConfiguration.OitWeightDepthSlope = (float)OITWeightDepthSlope;
-            renderHostInternal.RenderConfiguration.OitWeightMode = OITWeightMode;
-            renderHostInternal.RenderConfiguration.OitDepthPeelingIteration = OITDepthPeelingIteration;
-            renderHostInternal.RenderConfiguration.FxaaLevel = FXAALevel;
-            renderHostInternal.RenderConfiguration.EnableRenderOrder = EnableRenderOrder;
-            renderHostInternal.RenderConfiguration.EnableSsao = EnableSSAO;
-            renderHostInternal.RenderConfiguration.SsaoRadius = (float)SSAOSamplingRadius;
-            renderHostInternal.RenderConfiguration.SsaoIntensity = (float)SSAOIntensity;
-            renderHostInternal.RenderConfiguration.SsaoQuality = SSAOQuality;
-            renderHostInternal.RenderConfiguration.MinimumUpdateCount = (uint)Math.Max(0, MinimumUpdateCount);
+        if (RenderHostInternal != null) {
+            RenderHostInternal.Rendered += RaiseRenderHostRendered;
+            RenderHostInternal.ExceptionOccurred += HandleRenderException;
+            RenderHostInternal.ClearColor = BackgroundColor.ToColor4();
+            RenderHostInternal.IsShadowMapEnabled = IsShadowMappingEnabled;
+            RenderHostInternal.Msaa = Msaa;
+            RenderHostInternal.EnableRenderFrustum = EnableRenderFrustum;
+            RenderHostInternal.EnableSharingModelMode = EnableSharedModelMode;
+            RenderHostInternal.SharedModelContainer = SharedModelContainer;
+            RenderHostInternal.Viewport = this;
+            RenderHostInternal.EffectsManager = EffectsManager;
+            RenderHostInternal.IsRendering = Visibility == Visibility.Visible;
+            RenderHostInternal.RenderConfiguration.RenderD2D = EnableD2DRendering;
+            RenderHostInternal.RenderConfiguration.AutoUpdateOctree = EnableAutoOctreeUpdate;
+            RenderHostInternal.RenderConfiguration.OitRenderType = OitRenderMode;
+            RenderHostInternal.RenderConfiguration.OitWeightPower = (float)OitWeightPower;
+            RenderHostInternal.RenderConfiguration.OitWeightDepthSlope = (float)OitWeightDepthSlope;
+            RenderHostInternal.RenderConfiguration.OitWeightMode = OitWeightMode;
+            RenderHostInternal.RenderConfiguration.OitDepthPeelingIteration = OitDepthPeelingIteration;
+            RenderHostInternal.RenderConfiguration.FxaaLevel = FxaaLevel;
+            RenderHostInternal.RenderConfiguration.EnableRenderOrder = EnableRenderOrder;
+            RenderHostInternal.RenderConfiguration.EnableSsao = EnableSsao;
+            RenderHostInternal.RenderConfiguration.SsaoRadius = (float)SsaoSamplingRadius;
+            RenderHostInternal.RenderConfiguration.SsaoIntensity = (float)SsaoIntensity;
+            RenderHostInternal.RenderConfiguration.SsaoQuality = SsaoQuality;
+            RenderHostInternal.RenderConfiguration.MinimumUpdateCount = (uint)Math.Max(0, MinimumUpdateCount);
             if (ShowFrameRate)
-                renderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
+                RenderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
             else
-                renderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
+                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
             if (ShowFrameDetails)
-                renderHostInternal.ShowRenderDetail |= RenderDetail.Statistics;
+                RenderHostInternal.ShowRenderDetail |= RenderDetail.Statistics;
             else
-                renderHostInternal.ShowRenderDetail &= ~RenderDetail.Statistics;
+                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Statistics;
             if (ShowTriangleCountInfo)
-                renderHostInternal.ShowRenderDetail |= RenderDetail.TriangleInfo;
+                RenderHostInternal.ShowRenderDetail |= RenderDetail.TriangleInfo;
             else
-                renderHostInternal.ShowRenderDetail &= ~RenderDetail.TriangleInfo;
+                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.TriangleInfo;
             if (ShowCameraInfo)
-                renderHostInternal.ShowRenderDetail |= RenderDetail.Camera;
+                RenderHostInternal.ShowRenderDetail |= RenderDetail.Camera;
             else
-                renderHostInternal.ShowRenderDetail &= ~RenderDetail.Camera;
+                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Camera;
         }
 
         coordinateView ??= Template.FindName(PartCoordinateView, this) as ScreenSpacedElement3D;
@@ -817,7 +817,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     private void NodeInvalidated(object? sender, InvalidateTypes e) {
-        renderHostInternal?.Invalidate(e);
+        RenderHostInternal?.Invalidate(e);
     }
 
     /// <summary>
@@ -1060,14 +1060,14 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Handles the change of the effects manager.
     /// </summary>
     private void EffectsManagerPropertyChanged() {
-        renderHostInternal?.EffectsManager = EffectsManager;
+        RenderHostInternal?.EffectsManager = EffectsManager;
     }
 
     /// <summary>
     ///     Handles the change of the render technique
     /// </summary>
     private void RenderTechniquePropertyChanged(IRenderTechnique technique) {
-        renderHostInternal?.RenderTechnique = technique;
+        RenderHostInternal?.RenderTechnique = technique;
     }
 
     /// <summary>
@@ -1202,7 +1202,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The rendering event handler.
     /// </summary>
     private void OnCompositionTargetRendering() {
-        var statistics = renderHostInternal?.RenderStatistics;
+        var statistics = RenderHostInternal?.RenderStatistics;
         if (statistics is null) return;
         FrameRate = Math.Round(statistics.FpsStatistics.AverageFrequency, 2);
         FrameRateText = FrameRate + " FPS";
@@ -1245,7 +1245,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
 
         if (hostPresenter is { } presenter) presenter.Content = null;
-        Disposer.RemoveAndDispose(ref renderHostInternal);
+        Disposer.RemoveAndDispose(ref RenderHostInternal);
     }
 
     /// <summary>

@@ -16,7 +16,6 @@ using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
-using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
@@ -111,13 +110,13 @@ public class MainViewModel : BaseViewModel {
         CreateModels();
     }
 
-    private const int num = 40;
-    private List<Matrix> instances = new(num * 2);
+    private const int Num = 40;
+    private List<Matrix> instances = new(Num * 2);
     private List<Matrix> selectedLineInstances = [];
-    private List<InstanceParameter> parameters = new(num * 2);
+    private List<InstanceParameter> parameters = new(Num * 2);
 
-    private List<Matrix> billboardinstances = new(num * 2);
-    private List<BillboardInstanceParameter> billboardParams = new(num * 2);
+    private List<Matrix> billboardinstances = new(Num * 2);
+    private List<BillboardInstanceParameter> billboardParams = new(Num * 2);
 
     private void CreateModels() {
         instances.Clear();
@@ -139,8 +138,8 @@ public class MainViewModel : BaseViewModel {
             aniDir = true;
         }
 
-        for (int i = -num - (int)aniX; i < num + aniX; i++) {
-            for (int j = -num - (int)aniX; j < num + aniX; j++) {
+        for (int i = -Num - (int)aniX; i < Num + aniX; i++) {
+            for (int j = -Num - (int)aniX; j < Num + aniX; j++) {
                 var matrix = RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
                              * Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
                 var color = new Color4(1,
@@ -170,7 +169,7 @@ public class MainViewModel : BaseViewModel {
         SubTitle = "Number of Instances: " + parameters.Count.ToString();
 
         if (BillboardInstances == null) {
-            for (int i = 0; i < 2 * num; ++i) {
+            for (int i = 0; i < 2 * Num; ++i) {
                 billboardParams.Add(new BillboardInstanceParameter() {
                     TexCoordOffset = new Vector2(1f / 6 * rnd.Next(0, 6), 1f / 6 * rnd.Next(0, 6)),
                     TexCoordScale = new Vector2(1f / 6, 1f / 6)

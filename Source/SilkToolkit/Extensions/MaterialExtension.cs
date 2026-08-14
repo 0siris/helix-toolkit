@@ -33,7 +33,7 @@ public static class MaterialExtension {
             NormalMap = core.NormalMap,
             DisplacementMapScaleMask = core.DisplacementMapScaleMask,
             Name = core.Name,
-            UVTransform = core.UvTransform,
+            UvTransform = core.UvTransform,
             EnableTessellation = core.EnableTessellation,
             MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
             MaxTessellationDistance = core.MaxTessellationDistance,
@@ -42,9 +42,9 @@ public static class MaterialExtension {
         };
 
     [return: NotNullIfNotNull(nameof(core))]
-    public static PBRMaterial? ConvertToPBRMaterial(this PbrMaterialCore? core) => core == null
+    public static PbrMaterial? ConvertToPbrMaterial(this PbrMaterialCore? core) => core == null
         ? null
-        : new PBRMaterial {
+        : new PbrMaterial {
             AlbedoColor = core.AlbedoColor,
             MetallicFactor = core.MetallicFactor,
             RoughnessFactor = core.RoughnessFactor,
@@ -56,7 +56,7 @@ public static class MaterialExtension {
             IrradianceMap = core.IrradianceMap,
             DisplacementMap = core.DisplacementMap,
             SurfaceMapSampler = core.SurfaceMapSampler,
-            IBLSampler = core.IblSampler,
+            IblSampler = core.IblSampler,
             DisplacementMapSampler = core.DisplacementMapSampler,
             AmbientOcclusionFactor = core.AmbientOcclusionFactor,
             ClearCoatRoughness = core.ClearCoatRoughness,
@@ -76,7 +76,7 @@ public static class MaterialExtension {
             RenderShadowMap = core.RenderShadowMap,
 
             DisplacementMapScaleMask = core.DisplacementMapScaleMask,
-            UVTransform = core.UvTransform,
+            UvTransform = core.UvTransform,
 
             EnableTessellation = core.EnableTessellation,
             MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
@@ -88,7 +88,7 @@ public static class MaterialExtension {
     public static Material ConvertToMaterial(this MaterialCore core) {
         if (core is PhongMaterialCore p) return p.ConvertToPhongMaterial();
 
-        if (core is PbrMaterialCore pbr) return pbr.ConvertToPBRMaterial();
+        if (core is PbrMaterialCore pbr) return pbr.ConvertToPbrMaterial();
 
         throw new NotSupportedException("Current material core to material conversion has not been supported yet.");
     }
@@ -121,14 +121,14 @@ public static class MaterialExtension {
         targetMaterial.RenderSpecularColorMap = material.RenderSpecularColorMap;
         targetMaterial.RenderEmissiveMap = material.RenderEmissiveMap;
         targetMaterial.EnableAutoTangent = material.EnableAutoTangent;
-        targetMaterial.UVTransform = material.UVTransform;
+        targetMaterial.UvTransform = material.UvTransform;
     }
 
     public static void AssignTo(this DiffuseMaterial material, DiffuseMaterial targetMaterial) {
         targetMaterial.DiffuseColor = material.DiffuseColor;
         targetMaterial.DiffuseMap = material.DiffuseMap;
         targetMaterial.DiffuseMapSampler = material.DiffuseMapSampler;
-        targetMaterial.UVTransform = material.UVTransform;
+        targetMaterial.UvTransform = material.UvTransform;
     }
 }
 

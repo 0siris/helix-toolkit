@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media.Animation;
-using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -16,17 +10,17 @@ public class DataModel : DemoCore.ObservableObject {
     [field: AllowNull, MaybeNull]
     public MeshGeometry3D Model {
         set => SetValue<MeshGeometry3D>(ref field, value, nameof(Model));
-        get => field;
+        get;
     } = null;
 
-    public readonly Media3D.ScaleTransform3D scaleTransform = new();
-    public readonly Media3D.TranslateTransform3D translateTransform = new();
+    public readonly Media3D.ScaleTransform3D ScaleTransform = new();
+    public readonly Media3D.TranslateTransform3D TranslateTransform = new();
     public Media3D.Transform3DGroup DynamicTransform { get; private set; } = new();
 
 
     public PhongMaterial Material {
         set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
-        get => field;
+        get;
     }
 
     public bool Highlight {
@@ -44,36 +38,36 @@ public class DataModel : DemoCore.ObservableObject {
                 //Material = orgMaterial;
             }
         }
-        get => field;
+        get;
     } = false;
 
     public DataModel() {
-        DynamicTransform.Children.Add(scaleTransform);
-        DynamicTransform.Children.Add(translateTransform);
+        DynamicTransform.Children.Add(ScaleTransform);
+        DynamicTransform.Children.Add(TranslateTransform);
         Material = PhongMaterials.Red;
     }
 }
 
 public class SphereModel : DataModel {
-    private static MeshGeometry3D Sphere;
-    private static MeshGeometry3D Box;
-    private static MeshGeometry3D Pyramid;
-    private static MeshGeometry3D Pipe;
+    private static MeshGeometry3D _sphere;
+    private static MeshGeometry3D _box;
+    private static MeshGeometry3D _pyramid;
+    private static MeshGeometry3D _pipe;
 
     static SphereModel() {
         var builder = new MeshBuilder(true, false, false);
         var center = new Vector3();
         builder.AddSphere(center, 1, 12, 12);
-        Sphere = builder.ToMeshGeometry3D();
+        _sphere = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false, false);
         builder.AddBox(center, 1, 1, 1);
-        Box = builder.ToMeshGeometry3D();
+        _box = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false, false);
         builder.AddPyramid(center, 1, 1, true);
-        Pyramid = builder.ToMeshGeometry3D();
+        _pyramid = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false, false);
         builder.AddPipe(center, center + new Vector3(0, 1, 0), 0, 2, 12);
-        Pipe = builder.ToMeshGeometry3D();
+        _pipe = builder.ToMeshGeometry3D();
     }
 
     private static readonly Random rnd = new();
@@ -97,35 +91,35 @@ public class SphereModel : DataModel {
     public Vector3 Center {
         set {
             if (SetValue<Vector3>(ref field, value, nameof(Center))) {
-                translateTransform.OffsetX = translateTransform.OffsetY = translateTransform.OffsetZ = value.X;
+                TranslateTransform.OffsetX = TranslateTransform.OffsetY = TranslateTransform.OffsetZ = value.X;
             }
         }
-        get => field;
+        get;
     }
 
     public double Radius {
         set {
             if (SetValue<double>(ref field, value, nameof(Radius))) {
-                scaleTransform.ScaleX = scaleTransform.ScaleY = scaleTransform.ScaleZ = value;
+                ScaleTransform.ScaleX = ScaleTransform.ScaleY = ScaleTransform.ScaleZ = value;
             }
         }
-        get => field;
+        get;
     } = 1;
 
     private void CreateModel() {
         int type = rnd.Next(0, 3);
         switch (type) {
             case 0:
-                Model = Sphere;
+                Model = _sphere;
                 break;
             case 1:
-                Model = Box;
+                Model = _box;
                 break;
             case 2:
-                Model = Pyramid;
+                Model = _pyramid;
                 break;
             case 3:
-                Model = Pipe;
+                Model = _pipe;
                 break;
         }
     }

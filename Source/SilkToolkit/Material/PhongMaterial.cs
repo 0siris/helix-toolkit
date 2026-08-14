@@ -400,8 +400,8 @@ public class PhongMaterial : Material {
     /// <summary>
     ///     The uv transform property
     /// </summary>
-    public static readonly DependencyProperty UVTransformProperty =
-        DependencyProperty.Register("UVTransform",
+    public static readonly DependencyProperty UvTransformProperty =
+        DependencyProperty.Register("UvTransform",
                                     typeof(UvTransform),
                                     typeof(PhongMaterial),
                                     new PropertyMetadata(UvTransform.Identity,
@@ -461,7 +461,7 @@ public class PhongMaterial : Material {
         RenderSpecularColorMap = core.RenderSpecularColorMap;
         RenderEmissiveMap = core.RenderEmissiveMap;
         EnableAutoTangent = core.EnableAutoTangent;
-        UVTransform = core.UvTransform;
+        UvTransform = core.UvTransform;
         EnableFlatShading = core.EnableFlatShading;
         VertexColorBlendingFactor = core.VertexColorBlendingFactor;
     }
@@ -734,9 +734,9 @@ public class PhongMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UvTransform UVTransform {
-        get => (UvTransform)GetValue(UVTransformProperty);
-        set => SetValue(UVTransformProperty, value);
+    public UvTransform UvTransform {
+        get => (UvTransform)GetValue(UvTransformProperty);
+        set => SetValue(UvTransformProperty, value);
     }
 
     /// <summary>
@@ -782,7 +782,7 @@ public class PhongMaterial : Material {
         RenderSpecularColorMap = RenderSpecularColorMap,
         RenderEmissiveMap = RenderEmissiveMap,
         EnableAutoTangent = EnableAutoTangent,
-        UVTransform = UVTransform,
+        UvTransform = UvTransform,
         EnableFlatShading = EnableFlatShading,
         VertexColorBlendingFactor = VertexColorBlendingFactor
     };
@@ -820,7 +820,7 @@ public class PhongMaterial : Material {
         RenderSpecularColorMap = RenderSpecularColorMap,
         RenderEmissiveMap = RenderEmissiveMap,
         EnableAutoTangent = EnableAutoTangent,
-        UvTransform = UVTransform,
+        UvTransform = UvTransform,
         EnableFlatShading = EnableFlatShading,
         VertexColorBlendingFactor = (float)VertexColorBlendingFactor
     };

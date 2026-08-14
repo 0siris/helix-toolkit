@@ -5,12 +5,6 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using Silk.NET.Core;
 using Silk.NET.Direct3D11;
-using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
-using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
-using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
-using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
-
-using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 internal static class D3DStateConversions {

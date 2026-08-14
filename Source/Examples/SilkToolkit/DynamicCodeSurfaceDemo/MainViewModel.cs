@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System.IO;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -36,7 +30,7 @@ public class MainViewModel : BaseViewModel {
 
     public string[] Models { private set; get; }
 
-    private List<Uri> sourceCodeUri { get; } = [];
+    private List<Uri> SourceCodeUri { get; } = [];
     private Dictionary<string, string> fileDict = [];
     private Dictionary<string, Material> materialDict = [];
 

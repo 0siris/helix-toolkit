@@ -9,18 +9,10 @@ using Silk.NET.Core.Native;
 using Silk.NET.Direct2D;
 using Silk.NET.DirectWrite;
 using Silk.NET.DXGI;
-using Silk.NET.Maths;
-using AlphaMode = Silk.NET.Direct2D.AlphaMode;
-using FactoryType = Silk.NET.DirectWrite.FactoryType;
-using IDWriteFactory = Silk.NET.DirectWrite.IDWriteFactory;
 using IDWriteTextFormat = Silk.NET.DirectWrite.IDWriteTextFormat;
 using IDWriteTextLayout = Silk.NET.DirectWrite.IDWriteTextLayout;
 using SilkD2DBitmapBasePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Bitmap>;
-using SilkD2DBitmapPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Bitmap1>;
-using SilkD2DDeviceContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1DeviceContext>;
-using SilkD2DDevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Device>;
 using SilkD2DSolidBrushPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1SolidColorBrush>;
-using SilkDWriteFactoryPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteFactory>;
 using SilkDWriteTextFormatPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextFormat>;
 using SilkDWriteTextLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextLayout>;
 

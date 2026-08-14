@@ -77,7 +77,7 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.RenderDiffuseMap = FloorMaterial.RenderDiffuseMap = value;
             }
         }
-        get => field;
+        get;
     } = true;
 
     public bool RenderNormalMap {
@@ -86,7 +86,7 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.RenderNormalMap = FloorMaterial.RenderNormalMap = value;
             }
         }
-        get => field;
+        get;
     } = true;
 
     public string[] TextureFiles { get; } = [
@@ -102,7 +102,7 @@ public class MainViewModel : BaseViewModel {
                 FloorMaterial.DiffuseMap = ModelMaterial.DiffuseMap;
             }
         }
-        get => field;
+        get;
     } = @"TextureCheckerboard2.jpg";
 
     public string SelectedNormalTexture {
@@ -113,7 +113,7 @@ public class MainViewModel : BaseViewModel {
                 FloorMaterial.NormalMap = ModelMaterial.NormalMap;
             }
         }
-        get => field;
+        get;
     } = @"TextureCheckerboard2_dot3.jpg";
 
     public Color DiffuseColor {
@@ -132,13 +132,13 @@ public class MainViewModel : BaseViewModel {
         get => ModelMaterial.EmissiveColor.ToColor();
     }
 
-    public MsaaLevel MSAA { set; get; } = MsaaLevel.Disable;
+    public MsaaLevel Msaa { set; get; } = MsaaLevel.Disable;
 
-    public MsaaLevel[] MSAAs { get; } = [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
+    public MsaaLevel[] MsaAs { get; } = [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
 
-    public FxaaLevel FXAA { set; get; } = FxaaLevel.None;
+    public FxaaLevel Fxaa { set; get; } = FxaaLevel.None;
 
-    public FxaaLevel[] FXAAs { get; } = [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
+    public FxaaLevel[] FxaAs { get; } = [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
         Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
@@ -71,7 +70,7 @@ public class MainViewModel : BaseViewModel {
                 CuttingOperation = (CuttingOperation)value;
             }
         }
-        get => field;
+        get;
     }
 
     public CuttingOperation CuttingOperation {
@@ -116,7 +115,7 @@ public class MainViewModel : BaseViewModel {
 
         PlaneMaterial = new PhongMaterial() { DiffuseColor = new Color4(0.1f, 0.1f, 0.8f, 0.2f) };
 
-        var landerItems = Load3ds("Car.3ds").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var landerItems = Load3Ds("Car.3ds").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         Model = MeshGeometry3D.Merge(landerItems);
         Model.UpdateOctree();
         ModelMaterial = PhongMaterials.Bronze;
@@ -137,7 +136,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
             var list = reader.Read(path);

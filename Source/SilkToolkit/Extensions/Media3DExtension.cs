@@ -10,7 +10,7 @@ public static class Media3DExtension {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3D ToVector3D(this Vector3 vector) => new(vector.X, vector.Y, vector.Z);
 
-    public static Matrix3X3 ToMatrix3x3(this Media.Matrix m) => new((float)m.M11,
+    public static Matrix3X3 ToMatrix3X3(this Media.Matrix m) => new((float)m.M11,
         (float)m.M12,
         0,
         (float)m.M21,
@@ -20,7 +20,7 @@ public static class Media3DExtension {
         (float)m.OffsetY,
         1f);
 
-    public static Matrix3X2 ToMatrix3x2(this Media.Matrix m) => new((float)m.M11,
+    public static Matrix3X2 ToMatrix3X2(this Media.Matrix m) => new((float)m.M11,
         (float)m.M12,
         (float)m.M21,
         (float)m.M22,

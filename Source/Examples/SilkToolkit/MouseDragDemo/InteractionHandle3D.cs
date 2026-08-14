@@ -13,7 +13,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Cameras;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
@@ -41,26 +40,26 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     //private Material selectionMaterial;
 
 
-    private static Geometry3D NodeGeometry;
-    private static Geometry3D EdgeHGeometry, EdgeVGeometry;
-    private static Geometry3D BoxGeometry;
+    private static Geometry3D _nodeGeometry;
+    private static Geometry3D _edgeHGeometry, _edgeVGeometry;
+    private static Geometry3D _boxGeometry;
 
     static InteractionHandle3D() {
         var b1 = new MeshBuilder();
         b1.AddSphere(new Vector3(0.0f, 0.0f, 0), 0.135);
-        NodeGeometry = b1.ToMeshGeometry3D();
+        _nodeGeometry = b1.ToMeshGeometry3D();
 
         var b2 = new MeshBuilder();
         b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05, 32, true, true);
-        EdgeHGeometry = b2.ToMeshGeometry3D();
+        _edgeHGeometry = b2.ToMeshGeometry3D();
 
         var b3 = new MeshBuilder();
         b3.AddCylinder(new Vector3(0, 0, 0), new Vector3(0, 1, 0), 0.05, 32, true, true);
-        EdgeVGeometry = b3.ToMeshGeometry3D();
+        _edgeVGeometry = b3.ToMeshGeometry3D();
 
         var b4 = new MeshBuilder();
         b4.AddBox(new Vector3(0, 0, 0), 0.175, 0.175, 0.175);
-        BoxGeometry = b4.ToMeshGeometry3D();
+        _boxGeometry = b4.ToMeshGeometry3D();
     }
 
     /// <summary>
@@ -78,7 +77,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
                 DragZ = false,
                 Visibility = Visibility.Visible,
                 Material = Material,
-                Geometry = NodeGeometry,
+                Geometry = _nodeGeometry,
                 Transform = new MatrixTransform3D(translate),
             };
             cornerHandles[i].MouseMove3D += OnNodeMouse3DMove;
@@ -86,7 +85,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
             cornerHandles[i].MouseDown3D += OnNodeMouse3DDown;
 
             edgeHandles[i] = new MeshGeometryModel3D() {
-                Geometry = (i % 2 == 0) ? EdgeHGeometry : EdgeVGeometry,
+                Geometry = (i % 2 == 0) ? _edgeHGeometry : _edgeVGeometry,
                 Material = Material,
                 Visibility = Visibility.Visible,
                 Transform = new MatrixTransform3D(translate),
@@ -102,7 +101,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
                 DragX = (i % 2 == 1),
                 DragY = (i % 2 == 0),
                 Material = Material,
-                Geometry = BoxGeometry,
+                Geometry = _boxGeometry,
                 Transform = new MatrixTransform3D(translate),
             };
             midpointHandles[i].MouseMove3D += OnNodeMouse3DMove;

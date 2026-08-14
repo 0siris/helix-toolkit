@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Render;

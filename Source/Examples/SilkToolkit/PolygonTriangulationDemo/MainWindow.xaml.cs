@@ -1,16 +1,10 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using HelixToolkit.Wpf;
 
 namespace PolygonTriangulationDemo;
 
 using System;
-using System.Globalization;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
-using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -98,7 +92,7 @@ public partial class MainWindow : Window {
 
         // Triangulate and measure the Time needed for the Triangulation
         var before = DateTime.Now;
-        var sLTI = SweepLinePolygonTriangulator.Triangulate(mPolygonPoints, holes);
+        var sLti = SweepLinePolygonTriangulator.Triangulate(mPolygonPoints, holes);
         var after = DateTime.Now;
 
         // Generate the Output
@@ -111,14 +105,14 @@ public partial class MainWindow : Window {
             geometry.Normals.Add(new Vector3(0, 1, 0));
         }
 
-        geometry.Indices = [.. sLTI];
+        geometry.Indices = [.. sLti];
         triangulatedPolygon.Geometry = geometry;
 
         var lb = new LineBuilder();
-        for (int i = 0; i < sLTI.Count; i += 3) {
-            lb.AddLine(geometry.Positions[sLTI[i]], geometry.Positions[sLTI[i + 1]]);
-            lb.AddLine(geometry.Positions[sLTI[i + 1]], geometry.Positions[sLTI[i + 2]]);
-            lb.AddLine(geometry.Positions[sLTI[i + 2]], geometry.Positions[sLTI[i]]);
+        for (int i = 0; i < sLti.Count; i += 3) {
+            lb.AddLine(geometry.Positions[sLti[i]], geometry.Positions[sLti[i + 1]]);
+            lb.AddLine(geometry.Positions[sLti[i + 1]], geometry.Positions[sLti[i + 2]]);
+            lb.AddLine(geometry.Positions[sLti[i + 2]], geometry.Positions[sLti[i]]);
         }
 
         mViewModel.LineGeometry = lb.ToLineGeometry3D();

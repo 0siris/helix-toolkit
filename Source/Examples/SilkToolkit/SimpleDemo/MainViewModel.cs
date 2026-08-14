@@ -12,8 +12,6 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -203,7 +201,7 @@ public class MainViewModel : BaseViewModel {
 
 
         //BillboardImageModel = new BillboardSingleImage3D(CreateBitmapSample()) { MaskColor = Color.Black };
-        BillboardImageModel = new BillboardSingleImage3D(CreatePNGSample(), 1, 1) {
+        BillboardImageModel = new BillboardSingleImage3D(CreatePngSample(), 1, 1) {
             Angle = -(float)Math.PI / 5, Center = new Vector3(2, 2, 0)
         };
 
@@ -237,7 +235,7 @@ public class MainViewModel : BaseViewModel {
         return decoder.Frames[0];
     }
 
-    private Stream CreatePNGSample() {
+    private Stream CreatePngSample() {
         var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
         //Read the texture description

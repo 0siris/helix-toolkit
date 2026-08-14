@@ -48,7 +48,7 @@
             EffectsManager="{Binding EffectsManager}"
             EnableD2DRendering="False"
             EnableSwapChainRendering="True"
-            MSAA="Two"
+            Msaa="Two"
             ShowCoordinateSystem="True"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"

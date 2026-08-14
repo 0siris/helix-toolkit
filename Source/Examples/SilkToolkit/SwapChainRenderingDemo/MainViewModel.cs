@@ -3,16 +3,12 @@ namespace SwapChainRenderingDemo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
@@ -111,11 +107,11 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 FillMode = value
-                               ? FillMode.Wireframe
-                               : FillMode.Solid;
+                    ? FillMode.Wireframe
+                    : FillMode.Solid;
             }
         }
-        get => field;
+        get;
     } = false;
 
     public LineGeometry3D LineGeo { set; get; }
@@ -191,7 +187,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void LoadLander() {
-        foreach (var obj in Load3ds("Car.3ds")) {
+        foreach (var obj in Load3Ds("Car.3ds")) {
             obj.Geometry.UpdateOctree();
             Task.Delay(10).Wait();
             context.Post((o) => {
@@ -211,7 +207,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void LoadFloor() {
-        var models = Load3ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var models = Load3Ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         foreach (var model in models) {
             model.UpdateOctree();
         }
@@ -236,7 +232,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         if (path.EndsWith(".obj", StringComparison.CurrentCultureIgnoreCase)) {
             var reader = new ObjReader();
             var list = reader.Read(path);

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model.Scene;
@@ -14,7 +12,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using Microsoft.Extensions.Logging;
 using Color = System.Windows.Media.Color;
 
 namespace HelixToolkit.Wpf.SharpDX;
@@ -75,7 +72,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
 
     private bool disposedValue;
 
-    private bool IsAttached;
+    private bool isAttached;
 
     static ScreenDuplicationViewport3DX() {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(ScreenDuplicationViewport3DX),
@@ -159,15 +156,15 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     public Rectangle ViewportRectangle => new();
 
     public void Attach(IRenderHost host) {
-        if (!IsAttached) {
+        if (!isAttached) {
             foreach (var e in Renderables) e.Attach(EffectsManager);
-            IsAttached = true;
+            isAttached = true;
         }
     }
 
     public void Detach() {
-        if (IsAttached) {
-            IsAttached = false;
+        if (isAttached) {
+            isAttached = false;
             foreach (var e in Renderables) e.Detach();
         }
     }

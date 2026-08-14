@@ -10,8 +10,6 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Utilities;
 
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {
@@ -27,7 +25,7 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the render exception.
     /// </summary>
     public Exception RenderException {
-        get => field;
+        get;
 
         set {
             if (field != value) {
@@ -41,7 +39,7 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the viewport message.
     /// </summary>
     public string ViewportMessage {
-        get => field;
+        get;
 
         set {
             if (field != value) {

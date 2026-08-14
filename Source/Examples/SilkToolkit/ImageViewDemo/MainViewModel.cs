@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DemoCore;
 using ExifLib;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Color = Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -24,47 +23,47 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Plane {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(Plane));
     }
 
     public LineGeometry3D Grid {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(Grid));
     }
 
     public PhongMaterial PlaneMaterial {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(PlaneMaterial));
     }
 
     public Color GridColor {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(GridColor));
     }
 
     public Media3D.Transform3D PlaneTransform {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(PlaneTransform));
     }
 
     public Media3D.Transform3D GridTransform {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(GridTransform));
     }
 
     public Vector3D DirectionalLightDirection {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(DirectionalLightDirection));
     }
 
     public Color4 DirectionalLightColor {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(DirectionalLightColor));
     }
 
     public Color4 AmbientLightColor {
-        get => field;
+        get;
         set => SetValue(ref field, value, nameof(AmbientLightColor));
     }
 
@@ -81,15 +80,15 @@ public class MainViewModel : BaseViewModel {
         OpenCommand = new RelayCommand((x) => OnOpenClick());
 
         // camera setup
-        defaultPerspectiveCamera = new PerspectiveCamera {
+        DefaultPerspectiveCamera = new PerspectiveCamera {
             Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
             UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0.5, FarPlaneDistance = 150
         };
-        defaultOrthographicCamera = new OrthographicCamera {
+        DefaultOrthographicCamera = new OrthographicCamera {
             Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
             UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0, FarPlaneDistance = 100
         };
-        Camera = defaultPerspectiveCamera;
+        Camera = DefaultPerspectiveCamera;
 
         // setup lighting
         AmbientLightColor = new Color4(0f, 0f, 0f, 0f);

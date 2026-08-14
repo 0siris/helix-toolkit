@@ -4,12 +4,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -146,14 +143,14 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
     }
 
     private static IEnumerable<Vector3> GeneratePoints(int n, double time) {
-        const double R = 30;
-        const double Q = 5;
+        const double r = 30;
+        const double q = 5;
         for (int i = 0; i < n; i++) {
             double t = Math.PI * 2 * i / (n - 1);
             double u = (t * 24) + (time * 5);
-            var pt = new Vector3((float)(Math.Cos(t) * (R + (Q * Math.Cos(u)))),
-                                 (float)(Math.Sin(t) * (R + (Q * Math.Cos(u)))),
-                                 (float)(Q * Math.Sin(u)));
+            var pt = new Vector3((float)(Math.Cos(t) * (r + (q * Math.Cos(u)))),
+                                 (float)(Math.Sin(t) * (r + (q * Math.Cos(u)))),
+                                 (float)(q * Math.Sin(u)));
             yield return pt;
             if (i > 0 && i < n - 1) {
                 yield return pt;

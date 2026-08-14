@@ -1,9 +1,7 @@
 using System;
 using System.Windows;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Render;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;
 
@@ -68,8 +66,8 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
                 surfaceD3D.IsFrontBufferAvailableChanged += SurfaceD3D_IsFrontBufferAvailableChanged;
             }
 
-            if (e.Texture.Resource is Texture2D tex2d)
-                surfaceD3D.SetRenderTargetDX11(tex2d);
+            if (e.Texture.Resource is Texture2D tex2D)
+                surfaceD3D.SetRenderTargetDX11(tex2D);
         } catch (Exception ex) {
             Logger.Error("Failed to create surfaceD3D. Ex: {Value0}", ex.Message);
             hasBackBuffer = false;

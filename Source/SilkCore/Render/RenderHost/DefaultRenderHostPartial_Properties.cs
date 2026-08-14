@@ -17,7 +17,7 @@ public partial class DefaultRenderHost {
     /// <summary>
     ///     The pending renderables
     /// </summary>
-    protected readonly FastList<(int Key, SceneNode Value)> perFrameFlattenedScene = [];
+    protected readonly FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene = [];
 
     /// <summary>
     ///     The light renderables

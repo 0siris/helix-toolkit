@@ -15,25 +15,25 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// <summary>
 /// </summary>
 public class PointGeometryModel3D : GeometryModel3D {
-    protected readonly PointMaterialCore material = new();
+    protected readonly PointMaterialCore Material = new();
 
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() => new PointNode { Material = material };
+    protected override SceneNode OnCreateSceneNode() => new PointNode { Material = Material };
 
     /// <summary>
     ///     Assigns the default values to core.
     /// </summary>
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
-        material.Width = (float)Size.Width;
-        material.Height = (float)Size.Height;
-        material.Figure = Figure;
-        material.FigureRatio = (float)FigureRatio;
-        material.PointColor = Color.ToColor4();
-        material.FixedSize = FixedSize;
+        Material.Width = (float)Size.Width;
+        Material.Height = (float)Size.Height;
+        Material.Figure = Figure;
+        Material.FigureRatio = (float)FigureRatio;
+        Material.PointColor = Color.ToColor4();
+        Material.FixedSize = FixedSize;
         base.AssignDefaultValuesToSceneNode(core);
     }
 
@@ -50,7 +50,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                                          (d, e) =>
 #endif
                                                          {
-                                                             (d as PointGeometryModel3D).material.PointColor =
+                                                             (d as PointGeometryModel3D).Material.PointColor =
                                                                  ((Color)e.NewValue).ToColor4();
                                                          }));
 
@@ -62,9 +62,9 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     new PropertyMetadata(new Size(1.0, 1.0),
                                                          (d, e) => {
                                                              var size = (Size)e.NewValue;
-                                                             (d as PointGeometryModel3D).material.Width =
+                                                             (d as PointGeometryModel3D).Material.Width =
                                                                  (float)size.Width;
-                                                             (d as PointGeometryModel3D).material.Height =
+                                                             (d as PointGeometryModel3D).Material.Height =
                                                                  (float)size.Height;
                                                          }));
 
@@ -74,7 +74,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(PointFigure.Rect,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).material.Figure =
+                                                             (d as PointGeometryModel3D).Material.Figure =
                                                                  (PointFigure)e.NewValue;
                                                          }));
 
@@ -84,7 +84,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(0.25,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).material.FigureRatio =
+                                                             (d as PointGeometryModel3D).Material.FigureRatio =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -109,7 +109,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                       typeof(PointGeometryModel3D),
                                       new PropertyMetadata(true,
                                                            (d, e) => {
-                                                               (d as PointGeometryModel3D).material.FixedSize =
+                                                               (d as PointGeometryModel3D).Material.FixedSize =
                                                                    (bool)e.NewValue;
                                                            }));
 
@@ -120,7 +120,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).material.EnableColorBlending =
+                                                             (d as PointGeometryModel3D).Material.EnableColorBlending =
                                                                  (bool)e.NewValue;
                                                          }));
 
@@ -131,7 +131,7 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).material.BlendingFactor =
+                                                             (d as PointGeometryModel3D).Material.BlendingFactor =
                                                                  (float)(double)e.NewValue;
                                                          }));
 

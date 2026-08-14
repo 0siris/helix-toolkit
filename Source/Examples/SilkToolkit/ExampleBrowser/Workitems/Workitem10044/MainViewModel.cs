@@ -7,8 +7,6 @@
 namespace Workitem10044;
 
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {

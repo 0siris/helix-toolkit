@@ -1,19 +1,8 @@
 ﻿//#define TESTADDREMOVE
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Controls;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using ImGuiNET;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using DrawingColor = System.Drawing.Color;
@@ -25,33 +14,33 @@ namespace WinFormsTest;
 
 public static class DpiHelper {
     [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
-    public static extern int GetDeviceCaps(IntPtr hDC, int nIndex);
+    public static extern int GetDeviceCaps(IntPtr hDc, int nIndex);
 
     public enum DeviceCap {
-        VERTRES = 10,
-        DESKTOPVERTRES = 117
+        Vertres = 10,
+        Desktopvertres = 117
     }
 
     public static double GetWindowsScreenScalingFactor(bool percentage = true) {
         //Create Graphics object from the current windows handle
-        var GraphicsObject = Graphics.FromHwnd(IntPtr.Zero);
+        var graphicsObject = Graphics.FromHwnd(IntPtr.Zero);
         //Get Handle to the device context associated with this Graphics object
-        IntPtr DeviceContextHandle = GraphicsObject.GetHdc();
+        IntPtr deviceContextHandle = graphicsObject.GetHdc();
         //Call GetDeviceCaps with the Handle to retrieve the Screen Height
-        int LogicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int)DeviceCap.VERTRES);
-        int PhysicalScreenHeight = GetDeviceCaps(DeviceContextHandle, (int)DeviceCap.DESKTOPVERTRES);
+        int logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int)DeviceCap.Vertres);
+        int physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int)DeviceCap.Desktopvertres);
         //Divide the Screen Heights to get the scaling factor and round it to two decimals
-        double ScreenScalingFactor = Math.Round((double)PhysicalScreenHeight / (double)LogicalScreenHeight, 2);
+        double screenScalingFactor = Math.Round((double)physicalScreenHeight / (double)logicalScreenHeight, 2);
         //If requested as percentage - convert it
         if (percentage) {
-            ScreenScalingFactor *= 100.0;
+            screenScalingFactor *= 100.0;
         }
 
         //Release the Handle and Dispose of the GraphicsObject object
-        GraphicsObject.ReleaseHdc(DeviceContextHandle);
-        GraphicsObject.Dispose();
+        graphicsObject.ReleaseHdc(deviceContextHandle);
+        graphicsObject.Dispose();
         //Return the Scaling Factor
-        return ScreenScalingFactor;
+        return screenScalingFactor;
     }
 }
 
@@ -84,8 +73,8 @@ public class CoreTestApp {
         DirectionalLightFollowCamera = true,
         DirectionLightIntensity = 0.8f,
         EnableFrustum = true,
-        EnableFXAA = true,
-        EnableSSAO = true,
+        EnableFxaa = true,
+        EnableSsao = true,
         WalkAround = false,
         ShowRenderDetail = false,
         ShowEnvironmentMap = false,
@@ -149,11 +138,11 @@ public class CoreTestApp {
     }
 
     private void AssignViewportOption() {
-        viewport.FxaaLevel = options.EnableFXAA ? FxaaLevel.Low : FxaaLevel.None;
+        viewport.FxaaLevel = options.EnableFxaa ? FxaaLevel.Low : FxaaLevel.None;
         viewport.EnableRenderFrustum = options.EnableFrustum;
         viewport.BackgroundColor =
             new Color4(options.BackgroundColor.X, options.BackgroundColor.Y, options.BackgroundColor.Z, 1);
-        viewport.EnableSsao = options.EnableSSAO;
+        viewport.EnableSsao = options.EnableSsao;
         viewport.ShowRenderDetail = options.ShowRenderDetail;
         viewport.DpiScale = options.EnableDpiScale ? dpiScale : 1;
         if (options.ShowWireframeChanged) {
@@ -281,7 +270,7 @@ public class CoreTestApp {
 
         var imGui = new ImGuiNode();
         viewport.Items.AddChildNode(imGui);
-        imGui.UpdatingImGuiUI += ImGui_UpdatingImGuiUI;
+        imGui.UpdatingImGuiUi += ImGui_UpdatingImGuiUI;
         groupEffects.AddChildNode(new NodePostEffectBorderHighlight() { EffectName = "highlightEffect", Color = ToColor4(DrawingColor.Yellow) });
         viewport.Items.AddChildNode(groupEffects);
         environmentMap = new EnvironmentMapNode() { Texture = TextureModel.Create("Cubemap_Grandcanyon.dds") };
@@ -300,7 +289,7 @@ public class CoreTestApp {
     }
 
     private void ImGui_UpdatingImGuiUI(object sender, EventArgs e) {
-        SceneUI.DrawUI((int)viewport.ActualWidth, (int)viewport.ActualHeight, ref options, groupModel);
+        SceneUi.DrawUi((int)viewport.ActualWidth, (int)viewport.ActualHeight, ref options, groupModel);
     }
 
     private void InitializeMaterials() {

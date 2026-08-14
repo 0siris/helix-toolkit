@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,15 +23,14 @@ using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Microsoft.Win32;
 using BoundingBox = BoundingBox;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public class MainViewModel : BaseViewModel {
-    private string OpenFileFilter = $"{Importer.SupportedFormatsString}";
-    private string ExportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
+    private string openFileFilter = $"{Importer.SupportedFormatsString}";
+    private string exportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
 
     public bool ShowWireframe {
         set {
@@ -40,7 +38,7 @@ public class MainViewModel : BaseViewModel {
                 ShowWireframeFunct(value);
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool RenderFlat {
@@ -49,7 +47,7 @@ public class MainViewModel : BaseViewModel {
                 RenderFlatFunct(value);
             }
         }
-        get => field;
+        get;
     } = false;
 
     public bool RenderEnvironmentMap {
@@ -132,7 +130,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = null;
 
     private float speed = 1.0f;
@@ -231,7 +229,7 @@ public class MainViewModel : BaseViewModel {
             return;
         }
 
-        string path = OpenFileDialog(OpenFileFilter);
+        string path = OpenFileDialog(openFileFilter);
         if (path == null) {
             return;
         }
@@ -333,7 +331,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void ExportFile() {
-        var index = SaveFileDialog(ExportFileFilter, out var path);
+        var index = SaveFileDialog(exportFileFilter, out var path);
         if (!string.IsNullOrEmpty(path) && index >= 0) {
             var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
             var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
@@ -36,7 +35,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     private IRenderHost? currentRenderHost;
 
-    private int d3dCounter;
+    private int d3DCounter;
 
     public ModelContainer3DX() {
         IsHitTestVisible = false;
@@ -49,7 +48,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The maximum FPS.
     /// </value>
-    public uint MaxFPS { get; set; }
+    public uint MaxFps { get; set; }
 
     /// <summary>
     ///     Gets or sets the <see cref="EffectsManagerProperty" />.
@@ -417,7 +416,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="host">The host.</param>
     public void Attach(IRenderHost host) {
         if (attachedRenderHosts.Add(host))
-            if (Interlocked.Increment(ref d3dCounter) == 1 && host.EffectsManager != null)
+            if (Interlocked.Increment(ref d3DCounter) == 1 && host.EffectsManager != null)
                 foreach (var renderable in Renderables) {
                     renderable.RenderHost = host;
                     renderable.Invalidated += RenderableInvalidated;
@@ -432,13 +431,13 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <exception cref="InvalidOperationException">D3DCounter is negative.</exception>
     public void Detach(IRenderHost host) {
         if (attachedRenderHosts.Remove(host)) {
-            if (Interlocked.Decrement(ref d3dCounter) == 0)
+            if (Interlocked.Decrement(ref d3DCounter) == 0)
                 foreach (var renderable in Renderables) {
                     renderable.Detach();
                     renderable.RenderHost = null;
                     renderable.Invalidated -= RenderableInvalidated;
                 }
-            else if (d3dCounter < 0) throw new InvalidOperationException("D3DCounter is negative.");
+            else if (d3DCounter < 0) throw new InvalidOperationException("D3DCounter is negative.");
         }
     }
 

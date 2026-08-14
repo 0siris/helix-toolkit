@@ -77,7 +77,7 @@
                 LightCamera="{Binding Camera1}"
                 Resolution="{Binding ShadowMapResolution}" IsSceneDynamic="True" />
             <hx:CameraModel3D x:Name="lightCamera" Camera="{Binding Camera1}" />
-            <hx:UICompositeManipulator3D
+            <hx:UiCompositeManipulator3D
                 CanRotateX="true"
                 CanRotateY="true"
                 CanRotateZ="true"

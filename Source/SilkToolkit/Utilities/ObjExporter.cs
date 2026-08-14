@@ -92,7 +92,7 @@ public class ObjExporter : Exporter {
     ///     The comment.
     /// </param>
     public ObjExporter(string outputFileName, string comment) {
-        SwitchYZ = true;
+        SwitchYz = true;
         ExportNormals = false;
 
         var fullPath = Path.GetFullPath(outputFileName);
@@ -121,7 +121,7 @@ public class ObjExporter : Exporter {
     /// <summary>
     ///     Gets or sets a value indicating whether to switch Y and Z coordinates.
     /// </summary>
-    public bool SwitchYZ { get; set; }
+    public bool SwitchYz { get; set; }
 
     /// <summary>
     ///     Closes this exporter.
@@ -191,8 +191,8 @@ public class ObjExporter : Exporter {
                 writer.WriteLine(string.Format(CultureInfo.InvariantCulture,
                                                "v {0} {1} {2}",
                                                NormalizeZero(p.X),
-                                               NormalizeZero(SwitchYZ ? p.Z : p.Y),
-                                               NormalizeZero(SwitchYZ ? -p.Y : p.Z)));
+                                               NormalizeZero(SwitchYz ? p.Z : p.Y),
+                                               NormalizeZero(SwitchYz ? -p.Y : p.Z)));
             }
 
             writer.WriteLine("# {0} vertices", index);

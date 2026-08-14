@@ -8,16 +8,11 @@ namespace XRayDemo;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -57,7 +52,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get => field;
+        get;
     } = new(-100, -100, -100);
 
     public Matrix[] Instances { private set; get; }
@@ -107,7 +102,7 @@ public class MainViewModel : BaseViewModel {
             TextureModel.Create(new Uri(@"TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
                                     .ToString());
 
-        var caritems = Load3ds("leone.3DBuilder.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var caritems = Load3Ds("leone.3DBuilder.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         var scale = new Vector3(1f, 1f, 1f);
 
         foreach (var item in caritems) {
@@ -150,7 +145,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         var reader = new ObjReader();
         var list = reader.Read(path);
         return list;

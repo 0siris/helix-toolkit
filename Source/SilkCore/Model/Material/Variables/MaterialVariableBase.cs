@@ -6,11 +6,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using HelixToolkit.Logger;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>

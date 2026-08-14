@@ -49,7 +49,7 @@ public static class CuttingEarsTriangulator {
         var n = contour.Count;
         if (n < 3) return null;
 
-        var V = new int[n];
+        var v = new int[n];
 
         // we want a counter-clockwise polygon in V
         if (Area(contour) > 0)
@@ -189,31 +189,31 @@ public static class CuttingEarsTriangulator {
     /// </summary>
     /// <param name="contour">The contour.</param>
     /// <param name="u">The u.</param>
-    /// <param name="V">The vertices.</param>
+    /// <param name="v">The vertices.</param>
     /// <param name="w">The w.</param>
     /// <param name="n">The n.</param>
     /// <param name="v">The v.</param>
     /// <returns>The snip.</returns>
-    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] V) {
+    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] v) {
         int p;
         double ax, ay, bx, by, cx, cy, px, py;
 
-        ax = contour[V[u]].X;
-        ay = contour[V[u]].Y;
+        ax = contour[v[u]].X;
+        ay = contour[v[u]].Y;
 
-        bx = contour[V[v]].X;
-        by = contour[V[v]].Y;
+        bx = contour[v[v]].X;
+        by = contour[v[v]].Y;
 
-        cx = contour[V[w]].X;
-        cy = contour[V[w]].Y;
+        cx = contour[v[w]].X;
+        cy = contour[v[w]].Y;
 
         if (Epsilon > (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) return false;
 
         for (p = 0; p < n; p++) {
             if (p == u || p == v || p == w) continue;
 
-            px = contour[V[p]].X;
-            py = contour[V[p]].Y;
+            px = contour[v[p]].X;
+            py = contour[v[p]].Y;
             if (InsideTriangle(ax, ay, bx, by, cx, cy, px, py)) return false;
         }
 

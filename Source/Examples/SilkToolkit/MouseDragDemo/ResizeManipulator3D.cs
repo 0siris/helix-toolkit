@@ -9,7 +9,6 @@
 
 namespace MouseDragDemo;
 
-using System.Collections.Generic;
 using System.Windows;
 using HelixToolkit.Wpf.SharpDX;
 using Colors = System.Windows.Media.Colors;
@@ -17,7 +16,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyChanged
 {
-    private UITranslateManipulator3D translateXL, translateYL, translateZL, translateXR, translateYR, translateZR;
+    private UiTranslateManipulator3D translateXl, translateYl, translateZl, translateXr, translateYr, translateZr;
     private LineGeometryModel3D selectionBounds;
 
 
@@ -92,12 +91,12 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
         var red = PhongMaterials.Red;
         red.ReflectiveColor = Colors.Black.ToColor4();
         //red.SpecularShininess = 0f;
-        translateXR = new UITranslateManipulator3D { Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red, };
-        translateYR = new UITranslateManipulator3D { Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
-        translateZR = new UITranslateManipulator3D { Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
-        translateXL = new UITranslateManipulator3D { Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red };
-        translateYL = new UITranslateManipulator3D { Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
-        translateZL = new UITranslateManipulator3D { Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
+        translateXr = new UiTranslateManipulator3D { Direction = new Vector3(+1, 0, 0), IsThrowingShadow = false, Material = red, };
+        translateYr = new UiTranslateManipulator3D { Direction = new Vector3(0, +1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        translateZr = new UiTranslateManipulator3D { Direction = new Vector3(0, 0, +1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
+        translateXl = new UiTranslateManipulator3D { Direction = new Vector3(-1, 0, 0), IsThrowingShadow = false, Material = red };
+        translateYl = new UiTranslateManipulator3D { Direction = new Vector3(0, -1, 0), IsThrowingShadow = false, Material = PhongMaterials.Green };
+        translateZl = new UiTranslateManipulator3D { Direction = new Vector3(0, 0, -1), IsThrowingShadow = false, Material = PhongMaterials.Blue };
         //this.rotateZ = new UIRotateManipulator3D { Axis = Vector3.UnitZ, InnerDiameter = 2, OuterDiameter = 2.15, Length = 0.05 };
 
         CanTranslateX = true;
@@ -137,28 +136,28 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// The on children changed.
     /// </summary>
     protected virtual void OnChildrenChanged() {
-        translateXL.Length = 0.5;
-        translateYL.Length = 0.5;
-        translateZL.Length = 0.5;
-        translateXR.Length = 0.5;
-        translateYR.Length = 0.5;
-        translateZR.Length = 0.5;
+        translateXl.Length = 0.5;
+        translateYl.Length = 0.5;
+        translateZl.Length = 0.5;
+        translateXr.Length = 0.5;
+        translateYr.Length = 0.5;
+        translateZr.Length = 0.5;
 
         Children.Clear();
 
         if (CanTranslateX) {
-            Children.Add(translateXL);
-            Children.Add(translateXR);
+            Children.Add(translateXl);
+            Children.Add(translateXr);
         }
 
         if (CanTranslateY) {
-            Children.Add(translateYL);
-            Children.Add(translateYR);
+            Children.Add(translateYl);
+            Children.Add(translateYr);
         }
 
         if (CanTranslateZ) {
-            Children.Add(translateZL);
-            Children.Add(translateZR);
+            Children.Add(translateZl);
+            Children.Add(translateZr);
         }
 
 

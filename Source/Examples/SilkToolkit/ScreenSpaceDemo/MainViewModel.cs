@@ -7,22 +7,12 @@
 namespace ScreenSpaceDemo;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Data;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using RotateTransform3D = System.Windows.Media.Media3D.RotateTransform3D;
-using ScaleTransform3D = System.Windows.Media.Media3D.ScaleTransform3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
 using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
@@ -73,7 +63,7 @@ public class MainViewModel : BaseViewModel {
         DirectionalLightDirection2 = new Vector3(+2, +5, +5);
 
         // model materials
-        DefaultMaterial = PhongMaterials.DefaultVRML;
+        DefaultMaterial = PhongMaterials.DefaultVrml;
 
         //load model
         var reader = new ObjReader();

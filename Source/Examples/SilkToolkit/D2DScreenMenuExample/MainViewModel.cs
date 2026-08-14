@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
@@ -16,8 +11,8 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace D2DScreenMenuExample;
 
 public class MainViewModel : BaseViewModel {
-    public ViewModel3D VM3D { get; } = new();
-    public ViewModel2D VM2D { get; } = new();
+    public ViewModel3D Vm3D { get; } = new();
+    public ViewModel2D Vm2D { get; } = new();
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -52,18 +47,18 @@ public class ViewModel3D : DemoCore.ObservableObject {
 
     public Color Light3Color { set; get; } = Colors.Green;
 
-    private string NormalTexture = @"TextureCheckerboard2_dot3.jpg";
+    private string normalTexture = @"TextureCheckerboard2_dot3.jpg";
 
-    private string Texture = @"TextureCheckerboard2.jpg";
+    private string texture = @"TextureCheckerboard2.jpg";
 
     public ViewModel3D() {
         var builder = new MeshBuilder(true, true, true);
         builder.AddBox(new Vector3(0, 2.5f, 0), 5, 5, 5);
         builder.AddBox(new Vector3(0, 0, 0), 10, 0.1, 10);
         Model = builder.ToMeshGeometry3D();
-        var diffuseMap = TextureModel.Create(new Uri(Texture, UriKind.RelativeOrAbsolute).ToString());
+        var diffuseMap = TextureModel.Create(new Uri(texture, UriKind.RelativeOrAbsolute).ToString());
         var normalMap =
-            TextureModel.Create(new Uri(NormalTexture, UriKind.RelativeOrAbsolute).ToString());
+            TextureModel.Create(new Uri(normalTexture, UriKind.RelativeOrAbsolute).ToString());
         ModelMaterial.DiffuseMap = diffuseMap;
         ModelMaterial.NormalMap = normalMap;
     }
@@ -76,12 +71,12 @@ public class ViewModel2D : DemoCore.ObservableObject {
 
     public Stream ImageStream { private set; get; }
 
-    private string Texture = @"TextureCheckerboard2.jpg";
+    private string texture = @"TextureCheckerboard2.jpg";
 
     public ViewModel2D() {
         //TextTransform = new Media.RotateTransform(45, 100, 0);
         TextTransform = CreateAnimatedTransform2(8);
-        ImageStream = LoadFileToMemory(Texture);
+        ImageStream = LoadFileToMemory(texture);
     }
 
 

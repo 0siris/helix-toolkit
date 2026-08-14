@@ -25,7 +25,7 @@
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
             EnableSwapChainRendering="True"
-            FXAALevel="Low"
+            FxaaLevel="Low"
             FixedRotationPoint="{Binding ModelCentroid}"
             FixedRotationPointEnabled="True">
             <hx:Viewport3DX.InputBindings>
@@ -94,7 +94,7 @@
                 </Button>
                 <Separator />
                 <CheckBox Margin="4" IsChecked="{Binding ShowWireframe}">Show Wireframe</CheckBox>
-                <CheckBox Margin="4" IsChecked="{Binding ElementName=view, Path=EnableSSAO}">Enable SSAO</CheckBox>
+                <CheckBox Margin="4" IsChecked="{Binding ElementName=view, Path=EnableSsao}">Enable SSAO</CheckBox>
                 <CheckBox Margin="4" IsChecked="{Binding RenderEnvironmentMap}">Render EnvironmentMap</CheckBox>
                 <CheckBox Margin="4" IsChecked="{Binding RenderFlat}">Flat Shading</CheckBox>
                 <Separator />

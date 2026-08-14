@@ -7,8 +7,8 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public abstract class MaterialGeometryNode : GeometryNode {
-    private MaterialCore material;
-    private MaterialVariable materialVariable;
+    private MaterialCore? material;
+    private MaterialVariable? materialVariable;
 
     /// <summary>
     ///     Specifiy if model material is transparent.
@@ -24,21 +24,21 @@ public abstract class MaterialGeometryNode : GeometryNode {
         }
     }
 
-    /// <summary>
-    /// </summary>
     public MaterialCore Material {
         get => material;
         set {
-            if (Set(ref material, value))
-                if (EffectsManager != null) {
-                    if (IsAttached) {
-                        AttachMaterial();
-                        InvalidateRender();
-                    } else {
-                        Detach();
-                        Attach(EffectsManager);
-                    }
+            if (!Set(ref material, value))
+                return;
+            
+            if (EffectsManager != null) {
+                if (IsAttached) {
+                    AttachMaterial();
+                    InvalidateRender();
+                } else {
+                    Detach();
+                    Attach(EffectsManager);
                 }
+            }
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? (ushort)0);
 
     protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
 

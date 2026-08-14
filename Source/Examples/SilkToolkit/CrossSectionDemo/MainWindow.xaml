@@ -33,7 +33,7 @@
             EnableCursorPosition="True"
             FixedRotationPoint="0,0,0"
             FixedRotationPointEnabled="True"
-            MSAA="Disable"
+            Msaa="Disable"
             RotateAroundMouseDownPoint="False"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"

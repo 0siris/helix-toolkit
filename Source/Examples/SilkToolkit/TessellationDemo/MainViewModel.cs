@@ -12,7 +12,6 @@ namespace TessellationDemo;
 using System.Collections.Generic;
 using System.Linq;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
@@ -43,7 +42,7 @@ public class MainViewModel : BaseViewModel {
 
     public FillMode FillMode {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = FillMode.Solid;
 
     public bool Wireframe {
@@ -56,7 +55,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get => field;
+        get;
     } = false;
 
     private MeshTopologyEnum meshTopology = MeshTopologyEnum.PnTriangles;

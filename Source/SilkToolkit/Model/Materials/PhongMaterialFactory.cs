@@ -24,7 +24,7 @@ public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
         Add(PhongMaterials.Bronze);
         Add(PhongMaterials.Chrome);
         Add(PhongMaterials.Copper);
-        Add(PhongMaterials.DefaultVRML);
+        Add(PhongMaterials.DefaultVrml);
         Add(PhongMaterials.Emerald);
         Add(PhongMaterials.Glass);
         Add(PhongMaterials.Gold);
@@ -413,7 +413,7 @@ public static class PhongMaterials {
             SpecularShininess = 10f
         };
 
-    public static PhongMaterial DefaultVRML =>
+    public static PhongMaterial DefaultVrml =>
         new() {
             Name = "DefaultVRML",
             AmbientColor = ToColor(0.2, 0.2, 0.2),
@@ -425,7 +425,7 @@ public static class PhongMaterials {
 
     public static PhongMaterial GetMaterial(string materialName) {
         var mat = Materials.FirstOrDefault(x => x.Name == materialName);
-        return mat != null ? mat : DefaultVRML;
+        return mat != null ? mat : DefaultVrml;
     }
 
     public static Color4 ToColor(double r, double g, double b, double a = 1.0) =>

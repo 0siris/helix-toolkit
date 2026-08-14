@@ -63,12 +63,12 @@ public static class ThreadBufferManager<T> where T : unmanaged {
     public static int MinimumElementCount =>
         ThreadBufferManagerConfig.MinimumSizeToRetainMb * MByteToByte / StructSize;
 
-    [ThreadStatic] private static T[]? buffer;
+    [ThreadStatic] private static T[]? _buffer;
 
-    private static long lastUsed;
+    private static long _lastUsed;
 
     public static T[] GetBuffer(int requestCount) {
-        var array = buffer;
+        var array = _buffer;
         if (array == null || array.Length < requestCount) {
             float scale = 1;
             if (requestCount < MinimumElementCount)
@@ -87,26 +87,26 @@ public static class ThreadBufferManager<T> where T : unmanaged {
             return array;
         }
 
-        if (lastUsed == 0) {
-            lastUsed = Stopwatch.GetTimestamp();
-            buffer = array;
+        if (_lastUsed == 0) {
+            _lastUsed = Stopwatch.GetTimestamp();
+            _buffer = array;
             return array;
         }
 
         if (array.Length > MinimumElementCount
             && array.Length > ThreadBufferManagerConfig.SizeReductionDividend * requestCount) {
-            var diff = Stopwatch.GetTimestamp() - lastUsed;
+            var diff = Stopwatch.GetTimestamp() - _lastUsed;
             if (diff / Stopwatch.Frequency > ThreadBufferManagerConfig.MinimumAutoReleaseThresholdSeconds) {
                 if (Logger.IsEnabled(LogLevel.Debug))
                     Logger.Debug("Disposing thread buffer. Type: {Value0}", typeof(T));
-                buffer = null;
-                lastUsed = 0;
+                _buffer = null;
+                _lastUsed = 0;
                 return array;
             }
         }
 
-        buffer = array;
-        lastUsed = Stopwatch.GetTimestamp();
+        _buffer = array;
+        _lastUsed = Stopwatch.GetTimestamp();
         return array;
     }
 }

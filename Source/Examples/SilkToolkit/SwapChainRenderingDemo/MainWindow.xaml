@@ -32,9 +32,9 @@
             EnableAutoOctreeUpdate="True"
             EnableD2DRendering="False"
             EnableDeferredRendering="False"
-            EnableSSAO="True"
+            EnableSsao="True"
             EnableSwapChainRendering="True"
-            FXAALevel="Low"
+            FxaaLevel="Low"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
@@ -118,13 +118,13 @@
             <CheckBox
                 Margin="4"
                 Foreground="White"
-                IsChecked="{Binding ElementName=view1, Path=EnableSSAO}">
+                IsChecked="{Binding ElementName=view1, Path=EnableSsao}">
                 Enable SSAO
             </CheckBox>
             <Slider
                 Maximum="4"
                 Minimum="0.5"
-                Value="{Binding ElementName=view1, Path=SSAOSamplingRadius}" />
+                Value="{Binding ElementName=view1, Path=SsaoSamplingRadius}" />
         </StackPanel>
         <StackPanel
             Grid.Row="1"

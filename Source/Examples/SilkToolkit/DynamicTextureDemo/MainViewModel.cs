@@ -1,22 +1,15 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
 using System.Windows.Threading;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
-using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
-using Transform3D = System.Windows.Media.Media3D.Transform3D;
-using TranslateTransform3D = System.Windows.Media.Media3D.TranslateTransform3D;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
@@ -31,7 +24,7 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged();
             }
         }
-        get => field;
+        get;
     } = new();
 
     public FillMode FillMode {
@@ -39,7 +32,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get => field;
+        get;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -52,7 +45,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = FillMode.Solid;
             }
         }
-        get => field;
+        get;
     } = false;
 
     public Color Light1Color { get; set; }
@@ -76,7 +69,7 @@ public class MainViewModel : BaseViewModel {
     public bool DynamicVertices { set; get; } = false;
     public bool DynamicTriangles { set; get; } = false;
     public bool DynamicPointColor { set; get; } = true;
-    public bool AnimateUVOffset { set; get; } = true;
+    public bool AnimateUvOffset { set; get; } = true;
     public bool ReverseInnerRotation { set; get; } = false;
 
     public Vector3D CamLookDir {
@@ -87,7 +80,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get => field;
+        get;
     } = new(-10, -10, -10);
 
     private Vector3Collection initialPosition;
@@ -222,7 +215,7 @@ public class MainViewModel : BaseViewModel {
         counter %= 128;
         if (DynamicTexture) {
             Vector2Collection texture = null;
-            if (!AnimateUVOffset) {
+            if (!AnimateUvOffset) {
                 texture = [.. Model.TextureCoordinates];
                 var t0 = texture[0];
                 for (int i = 1; i < texture.Count; ++i) {
@@ -233,7 +226,7 @@ public class MainViewModel : BaseViewModel {
             }
 
             context.Send((o) => {
-                if (!AnimateUVOffset) {
+                if (!AnimateUvOffset) {
                     Model.TextureCoordinates = texture;
                     if (ReverseInnerRotation) {
                         var texture1 = new Vector2Collection(texture);
@@ -243,13 +236,13 @@ public class MainViewModel : BaseViewModel {
                         InnerModel.TextureCoordinates = texture;
                     }
                 } else {
-                    ModelMaterial.UVTransform = new UvTransform(0,
+                    ModelMaterial.UvTransform = new UvTransform(0,
                                                                 Vector2.One,
-                                                                ModelMaterial.UVTransform.Translation +
+                                                                ModelMaterial.UvTransform.Translation +
                                                                 new Vector2(0.005f, -0.01f));
-                    InnerModelMaterial.UVTransform = new UvTransform(0,
+                    InnerModelMaterial.UvTransform = new UvTransform(0,
                         Vector2.One,
-                        InnerModelMaterial.UVTransform.Translation +
+                        InnerModelMaterial.UvTransform.Translation +
                         new Vector2(-0.01f, 0.005f));
                 }
             },

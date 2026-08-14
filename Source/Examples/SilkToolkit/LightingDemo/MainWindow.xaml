@@ -32,9 +32,9 @@
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
             EnableSwapChainRendering="True"
-            FXAALevel="{Binding FXAA}"
+            FxaaLevel="{Binding Fxaa}"
             IsShadowMappingEnabled="True"
-            MSAA="{Binding Msaa}"
+            Msaa="{Binding Msaa}"
             ShowCoordinateSystem="True"
             ShowFrameDetails="True"
             ShowFrameRate="True"
@@ -201,13 +201,13 @@
                     <TextBlock>MSAA</TextBlock>
                     <ComboBox
                         Margin="3"
-                        ItemsSource="{Binding MSAAs}"
+                        ItemsSource="{Binding MsaAs}"
                         SelectedItem="{Binding Msaa}" />
                     <TextBlock>FXAA</TextBlock>
                     <ComboBox
                         Margin="3"
-                        ItemsSource="{Binding FXAAs}"
-                        SelectedItem="{Binding FXAA}" />
+                        ItemsSource="{Binding FxaAs}"
+                        SelectedItem="{Binding Fxaa}" />
                     <CheckBox x:Name="tessCheckBox" IsChecked="{Binding ModelMaterial.EnableTessellation}">Enable Tessellation</CheckBox>
                     <Slider
                         Grid.Row="9"

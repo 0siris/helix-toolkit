@@ -27,7 +27,7 @@
             EffectsManager="{Binding EffectsManager}"
             EnableD2DRendering="False"
             EnableSwapChainRendering="True"
-            FXAALevel="Low"
+            FxaaLevel="Low"
             ModelUpDirection="0,0,1"
             ShowCoordinateSystem="False"
             SubTitle="{Binding SubTitle}"

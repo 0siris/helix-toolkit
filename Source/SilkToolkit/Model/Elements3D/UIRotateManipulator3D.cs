@@ -22,13 +22,13 @@ using MatrixTransform3D = MatrixTransform3D;
 /// <summary>
 ///     A translate manipulator.
 /// </summary>
-public class UIRotateManipulator3D : UIManipulator3D {
+public class UiRotateManipulator3D : UiManipulator3D {
     /// <summary>
     ///     The axis property.
     /// </summary>
     public static readonly DependencyProperty AxisProperty = DependencyProperty.Register("Axis",
         typeof(Vector3),
-        typeof(UIRotateManipulator3D),
+        typeof(UiRotateManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 1), ModelChanged));
 
     /// <summary>
@@ -37,7 +37,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty OuterDiameterProperty = DependencyProperty.Register(
         "OuterDiameter",
         typeof(double),
-        typeof(UIRotateManipulator3D),
+        typeof(UiRotateManipulator3D),
         new PropertyMetadata(1.5, ModelChanged));
 
     /// <summary>
@@ -46,7 +46,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty InnerDiameterProperty = DependencyProperty.Register(
         "InnerDiameter",
         typeof(double),
-        typeof(UIRotateManipulator3D),
+        typeof(UiRotateManipulator3D),
         new PropertyMetadata(1.0, ModelChanged));
 
     /// <summary>
@@ -55,7 +55,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty LengthProperty = DependencyProperty.Register(
         "Length",
         typeof(double),
-        typeof(UIRotateManipulator3D),
+        typeof(UiRotateManipulator3D),
         new PropertyMetadata(0.1, ModelChanged));
 
     /// <summary>
@@ -64,13 +64,13 @@ public class UIRotateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty PivotProperty = DependencyProperty.Register(
         "Pivot",
         typeof(Vector3),
-        typeof(UIRotateManipulator3D),
+        typeof(UiRotateManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 0)));
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UIManipulator3D" /> class.
+    ///     Initializes a new instance of the <see cref="UiManipulator3D" /> class.
     /// </summary>
-    public UIRotateManipulator3D() {
+    public UiRotateManipulator3D() {
         Transform = new RotateTransform3D();
     }
 
@@ -141,18 +141,18 @@ public class UIRotateManipulator3D : UIManipulator3D {
     /// <summary>
     /// </summary>
     protected override void UpdateManipulator(RoutedEventArgs e) {
-        if (!isMouseCaptured)
+        if (!IsMouseCaptured)
             return;
 
         var args = e as Mouse3DEventArgs;
 
         // --- get the plane for translation (camera normal is a good choice)                     
-        var normal = cameraNormal;
+        var normal = CameraNormal;
         var position = new Vector3(TotalModelMatrix.M41, TotalModelMatrix.M42, TotalModelMatrix.M43);
 
         // --- hit position 
-        if (viewport.UnProjectOnPlane(args.Position.ToVector2(), lastHitPosWS, normal, out var newHitPos)) {
-            var v = lastHitPosWS - position;
+        if (Viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normal, out var newHitPos)) {
+            var v = LastHitPosWs - position;
             var u = newHitPos - position;
             v.Normalize();
             u.Normalize();
@@ -176,7 +176,7 @@ public class UIRotateManipulator3D : UIManipulator3D {
                     Transform = new MatrixTransform3D(rotateTransform.AppendTransform(Transform).Value);
             }
 
-            lastHitPosWS = newHitPos;
+            LastHitPosWs = newHitPos;
         }
     }
 

@@ -1,12 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows.Input;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.Wpf.SharpDX.Utilities;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -21,12 +16,12 @@ namespace VolumeRendering;
 public class MainViewModel : BaseViewModel {
     public Material VolumeMaterial {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public Media3D.Transform3D Transform {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     }
 
     public Geometry3D MeshModel { get; }
@@ -39,7 +34,7 @@ public class MainViewModel : BaseViewModel {
 
     public bool IsLoading {
         private set => SetValue(ref field, value);
-        get => field;
+        get;
     } = false;
 
     public ICommand LoadTeapotCommand { get; }
@@ -137,7 +132,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private Tuple<Material, Media3D.Transform3D> LoadNoise() {
-        var m = new VolumeTextureDDS3DMaterial {
+        var m = new VolumeTextureDds3DMaterial {
             Texture = TextureModel.Create("NoiseVolume.dds"),
             Color = new Color4(1, 1, 1, 0.01f)
         };
@@ -192,7 +187,7 @@ public class MainViewModel : BaseViewModel {
         return new VolumeTextureGradientParams(gradients, width, height, depth);
     }
 
-    private float[] normalize(byte[] data) {
+    private float[] Normalize(byte[] data) {
         float[] fdata = new float[data.Length];
         for (int i = 0; i < data.Length; ++i) {
             fdata[i] = (float)data[i] / byte.MaxValue;

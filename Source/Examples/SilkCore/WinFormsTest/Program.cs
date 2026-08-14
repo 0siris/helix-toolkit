@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 namespace WinFormsTest;
 
 internal static class Program {
-    private static NVOptimusEnabler nvEnabler = new();
+    private static NvOptimusEnabler _nvEnabler = new();
 
     /// <summary>
     ///  The main entry point for the application.
@@ -20,8 +14,8 @@ internal static class Program {
         Application.Run(new Form1());
     }
 
-    public sealed class NVOptimusEnabler {
-        static NVOptimusEnabler() {
+    public sealed class NvOptimusEnabler {
+        static NvOptimusEnabler() {
             try {
                 if (Environment.Is64BitProcess)
                     NativeMethods.LoadNvApi64();

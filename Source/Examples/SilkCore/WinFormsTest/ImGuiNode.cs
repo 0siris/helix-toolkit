@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ImGuiNET;
+﻿using ImGuiNET;
 using Format = Silk.NET.DXGI.Format;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 
@@ -19,7 +16,7 @@ public class ImGuiNode : SceneNode {
 
     public const string ImGuiRenderTechnique = "ImGuiRender";
 
-    public static InputElement[] VSInputImGui2D { get; } = [
+    public static InputElement[] VsInputImGui2D { get; } = [
         new("POSITION", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
         new("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
         new("COLOR", 0, Format.FormatR8G8B8A8Unorm, InputElement.AppendAligned, 0),
@@ -30,7 +27,7 @@ public class ImGuiNode : SceneNode {
     static ImGuiNode() {
         RenderTechnique = new TechniqueDescription(ImGuiRenderTechnique) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsSprite2D,
-                                                                VSInputImGui2D),
+                                                                VsInputImGui2D),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
@@ -50,13 +47,13 @@ public class ImGuiNode : SceneNode {
 
     private ImGui2DBufferModel bufferModel;
 
-    private IntPtr fontAtlasID = (IntPtr)1;
+    private IntPtr fontAtlasId = (IntPtr)1;
 
     private bool newFrame = false;
 
     private TimeSpan previousTime = TimeSpan.Zero;
 
-    public event EventHandler UpdatingImGuiUI;
+    public event EventHandler UpdatingImGuiUi;
 
     public ImGuiNode() {
         AffectsGlobalVariable = true;
@@ -89,7 +86,7 @@ public class ImGuiNode : SceneNode {
         io.Framerate = (float)(context.TimeStamp - previousTime).TotalSeconds;
         previousTime = context.TimeStamp;
         ImGui.NewFrame();
-        UpdatingImGuiUI?.Invoke(this, EventArgs.Empty);
+        UpdatingImGuiUi?.Invoke(this, EventArgs.Empty);
     }
 
     protected override bool CanHitTest(HitTestContext context) => false;
@@ -111,7 +108,7 @@ public class ImGuiNode : SceneNode {
                                    width,
                                    height,
                                    Format.FormatR8G8B8A8Unorm);
-            io.Fonts.SetTexID(fontAtlasID);
+            io.Fonts.SetTexID(fontAtlasId);
             io.Fonts.ClearTexData();
             (RenderCore as ImGuiRenderCore).TextureView = textureView;
         }
@@ -137,11 +134,11 @@ public sealed class ImGuiRenderCore : RenderCore {
 
     private SamplerStateProxy sampler;
 
-    private readonly ConstantBufferComponent globalTransformCB;
+    private readonly ConstantBufferComponent globalTransformCb;
 
     public ImGuiRenderCore()
         : base(RenderType.ScreenSpaced) {
-        globalTransformCB = AddComponent(new ConstantBufferComponent(
+        globalTransformCb = AddComponent(new ConstantBufferComponent(
                                              new ConstantBufferDescription(
                                                  DefaultBufferNames.GlobalTransformCb,
                                                  GlobalTransformStruct.SizeInBytes)));
@@ -172,7 +169,7 @@ public sealed class ImGuiRenderCore : RenderCore {
 
         var globalTrans = context.GlobalTransform;
         globalTrans.Projection = ProjectionMatrix;
-        globalTransformCB.Upload(deviceContext, ref globalTrans);
+        globalTransformCb.Upload(deviceContext, ref globalTrans);
         spritePass.BindShader(deviceContext);
         spritePass.BindStates(deviceContext, StateType.All);
         spritePass.PixelShader.BindTexture(deviceContext, texSlot, TextureView);
@@ -182,14 +179,14 @@ public sealed class ImGuiRenderCore : RenderCore {
         #region Render
 
         unsafe {
-            var draw_data = ImGui.GetDrawData();
-            draw_data.ScaleClipRects(new System.Numerics.Vector2(context.DpiScale, context.DpiScale));
-            int idx_offset = 0;
-            int vtx_offset = 0;
-            for (int n = 0; n < draw_data.CmdListsCount; n++) {
-                var cmd_list = draw_data.CmdLists[n];
-                for (int cmd_i = 0; cmd_i < cmd_list.CmdBuffer.Size; cmd_i++) {
-                    var pcmd = &(((ImDrawCmd*)cmd_list.CmdBuffer.Data)[cmd_i]);
+            var drawData = ImGui.GetDrawData();
+            drawData.ScaleClipRects(new System.Numerics.Vector2(context.DpiScale, context.DpiScale));
+            int idxOffset = 0;
+            int vtxOffset = 0;
+            for (int n = 0; n < drawData.CmdListsCount; n++) {
+                var cmdList = drawData.CmdLists[n];
+                for (int cmdI = 0; cmdI < cmdList.CmdBuffer.Size; cmdI++) {
+                    var pcmd = &(((ImDrawCmd*)cmdList.CmdBuffer.Data)[cmdI]);
                     if (pcmd->UserCallback != IntPtr.Zero) { } else {
                         deviceContext.SetScissorRectangle((int)pcmd->ClipRect.X,
                                                           (int)pcmd->ClipRect.Y,
@@ -197,14 +194,14 @@ public sealed class ImGuiRenderCore : RenderCore {
                                                           (int)(pcmd->ClipRect.W));
 
                         deviceContext.DrawIndexed((int)pcmd->ElemCount,
-                                                  idx_offset,
-                                                  vtx_offset);
+                                                  idxOffset,
+                                                  vtxOffset);
                     }
 
-                    idx_offset += (int)pcmd->ElemCount;
+                    idxOffset += (int)pcmd->ElemCount;
                 }
 
-                vtx_offset += cmd_list.VtxBuffer.Size;
+                vtxOffset += cmdList.VtxBuffer.Size;
             }
 
         #endregion
@@ -247,11 +244,11 @@ public sealed class ImGuiRenderCore : RenderCore {
                                                   (dataBox) => {
                                                       var ptr = dataBox.DataPointer;
                                                       for (int i = 0; i < data.CmdListsCount; i++) {
-                                                          var cmd_list = data.CmdLists[i];
-                                                          int vCount = cmd_list.VtxBuffer.Size * sizeof(ImDrawVert);
+                                                          var cmdList = data.CmdLists[i];
+                                                          int vCount = cmdList.VtxBuffer.Size * sizeof(ImDrawVert);
                                                           ptr = UnsafeHelper.Write(
                                                               ptr,
-                                                              (IntPtr)cmd_list.VtxBuffer.Data,
+                                                              (IntPtr)cmdList.VtxBuffer.Data,
                                                               0,
                                                               vCount);
                                                       }
@@ -260,11 +257,11 @@ public sealed class ImGuiRenderCore : RenderCore {
                                                  (dataBox) => {
                                                      var ptr = dataBox.DataPointer;
                                                      for (int i = 0; i < data.CmdListsCount; i++) {
-                                                         var cmd_list = data.CmdLists[i];
-                                                         int iCount = cmd_list.IdxBuffer.Size * sizeof(ushort);
+                                                         var cmdList = data.CmdLists[i];
+                                                         int iCount = cmdList.IdxBuffer.Size * sizeof(ushort);
                                                          ptr = UnsafeHelper.Write(
                                                              ptr,
-                                                             (IntPtr)cmd_list.IdxBuffer.Data,
+                                                             (IntPtr)cmdList.IdxBuffer.Data,
                                                              0,
                                                              iCount);
                                                      }

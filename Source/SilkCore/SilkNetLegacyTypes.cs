@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace HelixToolkit.SharpDX.Core;
 public enum PlaneIntersectionType {
     Front,

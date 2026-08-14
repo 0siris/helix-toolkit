@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.Wpf.SharpDX;
 
 namespace CustomShaderDemo;
 
@@ -26,33 +23,33 @@ public static class ShaderHelper {
 /// <summary>
 /// Build using Nuget Micorsoft.HLSL.Microsoft.HLSL.CSharpVB automatically during project build
 /// </summary>
-public static class CustomVSShaderDescription {
-    public static byte[] VSMeshDataSamplerByteCode => ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso");
+public static class CustomVsShaderDescription {
+    public static byte[] VsMeshDataSamplerByteCode => ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso");
 
-    public static ShaderDescription VSDataSampling = new(nameof(VSDataSampling),
+    public static ShaderDescription VsDataSampling = new(nameof(VsDataSampling),
                                                                            ShaderStage.Vertex,
                                                                            new ShaderReflector(),
-                                                                           VSMeshDataSamplerByteCode);
+                                                                           VsMeshDataSamplerByteCode);
 }
 
 /// <summary>
 /// Build using Nuget Micorsoft.HLSL.Microsoft.HLSL.CSharpVB automatically during project build
 /// </summary>
-public static class CustomPSShaderDescription {
-    public static ShaderDescription PSDataSampling = new(nameof(PSDataSampling),
+public static class CustomPsShaderDescription {
+    public static ShaderDescription PsDataSampling = new(nameof(PsDataSampling),
                                                                            ShaderStage.Pixel,
                                                                            new ShaderReflector(),
                                                                            ShaderHelper.LoadShaderCode(
                                                                                @"Shaders\psMeshDataSampling.cso"));
 
-    public static ShaderDescription PSNoiseMesh = new(nameof(PSNoiseMesh),
+    public static ShaderDescription PsNoiseMesh = new(nameof(PsNoiseMesh),
                                                                         ShaderStage.Pixel,
                                                                         new ShaderReflector(),
                                                                         ShaderHelper.LoadShaderCode(
                                                                             @"Shaders\psMeshNoiseBlinnPhong.cso"));
 
 
-    public static ShaderDescription PSCustomPoint = new(nameof(PSCustomPoint),
+    public static ShaderDescription PsCustomPoint = new(nameof(PsCustomPoint),
                                                                           ShaderStage.Pixel,
                                                                           new ShaderReflector(),
                                                                           ShaderHelper.LoadShaderCode(
@@ -68,21 +65,21 @@ public class CustomEffectsManager : DefaultEffectsManager {
     private void LoadCustomTechniqueDescriptions() {
         var dataSampling = new TechniqueDescription(CustomShaderNames.DataSampling) {
             InputLayoutDescription =
-                new InputLayoutDescription(CustomVSShaderDescription.VSMeshDataSamplerByteCode,
+                new InputLayoutDescription(CustomVsShaderDescription.VsMeshDataSamplerByteCode,
                                            DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.ColorStripe1D) {
                     ShaderList = [
-                        CustomVSShaderDescription.VSDataSampling,
+                        CustomVsShaderDescription.VsDataSampling,
                         //DefaultVSShaderDescriptions.VSMeshDefault,
-                        CustomPSShaderDescription.PSDataSampling
+                        CustomPsShaderDescription.PsDataSampling
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
                 },
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
-                        CustomVSShaderDescription.VSDataSampling,
+                        CustomVsShaderDescription.VsDataSampling,
                         DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
@@ -97,7 +94,7 @@ public class CustomEffectsManager : DefaultEffectsManager {
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
                         DefaultVsShaderDescriptions.VsMeshDefault,
-                        CustomPSShaderDescription.PSNoiseMesh
+                        CustomPsShaderDescription.PsNoiseMesh
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
@@ -113,7 +110,7 @@ public class CustomEffectsManager : DefaultEffectsManager {
             ShaderList = [
                 DefaultVsShaderDescriptions.VsPoint,
                 DefaultGsShaderDescriptions.GsPoint,
-                CustomPSShaderDescription.PSCustomPoint
+                CustomPsShaderDescription.PsCustomPoint
             ],
             BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
             DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLessEqual

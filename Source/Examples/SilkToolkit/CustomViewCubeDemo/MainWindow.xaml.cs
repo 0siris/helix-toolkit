@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Input;
 using HelixToolkit.Wpf.SharpDX;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

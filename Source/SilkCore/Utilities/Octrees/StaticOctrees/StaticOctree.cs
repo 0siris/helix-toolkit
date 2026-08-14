@@ -8,8 +8,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using HelixToolkit.Logger;
-using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>

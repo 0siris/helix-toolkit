@@ -12,14 +12,10 @@ namespace DeferredShadingDemo;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using DemoCore;
-using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
@@ -61,7 +57,7 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection PointLightCollection { get; set; }
 
     public Color PointLightColor {
-        get => field;
+        get;
         set {
             field = value;
             UpdatePointLightCollection();
@@ -69,7 +65,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public Vector3D PointLightAttenuation {
-        get => field;
+        get;
         set {
             field = value;
             UpdatePointLightCollection();
@@ -82,7 +78,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public int PointLightSpread {
-        get => field;
+        get;
         set {
             field = value;
             InitPointLightCollection(PointLightCount);
@@ -92,7 +88,7 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection SpotLightCollection { get; set; }
 
     public Color SpotLightColor {
-        get => field;
+        get;
         set {
             field = value;
             UpdateSpotLightCollection();
@@ -100,7 +96,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public Vector3D SpotLightAttenuation {
-        get => field;
+        get;
         set {
             field = value;
             UpdateSpotLightCollection();
@@ -113,14 +109,14 @@ public class MainViewModel : BaseViewModel {
     }
 
     public double SpotLightSpread {
-        get => field;
+        get;
         set {
             field = value;
             InitSpotLightCollection(SpotLightCount);
         }
     }
 
-    public IEnumerable<int> SamplesMSAA {
+    public IEnumerable<int> SamplesMsaa {
         get {
             yield return 1;
             yield return 2;
@@ -186,7 +182,7 @@ public class MainViewModel : BaseViewModel {
         RedMaterial = PhongMaterials.Red;
         GreenMaterial = PhongMaterials.Green;
         BlueMaterial = PhongMaterials.Blue;
-        PlaneMaterial = PhongMaterials.DefaultVRML;
+        PlaneMaterial = PhongMaterials.DefaultVrml;
         PlaneMaterial.DiffuseMap =
             LoadFileToMemory(new Uri(@"./Media/TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute)
                                  .ToString());

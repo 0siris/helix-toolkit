@@ -14,14 +14,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
-using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
@@ -32,7 +28,7 @@ public class MainViewModel : BaseViewModel {
     public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model {
-        get => field;
+        get;
         private set {
             if (SetValue(ref field, value)) {
                 NumberOfTriangles = field.Indices.Count / 3;
@@ -58,7 +54,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get => field;
+        get;
     } = new(-100, -100, -100);
 
     public ICommand SimplifyCommand { private set; get; }
@@ -74,7 +70,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get => field;
+        get;
     } = true;
 
     public FillMode FillMode { set; get; } = FillMode.Wireframe;
@@ -82,7 +78,7 @@ public class MainViewModel : BaseViewModel {
     public int NumberOfTriangles { set; get; } = 0;
     public int NumberOfVertices { set; get; } = 0;
 
-    private MeshGeometry3D OrgMesh;
+    private MeshGeometry3D orgMesh;
 
     public bool Lossless { set; get; } = false;
 
@@ -115,7 +111,7 @@ public class MainViewModel : BaseViewModel {
         // scene model3d
         ModelMaterial = PhongMaterials.Silver;
 
-        var models = Load3ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var models = Load3Ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
         //var scale = new Vector3(1f);
 
         //foreach (var item in caritems)
@@ -127,13 +123,13 @@ public class MainViewModel : BaseViewModel {
 
         //}
         Model = models[0];
-        OrgMesh = Model;
+        orgMesh = Model;
 
         //ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
 
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
         ResetCommand = new RelayCommand((o) => {
-            Model = OrgMesh;
+            Model = orgMesh;
             simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
         },
                                         CanSimplify);
@@ -141,7 +137,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     [Obsolete]
-    public List<Object3D> Load3ds(string path) {
+    public List<Object3D> Load3Ds(string path) {
         var reader = new ObjReader();
         var list = reader.Read(path);
         return list;

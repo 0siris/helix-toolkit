@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Model;
-using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
-using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
@@ -64,7 +54,7 @@ public class MainViewModel : BaseViewModel {
     public Transform3D Transform7 { get; } = new Media3D.TranslateTransform3D(-45, 0, 0);
     public Transform3D TitleTransform { get; } = new Media3D.TranslateTransform3D(0, 10, 0);
 
-    public ICommand OpenPBRSampleCommand { get; }
+    public ICommand OpenPbrSampleCommand { get; }
 
     private Random rnd = new();
     private SynchronizationContext context = SynchronizationContext.Current;
@@ -104,8 +94,8 @@ public class MainViewModel : BaseViewModel {
         MeshTitles.TextInfo.Add(new TextInfo("PBR", Transform7.ToVector3()) { Scale = 0.08f, Background = new Color4(1, 1, 1, 1) });
         (FloorMaterial as PhongMaterial).RenderShadowMap = true;
 
-        OpenPBRSampleCommand = new RelayCommand((o) => {
-            PBRWindow w = new PBRWindow() { DataContext = new PBRViewModel(EffectsManager) { EnvironmentMap = EnvironmentMap } };
+        OpenPbrSampleCommand = new RelayCommand((o) => {
+            PbrWindow w = new PbrWindow() { DataContext = new PbrViewModel(EffectsManager) { EnvironmentMap = EnvironmentMap } };
             w.Show();
         });
     }
@@ -135,7 +125,7 @@ public class MainViewModel : BaseViewModel {
                 };
 
                 var diffuseMaterial = new DiffuseMaterial();
-                PBRMaterial pbrMaterial = null;
+                PbrMaterial pbrMaterial = null;
                 if (ob.Material is PhongMaterialCore p) {
                     var phong = p.ConvertToPhongMaterial();
                     phong.RenderEnvironmentMap = true;
@@ -144,7 +134,7 @@ public class MainViewModel : BaseViewModel {
                     s.Material = phong;
                     diffuseMaterial.DiffuseColor = p.DiffuseColor;
                     diffuseMaterial.DiffuseMap = p.DiffuseMap;
-                    pbrMaterial = new PBRMaterial() {
+                    pbrMaterial = new PbrMaterial() {
                         AlbedoColor = p.DiffuseColor,
                         AlbedoMap = p.DiffuseMap,
                         NormalMap = p.NormalMap,

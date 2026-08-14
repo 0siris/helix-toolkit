@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Animations;
-
-namespace WinFormsTest;
+﻿namespace WinFormsTest;
 
 public struct ViewportOptions {
     public bool DirectionalLightFollowCamera;
     public bool WalkAround;
-    public bool EnableSSAO;
-    public bool EnableFXAA;
+    public bool EnableSsao;
+    public bool EnableFxaa;
     public bool EnableFrustum;
     public bool ShowRenderDetail;
     public System.Numerics.Vector3 BackgroundColor;

@@ -1,9 +1,3 @@
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.Wpf.SharpDX;
-using HelixToolkit.Wpf.SharpDX.Utilities;
-
 namespace CustomShaderDemo;
 
 public class CustomMeshCore : MeshRenderCore {

@@ -21,14 +21,14 @@ using TranslateTransform3D = TranslateTransform3D;
 /// <summary>
 ///     A translate manipulator.
 /// </summary>
-public class UITranslateManipulator3D : UIManipulator3D {
+public class UiTranslateManipulator3D : UiManipulator3D {
     /// <summary>
     ///     The diameter property.
     /// </summary>
     public static readonly DependencyProperty DiameterProperty =
         DependencyProperty.Register("Diameter",
                                     typeof(double),
-                                    typeof(UITranslateManipulator3D),
+                                    typeof(UiTranslateManipulator3D),
                                     new PropertyMetadata(0.2, ModelChanged));
 
     /// <summary>
@@ -37,7 +37,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty DirectionProperty =
         DependencyProperty.Register("Direction",
                                     typeof(Vector3),
-                                    typeof(UITranslateManipulator3D),
+                                    typeof(UiTranslateManipulator3D),
                                     new PropertyMetadata(new Vector3(0, 0, 1), ModelChanged));
 
     /// <summary>
@@ -46,13 +46,13 @@ public class UITranslateManipulator3D : UIManipulator3D {
     public static readonly DependencyProperty LengthProperty =
         DependencyProperty.Register("Length",
                                     typeof(double),
-                                    typeof(UITranslateManipulator3D),
+                                    typeof(UiTranslateManipulator3D),
                                     new PropertyMetadata(1.0, ModelChanged));
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="UIManipulator3D" /> class.
+    ///     Initializes a new instance of the <see cref="UiManipulator3D" /> class.
     /// </summary>
-    public UITranslateManipulator3D() {
+    public UiTranslateManipulator3D() {
         Material = PhongMaterials.Red;
         Transform = new TranslateTransform3D();
     }
@@ -104,27 +104,27 @@ public class UITranslateManipulator3D : UIManipulator3D {
         var args = e as Mouse3DEventArgs;
 
         // camera normal
-        var normalWS = cameraNormal;
+        var normalWs = CameraNormal;
         // move directon
-        var directionWS = ToWorldVec(Direction);
+        var directionWs = ToWorldVec(Direction);
         // up direction
-        var upWS = SilkMath.Cross(normalWS, directionWS);
+        var upWs = SilkMath.Cross(normalWs, directionWs);
         // the direction plane
-        normalWS = SilkMath.Cross(upWS, directionWS);
-        normalWS.Normalize();
+        normalWs = SilkMath.Cross(upWs, directionWs);
+        normalWs.Normalize();
         // find new hit on the camera-direction plane
-        if (viewport.UnProjectOnPlane(args.Position.ToVector2(), lastHitPosWS, normalWS, out var newHit)) {
+        if (Viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normalWs, out var newHit)) {
             // project point on ray
             // a: vec to project on
             //b(a) = (a.b)/(a.a)*a;
-            var b = newHit - lastHitPosWS;
-            var ab = SilkMath.Dot(directionWS, b);
-            var aa = SilkMath.Dot(directionWS, directionWS);
-            var ba = ab / aa * directionWS;
-            newHit = lastHitPosWS + ba;
+            var b = newHit - LastHitPosWs;
+            var ab = SilkMath.Dot(directionWs, b);
+            var aa = SilkMath.Dot(directionWs, directionWs);
+            var ba = ab / aa * directionWs;
+            newHit = LastHitPosWs + ba;
 
-            var delta = newHit - lastHitPosWS;
-            Value += SilkMath.Dot(delta, directionWS);
+            var delta = newHit - LastHitPosWs;
+            Value += SilkMath.Dot(delta, directionWs);
             var deltaTranslateTrafo = new TranslateTransform3D(delta.ToVector3D());
 
             if (TargetTransform != null) {
@@ -136,7 +136,7 @@ public class UITranslateManipulator3D : UIManipulator3D {
                     Transform = new MatrixTransform3D(Transform.AppendTransform(deltaTranslateTrafo).Value);
             }
 
-            lastHitPosWS = newHit;
+            LastHitPosWs = newHit;
         }
     }
 }

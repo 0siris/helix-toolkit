@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using HelixToolkit.Wpf.SharpDX.Utilities;
 
 namespace MemoryLeakTester;
 
@@ -26,25 +13,25 @@ public partial class MainWindow : Window {
     private Window testWin;
     private DispatcherTimer? timer = null;
     private SystemStateParams systemparams = new();
-    private IList<Tuple<string, Type>> ProjectWinPairs = [];
+    private IList<Tuple<string, Type>> projectWinPairs = [];
 
     public MainWindow() {
         InitializeComponent();
         //ProjectWinPairs.Add(new Tuple<string, Type>("CustomShaderDemo", typeof(CustomShaderDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("BoneSkinDemo", typeof(BoneSkinDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("BoneSkinDemo", typeof(BoneSkinDemo.MainWindow)));
         // ProjectWinPairs.Add(new Tuple<string, Type>("DeferredShadingDemo", typeof(DeferredShadingDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("DynamicTextureDemo", typeof(DynamicTextureDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("InstancingDemo", typeof(InstancingDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("LightingDemo", typeof(LightingDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("OctreeDemo", typeof(OctreeDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("ParticleSystemDemo", typeof(ParticleSystemDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("DynamicTextureDemo", typeof(DynamicTextureDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("InstancingDemo", typeof(InstancingDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("LightingDemo", typeof(LightingDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("OctreeDemo", typeof(OctreeDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("ParticleSystemDemo", typeof(ParticleSystemDemo.MainWindow)));
         // ProjectWinPairs.Add(new Tuple<string, Type>("ScreenSpaceDemo", typeof(ScreenSpaceDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("ShadowMapDemo", typeof(ShadowMapDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("TessellationDemo", typeof(TessellationDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("SimpleDemo", typeof(SimpleDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("MaterialDemo", typeof(MaterialDemo.MainWindow)));
-        ProjectWinPairs.Add(new Tuple<string, Type>("EnvironmentMapDemo", typeof(EnvironmentMapDemo.MainWindow)));
-        projectCombo.ItemsSource = ProjectWinPairs;
+        projectWinPairs.Add(new Tuple<string, Type>("ShadowMapDemo", typeof(ShadowMapDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("TessellationDemo", typeof(TessellationDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("SimpleDemo", typeof(SimpleDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("MaterialDemo", typeof(MaterialDemo.MainWindow)));
+        projectWinPairs.Add(new Tuple<string, Type>("EnvironmentMapDemo", typeof(EnvironmentMapDemo.MainWindow)));
+        projectCombo.ItemsSource = projectWinPairs;
     }
 
     private void StartButton_Click(object sender, RoutedEventArgs e) {
@@ -89,7 +76,7 @@ public partial class MainWindow : Window {
         if (projectCombo.SelectedIndex == -1) {
             testWin = new TestWindow();
         } else {
-            var pair = ProjectWinPairs[projectCombo.SelectedIndex];
+            var pair = projectWinPairs[projectCombo.SelectedIndex];
             testWin = Activator.CreateInstance(pair.Item2) as Window;
         }
 

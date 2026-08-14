@@ -62,12 +62,12 @@ public class CameraController {
     /// <summary>
     ///     The change field of view event handler.
     /// </summary>
-    internal ZoomHandler changeFieldOfViewHandler;
+    internal ZoomHandler ChangeFieldOfViewHandler;
 
     /// <summary>
     ///     The change look at event handler.
     /// </summary>
-    internal RotateHandler changeLookAtHandler;
+    internal RotateHandler ChangeLookAtHandler;
 
     /// <summary>
     ///     Gets or sets the default camera (used when resetting the view).
@@ -203,7 +203,7 @@ public class CameraController {
     /// <summary>
     ///     The pan event handler.
     /// </summary>
-    internal PanHandler panHandler;
+    internal PanHandler PanHandler;
 
     /// <summary>
     ///     The pan speed.
@@ -232,7 +232,7 @@ public class CameraController {
     /// <summary>
     ///     The rotation event handler.
     /// </summary>
-    internal RotateHandler rotateHandler;
+    internal RotateHandler RotateHandler;
 
     /// <summary>
     ///     The 3D rotation point.
@@ -258,7 +258,7 @@ public class CameraController {
     /// <summary>
     ///     The set target handler
     /// </summary>
-    internal RotateHandler setTargetHandler;
+    internal RotateHandler SetTargetHandler;
 
     /// <summary>
     ///     Gets or sets a value indicating whether to show a target adorner when manipulating the camera.
@@ -349,7 +349,7 @@ public class CameraController {
     /// <summary>
     ///     The zoom event handler.
     /// </summary>
-    internal ZoomHandler zoomHandler;
+    internal ZoomHandler ZoomHandler;
 
     /// <summary>
     ///     The point to zoom around.
@@ -365,7 +365,7 @@ public class CameraController {
     /// <summary>
     ///     The zoom rectangle event handler.
     /// </summary>
-    internal ZoomRectangleHandler zoomRectangleHandler;
+    internal ZoomRectangleHandler ZoomRectangleHandler;
 
     /// <summary>
     ///     Gets or sets ZoomSensitivity.
@@ -383,19 +383,19 @@ public class CameraController {
     public CameraController(Viewport3DX viewport) {
         Viewport = viewport;
         actualCamera = viewport.Camera;
-        changeLookAtHandler = new RotateHandler(this, true);
-        rotateHandler = new RotateHandler(this);
-        zoomRectangleHandler = new ZoomRectangleHandler(this);
-        zoomHandler = new ZoomHandler(this);
-        panHandler = new PanHandler(this);
-        changeFieldOfViewHandler = new ZoomHandler(this, true);
-        setTargetHandler = new RotateHandler(this, true);
-        MouseHandlers.Add(changeLookAtHandler);
-        MouseHandlers.Add(rotateHandler);
-        MouseHandlers.Add(zoomRectangleHandler);
-        MouseHandlers.Add(zoomHandler);
-        MouseHandlers.Add(panHandler);
-        MouseHandlers.Add(changeFieldOfViewHandler);
+        ChangeLookAtHandler = new RotateHandler(this, true);
+        RotateHandler = new RotateHandler(this);
+        ZoomRectangleHandler = new ZoomRectangleHandler(this);
+        ZoomHandler = new ZoomHandler(this);
+        PanHandler = new PanHandler(this);
+        ChangeFieldOfViewHandler = new ZoomHandler(this, true);
+        SetTargetHandler = new RotateHandler(this, true);
+        MouseHandlers.Add(ChangeLookAtHandler);
+        MouseHandlers.Add(RotateHandler);
+        MouseHandlers.Add(ZoomRectangleHandler);
+        MouseHandlers.Add(ZoomHandler);
+        MouseHandlers.Add(PanHandler);
+        MouseHandlers.Add(ChangeFieldOfViewHandler);
         Viewport.SizeChanged += (s, e) => {
             Width = (int)e.NewSize.Width;
             Height = (int)e.NewSize.Height;
@@ -509,7 +509,7 @@ public class CameraController {
     /// <value>
     ///     The allow rotate xy.
     /// </value>
-    public Vector2 AllowRotateXY { get; set; } = Vector2.One;
+    public Vector2 AllowRotateXy { get; set; } = Vector2.One;
 
     /// <summary>
     ///     Adds the specified move force.
@@ -567,7 +567,7 @@ public class CameraController {
         if (IsInertiaEnabled)
             panSpeed += pan;
         else
-            panHandler.Pan(pan);
+            PanHandler.Pan(pan);
         Viewport.InvalidateRender();
     }
 
@@ -591,10 +591,10 @@ public class CameraController {
             rotationSpeed.Y += dy * 40;
         } else if (FixedRotationPointEnabled) {
             rotationPosition = new Vector2((float)Viewport.ActualWidth / 2, (float)Viewport.ActualHeight / 2);
-            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
+            RotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), FixedRotationPoint);
         } else {
             rotationPosition = new Vector2((float)Viewport.ActualWidth / 2, (float)Viewport.ActualHeight / 2);
-            rotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
+            RotateHandler.Rotate(rotationPosition, rotationPosition + new Vector2(dx, dy), CameraTarget);
         }
 
         Viewport.InvalidateRender();
@@ -627,7 +627,7 @@ public class CameraController {
             zoomPoint3D = zoomOrigin;
             zoomSpeed += delta * 8;
         } else {
-            zoomHandler.Zoom(delta, zoomOrigin);
+            ZoomHandler.Zoom(delta, zoomOrigin);
         }
 
         Viewport.InvalidateRender();
@@ -789,7 +789,7 @@ public class CameraController {
     ///     The delta value.
     /// </param>
     public void Zoom(double delta) {
-        zoomHandler.Zoom(delta);
+        ZoomHandler.Zoom(delta);
     }
 
     /// <summary>
@@ -814,11 +814,11 @@ public class CameraController {
     public void OnManipulationCompleted(ManipulationCompletedEventArgs e) {
         var p = e.ManipulationOrigin + e.TotalManipulation.Translation;
 
-        if (manipulatorCount == rotateFingerCount) rotateHandler.Completed(p);
+        if (manipulatorCount == rotateFingerCount) RotateHandler.Completed(p);
 
-        if (manipulatorCount == panFingerCount) panHandler.Completed(p);
+        if (manipulatorCount == panFingerCount) PanHandler.Completed(p);
 
-        if (manipulatorCount == zoomFingerCount) zoomHandler.Completed(p);
+        if (manipulatorCount == zoomFingerCount) ZoomHandler.Completed(p);
     }
 
     /// <summary>
@@ -849,34 +849,34 @@ public class CameraController {
             var combine = true;
             if (manipulatorCount == rotateFingerCount) // && combine)
             {
-                rotateHandler.Completed(position);
+                RotateHandler.Completed(position);
                 combine = allowCombinedManipulation;
             }
 
             if (manipulatorCount == zoomFingerCount && combine) {
-                zoomHandler.Completed(p);
+                ZoomHandler.Completed(p);
                 combine = allowCombinedManipulation;
             }
 
-            if (manipulatorCount == panFingerCount && combine) panHandler.Completed(position);
+            if (manipulatorCount == panFingerCount && combine) PanHandler.Completed(position);
             //combine = this.allowCombinedManipulation;
             // start new manipulations
             combine = true;
             if (EnableTouchRotate && n == rotateFingerCount) // && combine)
             {
-                rotateHandler.Started(position);
+                RotateHandler.Started(position);
                 e.Handled = true;
                 combine = allowCombinedManipulation;
             }
 
             if (EnablePinchZoom && n == zoomFingerCount && combine) {
-                zoomHandler.Started(p);
+                ZoomHandler.Started(p);
                 e.Handled = true;
                 combine = allowCombinedManipulation;
             }
 
             if (EnableThreeFingerPan && n == panFingerCount && combine) {
-                panHandler.Started(position);
+                PanHandler.Started(position);
                 e.Handled = true;
                 //combine = this.allowCombinedManipulation;
             }
@@ -885,7 +885,7 @@ public class CameraController {
             // skip this event, the origin may have changed
         } else {
             if (EnableTouchRotate && n == rotateFingerCount) {
-                rotateHandler.Delta(position);
+                RotateHandler.Delta(position);
                 e.Handled = true;
                 if (!allowCombinedManipulation)
                     return;
@@ -897,13 +897,13 @@ public class CameraController {
                 } else {
                     if (PinchZoomAtCenter) {
                         var s = e.CumulativeManipulation.Scale.Length;
-                        zoomHandler.Zoom(prevScale - s, CameraPosition + CameraLookDirection, true);
+                        ZoomHandler.Zoom(prevScale - s, CameraPosition + CameraLookDirection, true);
                         prevScale = s;
                     } else {
-                        var zoomAroundPoint = zoomHandler.UnProject(p, zoomHandler.Origin, CameraLookDirection);
+                        var zoomAroundPoint = ZoomHandler.UnProject(p, ZoomHandler.Origin, CameraLookDirection);
                         if (zoomAroundPoint.HasValue) {
                             var s = e.CumulativeManipulation.Scale.Length;
-                            zoomHandler.Zoom(prevScale - s, zoomAroundPoint.Value, true);
+                            ZoomHandler.Zoom(prevScale - s, zoomAroundPoint.Value, true);
                             prevScale = s;
                         }
                     }
@@ -915,7 +915,7 @@ public class CameraController {
             }
 
             if (EnableThreeFingerPan && n == panFingerCount) {
-                panHandler.Delta(position);
+                PanHandler.Delta(position);
                 e.Handled = true;
                 //if (!this.allowCombinedManipulation) return;
             }
@@ -976,8 +976,8 @@ public class CameraController {
         // Debug.WriteLine("OnStylusSystemGesture: " + e.SystemGesture);
         if (e.SystemGesture == SystemGesture.HoldEnter) {
             var p = e.GetPosition(Viewport);
-            changeLookAtHandler.Started(p);
-            changeLookAtHandler.Completed(p);
+            ChangeLookAtHandler.Started(p);
+            ChangeLookAtHandler.Completed(p);
             e.Handled = true;
         }
 
@@ -1081,19 +1081,19 @@ public class CameraController {
     ///     Initializes the input bindings.
     /// </summary>
     private void InitializeBindings() {
-        changeLookAtHandler = new RotateHandler(this, true);
-        rotateHandler = new RotateHandler(this);
-        zoomRectangleHandler = new ZoomRectangleHandler(this);
-        zoomHandler = new ZoomHandler(this);
-        panHandler = new PanHandler(this);
-        changeFieldOfViewHandler = new ZoomHandler(this, true);
-        setTargetHandler = new RotateHandler(this, true);
-        MouseHandlers.Add(changeLookAtHandler);
-        MouseHandlers.Add(rotateHandler);
-        MouseHandlers.Add(zoomRectangleHandler);
-        MouseHandlers.Add(zoomHandler);
-        MouseHandlers.Add(panHandler);
-        MouseHandlers.Add(changeFieldOfViewHandler);
+        ChangeLookAtHandler = new RotateHandler(this, true);
+        RotateHandler = new RotateHandler(this);
+        ZoomRectangleHandler = new ZoomRectangleHandler(this);
+        ZoomHandler = new ZoomHandler(this);
+        PanHandler = new PanHandler(this);
+        ChangeFieldOfViewHandler = new ZoomHandler(this, true);
+        SetTargetHandler = new RotateHandler(this, true);
+        MouseHandlers.Add(ChangeLookAtHandler);
+        MouseHandlers.Add(RotateHandler);
+        MouseHandlers.Add(ZoomRectangleHandler);
+        MouseHandlers.Add(ZoomHandler);
+        MouseHandlers.Add(PanHandler);
+        MouseHandlers.Add(ChangeFieldOfViewHandler);
     }
 
     /// <summary>
@@ -1251,14 +1251,14 @@ public class CameraController {
         var needUpdate = false;
 
         if (rotationSpeed.LengthSquared() > 0.1f) {
-            rotateHandler.Rotate(rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
+            RotateHandler.Rotate(rotationPosition, rotationPosition + rotationSpeed * time, rotationPoint3D, false);
             rotationSpeed *= factor;
             needUpdate = true;
             spinningSpeed = VectorZero;
         } else {
             rotationSpeed = VectorZero;
             if (isSpinning && spinningSpeed.LengthSquared() > 0.1f) {
-                rotateHandler.Rotate(spinningPosition, spinningPosition + spinningSpeed * time, spinningPoint3D, false);
+                RotateHandler.Rotate(spinningPosition, spinningPosition + spinningSpeed * time, spinningPoint3D, false);
                 if (!InfiniteSpin) spinningSpeed *= factor;
                 needUpdate = true;
             } else {
@@ -1267,7 +1267,7 @@ public class CameraController {
         }
 
         if (panSpeed.LengthSquared() > 0.0001f) {
-            panHandler.Pan(panSpeed * time, false);
+            PanHandler.Pan(panSpeed * time, false);
             panSpeed *= factor;
             needUpdate = true;
         } else {
@@ -1275,7 +1275,7 @@ public class CameraController {
         }
 
         if (moveSpeed.LengthSquared() > 0.0001f) {
-            zoomHandler.MoveCameraPosition(moveSpeed * time, false);
+            ZoomHandler.MoveCameraPosition(moveSpeed * time, false);
             moveSpeed *= factor;
             needUpdate = true;
         } else {
@@ -1283,7 +1283,7 @@ public class CameraController {
         }
 
         if (Math.Abs(zoomSpeed) > 0.001f) {
-            zoomHandler.Zoom(zoomSpeed * time, zoomPoint3D, false, false);
+            ZoomHandler.Zoom(zoomSpeed * time, zoomPoint3D, false, false);
             zoomSpeed *= factor;
             needUpdate = true;
         } else {

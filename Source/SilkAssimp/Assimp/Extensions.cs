@@ -150,7 +150,7 @@ public static class Extensions {
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <returns></returns>
-    public static UvTransform ToHelixUVTransform(this UVTransform transform) => new(transform.Rotation,
+    public static UvTransform ToHelixUvTransform(this UVTransform transform) => new(transform.Rotation,
         transform.Scaling.ToSharpDXVector2(),
         transform.Translation.ToSharpDXVector2());
 

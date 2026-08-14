@@ -34,19 +34,19 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
                                       typeof(OctreeLineGeometryModel3D),
                                       new PropertyMetadata(Media.Colors.Red));
 
-    private readonly LineGeometryModel3D HitVisual = new();
+    private readonly LineGeometryModel3D hitVisual = new();
 
-    private readonly LineGeometryModel3D OctreeVisual = new();
+    private readonly LineGeometryModel3D octreeVisual = new();
 
     public OctreeLineGeometryModel3D() {
-        IsHitTestVisible = OctreeVisual.IsHitTestVisible = HitVisual.IsHitTestVisible = false;
-        Children.Add(OctreeVisual);
-        Children.Add(HitVisual);
-        OctreeVisual.Color = LineColor;
-        HitVisual.Color = HitLineColor;
-        OctreeVisual.Thickness = 0;
-        OctreeVisual.FillMode = FillMode.Wireframe;
-        HitVisual.Thickness = 1.5;
+        IsHitTestVisible = octreeVisual.IsHitTestVisible = hitVisual.IsHitTestVisible = false;
+        Children.Add(octreeVisual);
+        Children.Add(hitVisual);
+        octreeVisual.Color = LineColor;
+        hitVisual.Color = HitLineColor;
+        octreeVisual.Thickness = 0;
+        octreeVisual.FillMode = FillMode.Wireframe;
+        hitVisual.Thickness = 1.5;
         SceneNode.VisibleChanged += OctreeLineGeometryModel3D_OnVisibleChanged;
     }
 
@@ -71,20 +71,20 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
 
     private void CreateOctreeLines() {
         if (Octree != null && Visibility == Visibility.Visible && IsRendering) {
-            OctreeVisual.Geometry = Octree.CreateOctreeLineModel();
-            OctreeVisual.Color = LineColor;
+            octreeVisual.Geometry = Octree.CreateOctreeLineModel();
+            octreeVisual.Color = LineColor;
         } else {
-            OctreeVisual.Geometry = null;
+            octreeVisual.Geometry = null;
         }
     }
 
     private void OctreeLineGeometryModel3D_OnHit(object sender, EventArgs args) {
         var node = sender as IOctreeBasic;
         if (node.HitPathBoundingBoxes.Count > 0 && Visibility == Visibility.Visible && IsRendering) {
-            HitVisual.Geometry = node.HitPathBoundingBoxes.CreatePathLines();
-            HitVisual.Color = HitLineColor;
+            hitVisual.Geometry = node.HitPathBoundingBoxes.CreatePathLines();
+            hitVisual.Color = HitLineColor;
         } else {
-            HitVisual.Geometry = null;
+            hitVisual.Geometry = null;
         }
     }
 }

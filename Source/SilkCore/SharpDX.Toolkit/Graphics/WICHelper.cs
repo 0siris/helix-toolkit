@@ -7,8 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using HelixToolkit.Logger;
-using Microsoft.Extensions.Logging;
 
 namespace SharpDX.Toolkit.Graphics;
 

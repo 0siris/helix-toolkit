@@ -20,8 +20,8 @@
             Grid.Column="0"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
-            EnableSSAO="True"
-            FXAALevel="Medium"
+            EnableSsao="True"
+            FxaaLevel="Medium"
             ShowFrameDetails="True">
             <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
             <hx:AmbientLight3D Color="#B0B0B0" />
@@ -41,21 +41,21 @@
                 Material="{Binding BunnyMaterial}" />
         </hx:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <CheckBox Margin="4" IsChecked="{Binding ElementName=viewport, Path=EnableSSAO}">Enable SSAO</CheckBox>
+            <CheckBox Margin="4" IsChecked="{Binding ElementName=viewport, Path=EnableSsao}">Enable SSAO</CheckBox>
             <Label>Radius</Label>
             <Slider
                 Margin="4"
                 Maximum="4"
                 Minimum="0.1"
-                Value="{Binding ElementName=viewport, Path=SSAOSamplingRadius}" />
+                Value="{Binding ElementName=viewport, Path=SsaoSamplingRadius}" />
             <Label>Strength</Label>
             <Slider
                 Margin="4"
                 Maximum="4"
                 Minimum="1"
-                Value="{Binding ElementName=viewport, Path=SSAOIntensity}" />
-            <ComboBox ItemsSource="{Binding SSAOQualities}"
-                      SelectedItem="{Binding ElementName=viewport, Path=SSAOQuality}" />
+                Value="{Binding ElementName=viewport, Path=SsaoIntensity}" />
+            <ComboBox ItemsSource="{Binding SsaoQualities}"
+                      SelectedItem="{Binding ElementName=viewport, Path=SsaoQuality}" />
         </StackPanel>
     </Grid>
 </Window>

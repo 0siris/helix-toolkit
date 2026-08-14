@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace TemplateDemo;
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
 using DemoCore;
@@ -21,7 +20,7 @@ public class MainViewModel : BaseViewModel {
     [field: AllowNull, MaybeNull]
     public SelectionViewModel SelectedViewModel {
         set => SetValue(ref field, value);
-        get => field;
+        get;
     } = null;
 
     private PhongMaterialCollection materials = [];

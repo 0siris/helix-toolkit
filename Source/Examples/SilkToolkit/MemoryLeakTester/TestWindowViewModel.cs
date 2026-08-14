@@ -13,7 +13,7 @@ namespace MemoryLeakTester;
 
 public class TestWindowViewModel : BaseViewModel {
     public MeshGeometry3D Mesh { get; private set; }
-    public Color4 DirectionalLightColor { get; private set; } = new Color4(1, 1, 1, 1);
+    public Color4 DirectionalLightColor { get; private set; } = new(1, 1, 1, 1);
 
     public PhongMaterial Material { get; } = PhongMaterials.Blue;
 

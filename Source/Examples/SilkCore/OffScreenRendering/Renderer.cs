@@ -13,10 +13,10 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace OffScreenRendering;
 
 internal class Renderer {
-    private readonly ViewportCore viewport = new ViewportCore() { EffectsManager = new DefaultEffectsManager() };
-    private readonly Random random = new Random((int)Stopwatch.GetTimestamp());
+    private readonly ViewportCore viewport = new() { EffectsManager = new DefaultEffectsManager() };
+    private readonly Random random = new((int)Stopwatch.GetTimestamp());
 
-    private readonly DirectionalLightNode lightNode = new DirectionalLightNode() { Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1) };
+    private readonly DirectionalLightNode lightNode = new() { Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1) };
 
     private GroupNode currentScene;
 

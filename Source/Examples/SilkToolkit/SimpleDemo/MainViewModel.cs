@@ -55,7 +55,7 @@ public class MainViewModel : BaseViewModel {
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
 
-    public Vector3D UpDirection { set; get; } = new Vector3D(0, 1, 0);
+    public Vector3D UpDirection { set; get; } = new(0, 1, 0);
     public Stream BackgroundTexture { get; }
     public ICommand UpXCommand { private set; get; }
     public ICommand UpYCommand { private set; get; }

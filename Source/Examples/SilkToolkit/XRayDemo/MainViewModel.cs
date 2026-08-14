@@ -58,7 +58,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D(-100, -100, -100);
+    } = new(-100, -100, -100);
 
     public Matrix[] Instances { private set; get; }
     public Matrix[] OutlineInstances { private set; get; }

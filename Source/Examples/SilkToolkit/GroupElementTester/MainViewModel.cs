@@ -21,7 +21,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace GroupElementTester;
 
 public class MainViewModel : BaseViewModel {
-    private readonly Random rnd = new Random();
+    private readonly Random rnd = new();
     public LineGeometry3D AxisModel { get; private set; }
     public BillboardText3D AxisLabel { private set; get; }
 

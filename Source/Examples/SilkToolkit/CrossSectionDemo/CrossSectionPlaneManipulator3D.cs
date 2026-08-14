@@ -168,10 +168,10 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
     // |     |
     // 0 --- 1
     private static readonly Vector3[] positions = [
-        new Vector3(-1, -1, 0),
-        new Vector3(+1, -1, 0),
-        new Vector3(+1, +1, 0),
-        new Vector3(-1, +1, 0),
+        new(-1, -1, 0),
+        new(+1, -1, 0),
+        new(+1, +1, 0),
+        new(-1, +1, 0),
     ];
 
     private readonly static Geometry3D NodeGeometry;

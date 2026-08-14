@@ -59,7 +59,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D(-100, -100, -100);
+    } = new(-100, -100, -100);
 
     public ICommand SimplifyCommand { private set; get; }
     public ICommand ResetCommand { private set; get; }

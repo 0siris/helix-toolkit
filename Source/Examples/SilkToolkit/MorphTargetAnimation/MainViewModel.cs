@@ -25,7 +25,7 @@ public class MainViewModel : BaseViewModel {
     public string DebugLabel { get; set; }
 
     private HelixToolkitScene scn;
-    private CompositionTargetEx compositeHelper = new CompositionTargetEx();
+    private CompositionTargetEx compositeHelper = new();
     private List<IAnimationUpdater> animationUpdaters;
 
     public double EndTime {

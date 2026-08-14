@@ -24,10 +24,10 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     // |     |
     // 0 --- 1
     private Vector3[] positions = [
-        new Vector3(-1, -1, 0),
-        new Vector3(+1, -1, 0),
-        new Vector3(+1, +1, 0),
-        new Vector3(-1, +1, 0),
+        new(-1, -1, 0),
+        new(+1, -1, 0),
+        new(+1, +1, 0),
+        new(-1, +1, 0),
     ];
 
     private DraggableGeometryModel3D[] cornerHandles = new DraggableGeometryModel3D[4];

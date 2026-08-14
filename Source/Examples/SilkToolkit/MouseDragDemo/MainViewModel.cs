@@ -99,14 +99,14 @@ public class MainViewModel : BaseViewModel {
 
         // ---
         Shape3DCollection = new ObservableCollection<Shape3D> {
-            new Shape3D() {
+            new() {
                 Geometry = MeshGeometry,
                 Material = BlueMaterial,
                 Transform = Model3Transform,
                 Instances = [Matrix.Identity],
                 DragZ = false,
             },
-            new Shape3D() {
+            new() {
                 Geometry = MeshGeometry,
                 Material = RedMaterial,
                 Transform = Model1Transform,

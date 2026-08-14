@@ -50,7 +50,7 @@ public class MainViewModel : BaseViewModel {
 
     public Material NormalVectorMaterial { get; } = new NormalVectorMaterial();
 
-    public ColorStripeMaterial ColorStripeMaterial { get; } = new ColorStripeMaterial();
+    public ColorStripeMaterial ColorStripeMaterial { get; } = new();
 
     public TextureModel EnvironmentMap { private set; get; }
 
@@ -66,7 +66,7 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand OpenPBRSampleCommand { get; }
 
-    private Random rnd = new Random();
+    private Random rnd = new();
     private SynchronizationContext context = SynchronizationContext.Current;
 
     public MainViewModel() {

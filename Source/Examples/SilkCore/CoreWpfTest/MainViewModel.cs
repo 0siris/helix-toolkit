@@ -90,7 +90,7 @@ public class MainViewModel : ObservableObject {
 
     public ObservableCollection<Animation> Animations { get; } = [];
 
-    public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
+    public SceneNodeGroupModel3D GroupModel { get; } = new();
 
     [field: AllowNull, MaybeNull]
     public Animation SelectedAnimation {
@@ -120,7 +120,7 @@ public class MainViewModel : ObservableObject {
     private NodeAnimationUpdater animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new CompositionTargetEx();
+    private CompositionTargetEx compositeHelper = new();
 
 
     public MainViewModel() {

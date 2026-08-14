@@ -40,7 +40,7 @@ public class MainViewModel : BaseViewModel {
     public Media3D.Point3D EmitterLocation {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media3D.Point3D(0, -4, 0);
+    } = new(0, -4, 0);
 
 
     public Media3D.Transform3D ConsumerTransform {
@@ -54,7 +54,7 @@ public class MainViewModel : BaseViewModel {
     public Media3D.Point3D ConsumerLocation {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media3D.Point3D(0, 4, 0);
+    } = new(0, 4, 0);
 
     public double ConsumerRadius {
         set {
@@ -79,7 +79,7 @@ public class MainViewModel : BaseViewModel {
     public Media3D.Vector3D Acceleration {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media3D.Vector3D(0, 1, 0);
+    } = new(0, 1, 0);
 
     public int AccelerationX {
         set {
@@ -93,7 +93,7 @@ public class MainViewModel : BaseViewModel {
     public Size ParticleSize {
         set => SetValue(ref field, value);
         get => field;
-    } = new Size(0.1, 0.1);
+    } = new(0.1, 0.1);
 
     public int SizeSlider {
         set {
@@ -126,12 +126,12 @@ public class MainViewModel : BaseViewModel {
     public LineGeometry3D BoundingLines { private set; get; }
 
     public Media3D.ScaleTransform3D BoundingLineTransform { private set; get; } =
-        new Media3D.ScaleTransform3D(DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
+        new(DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public Media3D.Rect3D ParticleBounds {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media3D.Rect3D(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
+    } = new(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public int BoundScale {
         set {
@@ -182,7 +182,7 @@ public class MainViewModel : BaseViewModel {
     public Media.SolidColorBrush BlendColorBrush {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media.SolidColorBrush(Media.Colors.White);
+    } = new(Media.Colors.White);
 
     public int NumTextureRows {
         set => SetValue(ref field, value);
@@ -269,11 +269,11 @@ public class MainViewModel : BaseViewModel {
     public Media.SolidColorBrush BlendFactorColorBrush {
         set => SetValue(ref field, value);
         get => field;
-    } = new Media.SolidColorBrush(Media.Colors.White);
+    } = new(Media.Colors.White);
 
     public IList<Matrix> Instances { private set; get; }
 
-    public readonly Tuple<int, int>[] TextureColumnsRows = [new Tuple<int, int>(1, 1), new Tuple<int, int>(4, 4), new Tuple<int, int>(4, 4), new Tuple<int, int>(6, 5)];
+    public readonly Tuple<int, int>[] TextureColumnsRows = [new(1, 1), new(4, 4), new(4, 4), new(6, 5)];
 
     public readonly string[] Textures = [@"Snowflake.png", @"FXT_Explosion_Fireball_Atlas_d.png", @"FXT_Sparks_01_Atlas_d.png", @"Smoke30Frames_0.png"];
 

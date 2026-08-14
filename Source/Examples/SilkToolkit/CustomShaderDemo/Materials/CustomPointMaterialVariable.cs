@@ -11,7 +11,7 @@ namespace CustomShaderDemo.Materials;
 
 public class CustomPointMaterialVariable : PointMaterialVariable {
     private readonly ConstantBufferComponent customConstantBuffer;
-    private Vector3 colorChanges = new Vector3(1, 1, 1);
+    private Vector3 colorChanges = new(1, 1, 1);
 
     public CustomPointMaterialVariable(
         IEffectsManager manager,

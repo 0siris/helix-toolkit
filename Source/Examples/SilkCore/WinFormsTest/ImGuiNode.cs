@@ -20,9 +20,9 @@ public class ImGuiNode : SceneNode {
     public const string ImGuiRenderTechnique = "ImGuiRender";
 
     public static InputElement[] VSInputImGui2D { get; } = [
-        new InputElement("POSITION", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
-        new InputElement("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
-        new InputElement("COLOR", 0, Format.FormatR8G8B8A8Unorm, InputElement.AppendAligned, 0),
+        new("POSITION", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
+        new("TEXCOORD", 0, Format.FormatR32G32Float, InputElement.AppendAligned, 0),
+        new("COLOR", 0, Format.FormatR8G8B8A8Unorm, InputElement.AppendAligned, 0),
     ];
 
     public static readonly TechniqueDescription RenderTechnique;

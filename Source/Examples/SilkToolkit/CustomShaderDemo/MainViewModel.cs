@@ -28,7 +28,7 @@ public class MainViewModel : BaseViewModel {
     public MeshGeometry3D SphereModel { get; private set; }
     public LineGeometry3D AxisModel { get; private set; }
     public BillboardText3D AxisLabel { private set; get; }
-    public ColorStripeMaterial ModelMaterial { get; private set; } = new ColorStripeMaterial();
+    public ColorStripeMaterial ModelMaterial { get; private set; } = new();
     public PhongMaterial SphereMaterial { private set; get; } = PhongMaterials.Copper;
 
     public PointGeometry3D PointModel { private set; get; }

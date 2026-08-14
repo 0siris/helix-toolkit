@@ -19,9 +19,9 @@ public class DataModel : DemoCore.ObservableObject {
         get => field;
     } = null;
 
-    public readonly Media3D.ScaleTransform3D scaleTransform = new Media3D.ScaleTransform3D();
-    public readonly Media3D.TranslateTransform3D translateTransform = new Media3D.TranslateTransform3D();
-    public Media3D.Transform3DGroup DynamicTransform { get; private set; } = new Media3D.Transform3DGroup();
+    public readonly Media3D.ScaleTransform3D scaleTransform = new();
+    public readonly Media3D.TranslateTransform3D translateTransform = new();
+    public Media3D.Transform3DGroup DynamicTransform { get; private set; } = new();
 
 
     public PhongMaterial Material {
@@ -76,7 +76,7 @@ public class SphereModel : DataModel {
         Pipe = builder.ToMeshGeometry3D();
     }
 
-    private static readonly Random rnd = new Random();
+    private static readonly Random rnd = new();
 
     public SphereModel(Vector3 center, double radius, bool enableTransform = true)
         : base() {

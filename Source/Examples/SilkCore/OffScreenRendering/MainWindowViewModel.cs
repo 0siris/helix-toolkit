@@ -21,7 +21,7 @@ internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.Observ
 
     public ICommand RenderCommand { get; }
 
-    private readonly Renderer renderer = new Renderer();
+    private readonly Renderer renderer = new();
 
     public MainWindowViewModel() {
         RenderCommand = new RelayCommand(() => {

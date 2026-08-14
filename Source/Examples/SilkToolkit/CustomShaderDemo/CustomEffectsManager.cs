@@ -29,7 +29,7 @@ public static class ShaderHelper {
 public static class CustomVSShaderDescription {
     public static byte[] VSMeshDataSamplerByteCode => ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso");
 
-    public static ShaderDescription VSDataSampling = new ShaderDescription(nameof(VSDataSampling),
+    public static ShaderDescription VSDataSampling = new(nameof(VSDataSampling),
                                                                            ShaderStage.Vertex,
                                                                            new ShaderReflector(),
                                                                            VSMeshDataSamplerByteCode);
@@ -39,20 +39,20 @@ public static class CustomVSShaderDescription {
 /// Build using Nuget Micorsoft.HLSL.Microsoft.HLSL.CSharpVB automatically during project build
 /// </summary>
 public static class CustomPSShaderDescription {
-    public static ShaderDescription PSDataSampling = new ShaderDescription(nameof(PSDataSampling),
+    public static ShaderDescription PSDataSampling = new(nameof(PSDataSampling),
                                                                            ShaderStage.Pixel,
                                                                            new ShaderReflector(),
                                                                            ShaderHelper.LoadShaderCode(
                                                                                @"Shaders\psMeshDataSampling.cso"));
 
-    public static ShaderDescription PSNoiseMesh = new ShaderDescription(nameof(PSNoiseMesh),
+    public static ShaderDescription PSNoiseMesh = new(nameof(PSNoiseMesh),
                                                                         ShaderStage.Pixel,
                                                                         new ShaderReflector(),
                                                                         ShaderHelper.LoadShaderCode(
                                                                             @"Shaders\psMeshNoiseBlinnPhong.cso"));
 
 
-    public static ShaderDescription PSCustomPoint = new ShaderDescription(nameof(PSCustomPoint),
+    public static ShaderDescription PSCustomPoint = new(nameof(PSCustomPoint),
                                                                           ShaderStage.Pixel,
                                                                           new ShaderReflector(),
                                                                           ShaderHelper.LoadShaderCode(

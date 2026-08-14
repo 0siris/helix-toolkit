@@ -21,7 +21,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace BoneSkinDemo;
 
 public class MainViewModel : BaseViewModel {
-    public SceneNodeGroupModel3D ModelGroup { get; } = new SceneNodeGroupModel3D();
+    public SceneNodeGroupModel3D ModelGroup { get; } = new();
 
     public bool ShowWireframe {
         set {
@@ -84,7 +84,7 @@ public class MainViewModel : BaseViewModel {
 
     public Media3D.Transform3D ModelTransform { private set; get; }
 
-    public LineGeometry3D HitLineGeometry { get; } = new LineGeometry3D() { IsDynamic = true };
+    public LineGeometry3D HitLineGeometry { get; } = new() { IsDynamic = true };
 
     public string[] Animations { set; get; }
 
@@ -95,7 +95,7 @@ public class MainViewModel : BaseViewModel {
     private const int NumSegments = 100;
     private const int Theta = 24;
     private long startAniTime = 0;
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private CancellationTokenSource cts = new();
     private SynchronizationContext context = SynchronizationContext.Current;
 
     private bool reset = true;
@@ -103,7 +103,7 @@ public class MainViewModel : BaseViewModel {
     private NodeAnimationUpdater animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new CompositionTargetEx();
+    private CompositionTargetEx compositeHelper = new();
 
     public MainViewModel() {
         Title = "BoneSkin Demo";

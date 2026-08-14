@@ -64,13 +64,13 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         protected set => SetValue(ref field, value);
     }
 
-    protected OrthographicCamera defaultOrthographicCamera = new OrthographicCamera {
+    protected OrthographicCamera defaultOrthographicCamera = new() {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
         LookDirection = new System.Windows.Media.Media3D.Vector3D(-0, -0, -5),
         UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0), NearPlaneDistance = 1, FarPlaneDistance = 100
     };
 
-    protected PerspectiveCamera defaultPerspectiveCamera = new PerspectiveCamera {
+    protected PerspectiveCamera defaultPerspectiveCamera = new() {
         Position = new System.Windows.Media.Media3D.Point3D(0, 0, 5),
         LookDirection = new System.Windows.Media.Media3D.Vector3D(-0, -0, -5),
         UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0), NearPlaneDistance = 0.5,

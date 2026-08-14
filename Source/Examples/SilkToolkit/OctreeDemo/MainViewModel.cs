@@ -46,7 +46,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D();
+    } = new();
 
     public FillMode FillMode {
         set {
@@ -114,7 +114,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D(-10, -10, -10);
+    } = new(-10, -10, -10);
 
     public bool HitThrough { set; get; }
 
@@ -368,7 +368,7 @@ public class MainViewModel : BaseViewModel {
         get => field;
     } = true;
 
-    private Random rnd = new Random();
+    private Random rnd = new();
 
     private void AutoTestAddRemove(object o) {
         if (!timer.IsEnabled) {

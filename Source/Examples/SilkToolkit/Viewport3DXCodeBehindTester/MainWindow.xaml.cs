@@ -28,8 +28,8 @@ namespace Viewport3DXCodeBehindTester;
 public partial class MainWindow : Window {
     private EffectsManager manager;
     private Viewport3DX viewport;
-    private Models models = new Models();
-    private ViewModel viewmodel = new ViewModel();
+    private Models models = new();
+    private ViewModel viewmodel = new();
     private SceneNodeGroupModel3D sceneNodeGroup;
 
     public MainWindow() {
@@ -118,7 +118,7 @@ public class ViewModel : BaseViewModel {
 public class Models {
     private IList<Geometry3D> models { get; } = [];
     private PhongMaterialCollection materials = [];
-    private Random rnd = new Random();
+    private Random rnd = new();
 
     public Models() {
         var builder = new MeshBuilder();

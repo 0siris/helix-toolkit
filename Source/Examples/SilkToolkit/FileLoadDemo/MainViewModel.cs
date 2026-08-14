@@ -112,7 +112,7 @@ public class MainViewModel : BaseViewModel {
 
     public ObservableCollection<IAnimationUpdater> Animations { get; } = [];
 
-    public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
+    public SceneNodeGroupModel3D GroupModel { get; } = new();
 
     [field: AllowNull, MaybeNull]
     public IAnimationUpdater SelectedAnimation {
@@ -147,7 +147,7 @@ public class MainViewModel : BaseViewModel {
         get;
     } = default;
 
-    private BoundingBox modelBound = new BoundingBox();
+    private BoundingBox modelBound = new();
 
     public BoundingBox ModelBound {
         private set => SetValue(ref modelBound, value);
@@ -163,7 +163,7 @@ public class MainViewModel : BaseViewModel {
     private IAnimationUpdater animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new CompositionTargetEx();
+    private CompositionTargetEx compositeHelper = new();
     private long initTimeStamp = 0;
 
     private MainWindow? mainWindow = null;

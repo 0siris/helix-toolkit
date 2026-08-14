@@ -34,8 +34,7 @@ public class MainViewModel : BaseViewModel {
     public PhongMaterial BlueMaterial { get; private set; }
     public PhongMaterial GrayMaterial { get; private set; }
 
-    public PhongMaterial LightCameraMaterial { get; private set; } =
-        new PhongMaterial() { EmissiveColor = Media.Colors.Yellow.ToColor4() };
+    public PhongMaterial LightCameraMaterial { get; private set; } = new() { EmissiveColor = Media.Colors.Yellow.ToColor4() };
 
     public Media.Color GridColor { get; private set; }
 
@@ -44,7 +43,7 @@ public class MainViewModel : BaseViewModel {
     public Media3D.Transform3D Model3Transform { get; private set; }
     public Media3D.Transform3D GridTransform { get; private set; }
     public Media3D.Transform3D PlaneTransform { get; private set; }
-    public Media3D.Transform3DGroup LightCameraTransform { get; private set; } = new Media3D.Transform3DGroup();
+    public Media3D.Transform3DGroup LightCameraTransform { get; private set; } = new();
 
     public Media3D.Transform3D LightDirectionTransform { get; set; }
 

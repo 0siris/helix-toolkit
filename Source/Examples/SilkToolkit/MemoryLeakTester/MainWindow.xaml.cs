@@ -25,7 +25,7 @@ namespace MemoryLeakTester;
 public partial class MainWindow : Window {
     private Window testWin;
     private DispatcherTimer? timer = null;
-    private SystemStateParams systemparams = new SystemStateParams();
+    private SystemStateParams systemparams = new();
     private IList<Tuple<string, Type>> ProjectWinPairs = [];
 
     public MainWindow() {

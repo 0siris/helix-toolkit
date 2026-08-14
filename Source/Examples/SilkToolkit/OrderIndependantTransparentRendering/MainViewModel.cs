@@ -141,7 +141,7 @@ public class MainViewModel : BaseViewModel {
     private SynchronizationContext context = SynchronizationContext.Current;
 
 
-    private readonly Random rnd = new Random();
+    private readonly Random rnd = new();
 
     public MainViewModel() {
         ModelGeometry = [];

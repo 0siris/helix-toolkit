@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace WinFormsTest;
 
 internal static class Program {
-    private static NVOptimusEnabler nvEnabler = new NVOptimusEnabler();
+    private static NVOptimusEnabler nvEnabler = new();
 
     /// <summary>
     ///  The main entry point for the application.

@@ -7,7 +7,7 @@ using Vector4 = Silk.NET.Maths.Vector4D<float>;
 namespace GenericMaterialDemo;
 
 public class MainWindowViewModel : DemoCore.BaseViewModel {
-    public SceneNodeGroupModel3D ModelGroup { get; } = new SceneNodeGroupModel3D();
+    public SceneNodeGroupModel3D ModelGroup { get; } = new();
 
     private Geometry3D Sphere { get; }
 

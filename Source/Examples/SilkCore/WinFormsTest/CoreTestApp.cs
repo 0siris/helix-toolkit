@@ -68,17 +68,17 @@ public class CoreTestApp {
     private DirectionalLightNode directionalLight;
     private AmbientLightNode ambientLight;
     private const int NumItems = 400;
-    private Random rnd = new Random((int)Stopwatch.GetTimestamp());
+    private Random rnd = new((int)Stopwatch.GetTimestamp());
     private List<Tuple<bool, MaterialCore>> materials = [];
     private long previousTime;
     private bool resizeRequested = false;
     private CameraController cameraController;
-    private Stack<IEnumerator<SceneNode>> stackCache = new Stack<IEnumerator<SceneNode>>();
+    private Stack<IEnumerator<SceneNode>> stackCache = new();
     private IApplyPostEffect? currentHighlight = null;
     private double dpiScale = 1;
     private SynchronizationContext context;
 
-    private ViewportOptions options = new ViewportOptions() {
+    private ViewportOptions options = new() {
         AmbientLightIntensity = 0.2f,
         BackgroundColor = new System.Numerics.Vector3(0.4f, 0.4f, 0.4f),
         DirectionalLightFollowCamera = true,

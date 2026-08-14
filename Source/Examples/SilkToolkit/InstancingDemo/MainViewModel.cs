@@ -47,8 +47,8 @@ public class MainViewModel : BaseViewModel {
     public TextureModel Texture { private set; get; }
     public bool EnableAnimation { set; get; }
 
-    private DispatcherTimer timer = new DispatcherTimer();
-    private Random rnd = new Random();
+    private DispatcherTimer timer = new();
+    private Random rnd = new();
     private float aniX = 0;
     private float aniY = 0;
     private float aniZ = 0;
@@ -112,12 +112,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     private const int num = 40;
-    private List<Matrix> instances = new List<Matrix>(num * 2);
+    private List<Matrix> instances = new(num * 2);
     private List<Matrix> selectedLineInstances = [];
-    private List<InstanceParameter> parameters = new List<InstanceParameter>(num * 2);
+    private List<InstanceParameter> parameters = new(num * 2);
 
-    private List<Matrix> billboardinstances = new List<Matrix>(num * 2);
-    private List<BillboardInstanceParameter> billboardParams = new List<BillboardInstanceParameter>(num * 2);
+    private List<Matrix> billboardinstances = new(num * 2);
+    private List<BillboardInstanceParameter> billboardParams = new(num * 2);
 
     private void CreateModels() {
         instances.Clear();

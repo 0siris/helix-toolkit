@@ -16,8 +16,8 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 namespace D2DScreenMenuExample;
 
 public class MainViewModel : BaseViewModel {
-    public ViewModel3D VM3D { get; } = new ViewModel3D();
-    public ViewModel2D VM2D { get; } = new ViewModel2D();
+    public ViewModel3D VM3D { get; } = new();
+    public ViewModel2D VM2D { get; } = new();
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -40,15 +40,15 @@ public class ViewModel3D : DemoCore.ObservableObject {
     public MeshGeometry3D Model { set; get; }
     public PhongMaterial ModelMaterial { set; get; } = PhongMaterials.White;
 
-    public Vector3D Light1Direction { get; set; } = new Vector3D(1, -1, -1);
+    public Vector3D Light1Direction { get; set; } = new(1, -1, -1);
 
     public Color Light1Color { set; get; } = Colors.Blue;
 
-    public Vector3D Light2Direction { get; set; } = new Vector3D(-1, -1, -1);
+    public Vector3D Light2Direction { get; set; } = new(-1, -1, -1);
 
     public Color Light2Color { set; get; } = Colors.Red;
 
-    public Vector3D Light3Direction { get; set; } = new Vector3D(-1, -1, 1);
+    public Vector3D Light3Direction { get; set; } = new(-1, -1, 1);
 
     public Color Light3Color { set; get; } = Colors.Green;
 

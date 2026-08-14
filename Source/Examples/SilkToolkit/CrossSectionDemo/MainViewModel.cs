@@ -53,7 +53,7 @@ public class MainViewModel : BaseViewModel {
     public Plane Plane1 {
         set => SetValue(ref field, value);
         get;
-    } = new Plane(new Vector3(0, -1, 0), -8);
+    } = new(new Vector3(0, -1, 0), -8);
 
     public bool EnablePlane2 {
         set => SetValue(ref field, value);
@@ -63,7 +63,7 @@ public class MainViewModel : BaseViewModel {
     public Plane Plane2 {
         set => SetValue(ref field, value);
         get;
-    } = new Plane(new Vector3(-1, 0, 0), -8);
+    } = new(new Vector3(-1, 0, 0), -8);
 
     public int CuttingOperationIndex {
         set {

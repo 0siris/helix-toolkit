@@ -32,7 +32,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D();
+    } = new();
 
     public FillMode FillMode {
         set {
@@ -70,7 +70,7 @@ public class MainViewModel : BaseViewModel {
 
     //public MeshGeometry3D Other { get; private set; }
     public Color AmbientLightColor { get; set; }
-    private DispatcherTimer timer = new DispatcherTimer();
+    private DispatcherTimer timer = new();
 
     public bool DynamicTexture { set; get; } = true;
     public bool DynamicVertices { set; get; } = false;
@@ -88,14 +88,14 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get => field;
-    } = new Vector3D(-10, -10, -10);
+    } = new(-10, -10, -10);
 
     private Vector3Collection initialPosition;
     private IntCollection initialIndicies;
-    private Random rnd = new Random();
+    private Random rnd = new();
     private bool isRemoving = true;
     private int removedIndex = 0;
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private CancellationTokenSource cts = new();
     private SynchronizationContext context = SynchronizationContext.Current;
     private int counter = 0;
 

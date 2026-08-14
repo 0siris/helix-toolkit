@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.UWP;
 public enum PlaneIntersectionType {
@@ -256,7 +257,7 @@ public struct Color {
     public static explicit operator Color(Color4 color) => new(color.X, color.Y, color.Z, color.W);
 }
 
-public struct BoundingBox {
+public struct BoundingBox : IEquatable<BoundingBox> {
     public Vector3 Minimum;
     public Vector3 Maximum;
     public Vector3 Size => Maximum - Minimum;
@@ -293,14 +294,14 @@ public struct BoundingBox {
     }
 
     public Vector3[] GetCorners() => [
-        new Vector3(Minimum.X, Maximum.Y, Maximum.Z),
-        new Vector3(Maximum.X, Maximum.Y, Maximum.Z),
-        new Vector3(Maximum.X, Minimum.Y, Maximum.Z),
-        new Vector3(Minimum.X, Minimum.Y, Maximum.Z),
-        new Vector3(Minimum.X, Maximum.Y, Minimum.Z),
-        new Vector3(Maximum.X, Maximum.Y, Minimum.Z),
-        new Vector3(Maximum.X, Minimum.Y, Minimum.Z),
-        new Vector3(Minimum.X, Minimum.Y, Minimum.Z)
+        new(Minimum.X, Maximum.Y, Maximum.Z),
+        new(Maximum.X, Maximum.Y, Maximum.Z),
+        new(Maximum.X, Minimum.Y, Maximum.Z),
+        new(Minimum.X, Minimum.Y, Maximum.Z),
+        new(Minimum.X, Maximum.Y, Minimum.Z),
+        new(Maximum.X, Maximum.Y, Minimum.Z),
+        new(Maximum.X, Minimum.Y, Minimum.Z),
+        new(Minimum.X, Minimum.Y, Minimum.Z)
     ];
 
     public ContainmentType Contains(Vector3 point) => point.X < Minimum.X || point.X > Maximum.X
@@ -347,6 +348,8 @@ public struct BoundingBox {
 
         return !(tmin > tzmax || tzmin > tmax);
     }
+
+    public bool Equals(BoundingBox other) => Minimum.Equals(other.Minimum) && Maximum.Equals(other.Maximum);
 }
 
 public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>> {
@@ -364,7 +367,8 @@ public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, 
 
     public bool Remove(K key1, T key2) => dictionary.Remove((key1, key2));
 
-    public bool TryGetValue(K key1, T key2, out V value) => dictionary.TryGetValue((key1, key2), out value);
+    public bool TryGetValue(K key1, T key2,[NotNullWhen(true)] out V? value) 
+        => dictionary.TryGetValue((key1, key2), out value);
 
     public void Clear() {
         dictionary.Clear();

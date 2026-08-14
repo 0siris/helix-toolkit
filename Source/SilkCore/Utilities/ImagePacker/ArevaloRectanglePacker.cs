@@ -75,7 +75,7 @@ namespace HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
     /// </remarks>
 internal class ArevaloRectanglePacker : RectanglePacker {
         /// <summary>Anchoring points where new rectangles can potentially be placed</summary>
-    private readonly List<Point> anchors = [new Point(0, 0)];
+    private readonly List<Point> anchors = [new(0, 0)];
 
         /// <summary>Rectangles contained in the packing area</summary>
     private readonly List<Rectangle> packedRectangles = [];

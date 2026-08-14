@@ -26,7 +26,7 @@ public class MainViewModel : BaseViewModel {
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
 
-    public BillboardText3D Text3D { get; set; } = new BillboardText3D() {
+    public BillboardText3D Text3D { get; set; } = new() {
         IsDynamic = true
     };
 

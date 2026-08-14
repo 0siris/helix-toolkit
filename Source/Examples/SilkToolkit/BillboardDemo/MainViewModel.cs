@@ -53,7 +53,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     public BillboardImage3D AxisLabels { private set; get; }
 
-    public BillboardSingleText3D SelectedFlagBillboard { get; } = new BillboardSingleText3D() {
+    public BillboardSingleText3D SelectedFlagBillboard { get; } = new() {
         FontColor = Color.Blue,
         FontWeight = D2DFontWeight.Bold,
         BackgroundColor = new Color4(0.8f, 0.8f, 0.8f, 0.8f),
@@ -61,8 +61,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
         IsDynamic = true // Mark dynamic because it will change frequently
     };
 
-    public BillboardText3D LandmarkBillboards { get; }
-        = new BillboardText3D() { IsDynamic = true }; // Mark dynamic because it will change frequently
+    public BillboardText3D LandmarkBillboards { get; } = new() { IsDynamic = true }; // Mark dynamic because it will change frequently
 
     public BillboardText3D LandmarkBillboards2 { get; }
     public BillboardImage3D BatchedText { private set; get; }
@@ -152,15 +151,15 @@ public class MainViewModel : DemoCore.BaseViewModel {
         AxisLines = linebuilder.ToLineGeometry3D();
         AxisLines.Colors = [Color.Red, Color.Red, Color.Green, Color.Green, Color.Blue, Color.Blue];
         var texts = new TextInfoExt[] {
-            new TextInfoExt() {
+            new() {
                 Text = "右", Origin = Vector3.UnitX * 8, Foreground = Color.Red, Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             },
-            new TextInfoExt() {
+            new() {
                 Text = "前", Origin = Vector3.UnitY * 8, Foreground = Color.Green, Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             },
-            new TextInfoExt() {
+            new() {
                 Text = "上", Origin = Vector3.UnitZ * 8, Foreground = Color.Blue, Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             }
@@ -257,7 +256,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     private void AddBatchedText() {
         var texts = new TextInfoExt[] {
-            new TextInfoExt() {
+            new() {
                 Text = "English",
                 Foreground = Color.Indigo,
                 Background = Color.LightCoral,
@@ -267,7 +266,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 Origin = new Vector3(-10, 0, -4),
                 Size = 18, HorizontalAlignment = BillboardHorizontalAlignment.Left
             },
-            new TextInfoExt() {
+            new() {
                 Text = "中文",
                 Foreground = Color.Green,
                 Background = Color.White,
@@ -277,7 +276,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Microsoft YaHei",
                 Size = 16, HorizontalAlignment = BillboardHorizontalAlignment.Right
             },
-            new TextInfoExt() {
+            new() {
                 Text = "日本語",
                 Foreground = Color.Blue,
                 Background = Color.Green,
@@ -286,7 +285,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 Padding = new Vector4(2, 4, 2, 4),
                 Size = 18
             },
-            new TextInfoExt() {
+            new() {
                 Text = "Français",
                 Foreground = Color.White,
                 Background = Color.Black,
@@ -295,7 +294,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Calibri",
                 Size = 20
             },
-            new TextInfoExt() {
+            new() {
                 Text = "Español",
                 Foreground = Color.DarkSeaGreen,
                 Background = Color.LightCyan,
@@ -304,7 +303,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Times New Roman",
                 Size = 22
             },
-            new TextInfoExt() {
+            new() {
                 Text = "繁體中文",
                 Foreground = Color.Red,
                 Background = Color.Blue,
@@ -313,7 +312,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontStyle = D2DFontStyle.Oblique,
                 Size = 14
             },
-            new TextInfoExt() {
+            new() {
                 Text = "한국어",
                 Foreground = Color.LightSalmon,
                 Background = Color.DarkSlateBlue,
@@ -322,7 +321,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 Padding = new Vector4(4, 2, 4, 2),
                 Size = 16
             },
-            new TextInfoExt() {
+            new() {
                 Text = "Deutsch",
                 Foreground = Color.Blue,
                 Background = Color.White,
@@ -332,7 +331,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Garamond",
                 Size = 18
             },
-            new TextInfoExt() {
+            new() {
                 Text = "Português",
                 Foreground = Color.DarkRed,
                 Background = Color.Lavender,
@@ -341,7 +340,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Tahoma",
                 Size = 20
             },
-            new TextInfoExt() {
+            new() {
                 Text = "Below are batched \ntexts rendering \nwith different styles",
                 Foreground = Color.PaleGoldenrod,
                 Background = Color.Transparent,

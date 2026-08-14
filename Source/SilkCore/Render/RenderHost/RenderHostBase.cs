@@ -846,7 +846,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public IRenderStatistics RenderStatistics => renderStatistics;
 
-    protected readonly RenderStatistics RenderStatistics = new();
+    protected readonly RenderStatistics renderStatistics = new();
 
 #region Perframe renderables
 

@@ -70,7 +70,7 @@ public class CameraModel3D : CompositeModel3D {
         set => SetValue(CameraProperty, value);
     }
 
-    protected ProjectionCamera? Camera {
+    protected ProjectionCamera? camera {
         get;
         private set {
             if (field == value) return;

@@ -21,7 +21,7 @@ public class Polygon {
     /// <summary>
     ///     The points.
     /// </summary>
-    internal PointCollection? Points;
+    internal PointCollection? points;
 
     /// <summary>
     ///     Gets or sets the points.

@@ -49,15 +49,15 @@ public static class CuttingEarsTriangulator {
         var n = contour.Count;
         if (n < 3) return null;
 
-        var v = new int[n];
+        var indices = new int[n];
 
-        // we want a counter-clockwise polygon in V
+        // we want a counter-clockwise polygon in the index buffer
         if (Area(contour) > 0)
-            for (var v = 0; v < n; v++)
-                V[v] = v;
+            for (var i = 0; i < n; i++)
+                indices[i] = i;
         else
-            for (var v = 0; v < n; v++)
-                V[v] = n - 1 - v;
+            for (var i = 0; i < n; i++)
+                indices[i] = n - 1 - i;
 
         var nv = n;
 
@@ -80,13 +80,13 @@ public static class CuttingEarsTriangulator {
             var w = v + 1;
             if (nv <= w) w = 0; // next
 
-            if (Snip(contour, u, v, w, nv, V)) {
+            if (Snip(contour, u, v, w, nv, indices)) {
                 int s, t;
 
                 // true names of the vertices
-                var a = V[u];
-                var b = V[v];
-                var c = V[w];
+                var a = indices[u];
+                var b = indices[v];
+                var c = indices[w];
 
                 // output Triangle
                 result.Add(a);
@@ -94,7 +94,7 @@ public static class CuttingEarsTriangulator {
                 result.Add(c);
 
                 // remove v from remaining polygon
-                for (s = v, t = v + 1; t < nv; s++, t++) V[s] = V[t];
+                for (s = v, t = v + 1; t < nv; s++, t++) indices[s] = indices[t];
 
                 nv--;
 
@@ -192,28 +192,28 @@ public static class CuttingEarsTriangulator {
     /// <param name="v">The vertices.</param>
     /// <param name="w">The w.</param>
     /// <param name="n">The n.</param>
-    /// <param name="v">The v.</param>
+    /// <param name="indices">The vertex indices.</param>
     /// <returns>The snip.</returns>
-    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] v) {
+    private static bool Snip(IList<Point> contour, int u, int v, int w, int n, int[] indices) {
         int p;
         double ax, ay, bx, by, cx, cy, px, py;
 
-        ax = contour[v[u]].X;
-        ay = contour[v[u]].Y;
+        ax = contour[indices[u]].X;
+        ay = contour[indices[u]].Y;
 
-        bx = contour[v[v]].X;
-        by = contour[v[v]].Y;
+        bx = contour[indices[v]].X;
+        by = contour[indices[v]].Y;
 
-        cx = contour[v[w]].X;
-        cy = contour[v[w]].Y;
+        cx = contour[indices[w]].X;
+        cy = contour[indices[w]].Y;
 
         if (Epsilon > (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) return false;
 
         for (p = 0; p < n; p++) {
             if (p == u || p == v || p == w) continue;
 
-            px = contour[v[p]].X;
-            py = contour[v[p]].Y;
+            px = contour[indices[p]].X;
+            py = contour[indices[p]].Y;
             if (InsideTriangle(ax, ay, bx, by, cx, cy, px, py)) return false;
         }
 

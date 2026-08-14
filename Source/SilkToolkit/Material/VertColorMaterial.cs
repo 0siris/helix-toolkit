@@ -11,13 +11,9 @@ public sealed class VertColorMaterial : Material {
 
     public VertColorMaterial(ColorMaterialCore core) : base(core) { }
 
-    protected override MaterialCore OnCreateCore() {
-        return ColorMaterialCore.Core;
-    }
+    protected override MaterialCore OnCreateCore() => ColorMaterialCore.Core;
 
-    protected override Freezable CreateInstanceCore() {
-        return new VertColorMaterial {
-            Name = Name
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new VertColorMaterial {
+        Name = Name
+    };
 }

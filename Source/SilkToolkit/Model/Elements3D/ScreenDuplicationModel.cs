@@ -126,9 +126,7 @@ public class ScreenDuplicationModel : Element3D {
         set => SetValue(ShowMouseCursorProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new ScreenDuplicationNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ScreenDuplicationNode();
 
     /// <summary>
     ///     Assigns the default values to core.

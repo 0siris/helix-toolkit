@@ -52,13 +52,13 @@ public sealed class TechniqueDescription {
     ///     Technique Name
     /// </summary>
     [DataMember(Name = @"Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Input Layout
     /// </summary>
     [DataMember(Name = @"InputLayoutDescription")]
-    public InputLayoutDescription InputLayoutDescription { get; set; }
+    public InputLayoutDescription? InputLayoutDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the pass descriptions.
@@ -67,7 +67,7 @@ public sealed class TechniqueDescription {
     ///     The pass descriptions.
     /// </value>
     [DataMember(Name = @"PassDescriptions")]
-    public IList<ShaderPassDescription> PassDescriptions { get; set; }
+    public IList<ShaderPassDescription>? PassDescriptions { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this technique is null technique.
@@ -92,13 +92,13 @@ public sealed class ShaderPassDescription {
     ///     Pass Name
     /// </summary>
     [DataMember(Name = @"Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Shaders for this technique
     /// </summary>
     [DataMember(Name = @"ShaderList")]
-    public IList<ShaderDescription> ShaderList { get; set; }
+    public IList<ShaderDescription>? ShaderList { get; set; }
 
     /// <summary>
     /// </summary>
@@ -211,7 +211,7 @@ public sealed class ShaderPassDescription {
     ///     Input Layout
     /// </summary>
     [DataMember(Name = @"InputLayoutDescription")]
-    public InputLayoutDescription InputLayoutDescription { get; set; }
+    public InputLayoutDescription? InputLayoutDescription { get; set; }
 }
 
 #region Serializable descriptions
@@ -230,14 +230,12 @@ public struct DepthStencilOperationDataContract {
     [DataMember(Name = @"Comparison")]
     public int Comparison { get; set; }
 
-    public DepthStencilOperationDescription ToDepthStencilOperationDescription() {
-        return new DepthStencilOperationDescription {
-            FailOperation = (StencilOperation)FailOperation,
-            DepthFailOperation = (StencilOperation)DepthFailOperation,
-            PassOperation = (StencilOperation)PassOperation,
-            Comparison = (Comparison)Comparison
-        };
-    }
+    public DepthStencilOperationDescription ToDepthStencilOperationDescription() => new() {
+        FailOperation = (StencilOperation)FailOperation,
+        DepthFailOperation = (StencilOperation)DepthFailOperation,
+        PassOperation = (StencilOperation)PassOperation,
+        Comparison = (Comparison)Comparison
+    };
 
     public DepthStencilOperationDataContract(DepthStencilOperationDescription desc) {
         FailOperation = (int)desc.FailOperation;
@@ -284,18 +282,16 @@ public struct DepthStencilStateDataContract {
         BackFace = new DepthStencilOperationDataContract(desc.BackFace);
     }
 
-    public DepthStencilStateDescription ToDepthStencilStateDescription() {
-        return new DepthStencilStateDescription {
-            IsDepthEnabled = IsDepthEnabled,
-            DepthWriteMask = (DepthWriteMask)DepthWriteMask,
-            DepthComparison = (Comparison)DepthComparison,
-            IsStencilEnabled = IsStencilEnabled,
-            StencilReadMask = StencilReadMask,
-            StencilWriteMask = StencilWriteMask,
-            FrontFace = FrontFace.ToDepthStencilOperationDescription(),
-            BackFace = BackFace.ToDepthStencilOperationDescription()
-        };
-    }
+    public DepthStencilStateDescription ToDepthStencilStateDescription() => new() {
+        IsDepthEnabled = IsDepthEnabled,
+        DepthWriteMask = (DepthWriteMask)DepthWriteMask,
+        DepthComparison = (Comparison)DepthComparison,
+        IsStencilEnabled = IsStencilEnabled,
+        StencilReadMask = StencilReadMask,
+        StencilWriteMask = StencilWriteMask,
+        FrontFace = FrontFace.ToDepthStencilOperationDescription(),
+        BackFace = BackFace.ToDepthStencilOperationDescription()
+    };
 }
 
 [DataContract(Name = @"RasterizerStateDataContract")]
@@ -330,20 +326,18 @@ public struct RasterizerStateDataContract {
     [DataMember(Name = @"IsAntialiasedLineEnabled")]
     public bool IsAntialiasedLineEnabled { get; set; }
 
-    public RasterizerStateDescription ToRasterizerStateDescription() {
-        return new RasterizerStateDescription {
-            FillMode = (FillMode)FillMode,
-            CullMode = (CullMode)CullMode,
-            IsFrontCounterClockwise = IsFrontCounterClockwise,
-            DepthBias = DepthBias,
-            DepthBiasClamp = DepthBiasClamp,
-            SlopeScaledDepthBias = SlopeScaledDepthBias,
-            IsDepthClipEnabled = IsDepthClipEnabled,
-            IsScissorEnabled = IsScissorEnabled,
-            IsMultisampleEnabled = IsMultisampleEnabled,
-            IsAntialiasedLineEnabled = IsAntialiasedLineEnabled
-        };
-    }
+    public RasterizerStateDescription ToRasterizerStateDescription() => new() {
+        FillMode = (FillMode)FillMode,
+        CullMode = (CullMode)CullMode,
+        IsFrontCounterClockwise = IsFrontCounterClockwise,
+        DepthBias = DepthBias,
+        DepthBiasClamp = DepthBiasClamp,
+        SlopeScaledDepthBias = SlopeScaledDepthBias,
+        IsDepthClipEnabled = IsDepthClipEnabled,
+        IsScissorEnabled = IsScissorEnabled,
+        IsMultisampleEnabled = IsMultisampleEnabled,
+        IsAntialiasedLineEnabled = IsAntialiasedLineEnabled
+    };
 
     public RasterizerStateDataContract(RasterizerStateDescription desc) {
         FillMode = (int)desc.FillMode;
@@ -426,18 +420,16 @@ public struct RenderTargetBlendDataContract {
         RenderTargetWriteMask = (int)desc.RenderTargetWriteMask;
     }
 
-    public RenderTargetBlendDescription ToRenderTargetBlendDescription() {
-        return new RenderTargetBlendDescription {
-            IsBlendEnabled = IsBlendEnabled,
-            SourceBlend = (BlendOption)SourceBlend,
-            DestinationBlend = (BlendOption)DestinationBlend,
-            BlendOperation = (BlendOperation)BlendOperation,
-            SourceAlphaBlend = (BlendOption)SourceAlphaBlend,
-            DestinationAlphaBlend = (BlendOption)DestinationAlphaBlend,
-            AlphaBlendOperation = (BlendOperation)AlphaBlendOperation,
-            RenderTargetWriteMask = (ColorWriteMaskFlags)RenderTargetWriteMask
-        };
-    }
+    public RenderTargetBlendDescription ToRenderTargetBlendDescription() => new() {
+        IsBlendEnabled = IsBlendEnabled,
+        SourceBlend = (BlendOption)SourceBlend,
+        DestinationBlend = (BlendOption)DestinationBlend,
+        BlendOperation = (BlendOperation)BlendOperation,
+        SourceAlphaBlend = (BlendOption)SourceAlphaBlend,
+        DestinationAlphaBlend = (BlendOption)DestinationAlphaBlend,
+        AlphaBlendOperation = (BlendOperation)AlphaBlendOperation,
+        RenderTargetWriteMask = (ColorWriteMaskFlags)RenderTargetWriteMask
+    };
 }
 
 #endregion

@@ -23,15 +23,13 @@ namespace OctreeDemo;
 public class BindingProxy : Freezable {
     #region Overrides of Freezable
 
-    protected override Freezable CreateInstanceCore() {
-        return new BindingProxy();
-    }
+    protected override Freezable CreateInstanceCore() => new BindingProxy();
 
     #endregion
 
     public object Data {
-        get { return (object)GetValue(DataProperty); }
-        set { SetValue(DataProperty, value); }
+        get => (object)GetValue(DataProperty);
+        set => SetValue(DataProperty, value);
     }
 
     // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
@@ -47,7 +45,7 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged();
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D();
 
     public FillMode FillMode {
@@ -55,7 +53,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get { return field; }
+        get => field;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -68,7 +66,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = FillMode.Solid;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool Visibility {
@@ -76,7 +74,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public Color Light1Color { get; set; }
@@ -84,27 +82,23 @@ public class MainViewModel : BaseViewModel {
     //public MeshGeometry3D Other { get; private set; }
     public Color AmbientLightColor { get; set; }
 
-    public Color PointColor {
-        get { return Colors.Green; }
-    }
+    public Color PointColor => Colors.Green;
 
-    public Color PointHitColor {
-        get { return Colors.Red; }
-    }
+    public Color PointHitColor => Colors.Red;
 
     public Color LineColor { set; get; }
 
     public PhongMaterial Material {
-        private set { SetValue<PhongMaterial>(ref field, value, nameof(Material)); }
-        get { return field; }
+        private set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
+        get => field;
     }
 
     public MeshGeometry3D DefaultModel { private set; get; }
     public PointGeometry3D PointsModel { private set; get; }
 
     public PointGeometry3D PointsHitModel {
-        set { SetValue(ref field, value, nameof(PointsHitModel)); }
-        get { return field; }
+        set => SetValue(ref field, value, nameof(PointsHitModel));
+        get => field;
     }
 
     public LineGeometry3D LinesModel { private set; get; }
@@ -119,7 +113,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D(-10, -10, -10);
 
     public bool HitThrough { set; get; }
@@ -136,7 +130,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = 1;
 
     public bool AutoDeleteEmptyNode {
@@ -144,7 +138,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public bool OctreeFrameVisible {
@@ -152,7 +146,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public ICommand AddModelCommand { private set; get; }
@@ -366,12 +360,12 @@ public class MainViewModel : BaseViewModel {
                 Enabled = !value;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool Enabled {
-        set { SetValue<bool>(ref field, value, nameof(Enabled)); }
-        get { return field; }
+        set => SetValue<bool>(ref field, value, nameof(Enabled));
+        get => field;
     } = true;
 
     private Random rnd = new Random();

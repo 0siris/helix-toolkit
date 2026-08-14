@@ -189,7 +189,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The albedo map file path.
     /// </value>
-    public string AlbedoMapFilePath { get; set; }
+    public string? AlbedoMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the emissive map.
@@ -208,7 +208,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The emissive map.
     /// </value>
-    public string EmissiveMapFilePath { get; set; }
+    public string? EmissiveMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the NormalMap.
@@ -227,7 +227,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The normal map file path.
     /// </value>
-    public string NormalMapFilePath { get; set; }
+    public string? NormalMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the DisplacementMap.
@@ -246,7 +246,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The displacement map file path.
     /// </value>
-    public string DisplacementMapFilePath { get; set; }
+    public string? DisplacementMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the irradiance map.
@@ -265,7 +265,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The irradiance map file path.
     /// </value>
-    public string IrradianceMapFilePath { get; set; }
+    public string? IrradianceMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the Roughness, Metallic map.
@@ -287,7 +287,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The rma map file path.
     /// </value>
-    public string RoughnessMetallicMapFilePath { get; set; }
+    public string? RoughnessMetallicMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the separate Ambient Occlusion map.
@@ -309,7 +309,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The ao map file path.
     /// </value>
-    public string AmbientOcculsionMapFilePath { get; set; }
+    public string? AmbientOcculsionMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the DisplacementMapScaleMask.
@@ -435,7 +435,6 @@ public class PbrMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PbrMaterialVariable(manager, technique, this);
-    }
+    )
+        => new PbrMaterialVariable(manager, technique, this);
 }

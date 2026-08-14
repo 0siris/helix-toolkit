@@ -104,9 +104,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
 
     #endregion
 
-    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) {
-        return SceneNode.HitTest(mousePoint, out hitResult);
-    }
+    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) => SceneNode.HitTest(mousePoint, out hitResult);
 
     public void InvalidateRender() {
         SceneNode.InvalidateRender();
@@ -120,9 +118,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     }
 
 
-    public static implicit operator SceneNode2D(Element2DCore e) {
-        return e.SceneNode;
-    }
+    public static implicit operator SceneNode2D(Element2DCore e) => e.SceneNode;
 
     #region IDisposable Support
 

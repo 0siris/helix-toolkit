@@ -13,7 +13,5 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     </para>
 /// </summary>
 public sealed class ContinuousRender3D : Element3D {
-    protected override SceneNode OnCreateSceneNode() {
-        return new ContinuousRenderNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ContinuousRenderNode();
 }

@@ -21,9 +21,7 @@ public sealed class BlendStatePool : ReferenceCountedDictionaryPool<BlendStateDe
         this.device = device;
     }
 
-    protected override bool CanCreate(ref BlendStateDescription key, ref BlendStateDescription argument) {
-        return !IsDisposed;
-    }
+    protected override bool CanCreate(ref BlendStateDescription key, ref BlendStateDescription argument) => !IsDisposed;
 
     protected override BlendStateProxy OnCreate(
         ref BlendStateDescription key,
@@ -52,16 +50,14 @@ public sealed class DepthStencilStatePool : ReferenceCountedDictionaryPool<Depth
     protected override bool CanCreate(
         ref DepthStencilStateDescription key,
         ref DepthStencilStateDescription argument
-    ) {
-        return !IsDisposed;
-    }
+    )
+        => !IsDisposed;
 
     protected override DepthStencilStateProxy OnCreate(
         ref DepthStencilStateDescription key,
         ref DepthStencilStateDescription description
-    ) {
-        return new DepthStencilStateProxy(device.CreateDepthStencilState(description));
-    }
+    )
+        => new(device.CreateDepthStencilState(description));
 }
 
 /// <summary>
@@ -81,16 +77,14 @@ public sealed class RasterStatePool : ReferenceCountedDictionaryPool<RasterizerS
     protected override bool CanCreate(
         ref RasterizerStateDescription key,
         ref RasterizerStateDescription argument
-    ) {
-        return !IsDisposed;
-    }
+    )
+        => !IsDisposed;
 
     protected override RasterizerStateProxy OnCreate(
         ref RasterizerStateDescription key,
         ref RasterizerStateDescription description
-    ) {
-        return new RasterizerStateProxy(device.CreateRasterizerState(description));
-    }
+    )
+        => new(device.CreateRasterizerState(description));
 }
 
 /// <summary>
@@ -107,16 +101,13 @@ public sealed class SamplerStatePool : ReferenceCountedDictionaryPool<SamplerSta
         this.device = device;
     }
 
-    protected override bool CanCreate(ref SamplerStateDescription key, ref SamplerStateDescription argument) {
-        return !IsDisposed;
-    }
+    protected override bool CanCreate(ref SamplerStateDescription key, ref SamplerStateDescription argument) => !IsDisposed;
 
     protected override SamplerStateProxy OnCreate(
         ref SamplerStateDescription key,
         ref SamplerStateDescription description
-    ) {
-        return new SamplerStateProxy(device.CreateSamplerState(description));
-    }
+    )
+        => new(device.CreateSamplerState(description));
 }
 
 /// <summary>
@@ -170,36 +161,36 @@ public sealed class StatePoolManager : DisposeObject, IStatePoolManager {
     /// </summary>
     /// <param name="desc">The desc.</param>
     /// <returns></returns>
-    public BlendStateProxy Register(BlendStateDescription desc) {
-        return BlendStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
-    }
+    public BlendStateProxy Register(BlendStateDescription desc) => BlendStatePool.TryCreateOrGet(desc, desc, out var state)
+        ? state
+        : throw new InvalidOperationException("Unable to register blend state.");
 
     /// <summary>
     ///     Registers the specified desc.
     /// </summary>
     /// <param name="desc">The desc.</param>
     /// <returns></returns>
-    public RasterizerStateProxy Register(RasterizerStateDescription desc) {
-        return RasterStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
-    }
+    public RasterizerStateProxy Register(RasterizerStateDescription desc) => RasterStatePool.TryCreateOrGet(desc, desc, out var state)
+        ? state
+        : throw new InvalidOperationException("Unable to register rasterizer state.");
 
     /// <summary>
     ///     Registers the specified desc.
     /// </summary>
     /// <param name="desc">The desc.</param>
     /// <returns></returns>
-    public DepthStencilStateProxy Register(DepthStencilStateDescription desc) {
-        return DepthStencilStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
-    }
+    public DepthStencilStateProxy Register(DepthStencilStateDescription desc) => DepthStencilStatePool.TryCreateOrGet(desc, desc, out var state)
+        ? state
+        : throw new InvalidOperationException("Unable to register depth stencil state.");
 
     /// <summary>
     ///     Registers the specified desc.
     /// </summary>
     /// <param name="desc">The desc.</param>
     /// <returns></returns>
-    public SamplerStateProxy Register(SamplerStateDescription desc) {
-        return SamplerStatePool.TryCreateOrGet(desc, desc, out var state) ? state : null;
-    }
+    public SamplerStateProxy Register(SamplerStateDescription desc) => SamplerStatePool.TryCreateOrGet(desc, desc, out var state)
+        ? state
+        : throw new InvalidOperationException("Unable to register sampler state.");
 
     protected override void OnDispose(bool disposeManagedResources) {
         BlendStatePool.Dispose();

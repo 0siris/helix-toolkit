@@ -85,28 +85,20 @@ public sealed class ObservableFastList<T> : INotifyCollectionChanged, INotifyPro
         OnPropertyChanged(nameof(Count));
     }
 
-    public int IndexOf(T item) {
-        return list.IndexOf(item);
-    }
+    public int IndexOf(T item) => list.IndexOf(item);
 
-    public bool Contains(T item) {
-        return list.Contains(item);
-    }
+    public bool Contains(T item) => list.Contains(item);
 
     public void CopyTo(T[] array, int arrayIndex) {
         list.CopyTo(array, arrayIndex);
     }
 
-    public IEnumerator<T> GetEnumerator() {
-        return list.GetEnumerator();
-    }
+    public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return list.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public void Move(int from, int to) {
         var itemFrom = list[from];
@@ -134,13 +126,11 @@ public sealed class ReadOnlyObservableFastList<T> : ReadOnlyCollection<T>, INoti
         list.CollectionChanged += List_CollectionChanged;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return list.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private void List_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
         CollectionChanged?.Invoke(this, e);

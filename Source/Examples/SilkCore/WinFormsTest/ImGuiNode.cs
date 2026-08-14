@@ -62,9 +62,7 @@ public class ImGuiNode : SceneNode {
         AffectsGlobalVariable = true;
     }
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new ImGuiRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new ImGuiRenderCore();
 
     protected override void OnDetach() {
         RemoveAndDispose(ref bufferModel);
@@ -72,9 +70,7 @@ public class ImGuiNode : SceneNode {
         base.OnDetach();
     }
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[ImGuiRenderTechnique];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[ImGuiRenderTechnique];
 
     public override void Update(RenderContext context) {
         base.Update(context);
@@ -96,13 +92,9 @@ public class ImGuiNode : SceneNode {
         UpdatingImGuiUI?.Invoke(this, EventArgs.Empty);
     }
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return false;
-    }
+    protected override bool CanHitTest(HitTestContext context) => false;
 
-    protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits) {
-        return false;
-    }
+    protected override bool OnHitTest(HitTestContext context, Matrix totalModelMatrix, ref List<HitTestResult> hits) => false;
 
     protected override void OnAttached() {
         previousTime = TimeSpan.Zero;
@@ -339,9 +331,7 @@ public sealed class ImGui2DBufferModel : DisposeObject, IGuid, IAttachableBuffer
         return true;
     }
 
-    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
-        return true;
-    }
+    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) => true;
 
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref VertexBufferInternal);

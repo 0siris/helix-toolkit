@@ -95,7 +95,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
     public override bool HitTestCurrentNodeExcludeChild(
         HitTestContext? context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref Ray rayModel,
         ref List<HitTestResult> hits,
@@ -169,17 +169,14 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
         ref BoundingBox bound,
         List<int> objList,
         IDynamicOctree parent
-    ) {
-        return new PointGeometryOctree(bound, positions, objList, parent, Parameter, Stack);
-    }
+    )
+        => new PointGeometryOctree(bound, positions, objList, parent, Parameter, Stack);
 
     /// <summary>
     /// </summary>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected override BoundingBox GetBoundingBoxFromItem(int item) {
-        return new BoundingBox(positions[item] - BoundOffset, positions[item] + BoundOffset);
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(int item) => new(positions[item] - BoundOffset, positions[item] + BoundOffset);
 
     /// <summary>
     ///     <see

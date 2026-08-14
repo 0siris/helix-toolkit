@@ -13,9 +13,8 @@ public sealed class NormalMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PassOnlyMaterialVariable(DefaultPassNames.Normals, technique);
-    }
+    )
+        => new PassOnlyMaterialVariable(DefaultPassNames.Normals, technique);
 }
 
 /// <summary>
@@ -27,9 +26,8 @@ public sealed class ColorMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PassOnlyMaterialVariable(DefaultPassNames.Colors, technique);
-    }
+    )
+        => new PassOnlyMaterialVariable(DefaultPassNames.Colors, technique);
 }
 
 /// <summary>
@@ -41,9 +39,8 @@ public sealed class PositionMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PassOnlyMaterialVariable(DefaultPassNames.Positions, technique);
-    }
+    )
+        => new PassOnlyMaterialVariable(DefaultPassNames.Positions, technique);
 }
 
 /// <summary>
@@ -55,7 +52,6 @@ public sealed class NormalVectorMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PassOnlyMaterialVariable(DefaultPassNames.NormalVector, technique);
-    }
+    )
+        => new PassOnlyMaterialVariable(DefaultPassNames.NormalVector, technique);
 }

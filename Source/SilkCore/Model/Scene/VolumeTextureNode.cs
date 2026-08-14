@@ -56,27 +56,18 @@ public class VolumeTextureNode : SceneNode {
     }
 
 
-    protected override OrderKey OnUpdateRenderOrderKey() {
-        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
-    }
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
 
-    protected override bool CanRender(RenderContext context) {
-        return base.CanRender(context) && materialVariable != null;
-    }
+    protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new VolumeRenderCore { DefaultStateBinding = StateType.All };
-    }
+    protected override RenderCore OnCreateRenderCore() => new VolumeRenderCore { DefaultStateBinding = StateType.All };
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.Volume3D];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.Volume3D];
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

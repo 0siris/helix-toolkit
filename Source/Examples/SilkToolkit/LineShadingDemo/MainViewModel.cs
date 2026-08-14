@@ -72,7 +72,7 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged(nameof(LineMaterial));
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public MainViewModel() {

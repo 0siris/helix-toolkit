@@ -3,19 +3,13 @@ using System.Runtime.CompilerServices;
 namespace HelixToolkit.SharpDX.Core.Render;
 public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DataBox MapSubresource(Buffer resource, MapMode mode, MapFlags flags) {
-        return NativeContext.MapSubresource(resource, 0, mode, flags);
-    }
+    public DataBox MapSubresource(Buffer resource, MapMode mode, MapFlags flags) => NativeContext.MapSubresource(resource, 0, mode, flags);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DataBox MapSubresource(Buffer resource, int subresource, MapMode mode, MapFlags flags) {
-        return NativeContext.MapSubresource(resource, subresource, mode, flags);
-    }
+    public DataBox MapSubresource(Buffer resource, int subresource, MapMode mode, MapFlags flags) => NativeContext.MapSubresource(resource, subresource, mode, flags);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DataBox MapSubresource(Buffer resource, MapMode mode, MapFlags flags, out DataStream stream) {
-        return NativeContext.MapSubresource(resource, 0, mode, flags, out stream);
-    }
+    public DataBox MapSubresource(Buffer resource, MapMode mode, MapFlags flags, out DataStream stream) => NativeContext.MapSubresource(resource, 0, mode, flags, out stream);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DataBox MapSubresource(
@@ -24,14 +18,11 @@ public partial class DeviceContextProxy {
         MapMode mode,
         MapFlags flags,
         out DataStream stream
-    ) {
-        return NativeContext.MapSubresource(resource, subresource, mode, flags, out stream);
-    }
+    )
+        => NativeContext.MapSubresource(resource, subresource, mode, flags, out stream);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DataBox MapSubresource(Resource resource, int subresource, MapMode mapType, MapFlags mapFlags) {
-        return NativeContext.MapSubresource(resource, subresource, mapType, mapFlags);
-    }
+    public DataBox MapSubresource(Resource resource, int subresource, MapMode mapType, MapFlags mapFlags) => NativeContext.MapSubresource(resource, subresource, mapType, mapFlags);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnmapSubresource(Resource resource, int subresource) {

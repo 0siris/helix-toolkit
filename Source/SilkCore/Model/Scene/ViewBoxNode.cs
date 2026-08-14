@@ -189,9 +189,7 @@ public class ViewBoxNode : ScreenSpacedNode {
                                                      mesh.TextureCoordinates[i].Y);
     }
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return context != null;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => context != null;
 
     protected override bool OnHitTest(
         HitTestContext context,

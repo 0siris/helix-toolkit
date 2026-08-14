@@ -106,16 +106,14 @@ public class DiffuseMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new DiffuseMaterialVariables(DefaultPassNames.Diffuse, manager, technique, this);
-    }
+    )
+        => new DiffuseMaterialVariables(DefaultPassNames.Diffuse, manager, technique, this);
 }
 
 public sealed class ViewCubeMaterialCore : DiffuseMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new DiffuseMaterialVariables(DefaultPassNames.ViewCube, manager, technique, this);
-    }
+    )
+        => new DiffuseMaterialVariables(DefaultPassNames.ViewCube, manager, technique, this);
 }

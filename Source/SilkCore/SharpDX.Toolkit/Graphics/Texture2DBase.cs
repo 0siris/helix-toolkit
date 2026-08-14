@@ -72,9 +72,7 @@ public abstract class Texture2DBase : Texture {
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    protected virtual Format GetDefaultViewFormat() {
-        return Description.Format;
-    }
+    protected virtual Format GetDefaultViewFormat() => Description.Format;
 
     /// <summary>
     /// </summary>

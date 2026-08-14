@@ -87,7 +87,7 @@ public abstract class GenericMaterialCore : MaterialCore {
 
     public string[] SamplerNames { get; }
 
-    internal event EventHandler<UpdateEvent> UpdatingResource;
+    internal event EventHandler<UpdateEvent>? UpdatingResource;
 
     public void SetTexture(string name, Stream texture) {
         if (TextureDict.ContainsKey(name))
@@ -106,7 +106,7 @@ public abstract class GenericMaterialCore : MaterialCore {
         UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Sampler, name));
     }
 
-    public TextureModel GetTexture(string name) {
+    public TextureModel? GetTexture(string name) {
         if (TextureDict.TryGetValue(name, out var texture)) return texture;
 
         return null;
@@ -202,15 +202,14 @@ public sealed class GenericMeshMaterialCore : GenericMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new GenericMeshMaterialVariable(manager,
-                                               technique,
-                                               this,
-                                               CbDescription,
-                                               MaterialPassName,
-                                               ShadowPassName,
-                                               WireframePassName);
-    }
+    )
+        => new GenericMeshMaterialVariable(manager,
+            technique,
+            this,
+            CbDescription,
+            MaterialPassName,
+            ShadowPassName,
+            WireframePassName);
 }
 
 [DataContract]
@@ -229,15 +228,14 @@ public sealed class GenericLineMaterialCore : GenericMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new GenericMeshMaterialVariable(manager,
-                                               technique,
-                                               this,
-                                               CbDescription,
-                                               MaterialPassName,
-                                               ShadowPassName,
-                                               string.Empty);
-    }
+    )
+        => new GenericMeshMaterialVariable(manager,
+            technique,
+            this,
+            CbDescription,
+            MaterialPassName,
+            ShadowPassName,
+            string.Empty);
 }
 
 [DataContract]
@@ -256,12 +254,11 @@ public sealed class GenericPointMaterialCore : GenericMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new GenericPointMaterialVariable(manager,
-                                                technique,
-                                                this,
-                                                CbDescription,
-                                                MaterialPassName,
-                                                ShadowPassName);
-    }
+    )
+        => new GenericPointMaterialVariable(manager,
+            technique,
+            this,
+            CbDescription,
+            MaterialPassName,
+            ShadowPassName);
 }

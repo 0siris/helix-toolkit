@@ -17,7 +17,7 @@ public partial class Exporter {
     /// <param name="node">The node.</param>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected virtual bool GetGeometryFromNode(SceneNode node, out Geometry3D geometry) {
+    protected virtual bool GetGeometryFromNode(SceneNode node, out Geometry3D? geometry) {
         if (node is GeometryNode geo) {
             geometry = geo.Geometry;
             return true;
@@ -33,8 +33,8 @@ public partial class Exporter {
     /// </summary>
     /// <param name="geoNode">The geo node.</param>
     /// <returns></returns>
-    private MeshInfo OnCreateMeshInfo(GeometryNode geoNode) {
-        MeshInfo info = null;
+    private MeshInfo? OnCreateMeshInfo(GeometryNode geoNode) {
+        MeshInfo? info = null;
         if (geoNode is MaterialGeometryNode materialNode && materialNode.Material != null) {
             var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
             if (!meshInfos.TryGetValue(key, out var existing))

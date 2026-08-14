@@ -78,9 +78,7 @@ public class VirtualTouchDevice : TouchDevice {
         return false;
     }
 
-    public override TouchPointCollection GetIntermediateTouchPoints(IInputElement relativeTo) {
-        return [];
-    }
+    public override TouchPointCollection GetIntermediateTouchPoints(IInputElement relativeTo) => [];
 
     public override TouchPoint GetTouchPoint(IInputElement relativeTo) {
         var pt = lastPosition;

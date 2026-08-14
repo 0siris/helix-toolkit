@@ -667,9 +667,7 @@ public struct UvTransform {
 
     public static readonly UvTransform Identity = new(0, Vector2.One, Vector2.Zero);
 
-    public float[] ToArray() {
-        return [Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y];
-    }
+    public float[] ToArray() => [Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y];
 }
 
 /// <summary>

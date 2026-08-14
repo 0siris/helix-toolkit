@@ -48,9 +48,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
         base.AssignDefaultValuesToSceneNode(node);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new BatchedMeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new BatchedMeshNode();
 
     #region Dependency Properties
 

@@ -54,9 +54,7 @@ public class LineMaterialGeometryModel3D : GeometryModel3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new LineNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new LineNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

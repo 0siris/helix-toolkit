@@ -14,25 +14,18 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PostEffectMeshOutlineBlurCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PostEffectMeshOutlineBlurCore();
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur];
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     #region Properties
 

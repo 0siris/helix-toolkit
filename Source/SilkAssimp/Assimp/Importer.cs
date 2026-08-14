@@ -143,7 +143,7 @@ public partial class Importer : IDisposable {
     /// <param name="filePath">The file path.</param>
     /// <param name="config">The configuration.</param>
     /// <returns></returns>
-    public HelixToolkitScene Load(string filePath, ImporterConfiguration config) {
+    public HelixToolkitScene? Load(string filePath, ImporterConfiguration config) {
         Configuration = config;
         return Load(filePath);
     }
@@ -156,7 +156,7 @@ public partial class Importer : IDisposable {
     /// <param name="postprocessSteps">The postprocess steps.</param>
     /// <param name="configs">The configs.</param>
     /// <returns></returns>
-    public HelixToolkitScene Load(
+    public HelixToolkitScene? Load(
         string filePath,
         bool parallelLoad,
         PostProcessSteps postprocessSteps,
@@ -172,7 +172,7 @@ public partial class Importer : IDisposable {
     /// </summary>
     /// <param name="filePath">The file path.</param>
     /// <returns></returns>
-    public HelixToolkitScene Load(string filePath) {
+    public HelixToolkitScene? Load(string filePath) {
         if (Load(filePath, out var root).HasFlag(ErrorCode.Succeed))
             return root;
         return null;
@@ -234,9 +234,7 @@ public partial class Importer : IDisposable {
     /// <param name="assimpScene">The assimp scene.</param>
     /// <param name="helixScene">The helix scene.</param>
     /// <returns></returns>
-    public ErrorCode ToHelixToolkitScene(Scene assimpScene, out HelixToolkitScene helixScene) {
-        return BuildScene(assimpScene, out helixScene);
-    }
+    public ErrorCode ToHelixToolkitScene(Scene assimpScene, out HelixToolkitScene helixScene) => BuildScene(assimpScene, out helixScene);
 
     /// <summary>
     ///     Loads the specified file stream. User must provider custom texture loader to load texture files.

@@ -110,9 +110,7 @@ public static class Noise2D {
         return 1f - t * t * t * (t * (t * 6 - 15) + 10);
     }
 
-    private static DoubleOrSingle Q(DoubleOrSingle u, DoubleOrSingle v) {
-        return Drop(u) * Drop(v);
-    }
+    private static DoubleOrSingle Q(DoubleOrSingle u, DoubleOrSingle v) => Drop(u) * Drop(v);
 
     /// <summary>
     ///     Noises the specified x.

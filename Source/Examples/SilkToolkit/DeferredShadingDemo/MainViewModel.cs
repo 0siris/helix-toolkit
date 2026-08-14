@@ -61,7 +61,7 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection PointLightCollection { get; set; }
 
     public Color PointLightColor {
-        get { return field; }
+        get => field;
         set {
             field = value;
             UpdatePointLightCollection();
@@ -69,7 +69,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public Vector3D PointLightAttenuation {
-        get { return field; }
+        get => field;
         set {
             field = value;
             UpdatePointLightCollection();
@@ -77,12 +77,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     public int PointLightCount {
-        get { return PointLightCollection.Count; }
-        set { InitPointLightCollection(value); }
+        get => PointLightCollection.Count;
+        set => InitPointLightCollection(value);
     }
 
     public int PointLightSpread {
-        get { return field; }
+        get => field;
         set {
             field = value;
             InitPointLightCollection(PointLightCount);
@@ -92,7 +92,7 @@ public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection SpotLightCollection { get; set; }
 
     public Color SpotLightColor {
-        get { return field; }
+        get => field;
         set {
             field = value;
             UpdateSpotLightCollection();
@@ -100,7 +100,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public Vector3D SpotLightAttenuation {
-        get { return field; }
+        get => field;
         set {
             field = value;
             UpdateSpotLightCollection();
@@ -108,12 +108,12 @@ public class MainViewModel : BaseViewModel {
     }
 
     public int SpotLightCount {
-        get { return SpotLightCollection.Count; }
-        set { InitSpotLightCollection(value); }
+        get => SpotLightCollection.Count;
+        set => InitSpotLightCollection(value);
     }
 
     public double SpotLightSpread {
-        get { return field; }
+        get => field;
         set {
             field = value;
             InitSpotLightCollection(SpotLightCount);
@@ -388,16 +388,13 @@ public class MainViewModel : BaseViewModel {
 }
 
 public class ColorVectorConverter : IValueConverter {
-    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-        return value is Color4 color ? color.ToColor() : value;
-    }
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) => value is Color4 color ? color.ToColor() : value;
 
     public object ConvertBack(
         object value,
         Type targetType,
         object parameter,
         System.Globalization.CultureInfo culture
-    ) {
-        return targetType == typeof(Color) ? value : ((Color)value).ToColor4();
-    }
+    )
+        => targetType == typeof(Color) ? value : ((Color)value).ToColor4();
 }

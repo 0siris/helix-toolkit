@@ -45,9 +45,7 @@ public class DelegateCommand : ICommand {
         CommandManager.InvalidateRequerySuggested();
     }
 
-    public bool CanExecute(object? parameter) {
-        return canExecute == null || canExecute();
-    }
+    public bool CanExecute(object? parameter) => canExecute == null || canExecute();
 
     public void Execute(object? parameter) {
         execute?.Invoke();

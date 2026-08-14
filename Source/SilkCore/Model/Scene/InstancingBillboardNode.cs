@@ -21,7 +21,7 @@ public class InstancingBillboardNode : BillboardNode {
     /// <value>
     ///     The instance parameter array.
     /// </value>
-    public IList<BillboardInstanceParameter> InstanceParamArray {
+    public IList<BillboardInstanceParameter>? InstanceParamArray {
         get => InstanceParamBuffer.Elements;
         set => InstanceParamBuffer.Elements = value;
     }
@@ -32,13 +32,9 @@ public class InstancingBillboardNode : BillboardNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new InstancingBillboardRenderCore { ParameterBuffer = InstanceParamBuffer };
-    }
+    protected override RenderCore OnCreateRenderCore() => new InstancingBillboardRenderCore { ParameterBuffer = InstanceParamBuffer };
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.BillboardInstancing];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.BillboardInstancing];
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         // --- attach

@@ -49,9 +49,7 @@ public class FrameStatisticsModel2D : Element2D {
         foregroundChanged = backgroundChanged = true;
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new FrameStatisticsNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new FrameStatisticsNode2D();
 
     protected override void OnUpdate(RenderContext2D context) {
         base.OnUpdate(context);

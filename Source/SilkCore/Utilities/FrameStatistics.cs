@@ -29,7 +29,7 @@ public interface IFrameStatistics : INotifyPropertyChanged {
     /// </value>
     uint UpdateFrequency { get; set; }
 
-    event EventHandler<FrameStatisticsArg> OnValueChanged;
+    event EventHandler<FrameStatisticsArg>? OnValueChanged;
 
     /// <summary>
     ///     Pushes the specified latency by milliseconds

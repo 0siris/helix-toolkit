@@ -59,9 +59,7 @@ public class Sprite2DNode : SceneNode {
         }
     }
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new Sprite2DRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new Sprite2DRenderCore();
 
     protected override void OnAttached() {
         bufferModel = new Sprite2DBufferModel {
@@ -80,20 +78,15 @@ public class Sprite2DNode : SceneNode {
         base.OnDetach();
     }
 
-    protected override bool CanRender(RenderContext context) {
-        return base.CanRender(context) && sprites != null && indices != null
-               && spriteCount != 0 && indexCount != 0;
-    }
+    protected override bool CanRender(RenderContext context) => base.CanRender(context) && sprites != null && indices != null
+                                                                && spriteCount != 0 && indexCount != 0;
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return false;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => false;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

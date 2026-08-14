@@ -428,8 +428,7 @@ public static class PhongMaterials {
         return mat != null ? mat : DefaultVRML;
     }
 
-    public static Color4 ToColor(double r, double g, double b, double a = 1.0) {
+    public static Color4 ToColor(double r, double g, double b, double a = 1.0) =>
         //return new Color4((float)r, (float)g, (float)b, (float)a);
-        return System.Windows.Media.Color.FromScRgb((float)a, (float)r, (float)g, (float)b).ToColor4();
-    }
+        System.Windows.Media.Color.FromScRgb((float)a, (float)r, (float)g, (float)b).ToColor4();
 }

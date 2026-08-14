@@ -195,9 +195,7 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
         isMoverInitialized = true;
     }
 
-    protected virtual ScreenSpacePositionMoverBase OnCreateMover() {
-        return new ScreenSpacePositionMover();
-    }
+    protected virtual ScreenSpacePositionMoverBase OnCreateMover() => new ScreenSpacePositionMover();
 
     private void Mover_OnMoveClicked(object? sender, ScreenSpaceMoveDirArgs e) {
         switch (e.Direction) {

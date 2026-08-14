@@ -32,7 +32,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
     /// <param name="rootInvTransform">The root inv transform.</param>
     /// <returns></returns>
     public static Matrix[] CreateNodeBasedBoneMatrices(IList<Bone> bones, ref Matrix rootInvTransform) {
-        Matrix[] m = null;
+        Matrix[]? m = null;
         CreateNodeBasedBoneMatrices(bones, ref rootInvTransform, ref m);
         return m;
     }

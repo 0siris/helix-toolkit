@@ -27,25 +27,21 @@ public class PointMaterial : Material {
         FadingFarDistance = core.FadingFarDistance;
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new PointMaterialCore {
-            PointColor = Color.ToColor4(),
-            Width = (float)Size.Width,
-            Height = (float)Size.Height,
-            Figure = Figure,
-            FigureRatio = (float)FigureRatio,
-            Name = Name,
-            EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float)FadingNearDistance,
-            FadingFarDistance = (float)FadingFarDistance
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new PointMaterialCore {
+        PointColor = Color.ToColor4(),
+        Width = (float)Size.Width,
+        Height = (float)Size.Height,
+        Figure = Figure,
+        FigureRatio = (float)FigureRatio,
+        Name = Name,
+        EnableDistanceFading = EnableDistanceFading,
+        FadingNearDistance = (float)FadingNearDistance,
+        FadingFarDistance = (float)FadingFarDistance
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new PointMaterial {
-            Name = Name
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new PointMaterial {
+        Name = Name
+    };
 
     #region Dependency Properties
 

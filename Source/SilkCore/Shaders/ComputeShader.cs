@@ -151,7 +151,5 @@ public sealed class ComputeShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator ComputeShaderType(ComputeShader s) {
-        return Type;
-    }
+    public static implicit operator ComputeShaderType(ComputeShader s) => Type;
 }

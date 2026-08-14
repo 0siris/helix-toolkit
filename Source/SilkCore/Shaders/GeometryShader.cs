@@ -69,7 +69,5 @@ public sealed class GeometryShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator GeometryShaderType(GeometryShader s) {
-        return Type;
-    }
+    public static implicit operator GeometryShaderType(GeometryShader s) => Type;
 }

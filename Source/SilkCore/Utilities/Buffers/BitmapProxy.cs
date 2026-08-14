@@ -124,9 +124,8 @@ public class BitmapProxy : DisposeObject, IGuid {
         D2DPixelFormat format,
         D2DBitmapOptions bitmapOptions,
         D2DColorContext colorContext
-    ) {
-        return new D2DBitmapProperties(format, dpiX, dpiY, bitmapOptions, colorContext);
-    }
+    )
+        => new(format, dpiX, dpiY, bitmapOptions, colorContext);
 
     /// <summary>
     ///     Creates by native surface.
@@ -165,25 +164,21 @@ public class BitmapProxy : DisposeObject, IGuid {
     /// <param name="size">The size.</param>
     /// <param name="format">The format.</param>
     /// <returns></returns>
-    public static BitmapProxy Create(string name, D2DDeviceContext context, Size2 size, Format format) {
-        return new BitmapProxy(name,
-                               context,
-                               size,
-                               CreateDescription(context.DotsPerInch.Width,
-                                                 context.DotsPerInch.Height,
-                                                 format,
-                                                 D2DAlphaMode.Premultiplied,
-                                                 D2DBitmapOptions.Target));
-    }
+    public static BitmapProxy Create(string name, D2DDeviceContext context, Size2 size, Format format) => new(name,
+        context,
+        size,
+        CreateDescription(context.DotsPerInch.Width,
+            context.DotsPerInch.Height,
+            format,
+            D2DAlphaMode.Premultiplied,
+            D2DBitmapOptions.Target));
 
-    public static BitmapProxy CreateEmpty(string name, D2DDeviceContext context) {
-        return new BitmapProxy(name,
-                               context,
-                               default,
-                               CreateDescription(context.DotsPerInch.Width,
-                                                 context.DotsPerInch.Height,
-                                                 default));
-    }
+    public static BitmapProxy CreateEmpty(string name, D2DDeviceContext context) => new(name,
+        context,
+        default,
+        CreateDescription(context.DotsPerInch.Width,
+            context.DotsPerInch.Height,
+            default));
 
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref bitmap);

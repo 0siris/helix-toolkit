@@ -15,8 +15,8 @@ namespace OctreeDemo;
 public class DataModel : DemoCore.ObservableObject {
     [field: AllowNull, MaybeNull]
     public MeshGeometry3D Model {
-        set { SetValue<MeshGeometry3D>(ref field, value, nameof(Model)); }
-        get { return field; }
+        set => SetValue<MeshGeometry3D>(ref field, value, nameof(Model));
+        get => field;
     } = null;
 
     public readonly Media3D.ScaleTransform3D scaleTransform = new Media3D.ScaleTransform3D();
@@ -25,8 +25,8 @@ public class DataModel : DemoCore.ObservableObject {
 
 
     public PhongMaterial Material {
-        set { SetValue<PhongMaterial>(ref field, value, nameof(Material)); }
-        get { return field; }
+        set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
+        get => field;
     }
 
     public bool Highlight {
@@ -44,7 +44,7 @@ public class DataModel : DemoCore.ObservableObject {
                 //Material = orgMaterial;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public DataModel() {
@@ -100,7 +100,7 @@ public class SphereModel : DataModel {
                 translateTransform.OffsetX = translateTransform.OffsetY = translateTransform.OffsetZ = value.X;
             }
         }
-        get { return field; }
+        get => field;
     }
 
     public double Radius {
@@ -109,7 +109,7 @@ public class SphereModel : DataModel {
                 scaleTransform.ScaleX = scaleTransform.ScaleY = scaleTransform.ScaleZ = value;
             }
         }
-        get { return field; }
+        get => field;
     } = 1;
 
     private void CreateModel() {
@@ -169,14 +169,10 @@ public class SphereModel : DataModel {
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) {
-        return min + random.NextDouble() * (max - min);
-    }
+    public static double NextDouble(this Random random, double min, double max) => min + random.NextDouble() * (max - min);
 
-    public static System.Windows.Media.Color NextColor(this Random random) {
-        return System.Windows.Media.Color.FromArgb(255,
-                                                   (byte)random.Next(256),
-                                                   (byte)random.Next(256),
-                                                   (byte)random.Next(256));
-    }
+    public static System.Windows.Media.Color NextColor(this Random random) => System.Windows.Media.Color.FromArgb(255,
+        (byte)random.Next(256),
+        (byte)random.Next(256),
+        (byte)random.Next(256));
 }

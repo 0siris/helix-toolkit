@@ -134,7 +134,7 @@ public static class Constants {
             case ShaderStage.Compute:
                 return ComputeShader.NullComputeShader;
             default:
-                return null;
+                throw new ArgumentOutOfRangeException(nameof(stage), stage, "Unsupported shader stage.");
         }
     }
 }

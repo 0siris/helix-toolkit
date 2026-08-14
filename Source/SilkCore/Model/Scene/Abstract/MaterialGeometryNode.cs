@@ -51,13 +51,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() {
-        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
-    }
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
 
-    protected override bool CanRender(RenderContext context) {
-        return base.CanRender(context) && materialVariable != null;
-    }
+    protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {

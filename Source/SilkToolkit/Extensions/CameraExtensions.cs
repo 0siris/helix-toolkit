@@ -197,9 +197,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     The inverse transform.
     /// </returns>
-    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio) {
-        return GetInverseViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
-    }
+    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio) => GetInverseViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the inverse camera transform.
@@ -225,9 +223,7 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio) {
-        return GetProjectionMatrix(camera, aspectRatio).ToMatrix3D();
-    }
+    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio) => GetProjectionMatrix(camera, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the projection matrix for the specified camera.
@@ -235,9 +231,7 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix GetProjectionMatrix(this CameraCore camera, double aspectRatio) {
-        return camera.CreateProjectionMatrix((float)aspectRatio);
-    }
+    public static Matrix GetProjectionMatrix(this CameraCore camera, double aspectRatio) => camera.CreateProjectionMatrix((float)aspectRatio);
 
     /// <summary>
     ///     Get the combined view and projection transform
@@ -245,9 +239,7 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
-    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio) {
-        return GetViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
-    }
+    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio) => GetViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Get the combined view and projection transform
@@ -269,9 +261,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix3D GetViewMatrix3D(this Camera camera) {
-        return GetViewMatrix(camera).ToMatrix3D();
-    }
+    public static Matrix3D GetViewMatrix3D(this Camera camera) => GetViewMatrix(camera).ToMatrix3D();
 
     /// <summary>
     ///     Obtains the view transform matrix for a camera. (see page 327)
@@ -282,9 +272,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix GetViewMatrix(this CameraCore camera) {
-        return camera.CreateViewMatrix();
-    }
+    public static Matrix GetViewMatrix(this CameraCore camera) => camera.CreateViewMatrix();
 
     public static Matrix3D GetInversedViewMatrix(this Camera camera) {
         var viewMatrix = GetViewMatrix(camera);
@@ -481,11 +469,9 @@ public static class CameraExtensions {
         camera.ZoomExtents(viewport, bounds.ToBoundingBox(), animationTime);
     }
 
-    public static BoundingBox ToBoundingBox(this Rect3D bounds) {
-        return new BoundingBox(bounds.Location.ToVector3(),
-                               bounds.Location.ToVector3() +
-                               new Vector3((float)bounds.SizeX, (float)bounds.SizeY, (float)bounds.SizeZ));
-    }
+    public static BoundingBox ToBoundingBox(this Rect3D bounds) => new(bounds.Location.ToVector3(),
+        bounds.Location.ToVector3() +
+        new Vector3((float)bounds.SizeX, (float)bounds.SizeY, (float)bounds.SizeZ));
 
     /// <summary>
     ///     Zooms to fit the specified bounding rectangle.

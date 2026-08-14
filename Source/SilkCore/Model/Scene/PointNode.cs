@@ -34,43 +34,35 @@ public class PointNode : MaterialGeometryNode {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
-        return geometry != null && geometry.IsDynamic
-                   ? EffectsManager.GeometryBufferManager.Register<DynamicPointGeometryBufferModel>(modelGuid,
-                       geometry)
-                   : EffectsManager.GeometryBufferManager.Register<DefaultPointGeometryBufferModel>(modelGuid,
-                       geometry);
-    }
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => geometry != null && geometry.IsDynamic
+        ? EffectsManager.GeometryBufferManager.Register<DynamicPointGeometryBufferModel>(modelGuid,
+            geometry)
+        : EffectsManager.GeometryBufferManager.Register<DefaultPointGeometryBufferModel>(modelGuid,
+            geometry);
 
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PointLineRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PointLineRenderCore();
 
     /// <summary>
     ///     Create raster state description.
     /// </summary>
     /// <returns></returns>
-    protected override RasterizerStateDescription CreateRasterState() {
-        return new RasterizerStateDescription {
-            FillMode = FillMode,
-            CullMode = CullMode.None,
-            DepthBias = DepthBias,
-            DepthBiasClamp = -1000,
-            SlopeScaledDepthBias = SlopeScaledDepthBias,
-            IsDepthClipEnabled = IsDepthClipEnabled,
-            IsFrontCounterClockwise = true,
-            IsMultisampleEnabled = false,
-            IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
-        };
-    }
+    protected override RasterizerStateDescription CreateRasterState() => new() {
+        FillMode = FillMode,
+        CullMode = CullMode.None,
+        DepthBias = DepthBias,
+        DepthBiasClamp = -1000,
+        SlopeScaledDepthBias = SlopeScaledDepthBias,
+        IsDepthClipEnabled = IsDepthClipEnabled,
+        IsFrontCounterClockwise = true,
+        IsMultisampleEnabled = false,
+        IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
+    };
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.Points];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.Points];
 
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
@@ -83,9 +75,7 @@ public class PointNode : MaterialGeometryNode {
         return false;
     }
 
-    protected override bool OnCheckGeometry(Geometry3D geometry) {
-        return base.OnCheckGeometry(geometry) && geometry is PointGeometry3D;
-    }
+    protected override bool OnCheckGeometry(Geometry3D geometry) => base.OnCheckGeometry(geometry) && geometry is PointGeometry3D;
 
     protected override bool PreHitTestOnBounds(HitTestContext context) {
         var center = BoundsSphereWithTransform.Center;
@@ -100,13 +90,12 @@ public class PointNode : MaterialGeometryNode {
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return (Geometry as PointGeometry3D).HitTest(context,
-                                                     totalModelMatrix,
-                                                     ref hits,
-                                                     WrapperSource,
-                                                     (float)HitTestThickness);
-    }
+    )
+        => (Geometry as PointGeometry3D).HitTest(context,
+            totalModelMatrix,
+            ref hits,
+            WrapperSource,
+            (float)HitTestThickness);
 
     #region Properties
 

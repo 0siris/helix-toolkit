@@ -60,7 +60,7 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     protected override void OnCreateIndexBuffer(
         DeviceContextProxy context,
         IElementsBufferProxy buffer,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         IDeviceResources deviceResources
     ) { }
 
@@ -76,7 +76,7 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
         DeviceContextProxy context,
         IElementsBufferProxy buffer,
         int bufferIndex,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         IDeviceResources deviceResources
     ) {
         if (geometry is IBillboardText billboardGeometry) {

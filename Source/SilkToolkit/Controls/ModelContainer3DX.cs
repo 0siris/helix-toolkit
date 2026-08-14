@@ -34,7 +34,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     private readonly HashSet<IViewport3DX> viewports = [];
 
-    private IRenderHost currentRenderHost;
+    private IRenderHost? currentRenderHost;
 
     private int d3dCounter;
 
@@ -58,12 +58,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///         behind may cause memory leak.
     ///     </para>
     /// </summary>
-    public IEffectsManager EffectsManager {
-        get => (IEffectsManager)GetValue(EffectsManagerProperty);
+    public IEffectsManager? EffectsManager {
+        get => (IEffectsManager?)GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 
-    public IRenderTechnique RenderTechnique { get; set; }
+    public IRenderTechnique? RenderTechnique { get; set; }
 
     /// <summary>
     ///     Gets the unique identifier.
@@ -83,19 +83,19 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <summary>
     /// </summary>
-    public IRenderHost CurrentRenderHost {
+    public IRenderHost? CurrentRenderHost {
         get => currentRenderHost;
         set {
             if (currentRenderHost != value) {
                 currentRenderHost = value;
-                currentRenderHost.SetDefaultRenderTargets(false);
+                currentRenderHost?.SetDefaultRenderTargets(false);
             }
         }
     }
 
-    public IRenderer Renderer => CurrentRenderHost?.Renderer;
+    public IRenderer? Renderer => CurrentRenderHost?.Renderer;
 
-    public DeviceContextProxy ImmediateDeviceContext => currentRenderHost?.ImmediateDeviceContext;
+    public DeviceContextProxy? ImmediateDeviceContext => currentRenderHost?.ImmediateDeviceContext;
 
     public new float ActualWidth => 0;
 
@@ -233,7 +233,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </summary>
     /// <param name="clear">if set to <c>true</c> [clear].</param>
     public void SetDefaultRenderTargets(bool clear = true) {
-        CurrentRenderHost.SetDefaultRenderTargets(clear);
+        CurrentRenderHost?.SetDefaultRenderTargets(clear);
     }
 
     /// <summary>
@@ -250,7 +250,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The device.
     /// </value>
-    public NativeD3DDevice Device => EffectsManager?.Device;
+    public NativeD3DDevice? Device => EffectsManager?.Device;
 
     /// <summary>
     ///     Gets the device2d.
@@ -258,7 +258,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The device2d.
     /// </value>
-    public D2DDevice Device2D => EffectsManager?.Device2D;
+    public D2DDevice? Device2D => EffectsManager?.Device2D;
 
     /// <summary>
     ///     Gets or sets the color of the clear.
@@ -269,8 +269,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <exception cref="NotImplementedException"></exception>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 ClearColor {
-        get { return currentRenderHost != null ? currentRenderHost.ClearColor : Color.White; }
-        set { throw new NotImplementedException(); }
+        get => currentRenderHost != null ? currentRenderHost.ClearColor : Color.White;
+        set => throw new NotImplementedException();
     }
 
     /// <summary>
@@ -302,7 +302,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The viewport.
     /// </value>
-    public IViewport3DX Viewport { get; set; }
+    public IViewport3DX? Viewport { get; set; }
 
     /// <summary>
     ///     Gets the render context.
@@ -310,12 +310,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The render context.
     /// </value>
-    public RenderContext RenderContext => CurrentRenderHost.RenderContext;
+    public RenderContext? RenderContext => CurrentRenderHost?.RenderContext;
 
     /// <summary>
     ///     Indicates if DPFCanvas busy on rendering.
     /// </summary>
-    public bool IsBusy => CurrentRenderHost.IsBusy;
+    public bool IsBusy => CurrentRenderHost?.IsBusy ?? false;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable render frustum].
@@ -361,7 +361,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The color buffer view.
     /// </value>
-    public RenderTargetView RenderTargetBufferView =>
+    public RenderTargetView? RenderTargetBufferView =>
         CurrentRenderHost?.RenderTargetBufferView;
 
     /// <summary>
@@ -370,7 +370,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The depth stencil buffer view.
     /// </value>
-    public DepthStencilView DepthStencilBufferView =>
+    public DepthStencilView? DepthStencilBufferView =>
         CurrentRenderHost?.DepthStencilBufferView;
 
     /// <summary>
@@ -379,7 +379,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The d2d target.
     /// </value>
-    public D2DTargetProxy D2DTarget => CurrentRenderHost?.D2DTarget;
+    public D2DTargetProxy? D2DTarget => CurrentRenderHost?.D2DTarget;
 
     /// <summary>
     ///     Gets the render statistics.
@@ -387,7 +387,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The render statistics.
     /// </value>
-    public IRenderStatistics RenderStatistics => CurrentRenderHost?.RenderStatistics;
+    public IRenderStatistics? RenderStatistics => CurrentRenderHost?.RenderStatistics;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [show statistics].
@@ -403,11 +403,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The render configuration.
     /// </value>
-    public DX11RenderHostConfiguration RenderConfiguration { get; set; }
+    public DX11RenderHostConfiguration RenderConfiguration { get; set; } = new();
 
-    public DX11RenderBufferProxyBase RenderBuffer => CurrentRenderHost?.RenderBuffer;
+    public DX11RenderBufferProxyBase? RenderBuffer => CurrentRenderHost?.RenderBuffer;
 
-    public event EventHandler<IEffectsManager> EffectsManagerChanged;
+    public event EventHandler<IEffectsManager?>? EffectsManagerChanged;
 
     public bool EnableParallelProcessing { get; set; }
 
@@ -416,7 +416,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </summary>
     /// <param name="host">The host.</param>
     public void Attach(IRenderHost host) {
-        if (host != null && attachedRenderHosts.Add(host))
+        if (attachedRenderHosts.Add(host))
             if (Interlocked.Increment(ref d3dCounter) == 1 && host.EffectsManager != null)
                 foreach (var renderable in Renderables) {
                     renderable.RenderHost = host;
@@ -431,7 +431,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="host"></param>
     /// <exception cref="InvalidOperationException">D3DCounter is negative.</exception>
     public void Detach(IRenderHost host) {
-        if (host != null && attachedRenderHosts.Remove(host)) {
+        if (attachedRenderHosts.Remove(host)) {
             if (Interlocked.Decrement(ref d3dCounter) == 0)
                 foreach (var renderable in Renderables) {
                     renderable.Detach();
@@ -461,9 +461,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>
     ///     Updates the and render.
     /// </summary>
-    public bool UpdateAndRender() {
-        return false;
-    }
+    public bool UpdateAndRender() => false;
 
     /// <summary>
     ///     Resizes
@@ -502,29 +500,29 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>
     ///     Fired whenever an exception occurred on this object.
     /// </summary>
-    public event EventHandler<RelayExceptionEventArgs> ExceptionOccurred;
+    public event EventHandler<RelayExceptionEventArgs>? ExceptionOccurred;
 
     /// <summary>
     ///     Occurs when [on new render target texture].
     /// </summary>
-    public event EventHandler<Texture2DArgs> OnNewRenderTargetTexture;
+    public event EventHandler<Texture2DArgs>? OnNewRenderTargetTexture;
 
     /// <summary>
     ///     Occurs when [start render loop].
     /// </summary>
-    public event EventHandler<EventArgs> StartRenderLoop;
+    public event EventHandler<EventArgs>? StartRenderLoop;
 
     /// <summary>
     ///     Occurs when [stop render loop].
     /// </summary>
-    public event EventHandler<EventArgs> StopRenderLoop;
+    public event EventHandler<EventArgs>? StopRenderLoop;
 
     /// <summary>
     ///     Occurs when each render frame finished rendering.
     /// </summary>
-    public event EventHandler Rendered;
+    public event EventHandler? Rendered;
 
-    public event EventHandler SceneGraphUpdated;
+    public event EventHandler? SceneGraphUpdated;
 #pragma warning restore 0067
 
     #region IDisposable Support

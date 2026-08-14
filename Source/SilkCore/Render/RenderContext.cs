@@ -63,9 +63,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </value>
     public BoundingFrustum BoundingFrustum;
 
-    private CameraCore camera;
+    private CameraCore? camera;
 
-    private ConstantBufferProxy cbuffer;
+    private ConstantBufferProxy? cbuffer;
 
     /// <summary>
     ///     Gets or sets the name of the custom pass.
@@ -103,7 +103,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </value>
     public bool IsInvertCullMode = false;
 
-    private Light3DSceneShared lightScene;
+    private Light3DSceneShared? lightScene;
 
     private volatile bool needsUpdate = true;
 
@@ -115,7 +115,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </value>
     public OitRenderStage OitRenderStage = OitRenderStage.None;
 
-    private ContextSharedResource sharedResource;
+    private ContextSharedResource? sharedResource;
 
     /// <summary>
     ///     Gets or sets the time stamp.
@@ -132,9 +132,10 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     public RenderContext(IRenderHost renderHost) {
         RenderHost = renderHost;
         IsDeferredPass = false;
-        cbuffer = renderHost.EffectsManager.ConstantBufferPool.Register(DefaultBufferNames.GlobalTransformCb,
-                                                                        GlobalTransformStruct.SizeInBytes);
-        lightScene = new Light3DSceneShared(renderHost.EffectsManager.ConstantBufferPool);
+        var effectsManager = renderHost.EffectsManager.AssertNotNull("Effects manager must be initialized.");
+        cbuffer = effectsManager.ConstantBufferPool.Register(DefaultBufferNames.GlobalTransformCb,
+                                                             GlobalTransformStruct.SizeInBytes);
+        lightScene = new Light3DSceneShared(effectsManager.ConstantBufferPool);
         sharedResource = new ContextSharedResource();
         OitWeightPower = 3;
         OitWeightDepthSlope = 1;
@@ -152,7 +153,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The camera.
     /// </value>
-    public CameraCore Camera {
+    public CameraCore? Camera {
         get => camera;
         set {
             if (camera == value) {
@@ -161,9 +162,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
                 return;
             }
 
-            camera?.PropertyChanged -= Camera_PropertyChanged;
+            if (camera is not null) camera.PropertyChanged -= Camera_PropertyChanged;
             camera = value;
-            camera?.PropertyChanged += Camera_PropertyChanged;
+            if (camera is not null) camera.PropertyChanged += Camera_PropertyChanged;
             Update();
         }
     }
@@ -174,7 +175,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The light scene.
     /// </value>
-    public Light3DSceneShared LightScene => lightScene;
+    public Light3DSceneShared LightScene => lightScene.AssertNotNull("Light scene has been disposed.");
 
     /// <summary>
     ///     Gets the global transform.
@@ -190,7 +191,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The shared resource.
     /// </value>
-    public ContextSharedResource SharedResource => sharedResource;
+    public ContextSharedResource SharedResource => sharedResource.AssertNotNull("Shared resource has been disposed.");
 
     /// <summary>
     ///     Gets or sets the oit weight power used for color weight calculation. Default = 3;
@@ -392,6 +393,12 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </value>
     public IRenderHost RenderHost { get; }
 
+    /// <summary>
+    ///     Gets the active render buffer.
+    /// </summary>
+    private DX11RenderBufferProxyBase RenderBuffer =>
+        RenderHost.RenderBuffer.AssertNotNull("Render buffer must be initialized.");
+
     public void Update() {
         if (camera == null || !needsUpdate) return;
         needsUpdate = false;
@@ -415,7 +422,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;
     }
 
-    private void Camera_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+    private void Camera_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
         needsUpdate = true;
     }
 
@@ -441,9 +448,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </summary>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Matrix GetScreenViewProjectionMatrix() {
-        return ScreenViewProjectionMatrix;
-    }
+    internal Matrix GetScreenViewProjectionMatrix() => ScreenViewProjectionMatrix;
 
     /// <summary>
     ///     Call to update constant buffer for per frame
@@ -458,7 +463,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UpdatePerFrameData(bool updateGlobalTransform, bool updateLights, DeviceContextProxy deviceContext) {
-        if (updateGlobalTransform) cbuffer.UploadDataToBuffer(deviceContext, ref globalTransform);
+        if (updateGlobalTransform)
+            cbuffer.AssertNotNull("Global transform buffer has been disposed.")
+                .UploadDataToBuffer(deviceContext, ref globalTransform);
         if (updateLights) {
             LightScene.LightModels.HasEnvironmentMap = SharedResource.EnvironementMap != null;
             LightScene.LightModels.EnvironmentMapMipLevels = SharedResource.EnvironmentMapMipLevels;
@@ -500,11 +507,11 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     public ShaderResourceViewProxy GetOffScreenRt(OffScreenTextureSize size, Format format) {
         switch (size) {
             case OffScreenTextureSize.Full:
-                return RenderHost.RenderBuffer.FullResRenderTargetPool.Get(format);
+                return RenderBuffer.FullResRenderTargetPool.Get(format);
             case OffScreenTextureSize.Half:
-                return RenderHost.RenderBuffer.HalfResRenderTargetPool.Get(format);
+                return RenderBuffer.HalfResRenderTargetPool.Get(format);
             case OffScreenTextureSize.Quarter:
-                return RenderHost.RenderBuffer.QuarterResRenderTargetPool.Get(format);
+                return RenderBuffer.QuarterResRenderTargetPool.Get(format);
             default:
                 return ShaderResourceViewProxy.Empty;
         }
@@ -527,17 +534,17 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ) {
         switch (size) {
             case OffScreenTextureSize.Full:
-                width = RenderHost.RenderBuffer.FullResRenderTargetPool.Width;
-                height = RenderHost.RenderBuffer.FullResRenderTargetPool.Height;
-                return RenderHost.RenderBuffer.FullResRenderTargetPool.Get(format);
+                width = RenderBuffer.FullResRenderTargetPool.Width;
+                height = RenderBuffer.FullResRenderTargetPool.Height;
+                return RenderBuffer.FullResRenderTargetPool.Get(format);
             case OffScreenTextureSize.Half:
-                width = RenderHost.RenderBuffer.HalfResRenderTargetPool.Width;
-                height = RenderHost.RenderBuffer.HalfResRenderTargetPool.Height;
-                return RenderHost.RenderBuffer.HalfResRenderTargetPool.Get(format);
+                width = RenderBuffer.HalfResRenderTargetPool.Width;
+                height = RenderBuffer.HalfResRenderTargetPool.Height;
+                return RenderBuffer.HalfResRenderTargetPool.Get(format);
             case OffScreenTextureSize.Quarter:
-                width = RenderHost.RenderBuffer.QuarterResRenderTargetPool.Width;
-                height = RenderHost.RenderBuffer.QuarterResRenderTargetPool.Height;
-                return RenderHost.RenderBuffer.QuarterResRenderTargetPool.Get(format);
+                width = RenderBuffer.QuarterResRenderTargetPool.Width;
+                height = RenderBuffer.QuarterResRenderTargetPool.Height;
+                return RenderBuffer.QuarterResRenderTargetPool.Get(format);
             default:
                 width = height = 0;
                 return ShaderResourceViewProxy.Empty;
@@ -554,11 +561,11 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     public ShaderResourceViewProxy GetOffScreenDs(OffScreenTextureSize size, Format format) {
         switch (size) {
             case OffScreenTextureSize.Full:
-                return RenderHost.RenderBuffer.FullResDepthStencilPool.Get(format);
+                return RenderBuffer.FullResDepthStencilPool.Get(format);
             case OffScreenTextureSize.Half:
-                return RenderHost.RenderBuffer.HalfResDepthStencilPool.Get(format);
+                return RenderBuffer.HalfResDepthStencilPool.Get(format);
             case OffScreenTextureSize.Quarter:
-                return RenderHost.RenderBuffer.QuarterResDepthStencilPool.Get(format);
+                return RenderBuffer.QuarterResDepthStencilPool.Get(format);
             default:
                 return ShaderResourceViewProxy.Empty;
         }
@@ -581,17 +588,17 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ) {
         switch (size) {
             case OffScreenTextureSize.Full:
-                width = RenderHost.RenderBuffer.FullResDepthStencilPool.Width;
-                height = RenderHost.RenderBuffer.FullResDepthStencilPool.Height;
-                return RenderHost.RenderBuffer.FullResDepthStencilPool.Get(format);
+                width = RenderBuffer.FullResDepthStencilPool.Width;
+                height = RenderBuffer.FullResDepthStencilPool.Height;
+                return RenderBuffer.FullResDepthStencilPool.Get(format);
             case OffScreenTextureSize.Half:
-                width = RenderHost.RenderBuffer.HalfResDepthStencilPool.Width;
-                height = RenderHost.RenderBuffer.HalfResDepthStencilPool.Height;
-                return RenderHost.RenderBuffer.HalfResDepthStencilPool.Get(format);
+                width = RenderBuffer.HalfResDepthStencilPool.Width;
+                height = RenderBuffer.HalfResDepthStencilPool.Height;
+                return RenderBuffer.HalfResDepthStencilPool.Get(format);
             case OffScreenTextureSize.Quarter:
-                width = RenderHost.RenderBuffer.QuarterResDepthStencilPool.Width;
-                height = RenderHost.RenderBuffer.QuarterResDepthStencilPool.Height;
-                return RenderHost.RenderBuffer.QuarterResDepthStencilPool.Get(format);
+                width = RenderBuffer.QuarterResDepthStencilPool.Width;
+                height = RenderBuffer.QuarterResDepthStencilPool.Height;
+                return RenderBuffer.QuarterResDepthStencilPool.Get(format);
             default:
                 width = height = 0;
                 return ShaderResourceViewProxy.Empty;
@@ -599,14 +606,10 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetPingPongBufferNextRtv() {
-        return RenderHost.RenderBuffer.FullResPpBuffer.NextRtv;
-    }
+    public ShaderResourceViewProxy? GetPingPongBufferNextRtv() => RenderBuffer.FullResPpBuffer.NextRtv;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetPingPongBufferCurrentRtv() {
-        return RenderHost.RenderBuffer.FullResPpBuffer.CurrentRtv;
-    }
+    public ShaderResourceViewProxy? GetPingPongBufferCurrentRtv() => RenderBuffer.FullResPpBuffer.CurrentRtv;
 
     protected override void OnDispose(bool disposeManagedResources) {
         Camera = null;

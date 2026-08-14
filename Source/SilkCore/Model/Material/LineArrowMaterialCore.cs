@@ -19,21 +19,19 @@ public class LineArrowHeadMaterialCore : LineMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new LineArrowMaterialVariable(manager,
-                                             manager.GetTechnique(DefaultRenderTechniqueNames.LinesArrowHead),
-                                             this);
-    }
+    )
+        => new LineArrowMaterialVariable(manager,
+            manager.GetTechnique(DefaultRenderTechniqueNames.LinesArrowHead),
+            this);
 }
 
 public class LineArrowHeadTailMaterialCore : LineArrowHeadMaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new LineArrowMaterialVariable(manager,
-                                             manager.GetTechnique(
-                                                 DefaultRenderTechniqueNames.LinesArrowHeadTail),
-                                             this);
-    }
+    )
+        => new LineArrowMaterialVariable(manager,
+            manager.GetTechnique(
+                DefaultRenderTechniqueNames.LinesArrowHeadTail),
+            this);
 }

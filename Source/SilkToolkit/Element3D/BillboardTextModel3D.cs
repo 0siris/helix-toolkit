@@ -97,9 +97,7 @@ public class BillboardTextModel3D : GeometryModel3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new BillboardNode { Material = material };
-    }
+    protected override SceneNode OnCreateSceneNode() => new BillboardNode { Material = material };
 
     /// <summary>
     ///     Assigns the default values to core.

@@ -58,21 +58,16 @@ public class EnvironmentMapNode : SceneNode {
         return new SkyBoxRenderCore();
     }
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.Skybox];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.Skybox];
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     protected override bool CanRender(RenderContext context) {
         if (!base.CanRender(context)) {

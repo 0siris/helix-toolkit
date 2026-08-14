@@ -9,9 +9,7 @@ namespace TemplateDemo;
 using HelixToolkit.Wpf.SharpDX;
 
 public abstract class Shape {
-    public Geometry3D Geometry {
-        get { return GetGeometry(); }
-    }
+    public Geometry3D Geometry => GetGeometry();
 
     protected abstract Geometry3D GetGeometry();
 

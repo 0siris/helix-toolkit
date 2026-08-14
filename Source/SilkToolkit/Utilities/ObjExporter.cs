@@ -355,15 +355,11 @@ public class ObjExporter : Exporter {
     /// <returns>
     ///     The string.
     /// </returns>
-    private string ToColorString(Color4 color) {
-        return string.Format(CultureInfo.InvariantCulture,
-                             "{0:F4} {1:F4} {2:F4}",
-                             color.X,
-                             color.Y,
-                             color.Z);
-    }
+    private string ToColorString(Color4 color) => string.Format(CultureInfo.InvariantCulture,
+        "{0:F4} {1:F4} {2:F4}",
+        color.X,
+        color.Y,
+        color.Z);
 
-    private static float NormalizeZero(float value) {
-        return value == 0 ? 0 : value;
-    }
+    private static float NormalizeZero(float value) => value == 0 ? 0 : value;
 }

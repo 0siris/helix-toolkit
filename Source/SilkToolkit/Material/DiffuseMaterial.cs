@@ -185,34 +185,28 @@ public class DiffuseMaterial : Material {
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new DiffuseMaterialCore {
-            DiffuseColor = DiffuseColor,
-            DiffuseMap = DiffuseMap,
-            UvTransform = UVTransform,
-            DiffuseMapSampler = DiffuseMapSampler,
-            EnableUnLit = EnableUnLit,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new DiffuseMaterialCore {
+        DiffuseColor = DiffuseColor,
+        DiffuseMap = DiffuseMap,
+        UvTransform = UVTransform,
+        DiffuseMapSampler = DiffuseMapSampler,
+        EnableUnLit = EnableUnLit,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+    };
 
-    public virtual DiffuseMaterial CloneMaterial() {
-        return new DiffuseMaterial {
-            DiffuseColor = DiffuseColor,
-            DiffuseMap = DiffuseMap,
-            DiffuseMapSampler = DiffuseMapSampler,
-            UVTransform = UVTransform,
-            Name = Name,
-            EnableUnLit = EnableUnLit,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = VertexColorBlendingFactor
-        };
-    }
+    public virtual DiffuseMaterial CloneMaterial() => new() {
+        DiffuseColor = DiffuseColor,
+        DiffuseMap = DiffuseMap,
+        DiffuseMapSampler = DiffuseMapSampler,
+        UVTransform = UVTransform,
+        Name = Name,
+        EnableUnLit = EnableUnLit,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = VertexColorBlendingFactor
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return CloneMaterial();
-    }
+    protected override Freezable CreateInstanceCore() => CloneMaterial();
 }
 
 #pragma warning restore CS8601, CS8602
@@ -507,9 +501,7 @@ public static class DiffuseMaterials {
         return mat ?? DefaultVRML;
     }
 
-    public static Color4 ToColor(double r, double g, double b, double a = 1.0) {
-        return FromScRgb((float)a, (float)r, (float)g, (float)b);
-    }
+    public static Color4 ToColor(double r, double g, double b, double a = 1.0) => FromScRgb((float)a, (float)r, (float)g, (float)b);
 
     /// <summary>
     ///     FromScRgb

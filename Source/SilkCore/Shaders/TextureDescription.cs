@@ -35,13 +35,9 @@ public sealed class TextureDescription {
     [DataMember]
     public TextureType Type { get; set; }
 
-    public TextureMapping CreateMapping(int slot) {
-        return new TextureMapping(slot, this);
-    }
+    public TextureMapping CreateMapping(int slot) => new(slot, this);
 
-    public TextureDescription Clone() {
-        return new TextureDescription(Name, ShaderType, Type);
-    }
+    public TextureDescription Clone() => new(Name, ShaderType, Type);
 }
 
 /// <summary>
@@ -59,7 +55,5 @@ public sealed class TextureMapping {
     [DataMember]
     public TextureDescription Description { get; set; }
 
-    public TextureMapping Clone() {
-        return new TextureMapping(Slot, Description.Clone());
-    }
+    public TextureMapping Clone() => new(Slot, Description.Clone());
 }

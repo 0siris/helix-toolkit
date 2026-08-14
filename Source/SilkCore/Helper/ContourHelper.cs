@@ -225,9 +225,8 @@ public class ContourHelper {
         DoubleOrSingle secondPoint,
         DoubleOrSingle firstSide,
         DoubleOrSingle secondSide
-    ) {
-        return firstPoint - firstSide * (secondPoint - firstPoint) / (secondSide - firstSide);
-    }
+    )
+        => firstPoint - firstSide * (secondPoint - firstPoint) / (secondSide - firstSide);
 
     /// <summary>
     ///     Gets the <see cref="ContourFacetResult" /> for the current facet.
@@ -346,11 +345,9 @@ public class ContourHelper {
     ///     Determines whether all sides of the facet are below the contour.
     /// </summary>
     /// <returns><c>true</c> if all sides are below the contour.</returns>
-    private bool AllSidesBelowContour() {
-        return sides[0] >= 0
-               && sides[1] >= 0
-               && sides[2] >= 0;
-    }
+    private bool AllSidesBelowContour() => sides[0] >= 0
+                                           && sides[1] >= 0
+                                           && sides[2] >= 0;
 
     /// <summary>
     ///     The contour facet result.

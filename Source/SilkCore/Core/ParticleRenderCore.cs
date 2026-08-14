@@ -611,9 +611,7 @@ public class ParticleRenderCore : RenderCore {
     }
 
 
-    protected override bool OnUpdateCanRenderFlag() {
-        return base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
-    }
+    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
 
     /// <summary>
     /// </summary>

@@ -199,9 +199,7 @@ public class TextModel2D : Element2D, ITextBlock {
         set => SetValue(BackgroundProperty, value);
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new TextNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new TextNode2D();
 
     protected override void OnAttached() {
         base.OnAttached();

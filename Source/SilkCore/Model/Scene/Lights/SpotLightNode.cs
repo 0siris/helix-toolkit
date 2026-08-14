@@ -58,7 +58,5 @@ public class SpotLightNode : PointLightNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new SpotLightCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new SpotLightCore();
 }

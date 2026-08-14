@@ -94,7 +94,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The diffuse map file path.
     /// </value>
-    public string DiffuseMapFilePath { get; set; }
+    public string? DiffuseMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the DiffuseAlphaMap.
@@ -113,7 +113,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The diffuse alpha map file path.
     /// </value>
-    public string DiffuseAlphaMapFilePath { get; set; }
+    public string? DiffuseAlphaMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the NormalMap.
@@ -132,7 +132,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The normal map file path.
     /// </value>
-    public string NormalMapFilePath { get; set; }
+    public string? NormalMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the specular color map.
@@ -151,7 +151,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The specular color map file path.
     /// </value>
-    public string SpecularColorMapFilePath { get; set; }
+    public string? SpecularColorMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the DisplacementMap.
@@ -170,7 +170,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The displacement file path.
     /// </value>
-    public string DisplacementMapFilePath { get; set; }
+    public string? DisplacementMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the emissive map.
@@ -189,7 +189,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The emissive map file path.
     /// </value>
-    public string EmissiveMapFilePath { get; set; }
+    public string? EmissiveMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the DisplacementMapScaleMask.
@@ -379,7 +379,6 @@ public class PhongMaterialCore : MaterialCore {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PhongMaterialVariables(manager, technique, this);
-    }
+    )
+        => new PhongMaterialVariables(manager, technique, this);
 }

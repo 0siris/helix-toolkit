@@ -19,21 +19,22 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     public OrderIndependentTransparentRenderCore() : base(RenderType.Transparent) { }
 
     private bool CreateTextureResources(RenderContext context, DeviceContextProxy deviceContext) {
-        var currSampleDesc = context.RenderHost.RenderBuffer.ColorBufferSampleDesc;
+        var currSampleDesc = context.RenderHost.RenderBuffer.AssertNotNull()
+            .ColorBufferSampleDesc;
 #if MSAASEPARATE
         hasMsaa = currSampleDesc.Count > 1 || currSampleDesc.Quality > 0;
 #endif
-        if (width != (int)context.ActualWidth || height != (int)context.ActualHeight
-                                              || sampleDesc.Count != currSampleDesc.Count ||
-                                              sampleDesc.Quality != currSampleDesc.Quality) {
+        if (width != (int) context.ActualWidth || height != (int) context.ActualHeight
+                                               || sampleDesc.Count != currSampleDesc.Count ||
+                                               sampleDesc.Quality != currSampleDesc.Quality) {
             RemoveAndDispose(ref colorTarget);
             RemoveAndDispose(ref alphaTarget);
             RemoveAndDispose(ref colorTargetNoMsaa);
             RemoveAndDispose(ref alphaTargetNoMsaa);
             sampleDesc = currSampleDesc;
 
-            width = (int)context.ActualWidth;
-            height = (int)context.ActualHeight;
+            width = (int) context.ActualWidth;
+            height = (int) context.ActualHeight;
             colorDesc.Width = alphaDesc.Width = width;
             colorDesc.Height = alphaDesc.Height = height;
             colorDesc.SampleDescription = alphaDesc.SampleDescription = sampleDesc;
@@ -44,8 +45,9 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
 #endif
                 colorDesc.BindFlags = alphaDesc.BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource;
 
-            colorTarget = new ShaderResourceViewProxy(Device, colorDesc);
-            alphaTarget = new ShaderResourceViewProxy(Device, alphaDesc);
+            var device = Device.AssertNotNull("Device must be initialized.");
+            colorTarget = new ShaderResourceViewProxy(device, colorDesc);
+            alphaTarget = new ShaderResourceViewProxy(device, alphaDesc);
 
 
             colorTarget.CreateRenderTargetView();
@@ -63,8 +65,8 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
             else {
                 colorDesc.SampleDescription = alphaDesc.SampleDescription = new SampleDescription(1, 0);
                 colorDesc.BindFlags = alphaDesc.BindFlags = BindFlags.ShaderResource;
-                colorTargetNoMsaa = new ShaderResourceViewProxy(Device, colorDesc);
-                alphaTargetNoMsaa = new ShaderResourceViewProxy(Device, alphaDesc);
+                colorTargetNoMsaa = new ShaderResourceViewProxy(device, colorDesc);
+                alphaTargetNoMsaa = new ShaderResourceViewProxy(device, alphaDesc);
                 colorTargetNoMsaa.CreateTextureView();
                 alphaTargetNoMsaa.CreateTextureView();
             }
@@ -79,31 +81,42 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Bind(RenderContext context, DeviceContextProxy deviceContext) {
         targets = deviceContext.GetRenderTargets(2);
-        deviceContext.ClearRenderTargetView(colorTarget, Color.Zero);
-        deviceContext.ClearRenderTargetView(alphaTarget, Color.White);
+        var currentColorTarget = colorTarget.AssertNotNull("Color target must be initialized.");
+        var currentAlphaTarget = alphaTarget.AssertNotNull("Alpha target must be initialized.");
+        var colorTargetView = currentColorTarget.RenderTargetView.AssertNotNull();
+        var alphaTargetView = currentAlphaTarget.RenderTargetView.AssertNotNull();
+        deviceContext.ClearRenderTargetView(colorTargetView, Color.Zero);
+        deviceContext.ClearRenderTargetView(alphaTargetView, Color.White);
         deviceContext.SetRenderTargets(context.RenderHost.DepthStencilBufferView,
-                                       [colorTarget, alphaTarget]);
+            [colorTargetView, alphaTargetView]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UnBind(RenderContext context, DeviceContextProxy deviceContext) {
         deviceContext.SetRenderTargets(context.RenderHost.DepthStencilBufferView, targets);
         for (var i = 0; i < targets.Length; ++i) {
-            targets[i]?.Dispose();
+            targets[i]
+                ?.Dispose();
             targets[i] = null;
         }
 #if MSAASEPARATE
         if (hasMsaa) {
-            deviceContext.ResolveSubresource(colorTarget.Resource,
-                                             0,
-                                             colorTargetNoMsaa.Resource,
-                                             0,
-                                             colorDesc.Format);
-            deviceContext.ResolveSubresource(alphaTarget.Resource,
-                                             0,
-                                             alphaTargetNoMsaa.Resource,
-                                             0,
-                                             alphaDesc.Format);
+            var currentColorTarget = colorTarget.AssertNotNull("Color target must be initialized.");
+            var currentAlphaTarget = alphaTarget.AssertNotNull("Alpha target must be initialized.");
+            var currentColorTargetNoMsaa =
+                colorTargetNoMsaa.AssertNotNull("Resolved color target must be initialized.");
+            var currentAlphaTargetNoMsaa =
+                alphaTargetNoMsaa.AssertNotNull("Resolved alpha target must be initialized.");
+            deviceContext.ResolveSubresource(currentColorTarget.Resource.AssertNotNull(),
+                0,
+                currentColorTargetNoMsaa.Resource.AssertNotNull(),
+                0,
+                colorDesc.Format);
+            deviceContext.ResolveSubresource(currentAlphaTarget.Resource.AssertNotNull(),
+                0,
+                currentAlphaTargetNoMsaa.Resource.AssertNotNull(),
+                0,
+                alphaDesc.Format);
         }
 #endif
     }
@@ -144,11 +157,18 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
         context.OitRenderStage = OitRenderStage.SinglePassWeighted;
         var parameter = ExternRenderParameter;
         if (!parameter.ScissorRegion.IsEmpty) {
-            parameter.RenderTargetView = [colorTarget, alphaTarget];
-            RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
-                                                                   context.RenderHost.PerFrameTransparentNodes,
-                                                                   ref parameter,
-                                                                   context.EnableBoundingFrustum);
+            parameter.RenderTargetView = [
+                colorTarget.AssertNotNull()
+                    .RenderTargetView.AssertNotNull(),
+                alphaTarget.AssertNotNull()
+                    .RenderTargetView.AssertNotNull()
+            ];
+            RenderCount = context.RenderHost.Renderer.AssertNotNull()
+                .RenderOpaque(
+                    context,
+                    context.RenderHost.PerFrameTransparentNodes,
+                    ref parameter,
+                    context.EnableBoundingFrustum);
         } else {
             var frustum = context.BoundingFrustum;
             var count = context.RenderHost.PerFrameTransparentNodes.Count;
@@ -161,22 +181,26 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
 
         context.OitRenderStage = OitRenderStage.None;
         UnBind(context, deviceContext);
+        var currentColorTargetNoMsaa = colorTargetNoMsaa.AssertNotNull("Resolved color target must be initialized.");
+        var currentAlphaTargetNoMsaa = alphaTargetNoMsaa.AssertNotNull("Resolved alpha target must be initialized.");
         screenQuadPass.BindShader(deviceContext);
         screenQuadPass.BindStates(deviceContext,
-                                  StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
-        screenQuadPass.PixelShader.BindTexture(deviceContext, colorTexIndex, colorTargetNoMsaa);
-        screenQuadPass.PixelShader.BindTexture(deviceContext, alphaTexIndex, alphaTargetNoMsaa);
-        screenQuadPass.PixelShader.BindSampler(deviceContext, samplerIndex, targetSampler);
+            StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
+        screenQuadPass.PixelShader.BindTexture(deviceContext, colorTexIndex, currentColorTargetNoMsaa);
+        screenQuadPass.PixelShader.BindTexture(deviceContext, alphaTexIndex, currentAlphaTargetNoMsaa);
+        screenQuadPass.PixelShader.BindSampler(deviceContext,
+            samplerIndex,
+            targetSampler.AssertNotNull("Target sampler must be initialized."));
         deviceContext.Draw(4, 0);
     }
 
-#region Variables
+    #region Variables
 
-    private ShaderResourceViewProxy colorTarget;
-    private ShaderResourceViewProxy alphaTarget;
-    private ShaderResourceViewProxy colorTargetNoMsaa;
-    private ShaderResourceViewProxy alphaTargetNoMsaa;
-    private SamplerStateProxy targetSampler;
+    private ShaderResourceViewProxy? colorTarget;
+    private ShaderResourceViewProxy? alphaTarget;
+    private ShaderResourceViewProxy? colorTargetNoMsaa;
+    private ShaderResourceViewProxy? alphaTargetNoMsaa;
+    private SamplerStateProxy? targetSampler;
 
     private SampleDescription sampleDesc = new(1, 0);
 
@@ -204,16 +228,20 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     private bool hasMsaa;
 #endif
     private ShaderPass screenQuadPass = ShaderPass.NullPass;
-    private int colorTexIndex, alphaTexIndex, samplerIndex;
-    private RenderTargetView[] targets;
 
-#endregion
+    private int colorTexIndex,
+        alphaTexIndex,
+        samplerIndex;
 
-#region Properties
+    private RenderTargetView?[] targets = [];
+
+    #endregion
+
+    #region Properties
 
     public int RenderCount { get; private set; }
 
     public RenderParameter ExternRenderParameter { get; set; }
 
-#endregion
+    #endregion
 }

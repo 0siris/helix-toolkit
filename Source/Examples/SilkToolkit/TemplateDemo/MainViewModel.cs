@@ -20,8 +20,8 @@ public class MainViewModel : BaseViewModel {
 
     [field: AllowNull, MaybeNull]
     public SelectionViewModel SelectedViewModel {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = null;
 
     private PhongMaterialCollection materials = [];

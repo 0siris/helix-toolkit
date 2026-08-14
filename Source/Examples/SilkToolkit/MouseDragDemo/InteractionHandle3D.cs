@@ -279,31 +279,31 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
 
 
     public bool DragX {
-        get { return (bool)GetValue(DragXProperty); }
-        set { SetValue(DragXProperty, value); }
+        get => (bool)GetValue(DragXProperty);
+        set => SetValue(DragXProperty, value);
     }
 
     public bool DragY {
-        get { return (bool)GetValue(DragYProperty); }
-        set { SetValue(DragYProperty, value); }
+        get => (bool)GetValue(DragYProperty);
+        set => SetValue(DragYProperty, value);
     }
 
     public bool DragZ {
-        get { return (bool)GetValue(DragZProperty); }
-        set { SetValue(DragZProperty, value); }
+        get => (bool)GetValue(DragZProperty);
+        set => SetValue(DragZProperty, value);
     }
 
     public bool IsSelected {
-        get { return (bool)GetValue(IsSelectedProperty); }
-        set { SetValue(IsSelectedProperty, value); }
+        get => (bool)GetValue(IsSelectedProperty);
+        set => SetValue(IsSelectedProperty, value);
     }
 
     /// <summary>
     ///
     /// </summary>
     public Material Material {
-        get { return (Material)GetValue(MaterialProperty); }
-        set { SetValue(MaterialProperty, value); }
+        get => (Material)GetValue(MaterialProperty);
+        set => SetValue(MaterialProperty, value);
     }
 
     /// <summary>
@@ -327,24 +327,22 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         }
     }
 
-    private static Matrix Scaling(float x, float y, float z) {
-        return new Matrix(x,
-                          0,
-                          0,
-                          0,
-                          0,
-                          y,
-                          0,
-                          0,
-                          0,
-                          0,
-                          z,
-                          0,
-                          0,
-                          0,
-                          0,
-                          1);
-    }
+    private static Matrix Scaling(float x, float y, float z) => new(x,
+        0,
+        0,
+        0,
+        0,
+        y,
+        0,
+        0,
+        0,
+        0,
+        z,
+        0,
+        0,
+        0,
+        0,
+        1);
 
     private static Matrix Translation(Vector3 value) {
         var result = Matrix.Identity;
@@ -354,7 +352,5 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         return result;
     }
 
-    private static Vector3 TranslationVector(Matrix value) {
-        return new Vector3(value.M41, value.M42, value.M43);
-    }
+    private static Vector3 TranslationVector(Matrix value) => new(value.M41, value.M42, value.M43);
 }

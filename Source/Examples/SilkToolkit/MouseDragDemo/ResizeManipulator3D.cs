@@ -62,8 +62,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate X; otherwise, <c>false</c> . </value>
     public bool CanTranslateX {
-        get { return (bool)GetValue(CanTranslateXProperty); }
-        set { SetValue(CanTranslateXProperty, value); }
+        get => (bool)GetValue(CanTranslateXProperty);
+        set => SetValue(CanTranslateXProperty, value);
     }
 
     /// <summary>
@@ -71,8 +71,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Y; otherwise, <c>false</c> . </value>
     public bool CanTranslateY {
-        get { return (bool)GetValue(CanTranslateYProperty); }
-        set { SetValue(CanTranslateYProperty, value); }
+        get => (bool)GetValue(CanTranslateYProperty);
+        set => SetValue(CanTranslateYProperty, value);
     }
 
     /// <summary>
@@ -80,8 +80,8 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
     /// </summary>
     /// <value> <c>true</c> if this instance can translate Z; otherwise, <c>false</c> . </value>
     public bool CanTranslateZ {
-        get { return (bool)GetValue(CanTranslateZProperty); }
-        set { SetValue(CanTranslateZProperty, value); }
+        get => (bool)GetValue(CanTranslateZProperty);
+        set => SetValue(CanTranslateZProperty, value);
     }
 
 

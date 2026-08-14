@@ -29,7 +29,7 @@ public interface IOctreeBasic {
 
     /// <summary>
     /// </summary>
-    event EventHandler<EventArgs> Hit;
+    event EventHandler<EventArgs>? Hit;
 
     /// <summary>
     ///     Build the static octree

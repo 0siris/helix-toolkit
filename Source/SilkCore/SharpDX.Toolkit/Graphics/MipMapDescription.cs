@@ -82,7 +82,7 @@ public class MipMapDescription : IEquatable<MipMapDescription> {
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(MipMapDescription other) {
+    public bool Equals(MipMapDescription? other) {
         if (ReferenceEquals(null, other))
             return false;
         if (ReferenceEquals(this, other))
@@ -96,7 +96,7 @@ public class MipMapDescription : IEquatable<MipMapDescription> {
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj))
             return false;
         if (ReferenceEquals(this, obj))
@@ -129,9 +129,7 @@ public class MipMapDescription : IEquatable<MipMapDescription> {
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(MipMapDescription left, MipMapDescription right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(MipMapDescription left, MipMapDescription right) => Equals(left, right);
 
     /// <summary>
     ///     Implements the !=.
@@ -139,7 +137,5 @@ public class MipMapDescription : IEquatable<MipMapDescription> {
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(MipMapDescription left, MipMapDescription right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(MipMapDescription left, MipMapDescription right) => !Equals(left, right);
 }

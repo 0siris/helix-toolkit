@@ -45,9 +45,7 @@ public abstract class Element3DCore : FrameworkContentElement, IDisposable {
     /// <param name="context">The context.</param>
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
-    public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return SceneNode.HitTest(context, ref hits);
-    }
+    public virtual bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => SceneNode.HitTest(context, ref hits);
 
     #endregion
 
@@ -55,9 +53,7 @@ public abstract class Element3DCore : FrameworkContentElement, IDisposable {
         SceneNode.InvalidateRender();
     }
 
-    public static explicit operator SceneNode(Element3DCore core) {
-        return core.SceneNode;
-    }
+    public static explicit operator SceneNode(Element3DCore core) => core.SceneNode;
 
     public sealed class SceneNodeCreatedEventArgs : EventArgs {
         public SceneNodeCreatedEventArgs(SceneNode node) {

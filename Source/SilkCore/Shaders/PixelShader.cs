@@ -122,7 +122,5 @@ public sealed class PixelShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator PixelShaderType(PixelShader s) {
-        return Type;
-    }
+    public static implicit operator PixelShaderType(PixelShader s) => Type;
 }

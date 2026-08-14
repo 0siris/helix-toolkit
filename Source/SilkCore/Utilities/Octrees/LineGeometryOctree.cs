@@ -134,9 +134,9 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
     /// <param name="hitThickness"></param>
     /// <returns></returns>
     public override bool HitTestCurrentNodeExcludeChild(
-        HitTestContext context,
+        HitTestContext? context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref Ray rayModel,
         ref List<HitTestResult> hits,

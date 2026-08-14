@@ -21,9 +21,7 @@ public class ImageNode2D : SceneNode2D {
 
     protected bool BitmapChanged { get; private set; } = true;
 
-    protected override RenderCore2D CreateRenderCore() {
-        return new ImageRenderCore2D();
-    }
+    protected override RenderCore2D CreateRenderCore() => new ImageRenderCore2D();
 
     protected override bool OnAttach(IRenderHost host) {
         if (base.OnAttach(host)) {
@@ -38,9 +36,7 @@ public class ImageNode2D : SceneNode2D {
         (RenderCore as ImageRenderCore2D).Bitmap = stream == null ? null : OnLoadImage(context, stream);
     }
 
-    protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) {
-        return new Bitmap(default);
-    }
+    protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) => new(default);
 
     public override void Update(RenderContext2D context) {
         base.Update(context);

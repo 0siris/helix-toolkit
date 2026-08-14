@@ -42,9 +42,9 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         : base(ref bound, objList, parent, paramter, queueCache) { }
 
     public override bool HitTestCurrentNodeExcludeChild(
-        HitTestContext context,
+        HitTestContext? context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref Ray rayModel,
         ref List<HitTestResult> hits,
@@ -232,7 +232,6 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         ref BoundingSphere sphere,
         ref List<HitTestResult> points,
         ref bool isIntersect
-    ) {
-        throw new NotImplementedException();
-    }
+    )
+        => throw new NotImplementedException();
 }

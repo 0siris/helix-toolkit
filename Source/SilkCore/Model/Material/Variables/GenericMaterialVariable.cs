@@ -148,21 +148,13 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         return true;
     }
 
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return materialPass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => materialPass;
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return shadowPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => shadowPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return wireframePass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => wireframePass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return depthPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => depthPass;
 
     protected override void OnDispose(bool disposeManagedResources) {
         if (disposeManagedResources) materialCore.UpdatingResource -= MaterialCore_UpdatingResource;

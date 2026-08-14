@@ -16,7 +16,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 
     private readonly WeakReference<SceneNode2D> parent = new(null);
 
-    private RenderCore2D renderCore;
+    private RenderCore2D? renderCore;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
@@ -39,7 +39,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The parent.
     /// </value>
-    public SceneNode2D Parent {
+    public SceneNode2D? Parent {
         get {
             parent.TryGetTarget(out var target);
             return target;
@@ -94,10 +94,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     The render core.
     /// </value>
     public RenderCore2D RenderCore {
-        get {
-            if (renderCore == null) RenderCore = CreateRenderCore();
-            return renderCore;
-        }
+        get => renderCore ??= CreateRenderCore();
         private set {
             if (renderCore != value) {
                 renderCore?.InvalidateRender -= RenderCore_OnInvalidateRenderer;
@@ -247,9 +244,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     Creates the render core.
     /// </summary>
     /// <returns></returns>
-    protected virtual RenderCore2D CreateRenderCore() {
-        return new EmptyRenderCore2D();
-    }
+    protected virtual RenderCore2D CreateRenderCore() => new EmptyRenderCore2D();
 
     /// <summary>
     ///     <para>
@@ -316,9 +311,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <returns>
     ///     <c>true</c> if this instance [can hit test]; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool CanHitTest() {
-        return IsAttached && IsHitTestVisible;
-    }
+    protected virtual bool CanHitTest() => IsAttached && IsHitTestVisible;
 
     /// <summary>
     ///     Called when [hit test].
@@ -397,7 +390,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Occurs when [on transform changed].
     /// </summary>
-    public event EventHandler<Transform2DArgs> OnTransformChanged;
+    public event EventHandler<Transform2DArgs>? OnTransformChanged;
 
     #endregion Handling Transforms
 
@@ -406,17 +399,17 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Occurs when [on attached].
     /// </summary>
-    public event EventHandler Attached;
+    public event EventHandler? Attached;
 
     /// <summary>
     ///     Occurs when [on detached].
     /// </summary>
-    public event EventHandler Detached;
+    public event EventHandler? Detached;
 
     /// <summary>
     ///     Occurs when [on update].
     /// </summary>
-    public event EventHandler<UpdateEventArgs> UpdateRequested;
+    public event EventHandler<UpdateEventArgs>? UpdateRequested;
 
     #endregion Events;
 
@@ -427,9 +420,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    protected virtual bool CanRender(RenderContext2D context) {
-        return Visibility == Visibility.Visible && IsAttached;
-    }
+    protected virtual bool CanRender(RenderContext2D context) => Visibility == Visibility.Visible && IsAttached;
 
     /// <summary>
     ///     <para>

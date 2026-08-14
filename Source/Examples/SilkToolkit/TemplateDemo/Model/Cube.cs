@@ -19,7 +19,5 @@ public class Cube : Shape {
         geometry = b1.ToMeshGeometry3D();
     }
 
-    protected override Geometry3D GetGeometry() {
-        return geometry;
-    }
+    protected override Geometry3D GetGeometry() => geometry;
 }

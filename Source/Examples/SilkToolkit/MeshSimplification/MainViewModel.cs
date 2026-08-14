@@ -29,12 +29,10 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
 
-    public MainViewModel ViewModel {
-        get { return this; }
-    }
+    public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model {
-        get { return field; }
+        get => field;
         private set {
             if (SetValue(ref field, value)) {
                 NumberOfTriangles = field.Indices.Count / 3;
@@ -60,7 +58,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D(-100, -100, -100);
 
     public ICommand SimplifyCommand { private set; get; }
@@ -76,7 +74,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public FillMode FillMode { set; get; } = FillMode.Wireframe;
@@ -169,9 +167,7 @@ public class MainViewModel : BaseViewModel {
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
-    private bool CanSimplify(object obj) {
-        return !Busy;
-    }
+    private bool CanSimplify(object obj) => !Busy;
 
     private void Simplify(object obj) {
         if (!CanSimplify(null)) {

@@ -31,7 +31,5 @@ public sealed class BoneGroupModel3D : GroupModel3D {
         set => SetValue(BoneMatricesProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new BoneGroupNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new BoneGroupNode();
 }

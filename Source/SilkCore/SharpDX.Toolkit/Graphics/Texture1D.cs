@@ -23,9 +23,7 @@ public class Texture1D : Texture1DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() {
-        return new Texture1D(GraphicsDevice, Description);
-    }
+    public override Texture Clone() => new Texture1D(GraphicsDevice, Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture1DDescription" />.
@@ -41,9 +39,7 @@ public class Texture1D : Texture1DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description) {
-        return new Texture1D(device, description);
-    }
+    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description) => new(device, description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Direct3D11.Texture1D" />.
@@ -59,9 +55,7 @@ public class Texture1D : Texture1DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture) {
-        return new Texture1D(device, texture);
-    }
+    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture) => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="Texture1D" /> with a single mipmap.
@@ -88,9 +82,8 @@ public class Texture1D : Texture1DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         int arraySize = 1,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return New(device, width, false, format, flags, arraySize, usage);
-    }
+    )
+        => New(device, width, false, format, flags, arraySize, usage);
 
     /// <summary>
     ///     Creates a new <see cref="Texture1D" />.
@@ -122,9 +115,8 @@ public class Texture1D : Texture1DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         int arraySize = 1,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return new Texture1D(device, NewDescription(width, format, flags, mipCount, arraySize, usage));
-    }
+    )
+        => new(device, NewDescription(width, format, flags, mipCount, arraySize, usage));
 
     /// <summary>
     ///     Creates a new <see cref="Texture1D" /> with a single level of mipmap.
@@ -147,7 +139,7 @@ public class Texture1D : Texture1DBase {
     ///     The first dimension of mipMapTextures describes the number of array (Texture1D Array), second dimension is the
     ///     mipmap, the third is the texture data for a particular mipmap.
     /// </remarks>
-    public static Texture1D New<T>(
+    public static unsafe Texture1D New<T>(
         NativeD3DDevice device,
         int width,
         PixelFormat format,
@@ -156,14 +148,10 @@ public class Texture1D : Texture1DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     )
         where T : unmanaged {
-        Texture1D texture = null;
-        Utilities.Pin(textureData,
-                      ptr => {
-                          texture = new Texture1D(device,
-                                                  NewDescription(width, format, flags, 1, 1, usage),
-                                                  GetDataBox(format, width, 1, 1, textureData, ptr));
-                      });
-        return texture;
+        fixed (T* textureDataPtr = textureData)
+            return new Texture1D(device,
+                                 NewDescription(width, format, flags, 1, 1, usage),
+                                 GetDataBox(format, width, 1, 1, textureData, (nint)textureDataPtr));
     }
 
     /// <summary>

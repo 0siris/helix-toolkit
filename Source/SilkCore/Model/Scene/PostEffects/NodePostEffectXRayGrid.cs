@@ -13,21 +13,16 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PostEffectMeshXRayGridCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PostEffectMeshXRayGridCore();
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     #region Properties
 

@@ -167,8 +167,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         return new SamplerState(new SilkD3D11SamplerStatePtr(state), description);
     }
 
-    internal VertexShaderHandle CreateVertexShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal VertexShaderHandle? CreateVertexShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11VertexShader* shader = null;
@@ -180,8 +180,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal PixelShaderHandle CreatePixelShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal PixelShaderHandle? CreatePixelShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11PixelShader* shader = null;
@@ -193,8 +193,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal ComputeShaderHandle CreateComputeShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal ComputeShaderHandle? CreateComputeShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11ComputeShader* shader = null;
@@ -206,8 +206,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal DomainShaderHandle CreateDomainShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal DomainShaderHandle? CreateDomainShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11DomainShader* shader = null;
@@ -219,8 +219,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal HullShaderHandle CreateHullShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal HullShaderHandle? CreateHullShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11HullShader* shader = null;
@@ -232,8 +232,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal GeometryShaderHandle CreateGeometryShader(byte[] byteCode) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+    internal GeometryShaderHandle? CreateGeometryShader(byte[] byteCode) {
+        if (byteCode.Length == 0) return null;
 
         fixed (byte* byteCodePtr = byteCode) {
             ID3D11GeometryShader* shader = null;
@@ -245,15 +245,15 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal GeometryShaderHandle CreateGeometryShader(
+    internal GeometryShaderHandle? CreateGeometryShader(
         byte[] byteCode,
         StreamOutputElement[] streamOutputElements,
         int[] bufferStrides,
         int rasterizedStream
     ) {
-        if (byteCode == null || byteCode.Length == 0) return null;
+        if (byteCode.Length == 0) return null;
 
-        if (streamOutputElements == null || streamOutputElements.Length == 0)
+        if (streamOutputElements.Length == 0)
             return CreateGeometryShader(byteCode);
 
         var semanticNamePtrs = new nint[streamOutputElements.Length];
@@ -265,7 +265,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
                 streamOutputDescs[i] = streamOutputElements[i].ToSilkDesc(semanticNamePtrs[i]);
             }
 
-            var stridesLength = bufferStrides == null ? 0 : bufferStrides.Length;
+            var stridesLength = bufferStrides.Length;
             var strides = stackalloc uint[stridesLength];
             for (var i = 0; i < stridesLength; i++) strides[i] = (uint)bufferStrides[i];
 
@@ -289,9 +289,8 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         }
     }
 
-    internal InputLayout CreateInputLayout(byte[] shaderByteCode, InputElement[] elements) {
-        if (shaderByteCode == null || shaderByteCode.Length == 0 || elements == null ||
-            elements.Length == 0) return null;
+    internal InputLayout? CreateInputLayout(byte[] shaderByteCode, InputElement[] elements) {
+        if (shaderByteCode.Length == 0 || elements.Length == 0) return null;
 
         var semanticNamePtrs = new nint[elements.Length];
         try {
@@ -321,8 +320,6 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         Resource resource,
         RenderTargetViewDescription? description = null
     ) {
-        if (resource == null) return null;
-
         ID3D11RenderTargetView* view = null;
         if (description.HasValue) {
             var viewDesc = description.Value.ToSilkDesc();
@@ -344,8 +341,6 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
         Resource resource,
         DepthStencilViewDescription? description = null
     ) {
-        if (resource == null) return null;
-
         ID3D11DepthStencilView* view = null;
         if (description.HasValue) {
             var viewDesc = description.Value.ToSilkDesc();
@@ -399,11 +394,9 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
 
     private void CreateTexture(
         ref Texture1DDesc textureDesc,
-        DataBox[] initialData,
+        DataBox[]? initialData,
         ref ID3D11Texture1D* texture
     ) {
-        initialData.AssertLengthBiggerOrEqual(1);
-        
         if (initialData == null || initialData.Length == 0) {
             SilkMarshal.ThrowHResult(nativeDevice.CreateTexture1D(ref textureDesc, null, ref texture));
             return;
@@ -419,7 +412,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
 
     private void CreateTexture(
         ref Texture2DDesc textureDesc,
-        DataBox[] initialData,
+        DataBox[]? initialData,
         ref ID3D11Texture2D* texture
     ) {
         if (initialData == null || initialData.Length == 0) {
@@ -437,7 +430,7 @@ public sealed unsafe class SilkD3DDevice : IDisposable {
 
     private void CreateTexture(
         ref Texture3DDesc textureDesc,
-        DataBox[] initialData,
+        DataBox[]? initialData,
         ref ID3D11Texture3D* texture
     ) {
         if (initialData == null || initialData.Length == 0) {
@@ -598,29 +591,30 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
     }
 
-    internal void SetInputLayout(InputLayout inputLayout) {
-        nativeContext.IASetInputLayout(inputLayout?.Handle);
+    internal void SetInputLayout(InputLayout? inputLayout) {
+        nativeContext.IASetInputLayout(inputLayout is null ? null : inputLayout.Handle);
     }
 
     public void SetIndexBuffer(Buffer? buffer, Format format, int offset) {
-        nativeContext.IASetIndexBuffer(buffer?.BufferHandle, format, (uint)offset);
+        nativeContext.IASetIndexBuffer(buffer is null ? null : buffer.BufferHandle, format, (uint)offset);
     }
 
     public void SetVertexBuffer(int slot, VertexBufferBinding binding) {
-        var bufferPtr = binding.Buffer?.BufferHandle;
+        var bufferPtr = binding.Buffer is null ? null : binding.Buffer.BufferHandle;
         var stride = (uint)binding.Stride;
         var offset = (uint)binding.Offset;
         nativeContext.IASetVertexBuffers((uint)slot, 1, &bufferPtr, &stride, &offset);
     }
 
-    public void SetVertexBuffers(int startSlot, VertexBufferBinding[] bindings) {
+    public void SetVertexBuffers(int startSlot, VertexBufferBinding[]? bindings) {
         if (bindings == null || bindings.Length == 0) return;
 
         var bufferPtrs = stackalloc ID3D11Buffer*[bindings.Length];
         var strides = stackalloc uint[bindings.Length];
         var offsets = stackalloc uint[bindings.Length];
         for (var i = 0; i < bindings.Length; i++) {
-            bufferPtrs[i] = bindings[i].Buffer?.BufferHandle;
+            var buffer = bindings[i].Buffer;
+            bufferPtrs[i] = buffer is null ? null : buffer.BufferHandle;
             strides[i] = (uint)bindings[i].Stride;
             offsets[i] = (uint)bindings[i].Offset;
         }
@@ -632,12 +626,12 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                                          offsets);
     }
 
-    internal void SetShader(IShaderHandle shader) {
+    internal void SetShader(IShaderHandle? shader) {
         if (shader != null) SetShader(shader.StageIndex, shader);
     }
 
-    internal void SetShader(int shaderStage, IShaderHandle shader) {
-        var shaderHandle = shader == null ? null : shader.NativeHandle;
+    internal void SetShader(int shaderStage, IShaderHandle? shader) {
+        var shaderHandle = shader is null ? null : shader.NativeHandle;
         switch (shaderStage) {
             case Constants.VertexIdx:
                 nativeContext.VSSetShader((ID3D11VertexShader*)shaderHandle, null, 0);
@@ -660,18 +654,21 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         }
     }
 
-    public void SetConstantBuffer(int shaderStage, int slot, Buffer buffer) {
+    public void SetConstantBuffer(int shaderStage, int slot, Buffer? buffer) {
         if (slot < 0) return;
 
-        var bufferPtr = buffer?.BufferHandle;
+        var bufferPtr = buffer is null ? null : buffer.BufferHandle;
         SetConstantBuffers(shaderStage, slot, 1, &bufferPtr);
     }
 
-    public void SetConstantBuffers(int shaderStage, int slot, Buffer[] buffers) {
+    public void SetConstantBuffers(int shaderStage, int slot, Buffer?[]? buffers) {
         if (slot < 0 || buffers == null || buffers.Length == 0) return;
 
         var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
-        for (var i = 0; i < buffers.Length; i++) bufferPtrs[i] = buffers[i]?.BufferHandle;
+        for (var i = 0; i < buffers.Length; i++) {
+            var buffer = buffers[i];
+            bufferPtrs[i] = buffer is null ? null : buffer.BufferHandle;
+        }
 
         SetConstantBuffers(shaderStage, slot, (uint)buffers.Length, bufferPtrs);
     }
@@ -687,8 +684,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public DataBox MapSubresource(Resource resource, int subresource, MapMode mode, MapFlags flags) {
-        if (resource == null) return default;
-
         MappedSubresource mapped = default;
         SilkMarshal.ThrowHResult(nativeContext.Map(resource.Handle,
                                                    (uint)subresource,
@@ -714,8 +709,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void UnmapSubresource(Resource resource, int subresource) {
-        if (resource == null) return;
-
         nativeContext.Unmap(resource.Handle, (uint)subresource);
     }
 
@@ -727,7 +720,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         int rowPitch,
         int depthPitch
     ) {
-        if (resource == null || sourceData == nint.Zero) return;
+        if (sourceData == nint.Zero) return;
 
         if (region.HasValue) {
             var box = region.Value.ToSilkBox();
@@ -748,8 +741,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void CopyResource(Resource source, Resource destination) {
-        if (source == null || destination == null) return;
-
         nativeContext.CopyResource(destination.Handle, source.Handle);
     }
 
@@ -763,8 +754,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         int dstY,
         int dstZ
     ) {
-        if (source == null || destination == null) return;
-
         if (sourceRegion.HasValue) {
             var box = sourceRegion.Value.ToSilkBox();
             nativeContext.CopySubresourceRegion(destination.Handle,
@@ -794,8 +783,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         int destinationSubresource,
         Format format
     ) {
-        if (source == null || destination == null) return;
-
         nativeContext.ResolveSubresource(destination.Handle,
                                          (uint)destinationSubresource,
                                          source.Handle,
@@ -808,67 +795,68 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         int destinationAlignedByteOffset,
         UnorderedAccessView source
     ) {
-        if (destination == null || source == null) return;
-
         nativeContext.CopyStructureCount(destination.BufferHandle,
                                          (uint)destinationAlignedByteOffset,
                                          source.Handle);
     }
 
     public void GenerateMips(ShaderResourceView shaderResourceView) {
-        if (shaderResourceView == null) 
-            return;
-
         nativeContext.GenerateMips(shaderResourceView.Handle);
     }
 
     public void SetShaderResource(int shaderStage, int slot, ShaderResourceView? shaderResourceView) {
         if (slot < 0) return;
 
-        var viewPtr = shaderResourceView?.Handle;
+        var viewPtr = shaderResourceView is null ? null : shaderResourceView.Handle;
         SetShaderResources(shaderStage, slot, 1, &viewPtr);
     }
 
-    public void SetShaderResources(int shaderStage, int slot, ShaderResourceView[] shaderResourceViews) {
+    public void SetShaderResources(int shaderStage, int slot, ShaderResourceView?[]? shaderResourceViews) {
         if (slot < 0 || shaderResourceViews == null || shaderResourceViews.Length == 0) return;
 
         var viewPtrs = stackalloc ID3D11ShaderResourceView*[shaderResourceViews.Length];
-        for (var i = 0; i < shaderResourceViews.Length; i++) viewPtrs[i] = shaderResourceViews[i]?.Handle;
+        for (var i = 0; i < shaderResourceViews.Length; i++) {
+            var view = shaderResourceViews[i];
+            viewPtrs[i] = view is null ? null : view.Handle;
+        }
 
         SetShaderResources(shaderStage, slot, (uint)shaderResourceViews.Length, viewPtrs);
     }
 
-    public void SetSampler(int shaderStage, int slot, SamplerState samplerState) {
+    public void SetSampler(int shaderStage, int slot, SamplerState? samplerState) {
         if (slot < 0) return;
 
-        var statePtr = samplerState?.Handle;
+        var statePtr = samplerState is null ? null : samplerState.Handle;
         SetSamplers(shaderStage, slot, 1, &statePtr);
     }
 
-    public void SetSamplers(int shaderStage, int slot, SamplerState[] samplerStates) {
+    public void SetSamplers(int shaderStage, int slot, SamplerState?[]? samplerStates) {
         if (slot < 0 || samplerStates == null || samplerStates.Length == 0) return;
 
         var statePtrs = stackalloc ID3D11SamplerState*[samplerStates.Length];
-        for (var i = 0; i < samplerStates.Length; i++) statePtrs[i] = samplerStates[i]?.Handle;
+        for (var i = 0; i < samplerStates.Length; i++) {
+            var state = samplerStates[i];
+            statePtrs[i] = state is null ? null : state.Handle;
+        }
 
         SetSamplers(shaderStage, slot, (uint)samplerStates.Length, statePtrs);
     }
 
     public void SetUnorderedAccessView(
         int slot,
-        UnorderedAccessView unorderedAccessView,
+        UnorderedAccessView? unorderedAccessView,
         int initialCount = -1
     ) {
         if (slot < 0) return;
 
-        var viewPtr = unorderedAccessView?.Handle;
+        var viewPtr = unorderedAccessView is null ? null : unorderedAccessView.Handle;
         var count = unchecked((uint)initialCount);
         nativeContext.CSSetUnorderedAccessViews((uint)slot, 1, &viewPtr, &count);
     }
 
     public void SetUnorderedAccessViews(
         int slot,
-        UnorderedAccessView[] unorderedAccessViews,
+        UnorderedAccessView?[]? unorderedAccessViews,
         int[]? initialCounts = null
     ) {
         if (slot < 0 || unorderedAccessViews == null || unorderedAccessViews.Length == 0) return;
@@ -876,7 +864,8 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var viewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
         var counts = stackalloc uint[unorderedAccessViews.Length];
         for (var i = 0; i < unorderedAccessViews.Length; i++) {
-            viewPtrs[i] = unorderedAccessViews[i]?.Handle;
+            var view = unorderedAccessViews[i];
+            viewPtrs[i] = view is null ? null : view.Handle;
             counts[i] = initialCounts == null || i >= initialCounts.Length
                             ? unchecked((uint)-1)
                             : unchecked((uint)initialCounts[i]);
@@ -962,15 +951,17 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         }
     }
 
-    public void SetRasterState(RasterizerState rasterizerState) {
-        nativeContext.RSSetState(rasterizerState?.Handle);
+    public void SetRasterState(RasterizerState? rasterizerState) {
+        nativeContext.RSSetState(rasterizerState is null ? null : rasterizerState.Handle);
     }
 
-    public void SetDepthStencilState(DepthStencilState depthStencilState, int stencilRef) {
-        nativeContext.OMSetDepthStencilState(depthStencilState?.Handle, unchecked((uint)stencilRef));
+    public void SetDepthStencilState(DepthStencilState? depthStencilState, int stencilRef) {
+        nativeContext.OMSetDepthStencilState(depthStencilState is null ? null : depthStencilState.Handle,
+                                             unchecked((uint)stencilRef));
     }
 
-    public void SetBlendState(BlendState blendState, Color4? blendFactor, uint sampleMask) {
+    public void SetBlendState(BlendState? blendState, Color4? blendFactor, uint sampleMask) {
+        var blendStateHandle = blendState is null ? null : blendState.Handle;
         if (blendFactor.HasValue) {
             var factor = blendFactor.Value;
             var factors = stackalloc float[4] {
@@ -979,19 +970,19 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                 factor.Z,
                 factor.W
             };
-            nativeContext.OMSetBlendState(blendState?.Handle, factors, sampleMask);
+            nativeContext.OMSetBlendState(blendStateHandle, factors, sampleMask);
         } else {
-            nativeContext.OMSetBlendState(blendState?.Handle, (float*)null, sampleMask);
+            nativeContext.OMSetBlendState(blendStateHandle, (float*)null, sampleMask);
         }
     }
 
-    public void SetStreamOutputTarget(Buffer buffer, int offset) {
-        var bufferPtr = buffer?.BufferHandle;
+    public void SetStreamOutputTarget(Buffer? buffer, int offset) {
+        var bufferPtr = buffer is null ? null : buffer.BufferHandle;
         var offsetValue = (uint)offset;
         nativeContext.SOSetTargets(1, &bufferPtr, &offsetValue);
     }
 
-    public void SetStreamOutputTargets(Buffer[] buffers) {
+    public void SetStreamOutputTargets(Buffer?[]? buffers) {
         if (buffers == null || buffers.Length == 0) {
             nativeContext.SOSetTargets(0, null, (uint*)null);
             return;
@@ -1000,36 +991,39 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         var bufferPtrs = stackalloc ID3D11Buffer*[buffers.Length];
         var offsets = stackalloc uint[buffers.Length];
         for (var i = 0; i < buffers.Length; i++) {
-            bufferPtrs[i] = buffers[i]?.BufferHandle;
+            var buffer = buffers[i];
+            bufferPtrs[i] = buffer is null ? null : buffer.BufferHandle;
             offsets[i] = 0;
         }
 
         nativeContext.SOSetTargets((uint)buffers.Length, bufferPtrs, offsets);
     }
 
-    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView renderTargetView) {
-        var renderTargetViewPtr = renderTargetView?.Handle;
-        nativeContext.OMSetRenderTargets(1, &renderTargetViewPtr, depthStencilView?.Handle);
+    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView? renderTargetView) {
+        var renderTargetViewPtr = renderTargetView is null ? null : renderTargetView.Handle;
+        nativeContext.OMSetRenderTargets(1,
+                                         &renderTargetViewPtr,
+                                         depthStencilView is null ? null : depthStencilView.Handle);
     }
 
-    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView[] renderTargetViews) {
+    public void SetRenderTargets(DepthStencilView? depthStencilView, RenderTargetView?[]? renderTargetViews) {
         if (renderTargetViews == null || renderTargetViews.Length == 0) {
-            nativeContext.OMSetRenderTargets(0, null, depthStencilView?.Handle);
+            nativeContext.OMSetRenderTargets(0, null, depthStencilView is null ? null : depthStencilView.Handle);
             return;
         }
 
         var renderTargetViewPtrs = stackalloc ID3D11RenderTargetView*[renderTargetViews.Length];
-        for (var i = 0; i < renderTargetViews.Length; i++)
-            renderTargetViewPtrs[i] = renderTargetViews[i]?.Handle;
+        for (var i = 0; i < renderTargetViews.Length; i++) {
+            var view = renderTargetViews[i];
+            renderTargetViewPtrs[i] = view is null ? null : view.Handle;
+        }
 
         nativeContext.OMSetRenderTargets((uint)renderTargetViews.Length,
                                          renderTargetViewPtrs,
-                                         depthStencilView?.Handle);
+                                          depthStencilView is null ? null : depthStencilView.Handle);
     }
 
     public void ClearRenderTargetView(RenderTargetView renderTargetView, Color4 color) {
-        if (renderTargetView == null) return;
-
         var clearColor = stackalloc float[4] {
             color.X,
             color.Y,
@@ -1045,8 +1039,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         float depth,
         byte stencil
     ) {
-        if (depthStencilView == null) return;
-
         nativeContext.ClearDepthStencilView(depthStencilView.Handle, (uint)clearFlags, depth, stencil);
     }
 
@@ -1054,7 +1046,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.OMSetRenderTargets(0, null, (ID3D11DepthStencilView*)null);
     }
 
-    public void GetDepthStencilView(out DepthStencilView depthStencilView) {
+    public void GetDepthStencilView(out DepthStencilView? depthStencilView) {
         ID3D11DepthStencilView* depthStencilViewPtr = null;
         nativeContext.OMGetRenderTargets(0, null, &depthStencilViewPtr);
         depthStencilView = depthStencilViewPtr == null
@@ -1062,11 +1054,9 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                                : new DepthStencilView(new SilkD3D11DepthStencilViewPtr(depthStencilViewPtr));
     }
 
-    public RenderTargetView[] GetRenderTargets(int numViews) {
-        return GetRenderTargets(numViews, out _);
-    }
+    public RenderTargetView?[] GetRenderTargets(int numViews) => GetRenderTargets(numViews, out _);
 
-    public RenderTargetView[] GetRenderTargets(int numViews, out DepthStencilView depthStencilView) {
+    public RenderTargetView?[] GetRenderTargets(int numViews, out DepthStencilView? depthStencilView) {
         if (numViews <= 0) {
             GetDepthStencilView(out depthStencilView);
             return [];
@@ -1076,7 +1066,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         ID3D11DepthStencilView* depthStencilViewPtr = null;
         nativeContext.OMGetRenderTargets((uint)numViews, renderTargetViewPtrs, &depthStencilViewPtr);
 
-        var renderTargetViews = new RenderTargetView[numViews];
+        var renderTargetViews = new RenderTargetView?[numViews];
         for (var i = 0; i < numViews; i++)
             renderTargetViews[i] = renderTargetViewPtrs[i] == null
                                        ? null
@@ -1090,8 +1080,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Int4 values) {
-        if (unorderedAccessView == null) return;
-
         var clearValues = stackalloc uint[4] {
             unchecked((uint) values.X),
             unchecked((uint) values.Y),
@@ -1102,8 +1090,6 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
     }
 
     public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessView, Vector4 values) {
-        if (unorderedAccessView == null) return;
-
         var clearValues = stackalloc float[4] {
             values.X,
             values.Y,
@@ -1113,8 +1099,8 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         nativeContext.ClearUnorderedAccessViewFloat(unorderedAccessView.Handle, clearValues);
     }
 
-    public void SetOutputUnorderedAccessView(int slot, UnorderedAccessView unorderedAccessView) {
-        var unorderedAccessViewPtr = unorderedAccessView?.Handle;
+    public void SetOutputUnorderedAccessView(int slot, UnorderedAccessView? unorderedAccessView) {
+        var unorderedAccessViewPtr = unorderedAccessView is null ? null : unorderedAccessView.Handle;
         var initialCount = unchecked((uint)-1);
         nativeContext.OMSetRenderTargetsAndUnorderedAccessViews(uint.MaxValue,
                                                                 null,
@@ -1125,13 +1111,14 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                                                                 &initialCount);
     }
 
-    public void SetOutputUnorderedAccessViews(int startSlot, UnorderedAccessView[] unorderedAccessViews) {
+    public void SetOutputUnorderedAccessViews(int startSlot, UnorderedAccessView?[]? unorderedAccessViews) {
         if (unorderedAccessViews == null || unorderedAccessViews.Length == 0) return;
 
         var unorderedAccessViewPtrs = stackalloc ID3D11UnorderedAccessView*[unorderedAccessViews.Length];
         var initialCounts = stackalloc uint[unorderedAccessViews.Length];
         for (var i = 0; i < unorderedAccessViews.Length; i++) {
-            unorderedAccessViewPtrs[i] = unorderedAccessViews[i]?.Handle;
+            var view = unorderedAccessViews[i];
+            unorderedAccessViewPtrs[i] = view is null ? null : view.Handle;
             initialCounts[i] = unchecked((uint)-1);
         }
 
@@ -1144,7 +1131,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                                                                 initialCounts);
     }
 
-    public UnorderedAccessView[] GetUnorderedAccessViews(int startSlot, int count) {
+    public UnorderedAccessView?[] GetUnorderedAccessViews(int startSlot, int count) {
         if (count <= 0)
             return [];
 
@@ -1156,7 +1143,7 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
                                                                 (uint)count,
                                                                 unorderedAccessViewPtrs);
 
-        var unorderedAccessViews = new UnorderedAccessView[count];
+        var unorderedAccessViews = new UnorderedAccessView?[count];
         for (var i = 0; i < count; i++)
             unorderedAccessViews[i] = unorderedAccessViewPtrs[i] == null
                                           ? null

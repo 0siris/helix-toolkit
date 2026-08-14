@@ -39,9 +39,7 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
         set => SetValue(FieldOfViewProperty, value);
     }
 
-    protected override CameraCore CreatePortableCameraCore() {
-        return new PerspectiveCameraCore();
-    }
+    protected override CameraCore CreatePortableCameraCore() => new PerspectiveCameraCore();
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
@@ -50,7 +48,5 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
         (core as PerspectiveCameraCore).NearPlaneDistance = (float)NearPlaneDistance;
     }
 
-    protected override Freezable CreateInstanceCore() {
-        return new PerspectiveCamera();
-    }
+    protected override Freezable CreateInstanceCore() => new PerspectiveCamera();
 }

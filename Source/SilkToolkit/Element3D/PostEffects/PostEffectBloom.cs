@@ -12,9 +12,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </summary>
 /// <seealso cref="Element3D" />
 public class PostEffectBloom : Element3D {
-    protected override SceneNode OnCreateSceneNode() {
-        return new NodePostEffectBloom();
-    }
+    protected override SceneNode OnCreateSceneNode() => new NodePostEffectBloom();
 
     /// <summary>
     ///     Assigns the default values to core.

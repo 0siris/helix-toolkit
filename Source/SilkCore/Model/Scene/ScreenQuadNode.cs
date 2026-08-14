@@ -46,23 +46,16 @@ public class ScreenQuadNode : SceneNode {
         }
     } = 1f;
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new DrawScreenQuadCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new DrawScreenQuadCore();
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.ScreenQuad];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.ScreenQuad];
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

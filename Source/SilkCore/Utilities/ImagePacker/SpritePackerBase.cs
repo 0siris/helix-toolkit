@@ -205,7 +205,7 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
         return true;
     }
 
-    private Bitmap CreateOutputImage(Action<D2DDeviceContext> action) {
+    private Bitmap? CreateOutputImage(Action<D2DDeviceContext> action) {
         try {
             return BitmapExtensions.CreateBitmapStream(DeviceRes2D,
                                                        OutputWidth,

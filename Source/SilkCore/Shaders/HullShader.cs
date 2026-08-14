@@ -48,7 +48,5 @@ public sealed class HullShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator HullShaderType(HullShader s) {
-        return Type;
-    }
+    public static implicit operator HullShaderType(HullShader s) => Type;
 }

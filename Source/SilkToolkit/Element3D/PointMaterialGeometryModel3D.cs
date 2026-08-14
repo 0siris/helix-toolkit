@@ -54,9 +54,7 @@ public class PointMaterialGeometryModel3D : GeometryModel3D {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new PointNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new PointNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

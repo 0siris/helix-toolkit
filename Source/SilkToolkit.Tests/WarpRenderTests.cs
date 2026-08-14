@@ -76,9 +76,7 @@ public sealed class WarpRenderTests {
         });
     }
 
-    private static DefaultEffectsManager CreateWarpEffectsManager() {
-        return new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
-    }
+    private static DefaultEffectsManager CreateWarpEffectsManager() => new(new EffectsManagerConfiguration {
+        EnableSoftwareRendering = true
+    });
 }

@@ -67,7 +67,7 @@ public class MainViewModel : BaseViewModel {
     /// Accessor to the Polygon-Material
     /// </summary>
     public PhongMaterial Material {
-        get { return field; }
+        get => field;
         set {
             field = value;
             OnPropertyChanged("Material");
@@ -87,15 +87,13 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// Collection of Materials to chose from
     /// </summary>
-    public PhongMaterialCollection Materials {
-        get { return PhongMaterials.Materials; }
-    }
+    public PhongMaterialCollection Materials => PhongMaterials.Materials;
 
     /// <summary>
     /// Accessor to the Boolean
     /// </summary>
     public Boolean ShowTriangleLines {
-        get { return field; }
+        get => field;
         set {
             field = value;
             OnPropertyChanged("ShowTriangleLines");
@@ -111,7 +109,7 @@ public class MainViewModel : BaseViewModel {
     /// Access to the Point Count (restricted to the Range 3 - 10.000)
     /// </summary>
     public int PointCount {
-        get { return mPointCount; }
+        get => mPointCount;
         set {
             if (value < 3)
                 mPointCount = 3;
@@ -126,9 +124,7 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// Text representing the current PointCount
     /// </summary>
-    public string PointCountText {
-        get { return "Number of Points: " + mPointCount; }
-    }
+    public string PointCountText => "Number of Points: " + mPointCount;
 
     /// <summary>
     /// The Geometry for the Triangle Lines

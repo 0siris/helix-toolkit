@@ -50,7 +50,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
 
     /// <summary>
     /// </summary>
-    public event EventHandler<EventArgs> Hit;
+    public event EventHandler<EventArgs>? Hit;
 
     /// <summary>
     /// </summary>
@@ -102,9 +102,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Geometry3D? geometry,
         Matrix modelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return HitTest(context, model, geometry, modelMatrix, false, ref hits);
-    }
+    )
+        => HitTest(context, model, geometry, modelMatrix, false, ref hits);
 
     /// <summary>
     /// </summary>
@@ -122,9 +121,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Matrix modelMatrix,
         bool returnMultiple,
         ref List<HitTestResult> hits
-    ) {
-        return HitTest(context, model, geometry, modelMatrix, returnMultiple, ref hits, 0);
-    }
+    )
+        => HitTest(context, model, geometry, modelMatrix, returnMultiple, ref hits, 0);
 
     /// <summary>
     ///     Hits the test.
@@ -143,9 +141,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Matrix modelMatrix,
         ref List<HitTestResult> hits,
         float hitThickness
-    ) {
-        return HitTest(context, model, geometry, modelMatrix, false, ref hits, hitThickness);
-    }
+    )
+        => HitTest(context, model, geometry, modelMatrix, false, ref hits, hitThickness);
 
     /// <summary>
     /// </summary>
@@ -180,8 +177,10 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
 
         var parent = -1;
         var curr = -1;
-        var dummy = new Octant(-1, -1);
-        dummy[0] = 0;
+        var dummy = new Octant(-1, -1) {
+            [0] = 0
+        };
+        
         var parentOctant = dummy;
         while (true) {
             while (++curr < OctantSize)
@@ -546,9 +545,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     /// <param name="target"></param>
     /// <param name="targetObj"></param>
     /// <returns></returns>
-    protected virtual bool IsContains(ref BoundingBox source, BoundingBox target, ref T targetObj) {
-        return BoxContainsBox(ref source, ref target);
-    }
+    protected virtual bool IsContains(ref BoundingBox source, BoundingBox target, ref T targetObj) => BoxContainsBox(ref source, ref target);
 
     /// <summary>
     ///     Common function to traverse the tree
@@ -771,9 +768,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         ///     <c>true</c> if [has child at index] [the specified index]; otherwise, <c>false</c>.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasChildAtIndex(int index) {
-            return (ActiveNode & (byte)(1 << index)) != 0;
-        }
+        public bool HasChildAtIndex(int index) => (ActiveNode & (byte)(1 << index)) != 0;
     }
 
     /// <summary>
@@ -852,20 +847,17 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         /// <param name="i"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref Octant Get(int i) {
-            return ref Array[i];
-        }
+        public ref Octant Get(int i) => ref Array[i];
     }
 
     #region Special Tests
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static bool BoxContainsBox(ref BoundingBox source, ref BoundingBox target) {
+    protected static bool BoxContainsBox(ref BoundingBox source, ref BoundingBox target) =>
         //Source contains target
-        return source.Minimum.X <= target.Minimum.X && target.Maximum.X <= source.Maximum.X &&
-               source.Minimum.Y <= target.Minimum.Y && target.Maximum.Y <= source.Maximum.Y &&
-               source.Minimum.Z <= target.Minimum.Z && target.Maximum.Z <= source.Maximum.Z;
-    }
+        source.Minimum.X <= target.Minimum.X && target.Maximum.X <= source.Maximum.X &&
+                                                                                            source.Minimum.Y <= target.Minimum.Y && target.Maximum.Y <= source.Maximum.Y &&
+                                                                                            source.Minimum.Z <= target.Minimum.Z && target.Maximum.Z <= source.Maximum.Z;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static bool BoxDisjointSphere(BoundingBox box, ref BoundingSphere sphere) {

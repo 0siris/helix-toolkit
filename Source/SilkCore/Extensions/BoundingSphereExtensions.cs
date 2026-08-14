@@ -56,7 +56,8 @@ public static class BoundingSphereExtensions {
     /// <param name="points">The points.</param>
     /// <returns></returns>
     public static BoundingSphere FromPoints(IList<Vector3> points) {
-        if (points == null) return new BoundingSphere();
+        if (points == null)
+            return new BoundingSphere();
 
         return FromPoints(points, 0, points.Count);
     }
@@ -99,11 +100,9 @@ public static class BoundingSphereExtensions {
         return (-b - root) * inverse >= 0 || (-b + root) * inverse >= 0;
     }
 
-    public static ContainmentType Contains(BoundingSphere sphere, Vector3 point) {
-        return SilkMath.DistanceSquared(sphere.Center, point) <= sphere.Radius * sphere.Radius
-                   ? ContainmentType.Contains
-                   : ContainmentType.Disjoint;
-    }
+    public static ContainmentType Contains(BoundingSphere sphere, Vector3 point) => SilkMath.DistanceSquared(sphere.Center, point) <= sphere.Radius * sphere.Radius
+        ? ContainmentType.Contains
+        : ContainmentType.Disjoint;
 
     /// <summary>
     ///     Transforms the bounding sphere.

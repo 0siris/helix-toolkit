@@ -47,9 +47,7 @@ public class Border2D : ContentElement2D {
         set => SetValue(PaddingProperty, value);
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new BorderNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new BorderNode2D();
 
     protected override void OnAttached() {
         strokeChanged = true;

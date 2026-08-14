@@ -11,9 +11,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </summary>
 /// <seealso cref="Element3D" />
 public class PostEffectMeshXRay : Element3D {
-    protected override SceneNode OnCreateSceneNode() {
-        return new NodePostEffectXRay();
-    }
+    protected override SceneNode OnCreateSceneNode() => new NodePostEffectXRay();
 
     /// <summary>
     ///     Assigns the default values to core.

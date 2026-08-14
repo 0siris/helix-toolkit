@@ -46,7 +46,5 @@ public sealed class ImagePacker : SpritePackerBase<Bitmap, Bitmap> {
         return [.. items.Select((x, i) => new KeyValuePair<int, Bitmap>(i, x))];
     }
 
-    protected override Size2F GetSize(Bitmap value) {
-        return value.Size;
-    }
+    protected override Size2F GetSize(Bitmap value) => value.Size;
 }

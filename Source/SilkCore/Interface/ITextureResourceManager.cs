@@ -10,7 +10,7 @@ public interface ITextureResourceManager : IDisposable {
     /// </summary>
     /// <param name="textureStream">The texture stream.</param>
     /// <returns></returns>
-    ShaderResourceViewProxy Register(TextureModel textureStream);
+    ShaderResourceViewProxy? Register(TextureModel? textureStream);
 
     /// <summary>
     ///     Registers the specified texture stream.
@@ -18,5 +18,5 @@ public interface ITextureResourceManager : IDisposable {
     /// <param name="textureStream">The texture stream.</param>
     /// <param name="enableAutoGenMipMap">if set to <c>false</c> [disable automatic gen mip map].</param>
     /// <returns></returns>
-    ShaderResourceViewProxy Register(TextureModel textureStream, bool enableAutoGenMipMap);
+    ShaderResourceViewProxy? Register(TextureModel? textureStream, bool enableAutoGenMipMap);
 }

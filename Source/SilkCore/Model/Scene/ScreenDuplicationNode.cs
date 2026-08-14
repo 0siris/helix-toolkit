@@ -22,21 +22,16 @@ public class ScreenDuplicationNode : SceneNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new ScreenCloneRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new ScreenCloneRenderCore();
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.ScreenDuplication];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.ScreenDuplication];
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     #region Properties
 

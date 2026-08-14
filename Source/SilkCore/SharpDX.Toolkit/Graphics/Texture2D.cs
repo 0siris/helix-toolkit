@@ -27,9 +27,7 @@ public class Texture2D : Texture2DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() {
-        return new Texture2D(GraphicsDevice, Description);
-    }
+    public override Texture Clone() => new Texture2D(GraphicsDevice, Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture2DDescription" />.
@@ -45,9 +43,7 @@ public class Texture2D : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description) {
-        return new Texture2D(device, description);
-    }
+    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description) => new(device, description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Direct3D11.Texture2D" />.
@@ -63,9 +59,7 @@ public class Texture2D : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, NativeD3DTexture2D texture) {
-        return new Texture2D(device, texture);
-    }
+    public static Texture2D New(NativeD3DDevice device, NativeD3DTexture2D texture) => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="Texture2D" /> with a single mipmap.
@@ -92,9 +86,8 @@ public class Texture2D : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         int arraySize = 1,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return New(device, width, height, false, format, flags, arraySize, usage);
-    }
+    )
+        => New(device, width, height, false, format, flags, arraySize, usage);
 
     /// <summary>
     ///     Creates a new <see cref="Texture2D" />.
@@ -126,9 +119,8 @@ public class Texture2D : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         int arraySize = 1,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return new Texture2D(device, NewDescription(width, height, format, flags, mipCount, arraySize, usage));
-    }
+    )
+        => new(device, NewDescription(width, height, format, flags, mipCount, arraySize, usage));
 
     /// <summary>
     ///     Creates a new <see cref="Texture2D" /> with a single level of mipmap.
@@ -151,7 +143,7 @@ public class Texture2D : Texture2DBase {
     /// <remarks>
     ///     Each value in textureData is a pixel in the destination texture.
     /// </remarks>
-    public static Texture2D New<T>(
+    public static unsafe Texture2D New<T>(
         NativeD3DDevice device,
         int width,
         int height,
@@ -161,20 +153,16 @@ public class Texture2D : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     )
         where T : unmanaged {
-        Texture2D texture = null;
-        Utilities.Pin(textureData,
-                      ptr => {
-                          texture = New(device,
-                                        width,
-                                        height,
-                                        1,
-                                        format,
-                                        [GetDataBox(format, width, height, 1, textureData, ptr)],
-                                        flags,
-                                        1,
-                                        usage);
-                      });
-        return texture;
+        fixed (T* textureDataPtr = textureData)
+            return New(device,
+                       width,
+                       height,
+                       1,
+                       format,
+                       [GetDataBox(format, width, height, 1, textureData, (nint)textureDataPtr)],
+                       flags,
+                       1,
+                       usage);
     }
 
     /// <summary>
@@ -209,11 +197,10 @@ public class Texture2D : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         int arraySize = 1,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return new Texture2D(device,
-                             NewDescription(width, height, format, flags, mipCount, arraySize, usage),
-                             textureData);
-    }
+    )
+        => new(device,
+            NewDescription(width, height, format, flags, mipCount, arraySize, usage),
+            textureData);
 
     /// <summary>
     ///     Creates a new <see cref="Texture2D" /> directly from an <see cref="Image" />.
@@ -288,7 +275,5 @@ public class Texture2D : Texture2DBase {
     ///     Implicit casting operator to <see cref="Direct3D11.Resource" />
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
-    public static implicit operator NativeD3DResource(Texture2D from) {
-        return from?.Resource;
-    }
+    public static implicit operator NativeD3DResource?(Texture2D? from) => from?.Resource;
 }

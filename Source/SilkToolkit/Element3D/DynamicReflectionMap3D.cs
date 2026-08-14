@@ -160,9 +160,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
         set => SetValue(IsDynamicSceneProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new DynamicReflectionNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new DynamicReflectionNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

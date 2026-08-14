@@ -88,15 +88,11 @@ internal class ZoomRectangleHandler : MouseGestureHandler {
     ///     executed on the command target.
     /// </summary>
     /// <returns>True if the execution can continue.</returns>
-    protected override bool CanExecute() {
-        return Viewport.IsZoomEnabled;
-    }
+    protected override bool CanExecute() => Viewport.IsZoomEnabled;
 
     /// <summary>
     ///     Gets the cursor for the gesture.
     /// </summary>
     /// <returns>A cursor.</returns>
-    protected override Cursor GetCursor() {
-        return Viewport.ZoomRectangleCursor;
-    }
+    protected override Cursor GetCursor() => Viewport.ZoomRectangleCursor;
 }

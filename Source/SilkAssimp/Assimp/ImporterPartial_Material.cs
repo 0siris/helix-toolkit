@@ -303,7 +303,7 @@ public partial class Importer {
         return new KeyValuePair<Material, MaterialCore>(material, core);
     }
 
-    protected virtual TextureModel OnLoadEmbeddedTexture(EmbeddedTexture texture) {
+    protected virtual TextureModel? OnLoadEmbeddedTexture(EmbeddedTexture texture) {
         if (texture.HasCompressedData) {
             Logger.Info("Loading Embedded Compressed Texture. Format: {Value0}",
                                   texture.CompressedFormatHint);
@@ -329,7 +329,7 @@ public partial class Importer {
     }
 
 
-    private TextureModel LoadTexture(string texturePath) {
+    private TextureModel? LoadTexture(string texturePath) {
         if (textureDict.TryGetValue(texturePath, out var s)) return s;
 
         var texture = OnLoadTexture(texturePath, out var actualPath);
@@ -345,7 +345,7 @@ public partial class Importer {
         return texture;
     }
 
-    protected virtual TextureModel OnLoadTexture(string texturePath, out string actualPath) {
+    protected virtual TextureModel? OnLoadTexture(string texturePath, out string? actualPath) {
         actualPath = texturePath;
         try {
             //Check if is embedded material

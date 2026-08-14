@@ -106,12 +106,12 @@ public class ViewModel : BaseViewModel {
                 OnPropertyChanged(nameof(EnableEnvironmentButtons));
             }
         }
-        get { return enableButtons; }
+        get => enableButtons;
     }
 
     public bool EnableEnvironmentButtons {
-        set { SetValue(ref field, value); }
-        get { return field && enableButtons; }
+        set => SetValue(ref field, value);
+        get => field && enableButtons;
     } = true;
 }
 
@@ -174,36 +174,28 @@ public class Models {
         return model;
     }
 
-    private static Matrix Scaling(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
-    }
+    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix Translation(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
-    }
+    private static Matrix Translation(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
 
-    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) {
-        return new Matrix(matrix.M11,
-                          matrix.M12,
-                          matrix.M13,
-                          matrix.M14,
-                          matrix.M21,
-                          matrix.M22,
-                          matrix.M23,
-                          matrix.M24,
-                          matrix.M31,
-                          matrix.M32,
-                          matrix.M33,
-                          matrix.M34,
-                          matrix.M41,
-                          matrix.M42,
-                          matrix.M43,
-                          matrix.M44);
-    }
+    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) => new(matrix.M11,
+        matrix.M12,
+        matrix.M13,
+        matrix.M14,
+        matrix.M21,
+        matrix.M22,
+        matrix.M23,
+        matrix.M24,
+        matrix.M31,
+        matrix.M32,
+        matrix.M33,
+        matrix.M34,
+        matrix.M41,
+        matrix.M42,
+        matrix.M43,
+        matrix.M44);
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) {
-        return min + random.NextDouble() * (max - min);
-    }
+    public static double NextDouble(this Random random, double min, double max) => min + random.NextDouble() * (max - min);
 }

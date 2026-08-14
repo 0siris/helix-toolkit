@@ -49,7 +49,7 @@ public class NotNullToVisibilityConverter : IValueConverter {
     /// <returns>
     ///     A converted value. If the method returns null, the valid null value is used.
     /// </returns>
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (targetType == typeof(Visibility)) {
             var isNotNull = value != null;
             if (isNotNull != Inverted) return Visibility.Visible;
@@ -78,7 +78,5 @@ public class NotNullToVisibilityConverter : IValueConverter {
     /// <returns>
     ///     A converted value. If the method returns null, the valid null value is used.
     /// </returns>
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-        throw new NotImplementedException();
-    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }

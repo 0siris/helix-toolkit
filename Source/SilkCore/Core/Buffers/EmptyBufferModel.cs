@@ -92,9 +92,7 @@ public sealed class EmptyGeometryBufferModel : IGeometryBufferModel {
     /// </summary>
     public void Dispose() { }
 
-    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
-        return false;
-    }
+    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) => false;
 
     /// <summary>
     ///     Attaches this instance.

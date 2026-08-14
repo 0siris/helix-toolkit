@@ -21,7 +21,7 @@ public class HitTestResult : IComparable<HitTestResult> {
     ///     Gets the Model3D intersected by the ray along which the hit test was performed.
     ///     Model3D intersected by the ray.
     /// </summary>
-    public object ModelHit { get; set; }
+    public object? ModelHit { get; set; }
 
     /// <summary>
     ///     Gets the Point at the intersection between the ray along which the hit
@@ -43,7 +43,7 @@ public class HitTestResult : IComparable<HitTestResult> {
     /// <summary>
     ///     This is a tag to add additional data.
     /// </summary>
-    public object Tag { get; set; }
+    public object? Tag { get; set; }
 
     /// <summary>
     ///     Gets or sets the geometry.
@@ -51,7 +51,7 @@ public class HitTestResult : IComparable<HitTestResult> {
     /// <value>
     ///     The geometry.
     /// </value>
-    public Geometry3D Geometry { get; set; }
+    public Geometry3D? Geometry { get; set; }
 
     /// <summary>
     ///     The hitted triangle vertex indices.

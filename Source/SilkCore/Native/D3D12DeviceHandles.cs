@@ -234,9 +234,7 @@ public sealed unsafe class SilkD3D12Fence : IDisposable {
 
     public bool IsDisposed { get; private set; }
 
-    internal ulong NextValue() {
-        return ++currentValue;
-    }
+    internal ulong NextValue() => ++currentValue;
 
     public void Dispose() {
         if (IsDisposed) return;

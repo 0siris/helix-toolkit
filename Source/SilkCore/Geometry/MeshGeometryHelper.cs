@@ -38,9 +38,8 @@ public static class MeshGeometryHelper {
     /// <returns>
     ///     Collection of normal vectors.
     /// </returns>
-    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh) {
-        return CalculateNormals(mesh.Positions, mesh.TriangleIndices);
-    }
+    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh) => CalculateNormals(mesh.Positions.AssertNotNull("Mesh positions are not initialized."),
+        mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized."));
 
     /// <summary>
     ///     Calculates the normal vectors.
@@ -94,15 +93,16 @@ public static class MeshGeometryHelper {
     /// </returns>
     public static Int32Collection FindBorderEdges(this MeshGeometry3D mesh) {
         var dict = new Dictionary<ulong, int>();
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
 
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
+        for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
             for (var j = 0; j < 3; j++) {
-                var index0 = mesh.TriangleIndices[i0 + j];
-                var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
+                var index0 = triangleIndices[i0 + j];
+                var index1 = triangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
-                var key = CreateKey((uint)minIndex, (uint)maxIndex);
+                var key = CreateKey((uint) minIndex, (uint) maxIndex);
                 if (dict.ContainsKey(key))
                     dict[key] = dict[key] + 1;
                 else
@@ -114,10 +114,11 @@ public static class MeshGeometryHelper {
         foreach (var kvp in dict)
             // find edges only used by 1 triangle
             if (kvp.Value == 1) {
-                uint i0, i1;
+                uint i0,
+                    i1;
                 ReverseKey(kvp.Key, out i0, out i1);
-                edges.Add((int)i0);
-                edges.Add((int)i1);
+                edges.Add((int) i0);
+                edges.Add((int) i1);
             }
 
         return edges;
@@ -135,15 +136,16 @@ public static class MeshGeometryHelper {
     public static Int32Collection FindEdges(this MeshGeometry3D mesh) {
         var edges = new Int32Collection();
         var dict = new HashSet<ulong>();
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
 
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
+        for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
             for (var j = 0; j < 3; j++) {
-                var index0 = mesh.TriangleIndices[i0 + j];
-                var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
+                var index0 = triangleIndices[i0 + j];
+                var index1 = triangleIndices[i0 + (j + 1) % 3];
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
-                var key = CreateKey((uint)minIndex, (uint)maxIndex);
+                var key = CreateKey((uint) minIndex, (uint) maxIndex);
                 if (!dict.Contains(key)) {
                     edges.Add(minIndex);
                     edges.Add(maxIndex);
@@ -171,11 +173,13 @@ public static class MeshGeometryHelper {
     public static Int32Collection FindSharpEdges(this MeshGeometry3D mesh, double minimumAngle) {
         var edgeIndices = new Int32Collection();
         var edgeNormals = new Dictionary<EdgeKey, Vector3D>();
-        for (var i = 0; i < mesh.TriangleIndices.Count / 3; i++) {
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
-            var p0 = mesh.Positions[mesh.TriangleIndices[i0]];
-            var p1 = mesh.Positions[mesh.TriangleIndices[i0 + 1]];
-            var p2 = mesh.Positions[mesh.TriangleIndices[i0 + 2]];
+            var p0 = positions[triangleIndices[i0]];
+            var p1 = positions[triangleIndices[i0 + 1]];
+            var p2 = positions[triangleIndices[i0 + 2]];
             var triangleNormal = SharedFunctions.CrossProduct(p1 - p0, p2 - p0);
 
             // Handle degenerated triangles.
@@ -184,10 +188,10 @@ public static class MeshGeometryHelper {
 
             triangleNormal.Normalize();
             for (var j = 0; j < 3; j++) {
-                var index0 = mesh.TriangleIndices[i0 + j];
-                var index1 = mesh.TriangleIndices[i0 + (j + 1) % 3];
-                var position0 = SharedFunctions.ToVector3D(mesh.Positions[index0]);
-                var position1 = SharedFunctions.ToVector3D(mesh.Positions[index1]);
+                var index0 = triangleIndices[i0 + j];
+                var index1 = triangleIndices[i0 + (j + 1) % 3];
+                var position0 = SharedFunctions.ToVector3D(positions[index0]);
+                var position1 = SharedFunctions.ToVector3D(positions[index1]);
                 var edgeKey = new EdgeKey(position0, position1);
                 var reverseEdgeKey = new EdgeKey(position1, position0);
                 if (edgeNormals.TryGetValue(edgeKey, out var value) ||
@@ -223,42 +227,52 @@ public static class MeshGeometryHelper {
     public static MeshGeometry3D NoSharedVertices(this MeshGeometry3D input) {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
-        Vector3DCollection n = null;
-        if (input.Normals != null && input.Normals.Count > 0) n = [];
+        var positions = input.Positions.AssertNotNull("Mesh positions are not initialized.");
+        var triangleIndices = input.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var sourceNormals = input.Normals;
+        Vector3DCollection? n = sourceNormals is {Count: > 0}
+            ? []
+            : null;
+        var sourceTextureCoordinates = input.TextureCoordinates;
+        PointCollection? tc = sourceTextureCoordinates is {Count: > 0}
+            ? []
+            : null;
 
-        PointCollection tc = null;
-        if (input.TextureCoordinates != null && input.TextureCoordinates.Count > 0) tc = [];
-
-        for (var i = 0; i < input.TriangleIndices.Count; i += 3) {
+        for (var i = 0; i < triangleIndices.Count; i += 3) {
             var i0 = i;
             var i1 = i + 1;
             var i2 = i + 2;
-            var index0 = input.TriangleIndices[i0];
-            var index1 = input.TriangleIndices[i1];
-            var index2 = input.TriangleIndices[i2];
-            var p0 = input.Positions[index0];
-            var p1 = input.Positions[index1];
-            var p2 = input.Positions[index2];
+            var index0 = triangleIndices[i0];
+            var index1 = triangleIndices[i1];
+            var index2 = triangleIndices[i2];
+            var p0 = positions[index0];
+            var p1 = positions[index1];
+            var p2 = positions[index2];
             p.Add(p0);
             p.Add(p1);
             p.Add(p2);
             ti.Add(i0);
             ti.Add(i1);
             ti.Add(i2);
-            if (n != null) {
-                n.Add(input.Normals[index0]);
-                n.Add(input.Normals[index1]);
-                n.Add(input.Normals[index2]);
+            if (n != null && sourceNormals != null) {
+                n.Add(sourceNormals[index0]);
+                n.Add(sourceNormals[index1]);
+                n.Add(sourceNormals[index2]);
             }
 
-            if (tc != null) {
-                tc.Add(input.TextureCoordinates[index0]);
-                tc.Add(input.TextureCoordinates[index1]);
-                tc.Add(input.TextureCoordinates[index2]);
+            if (tc != null && sourceTextureCoordinates != null) {
+                tc.Add(sourceTextureCoordinates[index0]);
+                tc.Add(sourceTextureCoordinates[index1]);
+                tc.Add(sourceTextureCoordinates[index2]);
             }
         }
 
-        return new MeshGeometry3D { Positions = p, TriangleIndices = [.. ti], Normals = n, TextureCoordinates = tc };
+        return new MeshGeometry3D {
+            Positions = p,
+            TriangleIndices = ti,
+            Normals = n,
+            TextureCoordinates = tc
+        };
     }
 
     /// <summary>
@@ -276,31 +290,39 @@ public static class MeshGeometryHelper {
     public static MeshGeometry3D Simplify(this MeshGeometry3D mesh, DoubleOrSingle eps) {
         // Find common positions
         var dict = new Dictionary<int, int>(); // map position index to first occurence of same position
-        for (var i = 0; i < mesh.Positions.Count; i++)
-            for (var j = i + 1; j < mesh.Positions.Count; j++) {
-                if (dict.ContainsKey(j)) continue;
-                var v = mesh.Positions[i] - mesh.Positions[j];
-                var l2 = SharedFunctions.LengthSquared(ref v);
-                if (l2 < eps) dict.Add(j, i);
-            }
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        for (var i = 0; i < positions.Count; i++)
+        for (var j = i + 1; j < positions.Count; j++) {
+            if (dict.ContainsKey(j)) continue;
+            var v = positions[i] - positions[j];
+            var l2 = SharedFunctions.LengthSquared(ref v);
+            if (l2 < eps) dict.Add(j, i);
+        }
 
         var p = new Point3DCollection();
         var ti = new Int32Collection();
 
         // create new positions array
         var newIndex = new Dictionary<int, int>(); // map old index to new index
-        for (var i = 0; i < mesh.Positions.Count; i++)
+        for (var i = 0; i < positions.Count; i++)
             if (!dict.ContainsKey(i)) {
                 newIndex.Add(i, p.Count);
-                p.Add(mesh.Positions[i]);
+                p.Add(positions[i]);
             }
 
         // Update triangle indices
-        foreach (var index in mesh.TriangleIndices) {
+        foreach (var index in triangleIndices) {
             int j;
-            ti.Add(dict.TryGetValue(index, out j) ? newIndex[j] : newIndex[index]);
+            ti.Add(dict.TryGetValue(index, out j)
+                ? newIndex[j]
+                : newIndex[index]);
         }
-        var result = new MeshGeometry3D { Positions = p, TriangleIndices = [.. ti] };
+
+        var result = new MeshGeometry3D {
+            Positions = p,
+            TriangleIndices = ti
+        };
         return result;
     }
 
@@ -309,26 +331,34 @@ public static class MeshGeometryHelper {
     /// </summary>
     /// <param name="mesh">The mesh.</param>
     /// <returns>Validation report or null if no issues were found.</returns>
-    public static string Validate(this MeshGeometry3D mesh) {
+    public static string? Validate(this MeshGeometry3D mesh) {
         var sb = new StringBuilder();
-        if (mesh.Normals != null && mesh.Normals.Count != 0 && mesh.Normals.Count != mesh.Positions.Count)
+        var positions = mesh.Positions;
+        var triangleIndices = mesh.TriangleIndices;
+        if (positions is null) sb.AppendLine("Positions are not defined");
+        if (triangleIndices is null) sb.AppendLine("TriangleIndices are not defined");
+        if (positions is null || triangleIndices is null) return sb.ToString();
+
+        if (mesh.Normals != null && mesh.Normals.Count != 0 && mesh.Normals.Count != positions.Count)
             sb.AppendLine("Wrong number of normal vectors");
 
         if (mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count != 0
-                                            && mesh.TextureCoordinates.Count != mesh.Positions.Count)
+                                            && mesh.TextureCoordinates.Count != positions.Count)
             sb.AppendLine("Wrong number of TextureCoordinates");
 
-        if (mesh.TriangleIndices.Count % 3 != 0) sb.AppendLine("TriangleIndices not complete");
+        if (triangleIndices.Count % 3 != 0) sb.AppendLine("TriangleIndices not complete");
 
-        for (var i = 0; i < mesh.TriangleIndices.Count; i++) {
-            var index = mesh.TriangleIndices[i];
-            if (index < 0 || index >= mesh.Positions.Count) {
+        for (var i = 0; i < triangleIndices.Count; i++) {
+            var index = triangleIndices[i];
+            if (index < 0 || index >= positions.Count) {
                 sb.AppendFormat("Wrong index {0} in triangle {1} vertex {2}", index, i / 3, i % 3);
                 sb.AppendLine();
             }
         }
 
-        return sb.Length > 0 ? sb.ToString() : null;
+        return sb.Length > 0
+            ? sb.ToString()
+            : null;
     }
 
 
@@ -348,45 +378,51 @@ public static class MeshGeometryHelper {
     ///     The <see cref="MeshGeometry3D" />.
     /// </returns>
     public static MeshGeometry3D Cut(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
-        var hasTextureCoordinates = mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0;
-        var hasNormals = mesh.Normals != null && mesh.Normals.Count > 0;
-        var meshBuilder = new MeshBuilder(hasNormals, hasTextureCoordinates);
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var sourceTextureCoordinates = mesh.TextureCoordinates;
+        var sourceNormals = mesh.Normals;
+        var meshBuilder = new MeshBuilder(sourceNormals is {Count: > 0}, sourceTextureCoordinates is {Count: > 0});
         var contourHelper = new ContourHelper(plane, normal, mesh);
-        foreach (var position in mesh.Positions) meshBuilder.Positions.Add(position);
+        foreach (var position in positions) meshBuilder.Positions.Add(position);
 
-        if (hasTextureCoordinates)
-            foreach (var textureCoordinate in mesh.TextureCoordinates)
-                meshBuilder.TextureCoordinates.Add(textureCoordinate);
+        if (sourceTextureCoordinates is {Count: > 0} && meshBuilder.TextureCoordinates is { } initialTextureCoordinates)
+            foreach (var textureCoordinate in sourceTextureCoordinates)
+                initialTextureCoordinates.Add(textureCoordinate);
 
-        if (hasNormals)
-            foreach (var n in mesh.Normals)
-                meshBuilder.Normals.Add(n);
+        if (sourceNormals is {Count: > 0} && meshBuilder.Normals is { } initialNormals)
+            foreach (var n in sourceNormals)
+                initialNormals.Add(n);
 
-        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3) {
-            var index0 = mesh.TriangleIndices[i];
-            var index1 = mesh.TriangleIndices[i + 1];
-            var index2 = mesh.TriangleIndices[i + 2];
+        for (var i = 0; i < triangleIndices.Count; i += 3) {
+            var index0 = triangleIndices[i];
+            var index1 = triangleIndices[i + 1];
+            var index2 = triangleIndices[i + 2];
 
-            Point3D[] positions;
-            Vector3D[] normals;
-            Point[] textureCoordinates;
-            int[] triangleIndices;
+            Point3D[] facetPositions;
+            Vector3D[] facetNormals;
+            Point[] facetTextureCoordinates;
+            int[] facetTriangleIndices;
 
             contourHelper.ContourFacet(index0,
-                                       index1,
-                                       index2,
-                                       out positions,
-                                       out normals,
-                                       out textureCoordinates,
-                                       out triangleIndices);
+                index1,
+                index2,
+                out facetPositions,
+                out facetNormals,
+                out facetTextureCoordinates,
+                out facetTriangleIndices);
 
-            foreach (var p in positions) meshBuilder.Positions.Add(p);
+            foreach (var p in facetPositions) meshBuilder.Positions.Add(p);
 
-            foreach (var tc in textureCoordinates) meshBuilder.TextureCoordinates.Add(tc);
+            if (meshBuilder.TextureCoordinates is { } outputTextureCoordinates)
+                foreach (var tc in facetTextureCoordinates)
+                    outputTextureCoordinates.Add(tc);
 
-            foreach (var n in normals) meshBuilder.Normals.Add(n);
+            if (meshBuilder.Normals is { } outputNormals)
+                foreach (var n in facetNormals)
+                    outputNormals.Add(n);
 
-            foreach (var ti in triangleIndices) meshBuilder.TriangleIndices.Add(ti);
+            foreach (var ti in facetTriangleIndices) meshBuilder.TriangleIndices.Add(ti);
         }
 
         return meshBuilder.ToMesh();
@@ -410,19 +446,18 @@ public static class MeshGeometryHelper {
     public static IList<Point3D> GetContourSegments(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
         var segments = new List<Point3D>();
         var contourHelper = new ContourHelper(plane, normal, mesh);
-        for (var i = 0; i < mesh.TriangleIndices.Count; i += 3) {
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        for (var i = 0; i < triangleIndices.Count; i += 3) {
             Point3D[] positions;
             Vector3D[] normals;
             Point[] textureCoordinates;
-            int[] triangleIndices;
-
-            contourHelper.ContourFacet(mesh.TriangleIndices[i],
-                                       mesh.TriangleIndices[i + 1],
-                                       mesh.TriangleIndices[i + 2],
-                                       out positions,
-                                       out normals,
-                                       out textureCoordinates,
-                                       out triangleIndices);
+            contourHelper.ContourFacet(triangleIndices[i],
+                triangleIndices[i + 1],
+                triangleIndices[i + 2],
+                out positions,
+                out normals,
+                out textureCoordinates,
+                out _);
             segments.AddRange(positions);
         }
 
@@ -449,7 +484,8 @@ public static class MeshGeometryHelper {
         var curveCount = 0;
 
         var segmentCount = segments.Count;
-        int segment1 = -1, segment2 = -1;
+        int segment1 = -1,
+            segment2 = -1;
         while (segmentCount > 0) {
             if (curveCount > 0) {
                 // Find a segment that is connected to the head of the contour
@@ -518,9 +554,7 @@ public static class MeshGeometryHelper {
     /// <returns>
     ///     The create key.
     /// </returns>
-    private static ulong CreateKey(uint i0, uint i1) {
-        return ((ulong)i0 << 32) + i1;
-    }
+    private static ulong CreateKey(uint i0, uint i1) => ((ulong) i0 << 32) + i1;
 
     /// <summary>
     ///     Extract two 32-bit indices from the 64-bit key
@@ -535,8 +569,8 @@ public static class MeshGeometryHelper {
     ///     The i 1.
     /// </param>
     private static void ReverseKey(ulong key, out uint i0, out uint i1) {
-        i0 = (uint)(key >> 32);
-        i1 = (uint)((key << 32) >> 32);
+        i0 = (uint) (key >> 32);
+        i1 = (uint) ((key << 32) >> 32);
     }
 
     /// <summary>
@@ -575,19 +609,26 @@ public static class MeshGeometryHelper {
     /// <param name="mesh"></param>
     /// <returns></returns>
     public static MeshGeometry3D RemoveIsolatedVertices(this MeshGeometry3D mesh) {
+        var vertices = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
+        var triangles = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
         Point3DCollection vertNew;
         Int32Collection triNew;
-        PointCollection textureNew;
-        Vector3DCollection normalNew;
-        RemoveIsolatedVertices(mesh.Positions,
-                               mesh.TriangleIndices,
-                               mesh.TextureCoordinates,
-                               mesh.Normals,
-                               out vertNew,
-                               out triNew,
-                               out textureNew,
-                               out normalNew);
-        var newMesh = new MeshGeometry3D { Positions = vertNew, TriangleIndices = triNew, TextureCoordinates = textureNew, Normals = normalNew };
+        PointCollection? textureNew;
+        Vector3DCollection? normalNew;
+        RemoveIsolatedVertices(vertices,
+            triangles,
+            mesh.TextureCoordinates,
+            mesh.Normals,
+            out vertNew,
+            out triNew,
+            out textureNew,
+            out normalNew);
+        var newMesh = new MeshGeometry3D {
+            Positions = vertNew,
+            TriangleIndices = triNew,
+            TextureCoordinates = textureNew,
+            Normals = normalNew
+        };
         return newMesh;
     }
 
@@ -605,21 +646,21 @@ public static class MeshGeometryHelper {
     public static void RemoveIsolatedVertices(
         IList<Point3D> vertices,
         IList<int> triangles,
-        IList<Point> texture,
-        IList<Vector3D> normals,
+        IList<Point>? texture,
+        IList<Vector3D>? normals,
         out Point3DCollection verticesOut,
         out Int32Collection trianglesOut,
-        out PointCollection textureOut,
-        out Vector3DCollection normalOut
+        out PointCollection? textureOut,
+        out Vector3DCollection? normalOut
     ) {
-        verticesOut = null;
-        trianglesOut = null;
         textureOut = null;
         normalOut = null;
         var tracking = new List<List<int>>(vertices.Count);
         Debug.WriteLine("NumVert:{0}; NumTriangle:{1};", vertices.Count, triangles.Count);
         for (var i = 0; i < vertices.Count; ++i) tracking.Add([]);
-        for (var i = 0; i < triangles.Count; ++i) tracking[triangles[i]].Add(i);
+        for (var i = 0; i < triangles.Count; ++i)
+            tracking[triangles[i]]
+                .Add(i);
 
         var vertToRemove = new List<int>(vertices.Count);
         for (var i = 0; i < vertices.Count; ++i)
@@ -635,8 +676,8 @@ public static class MeshGeometryHelper {
         for (var i = 0; i < vertices.Count; ++i)
             if (counter == vertToRemove.Count || i < vertToRemove[counter]) {
                 verticesOut.Add(vertices[i]);
-                if (texture != null) textureOut.Add(texture[i]);
-                if (normals != null) normalOut.Add(normals[i]);
+                if (texture != null && textureOut != null) textureOut.Add(texture[i]);
+                if (normals != null && normalOut != null) normalOut.Add(normals[i]);
                 foreach (var t in tracking[i]) trianglesOut[t] -= counter;
             } else {
                 ++counter;

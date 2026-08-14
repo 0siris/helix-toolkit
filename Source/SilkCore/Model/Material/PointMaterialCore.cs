@@ -117,7 +117,6 @@ public class PointMaterialCore : MaterialCore, IPointRenderParams {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new PointMaterialVariable(manager, technique, this);
-    }
+    )
+        => new PointMaterialVariable(manager, technique, this);
 }

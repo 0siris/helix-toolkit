@@ -34,7 +34,5 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
     }
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new NodePostEffectBorderHighlight();
-    }
+    protected override SceneNode OnCreateSceneNode() => new NodePostEffectBorderHighlight();
 }

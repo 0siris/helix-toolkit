@@ -15,9 +15,7 @@ public abstract class Clickable2D : Border2D {
         MouseLeave2D += Clickable2D_MouseLeave2D;
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new ClickableNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new ClickableNode2D();
 
     private void Clickable2D_MouseLeave2D(object? sender, Mouse2DEventArgs e) { }
 

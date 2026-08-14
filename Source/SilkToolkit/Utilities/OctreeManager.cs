@@ -227,13 +227,9 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
 ///     two ItemsModel3D
 /// </summary>
 public sealed class GeometryModel3DOctreeManager : OctreeManagerBaseWrapper {
-    protected override IOctreeManager OnCreateManager() {
-        return new GroupNodeGeometryBoundOctreeManager();
-    }
+    protected override IOctreeManager OnCreateManager() => new GroupNodeGeometryBoundOctreeManager();
 }
 
 public sealed class InstancingModel3DOctreeManager : OctreeManagerBaseWrapper {
-    protected override IOctreeManager OnCreateManager() {
-        return new InstancingRenderableOctreeManager();
-    }
+    protected override IOctreeManager OnCreateManager() => new InstancingRenderableOctreeManager();
 }

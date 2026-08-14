@@ -17,7 +17,7 @@ public interface IEffectAttributes {
 
     void AddAttribute(string attName, object parameter);
     void RemoveAttribute(string attName);
-    object GetAttribute(string attName);
+    object? GetAttribute(string attName);
     bool TryGetAttribute(string attName, out object attribute);
 }
 
@@ -59,7 +59,7 @@ public sealed class EffectAttributes : IEffectAttributes {
     /// </summary>
     /// <param name="attName">Name of the att.</param>
     /// <returns></returns>
-    public object GetAttribute(string attName) {
+    public object? GetAttribute(string attName) {
         if (attributes.TryGetValue(attName, out var obj)) return obj;
 
         return null;
@@ -71,18 +71,14 @@ public sealed class EffectAttributes : IEffectAttributes {
     /// <param name="attName">Name of the att.</param>
     /// <param name="attribute">The attribute.</param>
     /// <returns></returns>
-    public bool TryGetAttribute(string attName, out object attribute) {
-        return attributes.TryGetValue(attName, out attribute);
-    }
+    public bool TryGetAttribute(string attName, out object attribute) => attributes.TryGetValue(attName, out attribute);
 
     /// <summary>
     ///     Parses the specified att string.
     /// </summary>
     /// <param name="attString">The att string.</param>
     /// <returns></returns>
-    public static EffectAttributes[] Parse(string attString) {
-        return Parse(attString, EffectParserConfiguration.Parser);
-    }
+    public static EffectAttributes[] Parse(string attString) => Parse(attString, EffectParserConfiguration.Parser);
 
     /// <summary>
     ///     Parses the specified att string.
@@ -90,9 +86,7 @@ public sealed class EffectAttributes : IEffectAttributes {
     /// <param name="attString">The att string.</param>
     /// <param name="parser">The parser.</param>
     /// <returns></returns>
-    public static EffectAttributes[] Parse(string attString, IEffectAttributeParser parser) {
-        return parser.Parse(attString);
-    }
+    public static EffectAttributes[] Parse(string attString, IEffectAttributeParser parser) => parser.Parse(attString);
 }
 
 /// <summary>

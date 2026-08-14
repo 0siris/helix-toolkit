@@ -19,9 +19,7 @@ public sealed class SceneNodeGroupModel3D : Element3D {
     /// </summary>
     /// <param name="node">The node.</param>
     /// <returns>Success or not</returns>
-    public bool AddNode(SceneNode node) {
-        return GroupNode.AddChildNode(node);
-    }
+    public bool AddNode(SceneNode node) => GroupNode.AddChildNode(node);
 
     /// <summary>
     ///     Removes child node. <see cref="GroupNodeBase.RemoveChildNode(SceneNode, bool)" />
@@ -30,9 +28,7 @@ public sealed class SceneNodeGroupModel3D : Element3D {
     /// <param name="node">The node.</param>
     /// <param name="detachChildren">Detach children after being removed.</param>
     /// <returns>Sucess or not</returns>
-    public bool RemoveNode(SceneNode node, bool detachChildren = true) {
-        return GroupNode.RemoveChildNode(node, detachChildren);
-    }
+    public bool RemoveNode(SceneNode node, bool detachChildren = true) => GroupNode.RemoveChildNode(node, detachChildren);
 
     /// <summary>
     ///     Clears this group. <see cref="GroupNodeBase.Clear" />. If detach = false, then developer must manage the life cycle
@@ -66,7 +62,5 @@ public sealed class SceneNodeGroupModel3D : Element3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return GroupNode;
-    }
+    protected override SceneNode OnCreateSceneNode() => GroupNode;
 }

@@ -41,7 +41,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public OutlineMode DrawMode { set; get; } = OutlineMode.Merged;
@@ -53,19 +53,19 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged(nameof(DrawMode));
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool OITWeightedModeEnabled {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = false;
 
     private bool oitDepthPeelModeEnabled = true;
 
     public bool OITDepthPeelModeEnabled {
-        set { SetValue(ref oitDepthPeelModeEnabled, value); }
-        get { return oitDepthPeelModeEnabled; }
+        set => SetValue(ref oitDepthPeelModeEnabled, value);
+        get => oitDepthPeelModeEnabled;
     }
 
     public OitRenderType OITRenderType {

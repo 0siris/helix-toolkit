@@ -11,12 +11,9 @@ public sealed class PositionColorMaterial : Material {
 
     public PositionColorMaterial(PositionMaterialCore core) : base(core) { }
 
-    protected override MaterialCore OnCreateCore() {
-        return PositionMaterialCore.Core;
-    }
-    protected override Freezable CreateInstanceCore() {
-        return new PositionColorMaterial {
-            Name = Name
-        };
-    }
+    protected override MaterialCore OnCreateCore() => PositionMaterialCore.Core;
+
+    protected override Freezable CreateInstanceCore() => new PositionColorMaterial {
+        Name = Name
+    };
 }

@@ -68,13 +68,11 @@ public class MainViewModel : DemoCore.BaseViewModel {
     public BillboardImage3D BatchedText { private set; get; }
     public Stream BackgroundTexture { private set; get; }
 
-    public Flag[] Flags {
-        get => FlagsCollection.Flags;
-    }
+    public Flag[] Flags => FlagsCollection.Flags;
 
     public bool FixedSize {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = true;
 
     public Flag SelectedFlag {
@@ -82,7 +80,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
             SetValue(ref field, value);
             UpdateSelectedFlagBillboard(value);
         }
-        get { return field; }
+        get => field;
     }
 
     private Color4 prevLocColor, prevLocColor2;

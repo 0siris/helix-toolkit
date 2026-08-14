@@ -12,9 +12,7 @@ public static class CollectionExtensions {
     /// <typeparam name="T">The type of the elements.</typeparam>
     /// <param name="list">The respective list.</param>
     /// <returns>The internal array of the list.</returns>
-    public static T[] GetInternalArray<T>(this List<T> list) {
-        return [.. list];
-    }
+    public static T[] GetInternalArray<T>(this List<T> list) => [.. list];
 
     public static T[] GetArrayByType<T>(this IList<T> list) {
         T[] array;
@@ -35,7 +33,7 @@ public static class CollectionExtensions {
     /// <param name="dict">The respective dictionary.</param>
     /// <param name="key">The respective key.</param>
     /// <returns>The value if exists, else <c>null</c>.</returns>
-    public static V Get<K, V>(this IDictionary<K, V> dict, K key) {
+    public static V? Get<K, V>(this IDictionary<K, V> dict, K key) {
         V val;
         if (dict.TryGetValue(key, out val)) return val;
 

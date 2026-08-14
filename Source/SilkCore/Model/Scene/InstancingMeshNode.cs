@@ -18,13 +18,9 @@ public class InstancingMeshNode : MeshNode {
 
     private bool isInstanceChanged;
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.InstancingMesh];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.InstancingMesh];
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new InstancingMeshRenderCore { ParameterBuffer = InstanceParamBuffer };
-    }
+    protected override RenderCore OnCreateRenderCore() => new InstancingMeshRenderCore { ParameterBuffer = InstanceParamBuffer };
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
@@ -133,7 +129,7 @@ public class InstancingMeshNode : MeshNode {
     /// <value>
     ///     The instance parameter array.
     /// </value>
-    public IList<InstanceParameter> InstanceParamArray {
+    public IList<InstanceParameter>? InstanceParamArray {
         get => InstanceParamBuffer.Elements;
         set => InstanceParamBuffer.Elements = value;
     }

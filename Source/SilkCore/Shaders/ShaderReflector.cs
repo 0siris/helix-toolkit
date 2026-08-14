@@ -157,9 +157,7 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
         };
     }
 
-    private static string PtrToString(byte* value) {
-        return value == null ? string.Empty : Marshal.PtrToStringAnsi((nint)value);
-    }
+    private static string PtrToString(byte* value) => value == null ? string.Empty : Marshal.PtrToStringAnsi((nint)value) ?? string.Empty;
 
     private static FeatureLevel GetFeatureLevel(uint shaderVersion) {
         var major = (shaderVersion >> 4) & 0xf;

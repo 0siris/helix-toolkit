@@ -33,9 +33,7 @@ public sealed class DirectionalLight3D : Light3D {
         set => SetValue(DirectionProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new DirectionalLightNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new DirectionalLightNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);

@@ -14,15 +14,11 @@ public static class LogManager {
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static ILogger Create<T>() {
-        return Factory.CreateLogger<T>();
-    }
+    public static ILogger Create<T>() => Factory.CreateLogger<T>();
 
     /// <summary>
     /// </summary>
     /// <param name="categoryName"></param>
     /// <returns></returns>
-    public static ILogger Create(string categoryName) {
-        return Factory.CreateLogger(categoryName);
-    }
+    public static ILogger Create(string categoryName) => Factory.CreateLogger(categoryName);
 }

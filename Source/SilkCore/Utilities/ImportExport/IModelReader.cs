@@ -33,7 +33,7 @@ public interface IModelReader {
     /// <returns>
     ///     The model.
     /// </returns>
-    Mesh3DGroup Read(string path, ModelInfo info = default);
+    Mesh3DGroup? Read(string path, ModelInfo info = default);
 
     /// <summary>
     ///     Reads the model from the specified stream.
@@ -47,5 +47,5 @@ public interface IModelReader {
     /// <returns>
     ///     The model.
     /// </returns>
-    Mesh3DGroup Read(Stream s, ModelInfo info = default);
+    Mesh3DGroup? Read(Stream s, ModelInfo info = default);
 }

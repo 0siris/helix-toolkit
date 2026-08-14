@@ -159,9 +159,7 @@ public class LineBuilder {
     ///     Generates a square grid with a step of 1.0
     /// </summary>
     /// <returns></returns>
-    public static LineGeometry3D GenerateGrid(int width = 10) {
-        return GenerateGrid(Vector3.UnitY, 0, width);
-    }
+    public static LineGeometry3D GenerateGrid(int width = 10) => GenerateGrid(Vector3.UnitY, 0, width);
 
     /// <summary>
     ///     Generates a square grid with a step of 1.0
@@ -389,12 +387,12 @@ public class LineBuilder {
         var c = SilkMath.Dot(v, v); // always >= 0
         var d = SilkMath.Dot(u, w);
         var e = SilkMath.Dot(v, w);
-        var d = a * c - b * b; // always >= 0
-        float sN, sD = d;      // sc = sN / sD, default sD = D >= 0
-        float tN, tD = d;      // tc = tN / tD, default tD = D >= 0
+        var denominator = a * c - b * b; // always >= 0
+        float sN, sD = denominator;      // sc = sN / sD, default sD = D >= 0
+        float tN, tD = denominator;      // tc = tN / tD, default tD = D >= 0
 
         // compute the line parameters of the two closest points
-        if (d < float.Epsilon) {
+        if (denominator < float.Epsilon) {
             // the lines are almost parallel
             sN = 0.0f; // force using point P0 on segment S1
             sD = 1.0f; // to prevent possible division by 0.0 later

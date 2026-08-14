@@ -11,11 +11,7 @@ public class HelixItemsControl : ItemsControl {
         DefaultStyleKey = typeof(HelixItemsControl);
     }
 
-    protected override Size ArrangeOverride(Size finalSize) {
-        return new Size();
-    }
+    protected override Size ArrangeOverride(Size finalSize) => new();
 
-    protected override Size MeasureOverride(Size availableSize) {
-        return new Size();
-    }
+    protected override Size MeasureOverride(Size availableSize) => new();
 }

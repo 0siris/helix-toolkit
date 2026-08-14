@@ -16,13 +16,11 @@ public class CustomMeshGeometryModel3D : MeshGeometryModel3D {
                              }));
 
     public double HeightScale {
-        set { SetValue(HeightScaleProperty, value); }
-        get { return (double)GetValue(HeightScaleProperty); }
+        set => SetValue(HeightScaleProperty, value);
+        get => (double)GetValue(HeightScaleProperty);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new CustomMeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new CustomMeshNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);

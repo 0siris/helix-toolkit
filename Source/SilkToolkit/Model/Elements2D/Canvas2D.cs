@@ -13,9 +13,7 @@ namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement2DCollection
 /// </summary>
 public class Canvas2D : Panel2D {
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new Node2DCanvas();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new Node2DCanvas();
 
     protected class Node2DCanvas : PanelNode2D {
         /// <summary>
@@ -90,9 +88,7 @@ public class Canvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetLeft(Element2DCore element) {
-        return (double)element.GetValue(LeftProperty);
-    }
+    public static double GetLeft(Element2DCore element) => (double)element.GetValue(LeftProperty);
 
     /// <summary>
     ///     The top property
@@ -116,9 +112,7 @@ public class Canvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetTop(Element2DCore element) {
-        return (double)element.GetValue(TopProperty);
-    }
+    public static double GetTop(Element2DCore element) => (double)element.GetValue(TopProperty);
 
     /// <summary>
     ///     The right property
@@ -142,9 +136,7 @@ public class Canvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetRight(Element2DCore element) {
-        return (double)element.GetValue(RightProperty);
-    }
+    public static double GetRight(Element2DCore element) => (double)element.GetValue(RightProperty);
 
     /// <summary>
     ///     The bottom property
@@ -168,9 +160,7 @@ public class Canvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetBottom(Element2DCore element) {
-        return (double)element.GetValue(BottomProperty);
-    }
+    public static double GetBottom(Element2DCore element) => (double)element.GetValue(BottomProperty);
 
     #endregion
 }

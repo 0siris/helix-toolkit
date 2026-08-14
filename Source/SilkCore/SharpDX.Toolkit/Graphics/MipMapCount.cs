@@ -57,15 +57,13 @@ public struct MipMapCount : IEquatable<MipMapCount> {
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(MipMapCount other) {
-        return Count == other.Count;
-    }
+    public bool Equals(MipMapCount other) => Count == other.Count;
 
     /// <summary>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj))
             return false;
         return obj is MipMapCount && Equals((MipMapCount)obj);
@@ -74,61 +72,47 @@ public struct MipMapCount : IEquatable<MipMapCount> {
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode() {
-        return Count;
-    }
+    public override int GetHashCode() => Count;
 
     /// <summary>
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(MipMapCount left, MipMapCount right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(MipMapCount left, MipMapCount right) => left.Equals(right);
 
     /// <summary>
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(MipMapCount left, MipMapCount right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(MipMapCount left, MipMapCount right) => !left.Equals(right);
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="MipMapCount" /> to <see cref="bool" />.
     /// </summary>
     /// <param name="mipMap">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator bool(MipMapCount mipMap) {
-        return mipMap.Count == 0;
-    }
+    public static implicit operator bool(MipMapCount mipMap) => mipMap.Count == 0;
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="bool" /> to <see cref="MipMapCount" />.
     /// </summary>
     /// <param name="mipMapAll">True to generate all mipmaps, false to use a single mipmap.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator MipMapCount(bool mipMapAll) {
-        return new MipMapCount(mipMapAll);
-    }
+    public static implicit operator MipMapCount(bool mipMapAll) => new(mipMapAll);
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="MipMapCount" /> to <see cref="int" />.
     /// </summary>
     /// <param name="mipMap">The value.</param>
     /// <returns>The count of mipmap (0 means all mipmaps).</returns>
-    public static implicit operator int(MipMapCount mipMap) {
-        return mipMap.Count;
-    }
+    public static implicit operator int(MipMapCount mipMap) => mipMap.Count;
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="int" /> to <see cref="MipMapCount" />.
     /// </summary>
     /// <param name="mipMapCount">True to generate all mipmaps, false to use a single mipmap.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator MipMapCount(int mipMapCount) {
-        return new MipMapCount(mipMapCount);
-    }
+    public static implicit operator MipMapCount(int mipMapCount) => new(mipMapCount);
 }

@@ -103,7 +103,5 @@ public class SortingGroupModel3D : GroupModel3D {
         set => SetValue(SortingMethodProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new SortingGroupNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new SortingGroupNode();
 }

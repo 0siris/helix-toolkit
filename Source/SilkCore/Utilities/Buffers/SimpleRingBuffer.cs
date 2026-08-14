@@ -28,12 +28,12 @@ public sealed class SimpleRingBuffer<T> {
     /// <summary>
     ///     Get last added element
     /// </summary>
-    public T Last => IsEmpty() ? default : buffer[last];
+    public T? Last => IsEmpty() ? default : buffer[last];
 
     /// <summary>
     ///     Get first added element
     /// </summary>
-    public T First => IsEmpty() ? default : buffer[first];
+    public T? First => IsEmpty() ? default : buffer[first];
 
     /// <summary>
     /// </summary>
@@ -84,23 +84,17 @@ public sealed class SimpleRingBuffer<T> {
     ///     If buffer is full
     /// </summary>
     /// <returns></returns>
-    public bool IsFull() {
-        return Count == bufferSize;
-    }
+    public bool IsFull() => Count == bufferSize;
 
     /// <summary>
     ///     If buffer is empty
     /// </summary>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsEmpty() {
-        return Count == 0;
-    }
+    public bool IsEmpty() => Count == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int IncLast() {
-        return (next + 1) % bufferSize;
-    }
+    private int IncLast() => (next + 1) % bufferSize;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int DecLast() {
@@ -109,9 +103,7 @@ public sealed class SimpleRingBuffer<T> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int IncFirst() {
-        return (first + 1) % bufferSize;
-    }
+    private int IncFirst() => (first + 1) % bufferSize;
 
     /// <summary>
     ///     Reset

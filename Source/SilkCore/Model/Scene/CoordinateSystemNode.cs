@@ -213,7 +213,5 @@ public class CoordinateSystemNode : ScreenSpacedNode {
         mesh.Colors = colors;
     }
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return false;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => false;
 }

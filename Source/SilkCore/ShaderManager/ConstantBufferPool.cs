@@ -70,9 +70,7 @@ public sealed class ConstantBufferPool :
     /// <param name="name">The name.</param>
     /// <param name="structSize">Size of the structure.</param>
     /// <returns></returns>
-    public ConstantBufferProxy Register(string name, int structSize) {
-        return Register(new ConstantBufferDescription(name, structSize));
-    }
+    public ConstantBufferProxy Register(string name, int structSize) => Register(new ConstantBufferDescription(name, structSize));
 
     public ConstantBufferProxy Register(ConstantBufferDescription description) {
         if (TryCreateOrGet(description.Name, description, out var buffer)) {
@@ -80,12 +78,10 @@ public sealed class ConstantBufferPool :
             return buffer;
         }
 
-        return null;
+        throw new InvalidOperationException($"Unable to register constant buffer '{description.Name}'.");
     }
 
-    protected override bool CanCreate(ref string key, ref ConstantBufferDescription argument) {
-        return !string.IsNullOrEmpty(key);
-    }
+    protected override bool CanCreate(ref string key, ref ConstantBufferDescription argument) => !string.IsNullOrEmpty(key);
 
     /// <summary>
     ///     Creates the specified constant buffer.

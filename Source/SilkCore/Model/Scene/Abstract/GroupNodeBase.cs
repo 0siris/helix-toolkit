@@ -53,9 +53,9 @@ public abstract class GroupNodeBase : SceneNode {
     /// </value>
     public Metadata Metadata { get; set; }
 
-    public event EventHandler<OnChildNodeChangedArgs> ChildNodeAdded;
-    public event EventHandler<OnChildNodeChangedArgs> ChildNodeRemoved;
-    public event EventHandler<OnChildNodeChangedArgs> Cleared;
+    public event EventHandler<OnChildNodeChangedArgs>? ChildNodeAdded;
+    public event EventHandler<OnChildNodeChangedArgs>? ChildNodeRemoved;
+    public event EventHandler<OnChildNodeChangedArgs>? Cleared;
 
     /// <summary>
     ///     Adds the child node.
@@ -169,9 +169,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="guid">The unique identifier.</param>
     /// <param name="node">The node.</param>
     /// <returns></returns>
-    public bool TryGetNode(Guid guid, out SceneNode node) {
-        return ItemHashSet.TryGetValue(guid, out node);
-    }
+    public bool TryGetNode(Guid guid, out SceneNode node) => ItemHashSet.TryGetValue(guid, out node);
 
     /// <summary>
     ///     Called when [attach].
@@ -252,8 +250,6 @@ public abstract class GroupNodeBase : SceneNode {
         /// </value>
         public Operation Operation { get; private set; }
 
-        public static implicit operator SceneNode(OnChildNodeChangedArgs args) {
-            return args.Node;
-        }
+        public static implicit operator SceneNode(OnChildNodeChangedArgs args) => args.Node;
     }
 }

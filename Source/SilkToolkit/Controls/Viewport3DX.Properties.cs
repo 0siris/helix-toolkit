@@ -1543,7 +1543,7 @@ public partial class Viewport3DX {
     ///     The camera.
     /// </value>
     public Camera Camera {
-        get => (Camera)GetValue(CameraProperty);
+        get => (Camera?)GetValue(CameraProperty) ?? (Orthographic ? orthographicCamera : perspectiveCamera);
 
         set => SetValue(CameraProperty, value);
     }
@@ -1801,8 +1801,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The default camera.
     /// </value>
-    public ProjectionCamera DefaultCamera {
-        get => (ProjectionCamera)GetValue(DefaultCameraProperty);
+    public ProjectionCamera? DefaultCamera {
+        get => (ProjectionCamera?)GetValue(DefaultCameraProperty);
 
         set => SetValue(DefaultCameraProperty, value);
     }
@@ -2626,8 +2626,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The content2 d.
     /// </value>
-    public Element2D Content2D {
-        get => (Element2D)GetValue(Content2DProperty);
+    public Element2D? Content2D {
+        get => (Element2D?)GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
 
@@ -2895,8 +2895,8 @@ public partial class Viewport3DX {
     /// <summary>
     ///     Gets or sets the <see cref="IEffectsManager" />.
     /// </summary>
-    public IEffectsManager EffectsManager {
-        get => (IEffectsManager)GetValue(EffectsManagerProperty);
+    public IEffectsManager? EffectsManager {
+        get => (IEffectsManager?)GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 

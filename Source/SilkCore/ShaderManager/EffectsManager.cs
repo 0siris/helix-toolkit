@@ -38,19 +38,19 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <summary>
     ///     Occurs when [on dispose resources].
     /// </summary>
-    public event EventHandler<EventArgs> DisposingResources;
+    public event EventHandler<EventArgs>? DisposingResources;
 
     /// <summary>
     ///     Occurs when [device created].
     /// </summary>
-    public event EventHandler<EventArgs> Reinitialized;
+    public event EventHandler<EventArgs>? Reinitialized;
 
     /// <summary>
     ///     Occurs when [on invalidate renderer].
     /// </summary>
-    public event EventHandler<EventArgs> InvalidateRender;
+    public event EventHandler<EventArgs>? InvalidateRender;
 
-    private readonly Dictionary<string, Lazy<IRenderTechnique>> techniqueDict = [];
+    private readonly Dictionary<string, Lazy<IRenderTechnique?>> techniqueDict = [];
     private readonly Dictionary<string, TechniqueDescription> techniqueDescriptions = [];
 
     /// <summary>
@@ -58,26 +58,27 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public IEnumerable<string> RenderTechniques => techniqueDict.Keys;
 
-    private IConstantBufferPool constantBufferPool;
+    private IConstantBufferPool? constantBufferPool;
 
     /// <summary>
     ///     <see cref="IDevice3DResources.ConstantBufferPool" />
     /// </summary>
-    public IConstantBufferPool ConstantBufferPool => constantBufferPool;
+    public IConstantBufferPool ConstantBufferPool
+        => constantBufferPool.AssertNotNull("Effects manager is not initialized.");
 
-    private IShaderPoolManager shaderPoolManager;
+    private IShaderPoolManager? shaderPoolManager;
 
     /// <summary>
     ///     <see cref="IEffectsManager.ShaderManager" />
     /// </summary>
-    public IShaderPoolManager ShaderManager => shaderPoolManager;
+    public IShaderPoolManager ShaderManager => shaderPoolManager.AssertNotNull("Effects manager is not initialized.");
 
-    private IStatePoolManager statePoolManager;
+    private IStatePoolManager? statePoolManager;
 
     /// <summary>
     ///     <see cref="IDevice3DResources.StateManager" />
     /// </summary>
-    public IStatePoolManager StateManager => statePoolManager;
+    public IStatePoolManager StateManager => statePoolManager.AssertNotNull("Effects manager is not initialized.");
 
     /// <summary>
     ///     Gets the geometry buffer manager.
@@ -85,9 +86,10 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The geometry buffer manager.
     /// </value>
-    public IGeometryBufferManager GeometryBufferManager => geometryBufferManager;
+    public IGeometryBufferManager GeometryBufferManager =>
+        geometryBufferManager.AssertNotNull("Effects manager is not initialized.");
 
-    private IGeometryBufferManager geometryBufferManager;
+    private IGeometryBufferManager? geometryBufferManager;
 
     /// <summary>
     ///     Gets the material texture manager.
@@ -95,31 +97,35 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The material texture manager.
     /// </value>
-    public ITextureResourceManager MaterialTextureManager => materialTextureManager;
+    public ITextureResourceManager MaterialTextureManager =>
+        materialTextureManager.AssertNotNull("Effects manager is not initialized.");
 
-    private ITextureResourceManager materialTextureManager;
+    private ITextureResourceManager? materialTextureManager;
 
-    public IMaterialVariablePool MaterialVariableManager => materialVariableManager;
-    private IMaterialVariablePool materialVariableManager;
+    public IMaterialVariablePool MaterialVariableManager =>
+        materialVariableManager.AssertNotNull("Effects manager is not initialized.");
 
-    public IStructArrayPool StructArrayPool => structArrayPool;
-    private StructArrayPool structArrayPool;
+    private IMaterialVariablePool? materialVariableManager;
+
+    public IStructArrayPool StructArrayPool => structArrayPool.AssertNotNull("Effects manager is not initialized.");
+    private StructArrayPool? structArrayPool;
 
     #region 3D Resoruces
 
-    private INativeDeviceResources nativeDeviceResources;
+    private INativeDeviceResources? nativeDeviceResources;
 
-    public INativeDeviceResources NativeDeviceResources => nativeDeviceResources;
+    public INativeDeviceResources NativeDeviceResources
+        => nativeDeviceResources.AssertNotNull("Effects manager is not initialized.");
 
     /// <summary>
     /// </summary>
-    public SilkD3DDevice Device => nativeDeviceResources?.Device;
+    public SilkD3DDevice Device => NativeDeviceResources.Device;
 
     /// <summary>
     /// </summary>
     public DriverType DriverType { get; private set; }
 
-    private IDeviceContextPool deviceContextPool;
+    private IDeviceContextPool? deviceContextPool;
 
     /// <summary>
     ///     Gets the device context pool.
@@ -127,13 +133,14 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The device context pool.
     /// </value>
-    public IDeviceContextPool DeviceContextPool => deviceContextPool;
+    public IDeviceContextPool DeviceContextPool
+        => deviceContextPool.AssertNotNull("Effects manager is not initialized.");
 
     #endregion
 
     #region 2D Resources
 
-    private D2DDevice device2D;
+    private D2DDevice? device2D;
 
     /// <summary>
     ///     Gets the device2d.
@@ -141,10 +148,10 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The device2 d.
     /// </value>
-    public D2DDevice Device2D => device2D;
+    public D2DDevice Device2D => device2D.AssertNotNull("Effects manager is not initialized.");
 
 
-    private D2DDeviceContext deviceContext2D;
+    private D2DDeviceContext? deviceContext2D;
 
     /// <summary>
     ///     Gets or sets the device2 d context.
@@ -152,7 +159,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The device2 d context.
     /// </value>
-    public D2DDeviceContext DeviceContext2D => deviceContext2D;
+    public D2DDeviceContext DeviceContext2D => deviceContext2D.AssertNotNull("Effects manager is not initialized.");
 
     /// <summary>
     ///     Gets the factory2 d.
@@ -160,11 +167,11 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The factory2 d.
     /// </value>
-    public D2DFactory Factory2D => factory2D;
+    public D2DFactory Factory2D => factory2D.AssertNotNull("Effects manager is not initialized.");
 
-    private D2DFactory factory2D;
+    private D2DFactory? factory2D;
 
-    private WicImagingFactory wicImgFactory;
+    private WicImagingFactory? wicImgFactory;
 
     /// <summary>
     ///     Gets the wic img factory.
@@ -172,9 +179,9 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The wic img factory.
     /// </value>
-    public WicImagingFactory WicImgFactory => wicImgFactory;
+    public WicImagingFactory WicImgFactory => wicImgFactory.AssertNotNull("Effects manager is not initialized.");
 
-    private DirectWriteFactory directWriteFactory;
+    private DirectWriteFactory? directWriteFactory;
 
     /// <summary>
     ///     Gets the direct write factory.
@@ -182,7 +189,8 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The direct write factory.
     /// </value>
-    public DirectWriteFactory DirectWriteFactory => directWriteFactory;
+    public DirectWriteFactory DirectWriteFactory
+        => directWriteFactory.AssertNotNull("Effects manager is not initialized.");
 
     #endregion
 
@@ -237,40 +245,43 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     private void Initialize(int adapterIndex) {
         Logger.Info("Adapter Index = {Value0}", adapterIndex);
         AdapterIndex = Math.Max(0, adapterIndex);
-        DriverType = EnableSoftwareRendering ? DriverType.Warp : DriverType.Hardware;
+        DriverType = EnableSoftwareRendering
+            ? DriverType.Warp
+            : DriverType.Hardware;
         RemoveAndDispose(ref nativeDeviceResources);
-        nativeDeviceResources = SilkD3D11DeviceFactory.CreateDefault(AdapterIndex,
-                                                                     DriverType == DriverType.Warp
-                                                                         ? SilkDriverType.Warp
-                                                                         : SilkDriverType.Hardware);
+        var resources = SilkD3D11DeviceFactory.CreateDefault(AdapterIndex,
+            DriverType == DriverType.Warp
+                ? SilkDriverType.Warp
+                : SilkDriverType.Hardware);
+        nativeDeviceResources = resources;
 
         Logger.Info("Direct3D device initilized. DriverType: {Value0}; FeatureLevel: {Value1}",
-                              DriverType,
-                              nativeDeviceResources.Device.FeatureLevel);
+            DriverType,
+            resources.Device.FeatureLevel);
 
         #region Initial Internal Pools
 
         Logger.Info("Initializing resource pools");
         RemoveAndDispose(ref constantBufferPool);
-        constantBufferPool = new ConstantBufferPool(nativeDeviceResources.Device);
+        constantBufferPool = new ConstantBufferPool(resources.Device);
 
         RemoveAndDispose(ref shaderPoolManager);
-        shaderPoolManager = new ShaderPoolManager(nativeDeviceResources.Device, constantBufferPool);
+        shaderPoolManager = new ShaderPoolManager(resources.Device, constantBufferPool);
 
         RemoveAndDispose(ref statePoolManager);
-        statePoolManager = new StatePoolManager(nativeDeviceResources.Device);
+        statePoolManager = new StatePoolManager(resources.Device);
 
         RemoveAndDispose(ref geometryBufferManager);
         geometryBufferManager = new GeometryBufferManager(this);
 
         RemoveAndDispose(ref materialTextureManager);
-        materialTextureManager = new TextureResourceManager(nativeDeviceResources.Device);
+        materialTextureManager = new TextureResourceManager(resources.Device);
 
         RemoveAndDispose(ref materialVariableManager);
         materialVariableManager = new MaterialVariablePool(this);
 
         RemoveAndDispose(ref deviceContextPool);
-        deviceContextPool = new DeviceContextPool(nativeDeviceResources.Device);
+        deviceContextPool = new DeviceContextPool(resources.Device);
 
         RemoveAndDispose(ref structArrayPool);
         structArrayPool = new StructArrayPool();
@@ -281,7 +292,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         factory2D = new D2DFactory();
         wicImgFactory = new WicImagingFactory();
         directWriteFactory = new DirectWriteFactory();
-        device2D = new D2DDevice(nativeDeviceResources.Device);
+        device2D = new D2DDevice(resources.Device);
         deviceContext2D = new D2DDeviceContext(device2D);
         Initialized = true;
     }
@@ -291,12 +302,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     /// <param name="description"></param>
     public void AddTechnique(TechniqueDescription description) {
-        if (techniqueDict.ContainsKey(description.Name))
-            throw new ArgumentException($"Technique {description.Name} already exists.");
-        techniqueDescriptions.Add(description.Name, description);
-        techniqueDict.Add(description.Name,
-                          new Lazy<IRenderTechnique>(() => Initialized ? new Technique(description, this) : null,
-                                                     true));
+        var name = description.Name.AssertNotNull("Technique name must be initialized.");
+        if (techniqueDict.ContainsKey(name))
+            throw new ArgumentException($"Technique {name} already exists.");
+        techniqueDescriptions.Add(name, description);
+        techniqueDict.Add(name,
+            new Lazy<IRenderTechnique?>(() => Initialized
+                    ? new Technique(description, this)
+                    : null,
+                true));
     }
 
     /// <summary>
@@ -305,10 +319,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public void Reinitialize() {
         if (!Initialized) {
             Initialize();
-            foreach (var tech in techniqueDescriptions.Values)
-                techniqueDict.Add(tech.Name,
-                                  new Lazy<IRenderTechnique>(() => Initialized ? new Technique(tech, this) : null,
-                                                             true));
+            foreach (var tech in techniqueDescriptions.Values) {
+                var name = tech.Name.AssertNotNull("Technique name must be initialized.");
+                techniqueDict.Add(name,
+                    new Lazy<IRenderTechnique?>(() => Initialized
+                            ? new Technique(tech, this)
+                            : null,
+                        true));
+            }
+
             Reinitialized?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -327,9 +346,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <returns>
     ///     <c>true</c> if the specified name has technique; otherwise, <c>false</c>.
     /// </returns>
-    public bool HasTechnique(string name) {
-        return techniqueDict.ContainsKey(name);
-    }
+    public bool HasTechnique(string name) => techniqueDict.ContainsKey(name);
 
     /// <summary>
     ///     <see cref="IEffectsManager.RemoveTechnique(string)" />
@@ -368,10 +385,13 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public IRenderTechnique GetTechnique(string name) {
         if (!techniqueDict.TryGetValue(name, out var t)) {
             Logger.Warn("Technique {Value0} does not exist. Return a null technique.", name);
-            return new Technique(new TechniqueDescription { Name = name, IsNull = true }, this);
+            return new Technique(new TechniqueDescription {
+                Name = name,
+                IsNull = true
+            }, this);
         }
 
-        return t.Value;
+        return t.Value ?? Technique.NullTechnique;
     }
 
     /// <summary>
@@ -451,14 +471,12 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     ///     Outputs the resource cout summary.
     /// </summary>
     /// <returns></returns>
-    public string GetResourceCountSummary() {
-        return $"ConstantBuffer Count: {constantBufferPool.Count}\n" +
-               $"BlendState Count: {statePoolManager.BlendStatePool.Count}\n" +
-               $"DepthStencilState Count: {statePoolManager.DepthStencilStatePool.Count}\n" +
-               $"RasterState Count: {statePoolManager.RasterStatePool.Count}\n" +
-               $"SamplerState Count: {statePoolManager.SamplerStatePool.Count}\n" +
-               $"GeometryBuffer Count:{geometryBufferManager.Count}\n" +
-               $"MaterialTexture Count:{materialTextureManager.Count}\n" +
-               $"MaterialVariable Count:{materialVariableManager.Count}\n";
-    }
+    public string GetResourceCountSummary() => $"ConstantBuffer Count: {ConstantBufferPool.Count}\n" +
+                                               $"BlendState Count: {StateManager.BlendStatePool.Count}\n" +
+                                               $"DepthStencilState Count: {StateManager.DepthStencilStatePool.Count}\n" +
+                                               $"RasterState Count: {StateManager.RasterStatePool.Count}\n" +
+                                               $"SamplerState Count: {StateManager.SamplerStatePool.Count}\n" +
+                                               $"GeometryBuffer Count:{GeometryBufferManager.Count}\n" +
+                                               $"MaterialTexture Count:{MaterialTextureManager.Count}\n" +
+                                               $"MaterialVariable Count:{MaterialVariableManager.Count}\n";
 }

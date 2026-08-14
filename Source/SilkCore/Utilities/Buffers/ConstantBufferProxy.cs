@@ -232,9 +232,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Buffer(ConstantBufferProxy proxy) {
-        return proxy?.buffer;
-    }
+    public static implicit operator Buffer?(ConstantBufferProxy? proxy) => proxy?.buffer;
 
     /// <summary>
     ///     Tries the name of the get variable by.
@@ -242,7 +240,5 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     /// <param name="name">The name.</param>
     /// <param name="variable">The variable.</param>
     /// <returns></returns>
-    public bool TryGetVariableByName(string name, out ConstantBufferVariable variable) {
-        return VariableDictionary.TryGetValue(name, out variable);
-    }
+    public bool TryGetVariableByName(string name, out ConstantBufferVariable variable) => VariableDictionary.TryGetValue(name, out variable);
 }

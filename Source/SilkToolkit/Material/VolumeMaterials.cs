@@ -231,35 +231,31 @@ public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new VolumeTextureDds3DMaterialCore {
-            Name = Name,
-            VolumeTexture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new VolumeTextureDds3DMaterialCore {
+        Name = Name,
+        VolumeTexture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new VolumeTextureDDS3DMaterial {
-            Name = Name,
-            Texture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new VolumeTextureDDS3DMaterial {
+        Name = Name,
+        Texture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 }
 
 /// <summary>
@@ -299,35 +295,31 @@ public sealed class VolumeTextureRawDataMaterial : VolumeTextureMaterialBase {
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new VolumeTextureRawDataMaterialCore {
-            Name = Name,
-            VolumeTexture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new VolumeTextureRawDataMaterialCore {
+        Name = Name,
+        VolumeTexture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new VolumeTextureRawDataMaterial {
-            Name = Name,
-            Texture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new VolumeTextureRawDataMaterial {
+        Name = Name,
+        Texture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 }
 
 /// <summary>
@@ -367,33 +359,29 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new VolumeTextureDiffuseMaterialCore {
-            Name = Name,
-            VolumeTexture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new VolumeTextureDiffuseMaterialCore {
+        Name = Name,
+        VolumeTexture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new VolumeTextureDiffuseMaterial {
-            Name = Name,
-            Texture = Texture,
-            SampleDistance = SampleDistance,
-            MaxIterations = MaxIterations,
-            Sampler = Sampler,
-            Color = Color,
-            TransferMap = TransferMap,
-            IsoValue = IsoValue,
-            IterationOffset = IterationOffset,
-            EnablePlaneAlignment = EnablePlaneAlignment
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new VolumeTextureDiffuseMaterial {
+        Name = Name,
+        Texture = Texture,
+        SampleDistance = SampleDistance,
+        MaxIterations = MaxIterations,
+        Sampler = Sampler,
+        Color = Color,
+        TransferMap = TransferMap,
+        IsoValue = IsoValue,
+        IterationOffset = IterationOffset,
+        EnablePlaneAlignment = EnablePlaneAlignment
+    };
 }

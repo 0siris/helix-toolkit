@@ -119,7 +119,7 @@ public class AutoRenderTaskScheduler : IRenderTaskScheduler {
         outputCommands.Clear();
         var totalCount = 0;
         numRendered = 0;
-        Exception exception = null;
+        Exception? exception = null;
         if (items.Count > schedulerParams.MinimumDrawCalls) {
             var frustum = context.BoundingFrustum;
             var partitionParams = Partitioner.Create(0,

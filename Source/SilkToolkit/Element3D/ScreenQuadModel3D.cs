@@ -74,9 +74,7 @@ public class ScreenQuadModel3D : Element3D {
                                                          }));
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new ScreenQuadNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ScreenQuadNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

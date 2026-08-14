@@ -21,13 +21,13 @@ using Point3D = Vector3;
 using Vector3D = Vector3;
 
 public class Object3D {
-    public Geometry3D Geometry { get; set; }
+    public Geometry3D? Geometry { get; set; }
 
-    public MaterialCore Material { get; set; }
+    public MaterialCore? Material { get; set; }
 
-    public List<Matrix> Transform { get; set; }
+    public List<Matrix>? Transform { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 /// <summary>
@@ -147,7 +147,7 @@ public class ObjReader : IModelReader {
     ///     Gets or sets the path to the textures.
     /// </summary>
     /// <value>The texture path.</value>
-    public string TexturePath { get; set; }
+    public string? TexturePath { get; set; }
 
     /// <summary>
     ///     Additional info how to treat the model
@@ -378,9 +378,7 @@ public class ObjReader : IModelReader {
     /// <returns>
     ///     The value.
     /// </returns>
-    private static double DoubleParse(string input) {
-        return double.Parse(input, CultureInfo.InvariantCulture);
-    }
+    private static double DoubleParse(string input) => double.Parse(input, CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     Splits the specified string using whitespace(input) as separators.
@@ -484,7 +482,7 @@ public class ObjReader : IModelReader {
         var textureCoordinates = builder.TextureCoordinates;
         var normals = builder.Normals;
 
-        Dictionary<Tuple<int, int, int>, int> smoothingGroupMap = null;
+        Dictionary<Tuple<int, int, int>, int>? smoothingGroupMap = null;
 
         // If a smoothing group is defined, get the map from obj-file-index to current-group-vertex-index.
         if (currentSmoothingGroup != 0)
@@ -704,7 +702,7 @@ public class ObjReader : IModelReader {
         if (!File.Exists(path)) return;
         using var fileStream = File.OpenRead(path);
         using var mreader = new StreamReader(fileStream);
-        MaterialDefinition currentMaterial = null;
+        MaterialDefinition? currentMaterial = null;
 
         while (!mreader.EndOfStream) {
             var line = mreader.ReadLine();
@@ -895,7 +893,7 @@ public class ObjReader : IModelReader {
         ///     Gets or sets the alpha map.
         /// </summary>
         /// <value>The alpha map.</value>
-        public string AlphaMap { get; set; }
+        public string? AlphaMap { get; set; }
 
         /// <summary>
         ///     Gets or sets the ambient color.
@@ -907,13 +905,13 @@ public class ObjReader : IModelReader {
         ///     Gets or sets the ambient map.
         /// </summary>
         /// <value>The ambient map.</value>
-        public string AmbientMap { get; set; }
+        public string? AmbientMap { get; set; }
 
         /// <summary>
         ///     Gets or sets the bump map.
         /// </summary>
         /// <value>The bump map.</value>
-        public string BumpMap { get; set; }
+        public string? BumpMap { get; set; }
 
         /// <summary>
         ///     Gets or sets the diffuse color.
@@ -925,7 +923,7 @@ public class ObjReader : IModelReader {
         ///     Gets or sets the diffuse map.
         /// </summary>
         /// <value>The diffuse map.</value>
-        public string DiffuseMap { get; set; }
+        public string? DiffuseMap { get; set; }
 
         /// <summary>
         ///     Gets or sets the opacity value.
@@ -958,13 +956,13 @@ public class ObjReader : IModelReader {
         ///     Gets or sets the specular map.
         /// </summary>
         /// <value>The specular map.</value>
-        public string SpecularMap { get; set; }
+        public string? SpecularMap { get; set; }
 
         /// <summary>
         ///     Gets or sets the material.
         /// </summary>
         /// <value>The material.</value>
-        public PhongMaterialCore Material { get; set; }
+        public PhongMaterialCore? Material { get; set; }
 
         /// <summary>
         ///     Gets the material from the specified path.
@@ -987,28 +985,28 @@ public class ObjReader : IModelReader {
         /// <param name="texturePath">The texture path.</param>
         /// <returns>A WPF material.</returns>
         private PhongMaterialCore CreateMaterial(string texturePath) {
-            MemoryStream diffuseMapMs = null;
+            MemoryStream? diffuseMapMs = null;
             if (DiffuseMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, DiffuseMap), FileMode.Open)) {
                     diffuseMapMs = new MemoryStream();
                     fs.CopyTo(diffuseMapMs);
                 }
 
-            MemoryStream bumpMapMs = null;
+            MemoryStream? bumpMapMs = null;
             if (BumpMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, BumpMap), FileMode.Open)) {
                     bumpMapMs = new MemoryStream();
                     fs.CopyTo(bumpMapMs);
                 }
 
-            MemoryStream alphaMapMs = null;
+            MemoryStream? alphaMapMs = null;
             if (AlphaMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, AlphaMap), FileMode.Open)) {
                     alphaMapMs = new MemoryStream();
                     fs.CopyTo(alphaMapMs);
                 }
 
-            MemoryStream specularMapMs = null;
+            MemoryStream? specularMapMs = null;
             if (SpecularMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, SpecularMap), FileMode.Open)) {
                     specularMapMs = new MemoryStream();

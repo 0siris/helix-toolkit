@@ -7,9 +7,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
     private const string ToUpperDictString = @"..\";
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    public string Resolve(string modelPath, string texturePath) {
-        return OnLoadTexture(modelPath, texturePath);
-    }
+    public string? Resolve(string modelPath, string texturePath) => OnLoadTexture(modelPath, texturePath);
 
     /// <summary>
     ///     Called when [load texture].
@@ -17,7 +15,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
     /// <param name="modelPath">The model path</param>
     /// <param name="texturePath">The path.</param>
     /// <returns></returns>
-    protected virtual string OnLoadTexture(string modelPath, string texturePath) {
+    protected virtual string? OnLoadTexture(string modelPath, string texturePath) {
         try {
             var dict = Path.GetDirectoryName(modelPath);
             if (string.IsNullOrEmpty(dict)) dict = Directory.GetCurrentDirectory();
@@ -68,7 +66,5 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
         return string.Empty;
     }
 
-    protected virtual bool FileExists(string path) {
-        return File.Exists(path);
-    }
+    protected virtual bool FileExists(string path) => File.Exists(path);
 }

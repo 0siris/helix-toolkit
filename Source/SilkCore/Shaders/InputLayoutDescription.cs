@@ -57,7 +57,7 @@ public sealed class InputLayoutDescription {
     ///     The shader byte code.
     /// </value>
     [DataMember]
-    public byte[] ShaderByteCode {
+    public byte[]? ShaderByteCode {
         get {
             if (field == null && !string.IsNullOrEmpty(ShaderByteCodeName))
                 field = UwpShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);

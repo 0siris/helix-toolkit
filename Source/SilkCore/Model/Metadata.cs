@@ -78,7 +78,7 @@ public sealed class Metadata : Dictionary<string, Metadata.Entry> {
         public object Data { get; }
 
         public T? DataAs<T>() where T : unmanaged {
-            Type dataTypeType = null;
+            Type? dataTypeType = null;
             switch (DataType) {
                 case MetaDataType.Bool:
                     dataTypeType = typeof(bool);
@@ -109,14 +109,12 @@ public sealed class Metadata : Dictionary<string, Metadata.Entry> {
             return null;
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object? obj) {
             if (obj is Entry e) return e.Equals(this);
             return false;
         }
 
-        public bool Equals(Entry other) {
-            return other.DataType == DataType && other.Data.Equals(Data);
-        }
+        public bool Equals(Entry other) => other.DataType == DataType && other.Data.Equals(Data);
 
         public override int GetHashCode() {
             unchecked {
@@ -128,16 +126,10 @@ public sealed class Metadata : Dictionary<string, Metadata.Entry> {
             }
         }
 
-        public override string ToString() {
-            return $"Type:{DataType}; Value:{Data}";
-        }
+        public override string ToString() => $"Type:{DataType}; Value:{Data}";
 
-        public static bool operator ==(Entry a, Entry b) {
-            return a.Equals(b);
-        }
+        public static bool operator ==(Entry a, Entry b) => a.Equals(b);
 
-        public static bool operator !=(Entry a, Entry b) {
-            return !a.Equals(b);
-        }
+        public static bool operator !=(Entry a, Entry b) => !a.Equals(b);
     }
 }

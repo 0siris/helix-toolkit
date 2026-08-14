@@ -33,7 +33,7 @@ public interface IVertexExtraBufferModel : IGuid, IDisposable {
     /// <value>
     ///     The buffer.
     /// </value>
-    IElementsBufferProxy Buffer { get; }
+    IElementsBufferProxy? Buffer { get; }
 
     /// <summary>
     ///     Attaches the buffer.

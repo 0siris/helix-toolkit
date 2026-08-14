@@ -26,7 +26,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
         Width = Height = 1024;
     }
 
-    public event EventHandler<UpdateLightSourceEventArgs> OnUpdateLightSource;
+    public event EventHandler<UpdateLightSourceEventArgs>? OnUpdateLightSource;
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (!NeedRender) {
@@ -70,9 +70,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 #endif
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        return true;
-    }
+    protected override bool OnAttach(IRenderTechnique technique) => true;
 
     protected override void OnDetach() {
         RemoveAndDispose(ref viewResource);

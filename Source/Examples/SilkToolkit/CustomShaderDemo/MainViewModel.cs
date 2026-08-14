@@ -55,7 +55,7 @@ public class MainViewModel : BaseViewModel {
                                                       100)];
             }
         }
-        get { return startColor; }
+        get => startColor;
     }
 
     private Color midColor;
@@ -76,7 +76,7 @@ public class MainViewModel : BaseViewModel {
                                                       100)];
             }
         }
-        get { return midColor; }
+        get => midColor;
     }
 
     private Color endColor;
@@ -97,7 +97,7 @@ public class MainViewModel : BaseViewModel {
                                                       100)];
             }
         }
-        get { return endColor; }
+        get => endColor;
     }
 
     public Color4Collection ColorGradient {
@@ -106,12 +106,12 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.ColorStripeX = value;
             }
         }
-        get { return field; }
+        get => field;
     }
 
     public FillMode FillMode {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -120,7 +120,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = value ? FillMode.Wireframe : FillMode.Solid;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     private int Width = 100;
@@ -195,9 +195,7 @@ public class MainViewModel : BaseViewModel {
         CustomPointMaterial = new CustomPointMaterial() { Color = Colors.White };
     }
 
-    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) {
-        return GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
-    }
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) => GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
         float stepA = ((end.W - start.W) / (steps - 1));

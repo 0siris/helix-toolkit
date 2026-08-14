@@ -15,7 +15,5 @@ public sealed class DirectionalLightNode : LightNode {
         set => (RenderCore as DirectionalLightCore).Direction = value;
     }
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new DirectionalLightCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new DirectionalLightCore();
 }

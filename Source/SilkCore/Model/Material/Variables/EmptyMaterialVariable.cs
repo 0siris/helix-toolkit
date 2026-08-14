@@ -28,9 +28,8 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
         RenderContext context,
         DeviceContextProxy deviceContext,
         ShaderPass shaderPass
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     /// <summary>
     ///     Gets the pass.
@@ -38,9 +37,7 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
     /// <param name="renderType">Type of the render.</param>
     /// <param name="context">The context.</param>
     /// <returns></returns>
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
     protected override void UpdateInternalVariables(DeviceContextProxy context) { }
 
@@ -62,9 +59,7 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
     /// <param name="renderType">Type of the render.</param>
     /// <param name="context">The context.</param>
     /// <returns></returns>
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
     /// <summary>
     ///     Gets the wireframe pass.
@@ -72,9 +67,7 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
     /// <param name="renderType">Type of the render.</param>
     /// <param name="context">The context.</param>
     /// <returns></returns>
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
     /// <summary>
     ///     Gets the depth pass.
@@ -82,7 +75,5 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
     /// <param name="renderType">Type of the render.</param>
     /// <param name="context">The context.</param>
     /// <returns></returns>
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 }

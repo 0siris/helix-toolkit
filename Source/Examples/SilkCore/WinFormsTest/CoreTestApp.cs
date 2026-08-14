@@ -56,9 +56,7 @@ public static class DpiHelper {
 }
 
 public class CoreTestApp {
-    public ViewportCore Viewport {
-        get => viewport;
-    }
+    public ViewportCore Viewport => viewport;
 
     private readonly ViewportCore viewport;
     private readonly Form window;
@@ -700,7 +698,5 @@ public class CoreTestApp {
 }
 
 internal static class RandomExtensions {
-    public static float NextFloat(this Random random, float minimum, float maximum) {
-        return minimum + (float)random.NextDouble() * (maximum - minimum);
-    }
+    public static float NextFloat(this Random random, float minimum, float maximum) => minimum + (float)random.NextDouble() * (maximum - minimum);
 }

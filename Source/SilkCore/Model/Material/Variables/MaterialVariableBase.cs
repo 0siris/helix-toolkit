@@ -102,7 +102,7 @@ public abstract class MaterialVariable : DisposeObject {
 
     protected bool NeedUpdate { get; private set; } = true;
 
-    public event EventHandler UpdateNeeded;
+    public event EventHandler? UpdateNeeded;
 
     internal void Initialize() {
         if (EffectsManager == null) return;
@@ -167,9 +167,7 @@ public abstract class MaterialVariable : DisposeObject {
     /// </summary>
     /// <param name="name">The name.</param>
     /// <returns></returns>
-    public ShaderPass GetPassByName(string name) {
-        return Technique[name];
-    }
+    public ShaderPass GetPassByName(string name) => Technique[name];
 
     /// <summary>
     ///     Updates the material structure. And upload data to constant buffer

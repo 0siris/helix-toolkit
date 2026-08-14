@@ -15,9 +15,10 @@ public sealed class TextureModelRepository : ITextureModelRepository {
 
     private readonly ConditionalWeakTable<Stream, WeakReference<TextureModel>> streamDict = [];
 
-    public TextureModel Create(Stream stream) {
-        if (stream == null) 
+    public TextureModel? Create(Stream? stream) {
+        if (stream == null)
             return null;
+
         lock (streamDict) {
             
             if (streamDict.TryGetValue(stream, out var tex)) {
@@ -38,8 +39,10 @@ public sealed class TextureModelRepository : ITextureModelRepository {
         }
     }
 
-    public TextureModel Create(string texturePath) {
-        if (string.IsNullOrEmpty(texturePath)) return null;
+    public TextureModel? Create(string? texturePath) {
+        if (string.IsNullOrEmpty(texturePath))
+            return null;
+
         lock (fileDict) {
             if (fileDict.TryGetValue(texturePath, out var tex)) {
                 if (tex.TryGetTarget(out var target)) {

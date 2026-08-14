@@ -19,7 +19,7 @@ public interface IViewport3DX : IDisposable {
     /// <value>
     ///     The render host.
     /// </value>
-    IRenderHost RenderHost { get; }
+    IRenderHost? RenderHost { get; }
 
     /// <summary>
     ///     Gets a value indicating whether this instance is shadow mapping enabled.
@@ -35,7 +35,7 @@ public interface IViewport3DX : IDisposable {
     /// <value>
     ///     The effects manager.
     /// </value>
-    IEffectsManager EffectsManager { get; set; }
+    IEffectsManager? EffectsManager { get; set; }
 
     /// <summary>
     ///     Gets the camera core.

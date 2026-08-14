@@ -171,11 +171,7 @@ public class CoordinateSystemModel3D : ScreenSpacedElement3D {
     }
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new CoordinateSystemNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new CoordinateSystemNode();
 
-    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 }

@@ -1,25 +1,15 @@
 namespace HelixToolkit.SharpDX.Core;
 
 public static class RayExtensions {
-    public static bool Intersects(this Ray ray, ref BoundingBox box) {
-        return Intersects(ref box, ref ray);
-    }
+    public static bool Intersects(this Ray ray, ref BoundingBox box) => Intersects(ref box, ref ray);
 
-    public static bool Intersects(this Ray ray, BoundingBox box) {
-        return Intersects(ref box, ref ray);
-    }
+    public static bool Intersects(this Ray ray, BoundingBox box) => Intersects(ref box, ref ray);
 
-    public static bool Intersects(this BoundingBox box, ref Ray ray) {
-        return Intersects(ref box, ref ray);
-    }
+    public static bool Intersects(this BoundingBox box, ref Ray ray) => Intersects(ref box, ref ray);
 
-    public static bool Intersects(this Ray ray, ref BoundingSphere sphere) {
-        return sphere.Intersects(ref ray);
-    }
+    public static bool Intersects(this Ray ray, ref BoundingSphere sphere) => sphere.Intersects(ref ray);
 
-    public static bool Intersects(this Ray ray, BoundingSphere sphere) {
-        return sphere.Intersects(ref ray);
-    }
+    public static bool Intersects(this Ray ray, BoundingSphere sphere) => sphere.Intersects(ref ray);
 
     private static bool Intersects(ref BoundingBox box, ref Ray ray) {
         var minimumDistance = 0f;

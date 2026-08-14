@@ -21,7 +21,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     ///     Occurs while this component is disposing and before it is disposed.
     /// </summary>
     //internal event EventHandler<EventArgs> Disposing;
-    private string name;
+    private string? name;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ComponentBase" /> class with a mutable name.
@@ -32,7 +32,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     ///     Initializes a new instance of the <see cref="ComponentBase" /> class with an immutable name.
     /// </summary>
     /// <param name="name">The name.</param>
-    protected ComponentBase(string name) {
+    protected ComponentBase(string? name) {
         if (name != null) {
             this.name = name;
             isNameImmutable = true;
@@ -44,8 +44,8 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// </summary>
     /// <value>The tag.</value>
     [DefaultValue(null)]
-    public object Tag {
-        get { return field; }
+    public object? Tag {
+        get => field;
         set {
             if (ReferenceEquals(field, value))
                 return;
@@ -59,7 +59,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// </summary>
     /// <value>The name.</value>
     [DefaultValue(null)]
-    public string Name {
+    public string? Name {
         get => name;
         set {
             if (isNameImmutable)
@@ -74,7 +74,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
     /// <summary>
     ///     Occurs when a property value changes.
     /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// </summary>

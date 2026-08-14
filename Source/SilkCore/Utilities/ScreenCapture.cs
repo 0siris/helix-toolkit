@@ -25,9 +25,6 @@ public static class ScreenCapture {
         Texture2D source,
         out Texture2D stagingTexture
     ) {
-        stagingTexture = null;
-        if (context == null || source == null) return false;
-
         var desc = source.Description;
         if (source.Description.SampleDescription.Count > 1) {
             desc.SampleDescription.Count = 1;
@@ -72,9 +69,8 @@ public static class ScreenCapture {
         Texture2D source,
         string file,
         Direct2DImageFormat format
-    ) {
-        return SaveWicTextureToFile(deviceResource, source, file, format.ToWicImageFormat());
-    }
+    )
+        => SaveWicTextureToFile(deviceResource, source, file, format.ToWicImageFormat());
 
 
     /// <summary>
@@ -109,18 +105,16 @@ public static class ScreenCapture {
         IDeviceResources deviceResource,
         Texture2D source,
         MemoryStream bitmapStream
-    ) {
-        return SaveWicTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
-    }
+    )
+        => SaveWicTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
 
     internal static bool SaveWicTextureToStream(
         IDeviceResources deviceResource,
         Texture2D source,
         Stream stream,
         Direct2DImageFormat format
-    ) {
-        return SaveWicTexture(deviceResource, source, stream, ToImageFileType(format.ToWicImageFormat()));
-    }
+    )
+        => SaveWicTexture(deviceResource, source, stream, ToImageFileType(format.ToWicImageFormat()));
 
     private static bool SaveWicTexture(
         IDeviceResources deviceResource,
@@ -128,13 +122,11 @@ public static class ScreenCapture {
         Stream stream,
         ImageFileType fileType
     ) {
-        if (deviceResource?.NativeDeviceResources?.ImmediateContext == null || source == null ||
-            stream == null) return false;
-
-        var context = deviceResource.NativeDeviceResources.ImmediateContext;
-        if (!CaptureTexture(new DeviceContextProxy(context, deviceResource.NativeDeviceResources.Device),
-                            source,
-                            out var stagingTexture)) return false;
+        var nativeResources = deviceResource.NativeDeviceResources;
+        var context = nativeResources.ImmediateContext;
+        if (!CaptureTexture(new DeviceContextProxy(context, nativeResources.Device),
+                source,
+                out var stagingTexture)) return false;
 
         var disposeStaging = !ReferenceEquals(stagingTexture, source);
         try {
@@ -142,16 +134,16 @@ public static class ScreenCapture {
             try {
                 if (stagingTexture.Description.Format != Format.FormatB8G8R8A8Unorm) {
                     Logger.Warn("Screen capture format {Value0} is not supported for WPF encoding.",
-                                stagingTexture.Description.Format);
+                        stagingTexture.Description.Format);
                     return false;
                 }
 
                 WicHelper.SaveBgra32(data.DataPointer,
-                                     stagingTexture.Description.Width,
-                                     stagingTexture.Description.Height,
-                                     data.RowPitch,
-                                     stream,
-                                     fileType);
+                    stagingTexture.Description.Width,
+                    stagingTexture.Description.Height,
+                    data.RowPitch,
+                    stream,
+                    fileType);
                 stream.Position = 0;
                 return true;
             } finally {

@@ -228,13 +228,9 @@ public class DiffuseMaterialVariables : MaterialVariable {
         return MaterialPass;
     }
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShadowPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShadowPass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return DepthPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => DepthPass;
 
     public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
         if (renderType == RenderType.Transparent)

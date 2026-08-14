@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace SharpDX.Toolkit.Graphics;
@@ -97,8 +98,6 @@ public sealed class Image : Component {
         Register(ImageFileType.Wmp, null, WicHelper.SaveWmpToWicMemory);
     }
 
-    private Image() { }
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="Image" /> class.
     /// </summary>
@@ -160,9 +159,7 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="mipmap">The mipmap.</param>
     /// <returns>A description of a particular mipmap for this texture.</returns>
-    public MipMapDescription GetMipMapDescription(int mipmap) {
-        return mipmapDescriptions[mipmap];
-    }
+    public MipMapDescription GetMipMapDescription(int mipmap) => mipmapDescriptions[mipmap];
 
     /// <summary>
     ///     Gets the pixel buffer for the specified array/z slice and mipmap level.
@@ -248,9 +245,7 @@ public sealed class Image : Component {
     ///     Gets the databox from this image.
     /// </summary>
     /// <returns>The databox of this image.</returns>
-    public DataBox[] ToDataBox() {
-        return (DataBox[])dataBoxArray.Clone();
-    }
+    public DataBox[] ToDataBox() => (DataBox[])dataBoxArray.Clone();
 
     /// <summary>
     ///     Gets the databox from this image.
@@ -278,9 +273,7 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>A new image.</returns>
-    public static Image New(ImageDescription description) {
-        return New(description, nint.Zero);
-    }
+    public static Image New(ImageDescription description) => New(description, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a 1D <see cref="Image" />.
@@ -290,9 +283,7 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) {
-        return New1D(width, mipMapCount, format, arraySize, nint.Zero);
-    }
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) => New1D(width, mipMapCount, format, arraySize, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a 2D <see cref="Image" />.
@@ -303,9 +294,7 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) {
-        return New2D(width, height, mipMapCount, format, arraySize, nint.Zero);
-    }
+    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) => New2D(width, height, mipMapCount, format, arraySize, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a Cube <see cref="Image" />.
@@ -314,9 +303,7 @@ public sealed class Image : Component {
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format) {
-        return NewCube(width, mipMapCount, format, nint.Zero);
-    }
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format) => NewCube(width, mipMapCount, format, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a 3D <see cref="Image" />.
@@ -327,9 +314,7 @@ public sealed class Image : Component {
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format) {
-        return New3D(width, height, depth, mipMapCount, format, nint.Zero);
-    }
+    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format) => New3D(width, height, depth, mipMapCount, format, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of <see cref="Image" /> from an image description.
@@ -337,9 +322,7 @@ public sealed class Image : Component {
     /// <param name="description">The image description.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New(ImageDescription description, nint dataPointer) {
-        return new Image(description, dataPointer, 0, null, false);
-    }
+    public static Image New(ImageDescription description, nint dataPointer) => new(description, dataPointer, 0, null, false);
 
     /// <summary>
     ///     Creates a new instance of a 1D <see cref="Image" />.
@@ -350,13 +333,11 @@ public sealed class Image : Component {
     /// <param name="arraySize">Size of the array.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer) {
-        return new Image(CreateDescription(TextureDimension.Texture1D, width, 1, 1, mipMapCount, format, arraySize),
-                         dataPointer,
-                         0,
-                         null,
-                         false);
-    }
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer) => new(CreateDescription(TextureDimension.Texture1D, width, 1, 1, mipMapCount, format, arraySize),
+        dataPointer,
+        0,
+        null,
+        false);
 
     /// <summary>
     ///     Creates a new instance of a 2D <see cref="Image" />.
@@ -375,14 +356,13 @@ public sealed class Image : Component {
         PixelFormat format,
         int arraySize,
         nint dataPointer
-    ) {
-        return new Image(
+    )
+        => new(
             CreateDescription(TextureDimension.Texture2D, width, height, 1, mipMapCount, format, arraySize),
             dataPointer,
             0,
             null,
             false);
-    }
 
     /// <summary>
     ///     Creates a new instance of a Cube <see cref="Image" />.
@@ -392,13 +372,11 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer) {
-        return new Image(CreateDescription(TextureDimension.TextureCube, width, width, 1, mipMapCount, format, 6),
-                         dataPointer,
-                         0,
-                         null,
-                         false);
-    }
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer) => new(CreateDescription(TextureDimension.TextureCube, width, width, 1, mipMapCount, format, 6),
+        dataPointer,
+        0,
+        null,
+        false);
 
     /// <summary>
     ///     Creates a new instance of a 3D <see cref="Image" />.
@@ -417,13 +395,12 @@ public sealed class Image : Component {
         MipMapCount mipMapCount,
         PixelFormat format,
         nint dataPointer
-    ) {
-        return new Image(CreateDescription(TextureDimension.Texture3D, width, width, depth, mipMapCount, format, 1),
-                         dataPointer,
-                         0,
-                         null,
-                         false);
-    }
+    )
+        => new(CreateDescription(TextureDimension.Texture3D, width, width, depth, mipMapCount, format, 1),
+            dataPointer,
+            0,
+            null,
+            false);
 
     /// <summary>
     ///     Loads an image from an unmanaged memory pointer.
@@ -439,9 +416,7 @@ public sealed class Image : Component {
     ///     pointer and will release it on Dispose.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image Load(DataPointer dataBuffer, bool makeACopy = false) {
-        return Load(dataBuffer.Pointer, dataBuffer.Size, makeACopy);
-    }
+    public static Image? Load(DataPointer dataBuffer, bool makeACopy = false) => Load(dataBuffer.Pointer, dataBuffer.Size, makeACopy);
 
     /// <summary>
     ///     Loads an image from an unmanaged memory pointer.
@@ -458,9 +433,7 @@ public sealed class Image : Component {
     ///     pointer and will release it on Dispose.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image? Load(nint dataPointer, int dataSize, bool makeACopy = false) {
-        return Load(dataPointer, dataSize, makeACopy, null);
-    }
+    public static Image? Load(nint dataPointer, int dataSize, bool makeACopy = false) => Load(dataPointer, dataSize, makeACopy, null);
 
     /// <summary>
     ///     Loads an image from a managed buffer.
@@ -502,7 +475,7 @@ public sealed class Image : Component {
     ///     This method supports <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image Load(string fileName) {
+    public static Image? Load(string fileName) {
         using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         return Load(stream);
     }
@@ -527,6 +500,8 @@ public sealed class Image : Component {
         return null;
     }
 
+    [MemberNotNull(nameof(dataBoxArray), nameof(mipmapDescriptions), nameof(mipMapToZIndex),
+                   nameof(pixelBufferArray), nameof(PixelBuffers))]
     internal unsafe void Initialize(
         ImageDescription description,
         nint dataPointer,
@@ -621,8 +596,8 @@ public sealed class Image : Component {
         MipMapCount mipMapCount,
         PixelFormat format,
         int arraySize
-    ) {
-        return new ImageDescription {
+    )
+        => new() {
             Width = width,
             Height = height,
             Depth = depth,
@@ -631,7 +606,6 @@ public sealed class Image : Component {
             Format = format,
             MipLevels = mipMapCount
         };
-    }
 
     internal static void ComputePitch(
         Format fmt,

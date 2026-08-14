@@ -24,48 +24,48 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Plane {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(Plane)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(Plane));
     }
 
     public LineGeometry3D Grid {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(Grid)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(Grid));
     }
 
     public PhongMaterial PlaneMaterial {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(PlaneMaterial)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(PlaneMaterial));
     }
 
     public Color GridColor {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(GridColor)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(GridColor));
     }
 
     public Media3D.Transform3D PlaneTransform {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(PlaneTransform)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(PlaneTransform));
     }
 
     public Media3D.Transform3D GridTransform {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(GridTransform)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(GridTransform));
     }
 
     public Vector3D DirectionalLightDirection {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(DirectionalLightDirection)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(DirectionalLightDirection));
     }
 
     public Color4 DirectionalLightColor {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(DirectionalLightColor)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(DirectionalLightColor));
     }
 
     public Color4 AmbientLightColor {
-        get { return field; }
-        set { SetValue(ref field, value, nameof(AmbientLightColor)); }
+        get => field;
+        set => SetValue(ref field, value, nameof(AmbientLightColor));
     }
 
     public ICommand OpenCommand { get; private set; }

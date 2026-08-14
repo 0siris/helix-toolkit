@@ -140,9 +140,7 @@ public class PostEffectMeshOutlineBlur : Element3D {
         set => SetValue(NumberOfBlurPassProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new NodePostEffectMeshOutlineBlur();
-    }
+    protected override SceneNode OnCreateSceneNode() => new NodePostEffectMeshOutlineBlur();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);

@@ -100,7 +100,11 @@ public sealed class Transform2DArgs : EventArgs {
 
 /// <summary>
 /// </summary>
-public sealed class BoolArgs : EventArgs {
+/// <remarks>
+///     Initializes a new instance of the <see cref="BoolArgs" /> class.
+/// </remarks>
+/// <param name="value">if set to <c>true</c> [value].</param>
+public sealed class BoolArgs(bool value) : EventArgs {
     /// <summary>
     ///     The true arguments
     /// </summary>
@@ -114,13 +118,7 @@ public sealed class BoolArgs : EventArgs {
     /// <summary>
     ///     The value
     /// </summary>
-    public readonly bool Value;
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="BoolArgs" /> class.
-    /// </summary>
-    /// <param name="value">if set to <c>true</c> [value].</param>
-    public BoolArgs(bool value) => Value = value;
+    public readonly bool Value = value;
 }
 
 /// <summary>

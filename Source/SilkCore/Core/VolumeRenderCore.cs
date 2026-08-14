@@ -190,7 +190,7 @@ public sealed class VolumeRenderCore : RenderCore {
             DeviceContextProxy context,
             IElementsBufferProxy buffer,
             int bufferIndex,
-            Geometry3D geometry,
+            Geometry3D? geometry,
             IDeviceResources deviceResources
         ) {
             // -- set geometry if given

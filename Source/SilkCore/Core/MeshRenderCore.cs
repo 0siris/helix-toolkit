@@ -196,9 +196,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     [AllowNull]
     public MaterialVariable MaterialVariables {
         get;
-        set {
-            SetAffectsCanRenderFlag(ref field, value ?? EmptyMaterialVariable.EmptyVariable);
-        }
+        set => SetAffectsCanRenderFlag(ref field, value ?? EmptyMaterialVariable.EmptyVariable);
     } = EmptyMaterialVariable.EmptyVariable;
 
 #endregion

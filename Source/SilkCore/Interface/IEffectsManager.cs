@@ -121,12 +121,12 @@ public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDis
     /// <summary>
     ///     Occurs when [on dispose resources].
     /// </summary>
-    event EventHandler<EventArgs> DisposingResources;
+    event EventHandler<EventArgs>? DisposingResources;
 
     /// <summary>
     ///     Occurs when [device created].
     /// </summary>
-    event EventHandler<EventArgs> Reinitialized;
+    event EventHandler<EventArgs>? Reinitialized;
 }
 
 /// <summary>
@@ -195,7 +195,7 @@ public interface IEffectsManager : IDeviceResources {
     /// <summary>
     ///     Occurs when [on invalidate renderer].
     /// </summary>
-    event EventHandler<EventArgs> InvalidateRender;
+    event EventHandler<EventArgs>? InvalidateRender;
 
     /// <summary>
     ///     Invalidates the renderer.

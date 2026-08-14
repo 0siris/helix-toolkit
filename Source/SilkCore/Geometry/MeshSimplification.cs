@@ -47,9 +47,7 @@ public class MeshSimplification {
     /// </summary>
     /// <param name="verbose"></param>
     /// <returns></returns>
-    public MeshGeometry3D Simplify(bool verbose = false) {
-        return Simplify(int.MaxValue, 7, verbose, true);
-    }
+    public MeshGeometry3D Simplify(bool verbose = false) => Simplify(int.MaxValue, 7, verbose, true);
 
     /// <summary>
     ///     Mesh Simplification using Fast-Quadric-Mesh-Simplification
@@ -247,10 +245,8 @@ public class MeshSimplification {
         return error;
     }
 
-    private double VertexError(ref SymmetricMatrix q, double x, double y, double z) {
-        return q.M11 * x * x + 2 * q.M12 * x * y + 2 * q.M13 * x * z + 2 * q.M14 * x + q.M22 * y * y
-               + 2 * q.M23 * y * z + 2 * q.M24 * y + q.M33 * z * z + 2 * q.M34 * z + q.M44;
-    }
+    private double VertexError(ref SymmetricMatrix q, double x, double y, double z) => q.M11 * x * x + 2 * q.M12 * x * y + 2 * q.M13 * x * z + 2 * q.M14 * x + q.M22 * y * y
+                                                                                       + 2 * q.M23 * y * z + 2 * q.M24 * y + q.M33 * z * z + 2 * q.M34 * z + q.M44;
 
     private void UpdateMesh(int iteration) {
         if (iteration > 0) // compact triangles
@@ -471,18 +467,16 @@ public class MeshSimplification {
             return det;
         }
 
-        public static SymmetricMatrix operator +(SymmetricMatrix n1, SymmetricMatrix n2) {
-            return new SymmetricMatrix(n1[0] + n2[0],
-                                       n1[1] + n2[1],
-                                       n1[2] + n2[2],
-                                       n1[3] + n2[3],
-                                       n1[4] + n2[4],
-                                       n1[5] + n2[5],
-                                       n1[6] + n2[6],
-                                       n1[7] + n2[7],
-                                       n1[8] + n2[8],
-                                       n1[9] + n2[9]);
-        }
+        public static SymmetricMatrix operator +(SymmetricMatrix n1, SymmetricMatrix n2) => new(n1[0] + n2[0],
+            n1[1] + n2[1],
+            n1[2] + n2[2],
+            n1[3] + n2[3],
+            n1[4] + n2[4],
+            n1[5] + n2[5],
+            n1[6] + n2[6],
+            n1[7] + n2[7],
+            n1[8] + n2[8],
+            n1[9] + n2[9]);
 
         public void SetAll(double c) {
             M11 = M12 = M13 = M14 = M22 = M23 = M24 = M33 = M34 = M44 = c;
@@ -528,9 +522,7 @@ public class MeshSimplification {
             P = v;
         }
 
-        public Vertex Clone() {
-            return new Vertex { P = P, Border = Border, Q = Q, TCount = TCount, TStart = TStart };
-        }
+        public Vertex Clone() => new() { P = P, Border = Border, Q = Q, TCount = TCount, TStart = TStart };
     }
 
     private struct Ref {

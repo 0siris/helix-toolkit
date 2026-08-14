@@ -69,7 +69,5 @@ public class Panel2D : Element2D {
         base.OnDetached();
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new PanelNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new PanelNode2D();
 }

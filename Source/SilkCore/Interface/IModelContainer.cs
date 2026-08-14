@@ -11,7 +11,7 @@ public interface IModelContainer : IRenderHost {
 
     /// <summary>
     /// </summary>
-    IRenderHost CurrentRenderHost { get; set; }
+    IRenderHost? CurrentRenderHost { get; set; }
 
     /// <summary>
     /// </summary>

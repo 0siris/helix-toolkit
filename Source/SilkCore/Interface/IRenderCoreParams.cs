@@ -3,10 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Core;
+
 /// <summary>
 /// </summary>
 public interface IGeometryRenderCore {
@@ -44,6 +46,7 @@ public interface IMaterialRenderParams {
     /// <value>
     ///     The material variable.
     /// </value>
+    [AllowNull]
     MaterialVariable MaterialVariables { get; set; }
 }
 
@@ -79,7 +82,7 @@ public interface IDynamicReflector {
 /// <summary>
 /// </summary>
 public interface IDynamicReflectable {
-    IDynamicReflector DynamicReflector { get; set; }
+    IDynamicReflector? DynamicReflector { get; set; }
 }
 
 /// <summary>
@@ -264,7 +267,6 @@ public static class MeshTopologies {
         }
     }
 }
-
 
 /// <summary>
 /// </summary>

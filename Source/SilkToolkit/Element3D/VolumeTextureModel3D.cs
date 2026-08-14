@@ -31,9 +31,7 @@ public class VolumeTextureModel3D : Element3D {
         set => SetValue(VolumeMaterialProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new VolumeTextureNode {
-            Material = VolumeMaterial
-        };
-    }
+    protected override SceneNode OnCreateSceneNode() => new VolumeTextureNode {
+        Material = VolumeMaterial
+    };
 }

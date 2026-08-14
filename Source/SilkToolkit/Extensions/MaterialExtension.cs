@@ -1,90 +1,89 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Model;
 
 namespace HelixToolkit.Wpf.SharpDX;
 public static class MaterialExtension {
-    public static PhongMaterial ConvertToPhongMaterial(this PhongMaterialCore core) {
-        return core == null
-                   ? null
-                   : new PhongMaterial {
-                       DiffuseColor = core.DiffuseColor,
-                       AmbientColor = core.AmbientColor,
-                       EmissiveColor = core.EmissiveColor,
-                       SpecularColor = core.SpecularColor,
-                       ReflectiveColor = core.ReflectiveColor,
-                       SpecularShininess = core.SpecularShininess,
-                       DiffuseAlphaMap = core.DiffuseAlphaMap,
-                       DiffuseMap = core.DiffuseMap,
-                       EmissiveMap = core.EmissiveMap,
-                       SpecularColorMap = core.SpecularColorMap,
-                       RenderDiffuseMap = core.RenderDiffuseMap,
-                       RenderDiffuseAlphaMap = core.RenderDiffuseAlphaMap,
-                       RenderDisplacementMap = core.RenderDisplacementMap,
-                       RenderEnvironmentMap = core.RenderEnvironmentMap,
-                       RenderNormalMap = core.RenderNormalMap,
-                       RenderShadowMap = core.RenderShadowMap,
-                       RenderSpecularColorMap = core.RenderSpecularColorMap,
-                       RenderEmissiveMap = core.RenderEmissiveMap,
-                       EnableAutoTangent = core.EnableAutoTangent,
-                       DiffuseMapSampler = core.DiffuseMapSampler,
-                       DisplacementMap = core.DisplacementMap,
-                       DisplacementMapSampler = core.DisplacementMapSampler,
-                       NormalMap = core.NormalMap,
-                       DisplacementMapScaleMask = core.DisplacementMapScaleMask,
-                       Name = core.Name,
-                       UVTransform = core.UvTransform,
-                       EnableTessellation = core.EnableTessellation,
-                       MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
-                       MaxTessellationDistance = core.MaxTessellationDistance,
-                       MinDistanceTessellationFactor = core.MinDistanceTessellationFactor,
-                       MinTessellationDistance = core.MinTessellationDistance
-                   };
-    }
+    [return: NotNullIfNotNull(nameof(core))]
+    public static PhongMaterial? ConvertToPhongMaterial(this PhongMaterialCore? core) => core == null
+        ? null
+        : new PhongMaterial {
+            DiffuseColor = core.DiffuseColor,
+            AmbientColor = core.AmbientColor,
+            EmissiveColor = core.EmissiveColor,
+            SpecularColor = core.SpecularColor,
+            ReflectiveColor = core.ReflectiveColor,
+            SpecularShininess = core.SpecularShininess,
+            DiffuseAlphaMap = core.DiffuseAlphaMap,
+            DiffuseMap = core.DiffuseMap,
+            EmissiveMap = core.EmissiveMap,
+            SpecularColorMap = core.SpecularColorMap,
+            RenderDiffuseMap = core.RenderDiffuseMap,
+            RenderDiffuseAlphaMap = core.RenderDiffuseAlphaMap,
+            RenderDisplacementMap = core.RenderDisplacementMap,
+            RenderEnvironmentMap = core.RenderEnvironmentMap,
+            RenderNormalMap = core.RenderNormalMap,
+            RenderShadowMap = core.RenderShadowMap,
+            RenderSpecularColorMap = core.RenderSpecularColorMap,
+            RenderEmissiveMap = core.RenderEmissiveMap,
+            EnableAutoTangent = core.EnableAutoTangent,
+            DiffuseMapSampler = core.DiffuseMapSampler,
+            DisplacementMap = core.DisplacementMap,
+            DisplacementMapSampler = core.DisplacementMapSampler,
+            NormalMap = core.NormalMap,
+            DisplacementMapScaleMask = core.DisplacementMapScaleMask,
+            Name = core.Name,
+            UVTransform = core.UvTransform,
+            EnableTessellation = core.EnableTessellation,
+            MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
+            MaxTessellationDistance = core.MaxTessellationDistance,
+            MinDistanceTessellationFactor = core.MinDistanceTessellationFactor,
+            MinTessellationDistance = core.MinTessellationDistance
+        };
 
-    public static PBRMaterial ConvertToPBRMaterial(this PbrMaterialCore core) {
-        return core == null
-                   ? null
-                   : new PBRMaterial {
-                       AlbedoColor = core.AlbedoColor,
-                       MetallicFactor = core.MetallicFactor,
-                       RoughnessFactor = core.RoughnessFactor,
-                       AlbedoMap = core.AlbedoMap,
-                       NormalMap = core.NormalMap,
-                       EmissiveMap = core.EmissiveMap,
-                       RoughnessMetallicMap = core.RoughnessMetallicMap,
-                       AmbientOcculsionMap = core.AmbientOcculsionMap,
-                       IrradianceMap = core.IrradianceMap,
-                       DisplacementMap = core.DisplacementMap,
-                       SurfaceMapSampler = core.SurfaceMapSampler,
-                       IBLSampler = core.IblSampler,
-                       DisplacementMapSampler = core.DisplacementMapSampler,
-                       AmbientOcclusionFactor = core.AmbientOcclusionFactor,
-                       ClearCoatRoughness = core.ClearCoatRoughness,
-                       ClearCoatStrength = core.ClearCoatStrength,
-                       EmissiveColor = core.EmissiveColor,
-                       EnableAutoTangent = core.EnableAutoTangent,
-                       Name = core.Name,
-                       ReflectanceFactor = core.ReflectanceFactor,
-                       RenderAlbedoMap = core.RenderAlbedoMap,
-                       RenderDisplacementMap = core.RenderDisplacementMap,
-                       RenderEmissiveMap = core.RenderEmissiveMap,
-                       RenderEnvironmentMap = core.RenderEnvironmentMap,
-                       RenderIrradianceMap = core.RenderIrradianceMap,
-                       RenderNormalMap = core.RenderNormalMap,
-                       RenderRoughnessMetallicMap = core.RenderRoughnessMetallicMap,
-                       RenderAmbientOcclusionMap = core.RenderAmbientOcclusionMap,
-                       RenderShadowMap = core.RenderShadowMap,
+    [return: NotNullIfNotNull(nameof(core))]
+    public static PBRMaterial? ConvertToPBRMaterial(this PbrMaterialCore? core) => core == null
+        ? null
+        : new PBRMaterial {
+            AlbedoColor = core.AlbedoColor,
+            MetallicFactor = core.MetallicFactor,
+            RoughnessFactor = core.RoughnessFactor,
+            AlbedoMap = core.AlbedoMap,
+            NormalMap = core.NormalMap,
+            EmissiveMap = core.EmissiveMap,
+            RoughnessMetallicMap = core.RoughnessMetallicMap,
+            AmbientOcculsionMap = core.AmbientOcculsionMap,
+            IrradianceMap = core.IrradianceMap,
+            DisplacementMap = core.DisplacementMap,
+            SurfaceMapSampler = core.SurfaceMapSampler,
+            IBLSampler = core.IblSampler,
+            DisplacementMapSampler = core.DisplacementMapSampler,
+            AmbientOcclusionFactor = core.AmbientOcclusionFactor,
+            ClearCoatRoughness = core.ClearCoatRoughness,
+            ClearCoatStrength = core.ClearCoatStrength,
+            EmissiveColor = core.EmissiveColor,
+            EnableAutoTangent = core.EnableAutoTangent,
+            Name = core.Name,
+            ReflectanceFactor = core.ReflectanceFactor,
+            RenderAlbedoMap = core.RenderAlbedoMap,
+            RenderDisplacementMap = core.RenderDisplacementMap,
+            RenderEmissiveMap = core.RenderEmissiveMap,
+            RenderEnvironmentMap = core.RenderEnvironmentMap,
+            RenderIrradianceMap = core.RenderIrradianceMap,
+            RenderNormalMap = core.RenderNormalMap,
+            RenderRoughnessMetallicMap = core.RenderRoughnessMetallicMap,
+            RenderAmbientOcclusionMap = core.RenderAmbientOcclusionMap,
+            RenderShadowMap = core.RenderShadowMap,
 
-                       DisplacementMapScaleMask = core.DisplacementMapScaleMask,
-                       UVTransform = core.UvTransform,
+            DisplacementMapScaleMask = core.DisplacementMapScaleMask,
+            UVTransform = core.UvTransform,
 
-                       EnableTessellation = core.EnableTessellation,
-                       MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
-                       MinDistanceTessellationFactor = core.MinDistanceTessellationFactor,
-                       MaxTessellationDistance = core.MaxTessellationDistance,
-                       MinTessellationDistance = core.MinTessellationDistance
-                   };
-    }
+            EnableTessellation = core.EnableTessellation,
+            MaxDistanceTessellationFactor = core.MaxDistanceTessellationFactor,
+            MinDistanceTessellationFactor = core.MinDistanceTessellationFactor,
+            MaxTessellationDistance = core.MaxTessellationDistance,
+            MinTessellationDistance = core.MinTessellationDistance
+        };
 
     public static Material ConvertToMaterial(this MaterialCore core) {
         if (core is PhongMaterialCore p) return p.ConvertToPhongMaterial();

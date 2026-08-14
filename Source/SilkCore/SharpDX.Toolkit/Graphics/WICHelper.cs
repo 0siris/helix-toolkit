@@ -19,7 +19,7 @@ internal static class WicHelper {
     ///     Loads the first frame of an image supported by WIC.
     /// </summary>
     /// <remarks>Animated GIFs and multi-page TIFFs are intentionally loaded as frame 0 only.</remarks>
-    public static Image LoadFromWicMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
+    public static Image? LoadFromWicMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
         if (pSource == nint.Zero || size <= 0) return null;
 
         var encoded = new byte[size];

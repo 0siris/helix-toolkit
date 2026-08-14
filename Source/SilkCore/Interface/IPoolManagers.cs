@@ -16,7 +16,7 @@ public interface IShaderPoolManager : IDisposable {
     /// </summary>
     /// <param name="description">The description.</param>
     /// <returns></returns>
-    ShaderBase RegisterShader(ShaderDescription description);
+    ShaderBase? RegisterShader(ShaderDescription description);
 
     /// <summary>
     ///     Registers the input layout. Input layout object live time is managed by ShaderPoolManager. Input layout should not
@@ -24,7 +24,7 @@ public interface IShaderPoolManager : IDisposable {
     /// </summary>
     /// <param name="description">The description.</param>
     /// <returns></returns>
-    InputLayoutProxy RegisterInputLayout(InputLayoutDescription description);
+    InputLayoutProxy? RegisterInputLayout(InputLayoutDescription description);
 }
 
 /// <summary>

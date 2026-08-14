@@ -535,8 +535,8 @@ public class PBRMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AlbedoColor {
-        get { return (Color4)GetValue(AlbedoColorProperty); }
-        set { SetValue(AlbedoColorProperty, value); }
+        get => (Color4)GetValue(AlbedoColorProperty);
+        set => SetValue(AlbedoColorProperty, value);
     }
 
     public Color4 EmissiveColor {
@@ -677,8 +677,8 @@ public class PBRMaterial : Material {
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get { return (Vector4)GetValue(DisplacementMapScaleMaskProperty); }
-        set { SetValue(DisplacementMapScaleMaskProperty, value); }
+        get => (Vector4)GetValue(DisplacementMapScaleMaskProperty);
+        set => SetValue(DisplacementMapScaleMaskProperty, value);
     }
 
     /// <summary>
@@ -852,96 +852,90 @@ public class PBRMaterial : Material {
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new PbrMaterialCore {
-            AlbedoColor = AlbedoColor,
-            MetallicFactor = (float)MetallicFactor,
-            RoughnessFactor = (float)RoughnessFactor,
-            AmbientOcclusionFactor = (float)AmbientOcclusionFactor,
-            ReflectanceFactor = (float)ReflectanceFactor,
-            ClearCoatStrength = (float)ClearCoatStrength,
-            ClearCoatRoughness = (float)ClearCoatRoughness,
+    protected override MaterialCore OnCreateCore() => new PbrMaterialCore {
+        AlbedoColor = AlbedoColor,
+        MetallicFactor = (float)MetallicFactor,
+        RoughnessFactor = (float)RoughnessFactor,
+        AmbientOcclusionFactor = (float)AmbientOcclusionFactor,
+        ReflectanceFactor = (float)ReflectanceFactor,
+        ClearCoatStrength = (float)ClearCoatStrength,
+        ClearCoatRoughness = (float)ClearCoatRoughness,
 
-            AlbedoMap = AlbedoMap,
-            NormalMap = NormalMap,
-            EmissiveMap = EmissiveMap,
-            RoughnessMetallicMap = RoughnessMetallicMap,
-            AmbientOcculsionMap = AmbientOcculsionMap,
-            IrradianceMap = IrradianceMap,
-            DisplacementMap = DisplacementMap,
-            SurfaceMapSampler = SurfaceMapSampler,
-            IblSampler = IBLSampler,
-            DisplacementMapSampler = DisplacementMapSampler,
+        AlbedoMap = AlbedoMap,
+        NormalMap = NormalMap,
+        EmissiveMap = EmissiveMap,
+        RoughnessMetallicMap = RoughnessMetallicMap,
+        AmbientOcculsionMap = AmbientOcculsionMap,
+        IrradianceMap = IrradianceMap,
+        DisplacementMap = DisplacementMap,
+        SurfaceMapSampler = SurfaceMapSampler,
+        IblSampler = IBLSampler,
+        DisplacementMapSampler = DisplacementMapSampler,
 
-            RenderAlbedoMap = RenderAlbedoMap,
-            RenderDisplacementMap = RenderDisplacementMap,
-            RenderEmissiveMap = RenderEmissiveMap,
-            RenderEnvironmentMap = RenderEnvironmentMap,
-            RenderIrradianceMap = RenderIrradianceMap,
-            RenderNormalMap = RenderNormalMap,
-            RenderRoughnessMetallicMap = RenderRoughnessMetallicMap,
-            RenderAmbientOcclusionMap = RenderAmbientOcclusionMap,
-            RenderShadowMap = RenderShadowMap,
-            EnableAutoTangent = EnableAutoTangent,
-            DisplacementMapScaleMask = DisplacementMapScaleMask,
-            UvTransform = UVTransform,
+        RenderAlbedoMap = RenderAlbedoMap,
+        RenderDisplacementMap = RenderDisplacementMap,
+        RenderEmissiveMap = RenderEmissiveMap,
+        RenderEnvironmentMap = RenderEnvironmentMap,
+        RenderIrradianceMap = RenderIrradianceMap,
+        RenderNormalMap = RenderNormalMap,
+        RenderRoughnessMetallicMap = RenderRoughnessMetallicMap,
+        RenderAmbientOcclusionMap = RenderAmbientOcclusionMap,
+        RenderShadowMap = RenderShadowMap,
+        EnableAutoTangent = EnableAutoTangent,
+        DisplacementMapScaleMask = DisplacementMapScaleMask,
+        UvTransform = UVTransform,
 
-            EnableTessellation = EnableTessellation,
-            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
-            MaxTessellationDistance = (float)MaxTessellationDistance,
-            MinTessellationDistance = (float)MinTessellationDistance,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
-        };
-    }
+        EnableTessellation = EnableTessellation,
+        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+        MaxTessellationDistance = (float)MaxTessellationDistance,
+        MinTessellationDistance = (float)MinTessellationDistance,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return CloneMaterial();
-    }
+    protected override Freezable CreateInstanceCore() => CloneMaterial();
 
-    public virtual PBRMaterial CloneMaterial() {
-        return new PBRMaterial {
-            AlbedoColor = AlbedoColor,
-            MetallicFactor = MetallicFactor,
-            RoughnessFactor = RoughnessFactor,
-            AmbientOcclusionFactor = AmbientOcclusionFactor,
-            ReflectanceFactor = ReflectanceFactor,
-            ClearCoatStrength = ClearCoatStrength,
-            ClearCoatRoughness = ClearCoatRoughness,
-            AlbedoMap = AlbedoMap,
-            NormalMap = NormalMap,
-            EmissiveMap = EmissiveMap,
-            RoughnessMetallicMap = RoughnessMetallicMap,
-            AmbientOcculsionMap = AmbientOcculsionMap,
-            IrradianceMap = IrradianceMap,
-            DisplacementMap = DisplacementMap,
-            SurfaceMapSampler = SurfaceMapSampler,
-            IBLSampler = IBLSampler,
-            DisplacementMapSampler = DisplacementMapSampler,
+    public virtual PBRMaterial CloneMaterial() => new() {
+        AlbedoColor = AlbedoColor,
+        MetallicFactor = MetallicFactor,
+        RoughnessFactor = RoughnessFactor,
+        AmbientOcclusionFactor = AmbientOcclusionFactor,
+        ReflectanceFactor = ReflectanceFactor,
+        ClearCoatStrength = ClearCoatStrength,
+        ClearCoatRoughness = ClearCoatRoughness,
+        AlbedoMap = AlbedoMap,
+        NormalMap = NormalMap,
+        EmissiveMap = EmissiveMap,
+        RoughnessMetallicMap = RoughnessMetallicMap,
+        AmbientOcculsionMap = AmbientOcculsionMap,
+        IrradianceMap = IrradianceMap,
+        DisplacementMap = DisplacementMap,
+        SurfaceMapSampler = SurfaceMapSampler,
+        IBLSampler = IBLSampler,
+        DisplacementMapSampler = DisplacementMapSampler,
 
-            RenderAlbedoMap = RenderAlbedoMap,
-            RenderDisplacementMap = RenderDisplacementMap,
-            RenderEmissiveMap = RenderEmissiveMap,
-            RenderEnvironmentMap = RenderEnvironmentMap,
-            RenderIrradianceMap = RenderIrradianceMap,
-            RenderNormalMap = RenderNormalMap,
-            RenderRoughnessMetallicMap = RenderRoughnessMetallicMap,
-            RenderAmbientOcclusionMap = RenderAmbientOcclusionMap,
-            RenderShadowMap = RenderShadowMap,
-            EnableAutoTangent = EnableAutoTangent,
-            DisplacementMapScaleMask = DisplacementMapScaleMask,
-            UVTransform = UVTransform,
+        RenderAlbedoMap = RenderAlbedoMap,
+        RenderDisplacementMap = RenderDisplacementMap,
+        RenderEmissiveMap = RenderEmissiveMap,
+        RenderEnvironmentMap = RenderEnvironmentMap,
+        RenderIrradianceMap = RenderIrradianceMap,
+        RenderNormalMap = RenderNormalMap,
+        RenderRoughnessMetallicMap = RenderRoughnessMetallicMap,
+        RenderAmbientOcclusionMap = RenderAmbientOcclusionMap,
+        RenderShadowMap = RenderShadowMap,
+        EnableAutoTangent = EnableAutoTangent,
+        DisplacementMapScaleMask = DisplacementMapScaleMask,
+        UVTransform = UVTransform,
 
-            EnableTessellation = EnableTessellation,
-            MaxDistanceTessellationFactor = MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = MinDistanceTessellationFactor,
-            MaxTessellationDistance = MaxTessellationDistance,
-            MinTessellationDistance = MinTessellationDistance,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = VertexColorBlendingFactor
-        };
-    }
+        EnableTessellation = EnableTessellation,
+        MaxDistanceTessellationFactor = MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = MinDistanceTessellationFactor,
+        MaxTessellationDistance = MaxTessellationDistance,
+        MinTessellationDistance = MinTessellationDistance,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = VertexColorBlendingFactor
+    };
 }
 
 #pragma warning restore CS8601, CS8602

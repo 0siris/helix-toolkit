@@ -127,21 +127,13 @@ public class LineMaterialVariable : MaterialVariable {
         DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
     }
 
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return LinePass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => LinePass;
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShadowPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShadowPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return DepthPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => DepthPass;
 
     public override bool BindMaterialResources(
         RenderContext context,

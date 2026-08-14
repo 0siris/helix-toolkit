@@ -64,7 +64,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
     /// <param name="isIntersect"></param>
     /// <returns></returns>
     public override bool FindNearestPointBySphereExcludeChild(
-        HitTestContext context,
+        HitTestContext? context,
         ref BoundingSphere sphere,
         ref List<HitTestResult> points,
         ref bool isIntersect
@@ -87,7 +87,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
     public override bool HitTestCurrentNodeExcludeChild(
         HitTestContext context,
         object model,
-        Geometry3D geometry,
+        Geometry3D? geometry,
         Matrix modelMatrix,
         ref Ray rayModel,
         ref List<HitTestResult> hits,

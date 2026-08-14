@@ -27,9 +27,7 @@ public static class ShaderHelper {
 /// Build using Nuget Micorsoft.HLSL.Microsoft.HLSL.CSharpVB automatically during project build
 /// </summary>
 public static class CustomVSShaderDescription {
-    public static byte[] VSMeshDataSamplerByteCode {
-        get { return ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso"); }
-    }
+    public static byte[] VSMeshDataSamplerByteCode => ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso");
 
     public static ShaderDescription VSDataSampling = new ShaderDescription(nameof(VSDataSampling),
                                                                            ShaderStage.Vertex,

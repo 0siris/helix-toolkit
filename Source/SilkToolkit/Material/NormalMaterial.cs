@@ -19,13 +19,9 @@ public sealed class NormalMaterial : Material {
     ///     Called when [create core].
     /// </summary>
     /// <returns></returns>
-    protected override MaterialCore OnCreateCore() {
-        return NormalMaterialCore.Core;
-    }
+    protected override MaterialCore OnCreateCore() => NormalMaterialCore.Core;
 
-    protected override Freezable CreateInstanceCore() {
-        return new NormalMaterial {
-            Name = Name
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new NormalMaterial {
+        Name = Name
+    };
 }

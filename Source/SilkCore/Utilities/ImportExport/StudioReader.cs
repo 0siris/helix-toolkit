@@ -199,11 +199,9 @@ public class StudioReader : IModelReader {
         /// <returns>
         ///     The chunk ID.
         /// </returns>
-    private ChunkId ReadChunkId(BinaryReader reader) {
-        return (ChunkId)reader.ReadUInt16();
-    }
+    private ChunkId ReadChunkId(BinaryReader reader) => (ChunkId)reader.ReadUInt16();
 
-        /// <summary>
+    /// <summary>
         ///     Read a chunk size.
         /// </summary>
         /// <param name="reader">
@@ -212,25 +210,23 @@ public class StudioReader : IModelReader {
         /// <returns>
         ///     The read chunk size.
         /// </returns>
-    private int ReadChunkSize(BinaryReader reader) {
-        return (int)reader.ReadUInt32();
-    }
+    private int ReadChunkSize(BinaryReader reader) => (int)reader.ReadUInt32();
 
 
-        /// <summary>
+    /// <summary>
         ///     reads the Material of a chunck
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="chunkSize"></param>
     private void ReadMaterial(BinaryReader reader, int chunkSize) {
         var total = 6;
-        string name = null;
+        string? name = null;
         var luminance = Color.Transparent; //SharpDX.Color not System.Windows.Media.Color
         var diffuse = Color.Transparent;
         var specular = Color.Transparent;
         var shininess = Color.Transparent;
         double opacity = 0;
-        string texture = null;
+        string? texture = null;
         float specularPower = 100; //check if we can find this somewhere instead of just setting it to 100
         while (total < chunkSize) {
             var id = ReadChunkId(reader);
@@ -328,15 +324,15 @@ public class StudioReader : IModelReader {
     private void ReadTriangularMesh(BinaryReader reader, int chunkSize) {
         var builder = new MeshBuilder();
         var bytesRead = 6;
-        Vector3Collection positions = null;
-        IntCollection faces = null;
-        Vector2Collection textureCoordinates = null;
-        List<FaceSet> facesets = null;
-        IntCollection triangleIndices = null;
-        Vector3Collection normals = null;
+        Vector3Collection? positions = null;
+        IntCollection? faces = null;
+        Vector2Collection? textureCoordinates = null;
+        List<FaceSet>? facesets = null;
+        IntCollection? triangleIndices = null;
+        Vector3Collection? normals = null;
         //Matrix matrix = Matrix.Identity;
-        Vector3Collection tangents = null;
-        Vector3Collection bitangents = null;
+        Vector3Collection? tangents = null;
+        Vector3Collection? bitangents = null;
         var transforms = new List<Matrix>();
         while (bytesRead < chunkSize) {
             var id = ReadChunkId(reader);
@@ -388,7 +384,7 @@ public class StudioReader : IModelReader {
         } else {
             foreach (var fm in facesets) {
                 triangleIndices = ConvertFaceIndices(fm.Faces, faces);
-                MaterialCore mat = null;
+                MaterialCore? mat = null;
                 if (materials.ContainsKey(fm.Name)) mat = materials[fm.Name];
                 CreateMesh(positions,
                            textureCoordinates,
@@ -588,11 +584,9 @@ public class StudioReader : IModelReader {
         /// <returns>
         ///     A vector.
         /// </returns>
-    private Vector3 ReadVector(BinaryReader reader) {
-        return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-    }
+    private Vector3 ReadVector(BinaryReader reader) => new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
-        /// <summary>
+    /// <summary>
         ///     Reads a transformation.
         /// </summary>
         /// <param name="reader">
@@ -648,7 +642,7 @@ public class StudioReader : IModelReader {
         /// <param name="texture"></param>
         /// <param name="fallBackColor"></param>
         /// <returns></returns>
-    private Stream ReadBitmapSoure(string texture, Color fallBackColor) {
+    private Stream? ReadBitmapSoure(string? texture, Color fallBackColor) {
         if (texture == null) return null;
         try {
             var ext = Path.GetExtension(texture);
@@ -764,11 +758,9 @@ public class StudioReader : IModelReader {
         /// <returns>
         ///     The data.
         /// </returns>
-    private byte[] ReadData(BinaryReader reader, int size) {
-        return reader.ReadBytes(size);
-    }
+    private byte[] ReadData(BinaryReader reader, int size) => reader.ReadBytes(size);
 
-        /// <summary>
+    /// <summary>
         ///     Reads a string.
         /// </summary>
         /// <param name="reader">

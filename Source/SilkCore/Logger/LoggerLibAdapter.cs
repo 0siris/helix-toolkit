@@ -18,7 +18,7 @@ internal sealed class LoggerLibLoggerFactory : ILoggerFactory {
 /// Adapts Microsoft logging state and templates to the LoggerLib message-template API.
 /// </summary>
 internal sealed class LoggerLibLoggerAdapter(string categoryName) : ILogger {
-    public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
 
     public bool IsEnabled(LogLevel logLevel) =>
         logLevel != LogLevel.None && LoggerLib.Logger.MinimumLevel <= ToSerilogLevel(logLevel);

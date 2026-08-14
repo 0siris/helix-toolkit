@@ -147,7 +147,5 @@ public partial class MainWindow : Window {
         mViewModel.Material = PhongMaterials.GetMaterial(e.AddedItems[0].ToString());
     }
 
-    private static float NextFloat(Random random, float min, float max) {
-        return min + (max - min) * (float)random.NextDouble();
-    }
+    private static float NextFloat(Random random, float min, float max) => min + (max - min) * (float)random.NextDouble();
 }

@@ -69,14 +69,12 @@ public abstract class Element3D : Element3DCore, IVisible {
     ///     The first visual ancestor of type <typeparamref name="T" /> if exists, else <c>null</c>.
     /// </returns>
     public static T? FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
-        if (obj != null) {
-            var parent = Media.VisualTreeHelper.GetParent(obj);
-            while (parent != null) {
-                var typed = parent as T;
-                if (typed != null) return typed;
+        var parent = Media.VisualTreeHelper.GetParent(obj);
+        while (parent != null) {
+            var typed = parent as T;
+            if (typed != null) return typed;
 
-                parent = Media.VisualTreeHelper.GetParent(parent);
-            }
+            parent = Media.VisualTreeHelper.GetParent(parent);
         }
 
         return null;
@@ -277,7 +275,7 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
     public Mouse3DEventArgs(
         RoutedEvent routedEvent,
         object source,
-        HitTestResult hitTestResult,
+        HitTestResult? hitTestResult,
         Point position,
         Viewport3DX? viewport = null,
         InputEventArgs? originalInputEventArgs = null
@@ -316,7 +314,7 @@ public abstract class Mouse3DEventArgs : RoutedEventArgs {
 public class MouseDown3DEventArgs : Mouse3DEventArgs {
     public MouseDown3DEventArgs(
         object source,
-        HitTestResult hitTestResult,
+        HitTestResult? hitTestResult,
         Point position,
         Viewport3DX? viewport = null,
         InputEventArgs? originalInputEventArgs = null
@@ -327,7 +325,7 @@ public class MouseDown3DEventArgs : Mouse3DEventArgs {
 public class MouseUp3DEventArgs : Mouse3DEventArgs {
     public MouseUp3DEventArgs(
         object source,
-        HitTestResult hitTestResult,
+        HitTestResult? hitTestResult,
         Point position,
         Viewport3DX? viewport = null,
         InputEventArgs? originalInputEventArgs = null
@@ -338,7 +336,7 @@ public class MouseUp3DEventArgs : Mouse3DEventArgs {
 public class MouseMove3DEventArgs : Mouse3DEventArgs {
     public MouseMove3DEventArgs(
         object source,
-        HitTestResult hitTestResult,
+        HitTestResult? hitTestResult,
         Point position,
         Viewport3DX? viewport = null,
         InputEventArgs? originalInputEventArgs = null

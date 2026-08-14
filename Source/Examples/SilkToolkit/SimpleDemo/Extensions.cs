@@ -84,9 +84,7 @@ public static class Extensions {
         }
     }
 
-    public static Point3D Project(this Vertex v, Point3D p0, Vector3D x, Vector3D y, Vector3D z, double h) {
-        return p0 + x * (float)v.X - y * (float)v.Y + z * (float)h;
-    }
+    public static Point3D Project(this Vertex v, Point3D p0, Vector3D x, Vector3D y, Vector3D z, double h) => p0 + x * (float)v.X - y * (float)v.Y + z * (float)h;
 
     public static double AreaOfSegment(this Point[] segment) {
         return Math.Abs(segment.Take(segment.Length - 1)

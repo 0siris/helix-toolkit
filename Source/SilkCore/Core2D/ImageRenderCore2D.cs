@@ -58,9 +58,7 @@ public class ImageRenderCore2D : RenderCore2DBase {
         set => Set(ref field, value);
     } = BitmapInterpolationMode.Linear;
 
-    protected override bool CanRender(RenderContext2D context) {
-        return base.CanRender(context) && Bitmap != null;
-    }
+    protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Bitmap != null;
 
     protected override void OnRender(RenderContext2D context) {
         context.DeviceContext.DrawBitmap(Bitmap, LayoutBound, Opacity, InterpolationMode);

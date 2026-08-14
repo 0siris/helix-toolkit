@@ -26,18 +26,15 @@ using SilkDWriteTextLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite
 
 namespace HelixToolkit.SharpDX.Core;
 
-
-
 public unsafe class Brush : D2DNativeResource {
     public Brush(object? nativeResource = null)
         : base(nativeResource) { }
 
     internal virtual ID2D1Brush* Handle => null;
 
-    public T QueryInterface<T>()
-        where T : class {
-        return this as T;
-    }
+    public T? QueryInterface<T>()
+        where T : class
+        => this as T;
 }
 
 public sealed unsafe class SolidColorBrush : Brush {
@@ -58,7 +55,7 @@ public sealed unsafe class SolidColorBrush : Brush {
 
     public BrushProperties Properties { get; }
 
-    internal override ID2D1Brush* Handle => (ID2D1Brush*)nativeBrush.Handle;
+    internal override ID2D1Brush* Handle => (ID2D1Brush*) nativeBrush.Handle;
 
     public override void Dispose() {
         nativeBrush.Dispose();
@@ -69,7 +66,9 @@ public sealed unsafe class SolidColorBrush : Brush {
         if (context?.NativeHandle == null) return;
 
         var value = new D3Dcolorvalue(color.X, color.Y, color.Z, color.W);
-        var properties = new Silk.NET.Direct2D.BrushProperties { Opacity = opacity };
+        var properties = new Silk.NET.Direct2D.BrushProperties {
+            Opacity = opacity
+        };
         ID2D1SolidColorBrush* brush = null;
         SilkMarshal.ThrowHResult(context.NativeHandle->CreateSolidColorBrush(&value, &properties, &brush));
         nativeBrush = new SilkD2DSolidBrushPtr(brush);
@@ -91,10 +90,9 @@ public sealed class StrokeStyle : D2DNativeResource {
 
     public float[] Dashes { get; }
 
-    public T QueryInterface<T>()
-        where T : class {
-        return this as T;
-    }
+    public T? QueryInterface<T>()
+        where T : class
+        => this as T;
 }
 
 public struct StrokeStyleProperties {
@@ -109,7 +107,7 @@ public struct StrokeStyleProperties {
 
 public sealed unsafe class Bitmap : D2DNativeResource {
     private SilkD2DBitmapBasePtr nativeBitmap;
-    private BitmapProxy target;
+    private BitmapProxy? target;
 
     public Bitmap(Size2F size, object? nativeResource = null) {
         Size = size;
@@ -124,16 +122,16 @@ public sealed unsafe class Bitmap : D2DNativeResource {
 
     public Size2F Size { get; }
 
-    public int Width => (int)Math.Ceiling(Size.Width);
+    public int Width => (int) Math.Ceiling(Size.Width);
 
-    public int Height => (int)Math.Ceiling(Size.Height);
+    public int Height => (int) Math.Ceiling(Size.Height);
 
     internal ID2D1Bitmap* Handle =>
         target?.Bitmap?.Handle != null
-            ? (ID2D1Bitmap*)target.Bitmap.Handle
+            ? (ID2D1Bitmap*) target.Bitmap.Handle
             : nativeBitmap.Handle;
 
-    internal Texture2D Texture { get; private set; }
+    internal Texture2D? Texture { get; private set; }
 
     public override void Dispose() {
         nativeBitmap.Dispose();
@@ -150,16 +148,9 @@ public struct GradientStop {
     public Color4 Color;
 }
 
-public enum ExtendMode {
-    Clamp,
-    Wrap,
-    Mirror
-}
+public enum ExtendMode { Clamp, Wrap, Mirror }
 
-public enum Gamma {
-    StandardRgb,
-    Linear
-}
+public enum Gamma { StandardRgb, Linear }
 
 public sealed class GradientStopCollection : D2DNativeResource {
     public GradientStopCollection(
@@ -241,9 +232,7 @@ public sealed class PathGeometry : D2DNativeResource {
 
     public D2DFactory Factory { get; }
 
-    public GeometrySink Open() {
-        return new GeometrySink(this);
-    }
+    public GeometrySink Open() => new(this);
 }
 
 public sealed class GeometrySink : D2DNativeResource {
@@ -310,15 +299,15 @@ public sealed unsafe class TextFormat : D2DNativeResource {
             fixed (char* familyPtr = family)
             fixed (char* localePtr = locale) {
                 SilkMarshal.ThrowHResult(factory.Handle->CreateTextFormat(familyPtr,
-                                                                          null,
-                                                                          (Silk.NET.DirectWrite.FontWeight)
-                                                                          fontWeight,
-                                                                          (Silk.NET.DirectWrite.FontStyle)
-                                                                          fontStyle,
-                                                                          FontStretch.Normal,
-                                                                          fontSize,
-                                                                          localePtr,
-                                                                          &format));
+                    null,
+                    (Silk.NET.DirectWrite.FontWeight)
+                    fontWeight,
+                    (Silk.NET.DirectWrite.FontStyle)
+                    fontStyle,
+                    FontStretch.Normal,
+                    fontSize,
+                    localePtr,
+                    &format));
                 nativeFormat = new SilkDWriteTextFormatPtr(format);
                 format->Release();
             }
@@ -362,11 +351,11 @@ public sealed unsafe class TextLayout : D2DNativeResource {
             IDWriteTextLayout* layout = null;
             fixed (char* textPtr = Text) {
                 SilkMarshal.ThrowHResult(factory.Handle->CreateTextLayout(textPtr,
-                                                                          (uint)Text.Length,
-                                                                          textFormat.Handle,
-                                                                          NormalizeSize(maxWidth),
-                                                                          NormalizeSize(maxHeight),
-                                                                          &layout));
+                    (uint) Text.Length,
+                    textFormat.Handle,
+                    NormalizeSize(maxWidth),
+                    NormalizeSize(maxHeight),
+                    &layout));
                 nativeLayout = new SilkDWriteTextLayoutPtr(layout);
                 layout->Release();
             }
@@ -380,9 +369,15 @@ public sealed unsafe class TextLayout : D2DNativeResource {
             };
         } else {
             var height = Math.Max(1, textFormat?.FontSize ?? 12);
-            var width = Math.Min(float.IsInfinity(maxWidth) || maxWidth <= 0 ? float.MaxValue : maxWidth,
-                                 Text.Length * height * 0.55f);
-            Metrics = new TextMetrics { Width = width, WidthIncludingTrailingWhitespace = width, Height = height };
+            var width = Math.Min(float.IsInfinity(maxWidth) || maxWidth <= 0
+                    ? float.MaxValue
+                    : maxWidth,
+                Text.Length * height * 0.55f);
+            Metrics = new TextMetrics {
+                Width = width,
+                WidthIncludingTrailingWhitespace = width,
+                Height = height
+            };
         }
     }
 
@@ -415,9 +410,9 @@ public sealed unsafe class TextLayout : D2DNativeResource {
         base.Dispose();
     }
 
-    private static float NormalizeSize(float value) {
-        return float.IsInfinity(value) || value <= 0 ? float.MaxValue : value;
-    }
+    private static float NormalizeSize(float value) => float.IsInfinity(value) || value <= 0
+        ? float.MaxValue
+        : value;
 }
 
 public struct TextMetrics {
@@ -449,37 +444,18 @@ public enum LineJoin {
     MiterOrBevel
 }
 
-public enum SweepDirection {
-    CounterClockwise,
-    Clockwise
-}
+public enum SweepDirection { CounterClockwise, Clockwise }
 
-public enum ArcSize {
-    Small,
-    Large
-}
+public enum ArcSize { Small, Large }
 
-public enum FigureBegin {
-    Filled,
-    Hollow
-}
+public enum FigureBegin { Filled, Hollow }
 
-public enum FigureEnd {
-    Open,
-    Closed
-}
+public enum FigureEnd { Open, Closed }
 
 [Flags]
-public enum PathSegment {
-    None = 0,
-    ForceUnstroked = 1,
-    ForceRoundLineJoin = 2
-}
+public enum PathSegment { None = 0, ForceUnstroked = 1, ForceRoundLineJoin = 2 }
 
-public enum D2DFillMode {
-    Alternate,
-    Winding
-}
+public enum D2DFillMode { Alternate, Winding }
 
 public enum TextAlignment {
     Leading,
@@ -488,10 +464,7 @@ public enum TextAlignment {
     Justified
 }
 
-public enum FlowDirection {
-    LeftToRight,
-    RightToLeft
-}
+public enum FlowDirection { LeftToRight, RightToLeft }
 
 public enum FontWeight {
     Thin = 100,
@@ -505,22 +478,11 @@ public enum FontWeight {
     Black = 900
 }
 
-public enum FontStyle {
-    Normal,
-    Oblique,
-    Italic
-}
+public enum FontStyle { Normal, Oblique, Italic }
 
 [Flags]
-public enum DrawTextOptions {
-    None = 0
-}
+public enum DrawTextOptions { None = 0 }
 
-public enum BitmapInterpolationMode {
-    NearestNeighbor,
-    Linear
-}
+public enum BitmapInterpolationMode { NearestNeighbor, Linear }
 
-public enum CompositeMode {
-    SourceOver
-}
+public enum CompositeMode { SourceOver }

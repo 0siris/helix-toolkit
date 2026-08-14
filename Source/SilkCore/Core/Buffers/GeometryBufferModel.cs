@@ -51,9 +51,7 @@ public abstract class GeometryBufferModel : DisposeObject, IGuid, IGeometryBuffe
     /// <value>
     ///     The size of the vertex structure.
     /// </value>
-    public IEnumerable<int> VertexStructSize {
-        get => VertexBuffer.Select(x => x?.StructureSize ?? 0);
-    }
+    public IEnumerable<int> VertexStructSize => VertexBuffer.Select(x => x?.StructureSize ?? 0);
 
     /// <summary>
     ///     Gets or sets the index buffer.

@@ -16,19 +16,14 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 ///     </para>
 /// </summary>
 public sealed class DepthPrepassNode : SceneNode {
-    protected override RenderCore OnCreateRenderCore() {
-        return new DepthPrepassCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new DepthPrepassCore();
 
-    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

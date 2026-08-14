@@ -81,7 +81,7 @@ public sealed class SsaoCore : RenderCore {
                                       DepthStencilClearFlags.Depth);
         deviceContext.SetViewport(0, 0, w, h);
         deviceContext.SetScissorRectangle(0, 0, w, h);
-        IRenderTechnique currTechnique = null;
+        IRenderTechnique? currTechnique = null;
         var ssaoPass1 = ShaderPass.NullPass;
         var frustum = context.BoundingFrustum;
         for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {

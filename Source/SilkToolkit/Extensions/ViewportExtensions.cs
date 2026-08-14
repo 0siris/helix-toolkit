@@ -63,9 +63,7 @@ public static class ViewportExtensions {
     ///     The camera transform.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetViewProjectionMatrix3D(this Viewport3DX viewport) {
-        return viewport.GetViewProjectionMatrix().ToMatrix3D();
-    }
+    public static Matrix3D GetViewProjectionMatrix3D(this Viewport3DX viewport) => viewport.GetViewProjectionMatrix().ToMatrix3D();
 
     /// <summary>
     ///     Gets the total transform for a Viewport3DX.
@@ -75,9 +73,7 @@ public static class ViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <returns>The total transform.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetScreenViewProjectionMatrix3D(this Viewport3DX viewport) {
-        return viewport.GetScreenViewProjectionMatrix().ToMatrix3D();
-    }
+    public static Matrix3D GetScreenViewProjectionMatrix3D(this Viewport3DX viewport) => viewport.GetScreenViewProjectionMatrix().ToMatrix3D();
 
     /// <summary>
     ///     Gets the viewport transform aka the screen-space transform.
@@ -89,9 +85,7 @@ public static class ViewportExtensions {
     ///     The transform.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D GetViewportMatrix3D(this Viewport3DX viewport) {
-        return viewport.GetViewportMatrix().ToMatrix3D();
-    }
+    public static Matrix3D GetViewportMatrix3D(this Viewport3DX viewport) => viewport.GetViewportMatrix().ToMatrix3D();
 
     /// <summary>
     ///     Finds the bounding box of the viewport.
@@ -164,9 +158,7 @@ public static class ViewportExtensions {
     /// <returns>
     ///     List of hits, sorted with the nearest hit first.
     /// </returns>
-    public static IList<HitTestResult> FindHits(this Viewport3DX viewport, Point position) {
-        return viewport.FindHits(position.ToVector2());
-    }
+    public static IList<HitTestResult> FindHits(this Viewport3DX viewport, Point position) => viewport.FindHits(position.ToVector2());
 
     /// <summary>
     ///     Finds the nearest point and its normal.
@@ -243,9 +235,7 @@ public static class ViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <param name="point2d">The input point.</param>
     /// <returns>The ray.</returns>
-    public static Ray UnProject(this Viewport3DX viewport, Point point2d) {
-        return viewport.UnProject(point2d.ToVector2());
-    }
+    public static Ray UnProject(this Viewport3DX viewport, Point point2d) => viewport.UnProject(point2d.ToVector2());
 
     /// <summary>
     ///     Un-project a point from the screen (2D) to a point on plane (3D)
@@ -333,7 +323,7 @@ public static class ViewportExtensions {
     /// </summary>
     /// <param name="view">The viewport.</param>
     /// <returns>A bitmap.</returns>
-    public static BitmapSource RenderBitmap(this Viewport3DX view) {
+    public static BitmapSource? RenderBitmap(this Viewport3DX view) {
         if (view.RenderHost != null && view.RenderHost.IsRendering) {
             view.RenderHost.UpdateAndRender();
             using var memoryStream = new MemoryStream();
@@ -365,16 +355,19 @@ public static class ViewportExtensions {
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <returns>A bitmap.</returns>
-    public static BitmapSource RenderBitmap(
+    public static BitmapSource? RenderBitmap(
         this Viewport3DX view,
         int width,
         int height
     ) {
-        var w = view.RenderHost.ActualWidth;
-        var h = view.RenderHost.ActualHeight;
-        view.RenderHost.Resize(width, height);
+        var renderHost = view.RenderHost;
+        if (renderHost is null) return null;
+
+        var w = renderHost.ActualWidth;
+        var h = renderHost.ActualHeight;
+        renderHost.Resize(width, height);
         var rtb = view.RenderBitmap();
-        view.RenderHost.Resize((int)w, (int)h);
+        renderHost.Resize((int)w, (int)h);
         return rtb;
     }
 

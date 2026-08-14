@@ -90,17 +90,11 @@ internal class Renderer {
 }
 
 internal static class RandomExtensions {
-    public static Color4 NextColor(this Random random) {
-        return new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
-    }
+    public static Color4 NextColor(this Random random) => new((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
 
-    public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max) {
-        return new Vector3(NextFloat(random, min.X, max.X),
-                           NextFloat(random, min.Y, max.Y),
-                           NextFloat(random, min.Z, max.Z));
-    }
+    public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max) => new(NextFloat(random, min.X, max.X),
+        NextFloat(random, min.Y, max.Y),
+        NextFloat(random, min.Z, max.Z));
 
-    private static float NextFloat(Random random, float min, float max) {
-        return min + (max - min) * (float)random.NextDouble();
-    }
+    private static float NextFloat(Random random, float min, float max) => min + (max - min) * (float)random.NextDouble();
 }

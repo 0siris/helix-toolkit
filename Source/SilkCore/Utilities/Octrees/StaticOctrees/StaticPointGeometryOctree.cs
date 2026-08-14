@@ -31,17 +31,13 @@ public class StaticPointGeometryOctree : StaticOctree<int> {
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    protected override BoundingBox GetBoundingBoxFromItem(ref int item) {
-        return new BoundingBox(Positions[item] - BoundOffset, Positions[item] + BoundOffset);
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(ref int item) => new(Positions[item] - BoundOffset, Positions[item] + BoundOffset);
 
     /// <summary>
     ///     Gets the maximum bound.
     /// </summary>
     /// <returns></returns>
-    protected override BoundingBox GetMaxBound() {
-        return BoundingBoxExtensions.FromPoints(Positions);
-    }
+    protected override BoundingBox GetMaxBound() => BoundingBoxExtensions.FromPoints(Positions);
 
     /// <summary>
     /// </summary>

@@ -39,7 +39,7 @@ public interface IBufferProxy : IDisposable {
 public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     /// <summary>
     /// </summary>
-    protected Buffer Buffer;
+    protected Buffer buffer;
 
     /// <summary>
     /// </summary>

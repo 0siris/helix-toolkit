@@ -66,9 +66,7 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
         }
     }
 
-    protected override CameraCore CreatePortableCameraCore() {
-        return new OrthographicCameraCore();
-    }
+    protected override CameraCore CreatePortableCameraCore() => new OrthographicCameraCore();
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
@@ -107,7 +105,5 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
         LookDirection = lookDir.ToVector3D();
     }
 
-    protected override Freezable CreateInstanceCore() {
-        return new OrthographicCamera();
-    }
+    protected override Freezable CreateInstanceCore() => new OrthographicCamera();
 }

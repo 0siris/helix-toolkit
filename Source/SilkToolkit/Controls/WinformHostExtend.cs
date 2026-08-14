@@ -218,8 +218,6 @@ public class WinformHostExtend : WindowsFormsHost {
             Mouse = mouse;
         }
 
-        public static implicit operator MouseWheelEventArgs(FormMouseWheelEventArgs args) {
-            return new MouseWheelEventArgs(args.Mouse, args.Timestamp, args.Delta) { RoutedEvent = MouseWheelEvent };
-        }
+        public static implicit operator MouseWheelEventArgs(FormMouseWheelEventArgs args) => new(args.Mouse, args.Timestamp, args.Delta) { RoutedEvent = MouseWheelEvent };
     }
 }

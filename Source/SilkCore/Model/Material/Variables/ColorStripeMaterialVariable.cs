@@ -180,21 +180,13 @@ public class ColorStripeMaterialVariables : MaterialVariable {
         base.OnDispose(disposeManagedResources);
     }
 
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return MaterialPass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => MaterialPass;
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShadowPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShadowPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return WireframePass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => WireframePass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return DepthPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => DepthPass;
 
     public override void Draw(
         DeviceContextProxy deviceContext,

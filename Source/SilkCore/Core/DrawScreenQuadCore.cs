@@ -92,9 +92,7 @@ public class DrawScreenQuadCore : RenderCore {
     /// </value>
     public SamplerStateDescription SamplerDescription {
         get => samplerDescription;
-        set {
-            SetAffectsRender(ref samplerDescription, value);
-        }
+        set => SetAffectsRender(ref samplerDescription, value);
     }
 
     private void UpdateTexture(TextureModel? texture) {

@@ -166,28 +166,24 @@ public class ColorStripeMaterial : Material {
         set => SetValue(ColorStripeSamplerProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new ColorStripeMaterialCore {
-            DiffuseColor = DiffuseColor,
-            ColorStripeSampler = ColorStripeSampler,
-            ColorStripeX = ColorStripeX,
-            ColorStripeXEnabled = ColorStripeXEnabled,
-            ColorStripeY = ColorStripeY,
-            ColorStripeYEnabled = ColorStripeYEnabled
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new ColorStripeMaterialCore {
+        DiffuseColor = DiffuseColor,
+        ColorStripeSampler = ColorStripeSampler,
+        ColorStripeX = ColorStripeX,
+        ColorStripeXEnabled = ColorStripeXEnabled,
+        ColorStripeY = ColorStripeY,
+        ColorStripeYEnabled = ColorStripeYEnabled
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new ColorStripeMaterial {
-            DiffuseColor = DiffuseColor,
-            ColorStripeSampler = ColorStripeSampler,
-            ColorStripeX = ColorStripeX,
-            ColorStripeXEnabled = ColorStripeXEnabled,
-            ColorStripeY = ColorStripeY,
-            ColorStripeYEnabled = ColorStripeYEnabled,
-            Name = Name
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new ColorStripeMaterial {
+        DiffuseColor = DiffuseColor,
+        ColorStripeSampler = ColorStripeSampler,
+        ColorStripeX = ColorStripeX,
+        ColorStripeXEnabled = ColorStripeXEnabled,
+        ColorStripeY = ColorStripeY,
+        ColorStripeYEnabled = ColorStripeYEnabled,
+        Name = Name
+    };
 }
 
 #pragma warning restore CS8601, CS8602

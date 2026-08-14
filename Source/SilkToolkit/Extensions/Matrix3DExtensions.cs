@@ -24,24 +24,22 @@ public static class Matrix3DExtensions {
     /// <param name="m2"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D AddMatrix(this Matrix3D m1, Matrix3D m2) {
-        return new Matrix3D(m1.M11 + m2.M11,
-                            m1.M12 + m2.M12,
-                            m1.M13 + m2.M13,
-                            m1.M14 + m2.M14,
-                            m1.M21 + m2.M21,
-                            m1.M22 + m2.M22,
-                            m1.M23 + m2.M23,
-                            m1.M24 + m2.M24,
-                            m1.M31 + m2.M31,
-                            m1.M32 + m2.M32,
-                            m1.M33 + m2.M33,
-                            m1.M34 + m2.M34,
-                            m1.M44 + m2.M44,
-                            m1.OffsetX + m2.OffsetX,
-                            m1.OffsetY + m2.OffsetY,
-                            m1.OffsetZ + m2.OffsetZ);
-    }
+    public static Matrix3D AddMatrix(this Matrix3D m1, Matrix3D m2) => new(m1.M11 + m2.M11,
+        m1.M12 + m2.M12,
+        m1.M13 + m2.M13,
+        m1.M14 + m2.M14,
+        m1.M21 + m2.M21,
+        m1.M22 + m2.M22,
+        m1.M23 + m2.M23,
+        m1.M24 + m2.M24,
+        m1.M31 + m2.M31,
+        m1.M32 + m2.M32,
+        m1.M33 + m2.M33,
+        m1.M34 + m2.M34,
+        m1.M44 + m2.M44,
+        m1.OffsetX + m2.OffsetX,
+        m1.OffsetY + m2.OffsetY,
+        m1.OffsetZ + m2.OffsetZ);
 
     /// <summary>
     /// </summary>
@@ -49,24 +47,22 @@ public static class Matrix3DExtensions {
     /// <param name="m"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3D MultiplyMatrix(this Matrix3D m, double scalar) {
-        return new Matrix3D(scalar * m.M11,
-                            scalar * m.M12,
-                            scalar * m.M13,
-                            scalar * m.M14,
-                            scalar * m.M21,
-                            scalar * m.M22,
-                            scalar * m.M23,
-                            scalar * m.M24,
-                            scalar * m.M31,
-                            scalar * m.M32,
-                            scalar * m.M33,
-                            scalar * m.M34,
-                            scalar * m.M44,
-                            scalar * m.OffsetX,
-                            scalar * m.OffsetY,
-                            scalar * m.OffsetZ);
-    }
+    public static Matrix3D MultiplyMatrix(this Matrix3D m, double scalar) => new(scalar * m.M11,
+        scalar * m.M12,
+        scalar * m.M13,
+        scalar * m.M14,
+        scalar * m.M21,
+        scalar * m.M22,
+        scalar * m.M23,
+        scalar * m.M24,
+        scalar * m.M31,
+        scalar * m.M32,
+        scalar * m.M33,
+        scalar * m.M34,
+        scalar * m.M44,
+        scalar * m.OffsetX,
+        scalar * m.OffsetY,
+        scalar * m.OffsetZ);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3D Translate3D(Vector3 v) {
@@ -573,12 +569,8 @@ public static class Matrix3DExtensions {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point ToPoint(this Vector v) {
-        return new Point(v.X, v.Y);
-    }
+    public static Point ToPoint(this Vector v) => new(v.X, v.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 ToVector2(this Vector v) {
-        return new Vector2((float)v.X, (float)v.Y);
-    }
+    public static Vector2 ToVector2(this Vector v) => new((float)v.X, (float)v.Y);
 }

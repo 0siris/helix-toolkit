@@ -42,8 +42,8 @@ public class MainViewModel : BaseViewModel {
     public Color AmbientLightColor { get; private set; }
 
     public FillMode FillMode {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = FillMode.Solid;
 
     public bool Wireframe {
@@ -56,13 +56,13 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     private MeshTopologyEnum meshTopology = MeshTopologyEnum.PnTriangles;
 
     public MeshTopologyEnum MeshTopology {
-        get { return meshTopology; }
+        get => meshTopology;
         set {
             /// if topology is changes, reload the model with proper type of faces
             meshTopology = value;

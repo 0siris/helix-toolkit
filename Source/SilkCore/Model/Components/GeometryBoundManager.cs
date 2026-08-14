@@ -35,9 +35,7 @@ public sealed class GeometryBoundManager : IDisposable {
     /// </summary>
     /// <returns>
     /// </returns>
-    private bool CheckGeometry() {
-        return !(Geometry == null || Geometry.Positions == null || Geometry.Positions.Count == 0);
-    }
+    private bool CheckGeometry() => !(Geometry == null || Geometry.Positions == null || Geometry.Positions.Count == 0);
 
     private void OnTransformChanged(object sender, TransformArgs e) {
         var oldBound = BoundsWithTransform;
@@ -229,13 +227,13 @@ public sealed class GeometryBoundManager : IDisposable {
 
     #region Events and Delegates
 
-    public event EventHandler<BoundChangeArgs<BoundingBox>> OnBoundChanged;
+    public event EventHandler<BoundChangeArgs<BoundingBox>>? OnBoundChanged;
 
-    public event EventHandler<BoundChangeArgs<BoundingBox>> OnTransformBoundChanged;
+    public event EventHandler<BoundChangeArgs<BoundingBox>>? OnTransformBoundChanged;
 
-    public event EventHandler<BoundChangeArgs<BoundingSphere>> OnBoundSphereChanged;
+    public event EventHandler<BoundChangeArgs<BoundingSphere>>? OnBoundSphereChanged;
 
-    public event EventHandler<BoundChangeArgs<BoundingSphere>> OnTransformBoundSphereChanged;
+    public event EventHandler<BoundChangeArgs<BoundingSphere>>? OnTransformBoundSphereChanged;
 
     private void RaiseOnTransformBoundChanged(BoundingBox newBound, BoundingBox oldBound) {
         OnTransformBoundChanged?.Invoke(elementCore,

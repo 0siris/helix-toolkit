@@ -250,18 +250,14 @@ public abstract class Geometry3D : ObservableObject, IGuid {
         }
     }
 
-    protected virtual bool CanCreateOctree() {
-        return Positions != null && Indices != null && Positions.Count > 0 && Indices.Count > 0;
-    }
+    protected virtual bool CanCreateOctree() => Positions != null && Indices != null && Positions.Count > 0 && Indices.Count > 0;
 
 
     /// <summary>
     ///     Override to create different octree in subclasses.
     /// </summary>
     /// <returns></returns>
-    protected virtual IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
-        return null;
-    }
+    protected virtual IOctreeBasic? CreateOctree(OctreeBuildParameter parameter) => null;
 
 
     /// <summary>

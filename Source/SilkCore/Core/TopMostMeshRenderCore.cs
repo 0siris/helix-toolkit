@@ -35,9 +35,7 @@ public class TopMostMeshRenderCore : RenderCore {
                                           (int)context.Viewport.Height);
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        return true;
-    }
+    protected override bool OnAttach(IRenderTechnique technique) => true;
 
     protected override void OnDetach() { }
 }

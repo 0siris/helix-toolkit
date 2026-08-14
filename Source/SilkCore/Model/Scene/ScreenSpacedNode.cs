@@ -7,6 +7,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 /// <summary>
 ///     Screen Spaced node uses a fixed camera to render model (Mainly used for view box and coordinate system rendering)
 ///     onto screen which is separated from viewport camera.
@@ -49,15 +50,15 @@ public class ScreenSpacedNode : GroupNode {
         return core;
     }
 
-    private void Core_OnCoordinateSystemChanged(object sender, BoolArgs e) {
+    private void Core_OnCoordinateSystemChanged(object? sender, BoolArgs e) {
         OnCoordinateSystemChanged(e.Value);
     }
 
     protected virtual void OnCoordinateSystemChanged(bool e) { }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
-        RenderCore.Attach(EffectTechnique);
-        var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
+        RenderCore.Attach(EffectTechnique.AssertNotNull("Render technique must be initialized."));
+        var screenSpaceCore = (ScreenSpacedMeshRenderCore) RenderCore;
         screenSpaceCore.RelativeScreenLocationX = RelativeScreenLocationX;
         screenSpaceCore.RelativeScreenLocationY = RelativeScreenLocationY;
         screenSpaceCore.SizeScale = SizeScale;
@@ -98,7 +99,6 @@ public class ScreenSpacedNode : GroupNode {
         screenSpaceHits.Clear();
         var spHitContext = new HitTestContext(screenSpacedContext, newRay, hitSp);
         if (base.OnHitTest(spHitContext, totalModelMatrix, ref screenSpaceHits)) {
-            hits ??= [];
             hits.Clear();
             hits.AddRange(screenSpaceHits);
             return true;
@@ -110,8 +110,8 @@ public class ScreenSpacedNode : GroupNode {
     private bool CreateRelativeScreenModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSp) {
         var p = context.HitPointSp *
                 context.RenderMatrices
-                       .DpiScale; //SilkMath.TransformCoordinate(context.RayWS.Position, context.RenderMatrices.ScreenViewProjectionMatrix);
-        var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
+                    .DpiScale; //SilkMath.TransformCoordinate(context.RayWS.Position, context.RenderMatrices.ScreenViewProjectionMatrix);
+        var screenSpaceCore = (ScreenSpacedMeshRenderCore) RenderCore;
         screenSpacedContext.IsPerspective = screenSpaceCore.IsPerspective;
         var viewportSize = screenSpaceCore.Size * screenSpaceCore.SizeScale * context.RenderMatrices.DpiScale;
 
@@ -119,8 +119,8 @@ public class ScreenSpacedNode : GroupNode {
                    viewportSize / 2;
         var offy = context.RenderMatrices.ActualHeight / 2 * (1 - screenSpaceCore.RelativeScreenLocationY) -
                    viewportSize / 2;
-        offx = Math.Max(0, Math.Min(offx, (int)(context.RenderMatrices.ActualWidth - viewportSize)));
-        offy = Math.Max(0, Math.Min(offy, (int)(context.RenderMatrices.ActualHeight - viewportSize)));
+        offx = Math.Max(0, Math.Min(offx, (int) (context.RenderMatrices.ActualWidth - viewportSize)));
+        offy = Math.Max(0, Math.Min(offy, (int) (context.RenderMatrices.ActualHeight - viewportSize)));
 
         var px = p.X - offx;
         var py = p.Y - offy;
@@ -135,11 +135,11 @@ public class ScreenSpacedNode : GroupNode {
         var viewMatrix = screenSpaceCore.GlobalTransform.View;
         var projMatrix = screenSpaceCore.GlobalTransform.Projection;
         newRay = new Vector2(px, py).UnProject(ref viewMatrix,
-                                               ref projMatrix,
-                                               screenSpaceCore.NearPlane,
-                                               viewportSize,
-                                               viewportSize,
-                                               screenSpaceCore.IsPerspective);
+            ref projMatrix,
+            screenSpaceCore.NearPlane,
+            viewportSize,
+            viewportSize,
+            screenSpaceCore.IsPerspective);
         screenSpacedContext.ViewMatrix = viewMatrix;
         screenSpacedContext.ViewMatrixInv = viewMatrix.PsudoInvert();
         screenSpacedContext.ProjectionMatrix = projMatrix;
@@ -148,7 +148,7 @@ public class ScreenSpacedNode : GroupNode {
     }
 
     private bool CreateAbsoluteModeRay(HitTestContext context, out Ray newRay, out Vector2 hitSp) {
-        var screenSpaceCore = RenderCore as ScreenSpacedMeshRenderCore;
+        var screenSpaceCore = (ScreenSpacedMeshRenderCore) RenderCore;
         screenSpacedContext.IsPerspective = screenSpaceCore.IsPerspective;
         var viewMatrix = screenSpaceCore.GlobalTransform.View;
         var projMatrix = screenSpaceCore.GlobalTransform.Projection;
@@ -172,7 +172,7 @@ public class ScreenSpacedNode : GroupNode {
         var viewportSize = screenSpaceCore.Size * screenSpaceCore.SizeScale * context.RenderMatrices.DpiScale;
 
         var abs = SilkMath.TransformCoordinate(AbsolutePosition3D,
-                                               context.RenderMatrices.ScreenViewProjectionMatrix);
+            context.RenderMatrices.ScreenViewProjectionMatrix);
         var offx = abs.X - viewportSize / 2;
         var offy = abs.Y - viewportSize / 2;
 
@@ -187,11 +187,11 @@ public class ScreenSpacedNode : GroupNode {
 
         hitSp = new Vector2(px, py) / context.RenderMatrices.DpiScale;
         newRay = new Vector2(px, py).UnProject(ref viewMatrix,
-                                               ref projMatrix,
-                                               screenSpaceCore.NearPlane,
-                                               viewportSize,
-                                               viewportSize,
-                                               screenSpaceCore.IsPerspective);
+            ref projMatrix,
+            screenSpaceCore.NearPlane,
+            viewportSize,
+            viewportSize,
+            screenSpaceCore.IsPerspective);
         screenSpacedContext.ActualWidth = viewportSize;
         screenSpacedContext.ActualHeight = viewportSize;
         screenSpacedContext.ViewMatrix = viewMatrix;
@@ -201,11 +201,16 @@ public class ScreenSpacedNode : GroupNode {
     }
 
     private sealed class ScreenSpacedContext : IRenderMatrices {
+        /// <summary>
+        ///     Stores the active render host.
+        /// </summary>
+        private IRenderHost? renderHost;
+
         public float NearPlane { get; set; }
 
         public float FarPlane { get; set; }
 
-        public CameraCore Camera => RenderHost?.RenderContext.Camera;
+        public CameraCore? Camera => RenderHost.RenderContext?.Camera;
 
         public Matrix ViewMatrix { get; set; }
 
@@ -241,14 +246,17 @@ public class ScreenSpacedNode : GroupNode {
 
         public float DpiScale => RenderHost.DpiScale;
 
-        public IRenderHost RenderHost { get; set; }
+        public IRenderHost RenderHost {
+            get => renderHost.AssertNotNull("Render host must be initialized.");
+            set => renderHost = value;
+        }
 
         public FrustumCameraParams CameraParams { get; private set; }
 
         public void Update() {
             ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;
-            if (Camera != null)
-                CameraParams = Camera.CreateCameraParams(ActualWidth / ActualHeight, NearPlane, FarPlane);
+            if (Camera is { } camera)
+                CameraParams = camera.CreateCameraParams(ActualWidth / ActualHeight, NearPlane, FarPlane);
         }
     }
 
@@ -261,8 +269,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The relative screen location x.
     /// </value>
     public float RelativeScreenLocationX {
-        get => (RenderCore as IScreenSpacedRenderParams).RelativeScreenLocationX;
-        set => (RenderCore as IScreenSpacedRenderParams).RelativeScreenLocationX = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).RelativeScreenLocationX;
+        set => ((IScreenSpacedRenderParams) RenderCore).RelativeScreenLocationX = value;
     }
 
     /// <summary>
@@ -272,8 +280,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The relative screen location y.
     /// </value>
     public float RelativeScreenLocationY {
-        get => (RenderCore as IScreenSpacedRenderParams).RelativeScreenLocationY;
-        set => (RenderCore as IScreenSpacedRenderParams).RelativeScreenLocationY = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).RelativeScreenLocationY;
+        set => ((IScreenSpacedRenderParams) RenderCore).RelativeScreenLocationY = value;
     }
 
     /// <summary>
@@ -283,8 +291,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The size scale.
     /// </value>
     public float SizeScale {
-        get => (RenderCore as IScreenSpacedRenderParams).SizeScale;
-        set => (RenderCore as IScreenSpacedRenderParams).SizeScale = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).SizeScale;
+        set => ((IScreenSpacedRenderParams) RenderCore).SizeScale = value;
     }
 
     /// <summary>
@@ -295,8 +303,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The mode.
     /// </value>
     public ScreenSpacedMode Mode {
-        get => (RenderCore as IScreenSpacedRenderParams).Mode;
-        set => (RenderCore as IScreenSpacedRenderParams).Mode = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).Mode;
+        set => ((IScreenSpacedRenderParams) RenderCore).Mode = value;
     }
 
     /// <summary>
@@ -306,16 +314,16 @@ public class ScreenSpacedNode : GroupNode {
     ///     The absolute position.
     /// </value>
     public Vector3 AbsolutePosition3D {
-        get => (RenderCore as IScreenSpacedRenderParams).AbsolutePosition3D;
-        set => (RenderCore as IScreenSpacedRenderParams).AbsolutePosition3D = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).AbsolutePosition3D;
+        set => ((IScreenSpacedRenderParams) RenderCore).AbsolutePosition3D = value;
     }
 
     /// <summary>
     ///     Only being used when <see cref="Mode" /> is RelativeScreenSpaced
     /// </summary>
     public ScreenSpacedCameraType CameraType {
-        get => (RenderCore as IScreenSpacedRenderParams).CameraType;
-        set => (RenderCore as IScreenSpacedRenderParams).CameraType = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).CameraType;
+        set => ((IScreenSpacedRenderParams) RenderCore).CameraType = value;
     }
 
     /// <summary>
@@ -325,8 +333,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The far plane.
     /// </value>
     public float FarPlane {
-        get => (RenderCore as IScreenSpacedRenderParams).FarPlane;
-        set => (RenderCore as IScreenSpacedRenderParams).FarPlane = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).FarPlane;
+        set => ((IScreenSpacedRenderParams) RenderCore).FarPlane = value;
     }
 
     /// <summary>
@@ -336,8 +344,8 @@ public class ScreenSpacedNode : GroupNode {
     ///     The near plane.
     /// </value>
     public float NearPlane {
-        get => (RenderCore as IScreenSpacedRenderParams).NearPlane;
-        set => (RenderCore as IScreenSpacedRenderParams).NearPlane = value;
+        get => ((IScreenSpacedRenderParams) RenderCore).NearPlane;
+        set => ((IScreenSpacedRenderParams) RenderCore).NearPlane = value;
     }
 
     #endregion

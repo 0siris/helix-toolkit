@@ -26,19 +26,19 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     private string cameraModel = Perspective;
 
     public string Title {
-        get { return field; }
-        set { SetValue(ref field, value, "Title"); }
+        get => field;
+        set => SetValue(ref field, value, "Title");
     } = "Demo (HelixToolkitDX)";
 
     public string SubTitle {
-        get { return field; }
-        set { SetValue(ref field, value, "SubTitle"); }
+        get => field;
+        set => SetValue(ref field, value, "SubTitle");
     } = "Default Base View Model";
 
     public List<string> CameraModelCollection { get; private set; } = [];
 
     public string CameraModel {
-        get { return cameraModel; }
+        get => cameraModel;
         set {
             if (SetValue(ref cameraModel, value, "CameraModel")) {
                 OnCameraModelChanged();
@@ -47,7 +47,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     }
 
     public Camera Camera {
-        get { return field; }
+        get => field;
 
         protected set {
             SetValue(ref field, value, "Camera");
@@ -60,8 +60,8 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     }
 
     public IEffectsManager? EffectsManager {
-        get { return field; }
-        protected set { SetValue(ref field, value); }
+        get => field;
+        protected set => SetValue(ref field, value);
     }
 
     protected OrthographicCamera defaultOrthographicCamera = new OrthographicCamera {

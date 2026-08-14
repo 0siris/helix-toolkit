@@ -13,7 +13,5 @@ public sealed class AmbientLightNode : LightNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new AmbientLightCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new AmbientLightCore();
 }

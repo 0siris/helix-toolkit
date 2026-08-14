@@ -91,7 +91,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         IsBusy = true;
         
         var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
-        renderStatistics.FPSStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
+        renderStatistics.FpsStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
         renderStatistics.Camera = Viewport.CameraCore;
         
         lastRenderTime = t0;
@@ -562,7 +562,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The device.
     /// </value>
-    public SilkD3DDevice Device => EffectsManager.NativeDeviceResources.Device;
+    public SilkD3DDevice? Device => EffectsManager?.NativeDeviceResources.Device;
 
     /// <summary>
     ///     Gets the immediate device context.
@@ -585,7 +585,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The device2d.
     /// </value>
-    public D2DDevice Device2D => EffectsManager.Device2D;
+    public D2DDevice? Device2D => EffectsManager?.Device2D;
 
     /// <summary>
     ///     Gets or sets the color of the clear.
@@ -678,7 +678,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         set {
             var currentManager = effectsManager;
             if (Set(ref effectsManager, value)) {
-                EffectsManagerChanged?.Invoke(this, value.AssertNotNull());
+                EffectsManagerChanged?.Invoke(this, value);
                 Logger.Info("Set new EffectsManager");
                 if (currentManager != null) {
                     currentManager.DisposingResources -= OnManagerDisposed;
@@ -820,7 +820,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The color buffer view.
     /// </value>
-    public RenderTargetView RenderTargetBufferView => RenderBuffer.ColorBuffer;
+    public RenderTargetView? RenderTargetBufferView => RenderBuffer?.ColorBuffer;
 
     /// <summary>
     ///     Gets the depth stencil buffer view.
@@ -828,7 +828,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The depth stencil buffer view.
     /// </value>
-    public DepthStencilView DepthStencilBufferView => RenderBuffer.DepthStencilBuffer;
+    public DepthStencilView? DepthStencilBufferView => RenderBuffer?.DepthStencilBuffer;
 
     /// <summary>
     ///     Gets the d2d controls.
@@ -836,7 +836,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The d2 d controls.
     /// </value>
-    public D2DTargetProxy D2DTarget => RenderBuffer.D2DTarget;
+    public D2DTargetProxy? D2DTarget => RenderBuffer?.D2DTarget;
 
     /// <summary>
     ///     Gets the render statistics.
@@ -846,7 +846,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// </value>
     public IRenderStatistics RenderStatistics => renderStatistics;
 
-    protected readonly RenderStatistics RenderStatistics = new();
+    protected readonly RenderStatistics renderStatistics = new();
 
 #region Perframe renderables
 
@@ -989,7 +989,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
 
     public event EventHandler? SceneGraphUpdated;
 
-    public event EventHandler<IEffectsManager>? EffectsManagerChanged;
+    public event EventHandler<IEffectsManager?>? EffectsManagerChanged;
 
 #endregion
 

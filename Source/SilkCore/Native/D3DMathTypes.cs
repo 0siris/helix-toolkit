@@ -84,21 +84,13 @@ public struct Size2F {
     public float Width;
     public float Height;
 
-    public static bool operator ==(Size2F left, Size2F right) {
-        return left.Width == right.Width && left.Height == right.Height;
-    }
+    public static bool operator ==(Size2F left, Size2F right) => left.Width == right.Width && left.Height == right.Height;
 
-    public static bool operator !=(Size2F left, Size2F right) {
-        return !(left == right);
-    }
+    public static bool operator !=(Size2F left, Size2F right) => !(left == right);
 
-    public override bool Equals(object obj) {
-        return obj is Size2F other && this == other;
-    }
+    public override bool Equals(object? obj) => obj is Size2F other && this == other;
 
-    public override int GetHashCode() {
-        return HashCode.Combine(Width, Height);
-    }
+    public override int GetHashCode() => HashCode.Combine(Width, Height);
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -131,9 +123,7 @@ public struct Rectangle {
 
     public bool IsEmpty => Width <= 0 || Height <= 0;
 
-    public bool Intersects(Rectangle other) {
-        return Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
-    }
+    public bool Intersects(Rectangle other) => Left < other.Right && Right > other.Left && Top < other.Bottom && Bottom > other.Top;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -172,26 +162,16 @@ public struct RectangleF {
 
     public Vector2 Center => new(Left + Width / 2, Top + Height / 2);
 
-    public bool Contains(Vector2 point) {
-        return point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
-    }
+    public bool Contains(Vector2 point) => point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
 
-    public static bool operator ==(RectangleF left, RectangleF right) {
-        return left.Left == right.Left && left.Top == right.Top && left.Width == right.Width &&
-               left.Height == right.Height;
-    }
+    public static bool operator ==(RectangleF left, RectangleF right) => left.Left == right.Left && left.Top == right.Top && left.Width == right.Width &&
+                                                                         left.Height == right.Height;
 
-    public static bool operator !=(RectangleF left, RectangleF right) {
-        return !(left == right);
-    }
+    public static bool operator !=(RectangleF left, RectangleF right) => !(left == right);
 
-    public override bool Equals(object obj) {
-        return obj is RectangleF other && this == other;
-    }
+    public override bool Equals(object? obj) => obj is RectangleF other && this == other;
 
-    public override int GetHashCode() {
-        return HashCode.Combine(Left, Top, Width, Height);
-    }
+    public override int GetHashCode() => HashCode.Combine(Left, Top, Width, Height);
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -216,13 +196,9 @@ public struct Matrix3X2 {
 
     public Vector2 TranslationVector => new(M31, M32);
 
-    public static Matrix3X2 Translation(float x, float y) {
-        return new Matrix3X2(1, 0, 0, 1, x, y);
-    }
+    public static Matrix3X2 Translation(float x, float y) => new(1, 0, 0, 1, x, y);
 
-    public static Matrix3X2 Translation(Vector2 offset) {
-        return Translation(offset.X, offset.Y);
-    }
+    public static Matrix3X2 Translation(Vector2 offset) => Translation(offset.X, offset.Y);
 
     public static Matrix3X2 Rotation(float angle) {
         var cosine = (float)Math.Cos(angle);
@@ -230,19 +206,15 @@ public struct Matrix3X2 {
         return new Matrix3X2(cosine, sine, -sine, cosine, 0, 0);
     }
 
-    public static Vector2 TransformPoint(Matrix3X2 transform, Vector2 point) {
-        return new Vector2(point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
-                           point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
-    }
+    public static Vector2 TransformPoint(Matrix3X2 transform, Vector2 point) => new(point.X * transform.M11 + point.Y * transform.M21 + transform.M31,
+        point.X * transform.M12 + point.Y * transform.M22 + transform.M32);
 
-    public static Matrix3X2 operator *(Matrix3X2 left, Matrix3X2 right) {
-        return new Matrix3X2(left.M11 * right.M11 + left.M12 * right.M21,
-                             left.M11 * right.M12 + left.M12 * right.M22,
-                             left.M21 * right.M11 + left.M22 * right.M21,
-                             left.M21 * right.M12 + left.M22 * right.M22,
-                             left.M31 * right.M11 + left.M32 * right.M21 + right.M31,
-                             left.M31 * right.M12 + left.M32 * right.M22 + right.M32);
-    }
+    public static Matrix3X2 operator *(Matrix3X2 left, Matrix3X2 right) => new(left.M11 * right.M11 + left.M12 * right.M21,
+        left.M11 * right.M12 + left.M12 * right.M22,
+        left.M21 * right.M11 + left.M22 * right.M21,
+        left.M21 * right.M12 + left.M22 * right.M22,
+        left.M31 * right.M11 + left.M32 * right.M21 + right.M31,
+        left.M31 * right.M12 + left.M32 * right.M22 + right.M32);
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]

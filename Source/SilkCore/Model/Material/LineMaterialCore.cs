@@ -13,9 +13,8 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new LineMaterialVariable(manager, technique, this);
-    }
+    )
+        => new LineMaterialVariable(manager, technique, this);
 
     #region Properties
 

@@ -42,13 +42,13 @@ public abstract class ModelReader : IModelReader {
         ///     Gets or sets the directory.
         /// </summary>
         /// <value>The directory.</value>
-    public string Directory { get; set; }
+    public string? Directory { get; set; }
 
         /// <summary>
         ///     Gets or sets the texture path.
         /// </summary>
         /// <value>The texture path.</value>
-    public string TexturePath {
+    public string? TexturePath {
         get => Directory;
 
         set => Directory = value;
@@ -60,7 +60,7 @@ public abstract class ModelReader : IModelReader {
         /// <param name="path">The path.</param>
         /// <param name="info"></param>
         /// <returns>The model.</returns>
-    public virtual Mesh3DGroup Read(string path, ModelInfo info = default) {
+    public virtual Mesh3DGroup? Read(string path, ModelInfo info = default) {
         Directory = Path.GetDirectoryName(path);
         using var s = File.OpenRead(path);
         return Read(s, info);
@@ -72,5 +72,5 @@ public abstract class ModelReader : IModelReader {
         /// <param name="s">The stream.</param>
         /// <param name="info"></param>
         /// <returns>The model.</returns>
-    public abstract Mesh3DGroup Read(Stream s, ModelInfo info = default);
+    public abstract Mesh3DGroup? Read(Stream s, ModelInfo info = default);
 }

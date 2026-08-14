@@ -346,10 +346,9 @@ internal class ArevaloRectanglePacker : RectanglePacker {
             /// <param name="left">Left anchor point that will be compared</param>
             /// <param name="right">Right anchor point that will be compared</param>
             /// <returns>The relation of the two anchor point's ranks to each other</returns>
-        public int Compare(Point left, Point right) {
+        public int Compare(Point left, Point right) =>
             //return Math.Min(left.X, left.Y) - Math.Min(right.X, right.Y);
-            return left.X + left.Y - (right.X + right.Y);
-        }
+            left.X + left.Y - (right.X + right.Y);
 
         #endregion
     }

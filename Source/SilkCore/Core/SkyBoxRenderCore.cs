@@ -156,7 +156,7 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     protected sealed override void OnRenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     ) { }
 
     /// <summary>

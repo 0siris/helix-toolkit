@@ -58,24 +58,16 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new BoneSkinRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new BoneSkinRenderCore();
 
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
-        return !(EffectsManager.GeometryBufferManager.Register<BoneSkinnedMeshBufferModel>(modelGuid, geometry)
-                     is IBoneSkinMeshBufferModel buffer)
-                   ? EmptyGeometryBufferModel.Empty
-                   : new BoneSkinPreComputeBufferModel(buffer, buffer.VertexStructSize.FirstOrDefault());
-    }
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => !(EffectsManager.GeometryBufferManager.Register<BoneSkinnedMeshBufferModel>(modelGuid, geometry)
+        is IBoneSkinMeshBufferModel buffer)
+        ? EmptyGeometryBufferModel.Empty
+        : new BoneSkinPreComputeBufferModel(buffer, buffer.VertexStructSize.FirstOrDefault());
 
-    public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
-        return BoneMatrices.Length != 0 || base.TestViewFrustum(ref viewFrustum);
-    }
+    public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) => BoneMatrices.Length != 0 || base.TestViewFrustum(ref viewFrustum);
 
-    protected override bool PreHitTestOnBounds(HitTestContext context) {
-        return BoneMatrices.Length != 0 || base.PreHitTestOnBounds(context);
-    }
+    protected override bool PreHitTestOnBounds(HitTestContext context) => BoneMatrices.Length != 0 || base.PreHitTestOnBounds(context);
 
     /// <summary>
     ///     Creates the skeleton node.
@@ -84,9 +76,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     /// <param name="effectName">Name of the effect.</param>
     /// <param name="scale">The scale.</param>
     /// <returns></returns>
-    public BoneSkinMeshNode CreateSkeletonNode(MaterialCore material, string effectName, float scale = 0.1f) {
-        return CreateSkeletonNode(this, material, effectName, scale);
-    }
+    public BoneSkinMeshNode CreateSkeletonNode(MaterialCore material, string effectName, float scale = 0.1f) => CreateSkeletonNode(this, material, effectName, scale);
 
     /// <summary>
     ///     Creates the skeleton node.
@@ -117,7 +107,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     /// </summary>
     /// <param name="manager"></param>
     /// <returns>New array with vertex positions</returns>
-    public Vector3[] TryGetSkinnedVertices(IEffectsManager manager) {
+    public Vector3[]? TryGetSkinnedVertices(IEffectsManager manager) {
         if (Geometry is BoneSkinnedMeshGeometry3D skGeometry)
             if (RenderCore is BoneSkinRenderCore skCore) {
                 var nativeResources = manager.NativeDeviceResources;
@@ -152,9 +142,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     ///     To get latest skinned vertices, please use <see cref="TryGetSkinnedVertices(IEffectsManager)" />.
     /// </summary>
     /// <returns></returns>
-    public Vector3[] TryGetSkinnedVerticesCache() {
-        return skinnedVerticesCache;
-    }
+    public Vector3[]? TryGetSkinnedVerticesCache() => skinnedVerticesCache;
 
     /// <summary>
     ///     Make sure to use SetWeight so that the mutation of elements can be seen
@@ -201,9 +189,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
         (RenderCore as BoneSkinRenderCore).InvalidateMorphTargetWeights();
     }
 
-    public bool InitializeMorphTargets(MorphTargetVertex[] mtv, int pitch) {
-        return (RenderCore as BoneSkinRenderCore).InitializeMorphTargets(mtv, pitch);
-    }
+    public bool InitializeMorphTargets(MorphTargetVertex[] mtv, int pitch) => (RenderCore as BoneSkinRenderCore).InitializeMorphTargets(mtv, pitch);
 
     protected override bool OnHitTest(
         HitTestContext context,

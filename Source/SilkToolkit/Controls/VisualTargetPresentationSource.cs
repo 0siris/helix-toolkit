@@ -107,9 +107,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
 
     public event SizeChangedEventHandler SizeChanged;
 
-    protected override CompositionTarget GetCompositionTargetCore() {
-        return _visualTarget;
-    }
+    protected override CompositionTarget GetCompositionTargetCore() => _visualTarget;
 
     private void root_SizeChanged(object sender, SizeChangedEventArgs e) {
         var handler = SizeChanged;

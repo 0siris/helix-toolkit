@@ -12,9 +12,7 @@ public class MeshOutlineNode : MeshNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new MeshOutlineRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new MeshOutlineRenderCore();
 
     #region Properties
 

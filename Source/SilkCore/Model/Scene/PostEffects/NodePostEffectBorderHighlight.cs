@@ -28,15 +28,11 @@ public class NodePostEffectBorderHighlight : NodePostEffectMeshOutlineBlur {
         set => (RenderCore as PostEffectMeshOutlineBlurCore).DrawMode = value;
     }
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight];
 
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PostEffectMeshOutlineBlurCore(false);
-    }
+    protected override RenderCore OnCreateRenderCore() => new PostEffectMeshOutlineBlurCore(false);
 }

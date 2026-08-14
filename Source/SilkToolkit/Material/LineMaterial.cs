@@ -30,37 +30,33 @@ public class LineMaterial : Material {
         FixedSize = core.FixedSize;
     }
 
-    protected override MaterialCore OnCreateCore() {
-        return new LineMaterialCore {
-            Name = Name,
-            LineColor = Color.ToColor4(),
-            Smoothness = (float)Smoothness,
-            Thickness = (float)Thickness,
-            EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float)FadingNearDistance,
-            FadingFarDistance = (float)FadingFarDistance,
-            Texture = Texture,
-            TextureScale = (float)TextureScale,
-            SamplerDescription = SamplerDescription,
-            FixedSize = FixedSize
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new LineMaterialCore {
+        Name = Name,
+        LineColor = Color.ToColor4(),
+        Smoothness = (float)Smoothness,
+        Thickness = (float)Thickness,
+        EnableDistanceFading = EnableDistanceFading,
+        FadingNearDistance = (float)FadingNearDistance,
+        FadingFarDistance = (float)FadingFarDistance,
+        Texture = Texture,
+        TextureScale = (float)TextureScale,
+        SamplerDescription = SamplerDescription,
+        FixedSize = FixedSize
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return new LineMaterial {
-            Name = Name,
-            Color = Color,
-            Smoothness = Smoothness,
-            Thickness = Thickness,
-            EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = FadingNearDistance,
-            FadingFarDistance = FadingFarDistance,
-            Texture = Texture,
-            TextureScale = TextureScale,
-            SamplerDescription = SamplerDescription,
-            FixedSize = FixedSize
-        };
-    }
+    protected override Freezable CreateInstanceCore() => new LineMaterial {
+        Name = Name,
+        Color = Color,
+        Smoothness = Smoothness,
+        Thickness = Thickness,
+        EnableDistanceFading = EnableDistanceFading,
+        FadingNearDistance = FadingNearDistance,
+        FadingFarDistance = FadingFarDistance,
+        Texture = Texture,
+        TextureScale = TextureScale,
+        SamplerDescription = SamplerDescription,
+        FixedSize = FixedSize
+    };
 
     #region Dependency Properties
 

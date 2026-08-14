@@ -15,14 +15,14 @@ public interface ITextureModelRepository {
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <returns></returns>
-    TextureModel Create(Stream stream);
+    TextureModel? Create(Stream? stream);
 
     /// <summary>
     ///     Creates texture model from a specified texture path
     /// </summary>
     /// <param name="texturePath">The texture path.</param>
     /// <returns></returns>
-    TextureModel Create(string texturePath);
+    TextureModel? Create(string? texturePath);
 }
 
 /// <summary>

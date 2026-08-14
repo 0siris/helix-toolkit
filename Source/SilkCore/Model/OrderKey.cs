@@ -12,12 +12,9 @@ public struct OrderKey : IComparable<OrderKey> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OrderKey Create(ushort order, ushort materialId) {
+    public static OrderKey Create(ushort order, ushort materialId) =>
         //return new OrderKey(((uint)order << 16) | materialID);
-        return new OrderKey(order);
-    }
+        new(order);
 
-    public int CompareTo(OrderKey other) {
-        return Key.CompareTo(other.Key);
-    }
+    public int CompareTo(OrderKey other) => Key.CompareTo(other.Key);
 }

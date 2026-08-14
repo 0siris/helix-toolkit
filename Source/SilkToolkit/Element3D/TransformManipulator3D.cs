@@ -18,9 +18,9 @@ using Media3D = System.Windows.Media.Media3D;
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class TransformManipulator3D : GroupElement3D {
-    private static readonly Geometry3D TranslationXGeometry = null!;
-    private static readonly Geometry3D RotationXGeometry = null!;
-    private static readonly Geometry3D ScalingGeometry = null!;
+    private static readonly Geometry3D TranslationXGeometry;
+    private static readonly Geometry3D RotationXGeometry;
+    private static readonly Geometry3D ScalingGeometry;
 
     private ManipulationType manipulationType = ManipulationType.None;
 
@@ -189,15 +189,11 @@ public class TransformManipulator3D : GroupElement3D {
         OnTargetChanged(target);
     }
 
-    protected virtual bool CanBeginTransform(MouseDown3DEventArgs e) {
-        return true;
-    }
+    protected virtual bool CanBeginTransform(MouseDown3DEventArgs e) => true;
 
     private void Manipulation_Mouse3DUp(object? sender, MouseUp3DEventArgs e) {
-        if (isCaptured) {
-            var material = ((MeshGeometryModel3D)e.HitTestResult!.ModelHit).Material as DiffuseMaterial;
-            material!.DiffuseColor = currentColor;
-        }
+        if (isCaptured && e.HitTestResult?.ModelHit is MeshGeometryModel3D { Material: DiffuseMaterial material })
+            material.DiffuseColor = currentColor;
 
         manipulationType = ManipulationType.None;
         isCaptured = false;
@@ -257,9 +253,7 @@ public class TransformManipulator3D : GroupElement3D {
         ctrlGroup.Transform = new Media3D.MatrixTransform3D(m.ToMatrix3D());
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new AlwaysHitGroupNode(this);
-    }
+    protected override SceneNode OnCreateSceneNode() => new AlwaysHitGroupNode(this);
 
     private enum ManipulationType {
         None,
@@ -305,7 +299,7 @@ public class TransformManipulator3D : GroupElement3D {
                 if (hits.Count > 0) {
                     var res = new HitTestResult { Distance = float.MaxValue };
                     foreach (var hit in hits)
-                        if (models.Contains(hit.ModelHit))
+                        if (hit.ModelHit is { } modelHit && models.Contains(modelHit))
                             if (hit.Distance < res.Distance)
                                 res = hit;
 
@@ -321,8 +315,8 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Dependency Properties
 
-    public Element3D Target {
-        get => (Element3D)GetValue(TargetProperty);
+    public Element3D? Target {
+        get => (Element3D?)GetValue(TargetProperty);
         set => SetValue(TargetProperty, value);
     }
 
@@ -333,8 +327,8 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).OnTargetChanged(
-                                                                 e.NewValue as Element3D);
+                                                             ((TransformManipulator3D)d).OnTargetChanged(
+                                                                 (Element3D?)e.NewValue);
                                                          }));
 
 
@@ -349,15 +343,13 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).scaleX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScalingX;
-                                                             (d as TransformManipulator3D).scaleY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScalingY;
-                                                             (d as TransformManipulator3D).scaleZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScalingZ;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.scaleX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScalingX;
+                                                             manipulator.scaleY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScalingY;
+                                                             manipulator.scaleZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScalingZ;
                                                          }));
 
     public bool EnableScalingX {
@@ -371,9 +363,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).scaleX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScalingX;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.scaleX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScalingX;
                                                          }));
 
     public bool EnableScalingY {
@@ -387,9 +379,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).scaleY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScaling;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.scaleY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScaling;
                                                          }));
 
     public bool EnableScalingZ {
@@ -403,9 +395,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).scaleZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableScaling;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.scaleZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableScaling;
                                                          }));
 
 
@@ -420,15 +412,13 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).translationX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslationX;
-                                                             (d as TransformManipulator3D).translationY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslationY;
-                                                             (d as TransformManipulator3D).translationZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslationZ;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.translationX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslationX;
+                                                             manipulator.translationY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslationY;
+                                                             manipulator.translationZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslationZ;
                                                          }));
 
     public bool EnableTranslationX {
@@ -442,9 +432,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).translationX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.translationX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
                                                          }));
 
     public bool EnableTranslationY {
@@ -458,9 +448,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).translationY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.translationY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
                                                          }));
 
     public bool EnableTranslationZ {
@@ -474,9 +464,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).translationZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableTranslation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.translationZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
                                                          }));
 
 
@@ -491,15 +481,13 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).rotationX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotationX;
-                                                             (d as TransformManipulator3D).rotationY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotationY;
-                                                             (d as TransformManipulator3D).rotationZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotationZ;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.rotationX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotationX;
+                                                             manipulator.rotationY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotationY;
+                                                             manipulator.rotationZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotationZ;
                                                          }));
 
     public bool EnableRotationX {
@@ -513,9 +501,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).rotationX.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.rotationX.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotation;
                                                          }));
 
     public bool EnableRotationY {
@@ -529,9 +517,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).rotationY.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.rotationY.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotation;
                                                          }));
 
     public bool EnableRotationZ {
@@ -545,9 +533,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).rotationZ.IsRendering =
-                                                                 (bool)e.NewValue && (d as TransformManipulator3D)
-                                                                 .EnableRotation;
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.rotationZ.IsRendering =
+                                                                 (bool)e.NewValue && manipulator.EnableRotation;
                                                          }));
 
 
@@ -569,8 +557,8 @@ public class TransformManipulator3D : GroupElement3D {
 
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 CenterOffset {
-        get { return (Vector3)GetValue(CenterOffsetProperty); }
-        set { SetValue(CenterOffsetProperty, value); }
+        get => (Vector3)GetValue(CenterOffsetProperty);
+        set => SetValue(CenterOffsetProperty, value);
     }
 
     public static readonly DependencyProperty CenterOffsetProperty =
@@ -579,9 +567,9 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(Vector3.Zero,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).centerOffset =
-                                                                 (Vector3)e.NewValue;
-                                                             (d as TransformManipulator3D).OnUpdateSelfTransform();
+                                                             var manipulator = (TransformManipulator3D)d;
+                                                             manipulator.centerOffset = (Vector3)e.NewValue;
+                                                             manipulator.OnUpdateSelfTransform();
                                                          }));
 
     public double SizeScale {
@@ -595,7 +583,7 @@ public class TransformManipulator3D : GroupElement3D {
                                     typeof(TransformManipulator3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             (d as TransformManipulator3D).sizeScale =
+                                                             ((TransformManipulator3D)d).sizeScale =
                                                                  (double)e.NewValue;
                                                          }));
 
@@ -631,7 +619,8 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Translation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
-        if (!(e.HitTestResult.ModelHit is Element3D elem)) {
+        var hitResult = e.HitTestResult;
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -652,23 +641,28 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
+        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+            manipulationType = ManipulationType.None;
+            isCaptured = false;
+            return;
+        }
+
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport!;
-        var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = e.HitTestResult.PointHit;
+        currentViewport = viewport;
+        var cameraNormal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
+        lastHitPosWS = hitResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
     private void Translation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
-        if (!isCaptured) return;
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (!isCaptured || currentViewport is not { } viewport) return;
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             switch (manipulationType) {
@@ -694,7 +688,8 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Rotation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
-        if (!(e.HitTestResult.ModelHit is Element3D elem)) {
+        var hitResult = e.HitTestResult;
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -715,23 +710,28 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
+        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+            manipulationType = ManipulationType.None;
+            isCaptured = false;
+            return;
+        }
+
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport!;
-        normal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = e.HitTestResult.PointHit;
+        currentViewport = viewport;
+        normal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
+        lastHitPosWS = hitResult.PointHit;
         //var up = SilkMath.Cross(cameraNormal, direction);
         //normal = SilkMath.Cross(up, direction);
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
     private void Rotation_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
-        if (!isCaptured) return;
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (!isCaptured || currentViewport is not { } viewport) return;
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var position = translationVector + centerOffset;
             var v = SilkMath.Normalize(currentHit - position);
             var u = SilkMath.Normalize(hit - position);
@@ -774,7 +774,8 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void Scaling_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
-        if (!(e.HitTestResult.ModelHit is Element3D elem)) {
+        var hitResult = e.HitTestResult;
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -795,23 +796,28 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        var material = (e.HitTestResult.ModelHit as MeshGeometryModel3D).Material as DiffuseMaterial;
+        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+            manipulationType = ManipulationType.None;
+            isCaptured = false;
+            return;
+        }
+
         currentColor = material.DiffuseColor;
         material.DiffuseColor = Color.Yellow;
-        currentViewport = e.Viewport!;
-        var cameraNormal = SilkMath.Normalize(e.Viewport.Camera.CameraInternal.LookDirection);
-        lastHitPosWS = e.HitTestResult.PointHit;
+        currentViewport = viewport;
+        var cameraNormal = SilkMath.Normalize(viewport.Camera.CameraInternal.LookDirection);
+        lastHitPosWS = hitResult.PointHit;
         var up = SilkMath.Cross(cameraNormal, direction);
         normal = SilkMath.Cross(up, direction);
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             currentHit = hit;
             isCaptured = true;
         }
     }
 
     private void Scaling_Mouse3DMove(object? sender, MouseMove3DEventArgs e) {
-        if (!isCaptured) return;
-        if (currentViewport!.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
+        if (!isCaptured || currentViewport is not { } viewport) return;
+        if (viewport.UnProjectOnPlane(e.Position.ToVector2(), lastHitPosWS, normal, out var hit)) {
             var moveDir = hit - currentHit;
             currentHit = hit;
             var orgAxis = Vector3.Zero;

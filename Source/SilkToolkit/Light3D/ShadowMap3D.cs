@@ -246,9 +246,7 @@ public class ShadowMap3D : Element3D {
         set => SetValue(IsSceneDynamicProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new ShadowMapNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ShadowMapNode();
 
     /// <summary>
     ///     Assigns the default values to core.

@@ -101,8 +101,6 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
             ErrorList = n.Errors;
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new DynamicCodeSurface3DNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new DynamicCodeSurface3DNode();
 }
 #endif

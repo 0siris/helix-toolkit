@@ -149,9 +149,7 @@ public class TextRenderCore2D : RenderCore2DBase {
         textLayout.TextAlignment = TextAlignment;
     }
 
-    protected override bool CanRender(RenderContext2D context) {
-        return base.CanRender(context) && Foreground != null && Text != null;
-    }
+    protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Foreground != null && Text != null;
 
     protected override void OnRender(RenderContext2D context) {
         if (Background != null) context.DeviceContext.FillRectangle(LayoutBound, Background);

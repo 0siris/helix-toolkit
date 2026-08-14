@@ -27,7 +27,7 @@ public interface IElementsBufferModel : IVertexExtraBufferModel {
     /// <summary>
     ///     Occurs when [on element changed].
     /// </summary>
-    event EventHandler<EventArgs> ElementChanged;
+    event EventHandler<EventArgs>? ElementChanged;
 
     /// <summary>
     ///     Disposes internal buffer and reuse the object

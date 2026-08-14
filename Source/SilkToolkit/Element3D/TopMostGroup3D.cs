@@ -38,9 +38,7 @@ public class TopMostGroup3D : GroupModel3D {
     }
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new TopMostGroupNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new TopMostGroupNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         (node as TopMostGroupNode).EnableTopMost = EnableTopMost;

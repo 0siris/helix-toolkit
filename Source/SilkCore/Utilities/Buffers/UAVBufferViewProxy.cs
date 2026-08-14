@@ -87,13 +87,9 @@ public sealed class UavBufferViewProxy : IDisposable {
         device.CopyStructureCount(destBuffer, offset, Uav);
     }
 
-    public static implicit operator UnorderedAccessView(UavBufferViewProxy proxy) {
-        return proxy?.uav;
-    }
+    public static implicit operator UnorderedAccessView?(UavBufferViewProxy? proxy) => proxy?.uav;
 
-    public static implicit operator ShaderResourceViewProxy(UavBufferViewProxy proxy) {
-        return proxy?.srv;
-    }
+    public static implicit operator ShaderResourceViewProxy?(UavBufferViewProxy? proxy) => proxy?.srv;
 
     [SuppressMessage("Microsoft.Usage",
                      "CA2213: Disposable fields should be disposed",

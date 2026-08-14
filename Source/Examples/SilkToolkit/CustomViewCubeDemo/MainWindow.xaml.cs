@@ -36,13 +36,9 @@ public partial class MainWindow : Window {
         Debug.WriteLine("Line hitted.");
     }
 
-    private static Vector3 Normalize(Vector3 value) {
-        return value.Length > 0 ? value / value.Length : value;
-    }
+    private static Vector3 Normalize(Vector3 value) => value.Length > 0 ? value / value.Length : value;
 
-    private static Vector3 Cross(Vector3 left, Vector3 right) {
-        return new Vector3(left.Y * right.Z - left.Z * right.Y,
-                           left.Z * right.X - left.X * right.Z,
-                           left.X * right.Y - left.Y * right.X);
-    }
+    private static Vector3 Cross(Vector3 left, Vector3 right) => new(left.Y * right.Z - left.Z * right.Y,
+        left.Z * right.X - left.X * right.Z,
+        left.X * right.Y - left.Y * right.X);
 }

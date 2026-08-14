@@ -118,7 +118,5 @@ public sealed class DomainShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator DomainShaderType(DomainShader s) {
-        return Type;
-    }
+    public static implicit operator DomainShaderType(DomainShader s) => Type;
 }

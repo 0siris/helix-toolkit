@@ -21,7 +21,7 @@ public class Polygon {
     /// <summary>
     ///     The points.
     /// </summary>
-    internal PointCollection Points;
+    internal PointCollection? points;
 
     /// <summary>
     ///     Gets or sets the points.
@@ -37,7 +37,5 @@ public class Polygon {
     ///     Triangulate the polygon by using the sweep line algorithm
     /// </summary>
     /// <returns>An index collection.</returns>
-    public Int32Collection Triangulate() {
-        return SweepLinePolygonTriangulator.Triangulate(points);
-    }
+    public Int32Collection? Triangulate() => SweepLinePolygonTriangulator.Triangulate(Points);
 }

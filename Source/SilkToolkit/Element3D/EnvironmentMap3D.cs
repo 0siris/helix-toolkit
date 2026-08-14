@@ -52,9 +52,7 @@ public class EnvironmentMap3D : Element3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new EnvironmentMapNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new EnvironmentMapNode();
 
     /// <summary>
     ///     Assigns the default values to scene node.

@@ -75,7 +75,7 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         }
     }
 
-    public event EventHandler OnCompileError;
+    public event EventHandler? OnCompileError;
 
     private void UpdateSource() {
         sourceCode = Source;
@@ -105,9 +105,7 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         }
     }
 
-    protected virtual string GetTemplate() {
-        return DynamicCodeSurfaceTemplate.Template;
-    }
+    protected virtual string GetTemplate() => DynamicCodeSurfaceTemplate.Template;
 
     protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
         if (codeType == null) {

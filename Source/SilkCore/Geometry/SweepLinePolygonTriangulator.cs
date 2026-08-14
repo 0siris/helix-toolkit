@@ -34,7 +34,7 @@ public static class SweepLinePolygonTriangulator {
     /// <param name="polygon">The Input Polygon</param>
     /// <param name="holes">The Input Polygon</param>
     /// <returns>List of Indices representing the Triangulation of the Polygon</returns>
-    public static Int32Collection Triangulate(IList<Point> polygon, List<List<Point>>? holes = null) {
+    public static Int32Collection? Triangulate(IList<Point> polygon, List<List<Point>>? holes = null) {
         // Allocate and initialize List of Indices in Polygon
         var result = new Int32Collection();
 
@@ -247,7 +247,7 @@ public static class SweepLinePolygonTriangulator {
             var evClass = ev.PointClass(!sweepDown);
 
             // Temporary StatusHelperElement
-            StatusHelperElement she = null;
+            StatusHelperElement? she = null;
 
             // Handle the different Point-Classes
             switch (evClass) {
@@ -465,9 +465,9 @@ internal class StatusHelper {
     /// </summary>
     /// <param name="point">The Point to search a StatusHelperElement for</param>
     /// <returns>The nearest StatusHelperElement that is positioned left of the Poin</returns>
-    internal StatusHelperElement SearchLeft(PolygonPoint point) {
+    internal StatusHelperElement? SearchLeft(PolygonPoint point) {
         // The found StatusHelperElement and the Distance Variables
-        StatusHelperElement result = null;
+        StatusHelperElement? result = null;
         var dist = double.PositiveInfinity;
 
         var px = point.X;
@@ -619,7 +619,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <summary>
     ///     The "last" neighboring Point, which is connected throught the incoming Edge
     /// </summary>
-    public PolygonPoint Last {
+    public PolygonPoint? Last {
         get {
             if (mEdgeOne != null && mEdgeOne.PointOne != null)
                 return mEdgeOne.PointOne;
@@ -630,7 +630,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <summary>
     ///     The "next" neighboring Point, which is connected throught the outgoing Edge
     /// </summary>
-    public PolygonPoint Next {
+    public PolygonPoint? Next {
         get {
             if (mEdgeTwo != null && mEdgeTwo.PointTwo != null)
                 return mEdgeTwo.PointTwo;
@@ -643,7 +643,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// </summary>
     /// <param name="second">Other Point to compare to</param>
     /// <returns>-1 if this Point is bigger, 0 if the same, 1 if smaller</returns>
-    public int CompareTo(PolygonPoint second) {
+    public int CompareTo(PolygonPoint? second) {
         if (this == null || second == null)
             return 0;
         if (Y > second.Y || (Y == second.Y && X < second.X))
@@ -659,9 +659,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <param name="first">The first PolygonPoint</param>
     /// <param name="second">The second PolygonPoint</param>
     /// <returns>Returns true if the first PolygonPoint is smaller, compared to the second PolygonPoint, false otherwise</returns>
-    public static bool operator <(PolygonPoint first, PolygonPoint second) {
-        return first.CompareTo(second) == 1;
-    }
+    public static bool operator <(PolygonPoint first, PolygonPoint second) => first.CompareTo(second) == 1;
 
     /// <summary>
     ///     Comparison Operator, that is used to determine the Class of the PolygonPoints
@@ -669,9 +667,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <param name="first">The first PolygonPoint</param>
     /// <param name="second">The second PolygonPoint</param>
     /// <returns>Returns true if the first PolygonPoint is bigger, compared to the second PolygonPoint, false otherwise</returns>
-    public static bool operator >(PolygonPoint first, PolygonPoint second) {
-        return first.CompareTo(second) == -1;
-    }
+    public static bool operator >(PolygonPoint first, PolygonPoint second) => first.CompareTo(second) == -1;
 
     /// <summary>
     ///     Detrmines the Class of the PolygonPoint, depending on the sweeping Direction
@@ -746,9 +742,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     ///     Override the ToString (for Debugging Purposes)
     /// </summary>
     /// <returns>String representing this Point</returns>
-    public override string ToString() {
-        return Index + " X:" + X + " Y:" + Y;
-    }
+    public override string ToString() => Index + " X:" + X + " Y:" + Y;
 }
 
 /// <summary>
@@ -794,7 +788,7 @@ internal class PolygonEdge {
     /// <summary>
     ///     The "last" neighboring Edge, which both share the Startpoint of this Edge
     /// </summary>
-    public PolygonEdge Last {
+    public PolygonEdge? Last {
         get {
             if (mPointOne != null && mPointOne.EdgeOne != null)
                 return mPointOne.EdgeOne;
@@ -805,7 +799,7 @@ internal class PolygonEdge {
     /// <summary>
     ///     The "next" neighboring Edge, which both share the Endpoint of this Edge
     /// </summary>
-    public PolygonEdge Next {
+    public PolygonEdge? Next {
         get {
             if (mPointTwo != null && mPointTwo.EdgeTwo != null)
                 return mPointTwo.EdgeTwo;
@@ -817,9 +811,7 @@ internal class PolygonEdge {
     ///     Override the ToString (for Debugging Purposes)
     /// </summary>
     /// <returns>String representing this Edge</returns>
-    public override string ToString() {
-        return "From: {" + mPointOne + "} To: {" + mPointTwo + "}";
-    }
+    public override string ToString() => "From: {" + mPointOne + "} To: {" + mPointTwo + "}";
 }
 
 /// <summary>

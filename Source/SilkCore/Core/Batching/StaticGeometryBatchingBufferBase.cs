@@ -63,7 +63,7 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
     /// <value>
     ///     The index buffer.
     /// </value>
-    public IElementsBufferProxy IndexBuffer => indexBuffer;
+    public IElementsBufferProxy? IndexBuffer => indexBuffer;
 
     /// <summary>
     ///     Gets or sets the topology.

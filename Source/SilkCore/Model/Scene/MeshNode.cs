@@ -14,9 +14,7 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new MeshRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new MeshRenderCore();
 
     /// <summary>
     ///     Called when [create buffer model].
@@ -24,44 +22,37 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
-        return geometry != null && geometry.IsDynamic
-                   ? EffectsManager.GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
-                       modelGuid,
-                       geometry)
-                   : EffectsManager.GeometryBufferManager
-                                   .Register<DefaultMeshGeometryBufferModel>(modelGuid, geometry);
-    }
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => geometry != null && geometry.IsDynamic
+        ? EffectsManager.GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
+            modelGuid,
+            geometry)
+        : EffectsManager.GeometryBufferManager
+            .Register<DefaultMeshGeometryBufferModel>(modelGuid, geometry);
 
     /// <summary>
     ///     Create raster state description.
     /// </summary>
     /// <returns></returns>
-    protected override RasterizerStateDescription CreateRasterState() {
-        return new RasterizerStateDescription {
-            FillMode = FillMode,
-            CullMode = CullMode,
-            DepthBias = DepthBias,
-            DepthBiasClamp = -1000,
-            SlopeScaledDepthBias = SlopeScaledDepthBias,
-            IsDepthClipEnabled = IsDepthClipEnabled,
-            IsFrontCounterClockwise = FrontCcw,
-            IsMultisampleEnabled = IsMsaaEnabled,
-            IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
-        };
-    }
+    protected override RasterizerStateDescription CreateRasterState() => new() {
+        FillMode = FillMode,
+        CullMode = CullMode,
+        DepthBias = DepthBias,
+        DepthBiasClamp = -1000,
+        SlopeScaledDepthBias = SlopeScaledDepthBias,
+        IsDepthClipEnabled = IsDepthClipEnabled,
+        IsFrontCounterClockwise = FrontCcw,
+        IsMultisampleEnabled = IsMsaaEnabled,
+        IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
+    };
 
-    protected override bool OnCheckGeometry(Geometry3D geometry) {
-        return base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
-    }
+    protected override bool OnCheckGeometry(Geometry3D geometry) => base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return (Geometry as MeshGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource);
-    }
+    )
+        => (Geometry as MeshGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource);
 
     #region Properties
 
@@ -130,7 +121,7 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     /// <value>
     ///     The dynamic reflector.
     /// </value>
-    public IDynamicReflector DynamicReflector {
+    public IDynamicReflector? DynamicReflector {
         get => (RenderCore as IDynamicReflectable).DynamicReflector;
         set => (RenderCore as IDynamicReflectable).DynamicReflector = value;
     }

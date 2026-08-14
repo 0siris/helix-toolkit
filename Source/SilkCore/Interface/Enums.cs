@@ -122,19 +122,13 @@ public enum OitWeightMode {
 /// </summary>
 public struct EnumHelper {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(ShaderStage option, ShaderStage flag) {
-        return (option & flag) != 0;
-    }
+    public static bool HasFlag(ShaderStage option, ShaderStage flag) => (option & flag) != 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(StateType option, StateType flag) {
-        return (option & flag) != 0;
-    }
+    public static bool HasFlag(StateType option, StateType flag) => (option & flag) != 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasFlag(RenderDetail option, RenderDetail flag) {
-        return (option & flag) != 0;
-    }
+    public static bool HasFlag(RenderDetail option, RenderDetail flag) => (option & flag) != 0;
 }
 
 /// <summary>

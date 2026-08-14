@@ -26,11 +26,9 @@ public abstract class ContentNode2D : PresenterNode2D {
         set => (RenderCore as BorderRenderCore2D).Background = value;
     }
 
-    protected override RenderCore2D CreateRenderCore() {
-        return new BorderRenderCore2D();
-    }
+    protected override RenderCore2D CreateRenderCore() => new BorderRenderCore2D();
 
-protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
+    protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
         if (Content != null && LayoutBoundWithTransform.Contains(mousePoint))
             return Content.HitTest(mousePoint, out hitResult);
 

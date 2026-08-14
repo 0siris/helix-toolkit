@@ -22,9 +22,7 @@ public sealed class DepthPrepassElement3D : Element3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new DepthPrepassNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new DepthPrepassNode();
 
     /// <summary>
     ///     Hits the test.
@@ -32,7 +30,5 @@ public sealed class DepthPrepassElement3D : Element3D {
     /// <param name="context">The context.</param>
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
-    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 }

@@ -63,13 +63,9 @@ public class StaticLineGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
         return new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
     }
 
-    protected override BoundingBox GetMaxBound() {
-        return BoundingBoxExtensions.FromPoints(Positions);
-    }
+    protected override BoundingBox GetMaxBound() => BoundingBoxExtensions.FromPoints(Positions);
 
-    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) {
-        return item.Value;
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) => item.Value;
 
     /// <summary>
     /// </summary>

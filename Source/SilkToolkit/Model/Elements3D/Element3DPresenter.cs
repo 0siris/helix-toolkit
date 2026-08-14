@@ -46,9 +46,7 @@ public class Element3DPresenter : Element3D {
         set => SetValue(ContentProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new GroupNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new GroupNode();
 
     private void Element3DPresenter_Loaded(object? sender, RoutedEventArgs e) {
         if (Content != null) {

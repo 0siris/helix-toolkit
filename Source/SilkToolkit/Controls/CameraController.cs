@@ -73,7 +73,7 @@ public class CameraController {
     ///     Gets or sets the default camera (used when resetting the view).
     /// </summary>
     /// <value> The default camera. </value>
-    public ProjectionCamera DefaultCamera;
+    public ProjectionCamera? DefaultCamera;
 
     internal int Height;
 
@@ -381,8 +381,21 @@ public class CameraController {
     ///     Initializes a new instance of the <see cref="CameraController" /> class.
     /// </summary>
     public CameraController(Viewport3DX viewport) {
-        InitializeBindings();
         Viewport = viewport;
+        actualCamera = viewport.Camera;
+        changeLookAtHandler = new RotateHandler(this, true);
+        rotateHandler = new RotateHandler(this);
+        zoomRectangleHandler = new ZoomRectangleHandler(this);
+        zoomHandler = new ZoomHandler(this);
+        panHandler = new PanHandler(this);
+        changeFieldOfViewHandler = new ZoomHandler(this, true);
+        setTargetHandler = new RotateHandler(this, true);
+        MouseHandlers.Add(changeLookAtHandler);
+        MouseHandlers.Add(rotateHandler);
+        MouseHandlers.Add(zoomRectangleHandler);
+        MouseHandlers.Add(zoomHandler);
+        MouseHandlers.Add(panHandler);
+        MouseHandlers.Add(changeFieldOfViewHandler);
         Viewport.SizeChanged += (s, e) => {
             Width = (int)e.NewSize.Width;
             Height = (int)e.NewSize.Height;
@@ -465,12 +478,12 @@ public class CameraController {
     /// <summary>
     ///     Gets OrthographicCamera.
     /// </summary>
-    protected OrthographicCamera OrthographicCamera => ActualCamera as OrthographicCamera;
+    protected OrthographicCamera? OrthographicCamera => ActualCamera as OrthographicCamera;
 
     /// <summary>
     ///     Gets PerspectiveCamera.
     /// </summary>
-    protected PerspectiveCamera PerspectiveCamera => ActualCamera as PerspectiveCamera;
+    protected PerspectiveCamera? PerspectiveCamera => ActualCamera as PerspectiveCamera;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [fixed rotation point enabled].
@@ -688,7 +701,6 @@ public class CameraController {
     ///     Push the current camera settings on an internal stack.
     /// </summary>
     public void PushCameraSetting() {
-        if (ActualCamera == null) return;
         cameraHistory.Add(new CameraSetting(ActualCamera));
     }
 
@@ -1278,7 +1290,7 @@ public class CameraController {
             zoomSpeed = 0;
         }
 
-        if (ActualCamera != null && ActualCamera.OnTimeStep()) needUpdate = true;
+        if (ActualCamera.OnTimeStep()) needUpdate = true;
         if (needUpdate) {
             lastTick = ticks;
             Viewport.InvalidateRender();

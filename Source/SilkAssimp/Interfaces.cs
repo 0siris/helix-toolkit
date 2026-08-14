@@ -10,5 +10,5 @@ public interface ITexturePathResolver {
     /// <param name="modelPath">The model path.</param>
     /// <param name="texturePath">The texture path.</param>
     /// <returns>Absolute file path for the texture</returns>
-    string Resolve(string modelPath, string texturePath);
+    string? Resolve(string modelPath, string texturePath);
 }

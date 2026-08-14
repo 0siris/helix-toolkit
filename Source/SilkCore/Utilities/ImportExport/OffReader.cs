@@ -106,7 +106,7 @@ public class OffReader : IModelReader {
     /// </param>
     /// <returns>A Model3D group.</returns>
     public Object3DGroup BuildModel(ModelInfo info = default) {
-        Object3DGroup modelGroup = null;
+        Object3DGroup? modelGroup = null;
 
         modelGroup = [];
         var g = CreateMeshGeometry3D(info);

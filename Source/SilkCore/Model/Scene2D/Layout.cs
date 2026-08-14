@@ -49,15 +49,9 @@ public struct Thickness : IEquatable<Thickness> {
         Bottom = bottom;
     }
 
-    public bool Equals(Thickness other) {
-        return Left == other.Left && Right == other.Right && Top == other.Top && Bottom == other.Bottom;
-    }
+    public bool Equals(Thickness other) => Left == other.Left && Right == other.Right && Top == other.Top && Bottom == other.Bottom;
 
-    public static implicit operator Vector4(Thickness t) {
-        return new Vector4(t.Left, t.Top, t.Right, t.Bottom);
-    }
+    public static implicit operator Vector4(Thickness t) => new(t.Left, t.Top, t.Right, t.Bottom);
 
-    public override bool Equals(object obj) {
-        return obj is Thickness && Equals((Thickness)obj);
-    }
+    public override bool Equals(object? obj) => obj is Thickness && Equals((Thickness)obj);
 }

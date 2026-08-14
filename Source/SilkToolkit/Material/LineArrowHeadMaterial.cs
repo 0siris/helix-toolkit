@@ -25,39 +25,35 @@ public class LineArrowHeadMaterial : LineMaterial {
     }
 
 
-    protected override MaterialCore OnCreateCore() {
-        return new LineArrowHeadMaterialCore {
-            Name = Name,
-            LineColor = Color.ToColor4(),
-            Smoothness = (float)Smoothness,
-            Thickness = (float)Thickness,
-            EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float)FadingNearDistance,
-            FadingFarDistance = (float)FadingFarDistance,
-            Texture = Texture,
-            TextureScale = (float)TextureScale,
-            SamplerDescription = SamplerDescription,
-            ArrowSize = (float)ArrowSize,
-            FixedSize = FixedSize
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new LineArrowHeadMaterialCore {
+        Name = Name,
+        LineColor = Color.ToColor4(),
+        Smoothness = (float)Smoothness,
+        Thickness = (float)Thickness,
+        EnableDistanceFading = EnableDistanceFading,
+        FadingNearDistance = (float)FadingNearDistance,
+        FadingFarDistance = (float)FadingFarDistance,
+        Texture = Texture,
+        TextureScale = (float)TextureScale,
+        SamplerDescription = SamplerDescription,
+        ArrowSize = (float)ArrowSize,
+        FixedSize = FixedSize
+    };
 }
 
 public class LineArrowHeadTailMaterial : LineArrowHeadMaterial {
-    protected override MaterialCore OnCreateCore() {
-        return new LineArrowHeadTailMaterialCore {
-            Name = Name,
-            LineColor = Color.ToColor4(),
-            Smoothness = (float)Smoothness,
-            Thickness = (float)Thickness,
-            EnableDistanceFading = EnableDistanceFading,
-            FadingNearDistance = (float)FadingNearDistance,
-            FadingFarDistance = (float)FadingFarDistance,
-            Texture = Texture,
-            TextureScale = (float)TextureScale,
-            SamplerDescription = SamplerDescription,
-            ArrowSize = (float)ArrowSize,
-            FixedSize = FixedSize
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new LineArrowHeadTailMaterialCore {
+        Name = Name,
+        LineColor = Color.ToColor4(),
+        Smoothness = (float)Smoothness,
+        Thickness = (float)Thickness,
+        EnableDistanceFading = EnableDistanceFading,
+        FadingNearDistance = (float)FadingNearDistance,
+        FadingFarDistance = (float)FadingFarDistance,
+        Texture = Texture,
+        TextureScale = (float)TextureScale,
+        SamplerDescription = SamplerDescription,
+        ArrowSize = (float)ArrowSize,
+        FixedSize = FixedSize
+    };
 }

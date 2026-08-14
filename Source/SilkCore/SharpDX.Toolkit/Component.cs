@@ -11,7 +11,7 @@ namespace SharpDX.Toolkit;
 ///     A disposable component base class.
 /// </summary>
 public abstract class Component : ComponentBase, IDisposable {
-    private List<IDisposable> disposeCollector;
+    private List<IDisposable>? disposeCollector;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Component" /> class.
@@ -63,7 +63,7 @@ public abstract class Component : ComponentBase, IDisposable {
     /// <summary>
     ///     Occurs when when Dispose is called.
     /// </summary>
-    public event EventHandler<EventArgs> Disposing;
+    public event EventHandler<EventArgs>? Disposing;
 
     /// <summary>
     ///     Disposes of object resources.
@@ -84,7 +84,8 @@ public abstract class Component : ComponentBase, IDisposable {
     ///     Adds a disposable object to the list of the objects to dispose.
     /// </summary>
     /// <param name="toDisposeArg">To dispose.</param>
-    protected internal T ToDispose<T>(T toDisposeArg) {
+    [return: NotNullIfNotNull(nameof(toDisposeArg))]
+    protected internal T? ToDispose<T>(T? toDisposeArg) {
         if (!ReferenceEquals(toDisposeArg, null)) {
             if (toDisposeArg is IDisposable disposable) {
                 disposeCollector ??= [];
@@ -101,7 +102,7 @@ public abstract class Component : ComponentBase, IDisposable {
     ///     Dispose a disposable object and set the reference to null. Removes this object from the ToDispose list.
     /// </summary>
     /// <param name="objectToDispose">Object to dispose.</param>
-    protected internal void RemoveAndDispose<T>(ref T objectToDispose) {
+    protected internal void RemoveAndDispose<T>(ref T? objectToDispose) {
         if (ReferenceEquals(objectToDispose, null)) return;
 
         if (objectToDispose is IDisposable disposable) {
@@ -117,7 +118,7 @@ public abstract class Component : ComponentBase, IDisposable {
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="toDisposeArg">To dispose.</param>
-    protected internal void RemoveToDispose<T>(T toDisposeArg) {
+    protected internal void RemoveToDispose<T>(T? toDisposeArg) {
         if (toDisposeArg is IDisposable disposable) disposeCollector?.Remove(disposable);
     }
 }

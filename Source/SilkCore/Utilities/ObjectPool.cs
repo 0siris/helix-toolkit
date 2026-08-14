@@ -9,6 +9,7 @@ public sealed class ObjectPool<T> {
     public ObjectPool(Func<T> objectGenerator, int maxCapacity = int.MaxValue / 2) {
         if (objectGenerator == null)
             ArgumentNullException.ThrowIfNull(objectGenerator);
+
         objects = [];
         this.objectGenerator = objectGenerator;
         this.maxCapacity = maxCapacity;

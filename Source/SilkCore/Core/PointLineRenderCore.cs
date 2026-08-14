@@ -34,9 +34,7 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
         ModelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
     }
 
-    protected override bool OnUpdateCanRenderFlag() {
-        return base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
-    }
+    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
 
     /// <summary>
     ///     Called when [render].

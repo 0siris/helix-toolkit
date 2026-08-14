@@ -98,9 +98,7 @@ public sealed class SpotLight3D : PointLight3D {
     }
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new SpotLightNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new SpotLightNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);

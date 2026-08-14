@@ -76,9 +76,9 @@ public class MeshGeometry3D : Geometry3D {
     ///     A proxy member for <see cref="Geometry3D.Indices" />
     /// </summary>
     [IgnoreDataMember]
-    public IntCollection TriangleIndices {
+    public IntCollection? TriangleIndices {
         get => Indices;
-        set => Indices = [.. value];
+        set => Indices = value is null ? null : [.. value];
     }
 
     /// <summary>
@@ -110,15 +110,15 @@ public class MeshGeometry3D : Geometry3D {
             index += part.Positions.Count;
         }
 
-        if (normals != null) normals = [.. meshes.SelectMany(x => x.Normals)];
+        if (normals != null) normals = [.. meshes.SelectMany(x => x.Normals ?? [])];
 
-        if (colors != null) colors = [.. meshes.SelectMany(x => x.Colors)];
+        if (colors != null) colors = [.. meshes.SelectMany(x => x.Colors ?? [])];
 
-        if (textureCoods != null) textureCoods = [.. meshes.SelectMany(x => x.TextureCoordinates)];
+        if (textureCoods != null) textureCoods = [.. meshes.SelectMany(x => x.TextureCoordinates ?? [])];
 
-        if (tangents != null) tangents = [.. meshes.SelectMany(x => x.Tangents)];
+        if (tangents != null) tangents = [.. meshes.SelectMany(x => x.Tangents ?? [])];
 
-        if (bitangents != null) bitangents = [.. meshes.SelectMany(x => x.BiTangents)];
+        if (bitangents != null) bitangents = [.. meshes.SelectMany(x => x.BiTangents ?? [])];
 
         var mesh = new MeshGeometry3D {
             Positions = positions,
@@ -133,9 +133,7 @@ public class MeshGeometry3D : Geometry3D {
     }
 
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
-        return new StaticMeshGeometryOctree(Positions, Indices, parameter);
-    }
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticMeshGeometryOctree(Positions, Indices, parameter);
 
     protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);

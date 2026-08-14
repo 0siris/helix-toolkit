@@ -102,18 +102,14 @@ public abstract class Camera :
     ///     Creates the view matrix.
     /// </summary>
     /// <returns>A <see cref="Matrix" />.</returns>
-    public Matrix CreateViewMatrix() {
-        return CameraInternal.CreateViewMatrix();
-    }
+    public Matrix CreateViewMatrix() => CameraInternal.CreateViewMatrix();
 
     /// <summary>
     ///     Creates the projection matrix.
     /// </summary>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>A <see cref="Matrix" />.</returns>
-    public Matrix CreateProjectionMatrix(double aspectRatio) {
-        return CameraInternal.CreateProjectionMatrix((float)aspectRatio);
-    }
+    public Matrix CreateProjectionMatrix(double aspectRatio) => CameraInternal.CreateProjectionMatrix((float)aspectRatio);
 
     private Vector3 targetPosition;
     private Vector3 targetLookDirection;
@@ -209,7 +205,5 @@ public abstract class Camera :
         aniTime = 0;
     }
 
-    public static implicit operator CameraCore(Camera camera) {
-        return camera?.CameraInternal;
-    }
+    public static implicit operator CameraCore?(Camera? camera) => camera?.CameraInternal;
 }

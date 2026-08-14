@@ -35,13 +35,9 @@ public class AttachedNodeViewModel : DemoCore.ObservableObject {
         get;
     } = false;
 
-    public bool IsAnimationNode {
-        get => node.IsAnimationNode;
-    }
+    public bool IsAnimationNode => node.IsAnimationNode;
 
-    public string Name {
-        get => node.Name;
-    }
+    public string Name => node.Name;
 
     private SceneNode node;
 

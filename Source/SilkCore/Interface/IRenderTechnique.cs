@@ -25,7 +25,7 @@ public interface IRenderTechnique : IDisposable, IGuid {
 
     /// <summary>
     /// </summary>
-    NativeD3DDevice Device { get; }
+    NativeD3DDevice? Device { get; }
 
     /// <summary>
     ///     Input layout for all passes

@@ -8,74 +8,75 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 /// <summary>
 ///     Shader Pass
 /// </summary>
 public sealed class ShaderPass : DisposeObject {
     public static readonly ShaderPass NullPass = new();
 
-    private readonly IEffectsManager effectsManager;
+    private readonly IEffectsManager? effectsManager;
 
-    private BlendStateProxy blendState = BlendStateProxy.Empty;
-    private ComputeShader computeShader = ComputeShader.NullComputeShader;
+    private BlendStateProxy? blendState = BlendStateProxy.Empty;
+    private ComputeShader? computeShader = ComputeShader.NullComputeShader;
 
-    private DepthStencilStateProxy depthStencilState = DepthStencilStateProxy.Empty;
-    private DomainShader domainShader = DomainShader.NullDomainShader;
-    private GeometryShader geometryShader = GeometryShader.NullGeometryShader;
-    private HullShader hullShader = HullShader.NullHullShader;
+    private DepthStencilStateProxy? depthStencilState = DepthStencilStateProxy.Empty;
+    private DomainShader? domainShader = DomainShader.NullDomainShader;
+    private GeometryShader? geometryShader = GeometryShader.NullGeometryShader;
+    private HullShader? hullShader = HullShader.NullHullShader;
 
-    private InputLayoutProxy layout;
-    private PixelShader pixelShader = PixelShader.NullPixelShader;
+    private InputLayoutProxy? layout;
+    private PixelShader? pixelShader = PixelShader.NullPixelShader;
 
-    private RasterizerStateProxy rasterState = RasterizerStateProxy.Empty;
-    private VertexShader vertexShader = VertexShader.NullVertexShader;
+    private RasterizerStateProxy? rasterState = RasterizerStateProxy.Empty;
+    private VertexShader? vertexShader = VertexShader.NullVertexShader;
 
     /// <summary>
     /// </summary>
     /// <param name="passDescription"></param>
     /// <param name="manager"></param>
     public ShaderPass(ShaderPassDescription passDescription, IEffectsManager manager) {
-        Name = passDescription.Name;
+        Name = passDescription.Name.AssertNotNull("Shader pass name must be initialized.");
         effectsManager = manager;
         if (passDescription.ShaderList != null)
             foreach (var shader in passDescription.ShaderList) {
                 var s = manager.ShaderManager.RegisterShader(shader);
                 switch (shader.ShaderType) {
                     case ShaderStage.Vertex:
-                        vertexShader = s as VertexShader;
+                        vertexShader = s as VertexShader ?? VertexShader.NullVertexShader;
                         break;
                     case ShaderStage.Domain:
-                        domainShader = s as DomainShader;
+                        domainShader = s as DomainShader ?? DomainShader.NullDomainShader;
                         break;
                     case ShaderStage.Hull:
-                        hullShader = s as HullShader;
+                        hullShader = s as HullShader ?? HullShader.NullHullShader;
                         break;
                     case ShaderStage.Geometry:
-                        geometryShader = s as GeometryShader;
+                        geometryShader = s as GeometryShader ?? GeometryShader.NullGeometryShader;
                         break;
                     case ShaderStage.Pixel:
-                        pixelShader = s as PixelShader;
+                        pixelShader = s as PixelShader ?? PixelShader.NullPixelShader;
                         break;
                     case ShaderStage.Compute:
-                        computeShader = s as ComputeShader;
+                        computeShader = s as ComputeShader ?? ComputeShader.NullComputeShader;
                         break;
                 }
             }
 
         blendState = passDescription.BlendStateDescription != null
-                         ? manager.StateManager.Register(
-                             (BlendStateDescription)passDescription.BlendStateDescription)
-                         : BlendStateProxy.Empty;
+            ? manager.StateManager.Register(
+                (BlendStateDescription) passDescription.BlendStateDescription)
+            : BlendStateProxy.Empty;
 
         depthStencilState = passDescription.DepthStencilStateDescription != null
-                                ? manager.StateManager.Register(
-                                    (DepthStencilStateDescription)passDescription.DepthStencilStateDescription)
-                                : DepthStencilStateProxy.Empty;
+            ? manager.StateManager.Register(
+                (DepthStencilStateDescription) passDescription.DepthStencilStateDescription)
+            : DepthStencilStateProxy.Empty;
 
         rasterState = passDescription.RasterStateDescription != null
-                          ? manager.StateManager.Register(
-                              (RasterizerStateDescription)passDescription.RasterStateDescription)
-                          : RasterizerStateProxy.Empty;
+            ? manager.StateManager.Register(
+                (RasterizerStateDescription) passDescription.RasterStateDescription)
+            : RasterizerStateProxy.Empty;
 
         BlendFactor = passDescription.BlendFactor;
 
@@ -92,6 +93,7 @@ public sealed class ShaderPass : DisposeObject {
     ///     Initializes a new instance of the <see cref="ShaderPass" /> class.
     /// </summary>
     private ShaderPass() {
+        Name = string.Empty;
         IsNull = true;
     }
 
@@ -104,12 +106,12 @@ public sealed class ShaderPass : DisposeObject {
     /// </summary>
     public bool IsNull { get; }
 
-    public VertexShader VertexShader => vertexShader;
-    public DomainShader DomainShader => domainShader;
-    public HullShader HullShader => hullShader;
-    public PixelShader PixelShader => pixelShader;
-    public GeometryShader GeometryShader => geometryShader;
-    public ComputeShader ComputeShader => computeShader;
+    public VertexShader VertexShader => vertexShader ?? VertexShader.NullVertexShader;
+    public DomainShader DomainShader => domainShader ?? DomainShader.NullDomainShader;
+    public HullShader HullShader => hullShader ?? HullShader.NullHullShader;
+    public PixelShader PixelShader => pixelShader ?? PixelShader.NullPixelShader;
+    public GeometryShader GeometryShader => geometryShader ?? GeometryShader.NullGeometryShader;
+    public ComputeShader ComputeShader => computeShader ?? ComputeShader.NullComputeShader;
 
     /// <summary>
     ///     Gets or sets the blend factor.
@@ -138,17 +140,17 @@ public sealed class ShaderPass : DisposeObject {
     /// <summary>
     ///     <see cref="ShaderPass.BlendState" />
     /// </summary>
-    public BlendStateProxy BlendState => blendState;
+    public BlendStateProxy BlendState => blendState ?? BlendStateProxy.Empty;
 
     /// <summary>
     ///     <see cref="ShaderPass.DepthStencilState" />
     /// </summary>
-    public DepthStencilStateProxy DepthStencilState => depthStencilState;
+    public DepthStencilStateProxy DepthStencilState => depthStencilState ?? DepthStencilStateProxy.Empty;
 
     /// <summary>
     ///     <see cref="ShaderPass.RasterState" />
     /// </summary>
-    public RasterizerStateProxy RasterState => rasterState;
+    public RasterizerStateProxy RasterState => rasterState ?? RasterizerStateProxy.Empty;
 
     /// <summary>
     ///     Gets or sets the input layout. This is customized layout used for this ShaderPass only.
@@ -158,7 +160,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <value>
     ///     The input layout.
     /// </value>
-    public InputLayoutProxy Layout => layout;
+    public InputLayoutProxy? Layout => layout;
 
     /// <summary>
     ///     Gets or sets the topology.
@@ -239,8 +241,9 @@ public sealed class ShaderPass : DisposeObject {
         if (IsNull) return;
         if (BlendState != BlendStateProxy.Empty) RemoveAndDispose(ref blendState);
         blendState = blendStateDesc != null
-                         ? effectsManager.StateManager.Register(blendStateDesc.Value)
-                         : BlendStateProxy.Empty;
+            ? effectsManager.AssertNotNull()
+                .StateManager.Register(blendStateDesc.Value)
+            : BlendStateProxy.Empty;
     }
 
     /// <summary>
@@ -251,8 +254,9 @@ public sealed class ShaderPass : DisposeObject {
         if (IsNull) return;
         if (DepthStencilState != DepthStencilStateProxy.Empty) RemoveAndDispose(ref depthStencilState);
         depthStencilState = depthStencilStateDesc != null
-                                ? effectsManager.StateManager.Register(depthStencilStateDesc.Value)
-                                : DepthStencilStateProxy.Empty;
+            ? effectsManager.AssertNotNull()
+                .StateManager.Register(depthStencilStateDesc.Value)
+            : DepthStencilStateProxy.Empty;
     }
 
     /// <summary>
@@ -263,8 +267,9 @@ public sealed class ShaderPass : DisposeObject {
         if (IsNull) return;
         if (RasterState != RasterizerStateProxy.Empty) RemoveAndDispose(ref rasterState);
         rasterState = rasterizerStateDesc != null
-                          ? effectsManager.StateManager.Register(rasterizerStateDesc.Value)
-                          : RasterizerStateProxy.Empty;
+            ? effectsManager.AssertNotNull()
+                .StateManager.Register(rasterizerStateDesc.Value)
+            : RasterizerStateProxy.Empty;
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
@@ -289,7 +294,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderBase GetShader(ShaderStage type) {
+    public ShaderBase? GetShader(ShaderStage type) {
         switch (type) {
             case ShaderStage.Vertex:
                 return VertexShader;
@@ -314,9 +319,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public VertexShader GetShader(VertexShaderType type) {
-        return VertexShader;
-    }
+    public VertexShader GetShader(VertexShaderType type) => VertexShader;
 
     /// <summary>
     ///     Gets the shader.
@@ -324,9 +327,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public HullShader GetShader(HullShaderType type) {
-        return HullShader;
-    }
+    public HullShader GetShader(HullShaderType type) => HullShader;
 
     /// <summary>
     ///     Gets the shader.
@@ -334,9 +335,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DomainShader GetShader(DomainShaderType type) {
-        return DomainShader;
-    }
+    public DomainShader GetShader(DomainShaderType type) => DomainShader;
 
     /// <summary>
     ///     Gets the shader.
@@ -344,9 +343,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GeometryShader GetShader(GeometryShaderType type) {
-        return GeometryShader;
-    }
+    public GeometryShader GetShader(GeometryShaderType type) => GeometryShader;
 
     /// <summary>
     ///     Gets the shader.
@@ -354,9 +351,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelShader GetShader(PixelShaderType type) {
-        return PixelShader;
-    }
+    public PixelShader GetShader(PixelShaderType type) => PixelShader;
 
     /// <summary>
     ///     Gets the shader.
@@ -364,9 +359,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ComputeShader GetShader(ComputeShaderType type) {
-        return ComputeShader;
-    }
+    public ComputeShader GetShader(ComputeShaderType type) => ComputeShader;
 
     #endregion
 }

@@ -76,7 +76,5 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
 
 #endregion
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new InstancingMeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new InstancingMeshNode();
 }

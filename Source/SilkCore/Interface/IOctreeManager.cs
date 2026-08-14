@@ -45,7 +45,7 @@ public interface IOctreeManager {
 
     /// <summary>
     /// </summary>
-    event EventHandler<OctreeArgs> OnOctreeCreated;
+    event EventHandler<OctreeArgs>? OnOctreeCreated;
 
     /// <summary>
     ///     Adds the pending item.

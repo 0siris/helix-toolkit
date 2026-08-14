@@ -14,13 +14,9 @@ public class PointGeometry3D : Geometry3D {
         }
     }
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
-        return new StaticPointGeometryOctree(Positions, parameter);
-    }
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticPointGeometryOctree(Positions, parameter);
 
-    protected override bool CanCreateOctree() {
-        return Positions != null && Positions.Count > 0;
-    }
+    protected override bool CanCreateOctree() => Positions != null && Positions.Count > 0;
 
     public virtual bool HitTest(
         HitTestContext context,

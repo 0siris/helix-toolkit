@@ -9,6 +9,8 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class CrossSectionMeshNode : MeshNode {
+    private ICrossSectionRenderParams CrossSectionRenderParams => (ICrossSectionRenderParams)RenderCore;
+
     /// <summary>
     ///     Gets or sets the cutting operation.
     /// </summary>
@@ -16,8 +18,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The cutting operation.
     /// </value>
     public CuttingOperation CuttingOperation {
-        get => (RenderCore as ICrossSectionRenderParams).CuttingOperation;
-        set => (RenderCore as ICrossSectionRenderParams).CuttingOperation = value;
+        get => CrossSectionRenderParams.CuttingOperation;
+        set => CrossSectionRenderParams.CuttingOperation = value;
     }
 
     /// <summary>
@@ -27,8 +29,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The color of the cross section.
     /// </value>
     public Color4 CrossSectionColor {
-        get => (RenderCore as ICrossSectionRenderParams).SectionColor;
-        set => (RenderCore as ICrossSectionRenderParams).SectionColor = value;
+        get => CrossSectionRenderParams.SectionColor;
+        set => CrossSectionRenderParams.SectionColor = value;
     }
 
     /// <summary>
@@ -38,11 +40,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane1]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane1 {
-        get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.X;
+        get => CrossSectionRenderParams.PlaneEnabled.X;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
+            var v = CrossSectionRenderParams.PlaneEnabled;
             v.X = value;
-            (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
+            CrossSectionRenderParams.PlaneEnabled = v;
         }
     }
 
@@ -53,11 +55,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane2]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane2 {
-        get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.Y;
+        get => CrossSectionRenderParams.PlaneEnabled.Y;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
+            var v = CrossSectionRenderParams.PlaneEnabled;
             v.Y = value;
-            (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
+            CrossSectionRenderParams.PlaneEnabled = v;
         }
     }
 
@@ -68,11 +70,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane3]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane3 {
-        get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.Z;
+        get => CrossSectionRenderParams.PlaneEnabled.Z;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
+            var v = CrossSectionRenderParams.PlaneEnabled;
             v.Z = value;
-            (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
+            CrossSectionRenderParams.PlaneEnabled = v;
         }
     }
 
@@ -83,11 +85,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane4]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane4 {
-        get => (RenderCore as ICrossSectionRenderParams).PlaneEnabled.W;
+        get => CrossSectionRenderParams.PlaneEnabled.W;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).PlaneEnabled;
+            var v = CrossSectionRenderParams.PlaneEnabled;
             v.W = value;
-            (RenderCore as ICrossSectionRenderParams).PlaneEnabled = v;
+            CrossSectionRenderParams.PlaneEnabled = v;
         }
     }
 
@@ -98,11 +100,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane5]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane5 {
-        get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.X;
+        get => CrossSectionRenderParams.Plane5To8Enabled.X;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
+            var v = CrossSectionRenderParams.Plane5To8Enabled;
             v.X = value;
-            (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
+            CrossSectionRenderParams.Plane5To8Enabled = v;
         }
     }
 
@@ -113,11 +115,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane6]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane6 {
-        get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.Y;
+        get => CrossSectionRenderParams.Plane5To8Enabled.Y;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
+            var v = CrossSectionRenderParams.Plane5To8Enabled;
             v.Y = value;
-            (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
+            CrossSectionRenderParams.Plane5To8Enabled = v;
         }
     }
 
@@ -128,11 +130,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane7]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane7 {
-        get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.Z;
+        get => CrossSectionRenderParams.Plane5To8Enabled.Z;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
+            var v = CrossSectionRenderParams.Plane5To8Enabled;
             v.Z = value;
-            (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
+            CrossSectionRenderParams.Plane5To8Enabled = v;
         }
     }
 
@@ -143,11 +145,11 @@ public class CrossSectionMeshNode : MeshNode {
     ///     <c>true</c> if [enable plane8]; otherwise, <c>false</c>.
     /// </value>
     public bool EnablePlane8 {
-        get => (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled.W;
+        get => CrossSectionRenderParams.Plane5To8Enabled.W;
         set {
-            var v = (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled;
+            var v = CrossSectionRenderParams.Plane5To8Enabled;
             v.W = value;
-            (RenderCore as ICrossSectionRenderParams).Plane5To8Enabled = v;
+            CrossSectionRenderParams.Plane5To8Enabled = v;
         }
     }
 
@@ -158,8 +160,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane1.
     /// </value>
     public Plane Plane1 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane1Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane1Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane1Params);
+        set => CrossSectionRenderParams.Plane1Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -169,8 +171,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane2.
     /// </value>
     public Plane Plane2 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane2Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane2Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane2Params);
+        set => CrossSectionRenderParams.Plane2Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -180,8 +182,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane3.
     /// </value>
     public Plane Plane3 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane3Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane3Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane3Params);
+        set => CrossSectionRenderParams.Plane3Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -191,8 +193,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane4.
     /// </value>
     public Plane Plane4 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane4Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane4Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane4Params);
+        set => CrossSectionRenderParams.Plane4Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -202,8 +204,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane5.
     /// </value>
     public Plane Plane5 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane5Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane5Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane5Params);
+        set => CrossSectionRenderParams.Plane5Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -213,8 +215,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane6.
     /// </value>
     public Plane Plane6 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane6Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane6Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane6Params);
+        set => CrossSectionRenderParams.Plane6Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -224,8 +226,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane7.
     /// </value>
     public Plane Plane7 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane7Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane7Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane7Params);
+        set => CrossSectionRenderParams.Plane7Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -235,8 +237,8 @@ public class CrossSectionMeshNode : MeshNode {
     ///     The plane8.
     /// </value>
     public Plane Plane8 {
-        get => VectorToPlane((RenderCore as ICrossSectionRenderParams).Plane8Params);
-        set => (RenderCore as ICrossSectionRenderParams).Plane8Params = PlaneToVector(ref value);
+        get => VectorToPlane(CrossSectionRenderParams.Plane8Params);
+        set => CrossSectionRenderParams.Plane8Params = PlaneToVector(ref value);
     }
 
     /// <summary>
@@ -244,25 +246,17 @@ public class CrossSectionMeshNode : MeshNode {
     /// </summary>
     /// <param name="p">The <see cref="Plane" /></param>
     /// <returns>The <see cref="Vector4" /></returns>
-    private static Vector4 PlaneToVector(ref Plane p) {
-        return new Vector4(p.Normal, p.D);
-    }
+    private static Vector4 PlaneToVector(ref Plane p) => new(p.Normal, p.D);
 
-    private static Plane VectorToPlane(Vector4 v) {
-        return new Plane(v.ToXyz(), v.W);
-    }
+    private static Plane VectorToPlane(Vector4 v) => new(v.ToXyz(), v.W);
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.CrossSection];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.CrossSection];
 
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new CrossSectionMeshRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new CrossSectionMeshRenderCore();
 
     protected override bool OnHitTest(
         HitTestContext context,

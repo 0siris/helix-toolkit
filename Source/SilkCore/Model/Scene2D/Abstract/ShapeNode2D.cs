@@ -11,14 +11,14 @@ public abstract class ShapeNode2D : SceneNode2D {
 
     private bool strokeStyleChanged = true;
 
-    public Brush Fill {
-        get => (RenderCore as ShapeRenderCore2DBase).FillBrush;
-        set => (RenderCore as ShapeRenderCore2DBase).FillBrush = value;
+    public Brush? Fill {
+        get => ((ShapeRenderCore2DBase)RenderCore).FillBrush;
+        set => ((ShapeRenderCore2DBase)RenderCore).FillBrush = value;
     }
 
-    public Brush Stroke {
-        get => (RenderCore as ShapeRenderCore2DBase).StrokeBrush;
-        set => (RenderCore as ShapeRenderCore2DBase).StrokeBrush = value;
+    public Brush? Stroke {
+        get => ((ShapeRenderCore2DBase)RenderCore).StrokeBrush;
+        set => ((ShapeRenderCore2DBase)RenderCore).StrokeBrush = value;
     }
 
     public CapStyle StrokeDashCap {

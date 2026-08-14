@@ -21,9 +21,7 @@ public class LineGeometryModel3D : GeometryModel3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new LineNode { Material = material };
-    }
+    protected override SceneNode OnCreateSceneNode() => new LineNode { Material = material };
 
     /// <summary>
     ///     Assigns the default values to core.

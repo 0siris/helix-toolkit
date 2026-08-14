@@ -112,9 +112,7 @@ internal class PanHandler : MouseGestureHandler {
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected override bool CanExecute() {
-        return Controller.IsPanEnabled && Controller.CameraMode != CameraMode.FixedPosition;
-    }
+    protected override bool CanExecute() => Controller.IsPanEnabled && Controller.CameraMode != CameraMode.FixedPosition;
 
     /// <summary>
     ///     Gets the cursor for the gesture.
@@ -122,9 +120,7 @@ internal class PanHandler : MouseGestureHandler {
     /// <returns>
     ///     A cursor.
     /// </returns>
-    protected override Cursor GetCursor() {
-        return Controller.PanCursor;
-    }
+    protected override Cursor GetCursor() => Controller.PanCursor;
 
     /// <summary>
     ///     Called when inertia is starting.

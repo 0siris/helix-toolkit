@@ -22,9 +22,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
 
-    public MainViewModel ViewModel {
-        get { return this; }
-    }
+    public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model { get; private set; }
     public MeshGeometry3D BoxModel { get; private set; }
@@ -48,22 +46,22 @@ public class MainViewModel : BaseViewModel {
     public Color Light1Color { get; set; }
 
     public bool EnablePlane1 {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     } = true;
 
     public Plane Plane1 {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     } = new Plane(new Vector3(0, -1, 0), -8);
 
     public bool EnablePlane2 {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     } = true;
 
     public Plane Plane2 {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     } = new Plane(new Vector3(-1, 0, 0), -8);
 
@@ -73,11 +71,11 @@ public class MainViewModel : BaseViewModel {
                 CuttingOperation = (CuttingOperation)value;
             }
         }
-        get { return field; }
+        get => field;
     }
 
     public CuttingOperation CuttingOperation {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     } = CuttingOperation.Intersect;
 

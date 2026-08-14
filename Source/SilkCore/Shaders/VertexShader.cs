@@ -123,7 +123,5 @@ public sealed class VertexShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator VertexShaderType(VertexShader s) {
-        return Type;
-    }
+    public static implicit operator VertexShaderType(VertexShader s) => Type;
 }

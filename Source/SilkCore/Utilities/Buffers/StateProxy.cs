@@ -29,9 +29,7 @@ public abstract class StateProxy<StateType> : DisposeObject where StateType : cl
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator StateType(StateProxy<StateType> proxy) {
-        return proxy.State;
-    }
+    public static implicit operator StateType(StateProxy<StateType> proxy) => proxy.State;
 }
 
 /// <summary>

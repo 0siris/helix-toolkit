@@ -20,13 +20,13 @@ namespace VolumeRendering;
 
 public class MainViewModel : BaseViewModel {
     public Material VolumeMaterial {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public Media3D.Transform3D Transform {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public Geometry3D MeshModel { get; }
@@ -38,8 +38,8 @@ public class MainViewModel : BaseViewModel {
     public Material AxisModelMaterial { get; }
 
     public bool IsLoading {
-        private set { SetValue(ref field, value); }
-        get { return field; }
+        private set => SetValue(ref field, value);
+        get => field;
     } = false;
 
     public ICommand LoadTeapotCommand { get; }
@@ -256,31 +256,25 @@ public class MainViewModel : BaseViewModel {
         return stream.ReadUInt16(width * height * depth);
     }
 
-    private static Matrix RotationAxis(Vector3 axis, float angle) {
-        return ToMatrix(
-            System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
-    }
+    private static Matrix RotationAxis(Vector3 axis, float angle) => ToMatrix(
+        System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
 
-    private static Matrix Scaling(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
-    }
+    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) {
-        return new Matrix(matrix.M11,
-                          matrix.M12,
-                          matrix.M13,
-                          matrix.M14,
-                          matrix.M21,
-                          matrix.M22,
-                          matrix.M23,
-                          matrix.M24,
-                          matrix.M31,
-                          matrix.M32,
-                          matrix.M33,
-                          matrix.M34,
-                          matrix.M41,
-                          matrix.M42,
-                          matrix.M43,
-                          matrix.M44);
-    }
+    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) => new(matrix.M11,
+        matrix.M12,
+        matrix.M13,
+        matrix.M14,
+        matrix.M21,
+        matrix.M22,
+        matrix.M23,
+        matrix.M24,
+        matrix.M31,
+        matrix.M32,
+        matrix.M33,
+        matrix.M34,
+        matrix.M41,
+        matrix.M42,
+        matrix.M43,
+        matrix.M44);
 }

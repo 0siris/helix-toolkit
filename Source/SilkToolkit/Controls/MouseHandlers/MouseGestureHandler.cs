@@ -224,9 +224,7 @@ internal abstract class MouseGestureHandler {
     /// <returns>
     ///     A 3D point.
     /// </returns>
-    public Vector3? UnProject(Point p) {
-        return UnProject(p, Camera.CameraInternal.Target, Camera.CameraInternal.LookDirection);
-    }
+    public Vector3? UnProject(Point p) => UnProject(p, Camera.CameraInternal.Target, Camera.CameraInternal.LookDirection);
 
     /// <summary>
     ///     Occurs when the command associated with this handler initiates a check to determine whether the command can be
@@ -235,9 +233,7 @@ internal abstract class MouseGestureHandler {
     /// <returns>
     ///     True if the execution can continue.
     /// </returns>
-    protected virtual bool CanExecute() {
-        return true;
-    }
+    protected virtual bool CanExecute() => true;
 
     /// <summary>
     ///     Gets the cursor for the gesture.
@@ -256,9 +252,7 @@ internal abstract class MouseGestureHandler {
     /// <returns>
     ///     A ray
     /// </returns>
-    protected Ray GetRay(Point position) {
-        return Viewport.UnProject(position);
-    }
+    protected Ray GetRay(Point position) => Viewport.UnProject(position);
 
     /// <summary>
     ///     Called when inertia is starting.
@@ -337,9 +331,7 @@ internal abstract class MouseGestureHandler {
     /// <returns>
     ///     The 2D point.
     /// </returns>
-    protected Point Project(Vector3 p) {
-        return Viewport.Project(p).ToPoint();
-    }
+    protected Point Project(Vector3 p) => Viewport.Project(p).ToPoint();
 
     /// <summary>
     ///     Sets mouse down point.

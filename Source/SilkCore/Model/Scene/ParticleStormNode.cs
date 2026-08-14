@@ -28,7 +28,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set;
     } = true;
 
-    private ParticleRenderCore ParticleCore => RenderCore as ParticleRenderCore;
+    private ParticleRenderCore ParticleCore => (ParticleRenderCore)RenderCore;
 
     /// <summary>
     ///     Gets the instance buffer.
@@ -46,13 +46,9 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new ParticleRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new ParticleRenderCore();
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.ParticleStorm];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.ParticleStorm];
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         base.OnAttach(effectsManager);
@@ -145,17 +141,14 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         return BoundingFrustumExtensions.Intersects(ref viewFrustum, ref boundsWithTransform);
     }
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     #region Properties
 

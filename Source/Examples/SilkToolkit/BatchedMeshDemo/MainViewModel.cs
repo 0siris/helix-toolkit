@@ -17,13 +17,13 @@ namespace BatchedMeshDemo;
 
 public class MainViewModel : BaseViewModel {
     public IList<BatchedMeshGeometryConfig> BatchedMeshes {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public IList<Material> BatchedMaterials {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public Media3D.Transform3D BatchedTransform { get; } = new Media3D.ScaleTransform3D(0.1, 0.1, 0.1);
@@ -36,12 +36,12 @@ public class MainViewModel : BaseViewModel {
                     BatchedTransform.Value);
             }
         }
-        get { return field; }
+        get => field;
     }
 
     public Media3D.Transform3D SelectedTransform {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public Material MainMaterial { get; } = PhongMaterials.White;

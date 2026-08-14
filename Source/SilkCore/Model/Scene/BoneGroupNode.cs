@@ -38,9 +38,7 @@ public sealed class BoneGroupNode : GroupNodeBase, IBoneMatricesNode {
     /// </value>
     public bool HasBoneGroup { get; } = false;
 
-    protected override RenderCore OnCreateRenderCore() {
-        return core;
-    }
+    protected override RenderCore OnCreateRenderCore() => core;
 
     private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
         if (e.Node is BoneSkinMeshNode b) {

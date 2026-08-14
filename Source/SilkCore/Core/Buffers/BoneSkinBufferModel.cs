@@ -18,7 +18,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
             boneIdBuffer = new ImmutableBufferProxy(BoneIds.SizeInBytes, BindFlags.VertexBuffer);
         }
 
-        public event EventHandler BoneIdBufferUpdated;
+        public event EventHandler? BoneIdBufferUpdated;
         public IElementsBufferProxy BoneIdBuffer => boneIdBuffer;
 
         public override bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
@@ -101,7 +101,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
             get { return VertexBuffer.Select(x => x != null ? x.StructureSize : 0); }
         }
 
-        public IElementsBufferProxy IndexBuffer => meshBuffer.IndexBuffer;
+        public IElementsBufferProxy? IndexBuffer => meshBuffer.IndexBuffer;
 
         public Guid Guid { get; } = new();
 

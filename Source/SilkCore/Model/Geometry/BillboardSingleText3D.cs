@@ -91,7 +91,7 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The font weight.
     /// </value>
     public FontWeight FontWeight {
-        get { return field; }
+        get => field;
         set {
             if (Set(ref field, value)) IsInitialized = false;
         }
@@ -104,7 +104,7 @@ public class BillboardSingleText3D : BillboardBase {
     ///     The font style.
     /// </value>
     public FontStyle FontStyle {
-        get { return field; }
+        get => field;
         set {
             if (Set(ref field, value)) IsInitialized = false;
         }

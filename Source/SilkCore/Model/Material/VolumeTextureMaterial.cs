@@ -186,7 +186,7 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
         };
     }
 
-    protected abstract ShaderResourceViewProxy OnCreateTexture(IEffectsManager manager);
+    protected abstract ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager);
 }
 
 /// <summary>
@@ -194,9 +194,7 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
 public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
-    protected override ShaderResourceViewProxy OnCreateTexture(IEffectsManager manager) {
-        return manager.MaterialTextureManager.Register(VolumeTexture, true);
-    }
+    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) => manager.MaterialTextureManager.Register(VolumeTexture, true);
 }
 
 /// <summary>
@@ -208,7 +206,7 @@ public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBa
 ///     </para>
 /// </summary>
 public sealed class VolumeTextureRawDataMaterialCore : VolumeTextureMaterialCoreBase<VolumeTextureParams> {
-    protected override ShaderResourceViewProxy OnCreateTexture(IEffectsManager manager) {
+    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) {
         if (VolumeTexture.VolumeTextures != null)
             return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources,
                                                                    VolumeTexture.VolumeTextures,
@@ -254,7 +252,7 @@ public sealed class
     VolumeTextureDiffuseMaterialCore : VolumeTextureMaterialCoreBase<VolumeTextureGradientParams> {
     protected override string DefaultPassName => DefaultPassNames.Diffuse;
 
-    protected override ShaderResourceViewProxy OnCreateTexture(IEffectsManager manager) {
+    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) {
         if (VolumeTexture.VolumeTextures != null)
             return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources,
                                                                    VolumeTexture.VolumeTextures,

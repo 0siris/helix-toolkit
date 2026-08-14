@@ -26,7 +26,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The device.
     /// </value>
-    NativeD3DDevice Device { get; }
+    NativeD3DDevice? Device { get; }
 
     /// <summary>
     ///     Gets the immediate device context.
@@ -42,7 +42,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The device2d.
     /// </value>
-    D2DDevice Device2D { get; }
+    D2DDevice? Device2D { get; }
 
     /// <summary>
     ///     Gets or sets the color of the clear.
@@ -163,7 +163,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The shared model container.
     /// </value>
-    IModelContainer SharedModelContainer { get; set; }
+    IModelContainer? SharedModelContainer { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is rendering.
@@ -179,7 +179,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The color buffer view.
     /// </value>
-    RenderTargetView RenderTargetBufferView { get; }
+    RenderTargetView? RenderTargetBufferView { get; }
 
     /// <summary>
     ///     Gets the depth stencil buffer view.
@@ -187,7 +187,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The depth stencil buffer view.
     /// </value>
-    DepthStencilView DepthStencilBufferView { get; }
+    DepthStencilView? DepthStencilBufferView { get; }
 
     /// <summary>
     ///     Gets the d2d target.
@@ -195,7 +195,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The d2d target.
     /// </value>
-    D2DTargetProxy D2DTarget { get; }
+    D2DTargetProxy? D2DTarget { get; }
 
     /// <summary>
     ///     Gets the current frame flattened scene graph
@@ -278,7 +278,7 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <value>
     ///     The render statistics.
     /// </value>
-    IRenderStatistics RenderStatistics { get; }
+    IRenderStatistics? RenderStatistics { get; }
 
     /// <summary>
     ///     Gets or sets the render configuration.
@@ -304,27 +304,27 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <summary>
     ///     Fired whenever an exception occurred on this object.
     /// </summary>
-    event EventHandler<RelayExceptionEventArgs> ExceptionOccurred;
+    event EventHandler<RelayExceptionEventArgs>? ExceptionOccurred;
 
     /// <summary>
     ///     Occurs when [on new render target texture].
     /// </summary>
-    event EventHandler<Texture2DArgs> OnNewRenderTargetTexture;
+    event EventHandler<Texture2DArgs>? OnNewRenderTargetTexture;
 
     /// <summary>
     ///     Occurs when [start render loop].
     /// </summary>
-    event EventHandler<EventArgs> StartRenderLoop;
+    event EventHandler<EventArgs>? StartRenderLoop;
 
     /// <summary>
     ///     Occurs when [stop render loop].
     /// </summary>
-    event EventHandler<EventArgs> StopRenderLoop;
+    event EventHandler<EventArgs>? StopRenderLoop;
 
     /// <summary>
     ///     Occurs when each render frame finished rendering.
     /// </summary>
-    event EventHandler Rendered;
+    event EventHandler? Rendered;
 
     /// <summary>
     ///     Sets the default render targets.
@@ -391,12 +391,12 @@ public interface IRenderHost : IGuid, IDisposable {
     /// <summary>
     ///     Occurs when [scene graph updated].
     /// </summary>
-    event EventHandler SceneGraphUpdated;
+    event EventHandler? SceneGraphUpdated;
 
     /// <summary>
     ///     Occurs when effects manager is changed.
     /// </summary>
-    event EventHandler<IEffectsManager> EffectsManagerChanged;
+    event EventHandler<IEffectsManager?>? EffectsManagerChanged;
 
     /// <summary>
     ///     Clears the render target.

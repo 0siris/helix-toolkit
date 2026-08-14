@@ -9,7 +9,9 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <typeparam name="Indextype"></typeparam>
 /// <typeparam name="Nametype"></typeparam>
 /// <typeparam name="Datatype"></typeparam>
-public sealed class MappingCollection<Indextype, Nametype, Datatype> {
+public sealed class MappingCollection<Indextype, Nametype, Datatype>
+    where Indextype : notnull
+    where Nametype : notnull {
     private readonly Dictionary<Indextype, Datatype> indexDataMapping = [];
     private readonly Dictionary<Indextype, Nametype> indexNameMapping = [];
     private readonly Dictionary<Nametype, Indextype> nameIndexMapping = [];
@@ -93,44 +95,34 @@ public sealed class MappingCollection<Indextype, Nametype, Datatype> {
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public bool HasItem(Indextype id) {
-        return indexNameMapping.ContainsKey(id);
-    }
+    public bool HasItem(Indextype id) => indexNameMapping.ContainsKey(id);
 
     /// <summary>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool TryGetItem(Indextype id, out Datatype data) {
-        return indexDataMapping.TryGetValue(id, out data);
-    }
+    public bool TryGetItem(Indextype id, out Datatype data) => indexDataMapping.TryGetValue(id, out data);
 
     /// <summary>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public bool TryGetSlot(Nametype name, out Indextype index) {
-        return nameIndexMapping.TryGetValue(name, out index);
-    }
+    public bool TryGetSlot(Nametype name, out Indextype index) => nameIndexMapping.TryGetValue(name, out index);
 
     /// <summary>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool TryGetName(Indextype id, out Nametype name) {
-        return indexNameMapping.TryGetValue(id, out name);
-    }
+    public bool TryGetName(Indextype id, out Nametype name) => indexNameMapping.TryGetValue(id, out name);
 
     /// <summary>
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool HasItem(Nametype name) {
-        return nameIndexMapping.ContainsKey(name);
-    }
+    public bool HasItem(Nametype name) => nameIndexMapping.ContainsKey(name);
 
     /// <summary>
     /// </summary>

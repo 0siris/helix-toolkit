@@ -134,9 +134,7 @@ public sealed class PixelBuffer {
     /// <remarks>
     ///     Caution, this method doesn't check bounding.
     /// </remarks>
-    public unsafe T GetPixel<T>(int x, int y) where T : unmanaged {
-        return Utilities.Read<T>(new nint((byte*)DataPointer + RowStride * y + x * PixelSize));
-    }
+    public unsafe T GetPixel<T>(int x, int y) where T : unmanaged => Utilities.Read<T>(new nint((byte*)DataPointer + RowStride * y + x * PixelSize));
 
     /// <summary>
     ///     Gets the pixel value at a specified position.

@@ -205,9 +205,7 @@ internal class ZoomHandler : MouseGestureHandler {
     /// <returns>
     ///     A cursor.
     /// </returns>
-    protected override Cursor GetCursor() {
-        return Controller.ZoomCursor;
-    }
+    protected override Cursor GetCursor() => Controller.ZoomCursor;
 
     /// <summary>
     ///     Changes the camera distance.

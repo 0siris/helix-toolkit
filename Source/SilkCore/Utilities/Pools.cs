@@ -20,6 +20,7 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <typeparam name="TValue"></typeparam>
 /// <typeparam name="TArgument"></typeparam>
 public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : DisposeObject
+    where TKey : notnull
     where TValue : DisposeObject {
     private readonly bool autoDispose;
     private readonly Dictionary<TKey, TValue> pool = [];

@@ -8,6 +8,7 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DynamicReflectionNode" /> class.
@@ -25,8 +26,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if [enable reflector]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableReflector {
-        get => (RenderCore as IDynamicReflector).EnableReflector;
-        set => (RenderCore as IDynamicReflector).EnableReflector = value;
+        get => ((IDynamicReflector) RenderCore).EnableReflector;
+        set => ((IDynamicReflector) RenderCore).EnableReflector = value;
     }
 
     /// <summary>
@@ -36,8 +37,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The center.
     /// </value>
     public Vector3 Center {
-        get => (RenderCore as IDynamicReflector).Center;
-        set => (RenderCore as IDynamicReflector).Center = value;
+        get => ((IDynamicReflector) RenderCore).Center;
+        set => ((IDynamicReflector) RenderCore).Center = value;
     }
 
     /// <summary>
@@ -47,8 +48,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The size of the face.
     /// </value>
     public int FaceSize {
-        get => (RenderCore as IDynamicReflector).FaceSize;
-        set => (RenderCore as IDynamicReflector).FaceSize = value;
+        get => ((IDynamicReflector) RenderCore).FaceSize;
+        set => ((IDynamicReflector) RenderCore).FaceSize = value;
     }
 
     /// <summary>
@@ -58,8 +59,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The near field.
     /// </value>
     public float NearField {
-        get => (RenderCore as IDynamicReflector).NearField;
-        set => (RenderCore as IDynamicReflector).NearField = value;
+        get => ((IDynamicReflector) RenderCore).NearField;
+        set => ((IDynamicReflector) RenderCore).NearField = value;
     }
 
     /// <summary>
@@ -69,8 +70,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The far field.
     /// </value>
     public float FarField {
-        get => (RenderCore as IDynamicReflector).FarField;
-        set => (RenderCore as IDynamicReflector).FarField = value;
+        get => ((IDynamicReflector) RenderCore).FarField;
+        set => ((IDynamicReflector) RenderCore).FarField = value;
     }
 
     /// <summary>
@@ -80,8 +81,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if this coordinate system is left handed; otherwise, <c>false</c>.
     /// </value>
     public bool IsLeftHanded {
-        get => (RenderCore as IDynamicReflector).IsLeftHanded;
-        set => (RenderCore as IDynamicReflector).IsLeftHanded = value;
+        get => ((IDynamicReflector) RenderCore).IsLeftHanded;
+        set => ((IDynamicReflector) RenderCore).IsLeftHanded = value;
     }
 
     /// <summary>
@@ -93,8 +94,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if this instance is dynamic scene; otherwise, <c>false</c>.
     /// </value>
     public bool IsDynamicScene {
-        get => (RenderCore as IDynamicReflector).IsDynamicScene;
-        set => (RenderCore as IDynamicReflector).IsDynamicScene = value;
+        get => ((IDynamicReflector) RenderCore).IsDynamicScene;
+        set => ((IDynamicReflector) RenderCore).IsDynamicScene = value;
     }
 
     /// <summary>
@@ -102,7 +103,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void BindCubeMap(DeviceContextProxy deviceContext) {
-        (RenderCore as IDynamicReflector).BindCubeMap(deviceContext);
+        ((IDynamicReflector) RenderCore).BindCubeMap(deviceContext);
     }
 
     /// <summary>
@@ -110,30 +111,28 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void UnBindCubeMap(DeviceContextProxy deviceContext) {
-        (RenderCore as IDynamicReflector).UnBindCubeMap(deviceContext);
+        ((IDynamicReflector) RenderCore).UnBindCubeMap(deviceContext);
     }
 
-    private void DynamicReflectionNode_OnClear(object sender, OnChildNodeChangedArgs e) {
-        (RenderCore as DynamicCubeMapCore).IgnoredGuid.Clear();
+    private void DynamicReflectionNode_OnClear(object? sender, OnChildNodeChangedArgs e) {
+        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Clear();
     }
 
-    private void DynamicReflectionNode_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
-        (RenderCore as DynamicCubeMapCore).IgnoredGuid.Remove(e.Node.RenderCore.Guid);
+    private void DynamicReflectionNode_OnRemoveChildNode(object? sender, OnChildNodeChangedArgs e) {
+        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Remove(e.Node.RenderCore.Guid);
         if (e.Node is IDynamicReflectable dyn) dyn.DynamicReflector = null;
     }
 
-    private void DynamicReflectionNode_OnAddChildNode(object sender, OnChildNodeChangedArgs e) {
-        (RenderCore as DynamicCubeMapCore).IgnoredGuid.Add(e.Node.RenderCore.Guid);
+    private void DynamicReflectionNode_OnAddChildNode(object? sender, OnChildNodeChangedArgs e) {
+        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Add(e.Node.RenderCore.Guid);
         if (e.Node is IDynamicReflectable dyn) dyn.DynamicReflector = this;
     }
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new DynamicCubeMapCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new DynamicCubeMapCore();
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            RenderCore.Attach(EffectTechnique);
+            RenderCore.Attach(EffectTechnique.AssertNotNull("Render technique must be initialized."));
             return true;
         }
 
@@ -161,11 +160,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
         }
     }
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.Skybox];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.Skybox];
 
-    protected override bool CanRender(RenderContext context) {
-        return base.CanRender(context);
-    }
+    protected override bool CanRender(RenderContext context) => base.CanRender(context);
 }

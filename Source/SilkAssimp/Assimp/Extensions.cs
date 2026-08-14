@@ -13,41 +13,39 @@ public static class Extensions {
     /// <param name="m">The m.</param>
     /// <param name="isColumnMajor"></param>
     /// <returns></returns>
-    public static Matrix ToSharpDXMatrix(this Matrix4x4 m, bool isColumnMajor) {
-        return isColumnMajor
-                   ? new Matrix(m.A1,
-                                m.B1,
-                                m.C1,
-                                m.D1,
-                                m.A2,
-                                m.B2,
-                                m.C2,
-                                m.D2,
-                                m.A3,
-                                m.B3,
-                                m.C3,
-                                m.D3,
-                                m.A4,
-                                m.B4,
-                                m.C4,
-                                m.D4)
-                   : new Matrix(m.A1,
-                                m.A2,
-                                m.A3,
-                                m.A4,
-                                m.B1,
-                                m.B2,
-                                m.B3,
-                                m.B4,
-                                m.C1,
-                                m.C2,
-                                m.C3,
-                                m.C4,
-                                m.D1,
-                                m.D2,
-                                m.D3,
-                                m.D4);
-    }
+    public static Matrix ToSharpDXMatrix(this Matrix4x4 m, bool isColumnMajor) => isColumnMajor
+        ? new Matrix(m.A1,
+            m.B1,
+            m.C1,
+            m.D1,
+            m.A2,
+            m.B2,
+            m.C2,
+            m.D2,
+            m.A3,
+            m.B3,
+            m.C3,
+            m.D3,
+            m.A4,
+            m.B4,
+            m.C4,
+            m.D4)
+        : new Matrix(m.A1,
+            m.A2,
+            m.A3,
+            m.A4,
+            m.B1,
+            m.B2,
+            m.B3,
+            m.B4,
+            m.C1,
+            m.C2,
+            m.C3,
+            m.C4,
+            m.D1,
+            m.D2,
+            m.D3,
+            m.D4);
 
     /// <summary>
     ///     To the assimp matrix. Already transposed after this function
@@ -81,63 +79,49 @@ public static class Extensions {
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3 ToSharpDXVector3(this Vector3D v) {
-        return new Vector3(v.X, v.Y, v.Z);
-    }
+    public static Vector3 ToSharpDXVector3(this Vector3D v) => new(v.X, v.Y, v.Z);
 
     /// <summary>
     ///     To the assimp vector3d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3D ToAssimpVector3D(this Vector3 v) {
-        return new Vector3D(v.X, v.Y, v.Z);
-    }
+    public static Vector3D ToAssimpVector3D(this Vector3 v) => new(v.X, v.Y, v.Z);
 
     /// <summary>
     ///     To the sharp dx vector2.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2 ToSharpDXVector2(this Vector2D v) {
-        return new Vector2(v.X, v.Y);
-    }
+    public static Vector2 ToSharpDXVector2(this Vector2D v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the assimp vector2d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2D ToAssimpVector2D(this Vector2 v) {
-        return new Vector2D(v.X, v.Y);
-    }
+    public static Vector2D ToAssimpVector2D(this Vector2 v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the assimp vector3d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3D ToAssimpVector3D(this Vector2 v) {
-        return new Vector3D(v.X, v.Y, 0);
-    }
+    public static Vector3D ToAssimpVector3D(this Vector2 v) => new(v.X, v.Y, 0);
 
     /// <summary>
     ///     To the sharp dx vector2.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2 ToSharpDXVector2(this Vector3D v) {
-        return new Vector2(v.X, v.Y);
-    }
+    public static Vector2 ToSharpDXVector2(this Vector3D v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the sharp dx color4.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Color4 ToSharpDXColor4(this Color4D v) {
-        return new Color4(v.R, v.G, v.B, v.A);
-    }
+    public static Color4 ToSharpDXColor4(this Color4D v) => new(v.R, v.G, v.B, v.A);
 
     /// <summary>
     ///     To the assimp color4d.
@@ -145,38 +129,30 @@ public static class Extensions {
     /// <param name="v">The v.</param>
     /// <param name="alpha"></param>
     /// <returns></returns>
-    public static Color4D ToAssimpColor4D(this Color4 v, float alpha = 1f) {
-        return new Color4D(v.X, v.Y, v.Z, alpha);
-    }
+    public static Color4D ToAssimpColor4D(this Color4 v, float alpha = 1f) => new(v.X, v.Y, v.Z, alpha);
 
     /// <summary>
     ///     To the sharp dx quaternion.
     /// </summary>
     /// <param name="q">The q.</param>
     /// <returns></returns>
-    public static Quaternion ToSharpDXQuaternion(this global::Assimp.Quaternion q) {
-        return new Quaternion(q.X, q.Y, q.Z, q.W);
-    }
+    public static Quaternion ToSharpDXQuaternion(this global::Assimp.Quaternion q) => new(q.X, q.Y, q.Z, q.W);
 
     /// <summary>
     ///     To the assimp quaternion.
     /// </summary>
     /// <param name="q">The q.</param>
     /// <returns></returns>
-    public static global::Assimp.Quaternion ToAssimpQuaternion(this Quaternion q) {
-        return new global::Assimp.Quaternion(q.W, q.X, q.Y, q.Z);
-    }
+    public static global::Assimp.Quaternion ToAssimpQuaternion(this Quaternion q) => new(q.W, q.X, q.Y, q.Z);
 
     /// <summary>
     ///     To the Helix UVTransform.
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <returns></returns>
-    public static UvTransform ToHelixUVTransform(this UVTransform transform) {
-        return new UvTransform(transform.Rotation,
-                               transform.Scaling.ToSharpDXVector2(),
-                               transform.Translation.ToSharpDXVector2());
-    }
+    public static UvTransform ToHelixUVTransform(this UVTransform transform) => new(transform.Rotation,
+        transform.Scaling.ToSharpDXVector2(),
+        transform.Translation.ToSharpDXVector2());
 
     /// <summary>
     ///     To the type of the helix metadata.

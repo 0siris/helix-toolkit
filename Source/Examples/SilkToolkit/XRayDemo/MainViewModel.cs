@@ -30,9 +30,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
 
-    public MainViewModel ViewModel {
-        get { return this; }
-    }
+    public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model { get; private set; }
     public MeshGeometry3D Floor { get; private set; }
@@ -59,7 +57,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D(-100, -100, -100);
 
     public Matrix[] Instances { private set; get; }

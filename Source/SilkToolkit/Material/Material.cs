@@ -46,13 +46,9 @@ public abstract class Material : Freezable {
         set => SetValue(NameProperty, value);
     }
 
-    public override string ToString() {
-        return Name;
-    }
+    public override string ToString() => Name;
 
     protected abstract MaterialCore OnCreateCore();
 
-    public static implicit operator MaterialCore(Material m) {
-        return m?.Core;
-    }
+    public static implicit operator MaterialCore?(Material? m) => m?.Core;
 }

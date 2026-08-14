@@ -21,9 +21,7 @@ public class PointGeometryModel3D : GeometryModel3D {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new PointNode { Material = material };
-    }
+    protected override SceneNode OnCreateSceneNode() => new PointNode { Material = material };
 
     /// <summary>
     ///     Assigns the default values to core.

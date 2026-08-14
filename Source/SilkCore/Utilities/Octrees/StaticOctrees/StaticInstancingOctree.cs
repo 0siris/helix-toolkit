@@ -32,9 +32,7 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) {
-        return item.Value;
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) => item.Value;
 
     /// <summary>
     ///     Gets the maximum bound.
@@ -127,9 +125,8 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
         ref BoundingSphere sphere,
         ref List<HitTestResult> points,
         ref bool isIntersect
-    ) {
-        return false;
-    }
+    )
+        => false;
 }
 
 /// <summary>
@@ -158,9 +155,7 @@ public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, 
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns></returns>
-    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) {
-        return item.Value;
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) => item.Value;
 
     /// <summary>
     ///     Gets the maximum bound.
@@ -255,7 +250,6 @@ public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, 
         ref BoundingSphere sphere,
         ref List<HitTestResult> points,
         ref bool isIntersect
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

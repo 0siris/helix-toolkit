@@ -17,41 +17,23 @@ public readonly struct Format : IEquatable<Format> {
 
     internal Silk.NET.DXGI.Format NativeFormat { get; }
 
-    public static implicit operator Silk.NET.DXGI.Format(Format format) {
-        return format.NativeFormat;
-    }
+    public static implicit operator Silk.NET.DXGI.Format(Format format) => format.NativeFormat;
 
-    public static implicit operator Format(Silk.NET.DXGI.Format format) {
-        return new Format(format);
-    }
+    public static implicit operator Format(Silk.NET.DXGI.Format format) => new(format);
 
-    public static explicit operator int(Format format) {
-        return (int)format.NativeFormat;
-    }
+    public static explicit operator int(Format format) => (int)format.NativeFormat;
 
-    public bool Equals(Format other) {
-        return NativeFormat == other.NativeFormat;
-    }
+    public bool Equals(Format other) => NativeFormat == other.NativeFormat;
 
-    public override bool Equals(object obj) {
-        return obj is Format other && Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is Format other && Equals(other);
 
-    public override int GetHashCode() {
-        return NativeFormat.GetHashCode();
-    }
+    public override int GetHashCode() => NativeFormat.GetHashCode();
 
-    public override string ToString() {
-        return NativeFormat.ToString();
-    }
+    public override string ToString() => NativeFormat.ToString();
 
-    public static bool operator ==(Format left, Format right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(Format left, Format right) => left.Equals(right);
 
-    public static bool operator !=(Format left, Format right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(Format left, Format right) => !left.Equals(right);
 
     public static readonly Format Unknown = Silk.NET.DXGI.Format.FormatUnknown;
     public static readonly Format R32G32B32A32_Typeless = Silk.NET.DXGI.Format.FormatR32G32B32A32Typeless;
@@ -154,9 +136,7 @@ public readonly struct Format : IEquatable<Format> {
 }
 
 internal static class FormatHelper {
-    public static bool IsValid(Format format) {
-        return format != Format.Unknown;
-    }
+    public static bool IsValid(Format format) => format != Format.Unknown;
 
     public static bool IsVideo(Format format) {
         var value = format.NativeFormat;
@@ -204,9 +184,7 @@ internal static class FormatHelper {
         }
     }
 
-    public static int SizeOfInBytes(PixelFormat format) {
-        return SizeOfInBytes(format.Value);
-    }
+    public static int SizeOfInBytes(PixelFormat format) => SizeOfInBytes(format.Value);
 
     public static int SizeOfInBytes(Format format) {
         var bits = SizeOfInBits(format);
@@ -335,9 +313,7 @@ internal static class FormatHelper {
 }
 
 internal static unsafe class Utilities {
-    public static nint AllocateMemory(int sizeInBytes) {
-        return Marshal.AllocHGlobal(sizeInBytes);
-    }
+    public static nint AllocateMemory(int sizeInBytes) => Marshal.AllocHGlobal(sizeInBytes);
 
     public static void FreeMemory(nint pointer) {
         if (pointer != nint.Zero) Marshal.FreeHGlobal(pointer);
@@ -349,21 +325,15 @@ internal static unsafe class Utilities {
         return memoryStream.ToArray();
     }
 
-    public static int SizeOf<T>() where T : struct {
-        return Marshal.SizeOf<T>();
-    }
+    public static int SizeOf<T>() where T : struct => Marshal.SizeOf<T>();
 
-    public static int SizeOf<T>(T[] values) where T : unmanaged {
-        return values == null ? 0 : sizeof(T) * values.Length;
-    }
+    public static int SizeOf<T>(T[] values) where T : unmanaged => values == null ? 0 : sizeof(T) * values.Length;
 
     public static void CopyMemory(nint destination, nint source, int sizeInBytes) {
         Buffer.MemoryCopy(source.ToPointer(), destination.ToPointer(), sizeInBytes, sizeInBytes);
     }
 
-    public static T Read<T>(nint source) where T : unmanaged {
-        return *(T*)source.ToPointer();
-    }
+    public static T Read<T>(nint source) where T : unmanaged => *(T*)source.ToPointer();
 
     public static void Read<T>(nint source, T[] destination, int startIndex, int count) where T : unmanaged {
         destination.AssertArgumentNotNull();

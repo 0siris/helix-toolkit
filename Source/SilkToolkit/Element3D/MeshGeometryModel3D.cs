@@ -20,9 +20,7 @@ public class MeshGeometryModel3D : MaterialGeometryModel3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new MeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new MeshNode();
 
     /// <summary>
     ///     Assigns the default values to core.

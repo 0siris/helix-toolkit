@@ -12,12 +12,12 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 ///     A proxy container to handle view resources.
 /// </summary>
 public class ShaderResourceViewProxy : DisposeObject {
-    private readonly DeviceContextProxy context;
-    private readonly NativeD3DDevice nativeDevice;
-    private DepthStencilView depthStencilView;
-    private RenderTargetView renderTargetView;
+    private readonly DeviceContextProxy? context;
+    private readonly NativeD3DDevice? nativeDevice;
+    private DepthStencilView? depthStencilView;
+    private RenderTargetView? renderTargetView;
     private Resource? resource;
-    private ShaderResourceView textureView;
+    private ShaderResourceView? textureView;
 
     private ShaderResourceViewProxy() { }
 
@@ -90,11 +90,11 @@ public class ShaderResourceViewProxy : DisposeObject {
     public Guid Guid { get; set; } = Guid.NewGuid();
     public static ShaderResourceViewProxy Empty { get; } = new();
 
-    public ShaderResourceView TextureView => textureView;
+    public ShaderResourceView? TextureView => textureView;
 
-    public DepthStencilView DepthStencilView => depthStencilView;
+    public DepthStencilView? DepthStencilView => depthStencilView;
 
-    public RenderTargetView RenderTargetView => renderTargetView;
+    public RenderTargetView? RenderTargetView => renderTargetView;
 
     public Resource? Resource => resource;
 
@@ -624,7 +624,7 @@ public class ShaderResourceViewProxy : DisposeObject {
         base.OnDispose(disposeManagedResources);
     }
 
-    private static NativeD3DDevice ResolveNativeDevice(object device) {
+    private static NativeD3DDevice? ResolveNativeDevice(object device) {
         return device switch {
             DeviceContextProxy contextProxy => contextProxy.NativeDevice,
             NativeD3DDevice silkDevice => silkDevice,
@@ -634,15 +634,9 @@ public class ShaderResourceViewProxy : DisposeObject {
         };
     }
 
-    public static implicit operator ShaderResourceView(ShaderResourceViewProxy proxy) {
-        return proxy?.textureView;
-    }
+    public static implicit operator ShaderResourceView?(ShaderResourceViewProxy? proxy) => proxy?.textureView;
 
-    public static implicit operator DepthStencilView(ShaderResourceViewProxy proxy) {
-        return proxy?.depthStencilView;
-    }
+    public static implicit operator DepthStencilView?(ShaderResourceViewProxy? proxy) => proxy?.depthStencilView;
 
-    public static implicit operator RenderTargetView(ShaderResourceViewProxy proxy) {
-        return proxy?.renderTargetView;
-    }
+    public static implicit operator RenderTargetView?(ShaderResourceViewProxy? proxy) => proxy?.renderTargetView;
 }

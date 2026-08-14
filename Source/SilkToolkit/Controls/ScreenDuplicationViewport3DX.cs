@@ -88,16 +88,16 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     /// <value>
     ///     <c>true</c> if deferred shading is enabled; otherwise, <c>false</c>.
     /// </value>
-    public IRenderTechnique RenderTechnique {
-        get => (IRenderTechnique)GetValue(RenderTechniqueProperty);
+    public IRenderTechnique? RenderTechnique {
+        get => (IRenderTechnique?)GetValue(RenderTechniqueProperty);
         set => SetValue(RenderTechniqueProperty, value);
     }
 
     /// <summary>
     ///     Gets or sets the <see cref="System.Exception" /> that occured at rendering subsystem.
     /// </summary>
-    public Exception RenderException {
-        get => (Exception)GetValue(RenderExceptionProperty);
+    public Exception? RenderException {
+        get => (Exception?)GetValue(RenderExceptionProperty);
         set => SetValue(RenderExceptionProperty, value);
     }
 
@@ -107,8 +107,8 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     /// <value>
     ///     The message text.
     /// </value>
-    public string MessageText {
-        get => (string)GetValue(MessageTextProperty);
+    public string? MessageText {
+        get => (string?)GetValue(MessageTextProperty);
 
         set => SetValue(MessageTextProperty, value);
     }
@@ -134,8 +134,8 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     /// <summary>
     ///     Gets or sets the <see cref="IEffectsManager" />.
     /// </summary>
-    public IEffectsManager EffectsManager {
-        get => (IEffectsManager)GetValue(EffectsManagerProperty);
+    public IEffectsManager? EffectsManager {
+        get => (IEffectsManager?)GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 
@@ -152,7 +152,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
 
     public IEnumerable<SceneNode2D> D2DRenderables => [];
 
-    public IRenderHost RenderHost { get; private set; }
+    public IRenderHost? RenderHost { get; private set; }
 
     public bool IsShadowMappingEnabled => false;
 
@@ -217,13 +217,14 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
         base.OnApplyTemplate();
         if (IsInDesignMode) return;
         RenderHost?.ExceptionOccurred -= HandleRenderException;
-        var hostPresenter = GetTemplateChild("PART_Canvas") as ContentPresenter;
+        if (GetTemplateChild("PART_Canvas") is not ContentPresenter hostPresenter) return;
         hostPresenter.Content = new DPFSurfaceSwapChain(surface => new ScreenCloneRenderHost(surface));
-        RenderHost = (hostPresenter.Content as IRenderCanvas).RenderHost;
-        RenderHost.ExceptionOccurred += HandleRenderException;
-        RenderHost.Viewport = this;
-        RenderHost.EffectsManager = EffectsManager;
-        RenderHost.ClearColor = BackgroundColor.ToColor4();
+        if (hostPresenter.Content is not IRenderCanvas { RenderHost: { } renderHost }) return;
+        RenderHost = renderHost;
+        renderHost.ExceptionOccurred += HandleRenderException;
+        renderHost.Viewport = this;
+        renderHost.EffectsManager = EffectsManager;
+        renderHost.ClearColor = BackgroundColor.ToColor4();
     }
 
     /// <summary>
@@ -231,7 +232,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    private void HandleRenderException(object sender, RelayExceptionEventArgs e) {
+    private void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
         var bindingExpression = GetBindingExpression(RenderExceptionProperty);
         if (bindingExpression != null) {
             // If RenderExceptionProperty is bound, we assume the exception will be handled.
@@ -275,7 +276,10 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
 
         protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
             Logger.Info("DX11SwapChainRenderBufferProxy");
-            return new DX11SwapChainRenderBufferProxy(Surface, EffectsManager, false);
+            return new DX11SwapChainRenderBufferProxy(
+                Surface,
+                EffectsManager.AssertNotNull("Effects manager is not initialized."),
+                false);
         }
     }
 }

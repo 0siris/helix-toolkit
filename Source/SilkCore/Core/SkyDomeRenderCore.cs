@@ -93,7 +93,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     protected sealed override void OnRenderDepth(
         RenderContext context,
         DeviceContextProxy deviceContext,
-        ShaderPass customPass
+        ShaderPass? customPass
     ) { }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
             DeviceContextProxy context,
             IElementsBufferProxy buffer,
             int bufferIndex,
-            Geometry3D geometry,
+            Geometry3D? geometry,
             IDeviceResources deviceResources
         ) {
             if (bufferIndex == 0 && geometry != null && geometry.Positions != null &&

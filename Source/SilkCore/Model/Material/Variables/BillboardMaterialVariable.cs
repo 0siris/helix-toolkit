@@ -93,17 +93,11 @@ public class BillboardMaterialVariable : MaterialVariable {
         return BillboardPass;
     }
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
     public override void Draw(
         DeviceContextProxy deviceContext,

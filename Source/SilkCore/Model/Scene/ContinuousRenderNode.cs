@@ -19,21 +19,16 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 ///     </para>
 /// </summary>
 public sealed class ContinuousRenderNode : SceneNode {
-    protected override RenderCore OnCreateRenderCore() {
-        return new InvalidRendererCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new InvalidRendererCore();
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return false;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => false;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     private sealed class InvalidRendererCore : RenderCore {
         public InvalidRendererCore() : base(RenderType.GlobalEffect) { }
@@ -42,9 +37,7 @@ public sealed class ContinuousRenderNode : SceneNode {
             RaiseInvalidateRender();
         }
 
-        protected override bool OnAttach(IRenderTechnique technique) {
-            return true;
-        }
+        protected override bool OnAttach(IRenderTechnique technique) => true;
 
         protected override void OnDetach() { }
     }

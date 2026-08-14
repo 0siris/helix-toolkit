@@ -19,21 +19,21 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 public sealed class DX11ImageSource : D3DImage, IDisposable {
     private readonly D3D9ImageSourceInterop interop;
-    private NativeD3DTexture2D renderTarget;
+    private NativeD3DTexture2D? renderTarget;
 
     public DX11ImageSource(int adapterIndex = 0) {
         interop = new D3D9ImageSourceInterop(adapterIndex);
     }
 
     public void InvalidateD3DImage() {
-        if (renderTarget == null) return;
+        if (renderTarget is null) return;
 
         SetBackBuffer(interop.SurfacePointer);
     }
 
-    public void SetRenderTargetDX11(NativeD3DTexture2D target) {
+    public void SetRenderTargetDX11(NativeD3DTexture2D? target) {
         EndD3D(false);
-        if (target == null || target.IsDisposed) return;
+        if (target is null || target.IsDisposed) return;
 
         renderTarget = target;
         interop.OpenSharedTexture(target);
@@ -52,9 +52,7 @@ public sealed class DX11ImageSource : D3DImage, IDisposable {
         interop.CloseTexture();
     }
 
-    public bool IsDeviceStateOk() {
-        return interop.IsDeviceStateOk();
-    }
+    public bool IsDeviceStateOk() => interop.IsDeviceStateOk();
 
     private void SetBackBuffer(IntPtr surfacePointer) {
         Lock();
@@ -71,8 +69,8 @@ public sealed class DX11ImageSource : D3DImage, IDisposable {
     private bool disposedValue; // To detect redundant calls
 
     [SuppressMessage("Microsoft.Usage",
-                     "CA2213: Disposable fields should be disposed",
-                     Justification = "False positive.")]
+        "CA2213: Disposable fields should be disposed",
+        Justification = "False positive.")]
     private void Dispose(bool disposing) {
         if (!disposedValue) {
             if (disposing) {
@@ -92,8 +90,7 @@ public sealed class DX11ImageSource : D3DImage, IDisposable {
 }
 
 internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
-    [Obsolete]
-    private static readonly D3D9 D3D9Api = D3D9.GetApi();
+    [Obsolete] private static readonly D3D9 D3D9Api = D3D9.GetApi();
     private SilkD3D9Ptr context;
     private SilkD3D9DevicePtr device;
     private bool disposed;
@@ -115,20 +112,20 @@ internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
             BackBufferFormat = Silk.NET.Direct3D9.Format.Unknown
         };
         var createFlags =
-            (uint)(D3D9.CreateHardwareVertexprocessing | D3D9.CreateMultithreaded | D3D9.CreateFpuPreserve);
+            (uint) (D3D9.CreateHardwareVertexprocessing | D3D9.CreateMultithreaded | D3D9.CreateFpuPreserve);
         IDirect3DDevice9Ex* deviceHandle = null;
-        Marshal.ThrowExceptionForHR(context.CreateDeviceEx((uint)Math.Max(0, adapterIndex),
-                                                           Devtype.Hal,
-                                                           IntPtr.Zero,
-                                                           createFlags,
-                                                           &presentParameters,
-                                                           (Displaymodeex*)null,
-                                                           &deviceHandle));
+        Marshal.ThrowExceptionForHR(context.CreateDeviceEx((uint) Math.Max(0, adapterIndex),
+            Devtype.Hal,
+            IntPtr.Zero,
+            createFlags,
+            &presentParameters,
+            (Displaymodeex*) null,
+            &deviceHandle));
         device = new SilkD3D9DevicePtr(deviceHandle);
         deviceHandle->Release();
     }
 
-    public IntPtr SurfacePointer => (IntPtr)surface.Handle;
+    public IntPtr SurfacePointer => (IntPtr) surface.Handle;
 
     public void Dispose() {
         if (disposed) return;
@@ -143,23 +140,23 @@ internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
         if (sharedTexture == null || sharedTexture.IsDisposed) throw new ArgumentNullException(nameof(sharedTexture));
         if ((sharedTexture.Description.OptionFlags & ResourceOptionFlags.Shared) == 0)
             throw new ArgumentException("Texture must be created with ResourceOptionFlags.Shared.",
-                                        nameof(sharedTexture));
+                nameof(sharedTexture));
 
         CloseTexture();
         var format = TranslateFormat(sharedTexture.Description.Format);
-        var sharedHandle = (void*)sharedTexture.GetSharedHandle();
+        var sharedHandle = (void*) sharedTexture.GetSharedHandle();
         if (sharedHandle == null)
             throw new InvalidOperationException("The D3D11 texture did not expose a shared handle.");
 
         IDirect3DTexture9* textureHandle = null;
-        Marshal.ThrowExceptionForHR(device.CreateTexture((uint)sharedTexture.Description.Width,
-                                                         (uint)sharedTexture.Description.Height,
-                                                         1,
-                                                         D3D9.UsageRendertarget,
-                                                         format,
-                                                         Pool.Default,
-                                                         &textureHandle,
-                                                         &sharedHandle));
+        Marshal.ThrowExceptionForHR(device.CreateTexture((uint) sharedTexture.Description.Width,
+            (uint) sharedTexture.Description.Height,
+            1,
+            D3D9.UsageRendertarget,
+            format,
+            Pool.Default,
+            &textureHandle,
+            &sharedHandle));
         texture = new SilkD3D9TexturePtr(textureHandle);
         textureHandle->Release();
 
@@ -172,14 +169,14 @@ internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
     public void CreateRenderTarget(int width, int height) {
         CloseTexture();
         IDirect3DTexture9* textureHandle = null;
-        Marshal.ThrowExceptionForHR(device.CreateTexture((uint)Math.Max(1, width),
-                                                         (uint)Math.Max(1, height),
-                                                         1,
-                                                         D3D9.UsageRendertarget,
-                                                         Silk.NET.Direct3D9.Format.A8R8G8B8,
-                                                         Pool.Default,
-                                                         &textureHandle,
-                                                         null));
+        Marshal.ThrowExceptionForHR(device.CreateTexture((uint) Math.Max(1, width),
+            (uint) Math.Max(1, height),
+            1,
+            D3D9.UsageRendertarget,
+            Silk.NET.Direct3D9.Format.A8R8G8B8,
+            Pool.Default,
+            &textureHandle,
+            null));
         texture = new SilkD3D9TexturePtr(textureHandle);
         textureHandle->Release();
 
@@ -189,9 +186,7 @@ internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
         surfaceHandle->Release();
     }
 
-    public bool IsDeviceStateOk() {
-        return !disposed && device.Handle != null && device.CheckDeviceState(IntPtr.Zero) >= 0;
-    }
+    public bool IsDeviceStateOk() => !disposed && device.Handle != null && device.CheckDeviceState(IntPtr.Zero) >= 0;
 
     public void CloseTexture() {
         surface.Dispose();
@@ -206,7 +201,7 @@ internal sealed unsafe class D3D9ImageSourceInterop : IDisposable {
             Format.FormatR16G16B16A16Float => Silk.NET.Direct3D9.Format.A16B16G16R16f,
             Format.FormatB8G8R8A8Unorm => Silk.NET.Direct3D9.Format.A8R8G8B8,
             _ => throw new ArgumentException($"Texture format {format} is not compatible with D3D9Ex sharing.",
-                                             nameof(format))
+                nameof(format))
         };
     }
 }

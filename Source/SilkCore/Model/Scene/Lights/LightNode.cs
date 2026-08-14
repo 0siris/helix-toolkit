@@ -29,15 +29,12 @@ public abstract class LightNode : SceneNode, ILight3D {
     /// </value>
     public LightType LightType => (RenderCore as LightCoreBase).LightType;
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

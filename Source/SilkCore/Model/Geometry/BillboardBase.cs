@@ -306,12 +306,10 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         }
 
 
-        public bool IsPointInQuad2D(Vector2 point) {
-            return IsPointInQuad2D(ref point);
-        }
+        public bool IsPointInQuad2D(Vector2 point) => IsPointInQuad2D(ref point);
 
 
-        public bool IsPointInQuad2D(ref Vector2 point) {
+        public bool IsPointInQuad2D(ref Vector2 point) =>
             //var v1 = point - TL;
             //var t1 = BL - TL;
             //if(SilkMath.Dot(v1, t1) < 0)
@@ -324,14 +322,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             //{
             //    return false;
             //}
-
             //var v3 = point - BR;
             //var t3 = TR - BR;
             //if (SilkMath.Dot(v3, t3) < 0)
             //{
             //    return false;
             //}
-
             //var v4 = point - TR;
             //var t4 = TL - TR;
             //if (SilkMath.Dot(v4, t4) < 0)
@@ -339,10 +335,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             //    return false;
             //}
             //return true;
-            return SilkMath.Dot(point - Tl, Bl - Tl) >= 0 && SilkMath.Dot(point - Bl, Br - Bl) >= 0
-                                                          && SilkMath.Dot(point - Br, Tr - Br) >= 0 &&
-                                                          SilkMath.Dot(point - Tr, Tl - Tr) >= 0;
-        }
+            SilkMath.Dot(point - Tl, Bl - Tl) >= 0 && SilkMath.Dot(point - Bl, Br - Bl) >= 0
+                                                   && SilkMath.Dot(point - Br, Tr - Br) >= 0 &&
+                                                   SilkMath.Dot(point - Tr, Tl - Tr) >= 0;
     }
 
     private static Quad GetHitTestQuad(
@@ -358,16 +353,16 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         var vcX = vcenter.X;
         var vcY = vcenter.Y;
 
-        var bl = new Vector3(vcX + BL.X, vcY + BL.Y, vcenter.Z);
-        var br = new Vector3(vcX + BR.X, vcY + BR.Y, vcenter.Z);
-        var tr = new Vector3(vcX + TR.X, vcY + TR.Y, vcenter.Z);
-        var tl = new Vector3(vcX + TL.X, vcY + TL.Y, vcenter.Z);
+        var transformedBl = new Vector3(vcX + bl.X, vcY + bl.Y, vcenter.Z);
+        var transformedBr = new Vector3(vcX + br.X, vcY + br.Y, vcenter.Z);
+        var transformedTr = new Vector3(vcX + tr.X, vcY + tr.Y, vcenter.Z);
+        var transformedTl = new Vector3(vcX + tl.X, vcY + tl.Y, vcenter.Z);
 
-        bl = SilkMath.TransformCoordinate(bl, viewMatrixInv);
-        br = SilkMath.TransformCoordinate(br, viewMatrixInv);
-        tr = SilkMath.TransformCoordinate(tr, viewMatrixInv);
-        tl = SilkMath.TransformCoordinate(tl, viewMatrixInv);
-        return new Quad(ref tl, ref tr, ref bl, ref br);
+        transformedBl = SilkMath.TransformCoordinate(transformedBl, viewMatrixInv);
+        transformedBr = SilkMath.TransformCoordinate(transformedBr, viewMatrixInv);
+        transformedTr = SilkMath.TransformCoordinate(transformedTr, viewMatrixInv);
+        transformedTl = SilkMath.TransformCoordinate(transformedTl, viewMatrixInv);
+        return new Quad(ref transformedTl, ref transformedTr, ref transformedBl, ref transformedBr);
     }
 
     private static Quad2D GetScreenQuad(
@@ -381,11 +376,11 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
     ) {
         var vcenter = SilkMath.TransformCoordinate(center, screenViewProjection);
         var p = new Vector2(vcenter.X, vcenter.Y);
-        var tl = p + new Vector2(TL.X, -TL.Y) * scale;
-        var tr = p + new Vector2(TR.X, -TR.Y) * scale;
-        var bl = p + new Vector2(BL.X, -BL.Y) * scale;
-        var br = p + new Vector2(BR.X, -BR.Y) * scale;
-        return new Quad2D(ref tl, ref tr, ref bl, ref br);
+        var screenTl = p + new Vector2(tl.X, -tl.Y) * scale;
+        var screenTr = p + new Vector2(tr.X, -tr.Y) * scale;
+        var screenBl = p + new Vector2(bl.X, -bl.Y) * scale;
+        var screenBr = p + new Vector2(br.X, -br.Y) * scale;
+        return new Quad2D(ref screenTl, ref screenTr, ref screenBl, ref screenBr);
     }
 
     #endregion

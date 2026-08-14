@@ -32,10 +32,8 @@ public struct Keyframe : IKeyFrame {
     public float Time { get; set; }
     public int BoneIndex; // Used only for array based bones
 
-    public Matrix ToTransformMatrix() {
-        return SilkMath.Scaling(Scale) * SilkMath.RotationQuaternion(Rotation) *
-               SilkMath.Translation(Translation);
-    }
+    public Matrix ToTransformMatrix() => SilkMath.Scaling(Scale) * SilkMath.RotationQuaternion(Rotation) *
+                                         SilkMath.Translation(Translation);
 }
 
 public struct MorphTargetKeyframe : IKeyFrame {
@@ -83,7 +81,7 @@ public class Animation {
     /// <value>
     ///     The name.
     /// </value>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the start time.
@@ -107,7 +105,7 @@ public class Animation {
     /// <value>
     ///     The keyframes.
     /// </value>
-    public List<Keyframe> Keyframes { get; set; }
+    public List<Keyframe> Keyframes { get; set; } = [];
 
     /// <summary>
     ///     Gets or sets the node animation collection.
@@ -115,12 +113,12 @@ public class Animation {
     /// <value>
     ///     The node animation collection.
     /// </value>
-    public List<NodeAnimation> NodeAnimationCollection { get; set; }
+    public List<NodeAnimation> NodeAnimationCollection { get; set; } = [];
 
     /// <summary>
     ///     Gets or sets the morph target keyframes.
     /// </summary>
-    public List<MorphTargetKeyframe> MorphTargetKeyframes { get; set; }
+    public List<MorphTargetKeyframe> MorphTargetKeyframes { get; set; } = [];
 
     /// <summary>
     ///     Gets or sets the bone skin meshes.
@@ -128,7 +126,7 @@ public class Animation {
     /// <value>
     ///     The bone skin meshes.
     /// </value>
-    public List<IBoneMatricesNode> BoneSkinMeshes { get; set; }
+    public List<IBoneMatricesNode> BoneSkinMeshes { get; set; } = [];
 
     /// <summary>
     ///     Gets a value indicating whether this animation has bone skin meshes.
@@ -136,7 +134,7 @@ public class Animation {
     /// <value>
     ///     <c>true</c> if this animation has bone skin meshes; otherwise, <c>false</c>.
     /// </value>
-    public bool HasBoneSkinMeshes => BoneSkinMeshes != null && BoneSkinMeshes.Count > 0;
+    public bool HasBoneSkinMeshes => BoneSkinMeshes.Count > 0;
 
     /// <summary>
     ///     Gets or sets the root node of this animation
@@ -144,5 +142,5 @@ public class Animation {
     /// <value>
     ///     The root node.
     /// </value>
-    public SceneNode RootNode { get; set; }
+    public SceneNode? RootNode { get; set; }
 }

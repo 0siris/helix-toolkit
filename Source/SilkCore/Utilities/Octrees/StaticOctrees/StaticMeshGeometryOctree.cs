@@ -47,13 +47,9 @@ public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
         return objects;
     }
 
-    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) {
-        return item.Value;
-    }
+    protected override BoundingBox GetBoundingBoxFromItem(ref KeyValuePair<int, BoundingBox> item) => item.Value;
 
-    protected override BoundingBox GetMaxBound() {
-        return BoundingBoxExtensions.FromPoints(Positions);
-    }
+    protected override BoundingBox GetMaxBound() => BoundingBoxExtensions.FromPoints(Positions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoundingBox GetBoundingBox(int triangleIndex) {

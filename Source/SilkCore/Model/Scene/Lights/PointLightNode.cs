@@ -46,7 +46,5 @@ public class PointLightNode : LightNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PointLightCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PointLightCore();
 }

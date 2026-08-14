@@ -113,7 +113,7 @@ public static class BitmapExtensions {
         throw new NotSupportedException();
     }
 
-    public static Bitmap CreateBitmapStream(
+    public static Bitmap? CreateBitmapStream(
         IDevice2DResources deviceResources,
         int width,
         int height,
@@ -139,7 +139,7 @@ public static class BitmapExtensions {
             OptionFlags = ResourceOptionFlags.None,
             Usage = ResourceUsage.Default
         });
-        BitmapProxy target = null;
+        BitmapProxy? target = null;
         try {
             var context = deviceResources.DeviceContext2D;
             var properties = BitmapProxy.CreateDescription(context.DotsPerInch.Width,
@@ -180,8 +180,6 @@ public static class BitmapExtensions {
         IDevice2DResources deviceResources,
         Direct2DImageFormat imageType = Direct2DImageFormat.Bmp
     ) {
-        if (bitmap == null) return null;
-
         if (bitmap.Texture != null && deviceResources is IDeviceResources resources) {
             var stream = new MemoryStream();
             if (ScreenCapture.SaveWicTextureToStream(resources, bitmap.Texture, stream, imageType)) return stream;
@@ -458,8 +456,6 @@ public static class BitmapExtensions {
     }
 
     private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
-        if (bitmap == null) return null;
-
         var width = Math.Max(1, bitmap.Width);
         var height = Math.Max(1, bitmap.Height);
         var pixels = new byte[width * height * 4];
@@ -510,7 +506,7 @@ public static class BitmapExtensions {
     /// <param name="maxHeight">The maximum height.</param>
     /// <param name="squareImage">if set to <c>true</c> [square image].</param>
     /// <returns></returns>
-    public static BillboardImage3D ToBillboardImage3D(
+    public static BillboardImage3D? ToBillboardImage3D(
         this IEnumerable<TextInfoExt> items,
         IEffectsManager effectsManager,
         int maxWidth = 2048,

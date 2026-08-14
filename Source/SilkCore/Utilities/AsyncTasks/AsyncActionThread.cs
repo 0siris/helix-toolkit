@@ -71,7 +71,7 @@ internal sealed class AsyncActionThread : IDisposable {
         GC.SuppressFinalize(this);
     }
 
-    public AsyncActionWaitable EnqueueAction(Action action) {
+    public AsyncActionWaitable? EnqueueAction(Action action) {
         if (!running || !Enabled) {
             action.Invoke();
             return null;

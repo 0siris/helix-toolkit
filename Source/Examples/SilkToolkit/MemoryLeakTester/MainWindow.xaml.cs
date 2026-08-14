@@ -139,8 +139,6 @@ public partial class MainWindow : Window {
             ThreadCount = proc.Threads.Count;
         }
 
-        private bool Changed(long orgValue, long newValue) {
-            return Math.Abs(orgValue - newValue) > orgValue * ChangePercent;
-        }
+        private bool Changed(long orgValue, long newValue) => Math.Abs(orgValue - newValue) > orgValue * ChangePercent;
     }
 }

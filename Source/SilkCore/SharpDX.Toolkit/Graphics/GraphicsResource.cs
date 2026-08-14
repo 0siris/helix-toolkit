@@ -49,9 +49,7 @@ public abstract class GraphicsResource : Component {
     ///     Implicit casting operator to the native D3D resource.
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
-    public static implicit operator NativeD3DResource(GraphicsResource from) {
-        return from?.Resource;
-    }
+    public static implicit operator NativeD3DResource?(GraphicsResource? from) => from?.Resource;
 
     /// <summary>
     ///     Gets the CPU access flags from the <see cref="ResourceUsage" />.

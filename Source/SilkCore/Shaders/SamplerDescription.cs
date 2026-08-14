@@ -37,7 +37,5 @@ public sealed class SamplerMapping {
     [DataMember]
     public int Slot { get; set; }
 
-    public SamplerMapping Clone() {
-        return new SamplerMapping(Slot, Name, ShaderType);
-    }
+    public SamplerMapping Clone() => new(Slot, Name, ShaderType);
 }

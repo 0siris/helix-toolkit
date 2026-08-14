@@ -14,9 +14,7 @@ public class NodePostEffectBloom : SceneNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PostEffectBloomCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PostEffectBloomCore();
 
     /// <summary>
     ///     Override this function to set render technique during Attach Host.
@@ -29,21 +27,16 @@ public class NodePostEffectBloom : SceneNode {
     /// <returns>
     ///     Return RenderTechnique
     /// </returns>
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.PostEffectBloom];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.PostEffectBloom];
 
-    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
-        return false;
-    }
+    public sealed override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) => false;
 
     protected sealed override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 
     #region Properties
 

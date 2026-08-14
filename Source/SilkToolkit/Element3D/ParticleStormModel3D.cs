@@ -505,9 +505,7 @@ public class ParticleStormModel3D : Element3D {
 #endregion
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new ParticleStormNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ParticleStormNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

@@ -112,9 +112,7 @@ public class NodeAnimationUpdater : IAnimationUpdater {
     /// </summary>
     /// <param name="count">The count.</param>
     /// <returns></returns>
-    protected virtual Matrix[] OnGetNewBoneMatrices(int count) {
-        return new Matrix[count];
-    }
+    protected virtual Matrix[] OnGetNewBoneMatrices(int count) => new Matrix[count];
 
     /// <summary>
     ///     Called when [return old bone matrices]. Override this to return the old matrix array back to your own matices pool.

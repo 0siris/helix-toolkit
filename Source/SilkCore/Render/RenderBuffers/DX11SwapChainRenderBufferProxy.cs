@@ -115,9 +115,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     ///     Presents this instance.
     /// </summary>
     /// <returns></returns>
-    public override bool Present() {
-        return swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
-    }
+    public override bool Present() => swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
 
     /// <summary>
     ///     Must release swapchain at last after all its created resources have been released.

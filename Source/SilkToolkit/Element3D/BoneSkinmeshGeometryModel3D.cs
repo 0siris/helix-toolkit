@@ -22,7 +22,5 @@ public class BoneSkinMeshGeometryModel3D : MeshGeometryModel3D {
         set => SetValue(BoneMatricesProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new BoneSkinMeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new BoneSkinMeshNode();
 }

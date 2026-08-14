@@ -173,22 +173,22 @@ public interface IBoundable {
     /// <summary>
     ///     Occurs when [on bound changed].
     /// </summary>
-    event EventHandler<BoundChangeArgs<BoundingBox>> BoundChanged;
+    event EventHandler<BoundChangeArgs<BoundingBox>>? BoundChanged;
 
     /// <summary>
     ///     Occurs when [on transform bound changed].
     /// </summary>
-    event EventHandler<BoundChangeArgs<BoundingBox>> TransformBoundChanged;
+    event EventHandler<BoundChangeArgs<BoundingBox>>? TransformBoundChanged;
 
     /// <summary>
     ///     Occurs when [on bound sphere changed].
     /// </summary>
-    event EventHandler<BoundChangeArgs<BoundingSphere>> BoundSphereChanged;
+    event EventHandler<BoundChangeArgs<BoundingSphere>>? BoundSphereChanged;
 
     /// <summary>
     ///     Occurs when [on transform bound sphere changed].
     /// </summary>
-    event EventHandler<BoundChangeArgs<BoundingSphere>> TransformBoundSphereChanged;
+    event EventHandler<BoundChangeArgs<BoundingSphere>>? TransformBoundSphereChanged;
 }
 
 /// <summary>

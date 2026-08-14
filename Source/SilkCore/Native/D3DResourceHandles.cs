@@ -207,9 +207,7 @@ public struct Half4 {
     public Half Z;
     public Half W;
 
-    public static implicit operator Half4(Vector4 value) {
-        return new Half4(value.X, value.Y, value.Z, value.W);
-    }
+    public static implicit operator Half4(Vector4 value) => new(value.X, value.Y, value.Z, value.W);
 }
 
 public struct ResourceRegion {
@@ -220,16 +218,14 @@ public struct ResourceRegion {
     public int Bottom;
     public int Back;
 
-    internal Box ToSilkBox() {
-        return new Box {
-            Left = (uint)Left,
-            Top = (uint)Top,
-            Front = (uint)Front,
-            Right = (uint)Right,
-            Bottom = (uint)Bottom,
-            Back = (uint)Back
-        };
-    }
+    internal Box ToSilkBox() => new() {
+        Left = (uint)Left,
+        Top = (uint)Top,
+        Front = (uint)Front,
+        Right = (uint)Right,
+        Bottom = (uint)Bottom,
+        Back = (uint)Back
+    };
 }
 
 public sealed class DataStream : IDisposable {

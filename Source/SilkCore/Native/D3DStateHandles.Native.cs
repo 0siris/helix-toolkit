@@ -38,42 +38,36 @@ internal static class D3DStateConversions {
         return desc;
     }
 
-    public static DepthStencilDesc ToSilkDesc(this DepthStencilStateDescription description) {
-        return new DepthStencilDesc {
-            DepthEnable = new Bool32(description.IsDepthEnabled),
-            DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask)description.DepthWriteMask,
-            DepthFunc = (ComparisonFunc)description.DepthComparison,
-            StencilEnable = new Bool32(description.IsStencilEnabled),
-            StencilReadMask = description.StencilReadMask,
-            StencilWriteMask = description.StencilWriteMask,
-            FrontFace = description.FrontFace.ToSilkDesc(),
-            BackFace = description.BackFace.ToSilkDesc()
-        };
-    }
+    public static DepthStencilDesc ToSilkDesc(this DepthStencilStateDescription description) => new() {
+        DepthEnable = new Bool32(description.IsDepthEnabled),
+        DepthWriteMask = (Silk.NET.Direct3D11.DepthWriteMask)description.DepthWriteMask,
+        DepthFunc = (ComparisonFunc)description.DepthComparison,
+        StencilEnable = new Bool32(description.IsStencilEnabled),
+        StencilReadMask = description.StencilReadMask,
+        StencilWriteMask = description.StencilWriteMask,
+        FrontFace = description.FrontFace.ToSilkDesc(),
+        BackFace = description.BackFace.ToSilkDesc()
+    };
 
-    public static DepthStencilopDesc ToSilkDesc(this DepthStencilOperationDescription description) {
-        return new DepthStencilopDesc {
-            StencilFailOp = (StencilOp)description.FailOperation,
-            StencilDepthFailOp = (StencilOp)description.DepthFailOperation,
-            StencilPassOp = (StencilOp)description.PassOperation,
-            StencilFunc = (ComparisonFunc)description.Comparison
-        };
-    }
+    public static DepthStencilopDesc ToSilkDesc(this DepthStencilOperationDescription description) => new() {
+        StencilFailOp = (StencilOp)description.FailOperation,
+        StencilDepthFailOp = (StencilOp)description.DepthFailOperation,
+        StencilPassOp = (StencilOp)description.PassOperation,
+        StencilFunc = (ComparisonFunc)description.Comparison
+    };
 
-    public static RasterizerDesc ToSilkDesc(this RasterizerStateDescription description) {
-        return new RasterizerDesc {
-            FillMode = (Silk.NET.Direct3D11.FillMode)description.FillMode,
-            CullMode = (Silk.NET.Direct3D11.CullMode)description.CullMode,
-            FrontCounterClockwise = new Bool32(description.IsFrontCounterClockwise),
-            DepthBias = description.DepthBias,
-            DepthBiasClamp = description.DepthBiasClamp,
-            SlopeScaledDepthBias = description.SlopeScaledDepthBias,
-            DepthClipEnable = new Bool32(description.IsDepthClipEnabled),
-            ScissorEnable = new Bool32(description.IsScissorEnabled),
-            MultisampleEnable = new Bool32(description.IsMultisampleEnabled),
-            AntialiasedLineEnable = new Bool32(description.IsAntialiasedLineEnabled)
-        };
-    }
+    public static RasterizerDesc ToSilkDesc(this RasterizerStateDescription description) => new() {
+        FillMode = (Silk.NET.Direct3D11.FillMode)description.FillMode,
+        CullMode = (Silk.NET.Direct3D11.CullMode)description.CullMode,
+        FrontCounterClockwise = new Bool32(description.IsFrontCounterClockwise),
+        DepthBias = description.DepthBias,
+        DepthBiasClamp = description.DepthBiasClamp,
+        SlopeScaledDepthBias = description.SlopeScaledDepthBias,
+        DepthClipEnable = new Bool32(description.IsDepthClipEnabled),
+        ScissorEnable = new Bool32(description.IsScissorEnabled),
+        MultisampleEnable = new Bool32(description.IsMultisampleEnabled),
+        AntialiasedLineEnable = new Bool32(description.IsAntialiasedLineEnabled)
+    };
 
     public static unsafe SamplerDesc ToSilkDesc(this SamplerStateDescription description) {
         var desc = new SamplerDesc {

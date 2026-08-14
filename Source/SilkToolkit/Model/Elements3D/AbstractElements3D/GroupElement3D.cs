@@ -131,9 +131,7 @@ public abstract class GroupElement3D : Element3D {
                 AddLogicalChild(c);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new GroupNode { AlwaysHittable = AlwaysHittable };
-    }
+    protected override SceneNode OnCreateSceneNode() => new GroupNode { AlwaysHittable = AlwaysHittable };
 
     private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         var node = (GroupNode)SceneNode;

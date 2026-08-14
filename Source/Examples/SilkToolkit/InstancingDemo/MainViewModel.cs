@@ -247,26 +247,22 @@ public class MainViewModel : BaseViewModel {
         return ToMatrix(m);
     }
 
-    private static Matrix ToMatrix(System.Numerics.Matrix4x4 m) {
-        return new Matrix(m.M11,
-                          m.M12,
-                          m.M13,
-                          m.M14,
-                          m.M21,
-                          m.M22,
-                          m.M23,
-                          m.M24,
-                          m.M31,
-                          m.M32,
-                          m.M33,
-                          m.M34,
-                          m.M41,
-                          m.M42,
-                          m.M43,
-                          m.M44);
-    }
+    private static Matrix ToMatrix(System.Numerics.Matrix4x4 m) => new(m.M11,
+        m.M12,
+        m.M13,
+        m.M14,
+        m.M21,
+        m.M22,
+        m.M23,
+        m.M24,
+        m.M31,
+        m.M32,
+        m.M33,
+        m.M34,
+        m.M41,
+        m.M42,
+        m.M43,
+        m.M44);
 
-    private float NextFloat(float min, float max) {
-        return min + (max - min) * (float)rnd.NextDouble();
-    }
+    private float NextFloat(float min, float max) => min + (max - min) * (float)rnd.NextDouble();
 }

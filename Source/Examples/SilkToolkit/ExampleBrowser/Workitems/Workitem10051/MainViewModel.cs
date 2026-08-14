@@ -27,7 +27,7 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the render exception.
     /// </summary>
     public Exception RenderException {
-        get { return field; }
+        get => field;
 
         set {
             if (field != value) {
@@ -41,7 +41,7 @@ public class MainViewModel : BaseViewModel {
     /// Gets or sets the viewport message.
     /// </summary>
     public string ViewportMessage {
-        get { return field; }
+        get => field;
 
         set {
             if (field != value) {

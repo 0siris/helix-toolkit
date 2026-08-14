@@ -50,7 +50,7 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
     [MemberNotNullWhen(true, nameof(elements))]
     [MemberNotNullWhen(true, nameof(Elements))]
     public bool HasElements { get; private set; }
-    public IElementsBufferProxy Buffer => elementBuffer;
+    public IElementsBufferProxy? Buffer => elementBuffer;
 
     public bool Changed => instanceChanged;
     

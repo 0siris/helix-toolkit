@@ -16,10 +16,10 @@ namespace HelixToolkit.SharpDX.Core.Render;
 public partial class DefaultRenderHost : DX11RenderHostBase {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     private readonly AsyncActionThread parallelThread = new();
-    private AsyncActionWaitable asyncTask;
+    private AsyncActionWaitable? asyncTask;
     private Action frustumTestAction;
-    private AsyncActionWaitable getPostEffectCoreTask;
-    private AsyncActionWaitable getTriangleCountTask;
+    private AsyncActionWaitable? getPostEffectCoreTask;
+    private AsyncActionWaitable? getTriangleCountTask;
     private int numRendered;
 
     /// <summary>
@@ -45,7 +45,8 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// <returns></returns>
     protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
         Logger.Info("Creating DX11Texture2DRenderBufferProxy");
-        return new DX11Texture2DRenderBufferProxy(EffectsManager);
+        return new DX11Texture2DRenderBufferProxy(
+            EffectsManager.AssertNotNull("Effects manager is not initialized."));
     }
 
 
@@ -55,10 +56,12 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         bool invalidateSceneGraph,
         bool invalidatePerFrameRenderables
     ) {
+        var viewport = Viewport.AssertNotNull("Viewport is not initialized.");
+        var renderer = Renderer.AssertNotNull("Renderer is not initialized.");
         Clear(invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) {
-            ViewportRenderables.AddRange(Viewport.Renderables);
-            Renderer.UpdateSceneGraph(RenderContext, ViewportRenderables, perFrameFlattenedScene);
+            ViewportRenderables.AddRange(viewport.Renderables);
+            renderer.UpdateSceneGraph(context, ViewportRenderables, perFrameFlattenedScene);
             if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Flatten Scene Graph");
         }
 
@@ -166,12 +169,14 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// </summary>
     protected override void PreRender(bool invalidateSceneGraph, bool invalidatePerFrameRenderables) {
         base.PreRender(invalidateSceneGraph, invalidatePerFrameRenderables);
+        var context = RenderContext.AssertNotNull("Render context is not initialized.");
+        var renderer = Renderer.AssertNotNull("Renderer is not initialized.");
         parallelThread.Enabled = EnableParallelProcessing;
 
-        SeparateRenderables(RenderContext, invalidateSceneGraph, invalidatePerFrameRenderables);
+        SeparateRenderables(context, invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) TriggerSceneGraphUpdated();
         asyncTask = parallelThread.EnqueueAction(() => {
-            Renderer?.UpdateNotRenderParallel(RenderContext, perFrameFlattenedScene);
+            renderer.UpdateNotRenderParallel(context, perFrameFlattenedScene);
         });
         var ft = Stopwatch.GetTimestamp();
         frustumTestAction();
@@ -227,52 +232,61 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// </summary>
     /// <param name="time">The time.</param>
     protected override void OnRender(TimeSpan time) {
+        var renderer = Renderer.AssertNotNull("Renderer is not initialized.");
+        var context = RenderContext.AssertNotNull("Render context is not initialized.");
+        var renderBuffer = RenderBuffer.AssertNotNull("Render buffer is not initialized.");
         var renderParameter = new RenderParameter {
-            RenderTargetView = [RenderTargetBufferView],
-            DepthStencilView = DepthStencilBufferView,
-            CurrentTargetTexture = RenderBuffer.ColorBuffer.Resource,
-            IsMsaaTexture = RenderBuffer.ColorBufferSampleDesc.Count > 1,
-            ScissorRegion = new Rectangle(0, 0, RenderBuffer.TargetWidth, RenderBuffer.TargetHeight),
-            ViewportRegion = new ViewportF(0, 0, RenderBuffer.TargetWidth, RenderBuffer.TargetHeight),
+            RenderTargetView = [RenderTargetBufferView.AssertNotNull("Render target view is not initialized.")],
+            DepthStencilView = DepthStencilBufferView.AssertNotNull("Depth stencil view is not initialized."),
+            CurrentTargetTexture = renderBuffer.ColorBuffer.Resource.AssertNotNull("Color buffer is not initialized."),
+            IsMsaaTexture = renderBuffer.ColorBufferSampleDesc.Count > 1,
+            ScissorRegion = new Rectangle(0, 0, renderBuffer.TargetWidth, renderBuffer.TargetHeight),
+            ViewportRegion = new ViewportF(0, 0, renderBuffer.TargetWidth, renderBuffer.TargetHeight),
             RenderLight = RenderConfiguration.RenderLights,
             UpdatePerFrameData = RenderConfiguration.UpdatePerFrameData
         };
-        Renderer.SetRenderTargets(ref renderParameter);
-        Renderer.UpdateGlobalVariables(RenderContext, LightNodes, ref renderParameter);
+        renderer.SetRenderTargets(ref renderParameter);
+        renderer.UpdateGlobalVariables(context, LightNodes, ref renderParameter);
         for (var i = 0; i < needUpdateCores.Count; ++i)
-            needUpdateCores[i].Update(RenderContext, Renderer.ImmediateContext);
+            needUpdateCores[i].Update(context, renderer.ImmediateContext);
         numRendered += needUpdateCores.Count;
-        if (RenderBuffer.HasMsaa) {
+        if (renderBuffer.HasMsaa) {
             numRendered += DoDepthPrepass();
-            Renderer.SetRenderTargets(ref renderParameter);
+            renderer.SetRenderTargets(ref renderParameter);
         }
 
-        Renderer.RenderPreProc(RenderContext, PreProcNodes, ref renderParameter);
-        numRendered += Renderer.RenderOpaque(RenderContext, OpaqueNodesInFrustum, ref renderParameter, false);
-        numRendered += Renderer.RenderOpaque(RenderContext, ParticleNodes, ref renderParameter, true);
+        renderer.RenderPreProc(context, PreProcNodes, ref renderParameter);
+        numRendered += renderer.RenderOpaque(context, OpaqueNodesInFrustum, ref renderParameter, false);
+        numRendered += renderer.RenderOpaque(context, ParticleNodes, ref renderParameter, true);
         numRendered +=
-            Renderer.RenderTransparent(RenderContext, TransparentNodesInFrustum, ref renderParameter);
+            renderer.RenderTransparent(context, TransparentNodesInFrustum, ref renderParameter);
 
         getPostEffectCoreTask?.Wait();
         RemoveAndDispose(ref getPostEffectCoreTask);
         if (RenderConfiguration.FxaaLevel != FxaaLevel.None
             || PostEffectNodes.Count > 0 || GlobalEffectNodes.Count > 0) {
-            Renderer.RenderToPingPongBuffer(RenderContext, ref renderParameter);
+            renderer.RenderToPingPongBuffer(context, ref renderParameter);
             renderParameter.IsMsaaTexture = false;
-            renderParameter.CurrentTargetTexture = RenderBuffer.FullResPpBuffer.CurrentTexture;
-            renderParameter.RenderTargetView[0] = RenderBuffer.FullResPpBuffer.CurrentRtv;
+            renderParameter.CurrentTargetTexture = renderBuffer.FullResPpBuffer.CurrentTexture.AssertNotNull(
+                "Post-processing texture is not initialized.");
+            renderParameter.RenderTargetView[0] = ((RenderTargetView?)renderBuffer.FullResPpBuffer.CurrentRtv).AssertNotNull(
+                "Post-processing render target is not initialized.");
         }
 
         if (PostEffectNodes.Count > 0) {
-            Renderer.RenderPostProc(RenderContext, PostEffectNodes, ref renderParameter);
-            renderParameter.CurrentTargetTexture = RenderBuffer.FullResPpBuffer.CurrentTexture;
-            renderParameter.RenderTargetView[0] = RenderBuffer.FullResPpBuffer.CurrentRtv;
+            renderer.RenderPostProc(context, PostEffectNodes, ref renderParameter);
+            renderParameter.CurrentTargetTexture = renderBuffer.FullResPpBuffer.CurrentTexture.AssertNotNull(
+                "Post-processing texture is not initialized.");
+            renderParameter.RenderTargetView[0] = ((RenderTargetView?)renderBuffer.FullResPpBuffer.CurrentRtv).AssertNotNull(
+                "Post-processing render target is not initialized.");
         }
 
         if (GlobalEffectNodes.Count > 0) {
-            Renderer.RenderPostProc(RenderContext, GlobalEffectNodes, ref renderParameter);
-            renderParameter.CurrentTargetTexture = RenderBuffer.FullResPpBuffer.CurrentTexture;
-            renderParameter.RenderTargetView[0] = RenderBuffer.FullResPpBuffer.CurrentRtv;
+            renderer.RenderPostProc(context, GlobalEffectNodes, ref renderParameter);
+            renderParameter.CurrentTargetTexture = renderBuffer.FullResPpBuffer.CurrentTexture.AssertNotNull(
+                "Post-processing texture is not initialized.");
+            renderParameter.RenderTargetView[0] = ((RenderTargetView?)renderBuffer.FullResPpBuffer.CurrentRtv).AssertNotNull(
+                "Post-processing render target is not initialized.");
         }
 
         if (ScreenSpacedNodes.Count > 0) {
@@ -287,20 +301,20 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
                             NodesWithPostEffect.Add(ScreenSpacedNodes[i]);
                     }
 
-                    Renderer.RenderScreenSpaced(RenderContext,
+                    renderer.RenderScreenSpaced(context,
                                                 ScreenSpacedNodes,
                                                 start,
                                                 i - start,
                                                 ref renderParameter);
-                    Renderer.RenderPostProc(RenderContext, PostEffectNodes, ref renderParameter);
-                    RenderContext.RestoreGlobalTransform();
+                    renderer.RenderPostProc(context, PostEffectNodes, ref renderParameter);
+                    context.RestoreGlobalTransform();
                     start = i;
                 } else {
                     ++start;
                 }
         }
 
-        Renderer.RenderToBackBuffer(RenderContext, ref renderParameter);
+        renderer.RenderToBackBuffer(context, ref renderParameter);
         numRendered += PreProcNodes.Count + PostEffectNodes.Count + ScreenSpacedNodes.Count;
         if (ShowRenderDetail != RenderDetail.None) {
             getTriangleCountTask?.Wait();
@@ -310,13 +324,19 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     }
 
     private int DoDepthPrepass() {
-        Renderer.ImmediateContext.ClearDepthStencilView(RenderBuffer.DepthStencilBufferNoMsaa,
+        var renderer = Renderer.AssertNotNull("Renderer is not initialized.");
+        var context = RenderContext.AssertNotNull("Render context is not initialized.");
+        var depthStencilBufferProxy = RenderBuffer.AssertNotNull("Render buffer is not initialized.")
+                                                  .DepthStencilBufferNoMsaa;
+        var depthStencilBuffer = ((DepthStencilView?)depthStencilBufferProxy).AssertNotNull(
+            "Depth stencil buffer is not initialized.");
+        renderer.ImmediateContext.ClearDepthStencilView(depthStencilBuffer,
                                                         DepthStencilClearFlags.Depth |
                                                         DepthStencilClearFlags.Stencil);
-        Renderer.ImmediateContext.SetRenderTarget(RenderBuffer.DepthStencilBufferNoMsaa, null);
-        RenderContext.CustomPassName = DefaultPassNames.DepthPrepass;
+        renderer.ImmediateContext.SetRenderTarget(depthStencilBuffer, null);
+        context.CustomPassName = DefaultPassNames.DepthPrepass;
         for (var i = 0; i < PerFrameOpaqueNodesInFrustum.Count; ++i)
-            PerFrameOpaqueNodesInFrustum[i].RenderDepth(RenderContext, Renderer.ImmediateContext, null);
+            PerFrameOpaqueNodesInFrustum[i].RenderDepth(context, renderer.ImmediateContext, null);
         return PerFrameOpaqueNodesInFrustum.Count;
     }
 
@@ -335,8 +355,11 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// </summary>
     /// <param name="time">The time.</param>
     protected override void OnRender2D(TimeSpan time) {
+        var viewport = Viewport.AssertNotNull("Viewport is not initialized.");
+        var renderer = Renderer.AssertNotNull("Renderer is not initialized.");
+        var context = RenderContext2D.AssertNotNull("2D render context is not initialized.");
         ViewportRenderable2D.Clear();
-        var d2DRoot = Viewport.D2DRenderables.FirstOrDefault();
+        var d2DRoot = viewport.D2DRenderables.FirstOrDefault();
         var renderD2D = false;
         if (d2DRoot != null && d2DRoot.ItemsInternal.Count > 0 && RenderConfiguration.RenderD2D) {
             renderD2D = true;
@@ -345,19 +368,20 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         }
 
         if (!renderD2D) return;
-        ViewportRenderable2D.AddRange(Viewport.D2DRenderables);
-        Renderer.UpdateSceneGraph2D(RenderContext2D, ViewportRenderable2D);
+        ViewportRenderable2D.AddRange(viewport.D2DRenderables);
+        renderer.UpdateSceneGraph2D(context, ViewportRenderable2D);
 
         foreach (var node2D in ViewportRenderable2D)
-            node2D.Render(RenderContext2D);
+            node2D?.Render(context);
 
         //Draw bitmap cache to render target
-        RenderContext2D.PushRenderTarget(D2DTarget.D2DTarget, false);
+        context.PushRenderTarget(D2DTarget.AssertNotNull("2D target is not initialized.").D2DTarget.AssertNotNull(
+                                     "2D target bitmap is not initialized."), false);
         if (renderD2D || ShowRenderDetail != RenderDetail.None)
             foreach (var node2D in ViewportRenderable2D)
-                node2D.RenderBitmapCache(RenderContext2D);
+                node2D?.RenderBitmapCache(context);
 
-        RenderContext2D.PopRenderTarget();
+        context.PopRenderTarget();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -427,7 +451,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     }
 
     private void FrustumTestDefault() {
-        var frustum = RenderContext.BoundingFrustum;
+        var frustum = RenderContext.AssertNotNull("Render context is not initialized.").BoundingFrustum;
         for (var i = 0; i < OpaqueNodes.Count; ++i) {
             OpaqueNodes.Items[i].IsInFrustum = OpaqueNodes.Items[i].TestViewFrustum(ref frustum);
             if (OpaqueNodes.Items[i].IsInFrustum) OpaqueNodesInFrustum.Add(OpaqueNodes.Items[i]);

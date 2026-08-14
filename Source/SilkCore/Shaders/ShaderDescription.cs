@@ -17,7 +17,7 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class ShaderDescription {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    private readonly IShaderByteCodeReader byteCodeReader;
+    private readonly IShaderByteCodeReader? byteCodeReader;
 
     /// <summary>
     ///     Create a empty description
@@ -109,7 +109,7 @@ public sealed class ShaderDescription {
     ///     The name.
     /// </value>
     [DataMember]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the type of the shader.
@@ -136,7 +136,7 @@ public sealed class ShaderDescription {
     ///     The byte code.
     /// </value>
     [DataMember]
-    public byte[] ByteCode {
+    public byte[]? ByteCode {
         get {
             if (field == null && !string.IsNullOrEmpty(ByteCodeName))
                 field = UwpShaderBytePool.Read(ByteCodeName, byteCodeReader);
@@ -152,7 +152,7 @@ public sealed class ShaderDescription {
     ///     The name of the byte code.
     /// </value>
     [IgnoreDataMember]
-    public string ByteCodeName { get; }
+    public string? ByteCodeName { get; }
 
     /// <summary>
     ///     Gets or sets the constant buffer mappings.
@@ -161,7 +161,7 @@ public sealed class ShaderDescription {
     ///     The constant buffer mappings.
     /// </value>
     [IgnoreDataMember]
-    public ConstantBufferMapping[] ConstantBufferMappings { get; private set; }
+    public ConstantBufferMapping[]? ConstantBufferMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the texture mappings.
@@ -170,7 +170,7 @@ public sealed class ShaderDescription {
     ///     The texture mappings.
     /// </value>
     [IgnoreDataMember]
-    public TextureMapping[] TextureMappings { get; private set; }
+    public TextureMapping[]? TextureMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the uav mappings.
@@ -179,7 +179,7 @@ public sealed class ShaderDescription {
     ///     The uav mappings.
     /// </value>
     [IgnoreDataMember]
-    public UavMapping[] UavMappings { get; private set; }
+    public UavMapping[]? UavMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the sampler mappings.
@@ -188,7 +188,7 @@ public sealed class ShaderDescription {
     ///     The sampler mappings.
     /// </value>
     [IgnoreDataMember]
-    public SamplerMapping[] SamplerMappings { get; private set; }
+    public SamplerMapping[]? SamplerMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the shader reflector.
@@ -206,7 +206,7 @@ public sealed class ShaderDescription {
     /// <param name="device"></param>
     /// <param name="pool"></param>
     /// <returns></returns>
-    internal ShaderBase CreateShader(SilkD3DDevice device, IConstantBufferPool pool) {
+    internal ShaderBase? CreateShader(SilkD3DDevice device, IConstantBufferPool pool) {
         if (ByteCode == null) return null;
         ShaderReflector ??= new ShaderReflector();
         ShaderReflector.Parse(ByteCode, ShaderType);
@@ -226,7 +226,7 @@ public sealed class ShaderDescription {
         UavMappings = [.. ShaderReflector.UavMappings.Values];
         SamplerMappings = [.. ShaderReflector.SamplerMappings.Values];
 
-        ShaderBase shader = null;
+        ShaderBase? shader = null;
         switch (ShaderType) {
             case ShaderStage.Vertex:
                 shader = new VertexShader(device, Name, ByteCode);
@@ -255,6 +255,8 @@ public sealed class ShaderDescription {
                     shader = new GeometryShader(device, Name, ByteCode);
                 break;
         }
+
+        if (shader is null) return null;
 
         if (ConstantBufferMappings != null)
             foreach (var mapping in ConstantBufferMappings)

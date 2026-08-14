@@ -64,7 +64,7 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// <summary>
     ///     <see cref="IRenderTechnique.Device" />
     /// </summary>
-    public NativeD3DDevice Device => EffectsManager?.NativeDeviceResources?.Device;
+    public NativeD3DDevice? Device => EffectsManager?.NativeDeviceResources?.Device;
 
     /// <summary>
     ///     <see cref="IRenderTechnique.Name" />
@@ -91,20 +91,16 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public ShaderPass GetPass(string name) {
-        return !string.IsNullOrEmpty(name) && passDict.ContainsKey(name)
-                   ? passDict[name].Value
-                   : ShaderPass.NullPass;
-    }
+    public ShaderPass GetPass(string name) => !string.IsNullOrEmpty(name) && passDict.ContainsKey(name)
+        ? passDict[name].Value
+        : ShaderPass.NullPass;
 
     /// <summary>
     ///     <see cref="IRenderTechnique.GetPass(int)" />
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
-    public ShaderPass GetPass(int index) {
-        return index >= 0 && passList.Count > index ? passList[index].Value : ShaderPass.NullPass;
-    }
+    public ShaderPass GetPass(int index) => index >= 0 && passList.Count > index ? passList[index].Value : ShaderPass.NullPass;
 
     /// <summary>
     ///     Adds the pass.

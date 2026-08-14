@@ -22,9 +22,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
 
-    public MainViewModel ViewModel {
-        get { return this; }
-    }
+    public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model { get; private set; }
     public MeshGeometry3D Floor { get; private set; }
@@ -79,7 +77,7 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.RenderDiffuseMap = FloorMaterial.RenderDiffuseMap = value;
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public bool RenderNormalMap {
@@ -88,7 +86,7 @@ public class MainViewModel : BaseViewModel {
                 ModelMaterial.RenderNormalMap = FloorMaterial.RenderNormalMap = value;
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public string[] TextureFiles { get; } = [
@@ -104,7 +102,7 @@ public class MainViewModel : BaseViewModel {
                 FloorMaterial.DiffuseMap = ModelMaterial.DiffuseMap;
             }
         }
-        get { return field; }
+        get => field;
     } = @"TextureCheckerboard2.jpg";
 
     public string SelectedNormalTexture {
@@ -115,23 +113,23 @@ public class MainViewModel : BaseViewModel {
                 FloorMaterial.NormalMap = ModelMaterial.NormalMap;
             }
         }
-        get { return field; }
+        get => field;
     } = @"TextureCheckerboard2_dot3.jpg";
 
     public Color DiffuseColor {
-        set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }
-        get { return ModelMaterial.DiffuseColor.ToColor(); }
+        set => FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4();
+        get => ModelMaterial.DiffuseColor.ToColor();
     }
 
 
     public Color ReflectiveColor {
-        set { FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4(); }
-        get { return ModelMaterial.ReflectiveColor.ToColor(); }
+        set => FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4();
+        get => ModelMaterial.ReflectiveColor.ToColor();
     }
 
     public Color EmissiveColor {
-        set { FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4(); }
-        get { return ModelMaterial.EmissiveColor.ToColor(); }
+        set => FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4();
+        get => ModelMaterial.EmissiveColor.ToColor();
     }
 
     public MsaaLevel MSAA { set; get; } = MsaaLevel.Disable;
@@ -339,7 +337,5 @@ public class MainViewModel : BaseViewModel {
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) {
-        return min + (max - min) * random.NextDouble();
-    }
+    public static double NextDouble(this Random random, double min, double max) => min + (max - min) * random.NextDouble();
 }

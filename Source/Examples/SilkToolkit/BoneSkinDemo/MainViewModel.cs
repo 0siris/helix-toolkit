@@ -31,7 +31,7 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool ShowSkeleton {
@@ -54,7 +54,7 @@ public class MainViewModel : BaseViewModel {
                 compositeHelper.Rendering -= CompositeHelper_Rendering;
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public string SelectedAnimation {
@@ -67,7 +67,7 @@ public class MainViewModel : BaseViewModel {
                 };
             }
         }
-        get { return field; }
+        get => field;
     }
 
     private AnimationRepeatMode selectedRepeatMode = AnimationRepeatMode.Loop;
@@ -79,7 +79,7 @@ public class MainViewModel : BaseViewModel {
                 animationUpdater?.RepeatMode = value;
             }
         }
-        get { return selectedRepeatMode; }
+        get => selectedRepeatMode;
     }
 
     public Media3D.Transform3D ModelTransform { private set; get; }

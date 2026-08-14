@@ -97,9 +97,7 @@ public partial class DeviceContextProxy {
     #region CommandList
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public CommandList FinishCommandList(bool restoreState) {
-        return nativeDeviceContext.FinishCommandList(restoreState);
-    }
+    public CommandList FinishCommandList(bool restoreState) => nativeDeviceContext.FinishCommandList(restoreState);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteCommandList(CommandList commandList, bool restoreContextState) {

@@ -13,9 +13,7 @@ public class BillboardNode : MaterialGeometryNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        return new PointLineRenderCore();
-    }
+    protected override RenderCore OnCreateRenderCore() => new PointLineRenderCore();
 
     /// <summary>
     ///     Called when [create buffer model].
@@ -35,9 +33,7 @@ public class BillboardNode : MaterialGeometryNode {
         return buffer;
     }
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.BillboardText];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.BillboardText];
 
     public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
         if (!EnableViewFrustumCheck) return true;
@@ -52,29 +48,25 @@ public class BillboardNode : MaterialGeometryNode {
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected override bool OnCheckGeometry(Geometry3D geometry) {
-        return geometry is IBillboardText;
-    }
+    protected override bool OnCheckGeometry(Geometry3D geometry) => geometry is IBillboardText;
 
     /// <summary>
     ///     Create raster state description.
     /// </summary>
     /// <returns></returns>
-    protected override RasterizerStateDescription CreateRasterState() {
-        return new RasterizerStateDescription {
-            FillMode = FillMode.Solid,
-            CullMode = CullMode.None,
-            DepthBias = DepthBias,
-            DepthBiasClamp = -1000,
-            SlopeScaledDepthBias = SlopeScaledDepthBias,
-            IsDepthClipEnabled = true,
-            IsFrontCounterClockwise = false,
+    protected override RasterizerStateDescription CreateRasterState() => new() {
+        FillMode = FillMode.Solid,
+        CullMode = CullMode.None,
+        DepthBias = DepthBias,
+        DepthBiasClamp = -1000,
+        SlopeScaledDepthBias = SlopeScaledDepthBias,
+        IsDepthClipEnabled = true,
+        IsFrontCounterClockwise = false,
 
-            IsMultisampleEnabled = false,
-            //IsAntialiasedLineEnabled = true,
-            IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
-        };
-    }
+        IsMultisampleEnabled = false,
+        //IsAntialiasedLineEnabled = true,
+        IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
+    };
 
     /// <summary>
     ///     Called when [hit test].
@@ -98,7 +90,5 @@ public class BillboardNode : MaterialGeometryNode {
         return false;
     }
 
-    protected override bool PreHitTestOnBounds(HitTestContext context) {
-        return true;
-    }
+    protected override bool PreHitTestOnBounds(HitTestContext context) => true;
 }

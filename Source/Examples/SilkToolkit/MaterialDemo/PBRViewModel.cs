@@ -44,7 +44,7 @@ public class PBRViewModel : BaseViewModel {
                 Material.AlbedoColor = value.ToColor4();
             }
         }
-        get { return albedoColor; }
+        get => albedoColor;
     }
 
     public bool RenderEnvironment {
@@ -55,7 +55,7 @@ public class PBRViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public bool RenderNormalMap {
@@ -66,7 +66,7 @@ public class PBRViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = true;
 
     public PBRViewModel(IEffectsManager manager) {

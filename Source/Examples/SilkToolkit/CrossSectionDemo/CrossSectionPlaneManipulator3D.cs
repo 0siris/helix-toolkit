@@ -16,8 +16,8 @@ namespace CrossSectionDemo;
 
 public class CrossSectionPlaneManipulator3D : GroupModel3D {
     public Plane CutPlane {
-        get { return (Plane)GetValue(CutPlaneProperty); }
-        set { SetValue(CutPlaneProperty, value); }
+        get => (Plane)GetValue(CutPlaneProperty);
+        set => SetValue(CutPlaneProperty, value);
     }
 
     // Using a DependencyProperty as the backing store for CutPlane.  This enables animation, styling, binding, etc...
@@ -62,8 +62,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
     /// is determined around the specified axis.
     /// </summary>
     public Vector3? ConstrainAxis {
-        get { return (Vector3?)GetValue(ConstrainAxisProperty); }
-        set { SetValue(ConstrainAxisProperty, value); }
+        get => (Vector3?)GetValue(ConstrainAxisProperty);
+        set => SetValue(ConstrainAxisProperty, value);
     }
 
     // Using a DependencyProperty as the backing store for ConstrainAxis.  This enables animation, styling, binding, etc...
@@ -75,8 +75,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public double SizeScale {
-        get { return (double)GetValue(SizeScaleProperty); }
-        set { SetValue(SizeScaleProperty, value); }
+        get => (double)GetValue(SizeScaleProperty);
+        set => SetValue(SizeScaleProperty, value);
     }
 
     public static readonly DependencyProperty SizeScaleProperty =
@@ -94,8 +94,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public double CornerScale {
-        get { return (double)GetValue(CornerScaleProperty); }
-        set { SetValue(CornerScaleProperty, value); }
+        get => (double)GetValue(CornerScaleProperty);
+        set => SetValue(CornerScaleProperty, value);
     }
 
     public static readonly DependencyProperty CornerScaleProperty =
@@ -112,8 +112,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                                                          }));
 
     public double EdgeThicknessScale {
-        get { return (double)GetValue(EdgeThicknessScaleProperty); }
-        set { SetValue(EdgeThicknessScaleProperty, value); }
+        get => (double)GetValue(EdgeThicknessScaleProperty);
+        set => SetValue(EdgeThicknessScaleProperty, value);
     }
 
     public static readonly DependencyProperty EdgeThicknessScaleProperty =
@@ -131,8 +131,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public Material CornerMaterial {
-        get { return (Material)GetValue(CornerMaterialProperty); }
-        set { SetValue(CornerMaterialProperty, value); }
+        get => (Material)GetValue(CornerMaterialProperty);
+        set => SetValue(CornerMaterialProperty, value);
     }
 
     public static readonly DependencyProperty CornerMaterialProperty =
@@ -147,8 +147,8 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
 
     public Material EdgeMaterial {
-        get { return (Material)GetValue(EdgeMaterialProperty); }
-        set { SetValue(EdgeMaterialProperty, value); }
+        get => (Material)GetValue(EdgeMaterialProperty);
+        set => SetValue(EdgeMaterialProperty, value);
     }
 
     public static readonly DependencyProperty EdgeMaterialProperty =
@@ -430,32 +430,20 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         }
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new AlwaysHitGroupNode(this);
-    }
+    protected override SceneNode OnCreateSceneNode() => new AlwaysHitGroupNode(this);
 
-    private static Vector3 Cross(Vector3 left, Vector3 right) {
-        return new Vector3(left.Y * right.Z - left.Z * right.Y,
-                           left.Z * right.X - left.X * right.Z,
-                           left.X * right.Y - left.Y * right.X);
-    }
+    private static Vector3 Cross(Vector3 left, Vector3 right) => new(left.Y * right.Z - left.Z * right.Y,
+        left.Z * right.X - left.X * right.Z,
+        left.X * right.Y - left.Y * right.X);
 
-    private static Matrix RotationAxis(Vector3 axis, float angle) {
-        return ToMatrix(
-            System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
-    }
+    private static Matrix RotationAxis(Vector3 axis, float angle) => ToMatrix(
+        System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z), angle));
 
-    private static Matrix Scaling(float scale) {
-        return Scaling(scale, scale, scale);
-    }
+    private static Matrix Scaling(float scale) => Scaling(scale, scale, scale);
 
-    private static Matrix Scaling(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
-    }
+    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix Translation(Vector3 value) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(value.X, value.Y, value.Z));
-    }
+    private static Matrix Translation(Vector3 value) => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(value.X, value.Y, value.Z));
 
     private static Vector3 TransformCoordinate(Vector3 value, Matrix matrix) {
         var result =
@@ -471,9 +459,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         return new Vector3(result.X, result.Y, result.Z);
     }
 
-    private static Vector3 TranslationVector(Matrix matrix) {
-        return new Vector3(matrix.M41, matrix.M42, matrix.M43);
-    }
+    private static Vector3 TranslationVector(Matrix matrix) => new(matrix.M41, matrix.M42, matrix.M43);
 
     private static void SetTranslationVector(ref Matrix matrix, Vector3 value) {
         matrix.M41 = value.X;
@@ -481,43 +467,39 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         matrix.M43 = value.Z;
     }
 
-    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) {
-        return new Matrix(matrix.M11,
-                          matrix.M12,
-                          matrix.M13,
-                          matrix.M14,
-                          matrix.M21,
-                          matrix.M22,
-                          matrix.M23,
-                          matrix.M24,
-                          matrix.M31,
-                          matrix.M32,
-                          matrix.M33,
-                          matrix.M34,
-                          matrix.M41,
-                          matrix.M42,
-                          matrix.M43,
-                          matrix.M44);
-    }
+    private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) => new(matrix.M11,
+        matrix.M12,
+        matrix.M13,
+        matrix.M14,
+        matrix.M21,
+        matrix.M22,
+        matrix.M23,
+        matrix.M24,
+        matrix.M31,
+        matrix.M32,
+        matrix.M33,
+        matrix.M34,
+        matrix.M41,
+        matrix.M42,
+        matrix.M43,
+        matrix.M44);
 
-    private static System.Numerics.Matrix4x4 ToNumerics(Matrix matrix) {
-        return new System.Numerics.Matrix4x4(matrix.M11,
-                                             matrix.M12,
-                                             matrix.M13,
-                                             matrix.M14,
-                                             matrix.M21,
-                                             matrix.M22,
-                                             matrix.M23,
-                                             matrix.M24,
-                                             matrix.M31,
-                                             matrix.M32,
-                                             matrix.M33,
-                                             matrix.M34,
-                                             matrix.M41,
-                                             matrix.M42,
-                                             matrix.M43,
-                                             matrix.M44);
-    }
+    private static System.Numerics.Matrix4x4 ToNumerics(Matrix matrix) => new(matrix.M11,
+        matrix.M12,
+        matrix.M13,
+        matrix.M14,
+        matrix.M21,
+        matrix.M22,
+        matrix.M23,
+        matrix.M24,
+        matrix.M31,
+        matrix.M32,
+        matrix.M33,
+        matrix.M34,
+        matrix.M41,
+        matrix.M42,
+        matrix.M43,
+        matrix.M44);
 
     private sealed class AlwaysHitGroupNode : GroupNode {
         private readonly object edgeHandle;

@@ -31,12 +31,10 @@ public static class FlagsCollection {
         ];
     }
 
-    public static Vector4 GetCoordRowColumn(int row, int column) {
-        return new Vector4(column * offSetX + borderThickness,
-                           row * offSetY + borderThickness,
-                           (column + 1) * offSetX - borderThickness,
-                           (row + 1) * offSetY - borderThickness);
-    }
+    public static Vector4 GetCoordRowColumn(int row, int column) => new(column * offSetX + borderThickness,
+        row * offSetY + borderThickness,
+        (column + 1) * offSetX - borderThickness,
+        (row + 1) * offSetY - borderThickness);
 }
 
 public class Flag : ImageInfo {

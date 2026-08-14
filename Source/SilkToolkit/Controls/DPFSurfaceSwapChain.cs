@@ -38,27 +38,27 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     private readonly WinformHostExtend winformHost = new();
     private bool belongsToParentWindow;
 
-    private D3DImageExt image3D;
-    private Window parentWindow;
+    private D3DImageExt? image3D;
+    private Window? parentWindow;
 
-    private DispatcherOperation resizeOperation;
+    private DispatcherOperation? resizeOperation;
 
-    private RenderControl surfaceD3D;
+    private readonly RenderControl surfaceD3D;
 
     public DPFSurfaceSwapChain(bool deferredRendering = false, bool attachedToWindow = true) {
-        SetupVisual(attachedToWindow);
-        SetupRenderHost(deferredRendering
-                            ? new SwapChainRenderHost(surfaceD3D.Handle,
-                                                      device => new DeferredContextRenderer(
-                                                          device,
-                                                          new AutoRenderTaskScheduler()))
-                            : new SwapChainRenderHost(surfaceD3D.Handle));
+        surfaceD3D = SetupVisual(attachedToWindow);
+        RenderHost = SetupRenderHost(deferredRendering
+            ? new SwapChainRenderHost(surfaceD3D.Handle,
+                device => new DeferredContextRenderer(
+                    device,
+                    new AutoRenderTaskScheduler()))
+            : new SwapChainRenderHost(surfaceD3D.Handle));
         SetupImage();
     }
 
     public DPFSurfaceSwapChain(Func<IntPtr, IRenderHost> createRenderHost, bool attachedToWindow = true) {
-        SetupVisual(attachedToWindow);
-        SetupRenderHost(createRenderHost(surfaceD3D.Handle));
+        surfaceD3D = SetupVisual(attachedToWindow);
+        RenderHost = SetupRenderHost(createRenderHost(surfaceD3D.Handle));
         SetupImage();
     }
 
@@ -70,7 +70,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     /// <value>
     ///     The render host.
     /// </value>
-    public IRenderHost RenderHost { get; private set; }
+    public IRenderHost RenderHost { get; }
 
     /// <summary>
     ///     Fired whenever an exception occurred on this object.
@@ -81,7 +81,9 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         get;
         set {
             field = value;
-            RenderHost?.DpiScale = value ? (float) DpiScale : 1;
+            RenderHost.DpiScale = value
+                ? (float) DpiScale
+                : 1;
         }
     } = true;
 
@@ -90,40 +92,47 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         set => winformHost.DpiScale = value;
     }
 
-    private void DPFSurfaceSwapChain_DpiScaleChanged(object sender, double e) {
-        RenderHost?.DpiScale = EnableDpiScale ? (float)e : 1;
+    private void DPFSurfaceSwapChain_DpiScaleChanged(object? sender, double e) {
+        RenderHost.DpiScale = EnableDpiScale
+            ? (float) e
+            : 1;
     }
 
-    private void SetupVisual(bool attachedToWindow) {
+    private RenderControl SetupVisual(bool attachedToWindow) {
         Children.Add(image);
         Children.Add(winformHost);
         winformHost.DpiScaleChanged += DPFSurfaceSwapChain_DpiScaleChanged;
-        surfaceD3D = new RenderControl(this);
-        winformHost.Child = surfaceD3D;
+        var renderControl = new RenderControl(this);
+        winformHost.Child = renderControl;
         HorizontalAlignment = HorizontalAlignment.Stretch;
         VerticalAlignment = VerticalAlignment.Stretch;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
         belongsToParentWindow = attachedToWindow;
+        return renderControl;
     }
 
-    private void SetupRenderHost(IRenderHost host) {
-        RenderHost = host;
-        RenderHost.DpiScale = EnableDpiScale ? (float)DpiScale : 1;
-        RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
-        RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
-        RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
-        RenderHost.EffectsManagerChanged += (s, e) => { SetupImage(); };
+    private IRenderHost SetupRenderHost(IRenderHost host) {
+        host.DpiScale = EnableDpiScale
+            ? (float) DpiScale
+            : 1;
+        host.StartRenderLoop += RenderHost_StartRenderLoop;
+        host.StopRenderLoop += RenderHost_StopRenderLoop;
+        host.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
+        host.EffectsManagerChanged += (s, e) => { SetupImage(); };
+        return host;
     }
 
     private void SetupImage() {
-        if (image3D == null || (RenderHost.EffectsManager != null &&
-                                RenderHost.EffectsManager.AdapterIndex != image3D.AdapterIndex)) {
+        var effectsManager = RenderHost.EffectsManager;
+        if (image3D is null || (effectsManager is not null && effectsManager.AdapterIndex != image3D.AdapterIndex)) {
             image.Source = null;
             image3D?.Dispose();
-            if (RenderHost.EffectsManager != null) {
-                image3D = new D3DImageExt(RenderHost.EffectsManager.AdapterIndex);
+            if (effectsManager is not null) {
+                image3D = new D3DImageExt(effectsManager.AdapterIndex);
                 image.Source = image3D;
+            } else {
+                image3D = null;
             }
         }
     }
@@ -132,7 +141,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnLoaded(object sender, RoutedEventArgs e) {
+    private void OnLoaded(object? sender, RoutedEventArgs e) {
         try {
             if (belongsToParentWindow) {
                 parentWindow = FindVisualAncestor<Window>(this);
@@ -160,65 +169,65 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnUnloaded(object sender, RoutedEventArgs e) {
-        if (belongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
+    private void OnUnloaded(object? sender, RoutedEventArgs e) {
+        if (belongsToParentWindow && parentWindow is not null) parentWindow.Closed -= ParentWindow_Closed;
         if (DataContext == null && RenderHost.EffectsManager == null && belongsToParentWindow)
             EndD3D();
         else
             RenderHost.StopRendering();
     }
 
-    private void ParentWindow_Closed(object sender, EventArgs e) {
+    private void ParentWindow_Closed(object? sender, EventArgs e) {
         EndD3D();
     }
 
     /// <summary>
     /// </summary>
     private bool StartD3D() {
-        RenderHost.StartD3D((int)ActualWidth, (int)ActualHeight);
+        RenderHost.StartD3D((int) ActualWidth, (int) ActualHeight);
         return true;
     }
 
-    private void RenderHost_StopRenderLoop(object sender, EventArgs e) {
+    private void RenderHost_StopRenderLoop(object? sender, EventArgs e) {
         compositionTarget.Rendering -= CompositionTarget_Rendering;
     }
 
-    private void RenderHost_StartRenderLoop(object sender, EventArgs e) {
+    private void RenderHost_StartRenderLoop(object? sender, EventArgs e) {
         compositionTarget.Rendering -= CompositionTarget_Rendering;
         compositionTarget.Rendering += CompositionTarget_Rendering;
     }
 
 
-    private void CompositionTarget_Rendering(object sender, RenderingEventArgs e) {
+    private void CompositionTarget_Rendering(object? sender, RenderingEventArgs e) {
         if (RenderHost.UpdateAndRender() && IncreaseFPS) image3D?.InvalidateD3DImage();
     }
 
     /// <summary>
     /// </summary>
     private void EndD3D() {
-        RenderHost?.EndD3D();
+        RenderHost.EndD3D();
     }
 
     /// <summary>
     /// </summary>
     /// <param name="sizeInfo"></param>
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-        if (resizeOperation != null && resizeOperation.Status == DispatcherOperationStatus.Pending)
+        if (resizeOperation is {Status: DispatcherOperationStatus.Pending})
             resizeOperation.Abort();
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                                                 (Action)(() => {
-                                                     if (IsLoaded)
-                                                         try {
-                                                             RenderHost?.Resize(
-                                                                 (int)ActualWidth,
-                                                                 (int)ActualHeight);
-                                                         } catch (Exception ex) {
-                                                             if (!HandleExceptionOccured(ex))
-                                                                 MessageBox.Show(
-                                                                     $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
-                                                                     "Error");
-                                                         }
-                                                 }));
+            (Action) (() => {
+                if (IsLoaded)
+                    try {
+                        RenderHost.Resize(
+                            (int) ActualWidth,
+                            (int) ActualHeight);
+                    } catch (Exception ex) {
+                        if (!HandleExceptionOccured(ex))
+                            MessageBox.Show(
+                                $"DPFCanvas: Error during rendering: {ex.Message} \n StackTrace: {ex.StackTrace}",
+                                "Error");
+                    }
+            }));
     }
 
     /// <summary>
@@ -241,14 +250,12 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
         return args.Handled;
     }
 
-    private static bool IsDeviceLost(int hresult) {
-        return hresult == unchecked((int)0x887A0005)
-               || hresult == unchecked((int)0x887A0006)
-               || hresult == unchecked((int)0x887A0007)
-               || hresult == unchecked((int)0x887A0026);
-    }
+    private static bool IsDeviceLost(int hresult) => hresult == unchecked((int) 0x887A0005)
+                                                     || hresult == unchecked((int) 0x887A0006)
+                                                     || hresult == unchecked((int) 0x887A0007)
+                                                     || hresult == unchecked((int) 0x887A0026);
 
-    public static T FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
+    public static T? FindVisualAncestor<T>(DependencyObject? obj) where T : DependencyObject {
         if (obj != null) {
             var parent = VisualTreeHelper.GetParent(obj);
             while (parent != null) {
@@ -302,9 +309,7 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
             }
         }
 
-        public bool IsDeviceStateOk() {
-            return interop.IsDeviceStateOk();
-        }
+        public bool IsDeviceStateOk() => interop.IsDeviceStateOk();
     }
 
     #region IDisposable Support
@@ -312,10 +317,10 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
     private bool disposedValue; // To detect redundant calls
 
     protected void Dispose(bool disposing) {
-        winformHost?.Dispose();
+        winformHost.Dispose();
         image.Source = null;
         image3D?.Dispose();
-        compositionTarget?.Dispose();
+        compositionTarget.Dispose();
         if (!disposedValue) {
             if (disposing)
                 if (!belongsToParentWindow)

@@ -267,9 +267,7 @@ internal class RotateHandler : MouseGestureHandler {
     /// <returns>
     ///     A cursor.
     /// </returns>
-    protected override Cursor GetCursor() {
-        return Controller.RotateCursor;
-    }
+    protected override Cursor GetCursor() => Controller.RotateCursor;
 
     /// <summary>
     ///     Called when inertia is starting.

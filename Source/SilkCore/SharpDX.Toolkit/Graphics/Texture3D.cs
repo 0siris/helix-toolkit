@@ -23,9 +23,7 @@ public class Texture3D : Texture3DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() {
-        return new Texture3D(GraphicsDevice, Description);
-    }
+    public override Texture Clone() => new Texture3D(GraphicsDevice, Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture3DDescription" />.
@@ -41,9 +39,7 @@ public class Texture3D : Texture3DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    public static Texture3D New(NativeD3DDevice device, NativeTexture3DDescription description) {
-        return new Texture3D(device, description);
-    }
+    public static Texture3D New(NativeD3DDevice device, NativeTexture3DDescription description) => new(device, description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Direct3D11.Texture3D" />.
@@ -59,9 +55,7 @@ public class Texture3D : Texture3DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    public static Texture3D New(NativeD3DDevice device, NativeD3DTexture3D texture) {
-        return new Texture3D(device, texture);
-    }
+    public static Texture3D New(NativeD3DDevice device, NativeD3DTexture3D texture) => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="Texture3D" /> with a single mipmap.
@@ -90,9 +84,8 @@ public class Texture3D : Texture3DBase {
         PixelFormat format,
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return New(device, width, height, depth, false, format, flags, usage);
-    }
+    )
+        => New(device, width, height, depth, false, format, flags, usage);
 
     /// <summary>
     ///     Creates a new <see cref="Texture3D" />.
@@ -126,9 +119,8 @@ public class Texture3D : Texture3DBase {
         PixelFormat format,
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return new Texture3D(device, NewDescription(width, height, depth, format, flags, mipCount, usage));
-    }
+    )
+        => new(device, NewDescription(width, height, depth, format, flags, mipCount, usage));
 
     /// <summary>
     ///     Creates a new <see cref="Texture3D" /> with texture data for the firs map.
@@ -152,7 +144,7 @@ public class Texture3D : Texture3DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    public static Texture3D New<T>(
+    public static unsafe Texture3D New<T>(
         NativeD3DDevice device,
         int width,
         int height,
@@ -162,20 +154,16 @@ public class Texture3D : Texture3DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) where T : unmanaged {
-        Texture3D texture = null;
-        Utilities.Pin(textureData,
-                      ptr => {
-                          texture = New(device,
-                                        width,
-                                        height,
-                                        depth,
-                                        1,
-                                        format,
-                                        [GetDataBox(format, width, height, depth, textureData, ptr)],
-                                        flags,
-                                        usage);
-                      });
-        return texture;
+        fixed (T* textureDataPtr = textureData)
+            return New(device,
+                       width,
+                       height,
+                       depth,
+                       1,
+                       format,
+                       [GetDataBox(format, width, height, depth, textureData, (nint)textureDataPtr)],
+                       flags,
+                       usage);
     }
 
     /// <summary>
@@ -212,10 +200,9 @@ public class Texture3D : Texture3DBase {
         DataBox[] textureData,
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        // TODO Add check for number of texture data according to width/height/depth/mipCount.
-        return new Texture3D(device, NewDescription(width, height, depth, format, flags, mipCount, usage), textureData);
-    }
+    )
+    // TODO Add check for number of texture data according to width/height/depth/mipCount.
+        => new(device, NewDescription(width, height, depth, format, flags, mipCount, usage), textureData);
 
     /// <summary>
     ///     Creates a new <see cref="Texture3D" /> directly from an <see cref="Image" />.

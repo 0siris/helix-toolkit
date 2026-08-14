@@ -23,10 +23,10 @@ using SilkD2DSolidBrushPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1
 using SilkDWriteFactoryPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteFactory>;
 using SilkDWriteTextFormatPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextFormat>;
 using SilkDWriteTextLayoutPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteTextLayout>;
-
 using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.SharpDX.Core.Native;
+
 public abstract class D2DNativeResource : IDisposable {
     protected D2DNativeResource(object? nativeResource = null) {
         NativeResource = nativeResource;
@@ -61,7 +61,7 @@ public sealed unsafe class D2DDevice : D2DNativeResource {
         if (nativeResource is SilkD3DDevice d3DDevice) {
             IDXGIDevice* dxgiDevice = null;
             var guid = DxgiDeviceGuid;
-            SilkMarshal.ThrowHResult(d3DDevice.Handle->QueryInterface(&guid, (void**)&dxgiDevice));
+            SilkMarshal.ThrowHResult(d3DDevice.Handle->QueryInterface(&guid, (void**) &dxgiDevice));
             try {
                 ID2D1Device* device = null;
                 SilkMarshal.ThrowHResult(D2DApi.D2D1CreateDevice(dxgiDevice, null, &device));
@@ -94,12 +94,14 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         }
     }
 
-    public BitmapProxy Target {
+    public BitmapProxy? Target {
         get;
         set {
             field = value;
             if (nativeContext.Handle != null)
-                nativeContext.Handle->SetTarget((ID2D1Image*) value?.Bitmap?.Handle);
+                nativeContext.Handle->SetTarget(value is null
+                    ? null
+                    : (ID2D1Image*) value.Bitmap.Handle);
         }
     }
 
@@ -113,11 +115,11 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
             field = value;
             if (nativeContext.Handle != null) {
                 var nativeTransform = new Matrix3X2<float>(value.M11,
-                                                           value.M12,
-                                                           value.M21,
-                                                           value.M22,
-                                                           value.M31,
-                                                           value.M32);
+                    value.M12,
+                    value.M21,
+                    value.M22,
+                    value.M31,
+                    value.M32);
                 nativeContext.Handle->SetTransform(&nativeTransform);
             }
         }
@@ -145,14 +147,14 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     }
 
     public void DrawRectangle(RectangleF rect, Brush brush, float strokeWidth, StrokeStyle? strokeStyle = null) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = ToSilkRect(rect);
             nativeContext.Handle->DrawRectangle(&value, brush.Handle, strokeWidth, null);
         }
     }
 
     public void FillRectangle(RectangleF rect, Brush brush) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = ToSilkRect(rect);
             nativeContext.Handle->FillRectangle(&value, brush.Handle);
         }
@@ -164,28 +166,28 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         float strokeWidth,
         StrokeStyle? strokeStyle = null
     ) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = new RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
             nativeContext.Handle->DrawRoundedRectangle(&value, brush.Handle, strokeWidth, null);
         }
     }
 
     public void FillRoundedRectangle(RoundedRectangle rect, Brush brush) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = new RoundedRect(ToSilkRect(rect.Rect), rect.RadiusX, rect.RadiusY);
             nativeContext.Handle->FillRoundedRectangle(&value, brush.Handle);
         }
     }
 
     public void DrawEllipse(Ellipse ellipse, Brush brush, float strokeWidth, StrokeStyle? strokeStyle = null) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = new Silk.NET.Direct2D.Ellipse(ellipse.Point, ellipse.RadiusX, ellipse.RadiusY);
             nativeContext.Handle->DrawEllipse(&value, brush.Handle, strokeWidth, null);
         }
     }
 
     public void FillEllipse(Ellipse ellipse, Brush brush) {
-        if (nativeContext.Handle != null && brush?.Handle != null) {
+        if (nativeContext.Handle != null && brush.Handle != null) {
             var value = new Silk.NET.Direct2D.Ellipse(ellipse.Point, ellipse.RadiusX, ellipse.RadiusY);
             nativeContext.Handle->FillEllipse(&value, brush.Handle);
         }
@@ -207,17 +209,17 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         BitmapInterpolationMode interpolationMode = BitmapInterpolationMode.Linear,
         CompositeMode compositeMode = CompositeMode.SourceOver
     ) {
-        if (nativeContext.Handle != null && image?.Bitmap?.Handle != null) {
+        if (nativeContext.Handle != null && image.Bitmap.Handle != null) {
             var destination = new Box2D<float>(targetOffset.X,
-                                               targetOffset.Y,
-                                               targetOffset.X + imageRectangle.Width,
-                                               targetOffset.Y + imageRectangle.Height);
+                targetOffset.Y,
+                targetOffset.X + imageRectangle.Width,
+                targetOffset.Y + imageRectangle.Height);
             var source = ToSilkRect(imageRectangle);
-            nativeContext.Handle->DrawBitmap((ID2D1Bitmap*)image.Bitmap.Handle,
-                                             &destination,
-                                             1,
-                                             (Silk.NET.Direct2D.BitmapInterpolationMode)interpolationMode,
-                                             &source);
+            nativeContext.Handle->DrawBitmap((ID2D1Bitmap*) image.Bitmap.Handle,
+                &destination,
+                1,
+                (Silk.NET.Direct2D.BitmapInterpolationMode) interpolationMode,
+                &source);
         }
     }
 
@@ -227,13 +229,13 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         float opacity,
         BitmapInterpolationMode interpolationMode
     ) {
-        if (nativeContext.Handle != null && bitmap?.Handle != null) {
+        if (nativeContext.Handle != null && bitmap.Handle != null) {
             var destination = ToSilkRect(destinationRectangle);
             nativeContext.Handle->DrawBitmap(bitmap.Handle,
-                                             &destination,
-                                             opacity,
-                                             (Silk.NET.Direct2D.BitmapInterpolationMode)interpolationMode,
-                                             null);
+                &destination,
+                opacity,
+                (Silk.NET.Direct2D.BitmapInterpolationMode) interpolationMode,
+                null);
         }
     }
 
@@ -243,35 +245,33 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         Brush brush,
         DrawTextOptions options = DrawTextOptions.None
     ) {
-        if (nativeContext.Handle != null && textLayout?.Handle != null && brush?.Handle != null)
+        if (nativeContext.Handle != null && textLayout.Handle != null && brush.Handle != null)
             nativeContext.Handle->DrawTextLayout(origin,
-                                                 (Silk.NET.Direct2D.IDWriteTextLayout*)textLayout.Handle,
-                                                 brush.Handle,
-                                                 Silk.NET.Direct2D.DrawTextOptions.None);
+                (Silk.NET.Direct2D.IDWriteTextLayout*) textLayout.Handle,
+                brush.Handle,
+                Silk.NET.Direct2D.DrawTextOptions.None);
     }
 
     internal D2DBitmap CreateTargetBitmap(Texture2D texture, D2DBitmapProperties properties) {
-        if (nativeContext.Handle == null || texture == null)
-            return new D2DBitmap(texture == null
-                                     ? default
-                                     : new Size2(texture.Description.Width, texture.Description.Height));
+        if (nativeContext.Handle == null)
+            return new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height));
 
         IDXGISurface* surface = null;
         var guid = DxgiSurfaceGuid;
-        SilkMarshal.ThrowHResult(texture.Handle->QueryInterface(&guid, (void**)&surface));
+        SilkMarshal.ThrowHResult(texture.Handle->QueryInterface(&guid, (void**) &surface));
         try {
             var bitmapProperties = new BitmapProperties1 {
                 PixelFormat = new PixelFormat(properties.PixelFormat.Format,
-                                              (AlphaMode)properties.PixelFormat.AlphaMode),
+                    (AlphaMode) properties.PixelFormat.AlphaMode),
                 DpiX = properties.DpiX,
                 DpiY = properties.DpiY,
-                BitmapOptions = (BitmapOptions)properties.Options
+                BitmapOptions = (BitmapOptions) properties.Options
             };
             ID2D1Bitmap1* bitmap = null;
             SilkMarshal.ThrowHResult(
                 nativeContext.Handle->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, &bitmap));
             var result = new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height),
-                                       new SilkD2DBitmapPtr(bitmap));
+                new SilkD2DBitmapPtr(bitmap));
             bitmap->Release();
             return result;
         } finally {
@@ -280,7 +280,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     }
 
     internal Bitmap CreateBitmap(byte[] pixels, int width, int height, int stride) {
-        if (nativeContext.Handle == null || pixels == null || pixels.Length == 0)
+        if (nativeContext.Handle == null || pixels.Length == 0)
             return new Bitmap(new Size2F(width, height));
 
         fixed (byte* data = pixels) {
@@ -291,11 +291,11 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
             };
             ID2D1Bitmap* bitmap = null;
             SilkMarshal.ThrowHResult(nativeContext.Handle->CreateBitmap(
-                                         new Vector2D<uint>((uint)width, (uint)height),
-                                         data,
-                                         (uint)stride,
-                                         &properties,
-                                         &bitmap));
+                new Vector2D<uint>((uint) width, (uint) height),
+                data,
+                (uint) stride,
+                &properties,
+                &bitmap));
             var result = new Bitmap(new Size2F(width, height), new SilkD2DBitmapBasePtr(bitmap));
             bitmap->Release();
             return result;
@@ -308,13 +308,9 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         base.Dispose();
     }
 
-    private static Box2D<float> ToSilkRect(RectangleF rect) {
-        return new Box2D<float>(rect.Left, rect.Top, rect.Right, rect.Bottom);
-    }
+    private static Box2D<float> ToSilkRect(RectangleF rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
 
-    private static D3Dcolorvalue ToSilkColor(Color4 color) {
-        return new D3Dcolorvalue(color.X, color.Y, color.Z, color.W);
-    }
+    private static D3Dcolorvalue ToSilkColor(Color4 color) => new(color.X, color.Y, color.Z, color.W);
 }
 
 public sealed class WicImagingFactory : D2DNativeResource {
@@ -331,7 +327,7 @@ public sealed unsafe class DirectWriteFactory : D2DNativeResource {
         IUnknown* factory = null;
         var guid = FactoryGuid;
         SilkMarshal.ThrowHResult(DWriteApi.DWriteCreateFactory(FactoryType.Shared, &guid, &factory));
-        nativeFactory = new SilkDWriteFactoryPtr((IDWriteFactory*)factory);
+        nativeFactory = new SilkDWriteFactoryPtr((IDWriteFactory*) factory);
         factory->Release();
     }
 
@@ -367,11 +363,7 @@ public sealed unsafe class D2DBitmap : D2DNativeResource {
 }
 
 [Flags]
-public enum D2DBitmapOptions {
-    None = 0,
-    Target = 1,
-    CannotDraw = 2
-}
+public enum D2DBitmapOptions { None = 0, Target = 1, CannotDraw = 2 }
 
 public enum D2DAlphaMode {
     Unknown = 0,
@@ -413,7 +405,7 @@ public sealed class D2DBitmapProperties {
 
     public D2DBitmapOptions Options { get; }
 
-    public D2DColorContext ColorContext { get; }
+    public D2DColorContext? ColorContext { get; }
 }
 
 public readonly struct D2DSizeF {

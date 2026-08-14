@@ -61,7 +61,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public string SourceCode {
-        set { SetValue(ref field, value); }
+        set => SetValue(ref field, value);
         get;
     }
 
@@ -119,9 +119,7 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) {
-        return GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
-    }
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) => GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
         float stepA = ((end.W - start.W) / (steps - 1));

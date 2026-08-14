@@ -17,7 +17,7 @@ public abstract class ObservableObject : INotifyPropertyChanged {
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void RaisePropertyChanged([CallerMemberName] string propertyName = StringHelper.EmptyStr) {
         if (!DisablePropertyChangedEvent)

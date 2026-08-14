@@ -29,8 +29,8 @@ public class MainViewModel : BaseViewModel {
     private List<IAnimationUpdater> animationUpdaters;
 
     public double EndTime {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = 0;
 
     public double CurrTime {
@@ -41,12 +41,12 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = 0;
 
     public bool IsPlaying {
-        private set { SetValue(ref field, value); }
-        get { return field; }
+        private set => SetValue(ref field, value);
+        get => field;
     } = false;
 
     public ICommand PlayCommand { get; }

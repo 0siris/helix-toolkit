@@ -73,13 +73,9 @@ public class ScreenCloneRenderCore : RenderCore, IScreenClone {
     /// </summary>
     public bool ShowMouseCursor { get; set; } = true;
 
-    protected override bool OnUpdateCanRenderFlag() {
-        return false;
-    }
+    protected override bool OnUpdateCanRenderFlag() => false;
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        return true;
-    }
+    protected override bool OnAttach(IRenderTechnique technique) => true;
 
     protected override void OnDetach() { }
 

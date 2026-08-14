@@ -17,9 +17,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Converts a <see cref="ManipulationAction" /> object to and from other types.
 /// </summary>
 public class ManipulationActionConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
-        return sourceType == typeof(string);
-    }
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string);
 
     public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) {
         if (destinationType == typeof(string) &&

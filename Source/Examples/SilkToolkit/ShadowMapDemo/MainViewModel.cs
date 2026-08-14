@@ -54,8 +54,8 @@ public class MainViewModel : BaseViewModel {
     public Size ShadowMapResolution { get; private set; }
 
     public double XValue {
-        get { return xvalue; }
-        set { SetXValue(value); }
+        get => xvalue;
+        set => SetXValue(value);
     }
 
     public ProjectionCamera Camera1 { private set; get; }

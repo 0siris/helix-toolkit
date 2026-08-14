@@ -24,7 +24,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The D2D controls
     /// </summary>
-    protected D2DTargetProxy D2DTarget;
+    protected D2DTargetProxy d2dTarget;
 
     /// <summary>
     ///     The depth stencil buffer
@@ -172,12 +172,12 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     Occurs when [on new buffer created].
     /// </summary>
-    public event EventHandler<Texture2DArgs> OnNewBufferCreated;
+    public event EventHandler<Texture2DArgs>? OnNewBufferCreated;
 
     /// <summary>
     ///     Occurs when [on device lost].
     /// </summary>
-    public event EventHandler<EventArgs> DeviceLost;
+    public event EventHandler<EventArgs>? DeviceLost;
 
     private void CreateNonMsaaDepthStencilBuffer(int width, int height) {
         if (HasMsaa) {
@@ -485,9 +485,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="height">The height.</param>
     /// <param name="msaa">The msaa.</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Initialize(int width, int height, MsaaLevel msaa) {
-        return CreateRenderTarget(width, height, msaa);
-    }
+    public ShaderResourceViewProxy Initialize(int width, int height, MsaaLevel msaa) => CreateRenderTarget(width, height, msaa);
 
     /// <summary>
     ///     Resize render target and depthbuffer resolution
@@ -495,33 +493,25 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public virtual ShaderResourceViewProxy Resize(int width, int height) {
-        return CreateRenderTarget(width, height, Msaa);
-    }
+    public virtual ShaderResourceViewProxy Resize(int width, int height) => CreateRenderTarget(width, height, Msaa);
 
     /// <summary>
     ///     Begins the draw.
     /// </summary>
     /// <returns></returns>
-    public virtual bool BeginDraw() {
-        return Initialized;
-    }
+    public virtual bool BeginDraw() => Initialized;
 
     /// <summary>
     ///     Ends the draw.
     /// </summary>
     /// <returns></returns>
-    public virtual bool EndDraw() {
-        return true;
-    }
+    public virtual bool EndDraw() => true;
 
     /// <summary>
     ///     Presents this drawing..
     /// </summary>
     /// <returns></returns>
-    public virtual bool Present() {
-        return true;
-    }
+    public virtual bool Present() => true;
 
     /// <summary>
     ///     Releases unmanaged and - optionally - managed resources.

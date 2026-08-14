@@ -31,7 +31,7 @@ public class MainViewModel : BaseViewModel {
                 OnPropertyChanged();
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D();
 
     public FillMode FillMode {
@@ -39,7 +39,7 @@ public class MainViewModel : BaseViewModel {
             field = value;
             OnPropertyChanged();
         }
-        get { return field; }
+        get => field;
     } = FillMode.Solid;
 
     public bool ShowWireframe {
@@ -52,7 +52,7 @@ public class MainViewModel : BaseViewModel {
                 FillMode = FillMode.Solid;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public Color Light1Color { get; set; }
@@ -87,7 +87,7 @@ public class MainViewModel : BaseViewModel {
                 Light1Direction = value;
             }
         }
-        get { return field; }
+        get => field;
     } = new Vector3D(-10, -10, -10);
 
     private Vector3Collection initialPosition;

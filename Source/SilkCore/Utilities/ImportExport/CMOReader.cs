@@ -284,7 +284,7 @@ public class CmoReader : IModelReader {
         // load mesh extent
         var extent = reader.ReadStructure<MeshExtent>();
         var animationHierarchy = new AnimationHierarchy();
-        IList<string> boneNames = null;
+        IList<string>? boneNames = null;
         if (isAnimationData) {
             //      UINT - Bone count
             //      { [Bone count]
@@ -432,12 +432,10 @@ public class CmoReader : IModelReader {
         public Matrix BindPose;
         public Matrix BoneLocalTransform;
 
-        public static implicit operator Bone(BoneStruct bone) {
-            return new Bone {
-                ParentIndex = bone.ParentIndex, BindPose = bone.BindPose, InvBindPose = bone.InvBindPose,
-                BoneLocalTransform = bone.BoneLocalTransform
-            };
-        }
+        public static implicit operator Bone(BoneStruct bone) => new() {
+            ParentIndex = bone.ParentIndex, BindPose = bone.BindPose, InvBindPose = bone.InvBindPose,
+            BoneLocalTransform = bone.BoneLocalTransform
+        };
     }
 }
 
@@ -447,7 +445,7 @@ public static class BinaryReaderExtensions {
         /// </summary>
         /// <param name="br"></param>
         /// <returns></returns>
-    public static string ReadCMO_wchar(this BinaryReader br) {
+    public static string? ReadCMO_wchar(this BinaryReader br) {
         // uint - Length of string (in WCHAR's i.e. 2-bytes)
         // wchar[] - string (if length > 0)
         var length = (int)br.ReadUInt32();
@@ -466,11 +464,9 @@ public static class BinaryReaderExtensions {
         /// <typeparam name="T"></typeparam>
         /// <param name="br"></param>
         /// <returns></returns>
-    public static T ReadStructure<T>(this BinaryReader br) where T : unmanaged {
-        return ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
-    }
+    public static T ReadStructure<T>(this BinaryReader br) where T : unmanaged => ByteArrayToStructure<T>(br.ReadBytes(Marshal.SizeOf<T>()));
 
-        /// <summary>
+    /// <summary>
         ///     Read <paramref name="count" /> instances of the structure from the binary reader.
         /// </summary>
         /// <typeparam name="T"></typeparam>

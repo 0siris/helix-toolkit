@@ -31,7 +31,5 @@ public class ContentPresenter2D : Element2D {
         set => SetValue(Content2DProperty, value);
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new PresenterNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new PresenterNode2D();
 }

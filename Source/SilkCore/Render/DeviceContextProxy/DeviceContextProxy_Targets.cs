@@ -3,40 +3,40 @@ using System.Runtime.CompilerServices;
 namespace HelixToolkit.SharpDX.Core.Render;
 
 public partial class DeviceContextProxy {
-    private static readonly RenderTargetView[] ZeroRenderTargetArray = [];
+    private static readonly RenderTargetView?[] ZeroRenderTargetArray = [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTargets(DX11RenderBufferProxyBase buffer) 
+    public void SetRenderTargets(DX11RenderBufferProxyBase buffer)
         => buffer.SetDefaultRenderTargets(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTarget(DepthStencilView dsv, RenderTargetView renderTarget) 
+    public void SetRenderTarget(DepthStencilView? dsv, RenderTargetView? renderTarget)
         => NativeContext.SetRenderTargets(dsv, renderTarget);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTargets(DepthStencilView? dsv, RenderTargetView[] renderTarget) 
+    public void SetRenderTargets(DepthStencilView? dsv, RenderTargetView?[]? renderTarget)
         => NativeContext.SetRenderTargets(dsv, renderTarget);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetStreamOutputTarget(Buffer buffer, int offset = 0) 
+    public void SetStreamOutputTarget(Buffer buffer, int offset = 0)
         => NativeContext.SetStreamOutputTarget(buffer, offset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetStreamOutputTarget(Buffer[] bufferBindings) 
+    public void SetStreamOutputTarget(Buffer[] bufferBindings)
         => NativeContext.SetStreamOutputTargets(bufferBindings);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetDepthStencil(DepthStencilView dsv) 
+    public void SetDepthStencil(DepthStencilView? dsv)
         => NativeContext.SetRenderTargets(dsv, ZeroRenderTargetArray);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTarget(RenderTargetView rtv) 
+    public void SetRenderTarget(RenderTargetView? rtv)
         => NativeContext.SetRenderTargets(null, rtv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetRenderTarget(
-        DepthStencilView dsv,
-        RenderTargetView rtv,
+        DepthStencilView? dsv,
+        RenderTargetView? rtv,
         bool clearRtv,
         Color4 color,
         bool clearDsv,
@@ -52,31 +52,30 @@ public partial class DeviceContextProxy {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTarget(RenderTargetView rtv, bool clearRtv, Color4 color) {
-        if (clearRtv && rtv != null) 
+    public void SetRenderTarget(RenderTargetView? rtv, bool clearRtv, Color4 color) {
+        if (clearRtv && rtv != null)
             ClearRenderTargetView(rtv, color);
         SetRenderTarget(null, rtv);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    
-    public void GetDepthStencilView(out DepthStencilView depthStencilViewRef) 
+    public void GetDepthStencilView(out DepthStencilView? depthStencilViewRef)
         => NativeContext.GetDepthStencilView(out depthStencilViewRef);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RenderTargetView[] GetRenderTargets(int numViews) 
+    public RenderTargetView?[] GetRenderTargets(int numViews)
         => NativeContext.GetRenderTargets(numViews);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RenderTargetView[] GetRenderTargets(int numViews, out DepthStencilView depthStencilViewRef) 
+    public RenderTargetView?[] GetRenderTargets(int numViews, out DepthStencilView? depthStencilViewRef)
         => NativeContext.GetRenderTargets(numViews, out depthStencilViewRef);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UnorderedAccessView[] GetUnorderedAccessViews(int startSlot, int count) 
+    public UnorderedAccessView?[] GetUnorderedAccessViews(int startSlot, int count)
         => NativeContext.GetUnorderedAccessViews(startSlot, count);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearRenderTargets(DX11RenderBufferProxyBase buffer, Color4 color) 
+    public void ClearRenderTargets(DX11RenderBufferProxyBase buffer, Color4 color)
         => buffer.ClearRenderTarget(this, color);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,34 +88,34 @@ public partial class DeviceContextProxy {
         NativeContext.ClearDepthStencilView(view, clearFlag, depth, stencil);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearRenderTargetView(RenderTargetView renderTargetViewRef, Color4 colorRgba) 
+    public void ClearRenderTargetView(RenderTargetView renderTargetViewRef, Color4 colorRgba)
         => NativeContext.ClearRenderTargetView(renderTargetViewRef, colorRgba);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearRenderTagetBindings() 
+    public void ClearRenderTagetBindings()
         => NativeContext.ClearRenderTargetBindings();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, Int4 values) 
+    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, Int4 values)
         => NativeContext.ClearUnorderedAccessView(unorderedAccessViewRef, values);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, Vector4 values) 
+    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, Vector4 values)
         => NativeContext.ClearUnorderedAccessView(unorderedAccessViewRef, values);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, ref Int4 values) 
+    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, ref Int4 values)
         => NativeContext.ClearUnorderedAccessView(unorderedAccessViewRef, values);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, ref Vector4 values) 
+    public void ClearUnorderedAccessView(UnorderedAccessView unorderedAccessViewRef, ref Vector4 values)
         => NativeContext.ClearUnorderedAccessView(unorderedAccessViewRef, values);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetOutputUav(int slot, UnorderedAccessView uav) 
+    public void SetOutputUav(int slot, UnorderedAccessView uav)
         => NativeContext.SetOutputUnorderedAccessView(slot, uav);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    
-    public void SetOutputUaVs(int startSlot, UnorderedAccessView[] uavs) => NativeContext.SetOutputUnorderedAccessViews(startSlot, uavs);
+    public void SetOutputUaVs(int startSlot, UnorderedAccessView[] uavs)
+        => NativeContext.SetOutputUnorderedAccessViews(startSlot, uavs);
 }

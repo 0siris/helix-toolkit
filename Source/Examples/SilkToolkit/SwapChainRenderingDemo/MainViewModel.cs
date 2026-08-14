@@ -26,9 +26,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public string Name { get; set; }
 
-    public MainViewModel ViewModel {
-        get { return this; }
-    }
+    public MainViewModel ViewModel => this;
 
     public ObservableElement3DCollection LanderModels { get; private set; } = [];
     public MeshGeometry3D Floor { get; private set; }
@@ -69,27 +67,27 @@ public class MainViewModel : BaseViewModel {
 
 
     public string SelectedDiffuseTexture {
-        get { return field; }
+        get => field;
     } = @"TextureCheckerboard2.jpg";
 
     public string SelectedNormalTexture {
-        get { return field; }
+        get => field;
     } = @"TextureCheckerboard2_dot3.jpg";
 
     public Color DiffuseColor {
-        set { FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4(); }
-        get { return ModelMaterial.DiffuseColor.ToColor(); }
+        set => FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4();
+        get => ModelMaterial.DiffuseColor.ToColor();
     }
 
 
     public Color ReflectiveColor {
-        set { FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4(); }
-        get { return ModelMaterial.ReflectiveColor.ToColor(); }
+        set => FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4();
+        get => ModelMaterial.ReflectiveColor.ToColor();
     }
 
     public Color EmissiveColor {
-        set { FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4(); }
-        get { return ModelMaterial.EmissiveColor.ToColor(); }
+        set => FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4();
+        get => ModelMaterial.EmissiveColor.ToColor();
     }
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
@@ -117,7 +115,7 @@ public class MainViewModel : BaseViewModel {
                                : FillMode.Solid;
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public LineGeometry3D LineGeo { set; get; }

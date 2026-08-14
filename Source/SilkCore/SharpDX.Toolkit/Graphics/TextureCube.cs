@@ -27,9 +27,7 @@ public class TextureCube : Texture2DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() {
-        return new TextureCube(GraphicsDevice, Description);
-    }
+    public override Texture Clone() => new TextureCube(GraphicsDevice, Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture2DDescription" />.
@@ -45,9 +43,7 @@ public class TextureCube : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description) {
-        return new TextureCube(device, description);
-    }
+    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description) => new(device, description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Direct3D11.Texture2D" />.
@@ -63,9 +59,7 @@ public class TextureCube : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture) {
-        return new TextureCube(device, texture);
-    }
+    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture) => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="TextureCube" />.
@@ -90,9 +84,8 @@ public class TextureCube : Texture2DBase {
         PixelFormat format,
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return New(device, size, false, format, flags, usage);
-    }
+    )
+        => New(device, size, false, format, flags, usage);
 
     /// <summary>
     ///     Creates a new <see cref="TextureCube" />.
@@ -122,14 +115,13 @@ public class TextureCube : Texture2DBase {
         PixelFormat format,
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Default
-    ) {
-        return new TextureCube(device,
-                               NewTextureCubeDescription(size,
-                                                         format,
-                                                         flags | TextureFlags.ShaderResource,
-                                                         mipCount,
-                                                         usage));
-    }
+    )
+        => new(device,
+            NewTextureCubeDescription(size,
+                format,
+                flags | TextureFlags.ShaderResource,
+                mipCount,
+                usage));
 
     /// <summary>
     ///     Creates a new <see cref="TextureCube" /> from a initial data..

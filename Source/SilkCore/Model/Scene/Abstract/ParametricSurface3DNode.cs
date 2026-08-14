@@ -167,7 +167,5 @@ public abstract class ParametricSurface3DNode : MeshNode {
     ///     The is defined.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsDefined(Vector3 point) {
-        return !double.IsNaN(point.X) && !double.IsNaN(point.Y) && !double.IsNaN(point.Z);
-    }
+    private static bool IsDefined(Vector3 point) => !double.IsNaN(point.X) && !double.IsNaN(point.Y) && !double.IsNaN(point.Z);
 }

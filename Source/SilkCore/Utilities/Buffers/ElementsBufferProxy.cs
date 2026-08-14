@@ -490,11 +490,7 @@ public sealed class StructuredBufferProxy : DynamicBufferProxy {
         base.OnDispose(disposeManagedResources);
     }
 
-    public static implicit operator ShaderResourceViewProxy(StructuredBufferProxy proxy) {
-        return proxy.srv;
-    }
+    public static implicit operator ShaderResourceViewProxy(StructuredBufferProxy proxy) => proxy.srv;
 
-    public static implicit operator ShaderResourceView(StructuredBufferProxy proxy) {
-        return proxy.srv;
-    }
+    public static implicit operator ShaderResourceView?(StructuredBufferProxy proxy) => proxy.srv;
 }

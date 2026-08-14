@@ -208,7 +208,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <summary>
     ///     Get current render context
     /// </summary>
-    public RenderContext RenderContext => renderHostInternal?.RenderContext;
+    public RenderContext? RenderContext => renderHostInternal?.RenderContext;
 
     public ObservableElement3DCollection Items { get; } = [];
 
@@ -216,8 +216,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         get {
             if (renderHostInternal != null) {
                 foreach (var item in Items) yield return item.SceneNode;
-                yield return viewCube.SceneNode;
-                yield return coordinateView.SceneNode;
+                if (viewCube is { } cube) yield return cube.SceneNode;
+                if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
             }
         }
     }
@@ -244,8 +244,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                     foreach (var item in renderHostInternal.SharedModelContainer.Renderables)
                         yield return item;
 
-                yield return viewCube.SceneNode;
-                yield return coordinateView.SceneNode;
+                if (viewCube is { } cube) yield return cube.SceneNode;
+                if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
             }
         }
     }
@@ -253,11 +253,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public IEnumerable<SceneNode2D> D2DRenderables {
         get {
             yield return Overlay2D.SceneNode;
-            yield return frameStatisticModel.SceneNode;
+            if (frameStatisticModel is { } statistics) yield return statistics.SceneNode;
         }
     }
 
-    public CameraCore CameraCore => CameraController.ActualCamera;
+    public CameraCore? CameraCore => CameraController.ActualCamera;
 
     public IRenderHost? RenderHost => renderHostInternal;
 
@@ -309,7 +309,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                 e.Detach();
             }
 
-            SharedModelContainerInternal?.Detach(renderHostInternal);
+            if (renderHostInternal is { } host) SharedModelContainerInternal?.Detach(host);
             foreach (var e in D2DRenderables) e.Detach();
         }
     }
@@ -378,7 +378,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         #endregion
     }
 
-    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         if (e.OldItems != null)
             foreach (var item in e.OldItems) {
                 partItemsControl?.Items.Remove(item);
@@ -514,9 +514,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <returns>
     ///     A Point3D or null.
     /// </returns>
-    public Point3D? FindNearestPoint(Point pt) {
-        return ViewportExtensions.FindNearestPoint(this, pt);
-    }
+    public Point3D? FindNearestPoint(Point pt) => ViewportExtensions.FindNearestPoint(this, pt);
 
     /// <summary>
     ///     Hides the target adorner.
@@ -555,7 +553,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The point.
     /// </param>
     public void LookAt(Point3D p) {
-        cameraController.ActualCamera?.LookAt(p, 0);
+        cameraController.ActualCamera.LookAt(p, 0);
     }
 
     /// <summary>
@@ -568,7 +566,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The animation time.
     /// </param>
     public void LookAt(Point3D p, double animationTime) {
-        cameraController.ActualCamera?.LookAt(p, animationTime);
+        cameraController.ActualCamera.LookAt(p, animationTime);
     }
 
     /// <summary>
@@ -584,7 +582,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The animation time.
     /// </param>
     public void LookAt(Point3D p, double distance, double animationTime) {
-        cameraController.ActualCamera?.LookAt(p, distance, animationTime);
+        cameraController.ActualCamera.LookAt(p, distance, animationTime);
     }
 
     /// <summary>
@@ -600,7 +598,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The animation time.
     /// </param>
     public void LookAt(Point3D p, Vector3D direction, double animationTime) {
-        cameraController.ActualCamera?.LookAt(p, direction, animationTime);
+        cameraController.ActualCamera.LookAt(p, direction, animationTime);
     }
 
 
@@ -613,26 +611,23 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         base.OnApplyTemplate();
         if (IsInDesignMode && !EnableDesignModeRendering) return;
         Disposer.RemoveAndDispose(ref renderHostInternal);
-        hostPresenter = GetTemplateChild("PART_Canvas") as ContentPresenter;
+        var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
+                        throw new HelixToolkitException("{0} is missing from the template.", "PART_Canvas");
+        hostPresenter = presenter;
 
-        if (hostPresenter?.Content is IRenderCanvas renderCanvas)
+        if (presenter.Content is IRenderCanvas renderCanvas)
             renderCanvas.ExceptionOccurred -= HandleRenderException;
         var source = PresentationSource.FromVisual(this);
-        if (source != null)
+        if (source?.CompositionTarget is { } compositionTarget)
             DpiScale = Math.Max(DpiScale,
-                                Math.Max(source.CompositionTarget.TransformToDevice.M11,
-                                         source.CompositionTarget.TransformToDevice.M22));
+                                Math.Max(compositionTarget.TransformToDevice.M11,
+                                         compositionTarget.TransformToDevice.M22));
         if (EnableSwapChainRendering)
-            hostPresenter.Content = new DPFSurfaceSwapChain(EnableDeferredRendering, BelongsToParentWindow) { DpiScale = DpiScale };
+            presenter.Content = new DPFSurfaceSwapChain(EnableDeferredRendering, BelongsToParentWindow) { DpiScale = DpiScale };
         else
-            hostPresenter.Content = new DPFCanvas(EnableDeferredRendering, BelongsToParentWindow) { DpiScale = DpiScale };
+            presenter.Content = new DPFCanvas(EnableDeferredRendering, BelongsToParentWindow) { DpiScale = DpiScale };
 
-        if (renderHostInternal != null) {
-            renderHostInternal.Rendered -= RaiseRenderHostRendered;
-            renderHostInternal.ExceptionOccurred -= HandleRenderException;
-        }
-
-        renderCanvas = (IRenderCanvas)hostPresenter.Content;
+        renderCanvas = (IRenderCanvas)presenter.Content;
         renderCanvas.EnableDpiScale = EnableDpiScale;
         renderHostInternal = renderCanvas.RenderHost;
         renderCanvas.ExceptionOccurred += HandleRenderException;
@@ -698,8 +693,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         AddLogicalChild(Overlay2D);
         var titleView = Template.FindName(PartTitleView, this);
         if (titleView is Element2D element) Overlay2D.Children.Add(element);
-        if (viewCube != null) Overlay2D.Children.Add(viewCube.MoverCanvas);
-        if (coordinateView != null) Overlay2D.Children.Add(coordinateView.MoverCanvas);
+        Overlay2D.Children.Add(viewCube.MoverCanvas);
+        Overlay2D.Children.Add(coordinateView.MoverCanvas);
         if (Content2D != null) Overlay2D.Children.Add(Content2D);
     }
 
@@ -1058,9 +1053,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <returns>
     ///     <c>true</c> if the up direction is (0,1,0); otherwise, <c>false</c>.
     /// </returns>
-    public bool IsModelUpDirectionY() {
-        return ModelUpDirection.Y.Equals(1);
-    }
+    public bool IsModelUpDirectionY() => ModelUpDirection.Y.Equals(1);
 
 
     /// <summary>
@@ -1082,11 +1075,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     private void CameraPropertyChanged(DependencyPropertyChangedEventArgs e) {
         if (e.NewValue != e.OldValue) {
-            CameraController.ActualCamera?.CameraInternal.PropertyChanged -= CameraInternal_PropertyChanged;
-            CameraController.ActualCamera = e.NewValue == null
-                                                ? Orthographic ? orthographicCamera : perspectiveCamera
-                                                : e.NewValue as Camera;
-            CameraController.ActualCamera?.CameraInternal.PropertyChanged += CameraInternal_PropertyChanged;
+            CameraController.ActualCamera.CameraInternal.PropertyChanged -= CameraInternal_PropertyChanged;
+            CameraController.ActualCamera = e.NewValue as Camera ??
+                                            (Orthographic ? orthographicCamera : perspectiveCamera);
+            CameraController.ActualCamera.CameraInternal.PropertyChanged += CameraInternal_PropertyChanged;
         }
     }
 
@@ -1128,7 +1120,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void ControlLoaded(object sender, RoutedEventArgs e) {
+    private void ControlLoaded(object? sender, RoutedEventArgs e) {
         if (!hasBeenLoadedBefore) {
             if (DefaultCamera != null) {
                 DefaultCamera.CopyTo(perspectiveCamera);
@@ -1152,8 +1144,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     private void ParentWindow_Closed(object? sender, EventArgs e) {
-        ControlUnloaded(sender, null);
-        if (hostPresenter.Content is IDisposable d) {
+        ControlUnloaded(sender, new RoutedEventArgs());
+        if (hostPresenter?.Content is IDisposable d) {
             hostPresenter.Content = null;
             d.Dispose();
         }
@@ -1168,7 +1160,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void ControlUnloaded(object sender, RoutedEventArgs e) {
+    private void ControlUnloaded(object? sender, RoutedEventArgs e) {
         FormMouseMove -= Viewport3DX_FormMouseMove;
         FormMouseWheel -= Viewport3DX_FormMouseWheel;
         if (BelongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
@@ -1210,7 +1202,9 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The rendering event handler.
     /// </summary>
     private void OnCompositionTargetRendering() {
-        FrameRate = Math.Round(renderHostInternal.RenderStatistics.FpsStatistics.AverageFrequency, 2);
+        var statistics = renderHostInternal?.RenderStatistics;
+        if (statistics is null) return;
+        FrameRate = Math.Round(statistics.FpsStatistics.AverageFrequency, 2);
         FrameRateText = FrameRate + " FPS";
     }
 
@@ -1250,7 +1244,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             e.Handled = true;
         }
 
-        hostPresenter.Content = null;
+        if (hostPresenter is { } presenter) presenter.Content = null;
         Disposer.RemoveAndDispose(ref renderHostInternal);
     }
 
@@ -1364,9 +1358,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         ZoomExtents();
     }
 
-    public bool HittedSomething(MouseEventArgs e) {
-        return this.FindHitsInFrustum(e.GetPosition(this).ToVector2(), ref hits);
-    }
+    public bool HittedSomething(MouseEventArgs e) => this.FindHitsInFrustum(e.GetPosition(this).ToVector2(), ref hits);
 
     /// <summary>
     ///     Handles hit testing on mouse down.
@@ -1384,14 +1376,14 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                                                   pt,
                                                   this,
                                                   originalInputEventArgs));
-                originalInputEventArgs.Handled = true;
+                if (originalInputEventArgs is { } inputEventArgs) inputEventArgs.Handled = true;
             }
 
             return;
         }
 
         if (ViewBoxHitTest(pt, originalInputEventArgs)) {
-            originalInputEventArgs.Handled = true;
+            if (originalInputEventArgs is { } inputEventArgs) inputEventArgs.Handled = true;
             return;
         }
 
@@ -1427,11 +1419,12 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     private bool ViewBoxHitTest(Point p, InputEventArgs? originalInputEventArgs = null) {
+        if (RenderContext is not { } renderContext || viewCube is not { } cube) return false;
         var ray = this.UnProject(p.ToVector2());
         var hits = new List<HitTestResult>();
-        var hitContext = new HitTestContext(RenderContext, ray, p.ToVector2());
-        if (viewCube.HitTest(hitContext, ref hits)) {
-            viewCube.RaiseEvent(new MouseDown3DEventArgs(viewCube, currentHit, p, this, originalInputEventArgs));
+        var hitContext = new HitTestContext(renderContext, ray, p.ToVector2());
+        if (cube.HitTest(hitContext, ref hits)) {
+            cube.RaiseEvent(new MouseDown3DEventArgs(cube, currentHit, p, this, originalInputEventArgs));
             var normal = hits[0].NormalAtHit;
             if (SilkMath.Cross(normal, ModelUpDirection.ToVector3()).LengthSquared() < 1e-5) {
                 var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
@@ -1541,13 +1534,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     public static T? FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {
-        if (obj != null) {
-            var parent = VisualTreeHelper.GetParent(obj);
-            while (parent != null) {
-                if (parent is T typed) return typed;
+        var parent = VisualTreeHelper.GetParent(obj);
+        while (parent != null) {
+            if (parent is T typed) return typed;
 
-                parent = VisualTreeHelper.GetParent(parent);
-            }
+            parent = VisualTreeHelper.GetParent(parent);
         }
 
         return null;
@@ -1571,12 +1562,12 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (!disposedValue) {
             if (disposing)
                 if (!BelongsToParentWindow) {
-                    if (hostPresenter.Content is IDisposable d) {
+                    if (hostPresenter?.Content is IDisposable d) {
                         hostPresenter.Content = null;
                         d.Dispose();
                     }
 
-                    Camera = null;
+                    ClearValue(CameraProperty);
                     EffectsManager = null;
                     foreach (var item in Items) item.Dispose();
                     viewCube?.Dispose();

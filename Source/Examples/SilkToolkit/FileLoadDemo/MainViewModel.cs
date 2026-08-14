@@ -40,7 +40,7 @@ public class MainViewModel : BaseViewModel {
                 ShowWireframeFunct(value);
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool RenderFlat {
@@ -49,7 +49,7 @@ public class MainViewModel : BaseViewModel {
                 RenderFlatFunct(value);
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool RenderEnvironmentMap {
@@ -132,13 +132,13 @@ public class MainViewModel : BaseViewModel {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = null;
 
     private float speed = 1.0f;
 
     public float Speed {
-        set { SetValue(ref speed, value); }
+        set => SetValue(ref speed, value);
         get => speed;
     }
 

@@ -17,7 +17,7 @@ public partial class DefaultRenderHost {
     /// <summary>
     ///     The pending renderables
     /// </summary>
-    protected readonly FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene = [];
+    protected readonly FastList<(int Key, SceneNode Value)> perFrameFlattenedScene = [];
 
     /// <summary>
     ///     The light renderables
@@ -99,9 +99,7 @@ public partial class DefaultRenderHost {
     /// <value>
     ///     The per frame lights.
     /// </value>
-    public sealed override IEnumerable<LightNode> PerFrameLights {
-        get => LightNodes.Select(x => x as LightNode);
-    }
+    public sealed override IEnumerable<LightNode> PerFrameLights => LightNodes.Select(x => x as LightNode);
 
     /// <summary>
     ///     Gets the per frame nodes for opaque rendering. <see cref="RenderType.Opaque" />

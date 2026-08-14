@@ -18,9 +18,7 @@ public class Example {
     private Type MainWindowType { get; set; }
     public ImageSource Thumbnail { get; set; }
 
-    public string ThumbnailFileName {
-        get { return MainWindowType.Namespace + "_small.png"; }
-    }
+    public string ThumbnailFileName => MainWindowType.Namespace + "_small.png";
 
     public Example(Type mainWindowType, string? title = null, string? description = null) {
         MainWindowType = mainWindowType;
@@ -34,11 +32,7 @@ public class Example {
         }
     }
 
-    public override string ToString() {
-        return Title;
-    }
+    public override string ToString() => Title;
 
-    public Window Create() {
-        return Activator.CreateInstance(MainWindowType) as Window;
-    }
+    public Window Create() => Activator.CreateInstance(MainWindowType) as Window;
 }

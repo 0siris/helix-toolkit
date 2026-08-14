@@ -98,9 +98,7 @@ public sealed unsafe class ArrayStorage : DisposeObject {
         }
     }
 
-    public bool Read(int id, nint dest) {
-        return Read(id, 0, dest, StructSize);
-    }
+    public bool Read(int id, nint dest) => Read(id, 0, dest, StructSize);
 
     public bool Read(int id, int offset, nint dest, int size) {
         if (id < 0) return false;
@@ -140,13 +138,9 @@ public sealed unsafe class ArrayStorage : DisposeObject {
         return true;
     }
 
-    public int GetOffSet(int id) {
-        return id * StructSize;
-    }
+    public int GetOffSet(int id) => id * StructSize;
 
-    public byte[] GetArray() {
-        return binaryArray.GetInternalArray();
-    }
+    public byte[] GetArray() => binaryArray.GetInternalArray();
 
     protected override void OnDispose(bool disposeManagedResources) {
         rwLock.EnterWriteLock();
@@ -173,9 +167,9 @@ public sealed class StructArrayPool : DisposeObject, IStructArrayPool {
         storage = new ArrayPoolStorage();
     }
 
-    public ArrayStorage Register(int structSize) {
-        return storage.TryCreateOrGet(structSize, structSize, out var s) ? s : null;
-    }
+    public ArrayStorage Register(int structSize) => storage.TryCreateOrGet(structSize, structSize, out var result)
+        ? result
+        : throw new InvalidOperationException($"Unable to register storage for struct size {structSize}.");
 
     protected override void OnDispose(bool disposeManagedResources) {
         if (disposeManagedResources) RemoveAndDispose(ref storage);
@@ -187,9 +181,7 @@ public sealed class StructArrayPool : DisposeObject, IStructArrayPool {
 
         public ArrayPoolStorage() : base(true) { }
 
-        protected override bool CanCreate(ref int key, ref int argument) {
-            return argument > 0;
-        }
+        protected override bool CanCreate(ref int key, ref int argument) => argument > 0;
 
         protected override ArrayStorage OnCreate(ref int key, ref int argument) {
             Logger.Info("Creating new struct array with size {Value0}", argument);

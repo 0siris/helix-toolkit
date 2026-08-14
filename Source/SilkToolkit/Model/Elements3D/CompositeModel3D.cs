@@ -130,7 +130,5 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
         }
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new GroupNode { AlwaysHittable = AlwaysHittable };
-    }
+    protected override SceneNode OnCreateSceneNode() => new GroupNode { AlwaysHittable = AlwaysHittable };
 }

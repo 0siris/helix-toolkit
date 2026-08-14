@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace SharpDX.Toolkit.Graphics;
 
 internal static class DdsHelper {
-    public static unsafe Image LoadFromDdsMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
+    public static unsafe Image? LoadFromDdsMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
         var headerSize = sizeof(uint) + Utilities.SizeOf<Dds.Header>();
         if (pSource == nint.Zero || size < headerSize || *(uint*)pSource != Dds.MagicHeader) return null;
 
@@ -153,9 +153,7 @@ internal static class DdsHelper {
         }
     }
 
-    private static int FourCc(char c0, char c1, char c2, char c3) {
-        return c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
-    }
+    private static int FourCc(char c0, char c1, char c2, char c3) => c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
 
     public static void SaveToDdsStream(
         PixelBuffer[] pixelBuffers,

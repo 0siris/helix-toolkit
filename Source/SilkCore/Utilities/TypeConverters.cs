@@ -26,7 +26,6 @@ public sealed class StreamToTextureModelConverter : TypeConverter {
         CultureInfo? culture,
         object? value,
         Type destinationType
-    ) {
-        return null;
-    }
+    )
+        => null;
 }

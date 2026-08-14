@@ -14,25 +14,21 @@ public class FrameStatisticsNode2D : SceneNode2D {
         EnableBitmapCache = false;
     }
 
-    public Brush Foreground {
-        get => (RenderCore as FrameStatisticsRenderCore).Foreground;
-        set => (RenderCore as FrameStatisticsRenderCore).Foreground = value;
+    public Brush? Foreground {
+        get => ((FrameStatisticsRenderCore)RenderCore).Foreground;
+        set => ((FrameStatisticsRenderCore)RenderCore).Foreground = value;
     }
 
-    public Brush Background {
-        get => (RenderCore as FrameStatisticsRenderCore).Background;
-        set => (RenderCore as FrameStatisticsRenderCore).Background = value;
+    public Brush? Background {
+        get => ((FrameStatisticsRenderCore)RenderCore).Background;
+        set => ((FrameStatisticsRenderCore)RenderCore).Background = value;
     }
 
-    protected override RenderCore2D CreateRenderCore() {
-        return new FrameStatisticsRenderCore();
-    }
+    protected override RenderCore2D CreateRenderCore() => new FrameStatisticsRenderCore();
 
-    protected override bool CanHitTest() {
-        return false;
-    }
+    protected override bool CanHitTest() => false;
 
-protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
+    protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
         hitResult = null;
         return false;
     }

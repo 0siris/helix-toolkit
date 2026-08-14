@@ -45,13 +45,9 @@ public static class TypeConvertExtensions {
         }
     }
 
-    public static Thickness ToD2DThickness(this System.Windows.Thickness t) {
-        return new Thickness((float)t.Left, (float)t.Right, (float)t.Top, (float)t.Bottom);
-    }
+    public static Thickness ToD2DThickness(this System.Windows.Thickness t) => new((float)t.Left, (float)t.Right, (float)t.Top, (float)t.Bottom);
 
-    public static Orientation ToD2DOrientation(this System.Windows.Controls.Orientation o) {
-        return o == System.Windows.Controls.Orientation.Horizontal
-                   ? Orientation.Horizontal
-                   : Orientation.Vertical;
-    }
+    public static Orientation ToD2DOrientation(this System.Windows.Controls.Orientation o) => o == System.Windows.Controls.Orientation.Horizontal
+        ? Orientation.Horizontal
+        : Orientation.Vertical;
 }

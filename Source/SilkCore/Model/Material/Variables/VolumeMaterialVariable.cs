@@ -15,7 +15,7 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
     private readonly ShaderPass volumePass;
 
 
-    public Func<VolumeTextureMaterialCoreBase<T>, IEffectsManager, ShaderResourceViewProxy> OnCreateTexture;
+    public Func<VolumeTextureMaterialCoreBase<T>, IEffectsManager, ShaderResourceViewProxy?>? OnCreateTexture;
     private SamplerStateProxy sampler;
     private ShaderResourceViewProxy texture;
     private ShaderResourceViewProxy transferMap;
@@ -116,21 +116,13 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
         DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
     }
 
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return volumePass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => volumePass;
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref texture);

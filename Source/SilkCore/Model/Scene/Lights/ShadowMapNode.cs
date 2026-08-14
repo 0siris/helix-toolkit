@@ -308,15 +308,12 @@ public class ShadowMapNode : SceneNode {
         }
     }
 
-    protected override bool CanHitTest(HitTestContext context) {
-        return false;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => false;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
-    ) {
-        return false;
-    }
+    )
+        => false;
 }

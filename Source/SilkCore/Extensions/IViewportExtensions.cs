@@ -9,7 +9,15 @@ namespace HelixToolkit.SharpDX.Core;
 public static class IViewportExtensions {
     public static readonly HitTestResult[] EmptyHits = [];
 
-    [ThreadStatic] private static readonly Stack<IEnumerator<SceneNode>> StackCache = new();
+    /// <summary>
+    ///     Stores the traversal stack for the current thread.
+    /// </summary>
+    [ThreadStatic] private static Stack<IEnumerator<SceneNode>>? stackCache;
+
+    /// <summary>
+    ///     Gets the traversal stack for the current thread.
+    /// </summary>
+    private static Stack<IEnumerator<SceneNode>> StackCache => stackCache ??= new();
 
     /// <summary>
     ///     Forces to update transform and bounds.
@@ -27,13 +35,13 @@ public static class IViewportExtensions {
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
     public static bool FindHitsInFrustum(this IViewport3DX viewport, Vector2 pos, ref List<HitTestResult> hits) {
-        if (viewport.RenderHost == null || !viewport.RenderHost.IsRendering) return false;
-        hits?.Clear();
+        if (viewport.RenderHost is not {IsRendering: true, RenderContext: { } renderContext} renderHost) return false;
+        hits.Clear();
         if (viewport.UnProject(pos, out var ray)) {
-            var hitContext = new HitTestContext(viewport.RenderHost.RenderContext, ref ray, ref pos);
-            foreach (var element in viewport.RenderHost.PerFrameOpaqueNodesInFrustum)
+            var hitContext = new HitTestContext(renderContext, ref ray, ref pos);
+            foreach (var element in renderHost.PerFrameOpaqueNodesInFrustum)
                 element.HitTest(hitContext, ref hits);
-            foreach (var element in viewport.RenderHost.PerFrameTransparentNodesInFrustum)
+            foreach (var element in renderHost.PerFrameTransparentNodesInFrustum)
                 element.HitTest(hitContext, ref hits);
             hits.Sort();
             return hits.Count > 0;
@@ -69,11 +77,10 @@ public static class IViewportExtensions {
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
     public static bool FindHits(this IViewport3DX viewport, Vector2 position, ref List<HitTestResult> hits) {
-        hits?.Clear();
-        if (viewport.RenderHost != null) {
+        hits.Clear();
+        if (viewport.RenderHost is {RenderContext: { } renderContext}) {
             if (!viewport.UnProject(position, out var ray)) return false;
-            hits ??= [];
-            var hitContext = new HitTestContext(viewport.RenderHost.RenderContext, ref ray, ref position);
+            var hitContext = new HitTestContext(renderContext, ref ray, ref position);
             foreach (var element in viewport.Renderables) element.HitTest(hitContext, ref hits);
             hits.Sort();
 
@@ -109,7 +116,7 @@ public static class IViewportExtensions {
         Vector2 position,
         out Vector3 point,
         out Vector3 normal,
-        out object model
+        out object? model
     ) {
         point = new Vector3();
         normal = new Vector3();
@@ -134,7 +141,7 @@ public static class IViewportExtensions {
     /// <returns></returns>
     public static bool UnProject(this IViewport3DX viewport, Vector2 point2D, out Ray ray) {
         var renderContext = viewport.RenderHost?.RenderContext;
-        if (renderContext != null) return viewport.RenderHost.RenderContext.UnProject(point2D, out ray);
+        if (renderContext is not null) return renderContext.UnProject(point2D, out ray);
 
         ray = new Ray();
         return false;
@@ -186,24 +193,22 @@ public static class IViewportExtensions {
     ///     The transform.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix GetViewportMatrix(this IViewport3DX viewport) {
-        return new Matrix(viewport.ViewportRectangle.Width / 2f,
-                          0,
-                          0,
-                          0,
-                          0,
-                          -viewport.ViewportRectangle.Height / 2f,
-                          0,
-                          0,
-                          0,
-                          0,
-                          1,
-                          0,
-                          (viewport.ViewportRectangle.Width - 1) / 2f,
-                          (viewport.ViewportRectangle.Height - 1) / 2f,
-                          0,
-                          1);
-    }
+    public static Matrix GetViewportMatrix(this IViewport3DX viewport) => new(viewport.ViewportRectangle.Width / 2f,
+        0,
+        0,
+        0,
+        0,
+        -viewport.ViewportRectangle.Height / 2f,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        (viewport.ViewportRectangle.Width - 1) / 2f,
+        (viewport.ViewportRectangle.Height - 1) / 2f,
+        0,
+        1);
 
     /// <summary>
     ///     Gets the total transform for a ViewportCore.
@@ -213,9 +218,7 @@ public static class IViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <returns>The total transform.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix GetScreenViewProjectionMatrix(this IViewport3DX viewport) {
-        return viewport.GetViewProjectionMatrix() * viewport.GetViewportMatrix();
-    }
+    public static Matrix GetScreenViewProjectionMatrix(this IViewport3DX viewport) => viewport.GetViewProjectionMatrix() * viewport.GetViewportMatrix();
 
     /// <summary>
     ///     Projects the specified 3D point to a 2D screen point.
@@ -224,8 +227,8 @@ public static class IViewportExtensions {
     /// <param name="point">The 3D point.</param>
     /// <returns>The point.</returns>
     public static Vector2 Project(this IViewport3DX viewport, Vector3 point) {
-        if (viewport.RenderHost == null) return Vector2.Zero;
-        return viewport.RenderHost.RenderContext.Project(point);
+        if (viewport.RenderHost?.RenderContext is not { } renderContext) return Vector2.Zero;
+        return renderContext.Project(point);
     }
 
     /// <summary>
@@ -239,10 +242,12 @@ public static class IViewportExtensions {
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix GetViewProjectionMatrix(this IViewport3DX viewport) {
-        return viewport.RenderHost != null && viewport.RenderHost.RenderContext != null
-                   ? viewport.RenderHost.RenderContext.ViewMatrix * viewport.RenderHost.RenderContext.ProjectionMatrix
-                   : viewport.CameraCore.CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                                                (float)viewport.ViewportRectangle.Height);
+        var renderContext = viewport.RenderHost?.RenderContext;
+        return renderContext is not null
+            ? renderContext.ViewMatrix * renderContext.ProjectionMatrix
+            : viewport.CameraCore.AssertNotNull("Camera must be initialized.")
+                .CreateProjectionMatrix(viewport.ViewportRectangle.Width /
+                                        (float) viewport.ViewportRectangle.Height);
     }
 
     /// <summary>
@@ -252,10 +257,12 @@ public static class IViewportExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix GetProjectionMatrix(this IViewport3DX viewport) {
-        return viewport.RenderHost != null && viewport.RenderHost.RenderContext != null
-                   ? viewport.RenderHost.RenderContext.ProjectionMatrix
-                   : viewport.CameraCore.CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                                                (float)viewport.ViewportRectangle.Height);
+        var renderContext = viewport.RenderHost?.RenderContext;
+        return renderContext is not null
+            ? renderContext.ProjectionMatrix
+            : viewport.CameraCore.AssertNotNull("Camera must be initialized.")
+                .CreateProjectionMatrix(viewport.ViewportRectangle.Width /
+                                        (float) viewport.ViewportRectangle.Height);
     }
 
     /// <summary>
@@ -269,10 +276,10 @@ public static class IViewportExtensions {
     /// </param>
     public static void Traverse(this IViewport3DX viewport, Action<SceneNode> action) {
         viewport.Renderables.PreorderDft(node => {
-            action(node);
-            return true;
-        },
-                                         StackCache);
+                action(node);
+                return true;
+            },
+            StackCache);
     }
 
     /// <summary>
@@ -290,30 +297,32 @@ public static class IViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <returns>The bounding box.</returns>
     public static BoundingBox FindBounds(this IViewport3DX viewport) {
-        if (viewport.RenderHost != null && viewport.RenderHost.IsRendering) viewport.RenderHost.UpdateAndRender();
+        if (viewport.RenderHost is {IsRendering: true} renderHost) renderHost.UpdateAndRender();
         return viewport.FindBoundsInternal();
     }
 
     public static BoundingBox FindBoundsInternal(this IViewport3DX viewport) {
         var maxVector = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         var firstModel = viewport.Renderables.PreorderDft(r => {
-            if (r.Visible && !(r is ScreenSpacedNode)) return true;
-            return false;
-        }).Where(x => {
-            if (x is IBoundable b)
-                return b.HasBound && b.BoundsWithTransform.Maximum != b.BoundsWithTransform.Minimum
-                                  && b.BoundsWithTransform.Maximum != Vector3.Zero &&
-                                  b.BoundsWithTransform.Maximum != maxVector;
+                if (r.Visible && !(r is ScreenSpacedNode)) return true;
+                return false;
+            })
+            .Where(x => {
+                if (x is IBoundable b)
+                    return b.HasBound && b.BoundsWithTransform.Maximum != b.BoundsWithTransform.Minimum
+                                      && b.BoundsWithTransform.Maximum != Vector3.Zero &&
+                                      b.BoundsWithTransform.Maximum != maxVector;
 
-            return false;
-        }).FirstOrDefault();
+                return false;
+            })
+            .FirstOrDefault();
         if (firstModel == null) return new BoundingBox();
         var bounds = firstModel.BoundsWithTransform;
 
         foreach (var renderable in viewport.Renderables.PreorderDft(r => {
-            if (r.Visible && !(r is ScreenSpacedNode)) return true;
-            return false;
-        }))
+                     if (r.Visible && !(r is ScreenSpacedNode)) return true;
+                     return false;
+                 }))
             if (renderable is IBoundable r)
                 if (r.HasBound && r.BoundsWithTransform.Maximum != maxVector)
                     bounds = BoundingBox.Merge(bounds, r.BoundsWithTransform);
@@ -326,15 +335,15 @@ public static class IViewportExtensions {
     /// </summary>
     /// <param name="view">The view.</param>
     /// <returns></returns>
-    public static MemoryStream RenderToBitmapStream(this IViewport3DX view) {
-        if (view.RenderHost != null && view.RenderHost.IsRendering) {
-            view.RenderHost.UpdateAndRender();
-            if (view.RenderHost != null && view.RenderHost.IsRendering) {
+    public static MemoryStream? RenderToBitmapStream(this IViewport3DX view) {
+        if (view.RenderHost is {IsRendering: true} renderHost) {
+            renderHost.UpdateAndRender();
+            if (renderHost is {IsRendering: true, EffectsManager: { } effectsManager, RenderBuffer: { } renderBuffer}
+                && renderBuffer.BackBuffer.Resource is Texture2D backBuffer) {
                 var memoryStream = new MemoryStream();
-                ScreenCapture.SaveWicTextureToBitmapStream(view.RenderHost.EffectsManager,
-                                                           view.RenderHost.RenderBuffer.BackBuffer
-                                                               .Resource as Texture2D,
-                                                           memoryStream);
+                ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
+                    backBuffer,
+                    memoryStream);
                 memoryStream.Position = 0;
                 return memoryStream;
             }

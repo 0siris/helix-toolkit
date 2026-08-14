@@ -35,7 +35,7 @@ public class MainViewModel : ObservableObject {
                 ShowWireframeFunct(value);
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool RenderFlat {
@@ -44,7 +44,7 @@ public class MainViewModel : ObservableObject {
                 RenderFlatFunct(value);
             }
         }
-        get { return field; }
+        get => field;
     } = false;
 
     public bool RenderEnvironmentMap {
@@ -85,7 +85,7 @@ public class MainViewModel : ObservableObject {
                 }
             }
         }
-        get { return enableAnimation; }
+        get => enableAnimation;
     }
 
     public ObservableCollection<Animation> Animations { get; } = [];
@@ -108,7 +108,7 @@ public class MainViewModel : ObservableObject {
                 }
             }
         }
-        get { return field; }
+        get => field;
     } = null;
 
     public TextureModel EnvironmentMap { get; }

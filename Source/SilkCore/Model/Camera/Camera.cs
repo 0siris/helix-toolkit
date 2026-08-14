@@ -177,17 +177,13 @@ public abstract class ProjectionCameraCore : CameraCore {
         set => Set(ref field, value);
     } = 0.001f;
 
-    public override Matrix CreateViewMatrix() {
-        return CreateLeftHandSystem
-                   ? SilkMath.LookAtLh(Position, Position + LookDirection, UpDirection)
-                   : SilkMath.LookAtRh(Position, Position + LookDirection, UpDirection);
-    }
+    public override Matrix CreateViewMatrix() => CreateLeftHandSystem
+        ? SilkMath.LookAtLh(Position, Position + LookDirection, UpDirection)
+        : SilkMath.LookAtRh(Position, Position + LookDirection, UpDirection);
 
-    public override string ToString() {
-        return base.ToString() + "\n" +
-               string.Format(CultureInfo.InvariantCulture, "NearPlaneDist:\t{0}", NearPlaneDistance) + "\n"
-               + string.Format(CultureInfo.InvariantCulture, "FarPlaneDist:\t{0}", FarPlaneDistance);
-    }
+    public override string ToString() => base.ToString() + "\n" +
+                                         string.Format(CultureInfo.InvariantCulture, "NearPlaneDist:\t{0}", NearPlaneDistance) + "\n"
+                                         + string.Format(CultureInfo.InvariantCulture, "FarPlaneDist:\t{0}", FarPlaneDistance);
 }
 
 public class OrthographicCameraCore : ProjectionCameraCore {
@@ -196,36 +192,26 @@ public class OrthographicCameraCore : ProjectionCameraCore {
         set => Set(ref field, value);
     } = 100;
 
-    public override FrustumCameraParams CreateCameraParams(float aspectRatio) {
-        return CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);
-    }
+    public override FrustumCameraParams CreateCameraParams(float aspectRatio) => CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);
 
-    public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
-        return new FrustumCameraParams {
-            AspectRatio = aspectRatio,
-            Fov = (float)Math.PI / 2,
-            LookAtDir = LookDirection,
-            UpDir = UpDirection,
-            Position = Position,
-            ZNear = nearPlane,
-            ZFar = farPlane
-        };
-    }
+    public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) => new() {
+        AspectRatio = aspectRatio,
+        Fov = (float)Math.PI / 2,
+        LookAtDir = LookDirection,
+        UpDir = UpDirection,
+        Position = Position,
+        ZNear = nearPlane,
+        ZFar = farPlane
+    };
 
-    public override Matrix CreateProjectionMatrix(float aspectRatio) {
-        return CreateProjectionMatrix(aspectRatio, NearPlaneDistance, FarPlaneDistance);
-    }
+    public override Matrix CreateProjectionMatrix(float aspectRatio) => CreateProjectionMatrix(aspectRatio, NearPlaneDistance, FarPlaneDistance);
 
-    public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane) {
-        return CreateLeftHandSystem
-                   ? SilkMath.OrthoLh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane))
-                   : SilkMath.OrthoRh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane));
-    }
+    public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane) => CreateLeftHandSystem
+        ? SilkMath.OrthoLh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane))
+        : SilkMath.OrthoRh(Width, Width / aspectRatio, nearPlane, Math.Min(1e15f, farPlane));
 
 
-    public override string ToString() {
-        return base.ToString() + "\n" + string.Format(CultureInfo.InvariantCulture, "Width:\t{0:0.###}", Width);
-    }
+    public override string ToString() => base.ToString() + "\n" + string.Format(CultureInfo.InvariantCulture, "Width:\t{0:0.###}", Width);
 
     private float oldWidth;
     private float targetWidth;
@@ -279,9 +265,7 @@ public class OrthographicCameraCore : ProjectionCameraCore {
 public class PerspectiveCameraCore : ProjectionCameraCore {
     public float FieldOfView { get; set; } = 45;
 
-    public override Matrix CreateProjectionMatrix(float aspectRatio) {
-        return CreateProjectionMatrix(aspectRatio, NearPlaneDistance, FarPlaneDistance);
-    }
+    public override Matrix CreateProjectionMatrix(float aspectRatio) => CreateProjectionMatrix(aspectRatio, NearPlaneDistance, FarPlaneDistance);
 
     public override Matrix CreateProjectionMatrix(float aspectRatio, float nearPlane, float farPlane) {
         var fov = FieldOfView * Math.PI / 180;
@@ -294,24 +278,18 @@ public class PerspectiveCameraCore : ProjectionCameraCore {
         return projM;
     }
 
-    public override FrustumCameraParams CreateCameraParams(float aspectRatio) {
-        return CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);
-    }
+    public override FrustumCameraParams CreateCameraParams(float aspectRatio) => CreateCameraParams(aspectRatio, NearPlaneDistance, FarPlaneDistance);
 
-    public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) {
-        return new FrustumCameraParams {
-            AspectRatio = aspectRatio,
-            Fov = FieldOfView / 180f * (float)Math.PI,
-            LookAtDir = LookDirection,
-            UpDir = UpDirection,
-            Position = Position,
-            ZNear = nearPlane,
-            ZFar = farPlane
-        };
-    }
+    public override FrustumCameraParams CreateCameraParams(float aspectRatio, float nearPlane, float farPlane) => new() {
+        AspectRatio = aspectRatio,
+        Fov = FieldOfView / 180f * (float)Math.PI,
+        LookAtDir = LookDirection,
+        UpDir = UpDirection,
+        Position = Position,
+        ZNear = nearPlane,
+        ZFar = farPlane
+    };
 
-    public override string ToString() {
-        return base.ToString() + "\n" +
-               string.Format(CultureInfo.InvariantCulture, "FieldOfView:\t{0:0.#}°", FieldOfView);
-    }
+    public override string ToString() => base.ToString() + "\n" +
+                                         string.Format(CultureInfo.InvariantCulture, "FieldOfView:\t{0:0.#}°", FieldOfView);
 }

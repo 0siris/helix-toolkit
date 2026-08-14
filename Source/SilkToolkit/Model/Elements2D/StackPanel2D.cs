@@ -32,7 +32,5 @@ public class StackPanel2D : Panel2D {
     }
 
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new StackPanelNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new StackPanelNode2D();
 }

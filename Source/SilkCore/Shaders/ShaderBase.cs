@@ -38,7 +38,7 @@ public abstract class ShaderBase : DisposeObject {
     /// </summary>
     public MappingProxy<SamplerMapping> SamplerMapping { get; } = new();
 
-    internal virtual IShaderHandle NativeShader => null;
+    internal virtual IShaderHandle? NativeShader => null;
 
     /// <summary>
     ///     Gets the type of the shader.

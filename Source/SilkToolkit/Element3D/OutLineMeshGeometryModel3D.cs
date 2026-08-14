@@ -67,9 +67,7 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         set => SetValue(OutlineFadingFactorProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new MeshOutlineNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new MeshOutlineNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         if (core is MeshOutlineNode c) {

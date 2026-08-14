@@ -13,9 +13,7 @@ public class InstancingBillboardModel3D : BillboardTextModel3D {
     ///     Called when [create scene node].
     /// </summary>
     /// <returns></returns>
-    protected override SceneNode OnCreateSceneNode() {
-        return new InstancingBillboardNode { Material = material };
-    }
+    protected override SceneNode OnCreateSceneNode() => new InstancingBillboardNode { Material = material };
 
     #region Dependency Properties
 

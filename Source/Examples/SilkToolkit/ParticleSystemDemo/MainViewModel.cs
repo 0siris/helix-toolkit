@@ -19,7 +19,7 @@ public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { private set; get; }
 
     public Media3D.Transform3D EmitterTransform {
-        get { return field; }
+        get => field;
         set {
             SetValue(ref field, value);
             EmitterLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
@@ -34,17 +34,17 @@ public class MainViewModel : BaseViewModel {
                 EmitterTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get { return field; }
+        get => field;
     } = 0.5;
 
     public Media3D.Point3D EmitterLocation {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media3D.Point3D(0, -4, 0);
 
 
     public Media3D.Transform3D ConsumerTransform {
-        get { return field; }
+        get => field;
         set {
             SetValue(ref field, value);
             ConsumerLocation = new Media3D.Point3D(value.Value.OffsetX, value.Value.OffsetY, value.Value.OffsetZ);
@@ -52,8 +52,8 @@ public class MainViewModel : BaseViewModel {
     } = new Media3D.MatrixTransform3D(new Media3D.Matrix3D(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 4, 0, 1));
 
     public Media3D.Point3D ConsumerLocation {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media3D.Point3D(0, 4, 0);
 
     public double ConsumerRadius {
@@ -64,7 +64,7 @@ public class MainViewModel : BaseViewModel {
                 ConsumerTransform = new Media3D.MatrixTransform3D(matrix);
             }
         }
-        get { return field; }
+        get => field;
     } = 0.5;
 
     public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
@@ -72,13 +72,13 @@ public class MainViewModel : BaseViewModel {
     public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1) };
 
     public Stream ParticleTexture {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public Media3D.Vector3D Acceleration {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media3D.Vector3D(0, 1, 0);
 
     public int AccelerationX {
@@ -87,12 +87,12 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get { return field; }
+        get => field;
     } = 0;
 
     public Size ParticleSize {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Size(0.1, 0.1);
 
     public int SizeSlider {
@@ -101,7 +101,7 @@ public class MainViewModel : BaseViewModel {
                 ParticleSize = new Size(((double)value) / 100, ((double)value) / 100);
             }
         }
-        get { return field; }
+        get => field;
     } = 10;
 
     public int AccelerationY {
@@ -110,7 +110,7 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get { return field; }
+        get => field;
     } = 100;
 
     public int AccelerationZ {
@@ -119,7 +119,7 @@ public class MainViewModel : BaseViewModel {
                 UpdateAcceleration();
             }
         }
-        get { return field; }
+        get => field;
     } = 0;
 
     private const int DefaultBoundScale = 10;
@@ -129,8 +129,8 @@ public class MainViewModel : BaseViewModel {
         new Media3D.ScaleTransform3D(DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public Media3D.Rect3D ParticleBounds {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media3D.Rect3D(0, 0, 0, DefaultBoundScale, DefaultBoundScale, DefaultBoundScale);
 
     public int BoundScale {
@@ -140,7 +140,7 @@ public class MainViewModel : BaseViewModel {
                 BoundingLineTransform.ScaleX = BoundingLineTransform.ScaleY = BoundingLineTransform.ScaleZ = value;
             }
         }
-        get { return field; }
+        get => field;
     } = DefaultBoundScale;
 
     public Media.Color BlendColor {
@@ -149,7 +149,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get { return field; }
+        get => field;
     } = Media.Colors.White;
 
     public int RedValue {
@@ -158,7 +158,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public int GreenValue {
@@ -167,7 +167,7 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public int BlueValue {
@@ -176,22 +176,22 @@ public class MainViewModel : BaseViewModel {
                 BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public Media.SolidColorBrush BlendColorBrush {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media.SolidColorBrush(Media.Colors.White);
 
     public int NumTextureRows {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public int NumTextureColumns {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     }
 
     public int SelectedTextureIndex {
@@ -200,7 +200,7 @@ public class MainViewModel : BaseViewModel {
                 LoadTexture(value);
             }
         }
-        get { return field; }
+        get => field;
     } = 0;
 
     public Array BlendOperationArray { get; } = Enum.GetValues(typeof(BlendOperation));
@@ -208,23 +208,23 @@ public class MainViewModel : BaseViewModel {
     public Array BlendOptionArray { get; } = Enum.GetValues(typeof(BlendOption));
 
     public BlendOption SourceBlendOption {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = BlendOption.One;
 
     public BlendOption SourceAlphaBlendOption {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = BlendOption.One;
 
     public BlendOption DestBlendOption {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = BlendOption.One;
 
     public BlendOption DestAlphaBlendOption {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = BlendOption.Zero;
 
     public Media.Color BlendFactorColor {
@@ -233,7 +233,7 @@ public class MainViewModel : BaseViewModel {
                 BlendFactorColorBrush = new Media.SolidColorBrush(value);
             }
         }
-        get { return field; }
+        get => field;
     } = Media.Colors.White;
 
     public int RedFactorValue {
@@ -243,7 +243,7 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public int GreenFactorValue {
@@ -253,7 +253,7 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public int BlueFactorValue {
@@ -263,12 +263,12 @@ public class MainViewModel : BaseViewModel {
                     Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
             }
         }
-        get { return field; }
+        get => field;
     } = 255;
 
     public Media.SolidColorBrush BlendFactorColorBrush {
-        set { SetValue(ref field, value); }
-        get { return field; }
+        set => SetValue(ref field, value);
+        get => field;
     } = new Media.SolidColorBrush(Media.Colors.White);
 
     public IList<Matrix> Instances { private set; get; }
@@ -340,30 +340,24 @@ public class MainViewModel : BaseViewModel {
         return ToMatrix(m);
     }
 
-    private static Matrix Scaling(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
-    }
+    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix Translation(float x, float y, float z) {
-        return ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
-    }
+    private static Matrix Translation(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
 
-    private static Matrix ToMatrix(System.Numerics.Matrix4x4 m) {
-        return new Matrix(m.M11,
-                          m.M12,
-                          m.M13,
-                          m.M14,
-                          m.M21,
-                          m.M22,
-                          m.M23,
-                          m.M24,
-                          m.M31,
-                          m.M32,
-                          m.M33,
-                          m.M34,
-                          m.M41,
-                          m.M42,
-                          m.M43,
-                          m.M44);
-    }
+    private static Matrix ToMatrix(System.Numerics.Matrix4x4 m) => new(m.M11,
+        m.M12,
+        m.M13,
+        m.M14,
+        m.M21,
+        m.M22,
+        m.M23,
+        m.M24,
+        m.M31,
+        m.M32,
+        m.M33,
+        m.M34,
+        m.M41,
+        m.M42,
+        m.M43,
+        m.M44);
 }

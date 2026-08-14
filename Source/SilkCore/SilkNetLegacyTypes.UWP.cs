@@ -27,9 +27,7 @@ public struct Ray {
         set => Position = value;
     }
 
-    public Vector3 GetPoint(float distance) {
-        return Position + Direction * distance;
-    }
+    public Vector3 GetPoint(float distance) => Position + Direction * distance;
 }
 
 public struct Plane {
@@ -46,9 +44,7 @@ public struct Plane {
         D = -Collision.Dot(Normal, point);
     }
 
-    public bool Intersects(ref Ray ray, out float distance) {
-        return Collision.RayIntersectsPlane(ref ray, ref this, out distance);
-    }
+    public bool Intersects(ref Ray ray, out float distance) => Collision.RayIntersectsPlane(ref ray, ref this, out distance);
 
     public PlaneIntersectionType Intersects(ref BoundingSphere sphere) {
         var distance = Collision.Dot(Normal, sphere.Center) + D;
@@ -61,15 +57,11 @@ public struct Plane {
 public static class Collision {
     private const float Epsilon = 1e-6f;
 
-    public static float Dot(Vector3 left, Vector3 right) {
-        return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
-    }
+    public static float Dot(Vector3 left, Vector3 right) => left.X * right.X + left.Y * right.Y + left.Z * right.Z;
 
-    public static Vector3 Cross(Vector3 left, Vector3 right) {
-        return new Vector3(left.Y * right.Z - left.Z * right.Y,
-                           left.Z * right.X - left.X * right.Z,
-                           left.X * right.Y - left.Y * right.X);
-    }
+    public static Vector3 Cross(Vector3 left, Vector3 right) => new(left.Y * right.Z - left.Z * right.Y,
+        left.Z * right.X - left.X * right.Z,
+        left.X * right.Y - left.Y * right.X);
 
     public static Vector3 Normalize(Vector3 vector) {
         var length = vector.Length;
@@ -247,13 +239,9 @@ public struct Color {
     public static readonly Color Bisque = new(255, 228, 196);
     public static readonly Color Zero = Transparent;
 
-    public static Color FromRgb(byte red, byte green, byte blue) {
-        return new Color(red, green, blue);
-    }
+    public static Color FromRgb(byte red, byte green, byte blue) => new(red, green, blue);
 
-    public static Color FromArgb(byte alpha, byte red, byte green, byte blue) {
-        return new Color(red, green, blue, alpha);
-    }
+    public static Color FromArgb(byte alpha, byte red, byte green, byte blue) => new(red, green, blue, alpha);
 
     private static byte ToByte(float value) {
         if (value <= 0) return 0;
@@ -261,17 +249,11 @@ public struct Color {
         return (byte)(value * 255f);
     }
 
-    public Color4 ToColor4() {
-        return new Color4(R / 255f, G / 255f, B / 255f, A / 255f);
-    }
+    public Color4 ToColor4() => new(R / 255f, G / 255f, B / 255f, A / 255f);
 
-    public static implicit operator Color4(Color color) {
-        return color.ToColor4();
-    }
+    public static implicit operator Color4(Color color) => color.ToColor4();
 
-    public static explicit operator Color(Color4 color) {
-        return new Color(color.X, color.Y, color.Z, color.W);
-    }
+    public static explicit operator Color(Color4 color) => new(color.X, color.Y, color.Z, color.W);
 }
 
 public struct BoundingBox {
@@ -284,29 +266,17 @@ public struct BoundingBox {
         Maximum = maximum;
     }
 
-    public static bool operator ==(BoundingBox left, BoundingBox right) {
-        return left.Minimum == right.Minimum && left.Maximum == right.Maximum;
-    }
+    public static bool operator ==(BoundingBox left, BoundingBox right) => left.Minimum == right.Minimum && left.Maximum == right.Maximum;
 
-    public static bool operator !=(BoundingBox left, BoundingBox right) {
-        return !(left == right);
-    }
+    public static bool operator !=(BoundingBox left, BoundingBox right) => !(left == right);
 
-    public override bool Equals(object obj) {
-        return obj is BoundingBox other && this == other;
-    }
+    public override bool Equals(object? obj) => obj is BoundingBox other && this == other;
 
-    public override int GetHashCode() {
-        return HashCode.Combine(Minimum, Maximum);
-    }
+    public override int GetHashCode() => HashCode.Combine(Minimum, Maximum);
 
-    private static Vector3 Min(Vector3 left, Vector3 right) {
-        return new Vector3(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y), Math.Min(left.Z, right.Z));
-    }
+    private static Vector3 Min(Vector3 left, Vector3 right) => new(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y), Math.Min(left.Z, right.Z));
 
-    private static Vector3 Max(Vector3 left, Vector3 right) {
-        return new Vector3(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y), Math.Max(left.Z, right.Z));
-    }
+    private static Vector3 Max(Vector3 left, Vector3 right) => new(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y), Math.Max(left.Z, right.Z));
 
     public static BoundingBox Merge(BoundingBox value1, BoundingBox value2) {
         Merge(ref value1, ref value2, out var result);
@@ -322,26 +292,22 @@ public struct BoundingBox {
         return new BoundingBox(sphere.Center - radius, sphere.Center + radius);
     }
 
-    public Vector3[] GetCorners() {
-        return [
-            new Vector3(Minimum.X, Maximum.Y, Maximum.Z),
-            new Vector3(Maximum.X, Maximum.Y, Maximum.Z),
-            new Vector3(Maximum.X, Minimum.Y, Maximum.Z),
-            new Vector3(Minimum.X, Minimum.Y, Maximum.Z),
-            new Vector3(Minimum.X, Maximum.Y, Minimum.Z),
-            new Vector3(Maximum.X, Maximum.Y, Minimum.Z),
-            new Vector3(Maximum.X, Minimum.Y, Minimum.Z),
-            new Vector3(Minimum.X, Minimum.Y, Minimum.Z)
-        ];
-    }
+    public Vector3[] GetCorners() => [
+        new Vector3(Minimum.X, Maximum.Y, Maximum.Z),
+        new Vector3(Maximum.X, Maximum.Y, Maximum.Z),
+        new Vector3(Maximum.X, Minimum.Y, Maximum.Z),
+        new Vector3(Minimum.X, Minimum.Y, Maximum.Z),
+        new Vector3(Minimum.X, Maximum.Y, Minimum.Z),
+        new Vector3(Maximum.X, Maximum.Y, Minimum.Z),
+        new Vector3(Maximum.X, Minimum.Y, Minimum.Z),
+        new Vector3(Minimum.X, Minimum.Y, Minimum.Z)
+    ];
 
-    public ContainmentType Contains(Vector3 point) {
-        return point.X < Minimum.X || point.X > Maximum.X
-                                   || point.Y < Minimum.Y || point.Y > Maximum.Y
-                                   || point.Z < Minimum.Z || point.Z > Maximum.Z
-                   ? ContainmentType.Disjoint
-                   : ContainmentType.Contains;
-    }
+    public ContainmentType Contains(Vector3 point) => point.X < Minimum.X || point.X > Maximum.X
+                                                                          || point.Y < Minimum.Y || point.Y > Maximum.Y
+                                                                          || point.Z < Minimum.Z || point.Z > Maximum.Z
+        ? ContainmentType.Disjoint
+        : ContainmentType.Contains;
 
     public ContainmentType Contains(ref BoundingBox box) {
         if (Maximum.X < box.Minimum.X || Minimum.X > box.Maximum.X
@@ -388,25 +354,17 @@ public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, 
 
     public IEnumerable<V> Values => dictionary.Values;
 
-    public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator() {
-        return dictionary.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator() => dictionary.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public void Add(K key1, T key2, V value) {
         dictionary.Add((key1, key2), value);
     }
 
-    public bool Remove(K key1, T key2) {
-        return dictionary.Remove((key1, key2));
-    }
+    public bool Remove(K key1, T key2) => dictionary.Remove((key1, key2));
 
-    public bool TryGetValue(K key1, T key2, out V value) {
-        return dictionary.TryGetValue((key1, key2), out value);
-    }
+    public bool TryGetValue(K key1, T key2, out V value) => dictionary.TryGetValue((key1, key2), out value);
 
     public void Clear() {
         dictionary.Clear();

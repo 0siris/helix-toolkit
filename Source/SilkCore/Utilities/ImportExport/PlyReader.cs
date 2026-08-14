@@ -63,11 +63,11 @@ public class PlyReader : ModelReader {
             foreach (var face in Faces)
                 mesh.Indices.AddRange((int[])face.Clone());
 
-        if (TextureCoordinates.Count > 0)
-            foreach (var item in TextureCoordinates)
+        if (TextureCoordinates is { Count: > 0 } textureCoordinates)
+            foreach (var item in textureCoordinates)
                 mesh.TextureCoordinates.Add(new Vector2(item.X, item.Y));
 
-        if (TextureCoordinates.Count == 0) TextureCoordinates = null;
+        if (TextureCoordinates?.Count == 0) TextureCoordinates = null;
         return mesh;
     }
 
@@ -95,12 +95,12 @@ public class PlyReader : ModelReader {
 
         if (Normals.Count == 0) mb.CreateNormals = false;
 
-        if (TextureCoordinates.Count > 0) {
+        if (TextureCoordinates is { Count: > 0 } textureCoordinates) {
             mb.CreateTextureCoordinates = true;
-            foreach (var item in TextureCoordinates) mb.TextureCoordinates.Add(item);
+            foreach (var item in textureCoordinates) mb.TextureCoordinates.Add(item);
         }
 
-        if (TextureCoordinates.Count == 0) {
+        if (TextureCoordinates?.Count == 0) {
             TextureCoordinates = null;
             mb.TextureCoordinates = null;
             mb.CreateTextureCoordinates = false;
@@ -116,7 +116,7 @@ public class PlyReader : ModelReader {
     /// </summary>
     /// <returns>A <see cref="Mesh3DGroup" />.</returns>
     public Mesh3DGroup CreateModel3D() {
-        Mesh3DGroup modelGroup = null;
+        Mesh3DGroup? modelGroup = null;
         modelGroup = [];
         var g = CreateMeshGeometry3D();
         var gm = new Object3D {
@@ -200,20 +200,20 @@ public class PlyReader : ModelReader {
     /// <summary>
     ///     Gets or sets the vertices of this ply model.
     /// </summary>
-    public IList<Vector3> Vertices { get; private set; }
+    public IList<Vector3> Vertices { get; private set; } = [];
 
-    public IList<int[]> Faces { get; private set; }
+    public IList<int[]> Faces { get; private set; } = [];
 
     /// <summary>
     ///     Gets or sets the normal vectors of this ply model.
     /// </summary>
-    public IList<Vector3> Normals { get; private set; }
+    public IList<Vector3> Normals { get; private set; } = [];
 
     /// <summary>
     ///     Gets or sets the texture coordinates of the ply model.
     /// </summary>
     /// <remarks>S,T->X,Y</remarks>
-    public IList<Vector2> TextureCoordinates { get; private set; }
+    public IList<Vector2>? TextureCoordinates { get; private set; }
 
     /// <summary>
     ///     Gets or sets the number of vertices.
@@ -228,7 +228,7 @@ public class PlyReader : ModelReader {
     /// <summary>
     ///     Contains information about the Ply file received.
     /// </summary>
-    public Dictionary<string, double> ObjectInformation { get; private set; }
+    public Dictionary<string, double> ObjectInformation { get; private set; } = [];
 
     #endregion
 
@@ -549,7 +549,7 @@ public class PlyReader : ModelReader {
                                 X = float.Parse(strarr[sIndx]),
                                 Y = float.Parse(strarr[tIndx])
                             };
-                            TextureCoordinates.Add(texpt);
+                            TextureCoordinates?.Add(texpt);
                         }
                     }
 

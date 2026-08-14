@@ -3,9 +3,7 @@ using HelixToolkit.SharpDX.Core.Cameras;
 namespace HelixToolkit.SharpDX.Core;
 
 public static class CameraCoreExtensions {
-    public static BoundingFrustum CreateFrustum(this CameraCore camera, float aspectRatio) {
-        return new BoundingFrustum(camera.CreateViewMatrix() * camera.CreateProjectionMatrix(aspectRatio));
-    }
+    public static BoundingFrustum CreateFrustum(this CameraCore camera, float aspectRatio) => new(camera.CreateViewMatrix() * camera.CreateProjectionMatrix(aspectRatio));
 
     // Returns whether or not the given point is the outermost point in the given direction among all points of the bounds
     private static bool IsOutermostPointInDirection(int pointIndex, ref Vector3 direction, Vector3[] corners) {

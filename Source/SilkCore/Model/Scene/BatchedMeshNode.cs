@@ -8,6 +8,7 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 /// <summary>
 ///     Static mesh batching. Supports multiple <see cref="Materials" />. All geometries are merged into single buffer for
 ///     rendering. Indivisual material color infomations are encoded into vertex buffer.
@@ -22,64 +23,64 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         TransformChanged += BatchedMeshNode_OnTransformChanged;
     }
 
-    private void BatchedMeshNode_OnTransformChanged(object sender, TransformArgs e) {
+    private void BatchedMeshNode_OnTransformChanged(object? sender, TransformArgs e) {
         UpdateBoundsWithTransform();
     }
 
-    protected override RenderCore OnCreateRenderCore() {
-        return new MeshRenderCore {
-            Batched = true
-        };
-    }
+    protected override RenderCore OnCreateRenderCore() => new MeshRenderCore {
+        Batched = true
+    };
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) {
-        return effectsManager[DefaultRenderTechniqueNames.MeshBatched];
-    }
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.MeshBatched];
 
     /// <summary>
     ///     Called when [raster state changed].
     /// </summary>
     protected virtual void OnRasterStateChanged() {
         if (IsAttached && RenderCore is IGeometryRenderCore r)
-            r.RasterDescription = OnCreateRasterState != null ? OnCreateRasterState() : CreateRasterState();
+            r.RasterDescription = OnCreateRasterState?.Invoke() ?? CreateRasterState();
     }
 
     /// <summary>
     ///     Create raster state description.
     /// </summary>
     /// <returns></returns>
-    protected virtual RasterizerStateDescription CreateRasterState() {
-        return new RasterizerStateDescription {
-            FillMode = FillMode,
-            CullMode = CullMode,
-            DepthBias = DepthBias,
-            DepthBiasClamp = -1000,
-            SlopeScaledDepthBias = SlopeScaledDepthBias,
-            IsDepthClipEnabled = IsDepthClipEnabled,
-            IsFrontCounterClockwise = FrontCcw,
-            IsMultisampleEnabled = IsMsaaEnabled,
-            IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
-        };
-    }
+    protected virtual RasterizerStateDescription CreateRasterState() => new() {
+        FillMode = FillMode,
+        CullMode = CullMode,
+        DepthBias = DepthBias,
+        DepthBiasClamp = -1000,
+        SlopeScaledDepthBias = SlopeScaledDepthBias,
+        IsDepthClipEnabled = IsDepthClipEnabled,
+        IsFrontCounterClockwise = FrontCcw,
+        IsMultisampleEnabled = IsMsaaEnabled,
+        IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
+    };
 
     /// <summary>
     /// </summary>
     protected virtual void AttachMaterial() {
-        var newVar = material != null && RenderCore is IMaterialRenderParams
-                         ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
-                         : null;
+        var newVar = material is not null && RenderCore is IMaterialRenderParams
+            ? EffectsManager.AssertNotNull()
+                .MaterialVariableManager.Register(
+                    material,
+                    EffectTechnique.AssertNotNull())
+            : null;
         RemoveAndDispose(ref materialVariable);
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = materialVariable = newVar;
-        if (Materials == null && Material is PhongMaterialCore p) BatchingBuffer.Materials = [p];
+        if (Materials is null && Material is PhongMaterialCore p)
+            BatchingBuffer.AssertNotNull()
+                .Materials = [p];
     }
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            BatchingBuffer = new DefaultStaticMeshBatchingBuffer {
+            var batchingBuffer = new DefaultStaticMeshBatchingBuffer {
                 Geometries = Geometries,
                 Materials = materials
             };
-            if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = BatchingBuffer;
+            BatchingBuffer = batchingBuffer;
+            if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = batchingBuffer;
             AttachMaterial();
             return true;
         }
@@ -105,9 +106,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         base.OnDetach();
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() {
-        return OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
-    }
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? (ushort) 0);
 
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
@@ -115,7 +114,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <param name="context"></param>
     /// <returns></returns>
     protected override bool CanRender(RenderContext context) {
-        if (base.CanRender(context) && Geometries != null) return true;
+        if (base.CanRender(context) && Geometries is not null) return true;
 
         return false;
     }
@@ -123,20 +122,21 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     private void UpdateBounds() {
         var oldBound = originalBounds;
         var oldBoundSphere = originalBoundsSphere;
-        if (geometries != null && geometries.Length > 0) {
-            var b = geometries[0].Geometry.Bound;
-            var bs = geometries[0].Geometry.BoundingSphere;
-            foreach (var geo in geometries) {
+        var currentGeometries = geometries;
+        if (currentGeometries is {Length: > 0}) {
+            var b = currentGeometries[0].Geometry.Bound;
+            var bs = currentGeometries[0].Geometry.BoundingSphere;
+            foreach (var geo in currentGeometries) {
                 b = BoundingBox.Merge(b, geo.Geometry.Bound.Transform(geo.ModelTransform));
                 bs = BoundingSphereExtensions.Merge(bs,
-                                                    geo.Geometry.BoundingSphere.TransformBoundingSphere(
-                                                        geo.ModelTransform));
+                    geo.Geometry.BoundingSphere.TransformBoundingSphere(
+                        geo.ModelTransform));
             }
 
             originalBounds = b;
             originalBoundsSphere = bs;
             BatchedGeometryOctree =
-                new StaticBatchedGeometryBoundsOctree(geometries, new OctreeBuildParameter());
+                new StaticBatchedGeometryBoundsOctree(currentGeometries, new OctreeBuildParameter());
         } else {
             originalBounds = MaxBound;
             originalBoundsSphere = MaxBoundSphere;
@@ -151,15 +151,14 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
 
     private void UpdateBoundsWithTransform() {
         var old = boundsWithTransform;
-        if (originalBounds == MaxBound)
-            boundsWithTransform = MaxBound;
-        else
-            boundsWithTransform = originalBounds.Transform(TotalModelMatrixInternal);
+        boundsWithTransform = originalBounds == MaxBound
+            ? MaxBound
+            : originalBounds.Transform(TotalModelMatrixInternal);
+        
         var oldBs = boundsSphereWithTransform;
-        if (originalBoundsSphere == MaxBoundSphere)
-            boundsSphereWithTransform = MaxBoundSphere;
-        else
-            boundsSphereWithTransform = originalBoundsSphere.TransformBoundingSphere(TotalModelMatrixInternal);
+        boundsSphereWithTransform = originalBoundsSphere == MaxBoundSphere
+            ? MaxBoundSphere
+            : originalBoundsSphere.TransformBoundingSphere(TotalModelMatrixInternal);
         RaiseOnTransformBoundChanged(new BoundChangeArgs<BoundingBox>(ref boundsWithTransform, ref old));
         RaiseOnTransformBoundSphereChanged(
             new BoundChangeArgs<BoundingSphere>(ref boundsSphereWithTransform, ref oldBs));
@@ -173,8 +172,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
         if (!EnableViewFrustumCheck) return true;
         return BoundingFrustumExtensions.IsInOrIntersectFrustum(ref viewFrustum,
-                                                                ref boundsWithTransform,
-                                                                ref boundsSphereWithTransform);
+            ref boundsWithTransform,
+            ref boundsSphereWithTransform);
     }
 
     /// <summary>
@@ -184,9 +183,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <returns>
     ///     <c>true</c> if this instance [can hit test] the specified context; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool CanHitTest(HitTestContext context) 
-        => base.CanHitTest(context) && Geometries != null && Geometries.Length > 0 && Materials != null &&
-                                                                  Materials.Length > 0;
+    protected override bool CanHitTest(HitTestContext? context)
+        => base.CanHitTest(context) && Geometries is {Length: > 0} && Materials is {Length: > 0};
 
     /// <summary>
     ///     Updates the not render.
@@ -194,11 +192,11 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <param name="context">The context.</param>
     public override void UpdateNotRender(RenderContext context) {
         base.UpdateNotRender(context);
-        if (IsHitTestVisible && context.AutoUpdateOctree && Geometries != null)
-            foreach (var geometry in Geometries)
+        if (IsHitTestVisible && context.AutoUpdateOctree && Geometries is { } currentGeometries)
+            foreach (var geometry in currentGeometries)
                 geometry.Geometry?.UpdateOctree();
 
-        if (BatchedGeometryOctree != null && !BatchedGeometryOctree.TreeBuilt)
+        if (BatchedGeometryOctree is {TreeBuilt: false})
             BatchedGeometryOctree.BuildTree();
     }
 
@@ -209,18 +207,20 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ) {
         var rayWs = context.RayWs;
         if (rayWs.Intersects(boundsWithTransform) && rayWs.Intersects(boundsSphereWithTransform)) {
+            var source = WrapperSource.AssertNotNull("Hit-test source must be initialized.");
             if (BatchedGeometryOctree is {TreeBuilt: true})
-                return BatchedGeometryOctree.HitTest(context, WrapperSource, null, totalModelMatrix, ref hits);
+                return BatchedGeometryOctree.HitTest(context, source, null, totalModelMatrix, ref hits);
 
             var isHit = false;
-            for (var i = 0; i < Geometries.Length; ++i) {
+            var currentGeometries = Geometries.AssertNotNull("Batched geometries must be initialized.");
+            for (var i = 0; i < currentGeometries.Length; ++i) {
                 var currCount = hits.Count;
-                ref var geo = ref Geometries[i];
+                ref var geo = ref currentGeometries[i];
                 if (geo.Geometry is MeshGeometry3D mesh) {
                     var hasHit = mesh.HitTest(context,
-                                              geo.ModelTransform * totalModelMatrix,
-                                              ref hits,
-                                              WrapperSource);
+                        geo.ModelTransform * totalModelMatrix,
+                        ref hits,
+                        source);
                     if (hasHit && currCount < hits.Count) {
                         var newCount = hits.Count;
                         for (var j = currCount; j < newCount; ++j)
@@ -240,26 +240,29 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
 
     #region Properties
 
-    private BatchedMeshGeometryConfig[] geometries;
+    private BatchedMeshGeometryConfig[]? geometries;
 
-    public BatchedMeshGeometryConfig[] Geometries {
+    public BatchedMeshGeometryConfig[]? Geometries {
         get => geometries;
         set {
             if (SetAffectsRender(ref geometries, value)) {
-                if (IsAttached) BatchingBuffer.Geometries = value;
+                if (IsAttached)
+                    BatchingBuffer.AssertNotNull()
+                        .Geometries = value;
                 UpdateBounds();
             }
         }
     }
 
-    private PhongMaterialCore[] materials;
+    private PhongMaterialCore[]? materials;
 
-    public PhongMaterialCore[] Materials {
+    public PhongMaterialCore[]? Materials {
         get => materials;
         set {
             if (SetAffectsRender(ref materials, value) && IsAttached) {
-                BatchingBuffer.Materials = value;
-                if (value == null && Material is PhongMaterialCore p) BatchingBuffer.Materials = [p];
+                var batchingBuffer = BatchingBuffer.AssertNotNull();
+                batchingBuffer.Materials = value;
+                if (value is null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
             }
         }
     }
@@ -433,7 +436,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         }
     } = CullMode.None;
 
-#endregion Rasterizer parameters
+    #endregion Rasterizer parameters
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable view frustum check].
@@ -457,13 +460,12 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         set {
             if (Set(ref field, value)) {
                 ClearPostEffect();
-                if (value is string effects)
-                    if (!string.IsNullOrEmpty(effects))
-                        foreach (var effect in EffectAttributes.Parse(effects))
-                            AddPostEffect(effect);
+                if (value.Length > 0)
+                    foreach (var effect in EffectAttributes.Parse(value))
+                        AddPostEffect(effect);
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is throwing shadow.
@@ -483,8 +485,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ///     <c>true</c> if [invert normal]; otherwise, <c>false</c>.
     /// </value>
     public bool InvertNormal {
-        get => (RenderCore as IMeshRenderParams).InvertNormal;
-        set => (RenderCore as IMeshRenderParams).InvertNormal = value;
+        get => ((IMeshRenderParams) RenderCore).InvertNormal;
+        set => ((IMeshRenderParams) RenderCore).InvertNormal = value;
     }
 
     /// <summary>
@@ -494,8 +496,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ///     The color of the wireframe.
     /// </value>
     public Color4 WireframeColor {
-        get => (RenderCore as IMeshRenderParams).WireframeColor;
-        set => (RenderCore as IMeshRenderParams).WireframeColor = value;
+        get => ((IMeshRenderParams) RenderCore).WireframeColor;
+        set => ((IMeshRenderParams) RenderCore).WireframeColor = value;
     }
 
     /// <summary>
@@ -505,8 +507,8 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderWireframe {
-        get => (RenderCore as IMeshRenderParams).RenderWireframe;
-        set => (RenderCore as IMeshRenderParams).RenderWireframe = value;
+        get => ((IMeshRenderParams) RenderCore).RenderWireframe;
+        set => ((IMeshRenderParams) RenderCore).RenderWireframe = value;
     }
 
     /// <summary>
@@ -519,27 +521,28 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         set {
             if (Set(ref field, value))
                 if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
-                    RenderType = value ? RenderType.Transparent : RenderType.Opaque;
+                    RenderType = value
+                        ? RenderType.Transparent
+                        : RenderType.Opaque;
         }
     }
 
-    private MaterialVariable materialVariable;
-    private MaterialCore material;
+    private MaterialVariable? materialVariable;
+    private MaterialCore? material;
 
     /// <summary>
     /// </summary>
-    public MaterialCore Material {
+    public MaterialCore? Material {
         get => material;
         set {
             if (Set(ref material, value))
-                if (EffectsManager != null) {
+                if (EffectsManager is { } effectsManager) {
                     if (IsAttached) {
                         AttachMaterial();
                         InvalidateRender();
                     } else {
-                        var effectsMgr = EffectsManager;
                         Detach();
-                        Attach(effectsMgr);
+                        Attach(effectsManager);
                     }
                 }
         }
@@ -554,11 +557,11 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ///     Create raster state description delegate.
     ///     <para>If <see cref="OnCreateRasterState" /> is set, then <see cref="CreateRasterState" /> will not be called.</para>
     /// </summary>
-    public CreateRasterStateFunc OnCreateRasterState;
+    public CreateRasterStateFunc? OnCreateRasterState;
 
-    protected DefaultStaticMeshBatchingBuffer BatchingBuffer;
+    protected DefaultStaticMeshBatchingBuffer? BatchingBuffer;
 
-    protected StaticBatchedGeometryBoundsOctree BatchedGeometryOctree { get; private set; }
+    protected StaticBatchedGeometryBoundsOctree? BatchedGeometryOctree { get; private set; }
 
     #endregion
 }

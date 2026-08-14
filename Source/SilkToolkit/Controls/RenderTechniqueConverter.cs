@@ -7,11 +7,7 @@ using HelixToolkit.SharpDX.Core;
 namespace HelixToolkit.Wpf.SharpDX;
 
 public class RenderTechniqueConverter : IValueConverter {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-        return value;
-    }
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value;
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-        return ((KeyValuePair<string, IRenderTechnique>)value).Value;
-    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => ((KeyValuePair<string, IRenderTechnique>)value).Value;
 }

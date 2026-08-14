@@ -63,22 +63,16 @@ public sealed class ConstantBufferDescription {
 
     public List<ConstantBufferVariable> Variables { get; } = [];
 
-    public ConstantBufferProxy CreateBuffer() {
-        return new ConstantBufferProxy(this);
-    }
+    public ConstantBufferProxy CreateBuffer() => new(this);
 
-    public ConstantBufferMapping CreateMapping(int slot) {
-        return new ConstantBufferMapping(slot, this);
-    }
+    public ConstantBufferMapping CreateMapping(int slot) => new(slot, this);
 
-    public ConstantBufferDescription Clone() {
-        return new ConstantBufferDescription(Name, StructSize, StrideSize) {
-            BindFlags = BindFlags,
-            CpuAccessFlags = CpuAccessFlags,
-            OptionFlags = OptionFlags,
-            Usage = Usage
-        };
-    }
+    public ConstantBufferDescription Clone() => new(Name, StructSize, StrideSize) {
+        BindFlags = BindFlags,
+        CpuAccessFlags = CpuAccessFlags,
+        OptionFlags = OptionFlags,
+        Usage = Usage
+    };
 }
 
 [DataContract]
@@ -94,11 +88,7 @@ public sealed class ConstantBufferMapping {
     [DataMember]
     public ConstantBufferDescription Description { get; set; }
 
-    public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description) {
-        return new ConstantBufferMapping(slot, description);
-    }
+    public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description) => new(slot, description);
 
-    public ConstantBufferMapping Clone() {
-        return new ConstantBufferMapping(Slot, Description.Clone());
-    }
+    public ConstantBufferMapping Clone() => new(Slot, Description.Clone());
 }

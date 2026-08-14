@@ -108,29 +108,20 @@ public class PointMaterialVariable : MaterialVariable {
         DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
     }
 
-    public override ShaderPass GetPass(RenderType renderType, RenderContext context) {
-        return PointPass;
-    }
+    public override ShaderPass GetPass(RenderType renderType, RenderContext context) => PointPass;
 
-    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) {
-        return ShadowPass;
-    }
+    public override ShaderPass GetShadowPass(RenderType renderType, RenderContext context) => ShadowPass;
 
-    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) {
-        return ShaderPass.NullPass;
-    }
+    public override ShaderPass GetWireframePass(RenderType renderType, RenderContext context) => ShaderPass.NullPass;
 
-    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) {
-        return DepthPass;
-    }
+    public override ShaderPass GetDepthPass(RenderType renderType, RenderContext context) => DepthPass;
 
     public override bool BindMaterialResources(
         RenderContext context,
         DeviceContextProxy deviceContext,
         ShaderPass shaderPass
-    ) {
-        return true;
-    }
+    )
+        => true;
 
     protected override void UpdateInternalVariables(DeviceContextProxy deviceContext) { }
 }

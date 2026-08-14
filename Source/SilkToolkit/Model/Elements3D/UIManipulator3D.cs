@@ -259,28 +259,25 @@ public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToWorldPos(Vector3 vec) {
+    protected Vector3 ToWorldPos(Vector3 vec) =>
         //var m = this.Transform.Value.ToMatrix();
-        return SilkMath.TransformCoordinate(vec, TotalModelMatrix);
-    }
+        SilkMath.TransformCoordinate(vec, TotalModelMatrix);
 
     /// <summary>
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToWorldVec(Vector3 vec) {
+    protected Vector3 ToWorldVec(Vector3 vec) =>
         //var m = this.Transform.Value.ToMatrix();
-        return SilkMath.TransformNormal(vec, TotalModelMatrix);
-    }
+        SilkMath.TransformNormal(vec, TotalModelMatrix);
 
     /// <summary>
     /// </summary>
     /// <param name="vec"></param>
     /// <returns></returns>
-    protected Vector3 ToModelPos(Vector3 vec) {
+    protected Vector3 ToModelPos(Vector3 vec) =>
         //var m = this.Transform.Value.ToMatrix();
-        return SilkMath.TransformCoordinate(vec, TotalModelMatrix.PsudoInvert());
-    }
+        SilkMath.TransformCoordinate(vec, TotalModelMatrix.PsudoInvert());
 
     /// <summary>
     /// </summary>

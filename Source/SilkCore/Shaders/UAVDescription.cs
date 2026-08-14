@@ -26,13 +26,9 @@ public sealed class UavDescription {
     [DataMember]
     public string Name { get; set; }
 
-    public UavMapping CreateMapping(int slot) {
-        return new UavMapping(slot, this);
-    }
+    public UavMapping CreateMapping(int slot) => new(slot, this);
 
-    public UavDescription Clone() {
-        return new UavDescription(Name, ShaderType, Type);
-    }
+    public UavDescription Clone() => new(Name, ShaderType, Type);
 }
 
 [DataContract]
@@ -48,7 +44,5 @@ public sealed class UavMapping {
     [DataMember]
     public UavDescription Description { get; set; }
 
-    public UavMapping Clone() {
-        return new UavMapping(Slot, Description.Clone());
-    }
+    public UavMapping Clone() => new(Slot, Description.Clone());
 }

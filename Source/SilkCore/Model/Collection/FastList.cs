@@ -5,6 +5,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace HelixToolkit.SharpDX.Core;
@@ -85,21 +86,13 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         InsertRange(Count, collection);
     }
 
-    public ReadOnlyCollection<T> AsReadOnly() {
-        return new ReadOnlyCollection<T>(this);
-    }
+    public ReadOnlyCollection<T> AsReadOnly() => new(this);
 
-    public int BinarySearch(T item) {
-        return BinarySearch(0, Count, item, null);
-    }
+    public int BinarySearch(T item) => BinarySearch(0, Count, item, null);
 
-    public int BinarySearch(T item, IComparer<T> comparer) {
-        return BinarySearch(0, Count, item, comparer);
-    }
+    public int BinarySearch(T item, IComparer<T> comparer) => BinarySearch(0, Count, item, comparer);
 
-    public int BinarySearch(int index, int count, T item, IComparer<T> comparer) {
-        return Array.BinarySearch(Items, index, count, item, comparer);
-    }
+    public int BinarySearch(int index, int count, T item, IComparer<T>? comparer) => Array.BinarySearch(Items, index, count, item, comparer);
 
     public void CopyTo(T[] array) {
         CopyTo(array, 0);
@@ -111,17 +104,17 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
 
     public void EnsureCapacity(int min) {
         if (Items.Length < min) {
-            var num = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
+            var num = Items.Length == 0
+                ? DefaultCapacity
+                : Items.Length * 2;
             if (num < min) num = min;
             Capacity = num;
         }
     }
 
-    public bool Exists(Predicate<T> match) {
-        return FindIndex(match) != -1;
-    }
+    public bool Exists(Predicate<T> match) => FindIndex(match) != -1;
 
-    public T Find(Predicate<T> match) {
+    public T? Find(Predicate<T> match) {
         for (var i = 0; i < Count; i++)
             if (match(Items[i]))
                 return Items[i];
@@ -139,13 +132,9 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         return list;
     }
 
-    public int FindIndex(Predicate<T> match) {
-        return FindIndex(0, Count, match);
-    }
+    public int FindIndex(Predicate<T> match) => FindIndex(0, Count, match);
 
-    public int FindIndex(int startIndex, Predicate<T> match) {
-        return FindIndex(startIndex, Count - startIndex, match);
-    }
+    public int FindIndex(int startIndex, Predicate<T> match) => FindIndex(startIndex, Count - startIndex, match);
 
     public int FindIndex(int startIndex, int count, Predicate<T> match) {
         var num = startIndex + count;
@@ -156,7 +145,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         return -1;
     }
 
-    public T FindLast(Predicate<T> match) {
+    public T? FindLast(Predicate<T> match) {
         for (var i = Count - 1; i >= 0; i--)
             if (match(Items[i]))
                 return Items[i];
@@ -164,13 +153,9 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         return default;
     }
 
-    public int FindLastIndex(Predicate<T> match) {
-        return FindLastIndex(Count - 1, Count, match);
-    }
+    public int FindLastIndex(Predicate<T> match) => FindLastIndex(Count - 1, Count, match);
 
-    public int FindLastIndex(int startIndex, Predicate<T> match) {
-        return FindLastIndex(startIndex, startIndex + 1, match);
-    }
+    public int FindLastIndex(int startIndex, Predicate<T> match) => FindLastIndex(startIndex, startIndex + 1, match);
 
     public int FindLastIndex(int startIndex, int count, Predicate<T> match) {
         var num = startIndex - count;
@@ -185,9 +170,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         for (var i = 0; i < Count; i++) action(Items[i]);
     }
 
-    public Enumerator GetEnumerator() {
-        return new Enumerator(this);
-    }
+    public Enumerator GetEnumerator() => new(this);
 
 
     public FastList<T> GetRange(int index, int count) {
@@ -197,13 +180,9 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         return list;
     }
 
-    public int IndexOf(T item, int index) {
-        return Array.IndexOf(Items, item, index, Count - index);
-    }
+    public int IndexOf(T item, int index) => Array.IndexOf(Items, item, index, Count - index);
 
-    public int IndexOf(T item, int index, int count) {
-        return Array.IndexOf(Items, item, index, count);
-    }
+    public int IndexOf(T item, int index, int count) => Array.IndexOf(Items, item, index, count);
 
     public void InsertRange(int index, IEnumerable<T> collection) {
         if (collection is ICollection<T> is2) {
@@ -226,18 +205,12 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         }
     }
 
-    private static bool IsCompatibleObject(object value) {
-        return value is T || (value == null && default(T) == null);
-    }
-
     public int LastIndexOf(T item) {
         if (Count == 0) return -1;
         return LastIndexOf(item, Count - 1, Count);
     }
 
-    public int LastIndexOf(T item, int index) {
-        return LastIndexOf(item, index, index + 1);
-    }
+    public int LastIndexOf(T item, int index) => LastIndexOf(item, index, index + 1);
 
     public int LastIndexOf(T item, int index, int count) {
         if (Count == 0) return -1;
@@ -307,7 +280,9 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
     public void TrimExcess() {
         if (Count == Capacity) return;
         var curr = Items;
-        Items = Count == 0 ? Empty : new T[Count];
+        Items = Count == 0
+            ? Empty
+            : new T[Count];
         if (Count > 0) Array.Copy(curr, 0, Items, 0, Count);
         Capacity = Count;
     }
@@ -334,9 +309,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
     ///     Gets the internal array used to hold data.
     /// </summary>
     /// <returns></returns>
-    public T[] GetInternalArray() {
-        return Items;
-    }
+    public T[] GetInternalArray() => Items;
 
     // Properties
 
@@ -374,9 +347,10 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
             return false;
         }
 
+        [AllowNull]
         public T Current { get; private set; }
 
-        object IEnumerator.Current => Current;
+        object? IEnumerator.Current => Current;
 
         void IEnumerator.Reset() {
             index = 0;
@@ -423,9 +397,7 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
         Array.Copy(Items, 0, array, arrayIndex, Count);
     }
 
-    public int IndexOf(T item) {
-        return Array.IndexOf(Items, item, 0, Count);
-    }
+    public int IndexOf(T item) => Array.IndexOf(Items, item, 0, Count);
 
     public void Insert(int index, T item) {
         if (Count == Items.Length) EnsureCapacity(Count + 1);
@@ -449,16 +421,12 @@ public class FastList<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerab
             throw new ArgumentOutOfRangeException(nameof(index));
         Count--;
         if (index < Count) Array.Copy(Items, index + 1, Items, index, Count - index);
-        Items[Count] = default;
+        Array.Clear(Items, Count, 1);
     }
 
-    IEnumerator<T> IEnumerable<T>.GetEnumerator() {
-        return new Enumerator(this);
-    }
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return new Enumerator(this);
-    }
+    IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
 
     public int Count { get; private set; }
 

@@ -293,9 +293,7 @@ public class AxisPlaneGridModel3D : Element3D {
     }
 
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new AxisPlaneGridNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new AxisPlaneGridNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         base.AssignDefaultValuesToSceneNode(node);

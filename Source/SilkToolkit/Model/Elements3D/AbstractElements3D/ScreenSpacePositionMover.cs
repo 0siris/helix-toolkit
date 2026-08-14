@@ -82,9 +82,7 @@ public abstract class ScreenSpacePositionMoverBase : Panel2D {
     public abstract class Node2DMoverBase : PanelNode2D {
         public bool EnableMover { get; set; } = true;
 
-        protected override bool CanRender(RenderContext2D context) {
-            return base.CanRender(context) && EnableMover;
-        }
+        protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && EnableMover;
     }
 }
 
@@ -156,9 +154,7 @@ public class ScreenSpacePositionMover : ScreenSpacePositionMoverBase {
         MoveRightBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightBottom); };
     }
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new Node2DMover { Buttons = buttons };
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new Node2DMover { Buttons = buttons };
 
     public sealed class Node2DMover : Node2DMoverBase {
         public Button2D[]? Buttons { get; set; }

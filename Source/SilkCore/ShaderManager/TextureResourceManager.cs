@@ -38,9 +38,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     /// </summary>
     /// <param name="textureStream">The texture model.</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Register(TextureModel textureStream) {
-        return Register(textureStream, true);
-    }
+    public ShaderResourceViewProxy? Register(TextureModel? textureStream) => Register(textureStream, true);
 
     /// <summary>
     ///     Registers the specified material unique identifier.
@@ -48,7 +46,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
     /// <param name="textureModel">The texture model.</param>
     /// <param name="enableAutoGenMipMap">Enable generate mipmaps automatically</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Register(TextureModel textureModel, bool enableAutoGenMipMap) {
+    public ShaderResourceViewProxy? Register(TextureModel? textureModel, bool enableAutoGenMipMap) {
         if (textureModel == null) return null;
         var targetDict = enableAutoGenMipMap ? resourceDictionaryMipMaps : resourceDictionaryNoMipMaps;
         lock (targetDict) {

@@ -119,11 +119,7 @@ public static class BoundingBoxExtensions {
         return new BoundingBox(min, max);
     }
 
-    public static RectangleF Translate(this RectangleF rect, Vector2 translation) {
-        return new RectangleF(rect.Left + translation.X, rect.Top + translation.Y, rect.Width, rect.Height);
-    }
+    public static RectangleF Translate(this RectangleF rect, Vector2 translation) => new(rect.Left + translation.X, rect.Top + translation.Y, rect.Width, rect.Height);
 
-    public static Vector3 Center(this BoundingBox box) {
-        return (box.Minimum + box.Maximum) * 0.5f;
-    }
+    public static Vector3 Center(this BoundingBox box) => (box.Minimum + box.Maximum) * 0.5f;
 }

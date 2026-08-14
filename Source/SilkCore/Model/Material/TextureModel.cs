@@ -29,7 +29,7 @@ public sealed class TextureModel {
     /// </summary>
     /// <param name="contentId">The content identifier.</param>
     /// <param name="loader">The loader.</param>
-    public TextureModel(Guid contentId, ITextureInfoLoader loader) {
+    public TextureModel(Guid contentId, ITextureInfoLoader? loader) {
         Guid = contentId;
         TextureInfoLoader = loader ?? NullLoader.Null;
     }
@@ -190,7 +190,7 @@ public sealed class TextureModel {
     /// <value>
     ///     The tag.
     /// </value>
-    public object Tag { get; }
+    public object? Tag { get; }
 
     /// <summary>
     ///     Gets the texture information loader.
@@ -205,28 +205,20 @@ public sealed class TextureModel {
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <returns></returns>
-    public static TextureModel Create(Stream stream) {
-        return TextureModelRepository != null ? TextureModelRepository.Create(stream) : new TextureModel(stream);
-    }
+    public static TextureModel? Create(Stream? stream) => TextureModelRepository.Create(stream);
 
     /// <summary>
     ///     Creates texture model from specified texture path.
     /// </summary>
     /// <param name="texturePath">The texture path.</param>
     /// <returns></returns>
-    public static TextureModel Create(string texturePath) {
-        return TextureModelRepository != null
-                   ? TextureModelRepository.Create(texturePath)
-                   : new TextureModel(texturePath);
-    }
+    public static TextureModel? Create(string? texturePath) => TextureModelRepository.Create(texturePath);
 
     /// <summary>
     ///     Loads the texture info.
     /// </summary>
     /// <returns></returns>
-    public TextureInfo Load() {
-        return TextureInfoLoader.Load(Guid);
-    }
+    public TextureInfo Load() => TextureInfoLoader.Load(Guid);
 
     /// <summary>
     ///     Completes loading
@@ -244,18 +236,14 @@ public sealed class TextureModel {
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator TextureModel(Stream stream) {
-        return TextureModelRepository != null ? TextureModelRepository.Create(stream) : new TextureModel(stream);
-    }
+    public static implicit operator TextureModel?(Stream? stream) => TextureModelRepository.Create(stream);
 
     internal sealed class NullLoader : ITextureInfoLoader {
         public static readonly NullLoader Null = new();
 
         public void Complete(Guid id, TextureInfo info, bool succeeded) { }
 
-        public TextureInfo Load(Guid id) {
-            return TextureInfo.Null;
-        }
+        public TextureInfo Load(Guid id) => TextureInfo.Null;
     }
 
     private sealed class StreamLoader : ITextureInfoLoader {
@@ -268,12 +256,10 @@ public sealed class TextureModel {
         }
 
         public void Complete(Guid id, TextureInfo info, bool succeeded) {
-            if (autoClose) info.Texture?.Dispose();
+            if (autoClose) info.Texture.Dispose();
         }
 
-        public TextureInfo Load(Guid id) {
-            return info;
-        }
+        public TextureInfo Load(Guid id) => info;
     }
 
     private sealed class Color4ArrayLoader : ITextureInfoLoader {
@@ -293,9 +279,7 @@ public sealed class TextureModel {
 
         public void Complete(Guid id, TextureInfo info, bool succeeded) { }
 
-        public TextureInfo Load(Guid id) {
-            return info;
-        }
+        public TextureInfo Load(Guid id) => info;
     }
 
     private sealed class ByteArrayLoader : ITextureInfoLoader {
@@ -315,9 +299,7 @@ public sealed class TextureModel {
 
         public void Complete(Guid id, TextureInfo info, bool succeeded) { }
 
-        public TextureInfo Load(Guid id) {
-            return info;
-        }
+        public TextureInfo Load(Guid id) => info;
     }
 
     private sealed class RawDataLoader : ITextureInfoLoader {
@@ -337,9 +319,7 @@ public sealed class TextureModel {
 
         public void Complete(Guid id, TextureInfo info, bool succeeded) { }
 
-        public TextureInfo Load(Guid id) {
-            return info;
-        }
+        public TextureInfo Load(Guid id) => info;
     }
 }
 
@@ -384,7 +364,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Stream texture, Format pixelFormat, int width, bool generateMipMaps = true) {
         Texture = texture ?? throw new ArgumentNullException("Texture cannot be null.");
-        Width = width == 0 ? throw new ArgumentException("Height cannot be zero.") : width;
+        Width = width == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : width;
         DataType = TextureDataType.Stream;
         IsCompressed = false;
         PixelFormat = pixelFormat;
@@ -403,7 +385,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Stream texture, Format pixelFormat, int width, int height, bool generateMipMaps = true)
         : this(texture, pixelFormat, width, generateMipMaps) {
-        Height = height == 0 ? throw new ArgumentException("Height cannot be zero.") : height;
+        Height = height == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : height;
         Dimension = 2;
     }
 
@@ -426,7 +410,9 @@ public sealed class TextureInfo {
         bool generateMipMaps = true
     )
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0 ? throw new ArgumentOutOfRangeException("Depth cannot be zero.") : depth;
+        Depth = depth == 0
+            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
+            : depth;
         Dimension = 3;
     }
 
@@ -441,7 +427,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(byte[] texture, Format pixelFormat, int width, bool generateMipMaps = true) {
         TextureRaw = texture ?? throw new ArgumentNullException("Texture cannot be null.");
-        Width = width == 0 ? throw new ArgumentException("Height cannot be zero.") : width;
+        Width = width == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : width;
         DataType = TextureDataType.ByteArray;
         IsCompressed = false;
         PixelFormat = pixelFormat;
@@ -460,7 +448,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(byte[] texture, Format pixelFormat, int width, int height, bool generateMipMaps = true)
         : this(texture, pixelFormat, width, generateMipMaps) {
-        Height = height == 0 ? throw new ArgumentException("Height cannot be zero.") : height;
+        Height = height == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : height;
         Dimension = 2;
     }
 
@@ -483,7 +473,9 @@ public sealed class TextureInfo {
         bool generateMipMaps = true
     )
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0 ? throw new ArgumentOutOfRangeException("Depth cannot be zero.") : depth;
+        Depth = depth == 0
+            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
+            : depth;
         Dimension = 3;
     }
 
@@ -514,7 +506,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Color4[] texture, int width, bool generateMipMaps = true)
         : this(texture, generateMipMaps) {
-        Width = width == 0 ? throw new ArgumentException("Height cannot be zero.") : width;
+        Width = width == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : width;
     }
 
     /// <summary>
@@ -527,7 +521,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Color4[] texture, int width, int height, bool generateMipMaps = true)
         : this(texture, width, generateMipMaps) {
-        Height = height == 0 ? throw new ArgumentException("Height cannot be zero.") : height;
+        Height = height == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : height;
         Dimension = 2;
     }
 
@@ -542,7 +538,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentOutOfRangeException">Depth cannot be zero.</exception>
     public TextureInfo(Color4[] texture, int width, int height, int depth, bool generateMipMaps = true)
         : this(texture, width, height, generateMipMaps) {
-        Depth = depth == 0 ? throw new ArgumentOutOfRangeException("Depth cannot be zero.") : depth;
+        Depth = depth == 0
+            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
+            : depth;
         Dimension = 3;
     }
 
@@ -556,8 +554,12 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentNullException">Texture cannot be null.</exception>
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(nint texture, Format pixelFormat, int width, bool generateMipMaps = true) {
-        RawPointer = texture == nint.Zero ? throw new ArgumentNullException("Texture cannot be null.") : texture;
-        Width = width == 0 ? throw new ArgumentException("Height cannot be zero.") : width;
+        RawPointer = texture == nint.Zero
+            ? throw new ArgumentNullException("Texture cannot be null.")
+            : texture;
+        Width = width == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : width;
         DataType = TextureDataType.RawPointer;
         IsCompressed = false;
         PixelFormat = pixelFormat;
@@ -576,7 +578,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(nint texture, Format pixelFormat, int width, int height, bool generateMipMaps = true)
         : this(texture, pixelFormat, width, generateMipMaps) {
-        Height = height == 0 ? throw new ArgumentException("Height cannot be zero.") : height;
+        Height = height == 0
+            ? throw new ArgumentException("Height cannot be zero.")
+            : height;
         Dimension = 2;
     }
 
@@ -592,7 +596,9 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentOutOfRangeException">Depth cannot be zero.</exception>
     public TextureInfo(nint texture, Format pixelFormat, int width, int height, int depth, bool generateMipMaps = true)
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0 ? throw new ArgumentOutOfRangeException("Depth cannot be zero.") : depth;
+        Depth = depth == 0
+            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
+            : depth;
         Dimension = 3;
     }
 
@@ -671,5 +677,5 @@ public sealed class TextureInfo {
     /// <value>
     ///     The tag.
     /// </value>
-    public object Tag { get; }
+    public object? Tag { get; }
 }

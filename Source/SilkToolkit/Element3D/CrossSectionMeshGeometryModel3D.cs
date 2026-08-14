@@ -16,9 +16,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Defines the <see cref="CrossSectionMeshGeometryModel3D" />
 /// </summary>
 public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
-    protected override SceneNode OnCreateSceneNode() {
-        return new CrossSectionMeshNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new CrossSectionMeshNode();
 
     #region Dependency Properties
 

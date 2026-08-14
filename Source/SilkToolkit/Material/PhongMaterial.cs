@@ -484,8 +484,8 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AmbientColor {
-        get { return (Color4)GetValue(AmbientColorProperty); }
-        set { SetValue(AmbientColorProperty, value); }
+        get => (Color4)GetValue(AmbientColorProperty);
+        set => SetValue(AmbientColorProperty, value);
     }
 
     /// <summary>
@@ -494,8 +494,8 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 DiffuseColor {
-        get { return (Color4)GetValue(DiffuseColorProperty); }
-        set { SetValue(DiffuseColorProperty, value); }
+        get => (Color4)GetValue(DiffuseColorProperty);
+        set => SetValue(DiffuseColorProperty, value);
     }
 
     /// <summary>
@@ -504,8 +504,8 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 EmissiveColor {
-        get { return (Color4)GetValue(EmissiveColorProperty); }
-        set { SetValue(EmissiveColorProperty, value); }
+        get => (Color4)GetValue(EmissiveColorProperty);
+        set => SetValue(EmissiveColorProperty, value);
     }
 
     /// <summary>
@@ -513,8 +513,8 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 ReflectiveColor {
-        get { return (Color4)GetValue(ReflectiveColorProperty); }
-        set { SetValue(ReflectiveColorProperty, value); }
+        get => (Color4)GetValue(ReflectiveColorProperty);
+        set => SetValue(ReflectiveColorProperty, value);
     }
 
     /// <summary>
@@ -523,8 +523,8 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 SpecularColor {
-        get { return (Color4)GetValue(SpecularColorProperty); }
-        set { SetValue(SpecularColorProperty, value); }
+        get => (Color4)GetValue(SpecularColorProperty);
+        set => SetValue(SpecularColorProperty, value);
     }
 
     /// <summary>
@@ -593,8 +593,8 @@ public class PhongMaterial : Material {
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get { return (Vector4)GetValue(DisplacementMapScaleMaskProperty); }
-        set { SetValue(DisplacementMapScaleMaskProperty, value); }
+        get => (Vector4)GetValue(DisplacementMapScaleMaskProperty);
+        set => SetValue(DisplacementMapScaleMaskProperty, value);
     }
 
     /// <summary>
@@ -751,85 +751,79 @@ public class PhongMaterial : Material {
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
-    public virtual PhongMaterial CloneMaterial() {
-        return new PhongMaterial {
-            AmbientColor = AmbientColor,
-            DiffuseColor = DiffuseColor,
-            DisplacementMap = DisplacementMap,
-            EmissiveColor = EmissiveColor,
-            Name = Name,
-            NormalMap = NormalMap,
-            ReflectiveColor = ReflectiveColor,
-            SpecularColor = SpecularColor,
-            SpecularShininess = SpecularShininess,
-            DiffuseMap = DiffuseMap,
-            DiffuseAlphaMap = DiffuseAlphaMap,
-            SpecularColorMap = SpecularColorMap,
-            EmissiveMap = EmissiveMap,
-            DisplacementMapScaleMask = DisplacementMapScaleMask,
-            DiffuseMapSampler = DiffuseMapSampler,
-            DisplacementMapSampler = DisplacementMapSampler,
-            MaxTessellationDistance = (float)MaxTessellationDistance,
-            MinTessellationDistance = (float)MinTessellationDistance,
-            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
-            EnableTessellation = EnableTessellation,
-            RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
-            RenderDiffuseMap = RenderDiffuseMap,
-            RenderDisplacementMap = RenderDisplacementMap,
-            RenderNormalMap = RenderNormalMap,
-            RenderEnvironmentMap = RenderEnvironmentMap,
-            RenderShadowMap = RenderShadowMap,
-            RenderSpecularColorMap = RenderSpecularColorMap,
-            RenderEmissiveMap = RenderEmissiveMap,
-            EnableAutoTangent = EnableAutoTangent,
-            UVTransform = UVTransform,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = VertexColorBlendingFactor
-        };
-    }
+    public virtual PhongMaterial CloneMaterial() => new() {
+        AmbientColor = AmbientColor,
+        DiffuseColor = DiffuseColor,
+        DisplacementMap = DisplacementMap,
+        EmissiveColor = EmissiveColor,
+        Name = Name,
+        NormalMap = NormalMap,
+        ReflectiveColor = ReflectiveColor,
+        SpecularColor = SpecularColor,
+        SpecularShininess = SpecularShininess,
+        DiffuseMap = DiffuseMap,
+        DiffuseAlphaMap = DiffuseAlphaMap,
+        SpecularColorMap = SpecularColorMap,
+        EmissiveMap = EmissiveMap,
+        DisplacementMapScaleMask = DisplacementMapScaleMask,
+        DiffuseMapSampler = DiffuseMapSampler,
+        DisplacementMapSampler = DisplacementMapSampler,
+        MaxTessellationDistance = (float)MaxTessellationDistance,
+        MinTessellationDistance = (float)MinTessellationDistance,
+        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+        EnableTessellation = EnableTessellation,
+        RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
+        RenderDiffuseMap = RenderDiffuseMap,
+        RenderDisplacementMap = RenderDisplacementMap,
+        RenderNormalMap = RenderNormalMap,
+        RenderEnvironmentMap = RenderEnvironmentMap,
+        RenderShadowMap = RenderShadowMap,
+        RenderSpecularColorMap = RenderSpecularColorMap,
+        RenderEmissiveMap = RenderEmissiveMap,
+        EnableAutoTangent = EnableAutoTangent,
+        UVTransform = UVTransform,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = VertexColorBlendingFactor
+    };
 
-    protected override Freezable CreateInstanceCore() {
-        return CloneMaterial();
-    }
+    protected override Freezable CreateInstanceCore() => CloneMaterial();
 
-    protected override MaterialCore OnCreateCore() {
-        return new PhongMaterialCore {
-            AmbientColor = AmbientColor,
-            DiffuseColor = DiffuseColor,
-            DisplacementMap = DisplacementMap,
-            EmissiveColor = EmissiveColor,
-            Name = Name,
-            NormalMap = NormalMap,
-            ReflectiveColor = ReflectiveColor,
-            SpecularColor = SpecularColor,
-            SpecularShininess = SpecularShininess,
-            DiffuseMap = DiffuseMap,
-            DiffuseAlphaMap = DiffuseAlphaMap,
-            SpecularColorMap = SpecularColorMap,
-            EmissiveMap = EmissiveMap,
-            DisplacementMapScaleMask = DisplacementMapScaleMask,
-            DiffuseMapSampler = DiffuseMapSampler,
-            DisplacementMapSampler = DisplacementMapSampler,
-            MaxTessellationDistance = (float)MaxTessellationDistance,
-            MinTessellationDistance = (float)MinTessellationDistance,
-            MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-            MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
-            EnableTessellation = EnableTessellation,
-            RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
-            RenderDiffuseMap = RenderDiffuseMap,
-            RenderDisplacementMap = RenderDisplacementMap,
-            RenderNormalMap = RenderNormalMap,
-            RenderEnvironmentMap = RenderEnvironmentMap,
-            RenderShadowMap = RenderShadowMap,
-            RenderSpecularColorMap = RenderSpecularColorMap,
-            RenderEmissiveMap = RenderEmissiveMap,
-            EnableAutoTangent = EnableAutoTangent,
-            UvTransform = UVTransform,
-            EnableFlatShading = EnableFlatShading,
-            VertexColorBlendingFactor = (float)VertexColorBlendingFactor
-        };
-    }
+    protected override MaterialCore OnCreateCore() => new PhongMaterialCore {
+        AmbientColor = AmbientColor,
+        DiffuseColor = DiffuseColor,
+        DisplacementMap = DisplacementMap,
+        EmissiveColor = EmissiveColor,
+        Name = Name,
+        NormalMap = NormalMap,
+        ReflectiveColor = ReflectiveColor,
+        SpecularColor = SpecularColor,
+        SpecularShininess = SpecularShininess,
+        DiffuseMap = DiffuseMap,
+        DiffuseAlphaMap = DiffuseAlphaMap,
+        SpecularColorMap = SpecularColorMap,
+        EmissiveMap = EmissiveMap,
+        DisplacementMapScaleMask = DisplacementMapScaleMask,
+        DiffuseMapSampler = DiffuseMapSampler,
+        DisplacementMapSampler = DisplacementMapSampler,
+        MaxTessellationDistance = (float)MaxTessellationDistance,
+        MinTessellationDistance = (float)MinTessellationDistance,
+        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+        EnableTessellation = EnableTessellation,
+        RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
+        RenderDiffuseMap = RenderDiffuseMap,
+        RenderDisplacementMap = RenderDisplacementMap,
+        RenderNormalMap = RenderNormalMap,
+        RenderEnvironmentMap = RenderEnvironmentMap,
+        RenderShadowMap = RenderShadowMap,
+        RenderSpecularColorMap = RenderSpecularColorMap,
+        RenderEmissiveMap = RenderEmissiveMap,
+        EnableAutoTangent = EnableAutoTangent,
+        UvTransform = UVTransform,
+        EnableFlatShading = EnableFlatShading,
+        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+    };
 }
 
 #pragma warning restore CS8601, CS8602

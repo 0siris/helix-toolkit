@@ -12,9 +12,7 @@ namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 /// </summary>
 /// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Panel2D" />
 public class RelativePositionCanvas2D : Panel2D {
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new Node2DRelativePositionCanvas();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new Node2DRelativePositionCanvas();
 
 
     protected class Node2DRelativePositionCanvas : PanelNode2D {
@@ -72,9 +70,7 @@ public class RelativePositionCanvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetRelativeX(Element2DCore element) {
-        return (double)element.GetValue(RelativeXProperty);
-    }
+    public static double GetRelativeX(Element2DCore element) => (double)element.GetValue(RelativeXProperty);
 
     /// <summary>
     ///     The relative y property
@@ -99,9 +95,7 @@ public class RelativePositionCanvas2D : Panel2D {
     /// </summary>
     /// <param name="element">The element.</param>
     /// <returns></returns>
-    public static double GetRelativeY(Element2DCore element) {
-        return (double)element.GetValue(RelativeYProperty);
-    }
+    public static double GetRelativeY(Element2DCore element) => (double)element.GetValue(RelativeYProperty);
 
     #endregion
 }

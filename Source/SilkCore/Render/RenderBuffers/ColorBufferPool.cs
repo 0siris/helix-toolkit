@@ -31,7 +31,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The current SRV.
     /// </value>
-    public ShaderResourceViewProxy CurrentSrv => textures[0];
+    public ShaderResourceViewProxy? CurrentSrv => textures[0];
 
     /// <summary>
     ///     Gets the next SRV.
@@ -39,7 +39,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The next SRV.
     /// </value>
-    public ShaderResourceViewProxy NextSrv => textures[1];
+    public ShaderResourceViewProxy? NextSrv => textures[1];
 
     public int Width => texture2DDesc.Width;
 
@@ -51,7 +51,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The current RTV.
     /// </value>
-    public ShaderResourceViewProxy CurrentRtv => textures[0];
+    public ShaderResourceViewProxy? CurrentRtv => textures[0];
 
     /// <summary>
     ///     Gets the next RTV.
@@ -59,9 +59,9 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// <value>
     ///     The next RTV.
     /// </value>
-    public ShaderResourceViewProxy NextRtv => textures[1];
+    public ShaderResourceViewProxy? NextRtv => textures[1];
 
-    public Resource CurrentTexture => textures[0].Resource;
+    public Resource? CurrentTexture => textures[0]?.Resource;
     public bool Initialized { get; private set; }
 
     /// <summary>
@@ -149,7 +149,7 @@ public sealed class TexturePool : DisposeObject {
         bag ??= pool.GetOrAdd(format, d => []);
         var desc = description;
         desc.Format = format;
-        ShaderResourceViewProxy texture = null;
+        ShaderResourceViewProxy? texture = null;
 
         if ((desc.BindFlags & BindFlags.RenderTarget) != 0) {
             texture = new PooledShaderResourceViewProxy(deviceResourse, desc, bag);

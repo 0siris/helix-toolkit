@@ -72,9 +72,7 @@ public class PointLight3D : Light3D {
         set => SetValue(RangeProperty, value);
     }
 
-    protected override SceneNode OnCreateSceneNode() {
-        return new PointLightNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new PointLightNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);

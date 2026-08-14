@@ -35,7 +35,6 @@ public sealed class BillboardMaterialCore : MaterialCore, IBillboardRenderParams
     public override MaterialVariable CreateMaterialVariables(
         IEffectsManager manager,
         IRenderTechnique technique
-    ) {
-        return new BillboardMaterialVariable(manager, technique, this);
-    }
+    )
+        => new BillboardMaterialVariable(manager, technique, this);
 }

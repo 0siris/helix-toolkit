@@ -23,24 +23,16 @@ public static class Color4Extensions {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetRed(this Color4 color) {
-        return color.X;
-    }
+    public static float GetRed(this Color4 color) => color.X;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetGreen(this Color4 color) {
-        return color.Y;
-    }
+    public static float GetGreen(this Color4 color) => color.Y;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetBlue(this Color4 color) {
-        return color.Z;
-    }
+    public static float GetBlue(this Color4 color) => color.Z;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float GetAlpha(this Color4 color) {
-        return color.W;
-    }
+    public static float GetAlpha(this Color4 color) => color.W;
 
 
     private static void FillConstants(Dictionary<string, object> hash, Type enumType) {
@@ -147,9 +139,7 @@ public static class Color4Extensions {
     /// </summary>
     /// <param name="argb">The ARGB.</param>
     /// <returns></returns>
-    public static Color FromArgb(this int argb) {
-        return new Color((byte)(argb >> 16), (byte)(argb >> 8), (byte)argb, (byte)(argb >> 24));
-    }
+    public static Color FromArgb(this int argb) => new((byte)(argb >> 16), (byte)(argb >> 8), (byte)argb, (byte)(argb >> 24));
 
 
     /// <summary>
@@ -159,9 +149,7 @@ public static class Color4Extensions {
     /// <param name="g">The g.</param>
     /// <param name="b">The b.</param>
     /// <returns></returns>
-    public static Color FromArgb(int r, int g, int b) {
-        return new Color((byte)r, (byte)g, (byte)b);
-    }
+    public static Color FromArgb(int r, int g, int b) => new((byte)r, (byte)g, (byte)b);
 
     /// <summary>
     ///     Froms the ARGB.
@@ -171,9 +159,7 @@ public static class Color4Extensions {
     /// <param name="g">The g.</param>
     /// <param name="b">The b.</param>
     /// <returns></returns>
-    public static Color FromArgb(int a, int r, int g, int b) {
-        return new Color((byte)r, (byte)g, (byte)b, (byte)a);
-    }
+    public static Color FromArgb(int a, int r, int g, int b) => new((byte)r, (byte)g, (byte)b, (byte)a);
 
 
     public static int ToArgb(this Color color) {
@@ -203,13 +189,11 @@ public static class Color4Extensions {
         return abPacked;
     }
 
-    internal static object GetNamedColor(string name) {
+    internal static object? GetNamedColor(string name) {
         Colors.TryGetValue(name, out var color);
         return color;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color4 ChangeIntensity(this Color4 c, float intensity) {
-        return new Color4(c.GetRed() * intensity, c.GetGreen() * intensity, c.GetBlue() * intensity, c.GetAlpha());
-    }
+    public static Color4 ChangeIntensity(this Color4 c, float intensity) => new(c.GetRed() * intensity, c.GetGreen() * intensity, c.GetBlue() * intensity, c.GetAlpha());
 }

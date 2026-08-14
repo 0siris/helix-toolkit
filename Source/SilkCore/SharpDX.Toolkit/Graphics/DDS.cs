@@ -76,9 +76,7 @@ internal class Dds {
     /// </summary>
     public const uint MagicHeader = 0x20534444; // "DDS "
 
-    private static int FourCc(char c0, char c1, char c2, char c3) {
-        return c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
-    }
+    private static int FourCc(char c0, char c1, char c2, char c3) => c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
 
     /// <summary>
     ///     Internal structure used to describe a DDS pixel format.

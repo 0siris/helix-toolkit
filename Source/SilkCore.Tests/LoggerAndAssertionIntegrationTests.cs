@@ -1,6 +1,7 @@
 using System.Globalization;
 using Assertions;
 using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Utilities;
 using LoggerLib;
 using Microsoft.Extensions.Logging;
 
@@ -49,10 +50,28 @@ public sealed class LoggerAndAssertionIntegrationTests {
     [Trait("Category", "Unit")]
     public void Assertions_PreserveArgumentAndStateContracts() {
         const string valid = "valid";
+        int[] values = [1, 2];
 
         Assert.Equal(valid, valid.AssertArgumentNotNull());
         Assert.Equal(valid, valid.AssertNotNull());
+        Assert.Same(values, values.AssertLengthBiggerOrEqual(2));
         Assert.Throws<ArgumentNullException>(() => ((string?)null).AssertArgumentNotNull());
         Assert.Throws<AssertException>(() => ((string?)null).AssertNotNull());
+        Assert.Throws<AssertException<int[]>>(() => values.AssertLengthBiggerOrEqual(3));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TextureModelRepository_PreservesOptionalInputsAndReusesStreams() {
+        var repository = new TextureModelRepository();
+        using var stream = new MemoryStream([1, 2, 3]);
+
+        Assert.Null(repository.Create((Stream?)null));
+        Assert.Null(repository.Create((string?)null));
+        Assert.Null(repository.Create(string.Empty));
+
+        var texture = repository.Create(stream);
+        Assert.NotNull(texture);
+        Assert.Same(texture, repository.Create(stream));
     }
 }

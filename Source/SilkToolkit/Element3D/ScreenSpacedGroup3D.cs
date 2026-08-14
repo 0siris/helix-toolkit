@@ -23,7 +23,5 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     </para>
 /// </summary>
 public sealed class ScreenSpacedGroup3D : ScreenSpacedElement3D {
-    protected override SceneNode OnCreateSceneNode() {
-        return new ScreenSpacedNode();
-    }
+    protected override SceneNode OnCreateSceneNode() => new ScreenSpacedNode();
 }

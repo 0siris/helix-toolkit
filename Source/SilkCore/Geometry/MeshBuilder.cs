@@ -226,13 +226,13 @@ public class MeshBuilder {
     /// <summary>
     ///     The normal vectors.
     /// </summary>
-    private Vector3DCollection normals;
+    private Vector3DCollection? normals;
 
     /// <summary>
     ///     Gets the normal vectors of the mesh.
     /// </summary>
     /// <value>The normal vectors.</value>
-    public Vector3DCollection Normals {
+    public Vector3DCollection? Normals {
         get => normals;
         set => normals = value;
     }
@@ -240,13 +240,13 @@ public class MeshBuilder {
     /// <summary>
     ///     The texture coordinates.
     /// </summary>
-    private PointCollection textureCoordinates;
+    private PointCollection? textureCoordinates;
 
     /// <summary>
     ///     Gets the texture coordinates of the mesh.
     /// </summary>
     /// <value>The texture coordinates.</value>
-    public PointCollection TextureCoordinates {
+    public PointCollection? TextureCoordinates {
         get => textureCoordinates;
         set => textureCoordinates = value;
     }
@@ -254,13 +254,13 @@ public class MeshBuilder {
     /// <summary>
     ///     The Tangents.
     /// </summary>
-    private Vector3DCollection tangents;
+    private Vector3DCollection? tangents;
 
     /// <summary>
     ///     Gets and sets the tangents of the mesh.
     /// </summary>
     /// <value>The tangents.</value>
-    public Vector3DCollection Tangents {
+    public Vector3DCollection? Tangents {
         get => tangents;
         set => tangents = value;
     }
@@ -268,13 +268,13 @@ public class MeshBuilder {
     /// <summary>
     ///     The Bi-Tangents.
     /// </summary>
-    private Vector3DCollection bitangents;
+    private Vector3DCollection? bitangents;
 
     /// <summary>
     ///     Gets and sets the bi-tangents of the mesh.
     /// </summary>
     /// <value>The bi-tangents.</value>
-    public Vector3DCollection BiTangents {
+    public Vector3DCollection? BiTangents {
         get => bitangents;
         set => bitangents = value;
     }
@@ -379,11 +379,11 @@ public class MeshBuilder {
     /// </returns>
     public static IList<Point> GetCircle(int thetaDiv, bool closed = false) {
         if (thetaDiv < 2) throw new InvalidOperationException(WrongNumberOfDivisions);
-        Dictionary<int, IList<Point>> cache = null;
-        IList<Point> circle;
-        if (!IsCacheExists(ref cache, thetaDiv, closed, out circle)) {
+        var cache = (closed ? ClosedCircleCache : CircleCache).Value ??
+                    throw new InvalidOperationException("The circle cache is unavailable.");
+        if (!cache.TryGetValue(thetaDiv, out var circle)) {
             circle = new List<Point> { Capacity = closed ? thetaDiv + 1 : thetaDiv };
-            cache!.Add(thetaDiv, circle);
+            cache.Add(thetaDiv, circle);
             // Determine the angle steps
             var angle = (DoubleOrSingle)Math.PI * 2f / thetaDiv;
             for (var i = 0; i < thetaDiv; i++)
@@ -393,21 +393,8 @@ public class MeshBuilder {
 
         // Since Vector2Collection is not Freezable,
         // return new IList<Vector> to avoid manipulation of the Cached Values
-        if (circle != null && circle.Count > 0) return [.. circle];
+        if (circle.Count > 0) return [.. circle];
         return [];
-
-        static bool IsCacheExists(
-            ref Dictionary<int, IList<Point>> cache,
-            int thetaDiv,
-            bool closed,
-            out IList<Point> circle
-        ) {
-            if (closed)
-                cache = ClosedCircleCache.Value;
-            else
-                cache = CircleCache.Value;
-            return cache!.TryGetValue(thetaDiv, out circle);
-        }
     }
 
     /// <summary>
@@ -478,25 +465,19 @@ public class MeshBuilder {
     /// </summary>
     /// <param name="meshFaces">The Faces of the Mesh</param>
     public void ComputeTangents(MeshFaces meshFaces) {
+        var meshNormals = normals;
+        var meshTextureCoordinates = textureCoordinates;
+        if (meshNormals is null || meshTextureCoordinates is null) return;
+
         switch (meshFaces) {
             case MeshFaces.Default:
-                if ((positions != null) & (triangleIndices != null) & (normals != null) &
-                    (textureCoordinates != null)) {
-                    Vector3DCollection t1, t2;
-                    ComputeTangents(positions, normals, textureCoordinates, triangleIndices, out t1, out t2);
-                    tangents = t1;
-                    bitangents = t2;
-                }
+                ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out tangents,
+                                out bitangents);
 
                 break;
             case MeshFaces.QuadPatches:
-                if ((positions != null) & (triangleIndices != null) & (normals != null) &
-                    (textureCoordinates != null)) {
-                    Vector3DCollection t1, t2;
-                    ComputeTangentsQuads(positions, normals, textureCoordinates, triangleIndices, out t1, out t2);
-                    tangents = t1;
-                    bitangents = t2;
-                }
+                ComputeTangentsQuads(positions, meshNormals, meshTextureCoordinates, triangleIndices, out tangents,
+                                     out bitangents);
 
                 break;
         }
@@ -625,25 +606,20 @@ public class MeshBuilder {
     /// <param name="meshFaces">The MeshFaces.</param>
     /// <param name="tangents">Also calculate the Tangents or not.</param>
     public void ComputeNormalsAndTangents(MeshFaces meshFaces, bool tangents = false) {
-        if (!HasNormals & (positions != null) & (triangleIndices != null))
-            ComputeNormals(positions, triangleIndices, out normals);
+        if (!HasNormals) ComputeNormals(positions, triangleIndices, out normals);
+        var meshNormals = normals;
+        var meshTextureCoordinates = textureCoordinates;
+        if (!tangents || meshNormals is null || meshTextureCoordinates is null) return;
+
         switch (meshFaces) {
             case MeshFaces.Default:
-                if (tangents & HasNormals & (textureCoordinates != null)) {
-                    Vector3DCollection t1, t2;
-                    ComputeTangents(positions, normals, textureCoordinates, triangleIndices, out t1, out t2);
-                    this.tangents = t1;
-                    bitangents = t2;
-                }
+                ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out this.tangents,
+                                out bitangents);
 
                 break;
             case MeshFaces.QuadPatches:
-                if (tangents & HasNormals & (textureCoordinates != null)) {
-                    Vector3DCollection t1, t2;
-                    ComputeTangentsQuads(positions, normals, textureCoordinates, triangleIndices, out t1, out t2);
-                    this.tangents = t1;
-                    bitangents = t2;
-                }
+                ComputeTangentsQuads(positions, meshNormals, meshTextureCoordinates, triangleIndices,
+                                     out this.tangents, out bitangents);
 
                 break;
         }
@@ -1271,9 +1247,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -1306,9 +1282,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -1341,9 +1317,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -1376,9 +1352,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -1411,9 +1387,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -1446,9 +1422,9 @@ public class MeshBuilder {
         };
 
         foreach (var position in positions) this.positions.Add(position);
-        foreach (var normal in normals) this.normals.Add(normal);
+        foreach (var normal in normals) this.normals?.Add(normal);
         foreach (var index in indices) triangleIndices.Add(index);
-        foreach (var texCoord in texcoords) textureCoordinates.Add(texCoord);
+        foreach (var texCoord in texcoords) textureCoordinates?.Add(texCoord);
     }
 
     /// <summary>
@@ -2018,9 +1994,10 @@ public class MeshBuilder {
         var rows = points.Count / columns;
 
         AddRectangularMeshTriangleIndices(index0, rows, columns);
-        if (normals != null) AddRectangularMeshNormals(index0, rows, columns);
+        if (normals is { } meshNormals) AddRectangularMeshNormals(meshNormals, index0, rows, columns);
 
-        if (textureCoordinates != null) AddRectangularMeshTextureCoordinates(rows, columns);
+        if (textureCoordinates is { } meshTextureCoordinates)
+            AddRectangularMeshTextureCoordinates(meshTextureCoordinates, rows, columns);
     }
 
     /// <summary>
@@ -2055,15 +2032,15 @@ public class MeshBuilder {
 
         AddRectangularMeshTriangleIndices(index0, rows, columns, closed0, closed1);
 
-        if (normals != null) AddRectangularMeshNormals(index0, rows, columns);
+        if (normals is { } meshNormals) AddRectangularMeshNormals(meshNormals, index0, rows, columns);
 
-        if (textureCoordinates != null) {
+        if (textureCoordinates is { } meshTextureCoordinates) {
             if (texCoords != null)
                 for (var i = 0; i < rows; i++)
                     for (var j = 0; j < columns; j++)
-                        textureCoordinates.Add(texCoords[i, j]);
+                        meshTextureCoordinates.Add(texCoords[i, j]);
             else
-                AddRectangularMeshTextureCoordinates(rows, columns);
+                AddRectangularMeshTextureCoordinates(meshTextureCoordinates, rows, columns);
         }
     }
 
@@ -2093,9 +2070,10 @@ public class MeshBuilder {
         else
             AddRectangularMeshTriangleIndices(index0, rows, columns);
 
-        if (normals != null) AddRectangularMeshNormals(index0, rows, columns);
+        if (normals is { } meshNormals) AddRectangularMeshNormals(meshNormals, index0, rows, columns);
 
-        if (textureCoordinates != null) AddRectangularMeshTextureCoordinates(rows, columns);
+        if (textureCoordinates is { } meshTextureCoordinates)
+            AddRectangularMeshTextureCoordinates(meshTextureCoordinates, rows, columns);
     }
 
     /// <summary>
@@ -2120,8 +2098,10 @@ public class MeshBuilder {
         bool flipTexCoordsVAxis = false
     ) {
         // checks
-        if (columns < 2 || rows < 2) throw new ArgumentNullException("columns or rows too small");
-        if (width <= 0 || height <= 0) throw new ArgumentNullException("width or height too small");
+        if (columns < 2) throw new ArgumentOutOfRangeException(nameof(columns), "At least two columns are required.");
+        if (rows < 2) throw new ArgumentOutOfRangeException(nameof(rows), "At least two rows are required.");
+        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width), "Width must be positive.");
+        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height), "Height must be positive.");
 
         // index0
         var index0 = positions.Count;
@@ -2142,11 +2122,12 @@ public class MeshBuilder {
             AddRectangularMeshTriangleIndices(index0, rows, columns);
 
         // normals
-        if (normals != null) AddRectangularMeshNormals(index0, rows, columns);
+        if (normals is { } meshNormals) AddRectangularMeshNormals(meshNormals, index0, rows, columns);
 
         // texcoords
-        if (textureCoordinates != null)
-            AddRectangularMeshTextureCoordinates(rows, columns, flipTexCoordsVAxis, flipTexCoordsUAxis);
+        if (textureCoordinates is { } meshTextureCoordinates)
+            AddRectangularMeshTextureCoordinates(meshTextureCoordinates, rows, columns, flipTexCoordsVAxis,
+                                                 flipTexCoordsUAxis);
     }
 
     /// <summary>
@@ -2161,7 +2142,12 @@ public class MeshBuilder {
     /// <param name="columns">
     ///     The number of columns.
     /// </param>
-    private void AddRectangularMeshNormals(int index0, int rows, int columns) {
+    private void AddRectangularMeshNormals(
+        Vector3DCollection meshNormals,
+        int index0,
+        int rows,
+        int columns
+    ) {
         for (var i = 0; i < rows; i++) {
             var i1 = i + 1;
             if (i1 == rows) i1--;
@@ -2176,7 +2162,7 @@ public class MeshBuilder {
                 var v = positions[index0 + i0 * columns + j1] - positions[index0 + i0 * columns + j0];
                 var normal = SharedFunctions.CrossProduct(ref u, ref v);
                 normal.Normalize();
-                normals.Add(normal);
+                meshNormals.Add(normal);
             }
         }
     }
@@ -2197,6 +2183,7 @@ public class MeshBuilder {
     ///     Flip the Columns.
     /// </param>
     private void AddRectangularMeshTextureCoordinates(
+        PointCollection meshTextureCoordinates,
         int rows,
         int columns,
         bool flipRowsAxis = false,
@@ -2207,7 +2194,7 @@ public class MeshBuilder {
 
             for (var j = 0; j < columns; j++) {
                 var u = flipColumnsAxis ? 1 - (DoubleOrSingle)j / (columns - 1) : (DoubleOrSingle)j / (columns - 1);
-                textureCoordinates.Add(new Point(u, v));
+                meshTextureCoordinates.Add(new Point(u, v));
             }
         }
     }
@@ -2385,7 +2372,7 @@ public class MeshBuilder {
     /// </remarks>
     public void AddRevolvedGeometry(
         IList<Point> points,
-        IList<double> textureValues,
+        IList<double>? textureValues,
         Point3D origin,
         Vector3D direction,
         int thetaDiv
@@ -3057,8 +3044,8 @@ public class MeshBuilder {
     /// </param>
     public void AddTube(
         IList<Point3D> path,
-        double[] values,
-        double[] diameters,
+        double[]? values,
+        double[]? diameters,
         int thetaDiv,
         bool isTubeClosed,
         bool frontCap = false,
@@ -3129,8 +3116,8 @@ public class MeshBuilder {
     /// </param>
     public void AddTube(
         IList<Point3D> path,
-        IList<double> values,
-        IList<double> diameters,
+        IList<double>? values,
+        IList<double>? diameters,
         IList<Point> section,
         bool isTubeClosed,
         bool isSectionClosed,
@@ -3262,9 +3249,9 @@ public class MeshBuilder {
     /// </param>
     public void AddTube(
         IList<Point3D> path,
-        IList<double> angles,
-        IList<double> values,
-        IList<double> diameters,
+        IList<double>? angles,
+        IList<double>? values,
+        IList<double>? diameters,
         IList<Point> section,
         Vector3D sectionXAxis,
         bool isTubeClosed,
@@ -3598,11 +3585,10 @@ public class MeshBuilder {
     private void NoSharedVertices() {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
-        Vector3DCollection n = null;
-        if (normals != null) n = [];
-
-        PointCollection tc = null;
-        if (textureCoordinates != null) tc = [];
+        var sourceNormals = normals;
+        Vector3DCollection? n = sourceNormals is null ? null : [];
+        var sourceTextureCoordinates = textureCoordinates;
+        PointCollection? tc = sourceTextureCoordinates is null ? null : [];
 
         for (var i = 0; i < triangleIndices.Count; i += 3) {
             var i0 = i;
@@ -3620,16 +3606,16 @@ public class MeshBuilder {
             ti.Add(i0);
             ti.Add(i1);
             ti.Add(i2);
-            if (n != null) {
-                n.Add(normals[index0]);
-                n.Add(normals[index1]);
-                n.Add(normals[index2]);
+            if (n != null && sourceNormals != null) {
+                n.Add(sourceNormals[index0]);
+                n.Add(sourceNormals[index1]);
+                n.Add(sourceNormals[index2]);
             }
 
-            if (tc != null) {
-                tc.Add(textureCoordinates[index0]);
-                tc.Add(textureCoordinates[index1]);
-                tc.Add(textureCoordinates[index2]);
+            if (tc != null && sourceTextureCoordinates != null) {
+                tc.Add(sourceTextureCoordinates[index0]);
+                tc.Add(sourceTextureCoordinates[index1]);
+                tc.Add(sourceTextureCoordinates[index2]);
             }
         }
 
@@ -3657,13 +3643,13 @@ public class MeshBuilder {
                                        Positions[i].Y * (DoubleOrSingle)scaleY,
                                        Positions[i].Z * (DoubleOrSingle)scaleZ);
 
-        if (Normals != null)
-            for (var i = 0; i < Normals.Count; i++) {
-                var v = new Vector3D(Normals[i].X * (DoubleOrSingle)scaleX,
-                                     Normals[i].Y * (DoubleOrSingle)scaleY,
-                                     Normals[i].Z * (DoubleOrSingle)scaleZ);
+        if (Normals is { } meshNormals)
+            for (var i = 0; i < meshNormals.Count; i++) {
+                var v = new Vector3D(meshNormals[i].X * (DoubleOrSingle)scaleX,
+                                     meshNormals[i].Y * (DoubleOrSingle)scaleY,
+                                     meshNormals[i].Z * (DoubleOrSingle)scaleZ);
                 v.Normalize();
-                Normals[i] = v;
+                meshNormals[i] = v;
             }
     }
 
@@ -3696,26 +3682,26 @@ public class MeshBuilder {
             Positions.Add(p12);
             Positions.Add(p20);
 
-            if (normals != null) {
-                var n = Normals[i0];
-                Normals.Add(n);
-                Normals.Add(n);
-                Normals.Add(n);
+            if (normals is { } meshNormals) {
+                var n = meshNormals[i0];
+                meshNormals.Add(n);
+                meshNormals.Add(n);
+                meshNormals.Add(n);
             }
 
-            if (textureCoordinates != null) {
-                var uv0 = TextureCoordinates[i0];
-                var uv1 = TextureCoordinates[i0 + 1];
-                var uv2 = TextureCoordinates[i0 + 2];
+            if (textureCoordinates is { } meshTextureCoordinates) {
+                var uv0 = meshTextureCoordinates[i0];
+                var uv1 = meshTextureCoordinates[i0 + 1];
+                var uv2 = meshTextureCoordinates[i0 + 2];
                 var t01 = uv1 - uv0;
                 var t12 = uv2 - uv1;
                 var t20 = uv0 - uv2;
                 var u01 = uv0 + t01 * 0.5f;
                 var u12 = uv1 + t12 * 0.5f;
                 var u20 = uv2 + t20 * 0.5f;
-                TextureCoordinates.Add(u01);
-                TextureCoordinates.Add(u12);
-                TextureCoordinates.Add(u20);
+                meshTextureCoordinates.Add(u01);
+                meshTextureCoordinates.Add(u12);
+                meshTextureCoordinates.Add(u20);
             }
 
             // TriangleIndices[i ] = i0;
@@ -3772,18 +3758,18 @@ public class MeshBuilder {
             Positions.Add(p12);
             Positions.Add(p20);
 
-            if (normals != null) {
-                var n = Normals[i0];
-                Normals.Add(n);
-                Normals.Add(n);
-                Normals.Add(n);
-                Normals.Add(n);
+            if (normals is { } meshNormals) {
+                var n = meshNormals[i0];
+                meshNormals.Add(n);
+                meshNormals.Add(n);
+                meshNormals.Add(n);
+                meshNormals.Add(n);
             }
 
-            if (textureCoordinates != null) {
-                var uv0 = TextureCoordinates[i0];
-                var uv1 = TextureCoordinates[i0 + 1];
-                var uv2 = TextureCoordinates[i0 + 2];
+            if (textureCoordinates is { } meshTextureCoordinates) {
+                var uv0 = meshTextureCoordinates[i0];
+                var uv1 = meshTextureCoordinates[i0 + 1];
+                var uv2 = meshTextureCoordinates[i0 + 2];
                 var t01 = uv1 - uv0;
                 var t12 = uv2 - uv1;
                 var t20 = uv0 - uv2;
@@ -3791,10 +3777,10 @@ public class MeshBuilder {
                 var u12 = uv1 + t12 * 0.5f;
                 var u20 = uv2 + t20 * 0.5f;
                 var uvm = new Point((uv0.X + uv1.X) * 0.5f, (uv0.Y + uv1.Y) * 0.5f);
-                TextureCoordinates.Add(uvm);
-                TextureCoordinates.Add(u01);
-                TextureCoordinates.Add(u12);
-                TextureCoordinates.Add(u20);
+                meshTextureCoordinates.Add(uvm);
+                meshTextureCoordinates.Add(u01);
+                meshTextureCoordinates.Add(u12);
+                meshTextureCoordinates.Add(u20);
             }
 
             // TriangleIndices[i ] = i0;
@@ -3847,19 +3833,18 @@ public class MeshBuilder {
     ///     Generate a MeshGeometry3D from the generated Data.
     /// </summary>
     /// <returns>The MeshGeometry3D.</returns>
-    public MeshGeometry3D ToMesh() {
-        return ToMeshGeometry3D();
-    }
+    public MeshGeometry3D ToMesh() => ToMeshGeometry3D();
 
     /// <summary>
     ///     Converts the geometry to a <see cref="MeshGeometry3D" /> .
     /// </summary>
     public MeshGeometry3D ToMeshGeometry3D() {
-        if (HasTangents && tangents.Count == 0) {
+        if (tangents is { Count: 0 } meshTangents && bitangents is { } meshBitangents &&
+            normals is { } meshNormals && textureCoordinates is { } meshTextureCoordinates) {
             Vector3DCollection tan, bitan;
-            ComputeTangents(positions, normals, textureCoordinates, triangleIndices, out tan, out bitan);
-            tangents.AddRange(tan);
-            bitangents.AddRange(bitan);
+            ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out tan, out bitan);
+            meshTangents.AddRange(tan);
+            meshBitangents.AddRange(bitan);
         }
 
         return new MeshGeometry3D {
@@ -3867,8 +3852,8 @@ public class MeshBuilder {
             Indices = triangleIndices,
             Normals = HasNormals ? normals : null,
             TextureCoordinates = HasTexCoords ? textureCoordinates : null,
-            Tangents = HasTangents ? tangents : null,
-            BiTangents = HasTangents ? bitangents : null
+            Tangents = tangents,
+            BiTangents = bitangents
         };
     }
 #if Sphere

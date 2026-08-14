@@ -124,7 +124,7 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
         }
     } = true;
 
-    public event EventHandler<BoolArgs> OnCoordinateSystemChanged;
+    public event EventHandler<BoolArgs>? OnCoordinateSystemChanged;
 
     public GlobalTransformStruct GlobalTransform { get; private set; }
 
@@ -214,9 +214,7 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
 
     public bool IsPerspective { get; private set; }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        return true;
-    }
+    protected override bool OnAttach(IRenderTechnique technique) => true;
 
     protected override void OnDetach() { }
 

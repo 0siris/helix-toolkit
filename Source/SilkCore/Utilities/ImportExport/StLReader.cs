@@ -61,7 +61,7 @@ public class StLReader : ModelReader {
     /// <value>
     ///     The header.
     /// </value>
-    public string Header { get; private set; }
+    public string? Header { get; private set; }
 
     /// <summary>
     ///     Gets the materials.
@@ -81,7 +81,7 @@ public class StLReader : ModelReader {
     /// <param name="stream">The stream.</param>
     /// <param name="info"></param>
     /// <returns>The model.</returns>
-    public override Mesh3DGroup Read(Stream stream, ModelInfo info = default) {
+    public override Mesh3DGroup? Read(Stream stream, ModelInfo info = default) {
         // Try to read in BINARY format
         var success = TryReadBinary(stream);
         if (!success) {

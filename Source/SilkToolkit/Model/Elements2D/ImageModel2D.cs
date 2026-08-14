@@ -58,7 +58,5 @@ public class ImageModel2D : Element2D {
     }
 
 
-    protected override SceneNode2D OnCreateSceneNode() {
-        return new ImageNode2D();
-    }
+    protected override SceneNode2D OnCreateSceneNode() => new ImageNode2D();
 }

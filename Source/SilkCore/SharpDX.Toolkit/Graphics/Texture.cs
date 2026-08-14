@@ -78,9 +78,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public int CompareTo(Texture obj) {
-        return textureId.CompareTo(obj.textureId);
-    }
+    public int CompareTo(Texture? obj) => obj is null ? 1 : textureId.CompareTo(obj.textureId);
 
     /// <summary>
     /// </summary>
@@ -187,9 +185,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <param name="arraySlice">The array slice index.</param>
     /// <param name="mipSlice">The mip slice index.</param>
     /// <returns>A value equals to arraySlice * Description.MipLevels + mipSlice.</returns>
-    public int GetSubResourceIndex(int arraySlice, int mipSlice) {
-        return arraySlice * Description.MipLevels + mipSlice;
-    }
+    public int GetSubResourceIndex(int arraySlice, int mipSlice) => arraySlice * Description.MipLevels + mipSlice;
 
     /// <summary>
     ///     Calculates the expected width of a texture using a specified type.
@@ -219,10 +215,8 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     ///     This method is used to allocated a texture data buffer to hold pixel data: var textureData = new T[
     ///     texture.CalculatePixelCount&lt;T&gt;() ] ;.
     /// </remarks>
-    public int CalculatePixelDataCount<TData>(int mipLevel = 0) where TData : struct {
-        return CalculateWidth<TData>(mipLevel) * CalculateMipSize(Description.Height, mipLevel) *
-               CalculateMipSize(Description.Depth, mipLevel);
-    }
+    public int CalculatePixelDataCount<TData>(int mipLevel = 0) where TData : struct => CalculateWidth<TData>(mipLevel) * CalculateMipSize(Description.Height, mipLevel) *
+                                                                                        CalculateMipSize(Description.Depth, mipLevel);
 
     /// <summary>
     ///     Makes a copy of this texture.
@@ -244,9 +238,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public T Clone<T>() where T : Texture {
-        return (T)Clone();
-    }
+    public T Clone<T>() where T : Texture => (T)Clone();
 
     /// <summary>
     ///     Creates a new texture with the specified generic texture description.
@@ -254,7 +246,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <param name="graphicsDevice">The graphics device.</param>
     /// <param name="description">The description.</param>
     /// <returns>A Texture instance, either a RenderTarget or DepthStencilBuffer or Texture, depending on Binding flags.</returns>
-    public static Texture New(NativeD3DDevice graphicsDevice, TextureDescription description) {
+    public static Texture? New(NativeD3DDevice graphicsDevice, TextureDescription description) {
         ArgumentNullException.ThrowIfNull(graphicsDevice);
 
         if ((description.BindFlags & BindFlags.RenderTarget) != 0)
@@ -444,9 +436,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         return ((int)viewType * arrayOrDepthSize + arrayOrDepthIndex) * Description.MipLevels + mipIndex;
     }
 
-    private static bool IsPow2(int x) {
-        return x != 0 && (x & (x - 1)) == 0;
-    }
+    private static bool IsPow2(int x) => x != 0 && (x & (x - 1)) == 0;
 
     private static int CountMips(int width) {
         var mipLevels = 1;
@@ -526,12 +516,10 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
 
         public readonly int MipIndex;
 
-        public bool Equals(TextureViewKey other) {
-            return ViewFormat == other.ViewFormat && ViewType == other.ViewType &&
-                   ArrayOrDepthSlice == other.ArrayOrDepthSlice && MipIndex == other.MipIndex;
-        }
+        public bool Equals(TextureViewKey other) => ViewFormat == other.ViewFormat && ViewType == other.ViewType &&
+                                                    ArrayOrDepthSlice == other.ArrayOrDepthSlice && MipIndex == other.MipIndex;
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object? obj) {
             if (ReferenceEquals(null, obj))
                 return false;
             return obj is TextureViewKey && Equals((TextureViewKey)obj);
@@ -547,12 +535,8 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
             }
         }
 
-        public static bool operator ==(TextureViewKey left, TextureViewKey right) {
-            return left.Equals(right);
-        }
+        public static bool operator ==(TextureViewKey left, TextureViewKey right) => left.Equals(right);
 
-        public static bool operator !=(TextureViewKey left, TextureViewKey right) {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(TextureViewKey left, TextureViewKey right) => !left.Equals(right);
     }
 }

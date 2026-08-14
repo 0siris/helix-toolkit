@@ -149,19 +149,17 @@ public struct TextureDescription : IEquatable<TextureDescription> {
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(TextureDescription other) {
-        return Dimension.Equals(other.Dimension) && Width == other.Width && Height == other.Height &&
-               Depth == other.Depth && ArraySize == other.ArraySize && MipLevels == other.MipLevels &&
-               Format.Equals(other.Format) && SampleDescription.Equals(other.SampleDescription) &&
-               Usage.Equals(other.Usage) && BindFlags.Equals(other.BindFlags) &&
-               CpuAccessFlags.Equals(other.CpuAccessFlags) && OptionFlags.Equals(other.OptionFlags);
-    }
+    public bool Equals(TextureDescription other) => Dimension.Equals(other.Dimension) && Width == other.Width && Height == other.Height &&
+                                                    Depth == other.Depth && ArraySize == other.ArraySize && MipLevels == other.MipLevels &&
+                                                    Format.Equals(other.Format) && SampleDescription.Equals(other.SampleDescription) &&
+                                                    Usage.Equals(other.Usage) && BindFlags.Equals(other.BindFlags) &&
+                                                    CpuAccessFlags.Equals(other.CpuAccessFlags) && OptionFlags.Equals(other.OptionFlags);
 
     /// <summary>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         return obj is TextureDescription && Equals((TextureDescription)obj);
     }
@@ -192,58 +190,50 @@ public struct TextureDescription : IEquatable<TextureDescription> {
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(TextureDescription left, TextureDescription right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(TextureDescription left, TextureDescription right) => left.Equals(right);
 
     /// <summary>
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(TextureDescription left, TextureDescription right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(TextureDescription left, TextureDescription right) => !left.Equals(right);
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="Texture2DDescription" /> to <see cref="TextureDescription" />.
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(NativeTexture1DDescription description) {
-        return new TextureDescription {
-            Dimension = TextureDimension.Texture1D,
-            Width = description.Width,
-            Height = 1,
-            Depth = 1,
-            MipLevels = description.MipLevels,
-            ArraySize = description.ArraySize,
-            Format = description.Format,
-            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
-            Usage = description.Usage,
-            BindFlags = description.BindFlags,
-            CpuAccessFlags = description.CpuAccessFlags,
-            OptionFlags = description.OptionFlags
-        };
-    }
+    public static implicit operator TextureDescription(NativeTexture1DDescription description) => new() {
+        Dimension = TextureDimension.Texture1D,
+        Width = description.Width,
+        Height = 1,
+        Depth = 1,
+        MipLevels = description.MipLevels,
+        ArraySize = description.ArraySize,
+        Format = description.Format,
+        SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
+        Usage = description.Usage,
+        BindFlags = description.BindFlags,
+        CpuAccessFlags = description.CpuAccessFlags,
+        OptionFlags = description.OptionFlags
+    };
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="TextureDescription" /> to <see cref="Texture2DDescription" />.
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture1DDescription(TextureDescription description) {
-        return new NativeTexture1DDescription {
-            Width = description.Width,
-            MipLevels = description.MipLevels,
-            ArraySize = description.ArraySize,
-            Format = description.Format,
-            Usage = description.Usage,
-            BindFlags = description.BindFlags,
-            CpuAccessFlags = description.CpuAccessFlags,
-            OptionFlags = description.OptionFlags
-        };
-    }
+    public static implicit operator NativeTexture1DDescription(TextureDescription description) => new() {
+        Width = description.Width,
+        MipLevels = description.MipLevels,
+        ArraySize = description.ArraySize,
+        Format = description.Format,
+        Usage = description.Usage,
+        BindFlags = description.BindFlags,
+        CpuAccessFlags = description.CpuAccessFlags,
+        OptionFlags = description.OptionFlags
+    };
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="Texture2DDescription" /> to <see cref="TextureDescription" />.
@@ -276,61 +266,55 @@ public struct TextureDescription : IEquatable<TextureDescription> {
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture2DDescription(TextureDescription description) {
-        return new NativeTexture2DDescription {
-            Width = description.Width,
-            Height = description.Height,
-            MipLevels = description.MipLevels,
-            ArraySize = description.ArraySize,
-            Format = description.Format,
-            SampleDescription = description.SampleDescription,
-            Usage = description.Usage,
-            BindFlags = description.BindFlags,
-            CpuAccessFlags = description.CpuAccessFlags,
-            OptionFlags = description.OptionFlags
-        };
-    }
+    public static implicit operator NativeTexture2DDescription(TextureDescription description) => new() {
+        Width = description.Width,
+        Height = description.Height,
+        MipLevels = description.MipLevels,
+        ArraySize = description.ArraySize,
+        Format = description.Format,
+        SampleDescription = description.SampleDescription,
+        Usage = description.Usage,
+        BindFlags = description.BindFlags,
+        CpuAccessFlags = description.CpuAccessFlags,
+        OptionFlags = description.OptionFlags
+    };
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="Texture2DDescription" /> to <see cref="TextureDescription" />.
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(NativeTexture3DDescription description) {
-        return new TextureDescription {
-            Dimension = TextureDimension.Texture3D,
-            Width = description.Width,
-            Height = description.Height,
-            Depth = description.Depth,
-            ArraySize = 1,
-            MipLevels = description.MipLevels,
-            Format = description.Format,
-            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
-            Usage = description.Usage,
-            BindFlags = description.BindFlags,
-            CpuAccessFlags = description.CpuAccessFlags,
-            OptionFlags = description.OptionFlags
-        };
-    }
+    public static implicit operator TextureDescription(NativeTexture3DDescription description) => new() {
+        Dimension = TextureDimension.Texture3D,
+        Width = description.Width,
+        Height = description.Height,
+        Depth = description.Depth,
+        ArraySize = 1,
+        MipLevels = description.MipLevels,
+        Format = description.Format,
+        SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
+        Usage = description.Usage,
+        BindFlags = description.BindFlags,
+        CpuAccessFlags = description.CpuAccessFlags,
+        OptionFlags = description.OptionFlags
+    };
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="TextureDescription" /> to <see cref="Texture3DDescription" />.
     /// </summary>
     /// <param name="description">The texture description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator NativeTexture3DDescription(TextureDescription description) {
-        return new NativeTexture3DDescription {
-            Width = description.Width,
-            Height = description.Height,
-            Depth = description.Depth,
-            MipLevels = description.MipLevels,
-            Format = description.Format,
-            Usage = description.Usage,
-            BindFlags = description.BindFlags,
-            CpuAccessFlags = description.CpuAccessFlags,
-            OptionFlags = description.OptionFlags
-        };
-    }
+    public static implicit operator NativeTexture3DDescription(TextureDescription description) => new() {
+        Width = description.Width,
+        Height = description.Height,
+        Depth = description.Depth,
+        MipLevels = description.MipLevels,
+        Format = description.Format,
+        Usage = description.Usage,
+        BindFlags = description.BindFlags,
+        CpuAccessFlags = description.CpuAccessFlags,
+        OptionFlags = description.OptionFlags
+    };
 
 
     /// <summary>
@@ -338,39 +322,35 @@ public struct TextureDescription : IEquatable<TextureDescription> {
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator TextureDescription(ImageDescription description) {
-        return new TextureDescription {
-            Dimension = description.Dimension,
-            Width = description.Width,
-            Height = description.Height,
-            Depth = description.Depth,
-            ArraySize = description.ArraySize,
-            MipLevels = description.MipLevels,
-            Format = description.Format,
-            SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
-            Usage = ResourceUsage.Default,
-            BindFlags = BindFlags.None,
-            CpuAccessFlags = CpuAccessFlags.None,
-            OptionFlags = description.Dimension == TextureDimension.TextureCube
-                              ? ResourceOptionFlags.TextureCube
-                              : ResourceOptionFlags.None
-        };
-    }
+    public static implicit operator TextureDescription(ImageDescription description) => new() {
+        Dimension = description.Dimension,
+        Width = description.Width,
+        Height = description.Height,
+        Depth = description.Depth,
+        ArraySize = description.ArraySize,
+        MipLevels = description.MipLevels,
+        Format = description.Format,
+        SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
+        Usage = ResourceUsage.Default,
+        BindFlags = BindFlags.None,
+        CpuAccessFlags = CpuAccessFlags.None,
+        OptionFlags = description.Dimension == TextureDimension.TextureCube
+            ? ResourceOptionFlags.TextureCube
+            : ResourceOptionFlags.None
+    };
 
     /// <summary>
     ///     Performs an explicit conversion from <see cref="ImageDescription" /> to <see cref="TextureDescription" />.
     /// </summary>
     /// <param name="description">The image description.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator ImageDescription(TextureDescription description) {
-        return new ImageDescription {
-            Dimension = description.Dimension,
-            Width = description.Width,
-            Height = description.Height,
-            Depth = description.Depth,
-            ArraySize = description.ArraySize,
-            MipLevels = description.MipLevels,
-            Format = description.Format
-        };
-    }
+    public static implicit operator ImageDescription(TextureDescription description) => new() {
+        Dimension = description.Dimension,
+        Width = description.Width,
+        Height = description.Height,
+        Depth = description.Depth,
+        ArraySize = description.ArraySize,
+        MipLevels = description.MipLevels,
+        Format = description.Format
+    };
 }

@@ -566,46 +566,36 @@ public struct PixelFormat : IEquatable<PixelFormat> {
     /// <summary>
     /// </summary>
     /// <param name="from"></param>
-    public static implicit operator Format(PixelFormat from) {
-        return from.Value;
-    }
+    public static implicit operator Format(PixelFormat from) => from.Value;
 
     /// <summary>
     ///     Gets the native Silk.NET DXGI format.
     /// </summary>
     /// <param name="from"></param>
-    public static implicit operator Silk.NET.DXGI.Format(PixelFormat from) {
-        return from.Value;
-    }
+    public static implicit operator Silk.NET.DXGI.Format(PixelFormat from) => from.Value;
 
     /// <summary>
     /// </summary>
     /// <param name="from"></param>
-    public static implicit operator PixelFormat(Format from) {
-        return new PixelFormat(from);
-    }
+    public static implicit operator PixelFormat(Format from) => new(from);
 
     /// <summary>
     ///     Creates a toolkit pixel format from a native Silk.NET DXGI format.
     /// </summary>
     /// <param name="from"></param>
-    public static implicit operator PixelFormat(Silk.NET.DXGI.Format from) {
-        return new PixelFormat(from);
-    }
+    public static implicit operator PixelFormat(Silk.NET.DXGI.Format from) => new(from);
 
     /// <summary>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(PixelFormat other) {
-        return Value == other.Value;
-    }
+    public bool Equals(PixelFormat other) => Value == other.Value;
 
     /// <summary>
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj))
             return false;
         return obj is PixelFormat && Equals((PixelFormat)obj);
@@ -614,32 +604,24 @@ public struct PixelFormat : IEquatable<PixelFormat> {
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override int GetHashCode() {
-        return Value.GetHashCode();
-    }
+    public override int GetHashCode() => Value.GetHashCode();
 
     /// <summary>
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(PixelFormat left, PixelFormat right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(PixelFormat left, PixelFormat right) => left.Equals(right);
 
     /// <summary>
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(PixelFormat left, PixelFormat right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(PixelFormat left, PixelFormat right) => !left.Equals(right);
 
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override string ToString() {
-        return string.Format("{0}", Value);
-    }
+    public override string ToString() => string.Format("{0}", Value);
 }

@@ -55,17 +55,13 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected virtual bool OnCheckGeometry(Geometry3D geometry) {
-        return !(geometry == null || geometry.Positions == null || geometry.Positions.Count == 0);
-    }
+    protected virtual bool OnCheckGeometry(Geometry3D geometry) => !(geometry == null || geometry.Positions == null || geometry.Positions.Count == 0);
 
     /// <summary>
     ///     Called when [create buffer model].
     /// </summary>
     /// <returns></returns>
-    protected virtual IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
-        return EmptyGeometryBufferModel.Empty;
-    }
+    protected virtual IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => EmptyGeometryBufferModel.Empty;
 
     /// <summary>
     ///     Called when [raster state changed].
@@ -179,9 +175,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <returns>
     ///     <c>true</c> if this instance [can hit test] the specified context; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool CanHitTest(HitTestContext context) {
-        return base.CanHitTest(context) && GeometryValid;
-    }
+    protected override bool CanHitTest(HitTestContext? context) => base.CanHitTest(context) && GeometryValid;
 
     /// <summary>
     ///     Updates the not render.

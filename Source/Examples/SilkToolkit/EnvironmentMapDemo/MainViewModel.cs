@@ -114,7 +114,7 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
-    [System.Obsolete]
+    [Obsolete]
     private MeshGeometry3D LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();

@@ -20,7 +20,9 @@ public partial class App : Application {
                     NativeMethods.LoadNvApi64();
                 else
                     NativeMethods.LoadNvApi32();
-            } catch { } // will always fail since 'fake' entry point doesn't exists
+            } catch {
+                LoggerLib.Logger.Error("Failed to load NVAPI");
+            } // will always fail since 'fake' entry point doesn't exists
         }
     };
 

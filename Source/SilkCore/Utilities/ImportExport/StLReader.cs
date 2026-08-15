@@ -191,7 +191,7 @@ public class StLReader : ModelReader {
         ArgumentNullException.ThrowIfNull(token);
 
         var line = reader.ReadLine()
-            ?? throw new System.IO.EndOfStreamException("Unexpected end of STL file.");
+            ?? throw new EndOfStreamException("Unexpected end of STL file.");
         string id, values;
         ParseLine(line, out id, out values);
 

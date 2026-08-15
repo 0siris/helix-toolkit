@@ -122,9 +122,9 @@ public class MainViewModel : BaseViewModel {
             SpecularShininess = 100f,
             DiffuseMap =
                 TextureModel.Create(
-                    new System.Uri(@"./Media/TextureCheckerboard2.dds", System.UriKind.RelativeOrAbsolute).ToString()),
+                    new Uri(@"./Media/TextureCheckerboard2.dds", UriKind.RelativeOrAbsolute).ToString()),
             NormalMap = TextureModel.Create(
-                new System.Uri(@"./Media/TextureCheckerboard2_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString()),
+                new Uri(@"./Media/TextureCheckerboard2_dot3.dds", UriKind.RelativeOrAbsolute).ToString()),
             EnableTessellation = true,
             RenderShadowMap = true
         };
@@ -156,7 +156,7 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
-    [System.Obsolete]
+    [Obsolete]
     private MeshGeometry3D LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();

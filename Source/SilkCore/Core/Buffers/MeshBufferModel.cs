@@ -229,7 +229,7 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
     private DefaultVertex[] BuildVertexArray(MeshGeometry3D geometry) {
         //var geometry = this.geometryInternal as MeshGeometry3D;
         var positionsCollection = geometry.Positions
-            ?? throw new System.InvalidOperationException("Mesh geometry positions are required.");
+            ?? throw new InvalidOperationException("Mesh geometry positions are required.");
         var vertexCount = positionsCollection.Count;
         using var positions = positionsCollection.GetEnumerator();
                 

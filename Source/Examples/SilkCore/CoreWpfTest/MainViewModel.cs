@@ -25,7 +25,7 @@ using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 public class MainViewModel : ObservableObject {
     private string openFileFilter = $"{Importer.SupportedFormatsString}";
-    private string exportFileFilter = $"{HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormatsString}";
+    private string exportFileFilter = $"{Exporter.SupportedFormatsString}";
 
     public bool ShowWireframe {
         set {
@@ -206,8 +206,8 @@ public class MainViewModel : ObservableObject {
     private void ExportFile() {
         var index = SaveFileDialog(exportFileFilter, out var path);
         if (!string.IsNullOrEmpty(path) && index >= 0) {
-            var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
-            var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
+            var id = Exporter.SupportedFormats[index].FormatId;
+            var exporter = new Exporter();
             if (scene is { } loadedScene)
                 exporter.ExportToFile(path, loadedScene, id);
             return;

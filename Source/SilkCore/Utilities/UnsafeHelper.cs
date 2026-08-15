@@ -25,7 +25,7 @@ public static class UnsafeHelper {
     public static void MemoryCopy(nint dst, nint src, int sizeInBytes) {
         if (dst == nint.Zero || src == nint.Zero) return;
         unsafe {
-            System.Buffer.MemoryCopy((void*)src, (void*)dst, sizeInBytes, sizeInBytes);
+            Buffer.MemoryCopy((void*)src, (void*)dst, sizeInBytes, sizeInBytes);
         }
     }
 

@@ -21,7 +21,7 @@ public class PointGeometry3D : Geometry3D {
     }
 
     protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticPointGeometryOctree(
-        Positions ?? throw new System.InvalidOperationException("Point positions are required."), parameter);
+        Positions ?? throw new InvalidOperationException("Point positions are required."), parameter);
 
     protected override bool CanCreateOctree() => Positions != null && Positions.Count > 0;
 

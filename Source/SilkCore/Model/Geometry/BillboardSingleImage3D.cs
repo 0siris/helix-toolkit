@@ -110,7 +110,7 @@ public class BillboardSingleImage3D : BillboardBase {
     public BillboardSingleImage3D(Stream imageStream) {
         Texture = imageStream;
         using var image = Image.Load(imageStream)
-            ?? throw new System.IO.InvalidDataException("The image could not be loaded.");
+            ?? throw new InvalidDataException("The image could not be loaded.");
         Width = image.Description.Width;
         Height = image.Description.Height;
     }

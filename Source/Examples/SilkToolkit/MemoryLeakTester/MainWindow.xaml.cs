@@ -110,7 +110,7 @@ public partial class MainWindow : Window {
                 $"{Count}  Total: {privateMemory / 1000000} MB; Physical: {workingSet / 1000000} MB; Managed: {managedMemory / 1000000} MB; Handle: {handleCount}; Threads: {threadCount};\n");
             if (Changed(PrivateMemory, privateMemory)
                 || Changed(HandleCount, handleCount) || Changed(ThreadCount, threadCount)) {
-                run.Foreground = new System.Windows.Media.SolidColorBrush(Colors.Red);
+                run.Foreground = new SolidColorBrush(Colors.Red);
             }
 
             return run;

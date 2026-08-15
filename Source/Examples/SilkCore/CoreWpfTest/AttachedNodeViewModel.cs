@@ -6,7 +6,7 @@ namespace CoreWpfTest;
 /// <summary>
 /// Provide your own view model to manipulate the scene nodes
 /// </summary>
-/// <seealso cref="DemoCore.ObservableObject" />
+/// <seealso cref="HelixToolkit.SharpDX.Core.Model.ObservableObject" />
 public class AttachedNodeViewModel : ObservableObject {
     public bool Selected {
         set {

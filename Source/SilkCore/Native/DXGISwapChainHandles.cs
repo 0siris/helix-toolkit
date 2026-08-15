@@ -162,7 +162,7 @@ public unsafe class SwapChain1 : IDisposable {
     internal Texture2D GetBackBuffer() {
         ThrowIfDisposed();
         var device = this.device
-            ?? throw new System.InvalidOperationException("The swap-chain device is not initialized.");
+            ?? throw new InvalidOperationException("The swap-chain device is not initialized.");
 
         ID3D11Texture2D* texture = null;
         var textureGuid = Texture2DGuid;
@@ -187,7 +187,7 @@ public unsafe class SwapChain1 : IDisposable {
 
     private void CreateNativeSwapChain() {
         var device = this.device
-            ?? throw new System.InvalidOperationException("The swap-chain device is not initialized.");
+            ?? throw new InvalidOperationException("The swap-chain device is not initialized.");
         IDXGIFactory2* factoryHandle = null;
         var factoryGuid = Factory2Guid;
         Marshal.ThrowExceptionForHR(DxgiApi.CreateDXGIFactory2(0, &factoryGuid, (void**)&factoryHandle));

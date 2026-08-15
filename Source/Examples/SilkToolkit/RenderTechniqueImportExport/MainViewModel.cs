@@ -12,7 +12,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace RenderTechniqueImportExport;
 
-public class MainViewModel : DemoCore.BaseViewModel {
+public class MainViewModel : BaseViewModel {
     private const string OpenFileFilter = "Techniques file (*.techniques;|*.techniques";
     public ICommand ExportCommand { private set; get; }
     public ICommand ImportCommand { private set; get; }

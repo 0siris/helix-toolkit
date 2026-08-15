@@ -154,7 +154,7 @@ namespace HelixToolkit.SharpDX.Core.Core.Buffers;
                     if (vertexBufferUpdate) {
                         if (meshBuffer.VertexBuffer.FirstOrDefault() is { } originalBufferProxy) {
                             VertexBuffer = [originalBufferProxy];
-                            this.originalVertexBuffer = originalBufferProxy;
+                            originalVertexBuffer = originalBufferProxy;
                             if (skinnedVertexBuffer.Buffer == null || skinnedVertexBuffer.ElementCount !=
                                 originalBufferProxy.ElementCount) {
                                 var array = new float[originalBufferProxy.ElementCount *

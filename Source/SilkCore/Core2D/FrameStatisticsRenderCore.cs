@@ -94,8 +94,8 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
         Background ??= new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
         Foreground ??= new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
 
-        var factory = Factory ?? throw new System.InvalidOperationException("Text factory is not initialized.");
-        var format = Format ?? throw new System.InvalidOperationException("Text format is not initialized.");
+        var factory = Factory ?? throw new InvalidOperationException("Text factory is not initialized.");
+        var format = Format ?? throw new InvalidOperationException("Text format is not initialized.");
         var str = statistics.AssertNotNull("Must be attached")
                             .GetDetailString();
         
@@ -104,7 +104,7 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
             TextLayout = new TextLayout(factory, str, format, float.MaxValue, float.MaxValue);
         }
 
-        var textLayout = TextLayout ?? throw new System.InvalidOperationException("Text layout is not initialized.");
+        var textLayout = TextLayout ?? throw new InvalidOperationException("Text layout is not initialized.");
         var metrices = textLayout.Metrics;
         renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
         renderBound.Height = metrices.Height;

@@ -390,7 +390,7 @@ public sealed unsafe class Texture2D : Resource {
         var resourceGuid = DxgiResourceGuid;
         SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**)&resource));
         if (resource is null)
-            throw new System.InvalidOperationException("The DXGI resource could not be queried.");
+            throw new InvalidOperationException("The DXGI resource could not be queried.");
 
         try {
             void* sharedHandle = null;

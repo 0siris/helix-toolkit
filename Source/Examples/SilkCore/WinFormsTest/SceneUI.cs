@@ -9,11 +9,11 @@ using ImGuiNET;
 namespace WinFormsTest;
 
 public static class SceneUi {
-    private static bool _showImGuiDemo = false;
+    private static bool _showImGuiDemo;
     private static string _exception = "";
-    private static bool _loading = false;
+    private static bool _loading;
     private static string _modelName = "";
-    private static long _currentTime = 0;
+    private static long _currentTime;
     public static string SomeTextFromOutside = "";
 
     public static HelixToolkitScene? Scene;
@@ -26,7 +26,7 @@ public static class SceneUi {
     private static float[] _fps = new float[FrameDataLength];
     private static float[] _frustumTest = new float[FrameDataLength];
     private static float[] _latency = new float[FrameDataLength];
-    private static int _currFpsIndex = 0;
+    private static int _currFpsIndex;
 
     public static void DrawUi(int width, int height, ref ViewportOptions options, GroupNode rootNode) {
         ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);

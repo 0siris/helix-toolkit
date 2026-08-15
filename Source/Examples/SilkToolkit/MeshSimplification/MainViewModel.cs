@@ -72,7 +72,7 @@ public class MainViewModel : BaseViewModel {
 
     private HelixToolkit.SharpDX.Core.Geometry.MeshSimplification simHelper;
 
-    public bool Busy { set; get; } = false;
+    public bool Busy { set; get; }
 
     public bool ShowWireframe {
         set {
@@ -87,14 +87,14 @@ public class MainViewModel : BaseViewModel {
 
     public FillMode FillMode { set; get; } = FillMode.Wireframe;
 
-    public int NumberOfTriangles { set; get; } = 0;
-    public int NumberOfVertices { set; get; } = 0;
+    public int NumberOfTriangles { set; get; }
+    public int NumberOfVertices { set; get; }
 
     private readonly MeshGeometry3D orgMesh;
 
     public bool Lossless { set; get; } = false;
 
-    public long CalculationTime { set; get; } = 0;
+    public long CalculationTime { set; get; }
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();

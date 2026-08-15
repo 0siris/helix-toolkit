@@ -95,14 +95,14 @@ public class MainViewModel : BaseViewModel {
     private readonly IntCollection initialIndicies;
     private Random rnd = new();
     private bool isRemoving = true;
-    private int removedIndex = 0;
+    private int removedIndex;
     private CancellationTokenSource cts = new();
 
     private readonly SynchronizationContext context = SynchronizationContext.Current
                                                       ?? throw new InvalidOperationException(
                                                           "The dynamic texture demo requires a synchronization context.");
 
-    private int counter = 0;
+    private int counter;
 
     public MainViewModel() {
         // titles

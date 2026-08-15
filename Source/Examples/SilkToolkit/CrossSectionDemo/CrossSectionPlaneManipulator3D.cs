@@ -193,11 +193,11 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
     private Vector3 startHitPoint;
     private Viewport3DX? viewport;
     private Camera? camera;
-    private bool isCaptured = false;
+    private bool isCaptured;
     private Matrix currentTranslation = Matrix.Identity;
     private Matrix currentRotation = Matrix.Identity;
     private Matrix totalTransform = Matrix.Identity;
-    private bool internalUpdate = false;
+    private bool internalUpdate;
     private Color4 orgColor;
 
     static CrossSectionPlaneManipulator3D() {

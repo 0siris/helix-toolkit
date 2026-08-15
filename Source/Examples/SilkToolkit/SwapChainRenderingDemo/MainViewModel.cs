@@ -126,8 +126,8 @@ public class MainViewModel : BaseViewModel {
 
     public FillMode FillMode { set; get; } = FillMode.Solid;
 
-    public int NumberOfTriangles { set; get; } = 0;
-    public int NumberOfVertices { set; get; } = 0;
+    public int NumberOfTriangles { set; get; }
+    public int NumberOfVertices { set; get; }
 
     public bool ShowWireframe {
         set {

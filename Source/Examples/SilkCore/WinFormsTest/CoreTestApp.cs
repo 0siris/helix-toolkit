@@ -80,10 +80,10 @@ public class CoreTestApp {
     private Random rnd = new((int) Stopwatch.GetTimestamp());
     private List<Tuple<bool, MaterialCore>> materials = [];
     private long previousTime;
-    private bool resizeRequested = false;
+    private bool resizeRequested;
     private CameraController cameraController;
     private Stack<IEnumerator<SceneNode>> stackCache = new();
-    private IApplyPostEffect? currentHighlight = null;
+    private IApplyPostEffect? currentHighlight;
     private double dpiScale = 1;
     private SynchronizationContext context;
 

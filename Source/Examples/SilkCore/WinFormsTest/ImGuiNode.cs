@@ -50,7 +50,7 @@ public class ImGuiNode : SceneNode {
 
     private IntPtr fontAtlasId = (IntPtr) 1;
 
-    private bool newFrame = false;
+    private bool newFrame;
 
     private TimeSpan previousTime = TimeSpan.Zero;
 

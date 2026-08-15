@@ -16,7 +16,7 @@ using Color = System.Windows.Media.Color;
 using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
 
 public class MyLineGeometryModel3D : LineGeometryModel3D {
-    private Color? initialColor = null;
+    private Color? initialColor;
 
     public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         if (initialColor == null) {

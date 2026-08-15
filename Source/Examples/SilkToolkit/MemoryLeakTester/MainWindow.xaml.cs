@@ -11,7 +11,7 @@ namespace MemoryLeakTester;
 /// </summary>
 public partial class MainWindow : Window {
     private Window? testWin;
-    private DispatcherTimer? timer = null;
+    private DispatcherTimer? timer;
     private SystemStateParams systemparams = new();
     private IList<Tuple<string, Type>> projectWinPairs = [];
 
@@ -84,7 +84,7 @@ public partial class MainWindow : Window {
     }
 
     internal sealed class SystemStateParams {
-        public long Count = 0;
+        public long Count;
         public long WorkingSet { private set; get; }
         public long PrivateMemory { private set; get; }
         public long ManagedMemory { private set; get; }

@@ -346,7 +346,7 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    private double theta = 0;
+    private double theta;
     private double newModelZ = -5;
 
     private void AddModel(object? o) {
@@ -373,7 +373,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private DispatcherTimer timer;
-    private int counter = 0;
+    private int counter;
 
     public bool AutoTesting {
         set {

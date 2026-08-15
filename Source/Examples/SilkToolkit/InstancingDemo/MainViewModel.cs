@@ -58,9 +58,9 @@ public class MainViewModel : BaseViewModel {
 
     private DispatcherTimer timer = new();
     private Random rnd = new();
-    private float aniX = 0;
-    private float aniY = 0;
-    private float aniZ = 0;
+    private float aniX;
+    private float aniY;
+    private float aniZ;
     private bool aniDir = true;
 
     public MainViewModel() {

@@ -101,7 +101,7 @@ public class MainViewModel : BaseViewModel {
 
     private const int NumSegments = 100;
     private const int Theta = 24;
-    private long startAniTime = 0;
+    private long startAniTime;
     private CancellationTokenSource cts = new();
     private bool reset = true;
     private HelixToolkitScene? scene;

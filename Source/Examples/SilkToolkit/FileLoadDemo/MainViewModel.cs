@@ -79,7 +79,7 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand CopyAsHiresBitmapCommand { private set; get; }
 
-    private bool isLoading = false;
+    private bool isLoading;
 
     public bool IsLoading {
         private set => SetValue(ref isLoading, value);
@@ -150,7 +150,7 @@ public class MainViewModel : BaseViewModel {
         get;
     } = default;
 
-    private BoundingBox modelBound = new();
+    private BoundingBox modelBound;
 
     public BoundingBox ModelBound {
         private set => SetValue(ref modelBound, value);
@@ -166,7 +166,7 @@ public class MainViewModel : BaseViewModel {
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new();
-    private long initTimeStamp = 0;
+    private long initTimeStamp;
 
     private readonly MainWindow mainWindow;
 

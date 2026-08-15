@@ -64,14 +64,14 @@ public class MainViewModel : ObservableObject {
 
     public ICommand ExportCommand { private set; get; }
 
-    private bool isLoading = false;
+    private bool isLoading;
 
     public bool IsLoading {
         private set => Set(ref isLoading, value);
         get => isLoading;
     }
 
-    private bool enableAnimation = false;
+    private bool enableAnimation;
 
     public bool EnableAnimation {
         set {

@@ -49,7 +49,7 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand PlayCommand { get; }
 
-    private long initTime = 0;
+    private long initTime;
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();

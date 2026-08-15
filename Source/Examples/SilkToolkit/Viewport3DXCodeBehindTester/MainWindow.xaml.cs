@@ -116,7 +116,7 @@ public partial class MainWindow : Window {
 }
 
 public class ViewModel : BaseViewModel {
-    private bool enableButtons = false;
+    private bool enableButtons;
 
     public bool EnableButtons {
         set {

@@ -145,7 +145,7 @@ public class MainViewModel : ObservableObject {
             return;
         }
 
-        string? path = OpenFileDialog(openFileFilter);
+        var path = OpenFileDialog(openFileFilter);
         if (path is null) {
             return;
         }

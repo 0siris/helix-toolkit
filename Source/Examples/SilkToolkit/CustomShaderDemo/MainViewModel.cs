@@ -159,9 +159,9 @@ public class MainViewModel : BaseViewModel {
 
 
         var builder = new MeshBuilder(true);
-        Vector3[] points = new Vector3[width * height];
-        for (int i = 0; i < width; ++i) {
-            for (int j = 0; j < height; ++j) {
+        var points = new Vector3[width * height];
+        for (var i = 0; i < width; ++i) {
+            for (var j = 0; j < height; ++j) {
                 points[i * width + j] = new Vector3(i / 10f, 0, j / 10f);
             }
         }
@@ -171,7 +171,7 @@ public class MainViewModel : BaseViewModel {
         var normals = model.Normals
                       ?? throw new InvalidOperationException("The generated mesh has no normals.");
         Model = model;
-        for (int i = 0; i < normals.Count; ++i) {
+        for (var i = 0; i < normals.Count; ++i) {
             normals[i] = new Vector3(0, Math.Abs(normals[i].Y), 0);
         }
 
@@ -236,12 +236,12 @@ public class MainViewModel : BaseViewModel {
             .Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
-        float stepA = ((end.W - start.W) / (steps - 1));
-        float stepR = ((end.X - start.X) / (steps - 1));
-        float stepG = ((end.Y - start.Y) / (steps - 1));
-        float stepB = ((end.Z - start.Z) / (steps - 1));
+        var stepA = ((end.W - start.W) / (steps - 1));
+        var stepR = ((end.X - start.X) / (steps - 1));
+        var stepG = ((end.Y - start.Y) / (steps - 1));
+        var stepB = ((end.Z - start.Z) / (steps - 1));
 
-        for (int i = 0; i < steps; i++) {
+        for (var i = 0; i < steps; i++) {
             yield return new Color4((start.X + (stepR * i)),
                 (start.Y + (stepG * i)),
                 (start.Z + (stepB * i)),
@@ -252,9 +252,9 @@ public class MainViewModel : BaseViewModel {
     private void CreatePerlinNoise() {
         float[] noise;
         MathHelper.GenerateNoiseMap(width, height, 8, out noise);
-        Vector2Collection collection = new Vector2Collection(width * height);
-        for (int i = 0; i < width; ++i) {
-            for (int j = 0; j < height; ++j) {
+        var collection = new Vector2Collection(width * height);
+        for (var i = 0; i < width; ++i) {
+            for (var j = 0; j < height; ++j) {
                 collection.Add(new Vector2(Math.Abs(noise[width * i + j]), 0));
             }
         }

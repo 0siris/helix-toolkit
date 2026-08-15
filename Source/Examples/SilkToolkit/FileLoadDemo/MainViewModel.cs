@@ -237,7 +237,7 @@ public class MainViewModel : BaseViewModel {
             return;
         }
 
-        string? path = OpenFileDialog(openFileFilter);
+        var path = OpenFileDialog(openFileFilter);
         if (path is null) {
             return;
         }
@@ -253,12 +253,12 @@ public class MainViewModel : BaseViewModel {
                 loadedScene.Root.Attach(EffectsManager); // Pre attach scene graph
                 SceneNodeExtensions.UpdateAllTransformMatrix(loadedScene.Root);
                 if (SceneNodeExtensions.TryGetBound(loadedScene.Root, out var bound)) {
-                    /// Must use UI thread to set value back.
+                    // Must use UI thread to set value back.
                     syncContext.Post((_) => { ModelBound = bound; }, null);
                 }
 
                 if (SceneNodeExtensions.TryGetCentroid(loadedScene.Root, out var centroid)) {
-                    /// Must use UI thread to set value back.
+                    // Must use UI thread to set value back.
                     syncContext.Post((_) => { ModelCentroid = centroid.ToPoint3D(); }, null);
                 }
 

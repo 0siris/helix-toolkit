@@ -83,7 +83,7 @@ public class MainViewModel : BaseViewModel {
         b1.AddBox(new Vector3(0, 0, 0), 1, 1, 1, BoxFaces.All);
         Model = b1.ToMeshGeometry3D();
         if (Model.TextureCoordinates is { } textureCoordinates) {
-            for (int i = 0; i < textureCoordinates.Count; ++i) {
+            for (var i = 0; i < textureCoordinates.Count; ++i) {
                 var tex = textureCoordinates[i];
                 textureCoordinates[i] = new Vector2(tex.X * 0.5f, tex.Y * 0.5f);
             }
@@ -152,8 +152,8 @@ public class MainViewModel : BaseViewModel {
             aniDir = true;
         }
 
-        for (int i = -Num - (int) aniX; i < Num + aniX; i++) {
-            for (int j = -Num - (int) aniX; j < Num + aniX; j++) {
+        for (var i = -Num - (int) aniX; i < Num + aniX; i++) {
+            for (var j = -Num - (int) aniX; j < Num + aniX; j++) {
                 var matrix = RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
                              * Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
                 var color = new Color4(1,
@@ -186,7 +186,7 @@ public class MainViewModel : BaseViewModel {
         SubTitle = "Number of Instances: " + parameters.Count.ToString();
 
         if (billboardinstances.Count == 0) {
-            for (int i = 0; i < 2 * Num; ++i) {
+            for (var i = 0; i < 2 * Num; ++i) {
                 billboardParams.Add(new BillboardInstanceParameter() {
                     TexCoordOffset = new Vector2(1f / 6 * rnd.Next(0, 6), 1f / 6 * rnd.Next(0, 6)),
                     TexCoordScale = new Vector2(1f / 6, 1f / 6)
@@ -199,7 +199,7 @@ public class MainViewModel : BaseViewModel {
             BillboardInstanceParams = [.. billboardParams];
             BillboardInstances = [.. billboardinstances];
         } else {
-            for (int i = 0; i < billboardinstances.Count; ++i) {
+            for (var i = 0; i < billboardinstances.Count; ++i) {
                 var current = billboardinstances[i];
                 current.M41 += i % 3 == 0
                     ? aniX / 50

@@ -132,7 +132,7 @@ public class MainViewModel : BaseViewModel {
             floorMaterial.RenderShadowMap = true;
 
         OpenPbrSampleCommand = new RelayCommand((_) => {
-            PbrWindow w = new PbrWindow() {
+            var w = new PbrWindow() {
                 DataContext = new PbrViewModel(EffectsManager) {
                     EnvironmentMap = EnvironmentMap
                 }
@@ -151,7 +151,7 @@ public class MainViewModel : BaseViewModel {
     public void AttachModelList(List<Object3D>? objs) {
         if (objs is null)
             return;
-        for (int i = 0; i < objs.Count; ++i) {
+        for (var i = 0; i < objs.Count; ++i) {
             var ob = objs[i];
             if (ob.Geometry is not { } geometry)
                 continue;
@@ -172,7 +172,7 @@ public class MainViewModel : BaseViewModel {
                     };
 
                     var diffuseMaterial = new DiffuseMaterial();
-                    Material pbrMaterial = NormalMaterial;
+                    var pbrMaterial = NormalMaterial;
                     if (ob.Material is PhongMaterialCore p) {
                         var phong = p.ConvertToPhongMaterial();
                         phong.RenderEnvironmentMap = true;
@@ -264,12 +264,12 @@ public class MainViewModel : BaseViewModel {
             .Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
-        float stepA = ((end.W - start.W) / (steps - 1));
-        float stepR = ((end.X - start.X) / (steps - 1));
-        float stepG = ((end.Y - start.Y) / (steps - 1));
-        float stepB = ((end.Z - start.Z) / (steps - 1));
+        var stepA = ((end.W - start.W) / (steps - 1));
+        var stepR = ((end.X - start.X) / (steps - 1));
+        var stepG = ((end.Y - start.Y) / (steps - 1));
+        var stepB = ((end.Z - start.Z) / (steps - 1));
 
-        for (int i = 0; i < steps; i++) {
+        for (var i = 0; i < steps; i++) {
             yield return new Color4((start.X + (stepR * i)),
                 (start.Y + (stepG * i)),
                 (start.Z + (stepB * i)),

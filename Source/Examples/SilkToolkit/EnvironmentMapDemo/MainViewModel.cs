@@ -76,16 +76,16 @@ public class MainViewModel : BaseViewModel {
 
         SkyboxTexture = TextureModel.Create("Cubemap_Grandcanyon.dds")
                         ?? throw new InvalidOperationException("The skybox texture could not be loaded.");
-        int t = 5;
-        for (int i = 0; i < 10; ++i) {
+        var t = 5;
+        for (var i = 0; i < 10; ++i) {
             Instances1.Add(Translation(t, t, (i - 5) * t));
         }
 
-        for (int i = 0; i < 10; ++i) {
+        for (var i = 0; i < 10; ++i) {
             Instances2.Add(Translation(t, (i - 5) * t, t));
         }
 
-        for (int i = 0; i < 10; ++i) {
+        for (var i = 0; i < 10; ++i) {
             Instances3.Add(Translation(-(i - 5) * t, t, (i - 5) * t));
         }
 

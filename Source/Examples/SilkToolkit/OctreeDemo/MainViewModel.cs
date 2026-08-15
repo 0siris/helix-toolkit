@@ -216,16 +216,16 @@ public class MainViewModel : BaseViewModel {
         PointsModel.Positions = [.. defaultPositions.Select(x => x + offset)];
         PointsModel.Indices = [.. Enumerable.Range(0, PointsModel.Positions.Count)];
         PointsModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
-        for (int i = 0; i < 50; ++i) {
-            for (int j = 0; j < 10; ++j) {
+        for (var i = 0; i < 50; ++i) {
+            for (var j = 0; j < 10; ++j) {
                 Items.Add(new SphereModel(new Vector3(i - 50, j - 25, i + j - 75), rnd.NextDouble(1, 3)));
             }
         }
 
         var b3 = new LineBuilder();
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 5; ++j) {
-                for (int k = 0; k < 5; ++k) {
+        for (var i = 0; i < 10; ++i) {
+            for (var j = 0; j < 5; ++j) {
+                for (var k = 0; k < 5; ++k) {
                     b3.AddBox(new Vector3(-10 - i * 5, j * 5, k * 5), 5, 5, 5);
                 }
             }
@@ -414,8 +414,8 @@ public class MainViewModel : BaseViewModel {
         }
 
         if (counter % 2 == 0) {
-            int k = rnd.Next(0, Items.Count - 1);
-            int radius = rnd.Next(1, 5);
+            var k = rnd.Next(0, Items.Count - 1);
+            var radius = rnd.Next(1, 5);
             if (Items[k] is SphereModel sphere)
                 sphere.Radius = radius;
         }

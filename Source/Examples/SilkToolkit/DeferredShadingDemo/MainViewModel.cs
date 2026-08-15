@@ -250,7 +250,7 @@ public class MainViewModel : BaseViewModel {
 
         // re-generate the lights
         PointLightCollection.Clear();
-        for (int i = 0; i < numberLights; i++) {
+        for (var i = 0; i < numberLights; i++) {
             var pointLight = new PointLight3D() {
                 Color = PointLightColor,
                 Attenuation = PointLightAttenuation,
@@ -270,7 +270,7 @@ public class MainViewModel : BaseViewModel {
     /// Update Pointlights
     /// </summary>
     private void UpdatePointLightCollection() {
-        for (int i = 0; i < PointLightCollection.Count; i++) {
+        for (var i = 0; i < PointLightCollection.Count; i++) {
             if (PointLightCollection[i] is PointLight3D pointLight) {
                 pointLight.Attenuation = PointLightAttenuation;
                 pointLight.Color = PointLightColor;
@@ -296,7 +296,7 @@ public class MainViewModel : BaseViewModel {
 
         // re-generate the lights
         SpotLightCollection.Clear();
-        for (int i = 0; i < numberLights; i++) {
+        for (var i = 0; i < numberLights; i++) {
             var spotLight = new SpotLight3D() {
                 Color = SpotLightColor,
                 Attenuation = SpotLightAttenuation,
@@ -320,7 +320,7 @@ public class MainViewModel : BaseViewModel {
     /// Update Spotlights
     /// </summary>
     private void UpdateSpotLightCollection() {
-        for (int i = 0; i < SpotLightCollection.Count; i++) {
+        for (var i = 0; i < SpotLightCollection.Count; i++) {
             if (SpotLightCollection[i] is SpotLight3D spotLight) {
                 spotLight.Attenuation = SpotLightAttenuation;
                 spotLight.Color = SpotLightColor;

@@ -79,8 +79,8 @@ public class MainViewModel : BaseViewModel {
 
         var dir = "Expressions";
         if (Directory.Exists(dir)) {
-            string[] files = Directory.GetFiles(dir, "*.txt", SearchOption.AllDirectories);
-            foreach (string file in files) {
+            var files = Directory.GetFiles(dir, "*.txt", SearchOption.AllDirectories);
+            foreach (var file in files) {
                 fileDict.Add(Path.GetFileNameWithoutExtension(file), Path.GetFullPath(file));
             }
         }
@@ -122,12 +122,12 @@ public class MainViewModel : BaseViewModel {
             .Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
-        float stepA = ((end.W - start.W) / (steps - 1));
-        float stepR = ((end.X - start.X) / (steps - 1));
-        float stepG = ((end.Y - start.Y) / (steps - 1));
-        float stepB = ((end.Z - start.Z) / (steps - 1));
+        var stepA = ((end.W - start.W) / (steps - 1));
+        var stepR = ((end.X - start.X) / (steps - 1));
+        var stepG = ((end.Y - start.Y) / (steps - 1));
+        var stepB = ((end.Z - start.Z) / (steps - 1));
 
-        for (int i = 0; i < steps; i++) {
+        for (var i = 0; i < steps; i++) {
             yield return new Color4((start.X + (stepR * i)),
                 (start.Y + (stepG * i)),
                 (start.Z + (stepB * i)),

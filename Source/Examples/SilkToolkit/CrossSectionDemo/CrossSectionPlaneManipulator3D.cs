@@ -363,11 +363,11 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
     private static Vector3 ProjectToTrackball(Point point, double w, double h) {
         // Use the diagonal for scaling, making sure that the whole client area is inside the trackball
-        double r = Math.Sqrt((w * w) + (h * h)) / 2;
-        double x = (point.X - (w / 2)) / r;
-        double y = ((h / 2) - point.Y) / r;
-        double z2 = 1 - (x * x) - (y * y);
-        double z = z2 > 0
+        var r = Math.Sqrt((w * w) + (h * h)) / 2;
+        var x = (point.X - (w / 2)) / r;
+        var y = ((h / 2) - point.Y) / r;
+        var z2 = 1 - (x * x) - (y * y);
+        var z = z2 > 0
             ? Math.Sqrt(z2)
             : 0;
 
@@ -543,7 +543,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
             //Set hit distance to 0 so event manipulator is inside the model, hit test still works
             if (base.OnHitTest(context, totalModelMatrix, ref hits)) {
                 if (hits.Count > 0) {
-                    HitTestResult res = new HitTestResult() {
+                    var res = new HitTestResult() {
                         Distance = int.MaxValue
                     };
                     foreach (var hit in hits) {

@@ -286,7 +286,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         ref List<HitTestResult> hits,
         float hitThickness
     ) {
-        List<HitTestResult>? nullableHits = hits;
+        var nullableHits = hits;
         var result = HitTest(context, model, geometry, modelMatrix, false, ref nullableHits, hitThickness);
         if (nullableHits is not null)
             hits = nullableHits;

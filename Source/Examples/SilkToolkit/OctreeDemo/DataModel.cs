@@ -111,7 +111,7 @@ public class SphereModel : DataModel {
     } = 1;
 
     private void CreateModel() {
-        int type = rnd.Next(0, 3);
+        var type = rnd.Next(0, 3);
         switch (type) {
             case 0:
                 Model = _sphere;

@@ -201,8 +201,8 @@ public class MainViewModel : DemoCore.BaseViewModel {
     }
 
     private void AddLocations() {
-        float offset = 4.5f;
-        float scale = 0.8f;
+        var offset = 4.5f;
+        var scale = 0.8f;
         LandmarkBillboards.TextInfo.Add(new TextInfo("Arctic", Vector3.UnitZ * offset) {
             Foreground = Color.Red,
             Scale = scale * 2,
@@ -493,7 +493,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
             }
 
             if (e.OriginalSource is FrameworkElement dp && dp.DataContext is Flag flag) {
-                DataObject dragData = new DataObject("Flag", flag);
+                var dragData = new DataObject("Flag", flag);
                 DragDrop.DoDragDrop(parent, dragData, DragDropEffects.Move);
                 dragSource = null;
             }

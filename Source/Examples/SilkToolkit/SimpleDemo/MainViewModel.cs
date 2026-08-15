@@ -139,9 +139,9 @@ public class MainViewModel : BaseViewModel {
         var ptPos = new Vector3Collection();
         var ptIdx = new IntCollection();
 
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
-                for (int z = 0; z < 10; z++) {
+        for (var x = 0; x < 10; x++) {
+            for (var y = 0; y < 10; y++) {
+                for (var z = 0; z < 10; z++) {
                     ptIdx.Add(ptPos.Count);
                     ptPos.Add(new Vector3(x, y, z));
                 }
@@ -152,8 +152,8 @@ public class MainViewModel : BaseViewModel {
         Points.Indices = ptIdx;
 
         Text = new BillboardText3D();
-        int numRows = 11;
-        int numColumns = 11;
+        var numRows = 11;
+        var numColumns = 11;
         string[] texts = [
             "HelixToolkit",
             "abcde",

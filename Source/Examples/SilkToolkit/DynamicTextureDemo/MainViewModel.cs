@@ -169,13 +169,13 @@ public class MainViewModel : BaseViewModel {
             IsDynamic = true,
             Positions = modelPositions
         };
-        int count = modelPositions.Count;
+        var count = modelPositions.Count;
         var colors = new Color4Collection(count);
-        for (int i = 0; i < count / 2; ++i) {
+        for (var i = 0; i < count / 2; ++i) {
             colors.Add(new Color4(0, 1, 1, 1));
         }
 
-        for (int i = 0; i < count / 2; ++i) {
+        for (var i = 0; i < count / 2; ++i) {
             colors.Add(new Color4(0, 0, 0, 0));
         }
 
@@ -191,14 +191,14 @@ public class MainViewModel : BaseViewModel {
         };
         LineModel.Positions.Add(Vector3.Zero);
         var indices = new IntCollection(count * 2);
-        for (int i = 0; i < count; ++i) {
+        for (var i = 0; i < count; ++i) {
             indices.Add(count);
             indices.Add(i);
         }
 
         LineModel.Indices = indices;
         colors = new Color4Collection(LineModel.Positions.Count);
-        for (int i = 0; i < count; ++i) {
+        for (var i = 0; i < count; ++i) {
             colors.Add(new Color4((float) i / count, 1 - (float) i / count, 0, 1));
         }
 
@@ -241,7 +241,7 @@ public class MainViewModel : BaseViewModel {
                 if (Model.TextureCoordinates is { } modelTextureCoordinates) {
                     var texture = new Vector2Collection(modelTextureCoordinates);
                     var t0 = texture[0];
-                    for (int i = 1; i < texture.Count; ++i) {
+                    for (var i = 1; i < texture.Count; ++i) {
                         texture[i - 1] = texture[i];
                     }
 
@@ -273,7 +273,7 @@ public class MainViewModel : BaseViewModel {
 
         if (DynamicVertices) {
             var positions = new Vector3Collection(initialPosition);
-            for (int i = 0; i < positions.Count; ++i) {
+            for (var i = 0; i < positions.Count; ++i) {
                 var off = (float) Math.Sin(Math.PI * (float) (counter + i) / 64);
                 var p = positions[i];
                 p *= 0.8f + off * 0.2f;
@@ -324,9 +324,9 @@ public class MainViewModel : BaseViewModel {
             if (PointModel.Colors is not { } pointColors || LineModel.Colors is not { } lineColorsSource)
                 return;
             var colors = new Color4Collection(pointColors);
-            for (int k = 0; k < 10; ++k) {
+            for (var k = 0; k < 10; ++k) {
                 var c = colors[colors.Count - 1];
-                for (int i = colors.Count - 1; i > 0; --i) {
+                for (var i = colors.Count - 1; i > 0; --i) {
                     colors[i] = colors[i - 1];
                 }
 
@@ -334,9 +334,9 @@ public class MainViewModel : BaseViewModel {
             }
 
             var lineColors = new Color4Collection(lineColorsSource);
-            for (int k = 0; k < 10; ++k) {
+            for (var k = 0; k < 10; ++k) {
                 var c = lineColors[colors.Count - 2];
-                for (int i = lineColors.Count - 2; i > 0; --i) {
+                for (var i = lineColors.Count - 2; i > 0; --i) {
                     lineColors[i] = lineColors[i - 1];
                 }
 

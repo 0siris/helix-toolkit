@@ -81,7 +81,7 @@ public class MainViewModel : BaseViewModel {
 
     private void LoadModels() {
         var models = Load3Ds("Car.3DS");
-        int count = 0;
+        var count = 0;
         Dictionary<MaterialCore, int> materialDict = [];
         //materialDict.Add(new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1) }, count);
         foreach (var model in models) {
@@ -112,7 +112,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
 
-        Material[] materials = new Material[materialDict.Count];
+        var materials = new Material[materialDict.Count];
         foreach (var m in materialDict.Keys) {
             materials[materialDict[m]] = m.ConvertToMaterial();
         }

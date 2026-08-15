@@ -34,12 +34,12 @@ public static class DpiHelper {
         //Create Graphics object from the current windows handle
         var graphicsObject = Graphics.FromHwnd(IntPtr.Zero);
         //Get Handle to the device context associated with this Graphics object
-        IntPtr deviceContextHandle = graphicsObject.GetHdc();
+        var deviceContextHandle = graphicsObject.GetHdc();
         //Call GetDeviceCaps with the Handle to retrieve the Screen Height
-        int logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Vertres);
-        int physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Desktopvertres);
+        var logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Vertres);
+        var physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Desktopvertres);
         //Divide the Screen Heights to get the scaling factor and round it to two decimals
-        double screenScalingFactor = Math.Round(physicalScreenHeight / (double) logicalScreenHeight, 2);
+        var screenScalingFactor = Math.Round(physicalScreenHeight / (double) logicalScreenHeight, 2);
         //If requested as percentage - convert it
         if (percentage) {
             screenScalingFactor *= 100.0;
@@ -231,7 +231,7 @@ public class CoreTestApp {
         Task.Run(() => {
             var builder = new MeshBuilder(true, true, true);
             builder.AddSphere(Vector3.Zero);
-            for (int i = 0; i < NumItems; ++i) {
+            for (var i = 0; i < NumItems; ++i) {
                 var sphere1 = builder.ToMesh();
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
@@ -251,7 +251,7 @@ public class CoreTestApp {
         });
 
         Task.Run(() => {
-            for (int i = 0; i < NumItems; ++i) {
+            for (var i = 0; i < NumItems; ++i) {
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var material = materials[i % materialCount];
@@ -270,7 +270,7 @@ public class CoreTestApp {
         });
 
         Task.Run(() => {
-            for (int i = 0; i < NumItems; ++i) {
+            for (var i = 0; i < NumItems; ++i) {
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new PointNode() {
@@ -288,7 +288,7 @@ public class CoreTestApp {
         });
 
         Task.Run(() => {
-            for (int i = 0; i < NumItems; ++i) {
+            for (var i = 0; i < NumItems; ++i) {
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new LineNode() {
@@ -471,8 +471,8 @@ public class CoreTestApp {
     private void Viewport_OnStopRendering(object? sender, EventArgs e) { }
 
     private void Viewport_OnStartRendering(object? sender, EventArgs e) {
-        bool isGoingOut = true;
-        bool isAddingNode = false;
+        var isGoingOut = true;
+        var isAddingNode = false;
         RunRenderLoop(() => {
             if (resizeRequested) {
                 viewport.Resize(window.ClientSize.Width, window.ClientSize.Height);
@@ -676,8 +676,8 @@ public class CoreTestApp {
         io.AddKeyEvent(ImGuiKey.ModShift, e.Shift);
         io.AddKeyEvent(ImGuiKey.ModAlt, e.Alt);
 
-        int keyValue = e.KeyValue;
-        ImGuiKey key = keyValue switch {
+        var keyValue = e.KeyValue;
+        var key = keyValue switch {
             >= (int) Keys.D0 and <= (int) Keys.D9 => (ImGuiKey) ((int) ImGuiKey._0 + keyValue - (int) Keys.D0),
             >= (int) Keys.A and <= (int) Keys.Z => (ImGuiKey) ((int) ImGuiKey.A + keyValue - (int) Keys.A),
             >= (int) Keys.F1 and <= (int) Keys.F24 => (ImGuiKey) ((int) ImGuiKey.F1 + keyValue - (int) Keys.F1),

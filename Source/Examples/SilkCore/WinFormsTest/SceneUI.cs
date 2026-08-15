@@ -31,7 +31,7 @@ public static class SceneUi {
     public static void DrawUi(int width, int height, ref ViewportOptions options, GroupNode rootNode) {
         ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(250, 350));
-        bool opened = true;
+        var opened = true;
         ImGui.Begin("Model Loader Window",
             ref opened,
             ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse);
@@ -156,7 +156,7 @@ public static class SceneUi {
     }
 
     private static void LoadModel(GroupNode node, bool renderEnvironmentMap) {
-        OpenFileDialog dialog = new OpenFileDialog {
+        var dialog = new OpenFileDialog {
             Filter = Importer.SupportedFormatsString
         };
         if (dialog.ShowDialog() == DialogResult.OK) {

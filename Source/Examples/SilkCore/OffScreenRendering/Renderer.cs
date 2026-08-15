@@ -80,7 +80,7 @@ internal class Renderer {
         builder.AddSphere(Vector3.Zero, 5);
         var mesh = builder.ToMesh();
         var numSphere = random.Next(50, 100);
-        for (int i = 0; i < numSphere; ++i) {
+        for (var i = 0; i < numSphere; ++i) {
             var meshNode = new MeshNode() {
                 Geometry = mesh,
                 Material = new PhongMaterialCore() {

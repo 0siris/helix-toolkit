@@ -182,9 +182,9 @@ public class MainViewModel : BaseViewModel {
 
     private void BuildGrid() {
         var builder = new LineBuilder();
-        int zOff = -45;
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 10; ++j) {
+        var zOff = -45;
+        for (var i = 0; i < 10; ++i) {
+            for (var j = 0; j < 10; ++j) {
                 builder.AddLine(new Vector3(-i * 5, 0, j * 5), new Vector3(i * 5, 0, j * 5));
                 builder.AddLine(new Vector3(-i * 5, 0, -j * 5), new Vector3(i * 5, 0, -j * 5));
                 builder.AddLine(new Vector3(i * 5, 0, -j * 5), new Vector3(i * 5, 0, j * 5));

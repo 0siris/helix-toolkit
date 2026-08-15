@@ -34,12 +34,12 @@ public static class Extensions {
 
         // Build the polygon to mesh (using Triangle.NET to triangulate)
         var polygon = new Polygon();
-        int marker = 0;
+        var marker = 0;
 
         foreach (var outlines in outlineList) {
             var outerOutline = outlines.OrderBy(x => x.AreaOfSegment()).Last();
 
-            for (int i = 0; i < outlines.Count; i++) {
+            for (var i = 0; i < outlines.Count; i++) {
                 var outline = outlines[i];
                 var isHole = i != outlines.Count - 1 && IsPointInPolygon(outerOutline, outline[0]);
                 polygon.AddContour(outline.Select(p => new Vertex(p.X, p.Y)), marker++, isHole);
@@ -92,9 +92,9 @@ public static class Extensions {
     }
 
     public static bool IsPointInPolygon(IList<Point> polygon, Point testPoint) {
-        bool result = false;
-        int j = polygon.Count - 1;
-        for (int i = 0; i < polygon.Count; i++) {
+        var result = false;
+        var j = polygon.Count - 1;
+        for (var i = 0; i < polygon.Count; i++) {
             if ((polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y) ||
                 (polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)) {
                 if (polygon[i].X + ((testPoint.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) *
@@ -110,7 +110,7 @@ public static class Extensions {
     }
 
     public static IEnumerable<Point> ToSegments(this IEnumerable<Point> input) {
-        bool first = true;
+        var first = true;
         var previous = default(Point);
         foreach (var point in input) {
             if (!first) {
@@ -181,7 +181,7 @@ public static class Extensions {
 
             var polybezier = segment as PolyBezierSegment;
             if (polybezier != null) {
-                for (int i = -1; i + 3 < polybezier.Points.Count; i += 3) {
+                for (var i = -1; i + 3 < polybezier.Points.Count; i += 3) {
                     var p1 = i == -1 ? previousPoint : polybezier.Points[i];
                     outline.AddRange(FlattenBezier(p1,
                                                    polybezier.Points[i + 1],
@@ -221,7 +221,7 @@ public static class Extensions {
     private static IEnumerable<Point> FlattenBezier(Point p1, Point p2, Point p3, Point p4, int n) {
         // http://tsunami.cis.usouthal.edu/~hain/general/Publications/Bezier/bezier%20cccg04%20paper.pdf
         // http://en.wikipedia.org/wiki/De_Casteljau's_algorithm
-        for (int i = 1; i <= n; i++) {
+        for (var i = 1; i <= n; i++) {
             var t = (double)i / n;
             var u = 1 - t;
             yield return new Point(

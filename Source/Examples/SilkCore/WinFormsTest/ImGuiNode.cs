@@ -99,7 +99,7 @@ public class ImGuiNode : SceneNode {
 
     protected override void OnAttached() {
         previousTime = TimeSpan.Zero;
-        IntPtr context = ImGui.CreateContext();
+        var context = ImGui.CreateContext();
         ImGui.SetCurrentContext(context);
         ImGui.GetIO()
             .Fonts.AddFontDefault();
@@ -172,7 +172,7 @@ public sealed class ImGuiRenderCore : RenderCore {
             -1.0f,
             1.0f);
 
-        int slot = 0;
+        var slot = 0;
         if (EffectTechnique?.EffectsManager is not { } effectsManager
             || !buffer.AttachBuffers(deviceContext, ref slot, effectsManager)) {
             return;
@@ -192,11 +192,11 @@ public sealed class ImGuiRenderCore : RenderCore {
         unsafe {
             var drawData = ImGui.GetDrawData();
             drawData.ScaleClipRects(new System.Numerics.Vector2(context.DpiScale, context.DpiScale));
-            int idxOffset = 0;
-            int vtxOffset = 0;
-            for (int n = 0; n < drawData.CmdListsCount; n++) {
+            var idxOffset = 0;
+            var vtxOffset = 0;
+            for (var n = 0; n < drawData.CmdListsCount; n++) {
                 var cmdList = drawData.CmdLists[n];
-                for (int cmdI = 0; cmdI < cmdList.CmdBuffer.Size; cmdI++) {
+                for (var cmdI = 0; cmdI < cmdList.CmdBuffer.Size; cmdI++) {
                     var pcmd = &(((ImDrawCmd*) cmdList.CmdBuffer.Data)[cmdI]);
                     if (pcmd->UserCallback != IntPtr.Zero) { } else {
                         deviceContext.SetScissorRectangle((int) pcmd->ClipRect.X,
@@ -257,9 +257,9 @@ public sealed class ImGuiRenderCore : RenderCore {
             buffer.VertexBufferInternal.MapBuffer(deviceContext,
                 (dataBox) => {
                     var ptr = dataBox.DataPointer;
-                    for (int i = 0; i < data.CmdListsCount; i++) {
+                    for (var i = 0; i < data.CmdListsCount; i++) {
                         var cmdList = data.CmdLists[i];
-                        int vCount = cmdList.VtxBuffer.Size * sizeof(ImDrawVert);
+                        var vCount = cmdList.VtxBuffer.Size * sizeof(ImDrawVert);
                         ptr = UnsafeHelper.Write(
                             ptr,
                             cmdList.VtxBuffer.Data,
@@ -270,9 +270,9 @@ public sealed class ImGuiRenderCore : RenderCore {
             buffer.IndexBufferInternal.MapBuffer(deviceContext,
                 (dataBox) => {
                     var ptr = dataBox.DataPointer;
-                    for (int i = 0; i < data.CmdListsCount; i++) {
+                    for (var i = 0; i < data.CmdListsCount; i++) {
                         var cmdList = data.CmdLists[i];
-                        int iCount = cmdList.IdxBuffer.Size * sizeof(ushort);
+                        var iCount = cmdList.IdxBuffer.Size * sizeof(ushort);
                         ptr = UnsafeHelper.Write(
                             ptr,
                             cmdList.IdxBuffer.Data,

@@ -124,7 +124,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         bool returnMultiple,
         ref List<HitTestResult> hits
     ) {
-        List<HitTestResult>? nullableHits = hits;
+        var nullableHits = hits;
         var result = HitTest(context, model, geometry, modelMatrix, returnMultiple, ref nullableHits, 0);
         hits = nullableHits ?? [];
         return result;
@@ -149,7 +149,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         float hitThickness
     ) {
         if (geometry is null) return false;
-        List<HitTestResult>? nullableHits = hits;
+        var nullableHits = hits;
         var result = HitTest(context, model, geometry, modelMatrix, false, ref nullableHits, hitThickness);
         hits = nullableHits ?? [];
         return result;

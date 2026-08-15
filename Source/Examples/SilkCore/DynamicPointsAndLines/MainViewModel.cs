@@ -98,7 +98,7 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
 
             SetValue(ref field, value);
             var indices = new IntCollection(field * 2);
-            for (int i = 0; i < field * 2; i++) {
+            for (var i = 0; i < field * 2; i++) {
                 indices.Add(i);
             }
 
@@ -155,9 +155,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
     private static IEnumerable<Vector3> GeneratePoints(int n, double time) {
         const double r = 30;
         const double q = 5;
-        for (int i = 0; i < n; i++) {
-            double t = Math.PI * 2 * i / (n - 1);
-            double u = (t * 24) + (time * 5);
+        for (var i = 0; i < n; i++) {
+            var t = Math.PI * 2 * i / (n - 1);
+            var u = (t * 24) + (time * 5);
             var pt = new Vector3((float) (Math.Cos(t) * (r + (q * Math.Cos(u)))),
                 (float) (Math.Sin(t) * (r + (q * Math.Cos(u)))),
                 (float) (q * Math.Sin(u)));

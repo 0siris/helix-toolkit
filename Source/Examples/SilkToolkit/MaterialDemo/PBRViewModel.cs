@@ -83,8 +83,8 @@ public class PbrViewModel : BaseViewModel {
         SphereModel = builder.ToMesh();
         var normalMap =
             TextureModel.Create(new Uri("TextureNoise1_dot3.dds", UriKind.RelativeOrAbsolute).ToString());
-        for (int i = -Row; i < Row; ++i) {
-            for (int j = -Col; j < Col; ++j) {
+        for (var i = -Row; i < Row; ++i) {
+            for (var j = -Col; j < Col; ++j) {
                 var m = new PbrMaterial() {
                     AlbedoColor = albedoColor.ToColor4(),
                     RoughnessFactor = 1.0 / (2 * Row) * Math.Abs(i + Row),
@@ -130,7 +130,7 @@ public class PbrViewModel : BaseViewModel {
         var textureCoordinates = floorGeo.TextureCoordinates
                                  ?? throw new InvalidOperationException(
                                      "The floor geometry has no texture coordinates.");
-        for (int i = 0; i < textureCoordinates.Count; ++i) {
+        for (var i = 0; i < textureCoordinates.Count; ++i) {
             textureCoordinates[i] *= 5;
         }
 

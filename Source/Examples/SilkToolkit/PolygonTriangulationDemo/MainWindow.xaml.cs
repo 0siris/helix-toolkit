@@ -66,7 +66,7 @@ public partial class MainWindow : Window {
         // Random Radii for the Polygon
         var radii = new List<float>();
         var innerRadii = new List<float>();
-        for (int i = 0; i < cnt; i++) {
+        for (var i = 0; i < cnt; i++) {
             radii.Add(NextFloat(random, radius * 0.9f, radius * 1.1f));
             innerRadii.Add(NextFloat(random, radius * 0.2f, radius * 0.3f));
         }
@@ -79,7 +79,7 @@ public partial class MainWindow : Window {
         var sin = (float) Math.Sin(holeAngle);
         var offset1 = new Vector2(holeDistance * cos, holeDistance * sin);
         var offset2 = new Vector2(-holeDistance * cos, -holeDistance * sin);
-        for (int i = 0; i < cnt; i++) {
+        for (var i = 0; i < cnt; i++) {
             // Flatten a bit
             mPolygonPoints.Add(new Vector2(radii[i] * (Single) Math.Cos(angle), radii[i] * (Single) Math.Sin(angle)));
             hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
@@ -118,7 +118,7 @@ public partial class MainWindow : Window {
         TriangulatedPolygon.Geometry = geometry;
 
         var lb = new LineBuilder();
-        for (int i = 0; i < sLti.Count; i += 3) {
+        for (var i = 0; i < sLti.Count; i += 3) {
             lb.AddLine(positions[sLti[i]], positions[sLti[i + 1]]);
             lb.AddLine(positions[sLti[i + 1]], positions[sLti[i + 2]]);
             lb.AddLine(positions[sLti[i + 2]], positions[sLti[i]]);

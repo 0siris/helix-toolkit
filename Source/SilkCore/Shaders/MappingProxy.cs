@@ -74,7 +74,7 @@ public sealed class MappingProxy<MappingType> : DisposeObject where MappingType 
     /// <param name="name"></param>
     /// <returns></returns>
     public MappingType? GetMapping(string name) {
-        if (mappingCollection.TryGetItem(name, out MappingType? item)) return item;
+        if (mappingCollection.TryGetItem(name, out var item)) return item;
 
         return null;
     }
@@ -84,7 +84,7 @@ public sealed class MappingProxy<MappingType> : DisposeObject where MappingType 
     /// <param name="slot"></param>
     /// <returns></returns>
     public MappingType? GetMapping(int slot) {
-        if (mappingCollection.TryGetItem(slot, out MappingType? item)) return item;
+        if (mappingCollection.TryGetItem(slot, out var item)) return item;
 
         return null;
     }

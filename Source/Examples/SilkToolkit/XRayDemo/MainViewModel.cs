@@ -125,7 +125,7 @@ public class MainViewModel : BaseViewModel {
         foreach (var item in caritems) {
             var positions = item.Positions
                             ?? throw new InvalidOperationException("The car mesh did not contain positions.");
-            for (int i = 0; i < positions.Count; ++i) {
+            for (var i = 0; i < positions.Count; ++i) {
                 positions[i] = positions[i] * scale;
             }
         }
@@ -137,12 +137,12 @@ public class MainViewModel : BaseViewModel {
         };
 
         Instances = new Matrix[6];
-        for (int i = 0; i < Instances.Length; ++i) {
+        for (var i = 0; i < Instances.Length; ++i) {
             Instances[i] = Translation(new Vector3(15 * i - 30, 15 * (i % 2) - 30, 0));
         }
 
         OutlineInstances = new Matrix[6];
-        for (int i = 0; i < Instances.Length; ++i) {
+        for (var i = 0; i < Instances.Length; ++i) {
             OutlineInstances[i] = Translation(new Vector3(15 * i - 30, 15 * (i % 2), 0));
         }
 

@@ -166,12 +166,12 @@ public class MainViewModel : BaseViewModel {
     private Tuple<Material, Media3D.Transform3D> LoadBeetle() {
         var data = ReadDat("stagbeetle208x208x123.dat", out var width, out var height, out var depth);
         var m = new VolumeTextureDiffuseMaterial();
-        ushort max = data.Max();
-        uint[] histogram = new uint[max + 1];
+        var max = data.Max();
+        var histogram = new uint[max + 1];
 
-        float[] fdata = new float[data.Length];
+        var fdata = new float[data.Length];
 
-        for (int i = 0; i < data.Length; ++i) {
+        for (var i = 0; i < data.Length; ++i) {
             fdata[i] = (float) data[i] / max;
             histogram[data[i]]++;
         }
@@ -194,10 +194,10 @@ public class MainViewModel : BaseViewModel {
         int depth,
         out Color4[] transferMap
     ) {
-        uint[] histogram = new uint[256];
+        var histogram = new uint[256];
 
-        float[] fdata = new float[data.Length];
-        for (int i = 0; i < data.Length; ++i) {
+        var fdata = new float[data.Length];
+        for (var i = 0; i < data.Length; ++i) {
             fdata[i] = (float) data[i] / byte.MaxValue;
             histogram[data[i]]++;
         }
@@ -209,8 +209,8 @@ public class MainViewModel : BaseViewModel {
     }
 
     private float[] Normalize(byte[] data) {
-        float[] fdata = new float[data.Length];
-        for (int i = 0; i < data.Length; ++i) {
+        var fdata = new float[data.Length];
+        for (var i = 0; i < data.Length; ++i) {
             fdata[i] = (float) data[i] / byte.MaxValue;
         }
 
@@ -237,18 +237,18 @@ public class MainViewModel : BaseViewModel {
         float maxPercent = 0.003f,
         float minPercent = 0.0001f
     ) {
-        float[] percentage = new float[histogram.Length];
-        for (int i = 0; i < histogram.Length; ++i) {
+        var percentage = new float[histogram.Length];
+        for (var i = 0; i < histogram.Length; ++i) {
             percentage[i] = (float) histogram[i] / total;
             if (percentage[i] > maxPercent || percentage[i] < minPercent) {
                 percentage[i] = 0;
             }
         }
 
-        Color4[] ret = new Color4[histogram.Length];
-        int counter = 0;
-        bool isZero = true;
-        for (int i = 0; i < percentage.Length; ++i) {
+        var ret = new Color4[histogram.Length];
+        var counter = 0;
+        var isZero = true;
+        for (var i = 0; i < percentage.Length; ++i) {
             if (percentage[i] > 0) {
                 ret[i] = ColorCandidates[counter];
                 isZero = false;

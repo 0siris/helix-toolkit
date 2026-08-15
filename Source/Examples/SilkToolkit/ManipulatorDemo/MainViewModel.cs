@@ -91,7 +91,7 @@ public class MainViewModel : BaseViewModel {
         //Manully set an offset for test
         if (Model2.Positions is not { } model2Positions)
             throw new InvalidOperationException("The manipulator sample positions are required.");
-        for (int i = 0; i < model2Positions.Count; ++i) {
+        for (var i = 0; i < model2Positions.Count; ++i) {
             model2Positions[i] = model2Positions[i] + new Vector3(2, 3, 4);
         }
 

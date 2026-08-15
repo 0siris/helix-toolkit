@@ -51,11 +51,11 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
         protected set {
             SetValue(ref field, value);
-            CameraModel = value is PerspectiveCamera
-                ? Perspective
-                : value is OrthographicCamera
-                    ? Orthographic
-                    : throw new InvalidOperationException("Unsupported camera type.");
+            CameraModel = value switch {
+                PerspectiveCamera => Perspective,
+                OrthographicCamera => Orthographic,
+                _ => throw new InvalidOperationException("Unsupported camera type.")
+            };
         }
     }
 
@@ -90,14 +90,18 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
         // on camera changed callback
         CameraModelChanged += (_, _) => {
-            if (cameraModel == Orthographic) {
-                if (!(Camera is OrthographicCamera))
-                    Camera = DefaultOrthographicCamera;
-            } else if (cameraModel == Perspective) {
-                if (!(Camera is PerspectiveCamera))
-                    Camera = DefaultPerspectiveCamera;
-            } else {
-                throw new InvalidOperationException("Camera Model Error.");
+            switch (cameraModel) {
+                case Orthographic: {
+                    if (Camera is not OrthographicCamera)
+                        Camera = DefaultOrthographicCamera;
+                    break;
+                }
+                case Perspective: {
+                    if (Camera is not PerspectiveCamera)
+                        Camera = DefaultPerspectiveCamera;
+                    break;
+                }
+                default: throw new InvalidOperationException("Camera Model Error.");
             }
         };
 
@@ -117,19 +121,20 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
     private bool disposedValue; // To detect redundant calls
 
     protected virtual void Dispose(bool disposing) {
-        if (!disposedValue) {
-            if (disposing) {
-                // TODO: dispose managed state (managed objects).
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // TODO: set large fields to null.
-            if (EffectsManager is IDisposable effectManager)
-                effectManager.Dispose();
-
-            disposedValue = true;
-            GC.SuppressFinalize(this);
+        if (disposedValue)
+            return;
+        
+        if (disposing) {
+            // TODO: dispose managed state (managed objects).
         }
+
+        // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+        // TODO: set large fields to null.
+        if (EffectsManager is IDisposable effectManager)
+            effectManager.Dispose();
+
+        disposedValue = true;
+        GC.SuppressFinalize(this);
     }
 
     // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.

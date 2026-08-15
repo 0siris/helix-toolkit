@@ -89,7 +89,7 @@ public class MainViewModel : BaseViewModel {
             : [];
         MeshGeometry = meshGeometry;
         Model1Instances = [];
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
             Model1Instances.Add(Translation(0, i, 0));
         }
 

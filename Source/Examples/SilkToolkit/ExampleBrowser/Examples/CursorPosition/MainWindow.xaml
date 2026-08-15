@@ -198,7 +198,7 @@
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
                              Text="{Binding Path=CurrentPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
-                    <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
+                    <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right" 
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
                              Text="{Binding Path=CurrentPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />

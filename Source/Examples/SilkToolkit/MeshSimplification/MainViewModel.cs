@@ -189,7 +189,7 @@ public class MainViewModel : BaseViewModel {
 
         Busy = true;
         var indices = Model.Indices ?? throw new InvalidOperationException("Model indices are required.");
-        int size = indices.Count / 3 / 2;
+        var size = indices.Count / 3 / 2;
         CalculationTime = 0;
         Task.Factory.StartNew(() => {
                 var sw = Stopwatch.StartNew();

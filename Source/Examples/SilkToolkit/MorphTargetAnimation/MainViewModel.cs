@@ -34,7 +34,7 @@ public class MainViewModel : BaseViewModel {
     public double CurrTime {
         set {
             if (SetValue(ref field, value)) {
-                foreach (IAnimationUpdater updater in animationUpdaters) {
+                foreach (var updater in animationUpdaters) {
                     updater.Update((float) value, 1);
                 }
             }
@@ -56,7 +56,7 @@ public class MainViewModel : BaseViewModel {
         ModelGroup = new SceneNodeGroupModel3D();
 
         //Test importing
-        Importer importer = new Importer();
+        var importer = new Importer();
         importer.Configuration.CreateSkeletonForBoneSkinningMesh = true;
         importer.Configuration.SkeletonSizeScale = 0.01f;
         importer.Configuration.GlobalScale = 0.1f;
@@ -86,7 +86,7 @@ public class MainViewModel : BaseViewModel {
 
     private void Render(object? sender, System.Windows.Media.RenderingEventArgs e) {
         //Animation with perf testing
-        long t = Stopwatch.GetTimestamp();
+        var t = Stopwatch.GetTimestamp();
         if (initTime == 0) {
             initTime = t;
         }

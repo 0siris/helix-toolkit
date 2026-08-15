@@ -227,7 +227,7 @@ public class MainViewModel : BaseViewModel {
 
     private void AddTransparentMesh(object? o) {
         var model = new MeshGeometryModel3D();
-        int val = rnd.Next(0, 2);
+        var val = rnd.Next(0, 2);
         switch (val) {
             case 0:
                 model.Geometry = SphereModel;

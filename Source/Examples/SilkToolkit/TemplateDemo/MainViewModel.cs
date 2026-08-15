@@ -34,14 +34,14 @@ public class MainViewModel : BaseViewModel {
 
     private void CreateViewModels() {
         var vm = new SelectionViewModel(nameof(Sphere));
-        for (int i = 0; i < 10; ++i) {
+        for (var i = 0; i < 10; ++i) {
             vm.Items.Add(new Sphere() { Transform = new TranslateTransform3D(0, i, 0), Material = materials[i] });
         }
 
         ViewModels.Add(vm);
 
         vm = new SelectionViewModel(nameof(Cube));
-        for (int i = 0; i < 10; ++i) {
+        for (var i = 0; i < 10; ++i) {
             vm.Items.Add(new Cube() { Transform = new TranslateTransform3D(i, i, 0), Material = materials[i] });
         }
 

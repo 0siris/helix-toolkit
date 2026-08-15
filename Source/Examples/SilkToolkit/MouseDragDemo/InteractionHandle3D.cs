@@ -87,7 +87,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         //selectionColor.SpecularColor = Color.Black;
         //selectionColor.ReflectiveColor = Color.Black;
 
-        for (int i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             var translate = Matrix3DExtensions.Translate3D(positions[i]
                 .ToVector3D());
             cornerHandles[i] = new DraggableGeometryModel3D() {
@@ -262,7 +262,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         positions[2].Y = bb.Maximum.Y;
         positions[3].Y = bb.Maximum.Y;
 
-        for (int i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             if (sender != cornerHandles[i]) {
                 cornerTrafos[i].Matrix = Matrix3DExtensions.Translate3D(positions[i]
                     .ToVector3D());

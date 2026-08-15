@@ -154,7 +154,7 @@ public class Models {
 
     public MeshGeometryModel3D GetModelRandom() {
         var idx = rnd.Next(0, models.Count);
-        MeshGeometryModel3D model = new MeshGeometryModel3D() {
+        var model = new MeshGeometryModel3D() {
             Geometry = models[idx],
             CullMode = CullMode.Back
         };
@@ -180,7 +180,7 @@ public class Models {
 
     public MeshNode GetSceneNodeRandom() {
         var idx = rnd.Next(0, models.Count);
-        MeshNode model = new MeshNode() {
+        var model = new MeshNode() {
             Geometry = models[idx],
             CullMode = CullMode.Back
         };
